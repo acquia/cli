@@ -32,7 +32,8 @@ class CloudApiClient {
     /**
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function request() {
+    public function request($api_url, $path, $query, $method): ?\Psr\Http\Message\ResponseInterface
+    {
         try {
             // Try to get an access token using the client credentials grant.
             // @todo See if we already have a valid access token.
@@ -40,15 +41,19 @@ class CloudApiClient {
 
             // Generate a request object using the access token.
             $request = $this->provider->getAuthenticatedRequest(
-              'GET',
-              'https://cloud.acquia.com/api/account',
+              $method,
+              $api_url . '/' . ltrim($path, '/'),
               $accessToken
             );
 
+            $options = [
+              'query' => $query,
+            ];
+
             // Send the request.
             $client = new Client();
-            $response = $client->send($request);
-            return $response;
+            return $client->send($request, $options);
+
         } catch (IdentityProviderException $e) {
             // Failed to get the access token.
             exit($e->getMessage());

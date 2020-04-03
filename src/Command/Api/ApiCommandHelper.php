@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Command\Api;
 
-use Acquia\Ads\Command\ApiCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,6 +16,7 @@ class ApiCommandHelper {
     {
         // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
         // by running `composer update-cloud-api-spec`.
+        // @todo Figure out how to improve the performance of this parse operation when xdebug is enabled.
         $acquia_cloud_spec = Yaml::parseFile(__DIR__ . '/../../../assets/acquia-spec.yaml');
         $api_commands = [];
         foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
@@ -27,6 +27,7 @@ class ApiCommandHelper {
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
                 $command->setServers($acquia_cloud_spec['servers']);
+                $command->setPath($path);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
             }
