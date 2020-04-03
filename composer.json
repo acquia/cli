@@ -26,10 +26,7 @@
     "autoload": {
         "psr-4": {
             "Acquia\\Ads\\": "src/"
-        },
-        "classmap": [
-            "scripts/ApiCommandMapper.php"
-        ]
+        }
     },
     "bin": [
         "bin/ads"
@@ -53,11 +50,7 @@
             "make spec",
             "cp dist/spec/acquia-spec.yaml ../assets/",
             "cd ..",
-            "rm -rf cx-api-spec",
-            "@generate-command-map"
-        ],
-        "generate-command-map": [
-            "Acquia\\Ads\\Scripts\\ApiCommandMapper::generateCommandMap"
+            "rm -rf cx-api-spec"
         ]
     }
 }
