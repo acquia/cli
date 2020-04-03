@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "866ecf12f2c8c93b8054918528ec7900",
+    "content-hash": "f3ed393101a4627f6392c9982b1054df",
     "packages": [
         {
             "name": "drupol/phposinfo",
@@ -244,16 +244,16 @@
         },
         {
             "name": "league/oauth2-client",
-            "version": "dev-master",
+            "version": "2.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/oauth2-client.git",
-                "reference": "0facae9209aef5643bdd780e99996a21b6769c36"
+                "reference": "cc114abc622a53af969e8664722e84ca36257530"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/0facae9209aef5643bdd780e99996a21b6769c36",
-                "reference": "0facae9209aef5643bdd780e99996a21b6769c36",
+                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/cc114abc622a53af969e8664722e84ca36257530",
+                "reference": "cc114abc622a53af969e8664722e84ca36257530",
                 "shasum": ""
             },
             "require": {
@@ -307,7 +307,7 @@
                 "oauth2",
                 "single sign on"
             ],
-            "time": "2020-03-24T20:20:50+00:00"
+            "time": "2018-11-22T18:33:57+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -1114,7 +1114,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "league/oauth2-client": 20,
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
         "squizlabs/php_codesniffer": 20
@@ -1124,5 +1123,6 @@
     "platform": {
         "ext-json": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
