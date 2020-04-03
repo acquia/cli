@@ -70,42 +70,27 @@ class Ads extends Application {
 
     protected function addApiCommands(): void
     {
-        $acquia_cloud_spec = Yaml::parseFile(__DIR__ . '/../assets/acquia-spec.yaml');
-        $api_commands = [];
-        foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
-
-            $args = [];
-            $found = preg_match_all('#{([^}]+)}#', $path, $matches);
-            if ($matches) {
-                $args = $matches[1];
-            }
-
-            foreach ($endpoint as $method => $schema) {
-                $command = new ApiCommand('api:' . $schema['x-cli-name']);
-                $command->setDescription($schema['summary']);
-                if (array_key_exists('parameters', $schema)) {
-                    $input_definition = [];
-                    foreach ($schema['parameters'] as $parameter) {
-                        $parts = explode('/', $parameter['$ref']);
-                        $param_name = end($parts);
-                        $param = [
-                          'required' => $acquia_cloud_spec['components']['parameters'][$param_name]['required'],
-                          'description' => $acquia_cloud_spec['components']['parameters'][$param_name]['description'],
-                        ];
-                        $required = array_key_exists('required', $param) && $param['required'];
-                        if ($required){
-                            $command['arguments'] = $param;
-                        }
-                        else {
-                            $command['options'] = $param;
-                        }
-                    }
-                    $command->setDefinition(new InputDefinition($input_definition));
+        $api_commands = Yaml::parseFile(__DIR__ . '/../assets/acquia-spec.yaml');
+        foreach ($api_commands as $name => $command_definition) {
+            $command = new ApiCommand($name);
+            $command->setDescription($command_definition['description']);
+            $input_definition = [];
+            if (array_key_exists('arguments', $command_definition)) {
+                foreach ($command_definition['arguments'] as $label => $argument) {
+                    $input_definition[] = new InputArgument($label, InputArgument::REQUIRED, $argument['description']);
                 }
-                $api_commands[] = $command;
             }
+            if (array_key_exists('options', $command_definition)) {
+                foreach ($command_definition['options'] as $label => $option) {
+                    $input_definition[] = new InputOption($label, null, InputOption::VALUE_OPTIONAL,
+                      $option['description']);
+                }
+            }
+            if ($input_definition) {
+                $command->setDefinition(new InputDefinition($input_definition));
+            }
+            $this->add($command);
         }
-        $this->addCommands($api_commands);
     }
 
 }

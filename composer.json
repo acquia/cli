@@ -47,6 +47,15 @@
     },
     "prefer-stable": true,
     "scripts": {
+        "update-cloud-api-spec": [
+            "git clone git@github.com:acquia/cx-api-spec.git",
+            "cd cx-api-spec",
+            "make spec",
+            "cp dist/spec/acquia-spec.yaml ../assets/",
+            "cd ..",
+            "rm -rf cx-api-spec",
+            "@generate-command-map"
+        ],
         "generate-command-map": [
             "Acquia\\Ads\\Scripts\\ApiCommandMapper::generateCommandMap"
         ]

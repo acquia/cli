@@ -19,20 +19,22 @@ class ApiCommandMapper {
             }
 
             foreach ($endpoint as $method => $schema) {
+                $command['method'] = $method;
                 $command['description'] = $schema['summary'];
                 if (array_key_exists('parameters', $schema)) {
                     foreach ($schema['parameters'] as $parameter) {
                         $parts = explode('/', $parameter['$ref']);
                         $param_name = end($parts);
+                        $param_definition = $acquia_cloud_spec['components']['parameters'][$param_name];
                         $param = ['description' => $acquia_cloud_spec['components']['parameters'][$param_name]['description']];
-                        $required = array_key_exists('required', $param) && $param['required'];
-                        if (array_key_exists('required', $acquia_cloud_spec['components']['parameters'][$param_name])){
+                        $required = array_key_exists('required', $param_definition) && $param_definition['required'];
+                        if ($required) {
                             $param['required'] = true;
-                            $command['arguments'] = $param;
+                            $command['arguments'][$param_name] = $param;
                         }
                         else {
                             $param['required'] = false;
-                            $command['options'] = $param;
+                            $command['options'][$param_name] = $param;
                         }
                     }
                 }

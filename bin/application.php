@@ -50,7 +50,6 @@ $output = new ConsoleOutput();
 $application = new Ads('ads', '@package_version@');
 $application->addCommands([
     new AuthCommand(),
-    new ApiCommand(),
 ]);
 
 $status_code = $application->run($input, $output);
