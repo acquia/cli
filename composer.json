@@ -1,0 +1,54 @@
+{
+    "name": "acquia/ads-cli-php",
+    "description": "ADS CLI written in PHP.",
+    "type": "library",
+    "license": "GPL2+",
+    "authors": [
+        {
+            "name": "Matthew Grasmick",
+            "email": "matt.grasmick@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "ext-json": "*",
+        "drupol/phposinfo": "^1.6",
+        "league/oauth2-client": "dev-master",
+        "psr/log": "^1.1",
+        "symfony/console": "^5.0",
+        "symfony/filesystem": "^5.1@dev",
+        "symfony/process": "^5.0",
+        "symfony/yaml": "^5.1@dev"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.0@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Acquia\\Ads\\": "src/"
+        },
+        "classmap": [
+            "scripts/ApiCommandMapper.php"
+        ]
+    },
+    "bin": [
+        "bin/ads"
+    ],
+    "config": {
+        "process-timeout": 3600,
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    },
+    "prefer-stable": true,
+    "scripts": {
+        "generate-command-map": [
+            "Acquia\\Ads\\Scripts\\ApiCommandMapper::generateCommandMap"
+        ]
+    }
+}

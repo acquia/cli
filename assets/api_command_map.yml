@@ -1,0 +1,1940 @@
+'api:system-health-status':
+    description: 'Return the current system health status.'
+'api:accounts:find':
+    description: 'Returns details about your account.'
+'api:accounts:application-has-permission':
+    description: 'Returns whether your account has access to a specific application permission.'
+    arguments:
+        description: 'Specifies the permission you wish to check access for.'
+        required: true
+'api:accounts:is-application-admin':
+    description: 'Returns whether your account is an administrator for an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:is-application-owner':
+    description: 'Returns whether your account is the owner for an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:application-mark-recent':
+    description: 'Marks an application as recently viewed.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:application-star':
+    description: 'Stars an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:application-unstar':
+    description: 'Removes an application from the user''s starred list.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:drush-aliases':
+    description: 'Returns the drush aliases as a compressed archive download.'
+    arguments:
+        description: 'Specifies the drush aliases formatting, either 8 (example.aliases.drushrc.php) or 9 (example.site.yaml)'
+        required: true
+'api:accounts:invites-list':
+    description: 'Gets a list of all organization admin and team invites that are pending for the current user.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+'api:accounts:messages-list':
+    description: 'Returns a list of messages associated with the current user.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+'api:accounts:is-organization-admin':
+    description: 'Returns whether your account is an administrator for an organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+'api:accounts:is-organization-owner':
+    description: 'Returns whether your account is the owner for an organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+'api:accounts:password-check':
+    description: 'Verifies that the supplied password matches the current user''s password.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+'api:accounts:ssh-keys-list':
+    description: 'Gets a list of SSH keys associated with the current user.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+'api:accounts:ssh-key-create':
+    description: 'Installs a new SSH key for the current user.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+'api:accounts:ssh-key-find':
+    description: 'Get an SSH key associated with the currently-logged in user.'
+    arguments:
+        description: 'The SSH key entity''s universally unique identifier.'
+        required: true
+'api:accounts:ssh-key-delete':
+    description: 'Deletes an SSH key.'
+    arguments:
+        description: 'The SSH key entity''s universally unique identifier.'
+        required: true
+'api:accounts:is-subscription-admin':
+    description: 'Returns whether your account is an administrator for a subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+'api:accounts:is-subscription-owner':
+    description: 'Returns whether your account is the owner for a subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+'api:accounts:has-team-permission':
+    description: 'Returns whether your account has access to a specific team permission.'
+    arguments:
+        description: 'Specifies the permission you wish to check access for.'
+        required: true
+'api:accounts:is-team-admin':
+    description: 'Returns whether your account is an administrator for a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:is-team-owner':
+    description: 'Returns whether your account is the owner for a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:tokens-list':
+    description: 'Returns a list of metadata for API access tokens tied to your account.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:token-create':
+    description: 'Creates an API access token tied to your account.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+'api:accounts:token-list':
+    description: 'Return details about a specific token.'
+    arguments:
+        description: 'The token entity''s universally unique identifier.'
+        required: true
+'api:accounts:token-delete':
+    description: 'Revokes an access token.'
+    arguments:
+        description: 'The token entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:agreements:list':
+    description: 'Return a list of agreements.'
+    arguments:
+        description: 'The token entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:agreements:find':
+    description: 'Return a specific agreement by a provided UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:agreements:accept':
+    description: 'Accepts a legal agreement by UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:agreements:decline':
+    description: 'Declines a legal agreement by UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:agreements:invitees-list':
+    description: 'Returns a list of users invited to action this agreement.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:list':
+    description: 'Return a list of applications the current user has access to.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:find':
+    description: 'Return details about a specific application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:rename':
+    description: 'Renames an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:artifact-list':
+    description: 'Return application artifacts.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:artifact-find':
+    description: 'Return details about a specific artifact.'
+    arguments:
+        description: 'An ID that uniquely identifies an artifact.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:vcs-info':
+    description: 'Return application branches and release tags.'
+    arguments:
+        description: "The filters query string parameter restricts the data returned from your request. Filtered queries restrict the rows that do (or do not) get included in the result by testing each row in the result against the filters. Not all fields are filterable.\n\nThere are eight filter operators that can be used and they must be URL encoded in order to be included. The operators are:\n\n* Equals: `= (%3D)`\n* Does not equal: `!= (!%3D)`\n* Greater than: `> (%3E)`\n* Less than: `< (%3C)`\n* Greater than or equal to: `>= (%3E%3D)`\n* Less than or equal to: `<= (%3C%3D)`\n* Contains substring: `=@ (%3D@)`\n* Does not contain substring: `!@ (!@)`\n\nFilters can be combined using `OR` and `AND` boolean logic. The `OR` operator is defined using a comma (`,`) and the `AND` operator is defined using a semi-colon (`;`).\n\nSome examples:\n* `filter=field%3Dvalue` (`field` equals `'value'`)\n* `filter=field%3D@*partialmatch` (`field` ends with `'partialmatch'`)\n* `filter=field%3D@*partialmatch,field%3Dvalue` (`field` ends with `'partialmatch'` OR `field` equals `'value'`)\n* `filter=field%3D@*partialmatch,field%3Dvalue;field2%3C5` (`field` ends with `'partialmatch'` OR `field` equals `'value'` AND `field2` > `5`)\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:database-list':
+    description: 'Returns a list database names for the application.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:database-create':
+    description: 'Creates a database.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:database-delete':
+    description: 'Drops (deletes) a database.'
+    arguments:
+        description: 'A name that uniquely identifies an entity.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:database-erase':
+    description: 'Erases (truncates) a database.'
+    arguments:
+        description: 'A name that uniquely identifies an entity.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:ide-list':
+    description: 'Returns a list of Remote IDEs associated with this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:ide:create':
+    description: 'Creates a new Remote IDE.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:message-list':
+    description: 'Returns a list of messages associated with this application.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:notification-list':
+    description: 'Returns a list of notifications associated with this application by its UUID.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:notification-find':
+    description: 'Returns a single notification.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:permission-list':
+    description: 'Returns a list of permissions the user has for this application by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:settings-list':
+    description: 'Returns available settings for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:hosting-settings-list':
+    description: 'Returns the hosting settings for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:legacy-product-key-find':
+    description: 'Returns the legacy product keys for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:ra-settings-find':
+    description: 'Returns the remote administration settings for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:ra-settings-update':
+    description: 'Modifies the remote administration settings for an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:search-settings-find':
+    description: 'Returns the search settings for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:search-settings-update':
+    description: 'Modifies the search settings for an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:security-settings-find':
+    description: 'Returns the security policy settings for this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:security-settings-update':
+    description: 'Modifies the security policy settings for an application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:tag-list':
+    description: 'Returns a list of application tags associated with this application.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:tags-create':
+    description: 'Creates a new application tag.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:tags-delete':
+    description: 'Deletes an application tag.'
+    arguments:
+        description: 'The name of the application tag.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:task-list':
+    description: 'Returns a list of tasks associated with this application by its UUID.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:team-list':
+    description: 'Returns a list of teams associated with this application.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-links':
+    description: 'Retrieves traversal links for an application''s usage data.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-data':
+    description: 'Retrieves aggregate usage data for an application.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-data-by-environment':
+    description: 'Retrieves usage data for an application, broken down by environment.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-metric-data':
+    description: 'Retrieves aggregate usage metric data for an application.'
+    arguments:
+        description: 'Optionally specifies relative or absolute time period to retrieve results until.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-views-data-by-environment':
+    description: 'Retrieves views data for an application, broken down by environment.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:usage-visits-data-by-environment':
+    description: 'Retrieves visits data for an application, broken down by environment.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:distributions:list':
+    description: 'Return a list of Drupal distributions.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:distributions:find':
+    description: 'Return details about a specific Drupal distribution.'
+    arguments:
+        description: 'A name that uniquely identifies an entity.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:environment-list':
+    description: 'Returns a list of environments within this application by its UUID.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:environment-create':
+    description: 'Add a new continuous delivery environment to an application by the application UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:feature-list':
+    description: 'Return application features.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:applications:insight-data-find':
+    description: 'Returns Insight data for all sites associated with the application by its UUID.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:find':
+    description: 'Return details about a specific environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:update':
+    description: 'Modifies configuration settings for an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:delete':
+    description: 'Deletes a CD environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:label-update':
+    description: 'Change the label for an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:resize':
+    description: 'Resize an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:artifact-deploy':
+    description: 'Deploys an artifact to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:runtime-list':
+    description: 'Return a list of runtimes.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:code-deploy':
+    description: 'Deploys code to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:code-switch':
+    description: 'Switches code on this environment to a different branch or release tag.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:site-import':
+    description: 'Imports a site to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-job-list':
+    description: 'Return environment cron jobs.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-create':
+    description: 'Creates a scheduled job with cron.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-find':
+    description: 'Return details about a specific cron job.'
+    arguments:
+        description: 'An ID that uniquely identifies a cron job.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-update':
+    description: 'Modify an existing scheduled job.'
+    arguments:
+        description: 'An ID that uniquely identifies a cron job.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-delete':
+    description: 'Deletes a cron job.'
+    arguments:
+        description: 'An ID that uniquely identifies a cron job.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-enable':
+    description: 'Enables a cron job.'
+    arguments:
+        description: 'An ID that uniquely identifies a cron job.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:cron-disable':
+    description: 'Disables a cron job.'
+    arguments:
+        description: 'An ID that uniquely identifies a cron job.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-list':
+    description: 'Returns a list of databases.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-copy':
+    description: 'Copies a database to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-find':
+    description: 'Return details about a specific database.'
+    arguments:
+        description: 'The database name, typically lower snake case.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-php-config-find':
+    description: 'Returns PHP configuration details for this database.'
+    arguments:
+        description: 'The database name, typically lower snake case.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-list':
+    description: 'Returns a list of backups.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-create':
+    description: 'Create a backup.'
+    arguments:
+        description: 'The database name, typically lower snake case.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-find':
+    description: 'Return details about a specific backup.'
+    arguments:
+        description: 'The database backup identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-delete':
+    description: 'Deletes a database backup.'
+    arguments:
+        description: 'The database backup identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-download':
+    description: 'Downloads the database backup file.'
+    arguments:
+        description: 'The database backup identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:database-backup-restore':
+    description: 'Restores this backup to the appropriate environment''s database.'
+    arguments:
+        description: 'The database backup identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:dns-find':
+    description: 'Returns DNS configuration details for an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-list':
+    description: 'Returns a list of domains.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-create':
+    description: 'Adds a domain to the environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domains-clear-varnish':
+    description: 'Clears the Varnish cache for one or more domains attached to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-find':
+    description: 'Return details about a specific domain.'
+    arguments:
+        description: 'A domain name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-delete':
+    description: 'Removes the domain from this environment.'
+    arguments:
+        description: 'A domain name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-clear-varnish':
+    description: 'Clears the Varnish cache for the specified domain.'
+    arguments:
+        description: 'A domain name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-uptime-scan-find':
+    description: 'Retrieves Uptime scan data for a specific domain.'
+    arguments:
+        description: 'Optionally specifies relative or absolute time period to retrieve results until.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:domain-status-find':
+    description: 'Returns details about the domain.'
+    arguments:
+        description: 'A domain name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:file-copy':
+    description: 'Copies files to this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:insight-data-list':
+    description: 'Returns insight data.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-list':
+    description: 'Returns a list of log files for this environment available for download.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-download':
+    description: 'Downloads the log file.'
+    arguments:
+        description: 'An ID that uniquely identifies a log type.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-create':
+    description: 'Creates a log file snapshot.'
+    arguments:
+        description: 'An ID that uniquely identifies a log type.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:logstream-find':
+    description: 'Returns a logstream url and metadata.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:livedev-disable':
+    description: 'Disable Live Development on this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:livedev-enable':
+    description: 'Enable Live Development on this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-list':
+    description: 'Returns a collection of log forwarding destinations for this environment.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-create':
+    description: 'Creates a log forwarding destination.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-find':
+    description: 'Returns the specified log forwarding destination.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-update':
+    description: 'Updates an environment''s log forwarding destination.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-delete':
+    description: 'Deletes the specified log forwarding destination.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-disable':
+    description: 'Disables the specified log forwarding destination.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:log-forwarding-destination-enable':
+    description: 'Enables the specified log forwarding destination.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:metrics':
+    description: 'Does not return any data. Allows traversal to metrics groups endpoints.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:stack-metrics-data-list':
+    description: 'Does not return any data. Allows traversal to StackMetrics endpoints.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:stack-metrics-data-find':
+    description: 'Returns StackMetrics data for the metrics specified in the filter paramater (e.g., apache-access, web-cpu).'
+    arguments:
+        description: 'Specifies the types of StackMetrics metric to retrieve.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:stack-metrics-data-metric':
+    description: 'Returns StackMetrics data for the metric (e.g., apache-access).'
+    arguments:
+        description: 'Specifies the type of server metric to retrieve.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:usage-links':
+    description: 'Retrieves traversal links for an environment''s usage data.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:usage-data':
+    description: 'Retrieves usage data for an environment.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:usage-metric-data':
+    description: 'Retrieves usage metric data for an environment.'
+    arguments:
+        description: 'Optionally specifies relative or absolute time period to retrieve results until.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:production-mode-disable':
+    description: 'Disables production mode for an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:production-mode-enable':
+    description: 'Enables production mode for an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:servers-list':
+    description: 'Returns a list of servers.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-find':
+    description: 'Return details about a specific server.'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-update':
+    description: 'Modifies configuration settings for a server.'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-reboot':
+    description: 'Reboots a server.'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-relaunch':
+    description: 'Relaunches a server.'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-suspend':
+    description: 'Suspends a server.'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:server-upgrade':
+    description: 'Upgrades a server from "precise" to "xenial".'
+    arguments:
+        description: 'The internal database identifier of the server.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:settings':
+    description: 'Provides links to environment settings.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:apm-find':
+    description: 'Return details about a specific APM.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:apm-update':
+    description: 'Update configuration for an APM tool.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:ssl-settings-find':
+    description: 'Returns the SSL settings for this environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-list':
+    description: 'Return a list of SSL certificates.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-create':
+    description: 'Install an SSL certificate.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-find':
+    description: 'Returns a specific certificate by certificate id.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-delete':
+    description: 'Deletes a specific certificate by its ID.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-activate':
+    description: 'Activates an SSL certificate.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:certificate-deactivate':
+    description: 'Deactivates an active SSL certificate.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:csr-find':
+    description: 'Returns the certificate signing request for the certificate specified by id.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:csr-create':
+    description: 'Generates a CSR for one or more domains.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:csr-delete':
+    description: 'Deletes the certificate signing request.'
+    arguments:
+        description: 'An ID that uniquely identifies a certificate.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:variable-list':
+    description: 'Returns a list of environment variables associated with this environment.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:variable-create':
+    description: 'Adds a new environment variable to an environment.'
+    arguments:
+        description: 'The environment identifier. The identifier is a compound key consisting of the internal database ID of the environment and the application UUID.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:variable-find':
+    description: 'Get an environment variable associated with this environment.'
+    arguments:
+        description: 'The environment variable name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:variable-delete':
+    description: 'Removes an environment variable from an environment.'
+    arguments:
+        description: 'The environment variable name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:environments:variable-update':
+    description: 'Updates an environment variable on an environment.'
+    arguments:
+        description: 'The environment variable name.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:ide:find':
+    description: 'Returns Remote IDE info.'
+    arguments:
+        description: 'The Remote IDE universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:ide:delete':
+    description: 'De-provisions a specific Remote IDE.'
+    arguments:
+        description: 'The Remote IDE universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:list':
+    description: 'Returns a list of identity providers for a user.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:find':
+    description: 'Returns a specific identity provider by UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:update':
+    description: 'Modifies an identity provider by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:delete':
+    description: 'Deletes a specific identity provider by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:enable':
+    description: 'Enables an identity provider by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:identity-providers:disable':
+    description: 'Disables an identity provider by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:alert-find':
+    description: 'Returns insight data for a particular site.'
+    arguments:
+        description: 'The site id'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:revoke':
+    description: 'Revokes an Insight install so it can no longer submit data using the Acquia Connector module.'
+    arguments:
+        description: 'The site id'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:unrevoke':
+    description: 'Un-revokes an Insight site so it can once again submit data using the Acquia Connector module. Note that the site must also be unblocked using the Acquia Connector module.'
+    arguments:
+        description: 'The site id'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:alert-list':
+    description: 'Returns a list of Insight alerts for this site.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:find':
+    description: 'Returns a specific Insight alert for this site.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:alert-ignore':
+    description: 'Ignores an alert. An ignored alert will not be counted in the Insight score calculation.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:alert-restore':
+    description: 'Restores an alert. A restored alert will be included in the calculation of the Insight score.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:connection-history-list':
+    description: 'Returns a list of historical Insight connections for this site.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:drupal-module-list':
+    description: 'Returns a list of Drupal modules for this site.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:insights:score-list':
+    description: 'Returns a list of historical Insight scores for this site.'
+    arguments:
+        description: 'Optionally specifies relative or absolute time period to retrieve results until.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:invites:find':
+    description: 'Returns details about an invitation.'
+    arguments:
+        description: 'The token identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:invites:cancel':
+    description: 'Cancels an invitation.'
+    arguments:
+        description: 'The token identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:invites:accept':
+    description: 'Accepts an invite.'
+    arguments:
+        description: 'The token identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:invites:decline':
+    description: 'Declines an invite.'
+    arguments:
+        description: 'The token identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:invites:resend':
+    description: 'Resend an invite.'
+    arguments:
+        description: 'The token identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:messages:dismiss':
+    description: 'Dismisses a message.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:messages:follow':
+    description: 'Follows an in-product message link.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:notifications:find':
+    description: 'Returns a single notification.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:options:list':
+    description: 'Does not return any data. Allows traversal of options groups endpoints.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:options:cde-sizes-list':
+    description: 'Displays the various CD Environment size options.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:options:log-forwarding':
+    description: 'Does not return any data. Allows traversal of options groups endpoints.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:options:log-forwarding-source-list':
+    description: 'Displays available log forwarding sources.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:options:log-forwarding-consumer-list':
+    description: 'Displays available log forwarding consumers.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:colors:list':
+    description: 'Displays the various color options.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:list':
+    description: 'Return a list of organizations.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:create':
+    description: 'Creates a new organization.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:find':
+    description: 'Return details about a specific organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:update':
+    description: 'Renames an organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:delete':
+    description: 'Deletes a specific organization by its UUID.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:owner-change':
+    description: 'Changes the organization owner.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:leave':
+    description: 'Removes your account from an organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:admin-list':
+    description: 'Returns a list of organization administrators.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:admin-find':
+    description: 'Returns the user profile of this organization administrator.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:admin-delete':
+    description: 'Removes the user from the list of administrators for the organization.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:admin-invite-list':
+    description: 'Gets a list of invitations of administrators for this organization.'
+    arguments:
+        description: 'ISO-8601 date/time of invite create date/time.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:admin-invite-create':
+    description: 'Invites a user to be an administrator in this organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:applications-list':
+    description: 'Returns a list of applications that belong to the organization.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:available-tags-list':
+    description: 'Returns a list of all available application tags.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:available-tags-create':
+    description: 'Adds bulk tags to organization resources.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:available-tags-delete':
+    description: 'Deletes bulk tags from organization resources.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:identity-provider-find':
+    description: 'Returns an identity provider for an organization.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:members-list':
+    description: 'Returns a list of all organization members.'
+    arguments:
+        description: 'The maximum number of items to return.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:member-find':
+    description: 'Returns the user profile of this organization member.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:member-delete':
+    description: 'Removes the member from the organization.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:member-application-list':
+    description: 'Returns a list of applications that an organization member has access to.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:roles-list':
+    description: 'Returns a list of all the canonical roles within the organization.'
+    arguments:
+        description: 'ISO-8601 date/time of invite create date/time.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:role-create':
+    description: 'Creates a role.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:subscriptions-list':
+    description: 'Returns a list of subscriptions that belong to the organization.'
+    arguments:
+        description: 'ISO-8601 date/time of invite create date/time.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:team-invite-list':
+    description: 'Gets a list of member invitations for all teams in this organization.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:team-list':
+    description: 'Returns a list of teams associated with the organization.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:organizations:team-create':
+    description: 'Creates a team.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:permissions:list':
+    description: 'Return a list of permissions.'
+    arguments:
+        description: 'The organization entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:role-find':
+    description: 'Return details about a specific role.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:roles-delete':
+    description: 'Deletes a specific role by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:role-update':
+    description: 'Updates a role.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:list':
+    description: 'Return a list of subscription.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:find':
+    description: 'Return details about a specific subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:update':
+    description: 'Modifies a subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:application-list':
+    description: 'Provides a list of applications that are a part of the subscription.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:entitlements-list':
+    description: 'Provides a list of entitlements that are a part of the subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:ide-list':
+    description: 'Returns a list of Remote IDEs associated with this subscription.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-links':
+    description: 'Retrieves traversal links for a subscription''s usage data.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-data':
+    description: 'Retrieves aggregate usage data for a subscription.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-data-by-application':
+    description: 'Retrieves usage data for a subscription, broken down by application.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-metric-data':
+    description: 'Retrieves aggregate usage metric data for a subscription.'
+    arguments:
+        description: 'Optionally specifies relative or absolute time period to retrieve results until.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-views-data-by-application':
+    description: 'Retrieves views data for a subscription, broken down by application.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:usage-visits-data-by-application':
+    description: 'Retrieves visits data for a subscription, broken down by application.'
+    arguments:
+        description: "Specifies the data granularity for the request. Resolution for is limited to six months for a \"day\" resolution, one\nyear for a \"week\" resolution, and three years for a \"month\" resolution.\n"
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-list':
+    description: 'Provides a list of Shield ACL rules.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-create':
+    description: 'Creates a Shield ACL rule.'
+    arguments:
+        description: 'The subscription entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-find':
+    description: 'Returns the specified Shield ACL rule.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-update':
+    description: 'Updates a Shield ACL rule.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-delete':
+    description: 'Deletes a Shield ACL rule.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:subscriptions:shield-acl-reset':
+    description: 'Resets Shield ACL rules to default settings.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:teams-list':
+    description: 'Return teams the current user has access to.'
+    arguments:
+        description: 'ISO-8601 date/time of invite create date/time.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-find':
+    description: 'Return details about a specific team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-update':
+    description: 'Change the name of a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-delete':
+    description: 'Deletes a specific team by its UUID.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:user-leave':
+    description: 'Removes the current user from a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-application-list':
+    description: 'Returns a list of applications this team has access to.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-application-add':
+    description: 'Adds an application to this team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-application-remove':
+    description: 'Removes the application from this team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-invite-list':
+    description: 'Returns a list of invitations to this team.'
+    arguments:
+        description: 'ISO-8601 date/time of invite create date/time.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-user-invite':
+    description: 'Invites a user to join a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-member-list':
+    description: 'Returns a list of team members.'
+    arguments:
+        description: 'An integer to signify the offset to paginate from.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-member-add':
+    description: 'Grant team roles to a member.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
+'api:tps:team-member-remove':
+    description: 'Remove a user from a team.'
+    arguments:
+        description: 'The entity''s universally unique identifier.'
+        required: true
+    options:
+        description: 'Specifies the reason for the token revocation for future reference.'
+        required: false
