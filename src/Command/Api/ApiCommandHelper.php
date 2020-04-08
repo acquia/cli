@@ -28,9 +28,10 @@ class ApiCommandHelper {
                 $command->setResponses($schema['responses']);
                 $command->setServers($acquia_cloud_spec['servers']);
                 $command->setPath($path);
+                // @todo Make this hidden unless someone is running the `api:list` command.
+                $command->setHidden(true);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
-                // @todo Make this hidden unless someone is running the `api:list` command.
             }
         }
 

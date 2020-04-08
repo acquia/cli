@@ -39,6 +39,7 @@ class AdsApplication extends Application implements LoggerAwareInterface {
         parent::__construct($name, $version);
         $this->datastore = new FileStore($this->getHomeDir() . '/.acquia');
         $api_command_helper = new ApiCommandHelper();
+        // @todo Skip if we're not running a list or api command.
         $this->addCommands($api_command_helper->getApiCommands());
     }
 

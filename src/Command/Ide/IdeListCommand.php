@@ -5,19 +5,12 @@ namespace Acquia\Ads\Command\Ide;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
-use AcquiaCloudApi\Endpoints\Applications;
-use Symfony\Component\Console\Question\Question;
 
 /**
- * Class CreateProjectCommand
- *
- * @package Grasmash\YamlCli\Command
+ * Class IdeListCommand
  */
 class IdeListCommand extends CommandBase
 {
@@ -43,10 +36,15 @@ class IdeListCommand extends CommandBase
     {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $application_uuid = $this->promptChooseApplication($input, $output, $acquia_cloud_client);
-
-        // Create the IDE!
         $ides_resource = new Ides($acquia_cloud_client);
-        // @todo List in table format.
+        $application_ides = $ides_resource->getAll($application_uuid);
+
+        $table = new Table($output);
+        $table->setHeaders(['Label', 'Web URL', 'IDE URL']);
+        foreach ($application_ides as $ide) {
+            $table->addRow([$ide->label, $ide->links->web->href, $ide->links->ide->href]);
+        }
+        $table->render();
 
         return 0;
     }
