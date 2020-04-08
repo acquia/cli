@@ -18,7 +18,8 @@
         "symfony/console": "^5.0",
         "symfony/filesystem": "^5.1@dev",
         "symfony/process": "^5.0",
-        "symfony/yaml": "^5.1@dev"
+        "symfony/yaml": "^5.1@dev",
+        "typhonius/acquia-php-sdk-v2": "^2.0"
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "^3.0@dev"

@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Grasmash\YamlCli\Command
  */
-class ApiCommand extends CommandBase
+class ApiCommandBase extends CommandBase
 {
     /** @var Method */
     protected $method;

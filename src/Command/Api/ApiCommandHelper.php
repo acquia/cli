@@ -10,7 +10,7 @@ use Symfony\Component\Yaml\Yaml;
 class ApiCommandHelper {
 
     /**
-     * @return ApiCommand[]
+     * @return ApiCommandBase[]
      */
     public function getApiCommands(): array
     {
@@ -22,7 +22,7 @@ class ApiCommandHelper {
         foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
             foreach ($endpoint as $method => $schema) {
                 $command_name = 'api:' . $schema['x-cli-name'];
-                $command = new ApiCommand($command_name);
+                $command = new ApiCommandBase($command_name);
                 $command->setDescription($schema['summary']);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
@@ -30,6 +30,7 @@ class ApiCommandHelper {
                 $command->setPath($path);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
+                // @todo Make this hidden unless someone is running the `api:list` command.
             }
         }
 
@@ -78,7 +79,7 @@ class ApiCommandHelper {
      * @param $acquia_cloud_spec
      * @param \Acquia\Ads\Command\ApiCommand $command
      */
-    protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommand $command): void
+    protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void
     {
         if (array_key_exists('parameters', $schema)) {
             $usage = '';

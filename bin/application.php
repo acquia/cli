@@ -34,22 +34,49 @@ if ($pharPath) {
     }
 }
 
-use Acquia\Ads\Ads;
-use Acquia\Ads\Command\ApiCommand;
+use Acquia\Ads\AdsApplication;
+use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Command\AuthCommand;
+use Acquia\Ads\Command\CloneCommand;
+use Acquia\Ads\Command\Ide\IdeCreateCommand;
+use Acquia\Ads\Command\Ide\IdeDeleteCommand;
+use Acquia\Ads\Command\Ide\IdeListCommand;
+use Acquia\Ads\Command\Ide\IdeOpenCommand;
+use Acquia\Ads\Command\LinkCommand;
+use Acquia\Ads\Command\ListCommand;
+use Acquia\Ads\Command\NewCommand;
+use Acquia\Ads\Command\RefreshCommand;
+use Acquia\Ads\Command\SiteAliasesCommand;
+use Acquia\Ads\Command\SshKeyCommand;
+use Acquia\Ads\Command\UpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 // Create the input and output objects for ads to run against.
 $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
+$logger = new ConsoleLogger($output);
 
 /**
  * Running ads.
  */
-$application = new Ads('ads', '@package_version@');
+$application = new AdsApplication('ads', '@package_version@', $logger);
 $application->addCommands([
     new AuthCommand(),
+    new ApiListCommand(),
+    new CloneCommand(),
+    new IdeCreateCommand(),
+    new IdeDeleteCommand(),
+    new IdeListCommand(),
+    new IdeOpenCommand(),
+    new LinkCommand(),
+    new ListCommand(),
+    new NewCommand(),
+    new RefreshCommand(),
+    new SiteAliasesCommand(),
+    new SshKeyCommand(),
+    new UpdateCommand(),
 ]);
 
 $status_code = $application->run($input, $output);
