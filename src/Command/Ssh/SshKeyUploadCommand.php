@@ -1,14 +1,15 @@
 <?php
 
-namespace Acquia\Ads\Command;
+namespace Acquia\Ads\Command\Ssh;
 
+use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SshKeyCommand.
+ * Class SshKeyUploadCommand.
  */
-class SshKeyCommand extends CommandBase
+class SshKeyUploadCommand extends CommandBase
 {
 
     /**
@@ -16,8 +17,8 @@ class SshKeyCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('ssh-key')
-          ->setDescription('');
+        $this->setName('ssh-key:upload')
+          ->setDescription('upload an SSH key to Acquia Cloud');
     }
 
     /**

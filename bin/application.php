@@ -42,11 +42,13 @@ use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Command\Ide\IdeListCommand;
 use Acquia\Ads\Command\Ide\IdeOpenCommand;
 use Acquia\Ads\Command\LinkCommand;
-use Acquia\Ads\Command\ListCommand;
 use Acquia\Ads\Command\NewCommand;
 use Acquia\Ads\Command\RefreshCommand;
 use Acquia\Ads\Command\SiteAliasesCommand;
-use Acquia\Ads\Command\SshKeyCommand;
+use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
+use Acquia\Ads\Command\Ssh\SshKeyListCommand;
+use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Ads\Command\UpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -70,11 +72,13 @@ $application->addCommands([
     new IdeListCommand(),
     new IdeOpenCommand(),
     new LinkCommand(),
-    new ListCommand(),
     new NewCommand(),
     new RefreshCommand(),
     new SiteAliasesCommand(),
-    new SshKeyCommand(),
+    new SshKeyCreateCommand(),
+    new SshKeyDeleteCommand(),
+    new SshKeyListCommand(),
+    new SshKeyUploadCommand(),
     new UpdateCommand(),
 ]);
 

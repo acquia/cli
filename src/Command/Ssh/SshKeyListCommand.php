@@ -1,14 +1,15 @@
 <?php
 
-namespace Acquia\Ads\Command;
+namespace Acquia\Ads\Command\Ssh;
 
+use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class RefreshCommand.
+ * Class SshKeyListCommand.
  */
-class RefreshCommand extends CommandBase
+class SshKeyListCommand extends CommandBase
 {
 
     /**
@@ -16,8 +17,8 @@ class RefreshCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('refresh')
-          ->setDescription('copy database and files from one environment to another');
+        $this->setName('ssh-key:list')
+          ->setDescription('list your local and remote SSH keys');
     }
 
     /**

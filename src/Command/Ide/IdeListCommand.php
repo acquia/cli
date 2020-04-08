@@ -23,7 +23,7 @@ class IdeListCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ide:list')
-          ->setDescription('');
+          ->setDescription('Please select the application to list the IDEs for.');
     }
 
     /**

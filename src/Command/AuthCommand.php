@@ -29,7 +29,7 @@ class AuthCommand extends CommandBase
     protected function configure()
     {
         $this->setName('auth:login')
-          ->setDescription('');
+          ->setDescription('register your Cloud API key and secret to use API functionality');
     }
 
     /**

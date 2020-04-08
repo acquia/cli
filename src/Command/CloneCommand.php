@@ -17,7 +17,7 @@ class CloneCommand extends CommandBase
     protected function configure()
     {
         $this->setName('clone')
-          ->setDescription('');
+          ->setDescription('clone an existing project and start a local environment');
     }
 
     /**

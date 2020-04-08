@@ -3,7 +3,6 @@
 namespace Acquia\Ads;
 
 use Acquia\Ads\Command\Api\ApiCommandHelper;
-use Acquia\Ads\Command\ListCommand;
 use Acquia\Ads\DataStore\FileStore;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -11,8 +10,6 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class CommandBase
@@ -51,18 +48,6 @@ class AdsApplication extends Application implements LoggerAwareInterface {
         if ($xdebug_loaded) {
             $this->logger->warning("<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>");
         }
-    }
-
-    /**
-     * Gets the default commands that should always be available.
-     *
-     * In this, we provide a custom list command for ADS.
-     *
-     * @return Command[] An array of default Command instances
-     */
-    protected function getDefaultCommands()
-    {
-        return [new HelpCommand(), new ListCommand()];
     }
 
     public function getDataStore()
