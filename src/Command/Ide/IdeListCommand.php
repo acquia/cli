@@ -4,10 +4,14 @@ namespace Acquia\Ads\Command\Ide;
 
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exec\ExecTrait;
+use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class IdeListCommand
@@ -16,6 +20,9 @@ class IdeListCommand extends CommandBase
 {
 
     use ExecTrait;
+
+    /** @var \stdClass */
+    private $localProjectInfo;
 
     /**
      * {inheritdoc}
@@ -34,8 +41,9 @@ class IdeListCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $application_uuid = $this->determineCloudApplication();
+
         $acquia_cloud_client = $this->getAcquiaCloudClient();
-        $application_uuid = $this->promptChooseApplication($input, $output, $acquia_cloud_client);
         $ides_resource = new Ides($acquia_cloud_client);
         $application_ides = $ides_resource->getAll($application_uuid);
 

@@ -7,17 +7,10 @@ use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
-use AcquiaCloudApi\Endpoints\Applications;
 use Symfony\Component\Console\Question\Question;
 
 /**
- * Class CreateProjectCommand
- *
- * @package Grasmash\YamlCli\Command
+ * Class IdeCreateCommand
  */
 class IdeCreateCommand extends CommandBase
 {
@@ -41,15 +34,16 @@ class IdeCreateCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $acquia_cloud_client = $this->getAcquiaCloudClient();
-        $application_uuid = $this->promptChooseApplication($input, $output, $acquia_cloud_client);
+        $cloud_application_uuid = $this->determineCloudApplication();
 
-        // Create the IDE!
-        $ides_resource = new Ides($acquia_cloud_client);
         $question = new Question('Please enter a label for your Remote IDE:');
         $helper = $this->getHelper('question');
         $ide_label = $helper->ask($input, $output, $question);
-        $ides_resource->create($application_uuid, $ide_label);
+
+        $acquia_cloud_client = $this->getAcquiaCloudClient();
+        $ides_resource = new Ides($acquia_cloud_client);
+        $response = $ides_resource->create($cloud_application_uuid, $ide_label);
+        $this->output->writeln($response->message);
 
         return 0;
     }

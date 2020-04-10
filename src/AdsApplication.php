@@ -23,21 +23,33 @@ class AdsApplication extends Application implements LoggerAwareInterface {
     /** @var \Acquia\Ads\DataStore\FileStore  */
     private $datastore;
 
+    /** @var string */
+    private $repoRoot;
+
     /**
      * Ads constructor.
      *
      * @param string $name
      * @param string $version
      */
-    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', LoggerInterface $logger)
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', LoggerInterface $logger, $repo_root)
     {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
+        $this->repoRoot = $repo_root;
         parent::__construct($name, $version);
         $this->datastore = new FileStore($this->getHomeDir() . '/.acquia');
         $api_command_helper = new ApiCommandHelper();
         // @todo Skip if we're not running a list or api command.
         $this->addCommands($api_command_helper->getApiCommands());
+    }
+
+    /**
+     * @return string
+     */
+    public function getRepoRoot(): string
+    {
+        return $this->repoRoot;
     }
 
     /**

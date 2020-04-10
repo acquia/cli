@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Command\Ide;
 
-use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class IdeOpenCommand
  */
-class IdeOpenCommand extends CommandBase
+class IdeOpenCommand extends IdeCommandBase
 {
 
     use ExecTrait;
@@ -34,11 +33,10 @@ class IdeOpenCommand extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
-        $application_uuid = $this->promptChooseApplication($input, $output, $acquia_cloud_client);
-
-        // Create the IDE!
         $ides_resource = new Ides($acquia_cloud_client);
-        // @todo List IDEs in choice question.
+        $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
+        $ide = $ides_resource->get($ide_uuid);
+        $this->startBrowser($ide->links->ide->href);
 
         return 0;
     }

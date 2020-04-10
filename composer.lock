@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "962eec4280a53cca15cdc083ecfbd5b2",
+    "content-hash": "64382a99e4933b5dd21e81e35c4be0d1",
     "packages": [
         {
             "name": "drupol/phposinfo",
@@ -541,6 +541,57 @@
             "time": "2019-03-08T08:55:37+00:00"
         },
         {
+            "name": "squizlabs/php_codesniffer",
+            "version": "3.5.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
+                "reference": "dceec07328401de6211037abbb18bda423677e26"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/dceec07328401de6211037abbb18bda423677e26",
+                "reference": "dceec07328401de6211037abbb18bda423677e26",
+                "shasum": ""
+            },
+            "require": {
+                "ext-simplexml": "*",
+                "ext-tokenizer": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
+            },
+            "bin": [
+                "bin/phpcs",
+                "bin/phpcbf"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.x-dev"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Greg Sherwood",
+                    "role": "lead"
+                }
+            ],
+            "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
+            "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
+            "keywords": [
+                "phpcs",
+                "standards"
+            ],
+            "time": "2020-01-30T22:20:29+00:00"
+        },
+        {
             "name": "symfony/console",
             "version": "v5.0.7",
             "source": {
@@ -1000,12 +1051,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "2432896bb6a7543b96adbbe3bd8f6af5d5a5cead"
+                "reference": "acd1e508bcbd8c183a7c9ff056aaf989f1526176"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/2432896bb6a7543b96adbbe3bd8f6af5d5a5cead",
-                "reference": "2432896bb6a7543b96adbbe3bd8f6af5d5a5cead",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/acd1e508bcbd8c183a7c9ff056aaf989f1526176",
+                "reference": "acd1e508bcbd8c183a7c9ff056aaf989f1526176",
                 "shasum": ""
             },
             "require": {
@@ -1055,33 +1106,47 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2020-03-30T11:43:41+00:00"
+            "funding": [
+                {
+                    "url": "https://symfony.com/sponsor",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2020-04-06T10:46:53+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "2.0.7",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "dc27d3c9fc08b8af056d24e3605a149caed5d22e"
+                "reference": "859c6cd05676df7106a053b136b239688ba0061c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/dc27d3c9fc08b8af056d24e3605a149caed5d22e",
-                "reference": "dc27d3c9fc08b8af056d24e3605a149caed5d22e",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/859c6cd05676df7106a053b136b239688ba0061c",
+                "reference": "859c6cd05676df7106a053b136b239688ba0061c",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "league/oauth2-client": "^2.4",
-                "php": ">=7.1"
+                "php": ">=7.1",
+                "squizlabs/php_codesniffer": "3.*"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.0.0",
                 "phpstan/phpstan": "^0.11.19",
                 "phpstan/phpstan-phpunit": "^0.11.2",
-                "phpunit/phpunit": "^7.0",
-                "squizlabs/php_codesniffer": "^2.7"
+                "phpunit/phpunit": "^7.0"
             },
             "type": "library",
             "autoload": {
@@ -1109,67 +1174,16 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-03-08T23:34:06+00:00"
+            "time": "2020-03-25T05:59:13+00:00"
         }
     ],
-    "packages-dev": [
-        {
-            "name": "squizlabs/php_codesniffer",
-            "version": "3.5.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "dceec07328401de6211037abbb18bda423677e26"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/dceec07328401de6211037abbb18bda423677e26",
-                "reference": "dceec07328401de6211037abbb18bda423677e26",
-                "shasum": ""
-            },
-            "require": {
-                "ext-simplexml": "*",
-                "ext-tokenizer": "*",
-                "ext-xmlwriter": "*",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
-            },
-            "bin": [
-                "bin/phpcs",
-                "bin/phpcbf"
-            ],
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "3.x-dev"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Greg Sherwood",
-                    "role": "lead"
-                }
-            ],
-            "description": "PHP_CodeSniffer tokenizes PHP, JavaScript and CSS files and detects violations of a defined set of coding standards.",
-            "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
-            "keywords": [
-                "phpcs",
-                "standards"
-            ],
-            "time": "2020-01-30T22:20:29+00:00"
-        }
-    ],
+    "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
+        "typhonius/acquia-php-sdk-v2": 20,
         "squizlabs/php_codesniffer": 20
     },
     "prefer-stable": true,

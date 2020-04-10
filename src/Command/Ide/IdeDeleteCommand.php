@@ -19,7 +19,7 @@ use Symfony\Component\Console\Question\Question;
  *
  * @package Grasmash\YamlCli\Command
  */
-class IdeDeleteCommand extends CommandBase
+class IdeDeleteCommand extends IdeCommandBase
 {
 
     use ExecTrait;
@@ -42,11 +42,11 @@ class IdeDeleteCommand extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
-        $application_uuid = $this->promptChooseApplication($input, $output, $acquia_cloud_client);
-
-        // Delete the IDE!
         $ides_resource = new Ides($acquia_cloud_client);
-        // @todo List IDEs in choice question.
+
+        $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource);
+        $response = $ides_resource->delete($ide_uuid);
+        $this->output->writeln($response->message);
 
         return 0;
     }

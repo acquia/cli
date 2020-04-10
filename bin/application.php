@@ -1,38 +1,5 @@
 <?php
 
-/**
- * This script runs ADS. It does the following:
- *   - Includes the Composer autoload file
- *   - Starts a container with the input, output, application, and configuration objects
- *   - Starts a runner instance and runs the command
- *   - Exits with a status code
- */
-
-$pharPath = \Phar::running(true);
-if ($pharPath) {
-    include_once("$pharPath/vendor/autoload.php");
-} else {
-    $repo_root = __DIR__ . '/..';
-
-    $possible_autoloader_locations = [
-      $repo_root . '/../../autoload.php',
-      $repo_root . '/vendor/autoload.php',
-
-    ];
-
-    foreach ($possible_autoloader_locations as $location) {
-        if (file_exists($location)) {
-            $autoloader = require_once $location;
-            break;
-        }
-    }
-
-    if (empty($autoloader)) {
-        echo 'Unable to autoload classes for yml-cli.' . PHP_EOL;
-        exit(1);
-    }
-}
-
 use Acquia\Ads\AdsApplication;
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Command\AuthCommand;
@@ -58,11 +25,12 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
+$repo_root = find_repo_root();
 
 /**
  * Running ads.
  */
-$application = new AdsApplication('ads', '@package_version@', $logger);
+$application = new AdsApplication('ads', '@package_version@', $logger, $repo_root);
 $application->addCommands([
     new AuthCommand(),
     new ApiListCommand(),
