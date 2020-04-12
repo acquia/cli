@@ -46,7 +46,7 @@ class DrushCommand extends SSHBaseCommand
         $drush_env = $site_env_parts[1];
 
         // @todo Add error handling.
-        $environment = $this->getEnvFromAlias($drush_site, $drush_env);
+        $this->environment = $this->getEnvFromAlias($drush_site, $drush_env);
 
         $arguments = $input->getArguments();
         array_shift($arguments);

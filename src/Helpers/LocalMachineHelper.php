@@ -22,13 +22,8 @@ use Symfony\Component\Process\Process;
  *
  * @package Acquia\Ads\Helpers
  */
-class LocalMachineHelper implements ConfigAwareInterface, ContainerAwareInterface, IOAwareInterface
+class LocalMachineHelper
 {
-    use ConfigAwareTrait;
-    use ContainerAwareTrait;
-    use IO {
-        io as roboIo;
-    }
 
     /**
      * Executes the given command on the local machine and return the exit code and output.

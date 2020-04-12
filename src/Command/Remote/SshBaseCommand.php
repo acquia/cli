@@ -5,6 +5,8 @@ namespace Acquia\Ads\Command\Remote;
 use Acquia\Ads\Application\ApplicationAwareInterface;
 use Acquia\Ads\Application\ApplicationAwareTrait;
 use Acquia\Ads\Command\CommandBase;
+use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Helpers\LocalMachineHelper;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 
@@ -23,9 +25,9 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     protected $command = '';
     /**
-     * @var Environment
+     * @var \AcquiaCloudApi\Response\EnvironmentResponse
      */
-    private $environment;
+    protected $environment;
     /**
      * @var Site
      */
@@ -68,14 +70,13 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     protected function executeCommand(array $command_args)
     {
-        // $this->validateEnvironment($this->environment);
-
         $command_summary = $this->getCommandSummary($command_args);
-        $command_line = $this->getCommandLine($command_args);
 
-        $ssh_data = $this->sendCommandViaSsh($command_line);
+        // Remove site_env arg.
+        unset($command_args['site_env']);
+        $ssh_data = $this->sendCommandViaSsh($command_args);
 
-        $this->log()->notice('Command: {site}.{env} -- {command} [Exit: {exit}]', [
+        $this->getApplication()->logger()->notice('Command: {command} [Exit: {exit}]', [
           'site'    => $this->site->get('name'),
           'env'     => $this->environment->id,
           'command' => $command_summary,
@@ -83,20 +84,23 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
         ]);
 
         if ($ssh_data['exit_code'] != 0) {
-            throw new AdsProcessException($ssh_data['output']);
+            throw new AdsException($ssh_data['output']);
         }
     }
 
     /**
      * Sends a command to an environment via SSH.
      *
-     * @param string $command The command to be run on the platform
+     * @param array $command The command to be run on the platform
      */
     protected function sendCommandViaSsh($command)
     {
-
-        $ssh_command = $this->getConnectionString() . ' ' . ProcessUtils::escapeArgument($command);
-        return $this->getContainer()->get(LocalMachineHelper::class)->execute(
+        array_unshift($command, 'drush');
+        $process = new Process($command);
+        $command_line  = $process->getCommandLine();
+        $ssh_command = $this->getConnectionString() . ' ' . $command_line;
+        $local_machine_helper = new LocalMachineHelper();
+        return $local_machine_helper->execute(
           $ssh_command,
           $this->getOutputCallback(),
           $this->progressAllowed
@@ -226,18 +230,6 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     }
 
     /**
-     * Gets the command-line args
-     *
-     * @param string[] $command_args
-     * @return string
-     */
-    private function getCommandLine($command_args)
-    {
-        array_unshift($command_args, $this->command);
-        return implode(" ", $this->escapeArguments($command_args));
-    }
-
-    /**
      * Return a summary of the command that does not include the
      * arguments. This avoids potential information disclosure in
      * CI scripts.
@@ -255,10 +247,9 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     private function getConnectionString()
     {
-        $sftp = $this->environment->sftpConnectionInfo();
         return vsprintf(
-          'ssh -T %s@%s -p %s -o "StrictHostKeyChecking=no" -o "AddressFamily inet"',
-          [$sftp['username'], $sftp['host'], $sftp['port'],]
+          'ssh -T %s -o "StrictHostKeyChecking=no" -o "AddressFamily inet"',
+          [$this->environment->sshUrl]
         );
     }
 }
