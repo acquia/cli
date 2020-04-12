@@ -11,6 +11,7 @@ use Acquia\Ads\Command\Ide\IdeOpenCommand;
 use Acquia\Ads\Command\LinkCommand;
 use Acquia\Ads\Command\NewCommand;
 use Acquia\Ads\Command\RefreshCommand;
+use Acquia\Ads\Command\Remote\DrushCommand;
 use Acquia\Ads\Command\SiteAliasesCommand;
 use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
@@ -35,6 +36,7 @@ $application->addCommands([
     new AuthCommand(),
     new ApiListCommand(),
     new CloneCommand(),
+    new DrushCommand(),
     new IdeCreateCommand(),
     new IdeDeleteCommand(),
     new IdeListCommand(),

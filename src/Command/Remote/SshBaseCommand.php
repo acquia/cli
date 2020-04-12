@@ -68,7 +68,7 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     protected function executeCommand(array $command_args)
     {
-        $this->validateEnvironment($this->environment);
+        // $this->validateEnvironment($this->environment);
 
         $command_summary = $this->getCommandSummary($command_args);
         $command_line = $this->getCommandLine($command_args);
@@ -94,10 +94,8 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     protected function sendCommandViaSsh($command)
     {
+
         $ssh_command = $this->getConnectionString() . ' ' . ProcessUtils::escapeArgument($command);
-        if ($this->getConfig()->get('test_mode')) {
-            return $this->divertForTestMode($ssh_command);
-        }
         return $this->getContainer()->get(LocalMachineHelper::class)->execute(
           $ssh_command,
           $this->getOutputCallback(),
