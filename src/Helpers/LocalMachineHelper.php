@@ -2,15 +2,8 @@
 
 namespace Acquia\Ads\Helpers;
 
-use League\Container\ContainerAwareInterface;
-use League\Container\ContainerAwareTrait;
-use Acquia\Ads\Config\ConfigAwareTrait;
-use Acquia\Ads\Exceptions\AdsException;
-use Acquia\Ads\ProgressBars\ProcessProgressBar;
-use Robo\Common\IO;
-use Robo\Contract\ConfigAwareInterface;
-use Robo\Contract\IOAwareInterface;
-use Symfony\Component\Console\Output\ConsoleOutputInterface;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
@@ -24,6 +17,15 @@ use Symfony\Component\Process\Process;
  */
 class LocalMachineHelper
 {
+
+    private $output;
+    private $input;
+
+    public function __construct(InputInterface $input, OutputInterface $output)
+    {
+        $this->input = $input;
+        $this->output = $output;
+    }
 
     /**
      * Executes the given command on the local machine and return the exit code and output.
@@ -41,7 +43,7 @@ class LocalMachineHelper
     /**
      * Executes a buffered command.
      *
-     * @param string $cmd The command to execute
+     * @param array $cmd The command to execute
      * @param callable $callback A function to run while waiting for the process to complete
      * @param bool $progressIndicatorAllowed Allow the progress bar to be used (if in tty mode only)
      * @return array The command output and exit_code
@@ -99,7 +101,7 @@ class LocalMachineHelper
     public function getProgressBar(Process $process)
     {
         $process->start();
-        return $this->getContainer()->get(ProcessProgressBar::class, [$this->output(), $process,]);
+        return $this->getContainer()->get(ProcessProgressBar::class, [$this->output, $process,]);
     }
 
     /**
@@ -150,7 +152,7 @@ class LocalMachineHelper
     public function useTty()
     {
         // If we are not in interactive mode, then never use a tty.
-        if (!$this->input()->isInteractive()) {
+        if (!$this->input->isInteractive()) {
             return false;
         }
         // If we are in interactive mode (or at least the user did not
@@ -192,8 +194,8 @@ class LocalMachineHelper
     protected function getProcess($cmd)
     {
         $process = new Process($cmd);
-        $config = $this->getConfig();
-        $process->setTimeout($config->get('timeout'));
+        //$config = $this->getConfig();
+        $process->setTimeout(600);
         return $process;
     }
 }

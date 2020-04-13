@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Command;
 
 use Acquia\Ads\AdsApplication;
+use Acquia\Ads\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -50,6 +51,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private $cloudApplication;
 
     private $localProjectInfo;
+    /**
+     * @var \Acquia\Ads\Helpers\LocalMachineHelper
+     */
+    protected $local_machine_helper;
 
     /**
      * Initializes the command just after the input has been validated.
@@ -64,6 +69,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
         $this->fs = new Filesystem();
         $this->setLogger(new ConsoleLogger($output));
+        $this->local_machine_helper = new LocalMachineHelper($input, $output);
 
         /** @var \Acquia\Ads\AdsApplication $application */
         $application = $this->getApplication();

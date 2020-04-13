@@ -91,4 +91,13 @@ class AdsApplication extends Application implements LoggerAwareInterface {
         return $home;
     }
 
+    /**
+     * @return \Psr\Log\LoggerInterface
+     */
+    public function getLogger(): \Psr\Log\LoggerInterface
+    {
+        return $this->logger;
+    }
+
+
 }

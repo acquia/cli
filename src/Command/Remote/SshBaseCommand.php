@@ -28,24 +28,11 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      * @var \AcquiaCloudApi\Response\EnvironmentResponse
      */
     protected $environment;
-    /**
-     * @var Site
-     */
-    private $site;
+
     /**
      * @var bool
      */
     protected $progressAllowed;
-
-    /**
-     * Define the environment and site properties
-     *
-     * @param string $site_env_id The site/env to retrieve in <site>.<env> format
-     */
-    protected function prepareEnvironment($site_env_id)
-    {
-        list($this->site, $this->environment) = $this->getSiteEnv($site_env_id);
-    }
 
     /**
      * progressAllowed sets the field that controls whether a progress bar
@@ -65,8 +52,9 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      * Execute the command remotely
      *
      * @param array $command_args
-     * @return string
-     * @throws AdsProcessException
+     *
+     * @return int
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     protected function executeCommand(array $command_args)
     {
@@ -76,9 +64,10 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
         unset($command_args['site_env']);
         $ssh_data = $this->sendCommandViaSsh($command_args);
 
-        $this->getApplication()->logger()->notice('Command: {command} [Exit: {exit}]', [
-          'site'    => $this->site->get('name'),
-          'env'     => $this->environment->id,
+        /** @var \Acquia\Ads\AdsApplication $application */
+        $application = $this->getApplication();
+        $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
+          'env'     => $this->environment->name,
           'command' => $command_summary,
           'exit'    => $ssh_data['exit_code'],
         ]);
@@ -86,6 +75,8 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
         if ($ssh_data['exit_code'] != 0) {
             throw new AdsException($ssh_data['output']);
         }
+
+        return $ssh_data['exit_code'];
     }
 
     /**
@@ -95,13 +86,9 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     protected function sendCommandViaSsh($command)
     {
-        array_unshift($command, 'drush');
-        $process = new Process($command);
-        $command_line  = $process->getCommandLine();
-        $ssh_command = $this->getConnectionString() . ' ' . $command_line;
-        $local_machine_helper = new LocalMachineHelper();
-        return $local_machine_helper->execute(
-          $ssh_command,
+        $command = array_merge($this->getConnectionArgs(), $command);
+        return $this->local_machine_helper->execute(
+          $command,
           $this->getOutputCallback(),
           $this->progressAllowed
         );
@@ -213,16 +200,12 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     private function getOutputCallback()
     {
-        if ($this->getContainer()->get(LocalMachineHelper::class)->useTty() === false) {
-            $output = $this->output();
-            $stderr = $this->stderr();
+        if ($this->local_machine_helper->useTty() === false) {
+            $output = $this->output;
 
-            return function ($type, $buffer) use ($output, $stderr) {
-                if (Process::ERR === $type) {
-                    $stderr->write($buffer);
-                } else {
-                    $output->write($buffer);
-                }
+            return function ($type, $buffer) use ($output) {
+                // @todo Separate the stderr output.
+                $output->write($buffer);
             };
         }
         return function ($type, $buffer) {
@@ -243,13 +226,16 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     }
 
     /**
-     * @return string SSH connection string
+     * @return array SSH connection string
      */
-    private function getConnectionString()
+    private function getConnectionArgs()
     {
-        return vsprintf(
-          'ssh -T %s -o "StrictHostKeyChecking=no" -o "AddressFamily inet"',
-          [$this->environment->sshUrl]
-        );
+        return [
+          'ssh',
+          '-T',
+          $this->environment->sshUrl,
+          '-o StrictHostKeyChecking=no',
+          '-o AddressFamily inet',
+        ];
     }
 }

@@ -50,6 +50,8 @@ class DrushCommand extends SSHBaseCommand
 
         $arguments = $input->getArguments();
         array_shift($arguments);
+        // @todo move 'drush' to DrushCommand.
+        array_unshift($arguments, "cd /var/www/html/{$drush_site}.{$drush_env}/docroot; ", 'drush');
         return $this->executeCommand($arguments);
     }
 
