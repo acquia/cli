@@ -14,28 +14,23 @@ use Symfony\Component\Console\Output\OutputInterface;
  * A command to proxy Drush commands on an environment using SSH
  * @package Acquia\Ads\Commands\Remote
  */
-class DrushCommand extends SSHBaseCommand
+class SshCommand extends SSHBaseCommand
 {
-    /**
-     * @inheritdoc
-     */
-    protected $command = 'drush';
 
     /**
      * {inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('remote:drush')
-            ->setDescription('Runs a Drush command remotely on a application\'s environment.')
+        $this->setName('remote:ssh')
+            ->setDescription('Opens a new SSH connection to an Acquia Cloud environment.')
             ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
-            ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
-            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.")
-            ->addUsage("@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar");
+            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
     }
 
     /**
      * {@inheritdoc}
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -47,10 +42,10 @@ class DrushCommand extends SSHBaseCommand
 
         // @todo Add error handling.
         $this->environment = $this->getEnvFromAlias($drush_site, $drush_env);
-
         $arguments = $input->getArguments();
         array_shift($arguments);
-        array_unshift($arguments, "cd /var/www/html/{$drush_site}.{$drush_env}/docroot; ", 'drush');
+        array_unshift($arguments, "bash", "-l");
+
         return $this->executeCommand($arguments);
     }
 }

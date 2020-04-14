@@ -41,7 +41,7 @@ if ($pharPath) {
  * running commands from the project root. In this state, BLT has no possible
  * way to identify the root directory.
  *
- * @return bool|string
+ * @return null|string
  *   Root.
  */
 function find_repo_root() {
@@ -59,8 +59,8 @@ function find_repo_root() {
             return $repo_root;
         }
     }
-    print "Unable to determine the BLT root directory.\n";
-    exit(1);
+
+    return null;
 }
 
 /**

@@ -12,6 +12,7 @@ use Acquia\Ads\Command\LinkCommand;
 use Acquia\Ads\Command\NewCommand;
 use Acquia\Ads\Command\RefreshCommand;
 use Acquia\Ads\Command\Remote\DrushCommand;
+use Acquia\Ads\Command\Remote\SshCommand;
 use Acquia\Ads\Command\SiteAliasesCommand;
 use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
@@ -45,6 +46,7 @@ $application->addCommands([
     new NewCommand(),
     new RefreshCommand(),
     new SiteAliasesCommand(),
+    new SshCommand(),
     new SshKeyCreateCommand(),
     new SshKeyDeleteCommand(),
     new SshKeyListCommand(),

@@ -23,7 +23,7 @@ class AdsApplication extends Application implements LoggerAwareInterface {
     /** @var \Acquia\Ads\DataStore\FileStore  */
     private $datastore;
 
-    /** @var string */
+    /** @var null|string */
     private $repoRoot;
 
     /**

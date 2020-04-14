@@ -7,6 +7,9 @@ use Acquia\Ads\Application\ApplicationAwareTrait;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exception\AdsException;
 use Acquia\Ads\Helpers\LocalMachineHelper;
+use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 
@@ -222,7 +225,7 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      */
     private function getCommandSummary($command_args)
     {
-        return $this->command . $this->firstArguments($command_args);
+        return $this->firstArguments($command_args);
     }
 
     /**
@@ -237,5 +240,37 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
           '-o StrictHostKeyChecking=no',
           '-o AddressFamily inet',
         ];
+    }
+
+
+    /**
+     * @param string $drush_site
+     * @param string $drush_env
+     *
+     * @return \AcquiaCloudApi\Response\EnvironmentResponse
+     */
+    protected function getEnvFromAlias(
+      $drush_site,
+      $drush_env
+    ): EnvironmentResponse {
+        $acquia_cloud_client = $this->getAcquiaCloudClient();
+        $applications_resource = new Applications($acquia_cloud_client);
+        $customer_applications = $applications_resource->getAll();
+        $environments_resource = new Environments($acquia_cloud_client);
+        foreach ($customer_applications as $customer_application) {
+            $site_id = $customer_application->hosting->id;
+            $parts = explode(':', $site_id);
+            $site_prefix = $parts[1];
+            if ($site_prefix === $drush_site) {
+                $environments = $environments_resource->getAll($customer_application->uuid);
+                foreach ($environments as $environment) {
+                    if ($environment->name === $drush_env) {
+                        return $environment;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
