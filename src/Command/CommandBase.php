@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Command;
 
 use Acquia\Ads\AdsApplication;
+use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -95,7 +96,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
           'key' => $cloud_api_conf['key'],
           'secret' => $cloud_api_conf['secret'],
         ];
-        $connector = new Connector($config);
+        $connector = new AdsCloudConnector($config);
 
         return Client::factory($connector);
     }
