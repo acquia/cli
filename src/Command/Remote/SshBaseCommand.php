@@ -10,6 +10,7 @@ use Acquia\Ads\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 
@@ -241,7 +242,6 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
           '-o AddressFamily inet',
         ];
     }
-
 
     /**
      * @param string $drush_site

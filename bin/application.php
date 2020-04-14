@@ -11,6 +11,7 @@ use Acquia\Ads\Command\Ide\IdeOpenCommand;
 use Acquia\Ads\Command\LinkCommand;
 use Acquia\Ads\Command\NewCommand;
 use Acquia\Ads\Command\RefreshCommand;
+use Acquia\Ads\Command\Remote\AliasesCommand;
 use Acquia\Ads\Command\Remote\DrushCommand;
 use Acquia\Ads\Command\Remote\SshCommand;
 use Acquia\Ads\Command\SiteAliasesCommand;
@@ -34,6 +35,7 @@ $repo_root = find_repo_root();
  */
 $application = new AdsApplication('ads', '@package_version@', $logger, $repo_root);
 $application->addCommands([
+    new AliasesCommand(),
     new AuthCommand(),
     new ApiListCommand(),
     new CloneCommand(),
