@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * A command to proxy Drush commands on an environment using SSH
  * @package Acquia\Ads\Commands\Remote
  */
-class AliasesCommand extends SshCommand
+class AliasListCommand extends SshCommand
 {
 
     /**
@@ -23,8 +23,8 @@ class AliasesCommand extends SshCommand
      */
     protected function configure()
     {
-        $this->setName('remote:aliases')
-          ->setDescription('');
+        $this->setName('remote:aliases:list')
+          ->setDescription('List all aliases for Acquia Cloud environments');
     }
 
     /**
