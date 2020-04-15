@@ -17,10 +17,10 @@ class ApiCommandBase extends CommandBase
     /** @var Method */
     protected $method;
 
-    /** @var Array */
+    /** @var array */
     protected $responses;
 
-    /** @var Array */
+    /** @var array */
     protected $servers;
 
     /** @var String */
@@ -112,5 +112,5 @@ class ApiCommandBase extends CommandBase
         }
 
         return $path;
-}
+    }
 }

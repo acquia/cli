@@ -7,7 +7,8 @@ use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use GuzzleHttp\Client;
 
-class CloudApiClient {
+class CloudApiClient
+{
 
     /**
      * CloudApiClient constructor.
@@ -41,9 +42,9 @@ class CloudApiClient {
 
             // Generate a request object using the access token.
             $request = $this->provider->getAuthenticatedRequest(
-              $method,
-              $api_url . '/' . ltrim($path, '/'),
-              $accessToken
+                $method,
+                $api_url . '/' . ltrim($path, '/'),
+                $accessToken
             );
 
             $options = [
@@ -53,7 +54,6 @@ class CloudApiClient {
             // Send the request.
             $client = new Client();
             return $client->send($request, $options);
-
         } catch (IdentityProviderException $e) {
             // Failed to get the access token.
             exit($e->getMessage());

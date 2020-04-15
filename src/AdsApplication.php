@@ -16,7 +16,8 @@ use Symfony\Component\Console\Command\HelpCommand;
  *
  * @package Grasmash\YamlCli\Command
  */
-class AdsApplication extends Application implements LoggerAwareInterface {
+class AdsApplication extends Application implements LoggerAwareInterface
+{
 
     use LoggerAwareTrait;
 
@@ -55,7 +56,8 @@ class AdsApplication extends Application implements LoggerAwareInterface {
     /**
      * Warns the user if the xDebug extension is loaded.
      */
-    protected function warnIfXdebugLoaded() {
+    protected function warnIfXdebugLoaded()
+    {
         $xdebug_loaded = extension_loaded('xdebug');
         if ($xdebug_loaded) {
             $this->logger->warning("<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>");
@@ -98,6 +100,4 @@ class AdsApplication extends Application implements LoggerAwareInterface {
     {
         return $this->logger;
     }
-
-
 }

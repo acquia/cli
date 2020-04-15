@@ -44,7 +44,8 @@ if ($pharPath) {
  * @return null|string
  *   Root.
  */
-function find_repo_root() {
+function find_repo_root()
+{
     $possible_repo_roots = [
       getcwd(),
       realpath(__DIR__ . '/../'),
@@ -80,7 +81,8 @@ function find_repo_root() {
  *   FALSE if file was not found. Otherwise, the directory path containing the
  *   file.
  */
-function find_directory_containing_files($working_directory, array $files, $max_height = 10) {
+function find_directory_containing_files($working_directory, array $files, $max_height = 10)
+{
     // Find the root directory of the git repository containing BLT.
     // We traverse the file tree upwards $max_height times until we find
     // vendor/bin/blt.
@@ -88,13 +90,12 @@ function find_directory_containing_files($working_directory, array $files, $max_
     for ($i = 0; $i <= $max_height; $i++) {
         if (files_exist($file_path, $files)) {
             return $file_path;
-        }
-        else {
+        } else {
             $file_path = realpath($file_path . '/..');
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 /**
@@ -108,11 +109,12 @@ function find_directory_containing_files($working_directory, array $files, $max_
  * @return bool
  *   Exists.
  */
-function files_exist($dir, array $files) {
+function files_exist($dir, array $files)
+{
     foreach ($files as $file) {
         if (!file_exists($dir . '/' . $file)) {
-            return FALSE;
+            return false;
         }
     }
-    return TRUE;
+    return true;
 }

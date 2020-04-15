@@ -12,6 +12,7 @@
     "minimum-stability": "dev",
     "require": {
         "ext-json": "*",
+        "doctrine/cache": "^1.10",
         "drupol/phposinfo": "^1.6",
         "kevinrob/guzzle-cache-middleware": "^3.3",
         "league/oauth2-client": "^2.4",
@@ -53,6 +54,18 @@
             "cp dist/spec/acquia-spec.yaml ../assets/",
             "cd ..",
             "rm -rf cx-api-spec"
+        ],
+        "cs": "phpcs -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
+        "cbf": "phpcbf -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
+        "unit": "phpunit",
+        "lint": [
+            "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+            "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+        ],
+        "test": [
+            "@lint",
+            "@unit",
+            "@cs"
         ]
     }
 }

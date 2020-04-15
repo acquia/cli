@@ -131,15 +131,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return string
      */
     protected function promptChooseApplication(
-      InputInterface $input,
-      OutputInterface $output,
-      Client $acquia_cloud_client
+        InputInterface $input,
+        OutputInterface $output,
+        Client $acquia_cloud_client
     ): string {
         $application_list = $this->getApplicationList($acquia_cloud_client);
         $application_names = array_values($application_list);
         $helper = $this->getHelper('question');
-        $question = new ChoiceQuestion('Please select the application for which you\'d like to create a new IDE',
-          $application_names);
+        $question = new ChoiceQuestion(
+            'Please select the application for which you\'d like to create a new IDE',
+            $application_names
+        );
         $choice_id = $helper->ask($input, $output, $question);
         $application_uuid = array_search($choice_id, $application_list, true);
 
@@ -162,8 +164,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                     return;
                 }
             }
-        }
-        else {
+        } else {
             $local_user_config = [];
         }
 
@@ -216,8 +217,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function findCloudApplicationByGitUrl(
-      Client $acquia_cloud_client,
-      array $local_git_remotes
+        Client $acquia_cloud_client,
+        array $local_git_remotes
     ): ?ApplicationResponse {
         $applications_resource = new Applications($acquia_cloud_client);
         $customer_applications = $applications_resource->getAll();
@@ -243,8 +244,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function inferCloudAppFromLocalGitConfig(
-      AdsApplication $application,
-      Client $acquia_cloud_client
+        AdsApplication $application,
+        Client $acquia_cloud_client
     ): ?ApplicationResponse {
         $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
         $question = new ConfirmationQuestion("<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>");
@@ -259,14 +260,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
 
         return null;
-
     }
 
     /**
      *
      * @return string|null
      */
-    protected function determineCloudApplication(): ?string {
+    protected function determineCloudApplication(): ?string
+    {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         /** @var \Acquia\Ads\AdsApplication $ads_application */
         $ads_application = $this->getApplication();

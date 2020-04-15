@@ -40,23 +40,23 @@ class AliasesDownloadCommand extends SshCommand
         $this->output->writeln(sprintf('Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>', $drushArchive));
 
         if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
-                if (!$home = getenv('HOME')) {
-                    throw new \Exception('Home directory not found.');
-                }
+            if (!$home = getenv('HOME')) {
+                throw new \Exception('Home directory not found.');
+            }
                 $drushDirectory = $home . '/.drush';
-                if (!is_dir($drushDirectory)) {
-                    if (!mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
-                    }
+            if (!is_dir($drushDirectory)) {
+                if (!mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
+                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
                 }
-                if (!is_writable($drushDirectory)) {
-                    chmod($drushDirectory, 0700);
-                }
+            }
+            if (!is_writable($drushDirectory)) {
+                chmod($drushDirectory, 0700);
+            }
                 $archive = new \PharData($drushArchive . '/.drush');
                 $drushFiles = [];
-                foreach (new \RecursiveIteratorIterator($archive, \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-                    $drushFiles[] = '.drush/' . $file->getFileName();
-                }
+            foreach (new \RecursiveIteratorIterator($archive, \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+                $drushFiles[] = '.drush/' . $file->getFileName();
+            }
 
                 $archive->extractTo($home, $drushFiles, true);
                 $this->output->writeln(sprintf('Acquia Cloud Drush aliases installed into <comment>%s</comment>', $drushDirectory));

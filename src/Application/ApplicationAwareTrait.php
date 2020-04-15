@@ -106,8 +106,8 @@ trait ApplicationAwareTrait
 
         if ($site->isFrozen()) {
             throw new TerminusException(
-              'This site is frozen. Its test and live environments and many commands will be '
-              . 'unavailable while it remains frozen.'
+                'This site is frozen. Its test and live environments and many commands will be '
+                . 'unavailable while it remains frozen.'
             );
         }
 

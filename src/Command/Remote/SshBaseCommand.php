@@ -92,9 +92,9 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     {
         $command = array_merge($this->getConnectionArgs(), $command);
         return $this->local_machine_helper->execute(
-          $command,
-          $this->getOutputCallback(),
-          $this->progressAllowed
+            $command,
+            $this->getOutputCallback(),
+            $this->progressAllowed
         );
     }
 
@@ -120,8 +120,8 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     {
         if ((!$this->getConfig()->get('hide_git_mode_warning')) && ($mode == 'git')) {
             $this->log()->warning(
-              'This environment is in read-only Git mode. If you want to make changes to the codebase of this site '
-              . '(e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.'
+                'This environment is in read-only Git mode. If you want to make changes to the codebase of this site '
+                . '(e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.'
             );
         }
     }
@@ -157,10 +157,10 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     private function escapeArguments($args)
     {
         return array_map(
-          function ($arg) {
-              return $this->escapeArgument($arg);
-          },
-          $args
+            function ($arg) {
+                return $this->escapeArgument($arg);
+            },
+            $args
         );
     }
 
@@ -250,8 +250,8 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      * @return \AcquiaCloudApi\Response\EnvironmentResponse
      */
     protected function getEnvFromAlias(
-      $drush_site,
-      $drush_env
+        $drush_site,
+        $drush_env
     ): EnvironmentResponse {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $applications_resource = new Applications($acquia_cloud_client);
