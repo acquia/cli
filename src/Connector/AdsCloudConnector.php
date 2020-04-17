@@ -20,14 +20,13 @@ class AdsCloudConnector extends Connector
      */
     public function sendRequest($verb, $path, $options)
     {
-        $request = $this->createRequest($verb, $path);
-
         $stack = HandlerStack::create();
         $stack->push(
             new CacheMiddleware(new PrivateCacheStrategy(new DoctrineCacheStorage(new FilesystemCache(__DIR__ . '/../../cache')))),
             'cache'
         );
         $client = new GuzzleClient(['handler' => $stack]);
+        $request = $this->createRequest($verb, $path);
         return $client->send($request, $options);
     }
 }

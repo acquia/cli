@@ -2,6 +2,9 @@
 
 namespace Acquia\Ads\Command\Api;
 
+use Doctrine\Common\Cache\PhpFileCache;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,7 +20,16 @@ class ApiCommandHelper
     {
         // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
         // by running `composer update-cloud-api-spec`.
-        // @todo Figure out how to improve the performance of this parse operation when xdebug is enabled.
+
+        $cache = new PhpArrayAdapter(
+          __DIR__ . '/../../../cache/ApiCommands.cache',
+          new FilesystemAdapter()
+        );
+        $api_commands_cache_item = $cache->getItem('commands.api');
+        if ($api_commands_cache_item->isHit()) {
+            return $api_commands_cache_item->get();
+        }
+
         $acquia_cloud_spec = Yaml::parseFile(__DIR__ . '/../../../assets/acquia-spec.yaml');
         $api_commands = [];
         foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
@@ -29,12 +41,16 @@ class ApiCommandHelper
                 $command->setResponses($schema['responses']);
                 $command->setServers($acquia_cloud_spec['servers']);
                 $command->setPath($path);
-                // @todo Make this hidden unless someone is running the `api:list` command.
+                // This is unhidden when `ads api` is run.
                 $command->setHidden(true);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
             }
         }
+
+        $api_commands_cache_item->set($api_commands);
+        $api_commands_cache_item->expiresAfter(3600);
+        $cache->save($api_commands_cache_item);
 
         return $api_commands;
     }
