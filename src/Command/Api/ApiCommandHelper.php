@@ -16,11 +16,14 @@ class ApiCommandHelper
 
     /**
      * @return ApiCommandBase[]
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getApiCommands(): array
     {
         // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
         // by running `composer update-cloud-api-spec`.
+        $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
+        $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
 
         $cache = new PhpArrayAdapter(
           __DIR__ . '/../../../cache/ApiCommands.cache',
@@ -28,14 +31,12 @@ class ApiCommandHelper
         );
 
         // Check to see if the API spec has changed since we cached commands.
-        $is_command_cache_valid = $this->isCommandCacheValid($cache);
+        $is_command_cache_valid = $this->isCommandCacheValid($cache, $acquia_cloud_spec_file_checksum);
         $api_commands_cache_item = $cache->getItem('commands.api');
-
         if ($is_command_cache_valid && $api_commands_cache_item->isHit()) {
             return $api_commands_cache_item->get();
         }
 
-        $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
         $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
         $api_commands = [];
         foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
@@ -54,7 +55,7 @@ class ApiCommandHelper
             }
         }
 
-        $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
+        // Save the API spec file checksum and api commands to the cache.
         $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
         $api_spec_checksum_item->set($acquia_cloud_spec_file_checksum);
         $cache->save($api_spec_checksum_item);
@@ -144,13 +145,13 @@ class ApiCommandHelper
     /**
      * @param \Symfony\Component\Cache\Adapter\PhpArrayAdapter $cache
      *
+     * @param string $acquia_cloud_spec_file_checksum
+     *
      * @return bool
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function isCommandCacheValid(PhpArrayAdapter $cache): bool
+    protected function isCommandCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool
     {
-        $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
-        $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
         $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
         // If there's an invalid entry OR there's no entry, return false.
         if (!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit() && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum)) {
