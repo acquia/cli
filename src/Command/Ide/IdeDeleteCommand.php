@@ -30,7 +30,7 @@ class IdeDeleteCommand extends IdeCommandBase
     protected function configure()
     {
         $this->setName('ide:delete')
-          ->setDescription('delete an IDE');
+          ->setDescription('Delete an IDE');
     }
 
     /**

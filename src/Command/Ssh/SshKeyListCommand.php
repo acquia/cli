@@ -18,7 +18,7 @@ class SshKeyListCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ssh-key:list')
-          ->setDescription('list your local and remote SSH keys');
+          ->setDescription('List your local and remote SSH keys');
     }
 
     /**

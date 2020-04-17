@@ -23,7 +23,7 @@ class IdeCreateCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ide:create')
-          ->setDescription('create remote IDE for development');
+          ->setDescription('Create remote IDE for development');
     }
 
     /**

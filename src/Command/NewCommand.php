@@ -17,7 +17,7 @@ class NewCommand extends CommandBase
     protected function configure()
     {
         $this->setName('new')
-          ->setDescription('create a new Drupal project');
+          ->setDescription('Create a new Drupal project');
     }
 
     /**

@@ -17,7 +17,7 @@ class RefreshCommand extends CommandBase
     protected function configure()
     {
         $this->setName('refresh')
-          ->setDescription('copy database and files from one environment to another');
+          ->setDescription('Copy database and files from one environment to another');
     }
 
     /**

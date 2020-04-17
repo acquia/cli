@@ -18,7 +18,7 @@ class SshKeyCreateCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ssh-key:create')
-          ->setDescription('create an ssh key on your local machine');
+          ->setDescription('Create an ssh key on your local machine');
     }
 
     /**

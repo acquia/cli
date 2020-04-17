@@ -31,7 +31,7 @@ class DrushCommand extends SSHBaseCommand
             ->setDescription('Runs a Drush command remotely on a application\'s environment.')
             ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
             ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
-            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.")
+            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
             ->addUsage("@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar");
     }
 

@@ -18,7 +18,7 @@ class SshKeyDeleteCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ssh-key:delete')
-          ->setDescription('delete an SSH key');
+          ->setDescription('Delete an SSH key');
     }
 
     /**

@@ -17,7 +17,7 @@ class LinkCommand extends CommandBase
     protected function configure()
     {
         $this->setName('link')
-          ->setDescription('associate your project with an Acquia Cloud application');
+          ->setDescription('Associate your project with an Acquia Cloud application');
     }
 
     /**

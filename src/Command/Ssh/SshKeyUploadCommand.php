@@ -18,7 +18,7 @@ class SshKeyUploadCommand extends CommandBase
     protected function configure()
     {
         $this->setName('ssh-key:upload')
-          ->setDescription('upload an SSH key to Acquia Cloud');
+          ->setDescription('Upload an SSH key to Acquia Cloud');
     }
 
     /**
