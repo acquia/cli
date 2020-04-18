@@ -13,7 +13,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * Class SshKeyListCommand.
  */
-class SshKeyListCommand extends CommandBase
+class SshKeyListCommand extends SshKeyCommandBase
 {
 
     /**
@@ -37,13 +37,10 @@ class SshKeyListCommand extends CommandBase
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
         $cloud_keys = $acquia_cloud_client->processResponse($response);
-
-        $finder = new Finder();
-        $finder->files()->in($this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.ssh')->name('*.pub');
+        $local_keys = $this->findLocalSshKeys();
 
         $table = new Table($output);
         $table->setHeaders(['Local Key Filename', 'Acquia Cloud Key Label']);
-        $local_keys = iterator_to_array($finder);
         foreach ($local_keys as $local_index => $local_file) {
             foreach ($cloud_keys as $index => $cloud_key) {
                 if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {

@@ -12,6 +12,7 @@
     "minimum-stability": "dev",
     "require": {
         "ext-json": "*",
+        "alecrabbit/php-cli-snake": "^0.5.0",
         "doctrine/cache": "^1.10",
         "drupol/phposinfo": "^1.6",
         "kevinrob/guzzle-cache-middleware": "^3.3",

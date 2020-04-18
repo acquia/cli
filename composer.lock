@@ -4,8 +4,56 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ef564d5d2cebda1050b5acbb3d389c12",
+    "content-hash": "d9a45029df1d07096dfdeb04e8d0bc70",
     "packages": [
+        {
+            "name": "alecrabbit/php-cli-snake",
+            "version": "0.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alecrabbit/php-cli-snake.git",
+                "reference": "d4aa6ab9880c708b6a35abb43f3113566ca71c38"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alecrabbit/php-cli-snake/zipball/d4aa6ab9880c708b6a35abb43f3113566ca71c38",
+                "reference": "d4aa6ab9880c708b6a35abb43f3113566ca71c38",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "nunomaduro/collision": "^3.0",
+                "phpunit/phpunit": "^8.0",
+                "react/event-loop": "^1.1",
+                "symfony/var-dumper": "^4.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "AlecRabbit\\Snake\\": "src\\Snake"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Lightweight cli spinner with zero dependencies",
+            "keywords": [
+                "256color",
+                "8bit",
+                "ansi",
+                "cli",
+                "color",
+                "colorful",
+                "console",
+                "php",
+                "snake",
+                "spinner"
+            ],
+            "time": "2019-11-01T19:34:36+00:00"
+        },
         {
             "name": "doctrine/cache",
             "version": "1.10.0",
