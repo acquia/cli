@@ -39,8 +39,7 @@ class SshKeyCreateCommand extends CommandBase
 
         $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.ssh/'. $filename;
         $this->getApplication()->getLocalMachineHelper()->execute([
-          'ssh-keygen', '-b', '4096', '-f', $filepath, '-N', $password]
-        );
+          'ssh-keygen', '-b', '4096', '-f', $filepath, '-N', $password]);
 
         return 0;
     }
@@ -48,8 +47,8 @@ class SshKeyCreateCommand extends CommandBase
     /**
      * @return mixed
      */
-    protected function promptForFilename(
-    ) {
+    protected function promptForFilename()
+    {
         $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ');
         $question->setNormalizer(static function ($value) {
             return $value ? trim($value) : '';
@@ -67,7 +66,7 @@ class SshKeyCreateCommand extends CommandBase
         $filename = $this->questionHelper->ask($this->input, $this->output, $question);
 
         return $filename;
-}
+    }
 
     /**
      * @return mixed
@@ -87,5 +86,5 @@ class SshKeyCreateCommand extends CommandBase
         $password = $this->questionHelper->ask($this->input, $this->output, $question);
 
         return $password;
-}
+    }
 }

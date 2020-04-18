@@ -58,7 +58,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function __construct(string $name =  'UNKNOWN', string $version = 'UNKNOWN', InputInterface $input, OutputInterface $output, LoggerInterface $logger, $repo_root)
+    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', InputInterface $input, OutputInterface $output, LoggerInterface $logger, $repo_root)
     {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();

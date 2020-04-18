@@ -240,7 +240,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $progressBar->start();
 
         // Search Cloud applications.
-        foreach ($customer_applications as $application) {;
+        foreach ($customer_applications as $application) {
+            ;
             $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
             $application_environments = $environments_resource->getAll($application->uuid);
             if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)) {
@@ -261,7 +262,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return ApplicationResponse|null
      */
-    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes) {
+    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)
+    {
         foreach ($application_environments as $environment) {
             if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
                 $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");

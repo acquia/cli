@@ -45,14 +45,14 @@ class UpdateCommand extends CommandBase
         // Check for permissions in local filesystem before start connection process.
         if (!is_writable($tempDirectory = dirname($tempFilename))) {
             throw new \Exception(
-              $programName . ' update failed: the "' . $tempDirectory .
-              '" directory used to download the temp file could not be written'
+                $programName . ' update failed: the "' . $tempDirectory .
+                '" directory used to download the temp file could not be written'
             );
         }
 
         if (!is_writable($localFilename)) {
             throw new \Exception(
-              $programName . ' update failed: the "' . $localFilename . '" file could not be written (execute with sudo)'
+                $programName . ' update failed: the "' . $localFilename . '" file could not be written (execute with sudo)'
             );
         }
 

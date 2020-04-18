@@ -26,8 +26,8 @@ class ApiCommandHelper
         $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
 
         $cache = new PhpArrayAdapter(
-          __DIR__ . '/../../../cache/ApiCommands.cache',
-          new FilesystemAdapter()
+            __DIR__ . '/../../../cache/ApiCommands.cache',
+            new FilesystemAdapter()
         );
 
         // Check to see if the API spec has changed since we cached commands.
@@ -155,9 +155,9 @@ class ApiCommandHelper
         $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
         // If there's an invalid entry OR there's no entry, return false.
         if (!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit() && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum)) {
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 }
