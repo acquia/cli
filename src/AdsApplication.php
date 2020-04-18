@@ -4,12 +4,16 @@ namespace Acquia\Ads;
 
 use Acquia\Ads\Command\Api\ApiCommandHelper;
 use Acquia\Ads\DataStore\FileStore;
+use Acquia\Ads\Helpers\LocalMachineHelper;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class CommandBase
@@ -28,27 +32,49 @@ class AdsApplication extends Application implements LoggerAwareInterface
     private $repoRoot;
 
     /**
+     * @var \Acquia\Ads\Helpers\LocalMachineHelper
+     */
+    protected $localMachineHelper;
+
+    /**
+     * @return \Acquia\Ads\Helpers\LocalMachineHelper
+     */
+    public function getLocalMachineHelper(): \Acquia\Ads\Helpers\LocalMachineHelper
+    {
+        return $this->localMachineHelper;
+    }
+
+    /**
      * Ads constructor.
      *
      * @param string $name
      * @param string $version
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Psr\Log\LoggerInterface $logger
+     * @param $repo_root
+     *
+     * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', LoggerInterface $logger, $repo_root)
+    public function __construct(string $name =  'UNKNOWN', string $version = 'UNKNOWN', InputInterface $input, OutputInterface $output, LoggerInterface $logger, $repo_root)
     {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
         $this->repoRoot = $repo_root;
+        $this->localMachineHelper = new LocalMachineHelper($input, $output);
         parent::__construct($name, $version);
-        $this->datastore = new FileStore($this->getHomeDir() . '/.acquia');
+        $this->datastore = new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia');
+
+        // Add API commands.
         $api_command_helper = new ApiCommandHelper();
-        // @todo Skip if we're not running a list or api command.
         $this->addCommands($api_command_helper->getApiCommands());
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getRepoRoot(): string
+    public function getRepoRoot(): ?string
     {
         return $this->repoRoot;
     }
@@ -67,30 +93,6 @@ class AdsApplication extends Application implements LoggerAwareInterface
     public function getDataStore()
     {
         return $this->datastore;
-    }
-
-    /**
-     * Returns the appropriate home directory.
-     *
-     * Adapted from Ads Package Manager by Ed Reel
-     * @author Ed Reel <@uberhacker>
-     * @url    https://github.com/uberhacker/tpm
-     *
-     * @return string
-     */
-    protected function getHomeDir()
-    {
-        $home = getenv('HOME');
-        if (!$home) {
-            $system = '';
-            if (getenv('MSYSTEM') !== null) {
-                $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
-            }
-            if ($system != 'MING') {
-                $home = getenv('HOMEPATH');
-            }
-        }
-        return $home;
     }
 
     /**

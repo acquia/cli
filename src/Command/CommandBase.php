@@ -13,6 +13,7 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\ApplicationsResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Question\ChoiceQuestion;
@@ -52,10 +53,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     private $cloudApplication;
 
     private $localProjectInfo;
-    /**
-     * @var \Acquia\Ads\Helpers\LocalMachineHelper
-     */
-    protected $local_machine_helper;
 
     /**
      * Initializes the command just after the input has been validated.
@@ -70,11 +67,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
         $this->fs = new Filesystem();
         $this->setLogger(new ConsoleLogger($output));
-        $this->local_machine_helper = new LocalMachineHelper($input, $output);
 
         /** @var \Acquia\Ads\AdsApplication $application */
         $application = $this->getApplication();
         $this->datastore = $application->getDatastore();
+    }
+
+    /**
+     * Gets the application instance for this command.
+     *
+     * @return AdsApplication|null An Application instance
+     */
+    public function getApplication(): ?AdsApplication
+    {
+        return $this->application;
     }
 
     /**
@@ -90,7 +96,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function getAcquiaCloudClient(): Client
     {
-        // @todo Automatically detect current applications, else:
         $cloud_api_conf = $this->datastore->get('cloud_api.conf');
         $config = [
           'key' => $cloud_api_conf['key'],
@@ -225,6 +230,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $environments_resource = new Environments($acquia_cloud_client);
         foreach ($customer_applications as $application) {
             $this->logger->debug("Searching {$application->name} for git URLs that match local git config.");
+            // @todo Add progress bar.
             $application_environments = $environments_resource->getAll($application->uuid);
             foreach ($application_environments as $environment) {
                 if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {

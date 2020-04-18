@@ -5,6 +5,7 @@ namespace Acquia\Ads\Command\Remote;
 use Acquia\Ads\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -37,13 +38,17 @@ class AliasListCommand extends SshCommand
         $customer_applications = $applications_resource->getAll();
         $environments_resource = new Environments($acquia_cloud_client);
         $count = count($customer_applications);
-        $this->output->writeln("Fetching aliases for $count applications from Acquia Cloud...");
 
         $table = new Table($this->output);
         $table->setHeaders(['Environment Alias', 'Application', 'Environment UUID']);
 
+        // creates a new progress bar (50 units)
+        $progressBar = new ProgressBar($output, $count);
+        $progressBar->setFormat("%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
+        $progressBar->setMessage("Fetching aliases for <comment>$count applications</comment> from Acquia Cloud...");
+        $progressBar->start();
         foreach ($customer_applications as $customer_application) {
-            $this->logger->debug("Fetching aliases for environments belonging to {$customer_application->name} application.");
+            $progressBar->setMessage("Fetching aliases for <comment>{$customer_application->name}</comment>");
             $site_id = $customer_application->hosting->id;
             $parts = explode(':', $site_id);
             $site_prefix = $parts[1];
@@ -52,8 +57,10 @@ class AliasListCommand extends SshCommand
                 $alias = $site_prefix . '.' . $environment->name;
                 $table->addRow([$customer_application->name, $alias, $environment->uuid]);
             }
+            $progressBar->advance();
         }
 
+        $progressBar->finish();
         $table->render();
 
         return 0;

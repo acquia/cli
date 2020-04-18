@@ -48,7 +48,7 @@ class ApiCommandHelper
                 $command->setResponses($schema['responses']);
                 $command->setServers($acquia_cloud_spec['servers']);
                 $command->setPath($path);
-                // This is unhidden when `ads api` is run.
+                // This is unhidden when `ads api:list` is run.
                 $command->setHidden(true);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;

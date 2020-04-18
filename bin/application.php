@@ -34,7 +34,7 @@ $repo_root = find_repo_root();
 /**
  * Running ads.
  */
-$application = new AdsApplication('ads', '@package_version@', $logger, $repo_root);
+$application = new AdsApplication('ads', '@package_version@', $input, $output, $logger, $repo_root);
 $application->addCommands([
     new AliasesDownloadCommand(),
     new AliasListCommand(),

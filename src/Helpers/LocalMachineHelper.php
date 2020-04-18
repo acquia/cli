@@ -198,4 +198,29 @@ class LocalMachineHelper
         $process->setTimeout(600);
         return $process;
     }
+
+
+    /**
+     * Returns the appropriate home directory.
+     *
+     * Adapted from Ads Package Manager by Ed Reel
+     * @author Ed Reel <@uberhacker>
+     * @url    https://github.com/uberhacker/tpm
+     *
+     * @return string
+     */
+    public function getHomeDir()
+    {
+        $home = getenv('HOME');
+        if (!$home) {
+            $system = '';
+            if (getenv('MSYSTEM') !== null) {
+                $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
+            }
+            if ($system != 'MING') {
+                $home = getenv('HOMEPATH');
+            }
+        }
+        return $home;
+    }
 }

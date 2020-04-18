@@ -36,11 +36,6 @@ if ($pharPath) {
 /**
  * Finds the root directory for the repository.
  *
- * Ordinarily this function is robust, but it can fail if you've symlinked BLT
- * into your vendor directory (as with a Composer path repository) and are not
- * running commands from the project root. In this state, BLT has no possible
- * way to identify the root directory.
- *
  * @return null|string
  *   Root.
  */
@@ -56,7 +51,7 @@ function find_repo_root()
         array_unshift($possible_repo_roots, $_SERVER['PWD']);
     }
     foreach ($possible_repo_roots as $possible_repo_root) {
-        if ($repo_root = find_directory_containing_files($possible_repo_root, ['vendor/bin/blt', 'vendor/autoload.php'])) {
+        if ($repo_root = find_directory_containing_files($possible_repo_root, ['docroot', 'vendor/autoload.php'])) {
             return $repo_root;
         }
     }
