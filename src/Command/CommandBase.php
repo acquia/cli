@@ -15,6 +15,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -225,21 +226,48 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         Client $acquia_cloud_client,
         array $local_git_remotes
     ): ?ApplicationResponse {
+
+        // Set up API resources.
         $applications_resource = new Applications($acquia_cloud_client);
         $customer_applications = $applications_resource->getAll();
         $environments_resource = new Environments($acquia_cloud_client);
-        foreach ($customer_applications as $application) {
-            $this->logger->debug("Searching {$application->name} for git URLs that match local git config.");
-            // @todo Add progress bar.
+
+        // Create progress bar.
+        $count = count($customer_applications);
+        $progressBar = new ProgressBar($this->output, $count);
+        $progressBar->setFormat('message');
+        $progressBar->setMessage("Searching <comment>$count applications</comment> on Acquia Cloud...");
+        $progressBar->start();
+
+        // Search Cloud applications.
+        foreach ($customer_applications as $application) {;
+            $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
             $application_environments = $environments_resource->getAll($application->uuid);
-            foreach ($application_environments as $environment) {
-                if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
-                    $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");
-                    return $application;
-                }
+            if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)) {
+                $progressBar->finish();
+                return $application;
+            }
+            $progressBar->advance();
+        }
+        $progressBar->finish();
+
+        return null;
+    }
+
+    /**
+     * @param ApplicationResponse $application
+     * @param \AcquiaCloudApi\Response\EnvironmentsResponse $application_environments
+     * @param array $local_git_remotes
+     *
+     * @return ApplicationResponse|null
+     */
+    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes) {
+        foreach ($application_environments as $environment) {
+            if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
+                $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");
+                return $application;
             }
         }
-
         return null;
     }
 

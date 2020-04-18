@@ -11,6 +11,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\HelpCommand;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -69,6 +70,9 @@ class AdsApplication extends Application implements LoggerAwareInterface
         // Add API commands.
         $api_command_helper = new ApiCommandHelper();
         $this->addCommands($api_command_helper->getApiCommands());
+
+        // Register custom progress bar format.
+        ProgressBar::setFormatDefinition('message', "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
     }
 
     /**

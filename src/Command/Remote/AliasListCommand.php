@@ -7,16 +7,13 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class DrushCommand
- * A command to proxy Drush commands on an environment using SSH
- * @package Acquia\Ads\Commands\Remote
+ * Class AliasListCommand
  */
-class AliasListCommand extends SshCommand
+class AliasListCommand extends CommandBase
 {
 
     /**
@@ -37,14 +34,13 @@ class AliasListCommand extends SshCommand
         $applications_resource = new Applications($acquia_cloud_client);
         $customer_applications = $applications_resource->getAll();
         $environments_resource = new Environments($acquia_cloud_client);
-        $count = count($customer_applications);
 
         $table = new Table($this->output);
         $table->setHeaders(['Environment Alias', 'Application', 'Environment UUID']);
 
-        // creates a new progress bar (50 units)
+        $count = count($customer_applications);
         $progressBar = new ProgressBar($output, $count);
-        $progressBar->setFormat("%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
+        $progressBar->setFormat('message');
         $progressBar->setMessage("Fetching aliases for <comment>$count applications</comment> from Acquia Cloud...");
         $progressBar->start();
         foreach ($customer_applications as $customer_application) {
