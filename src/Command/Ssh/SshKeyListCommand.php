@@ -2,13 +2,9 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Helpers\LocalMachineHelper;
-use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 
 /**
  * Class SshKeyListCommand.

@@ -3,15 +3,10 @@
 namespace Acquia\Ads\Command;
 
 use Acquia\Ads\Exec\ExecTrait;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Yaml\Yaml;
-use League\OAuth2\Client\Provider\GenericProvider;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use GuzzleHttp\Client;
 
 /**
  * Class CreateProjectCommand
@@ -63,7 +58,7 @@ class AuthCommand extends CommandBase
             'key' => $api_key,
             'secret' => $api_secret,
         ];
-        $this->fs->dumpFile($this->getHomeDir() . '/.acquia/cloud_api.conf', json_encode($file_contents, JSON_PRETTY_PRINT));
+        $this->fs->dumpFile($this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf', json_encode($file_contents, JSON_PRETTY_PRINT));
 
         return 0;
     }

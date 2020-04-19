@@ -8,9 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CreateProjectCommand
- *
- * @package Grasmash\YamlCli\Command
+ * Class ApiCommandBase
  */
 class ApiCommandBase extends CommandBase
 {
@@ -51,10 +49,9 @@ class ApiCommandBase extends CommandBase
             }
         }
 
+        // @todo Create a body for post commands.
         $path = $this->getRequestPath($input);
-
-        $body = '';
-
+        // @todo Replace $client with Acquia Cloud Connector.
         $response = $client->request($api_url, $path, $query, $this->method);
         $this->output->writeln($response->getBody()->getContents());
 

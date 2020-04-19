@@ -3,8 +3,6 @@
 namespace Acquia\Ads\Exec;
 
 use drupol\phposinfo\OsInfo;
-use drupol\phposinfo\Enum\Family;
-use drupol\phposinfo\Enum\Os;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Process\Process;
 

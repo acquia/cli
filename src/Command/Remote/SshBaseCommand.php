@@ -7,7 +7,6 @@ use Acquia\Ads\Exception\AdsException;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use Symfony\Component\Process\ProcessUtils;
 
 /**
  * Class SSHBaseCommand

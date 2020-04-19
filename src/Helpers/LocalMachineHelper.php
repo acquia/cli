@@ -65,13 +65,8 @@ class LocalMachineHelper
             }
         }
         $process->setTty($useTty);
-        // Use '$useTty' as a sort of 'isInteractive' indicator.
-        if ($useTty && $progressIndicatorAllowed) {
-            $this->getProgressBar($process)->cycle($callback);
-        } else {
-            $process->start();
-            $process->wait($callback);
-        }
+        $process->start();
+        $process->wait($callback);
         return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
     }
 
@@ -96,18 +91,6 @@ class LocalMachineHelper
     }
 
     /**
-     * Returns a ProcessProgressBar
-     *
-     * @param Process $process
-     * @return ProcessProgressBar
-     */
-    public function getProgressBar(Process $process): ProcessProgressBar
-    {
-        $process->start();
-        return $this->getContainer()->get(ProcessProgressBar::class, [$this->output, $process,]);
-    }
-
-    /**
      * Opens the given URL in a browser on the local machine.
      *
      * @param $url The URL to be opened
@@ -119,7 +102,7 @@ class LocalMachineHelper
     {
         // Otherwise attempt to launch it.
         $cmd = '';
-        switch (php_uname('s')) {
+        switch (PHP_OS) {
             case 'Linux':
                 $cmd = 'xdg-open';
                 break;
@@ -186,8 +169,7 @@ class LocalMachineHelper
      */
     protected function fixFilename($filename): string
     {
-        $config = $this->getConfig();
-        return $config->fixDirectorySeparators(str_replace('~', $config->get('user_home'), $filename));
+        return str_replace('~', $this->getHomeDir(), $filename);
     }
 
     /**
@@ -199,7 +181,6 @@ class LocalMachineHelper
     protected function getProcess($cmd): Process
     {
         $process = new Process($cmd);
-        //$config = $this->getConfig();
         $process->setTimeout(600);
         return $process;
     }

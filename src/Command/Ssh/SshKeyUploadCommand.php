@@ -109,7 +109,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         });
 
         // Add a 10 minute timeout.
-        $loop->addTimer(10 * 60, function ($timer) use ($loop) {
+        $loop->addTimer(10 * 60, function () use ($loop) {
             $this->logger->debug('Timed out after 10 minutes!');
             $loop->stop();
         });
@@ -121,7 +121,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
     }
 
     /**
-     * @param $local_keys
+     * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
      *
      * @return string
      */
@@ -166,7 +166,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
     }
 
     /**
-     * @param $local_keys
+     * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
      * @param string $chosen_local_key
      *
      * @return false|string

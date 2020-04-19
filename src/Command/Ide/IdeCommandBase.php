@@ -5,14 +5,7 @@ namespace Acquia\Ads\Command\Ide;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
-use AcquiaCloudApi\Endpoints\Applications;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Class IdeCommandBase

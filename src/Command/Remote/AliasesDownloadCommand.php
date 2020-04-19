@@ -2,16 +2,10 @@
 
 namespace Acquia\Ads\Command\Remote;
 
-use Acquia\Ads\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Account;
-use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\Environments;
-use Exception;
 use PharData;
 use RecursiveIteratorIterator;
 use RuntimeException;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

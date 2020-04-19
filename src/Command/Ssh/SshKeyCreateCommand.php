@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
-use Acquia\Ads\Command\CommandBase;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
