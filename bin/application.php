@@ -17,6 +17,7 @@ use Acquia\Ads\Command\Remote\DrushCommand;
 use Acquia\Ads\Command\Remote\SshCommand;
 use Acquia\Ads\Command\SiteAliasesCommand;
 use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Ads\Command\Ssh\SshKeyListCommand;
 use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
@@ -53,6 +54,7 @@ $application->addCommands([
     new SshKeyDeleteCommand(),
     new SshKeyListCommand(),
     new SshKeyUploadCommand(),
+    new SshKeyCreateUploadCommand(),
     new UpdateCommand(),
 ]);
 

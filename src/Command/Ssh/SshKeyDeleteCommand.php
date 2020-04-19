@@ -50,6 +50,6 @@ class SshKeyDeleteCommand extends CommandBase
             return 0;
         }
 
-        throw new AdsException($response->getReasonPhrase());
+        throw new AdsException($response->getBody()->getContents());
     }
 }

@@ -20,7 +20,6 @@ use Symfony\Component\Finder\Finder;
  */
 abstract class SshKeyCommandBase extends CommandBase
 {
-
     /**
      * @return array|\Symfony\Component\Finder\Finder
      */

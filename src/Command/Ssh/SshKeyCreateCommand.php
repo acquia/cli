@@ -10,11 +10,8 @@ use Symfony\Component\Console\Question\Question;
 /**
  * Class SshKeyCreateCommand.
  */
-class SshKeyCreateCommand extends CommandBase
+class SshKeyCreateCommand extends SshKeyCommandBase
 {
-    /** @var \Symfony\Component\Console\Helper\QuestionHelper */
-    private $questionHelper;
-
     /**
      * {inheritdoc}
      */
@@ -32,14 +29,7 @@ class SshKeyCreateCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->questionHelper = $this->getHelper('question');
-
-        $filename = $this->promptForFilename();
-        $password = $this->promptForPassword();
-
-        $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.ssh/'. $filename;
-        $this->getApplication()->getLocalMachineHelper()->execute([
-          'ssh-keygen', '-b', '4096', '-f', $filepath, '-N', $password]);
+        $this->createSshKey();
 
         return 0;
     }
@@ -86,5 +76,27 @@ class SshKeyCreateCommand extends CommandBase
         $password = $this->questionHelper->ask($this->input, $this->output, $question);
 
         return $password;
+    }
+
+    /**
+     * @return string
+     */
+    protected function createSshKey(): string
+    {
+        $filename = $this->promptForFilename();
+        $password = $this->promptForPassword();
+
+        $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.ssh/' . $filename;
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'ssh-keygen',
+          '-b',
+          '4096',
+          '-f',
+          $filepath,
+          '-N',
+          $password
+        ]);
+
+        return $filepath;
     }
 }

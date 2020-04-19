@@ -55,6 +55,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     private $localProjectInfo;
 
+    /** @var \Symfony\Component\Console\Helper\QuestionHelper */
+    protected $questionHelper;
+
     /**
      * Initializes the command just after the input has been validated.
      *
@@ -68,6 +71,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->formatter = $this->getHelper('formatter');
         $this->fs = new Filesystem();
         $this->setLogger(new ConsoleLogger($output));
+        $this->questionHelper = $this->getHelper('question');
 
         /** @var \Acquia\Ads\AdsApplication $application */
         $application = $this->getApplication();
