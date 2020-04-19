@@ -98,7 +98,7 @@ class ApiCommandBase extends CommandBase
      *
      * @return string
      */
-    protected function getRequestPath(InputInterface $input)
+    protected function getRequestPath(InputInterface $input): string
     {
         $path = $this->path;
         $arguments = $input->getArguments();

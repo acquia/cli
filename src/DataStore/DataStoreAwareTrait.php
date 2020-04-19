@@ -24,7 +24,7 @@ trait DataStoreAwareTrait
     /**
      * @param DataStoreInterface $data_store
      */
-    public function setDataStore(DataStoreInterface $data_store)
+    public function setDataStore(DataStoreInterface $data_store): void
     {
         $this->data_store = $data_store;
     }

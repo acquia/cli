@@ -42,7 +42,7 @@ class AdsException extends Exception
      *
      * @return string $this->replacements
      */
-    public function getRawMessage()
+    public function getRawMessage(): string
     {
         return $this->raw_message;
     }
@@ -52,7 +52,7 @@ class AdsException extends Exception
      *
      * @return array $this->replacements The replacement variables.
      */
-    public function getReplacements()
+    public function getReplacements(): array
     {
         return $this->replacements;
     }
@@ -64,7 +64,7 @@ class AdsException extends Exception
      * @param array  $replacements The values to replace into the message
      * @return string
      */
-    protected function interpolateString($message, $replacements)
+    protected function interpolateString($message, $replacements): string
     {
         $tr = [];
         foreach ($replacements as $key => $val) {

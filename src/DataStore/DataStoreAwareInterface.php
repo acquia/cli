@@ -20,5 +20,5 @@ interface DataStoreAwareInterface
      *
      * @return DataStoreInterface
      */
-    public function getDataStore();
+    public function getDataStore(): DataStoreInterface;
 }

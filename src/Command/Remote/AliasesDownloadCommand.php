@@ -46,7 +46,7 @@ class AliasesDownloadCommand extends SshCommand
 
         if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
             if (!$home = getenv('HOME')) {
-                throw new \RuntimeException('Home directory not found.');
+                throw new RuntimeException('Home directory not found.');
             }
                 $drushDirectory = $home . '/.drush';
             if (!is_dir($drushDirectory) && !mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {

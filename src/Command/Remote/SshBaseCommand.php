@@ -39,7 +39,7 @@ abstract class SshBaseCommand extends CommandBase
      * @param type|bool $allowed
      * @return $this
      */
-    protected function setProgressAllowed($allowed = true)
+    protected function setProgressAllowed($allowed = true): self
     {
         $this->progressAllowed = $allowed;
         return $this;
@@ -53,7 +53,7 @@ abstract class SshBaseCommand extends CommandBase
      * @return int
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function executeCommand(array $command_args)
+    protected function executeCommand(array $command_args): int
     {
         $command_summary = $this->getCommandSummary($command_args);
 
@@ -99,7 +99,7 @@ abstract class SshBaseCommand extends CommandBase
      * @param array $command_args
      * @return string
      */
-    private function firstArguments($command_args)
+    private function firstArguments($command_args): string
     {
         $result = '';
         while (!empty($command_args)) {
@@ -115,7 +115,7 @@ abstract class SshBaseCommand extends CommandBase
     /**
      * @return \Closure
      */
-    private function getOutputCallback()
+    private function getOutputCallback(): callable
     {
         if ($this->local_machine_helper->useTty() === false) {
             $output = $this->output;
@@ -137,7 +137,7 @@ abstract class SshBaseCommand extends CommandBase
      * @param array $command_args
      * @return string
      */
-    private function getCommandSummary($command_args)
+    private function getCommandSummary($command_args): string
     {
         return $this->firstArguments($command_args);
     }
@@ -145,7 +145,7 @@ abstract class SshBaseCommand extends CommandBase
     /**
      * @return array SSH connection string
      */
-    private function getConnectionArgs()
+    private function getConnectionArgs(): array
     {
         return [
           'ssh',

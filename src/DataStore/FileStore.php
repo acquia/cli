@@ -2,7 +2,7 @@
 
 namespace Acquia\Ads\DataStore;
 
-use Acquia\Ads\Exceptions\AdsException;
+use Acquia\Ads\Exception\AdsException;
 
 /**
  * Class FileStore
@@ -25,7 +25,7 @@ class FileStore implements DataStoreInterface
      *
      * @param string $key A key
      * @return mixed The value fpr the given key or null.
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     public function get($key)
     {
@@ -44,7 +44,7 @@ class FileStore implements DataStoreInterface
      *
      * @param string $key A key
      * @param mixed $data Data to save to the store
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     public function set($key, $data)
     {
@@ -57,7 +57,7 @@ class FileStore implements DataStoreInterface
      *
      * @param string $key A key
      * @return bool Whether a value exists with the given key
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     public function has($key)
     {
@@ -69,7 +69,7 @@ class FileStore implements DataStoreInterface
      * Remove value from the store
      *
      * @param string $key A key
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     public function remove($key)
     {
@@ -82,9 +82,9 @@ class FileStore implements DataStoreInterface
     /**
      * Remove all values from the store
      *
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
-    public function removeAll()
+    public function removeAll(): void
     {
         foreach ($this->keys() as $key) {
             $this->remove($key);
@@ -111,8 +111,9 @@ class FileStore implements DataStoreInterface
      * @param bool $writable
      *
      * @return string A file path
+     * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function getFileName($key, $writable = false)
+    protected function getFileName($key, $writable = false): string
     {
         $key = $this->cleanKey($key);
 
@@ -142,9 +143,9 @@ class FileStore implements DataStoreInterface
     /**
      * Check that the directory is writable and create it if we can.
      *
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function ensureDirectoryWritable()
+    protected function ensureDirectoryWritable(): void
     {
         // Reality check to prevent stomping on the local filesystem if there is something wrong with the config.
         if (!$this->directory) {
@@ -152,7 +153,8 @@ class FileStore implements DataStoreInterface
         }
 
         $writable = is_dir($this->directory)
-            || (!file_exists($this->directory) && @mkdir($this->directory, 0777, true));
+            || (!file_exists($this->directory) && !mkdir($concurrentDirectory = $this->directory, 0777,
+              true) && !is_dir($concurrentDirectory));
         $writable = $writable && is_writable($this->directory);
         if (!$writable) {
             throw new AdsException(

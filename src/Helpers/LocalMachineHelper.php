@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Helpers;
 
+use Acquia\Ads\Exception\AdsException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -35,7 +36,7 @@ class LocalMachineHelper
      *
      * @return array The command output and exit_code
      */
-    public function exec($cmd, $callback = null)
+    public function exec($cmd, $callback = null): array
     {
         $process = $this->getProcess($cmd);
         $process->run($callback);
@@ -50,7 +51,7 @@ class LocalMachineHelper
      * @param bool $progressIndicatorAllowed Allow the progress bar to be used (if in tty mode only)
      * @return array The command output and exit_code
      */
-    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false)
+    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false): array
     {
         $process = $this->getProcess($cmd);
         $useTty = $this->useTty();
@@ -79,7 +80,7 @@ class LocalMachineHelper
      *
      * @return Filesystem
      */
-    public function getFilesystem()
+    public function getFilesystem(): Filesystem
     {
         return new Filesystem();
     }
@@ -89,7 +90,7 @@ class LocalMachineHelper
      *
      * @return Finder
      */
-    public function getFinder()
+    public function getFinder(): Finder
     {
         return new Finder();
     }
@@ -100,7 +101,7 @@ class LocalMachineHelper
      * @param Process $process
      * @return ProcessProgressBar
      */
-    public function getProgressBar(Process $process)
+    public function getProgressBar(Process $process): ProcessProgressBar
     {
         $process->start();
         return $this->getContainer()->get(ProcessProgressBar::class, [$this->output, $process,]);
@@ -110,9 +111,11 @@ class LocalMachineHelper
      * Opens the given URL in a browser on the local machine.
      *
      * @param $url The URL to be opened
-     * @throws \Acquia\Ads\Exceptions\AdsException
+     *
+     * @throws \Acquia\Ads\Exception\AdsException*@throws \Acquia\Ads\Exception\AdsException
+     * @throws \Acquia\Ads\Exception\AdsException
      */
-    public function openUrl($url)
+    public function openUrl($url): void
     {
         // Otherwise attempt to launch it.
         $cmd = '';
@@ -141,7 +144,7 @@ class LocalMachineHelper
      * @param string $filename Name of the file to read
      * @return string Content read from that file
      */
-    public function readFile($filename)
+    public function readFile($filename): string
     {
         return file_get_contents($this->fixFilename($filename));
     }
@@ -151,7 +154,7 @@ class LocalMachineHelper
      *
      * @return bool|null
      */
-    public function useTty()
+    public function useTty(): ?bool
     {
         // If we are not in interactive mode, then never use a tty.
         if (!$this->input->isInteractive()) {
@@ -170,7 +173,7 @@ class LocalMachineHelper
      * @param string $filename Name of the file to write to
      * @param string $content Content to write to the file
      */
-    public function writeFile($filename, $content)
+    public function writeFile($filename, $content): void
     {
         $this->getFilesystem()->dumpFile($this->fixFilename($filename), $content);
     }
@@ -181,7 +184,7 @@ class LocalMachineHelper
      * @param string $filename
      * @return string
      */
-    protected function fixFilename($filename)
+    protected function fixFilename($filename): string
     {
         $config = $this->getConfig();
         return $config->fixDirectorySeparators(str_replace('~', $config->get('user_home'), $filename));
@@ -193,7 +196,7 @@ class LocalMachineHelper
      * @param string $cmd The command to execute
      * @return Process
      */
-    protected function getProcess($cmd)
+    protected function getProcess($cmd): Process
     {
         $process = new Process($cmd);
         //$config = $this->getConfig();
@@ -211,7 +214,7 @@ class LocalMachineHelper
      *
      * @return string
      */
-    public function getHomeDir()
+    public function getHomeDir(): string
     {
         $home = getenv('HOME');
         if (!$home) {

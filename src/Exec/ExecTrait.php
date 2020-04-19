@@ -28,7 +28,7 @@ trait ExecTrait
      *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
      *   default browser could not be found.
      */
-    public function startBrowser($uri = null, $sleep = 0, $port = false, $browser = true)
+    public function startBrowser($uri = null, $sleep = 0, $port = false, $browser = true): bool
     {
         if ($browser) {
             // We can only open a browser if we have a DISPLAY environment variable on
@@ -92,7 +92,7 @@ trait ExecTrait
      * @return bool
      *   True if program exists on PATH.
      */
-    public function programExists($program)
+    public function programExists($program): bool
     {
         $command = OsInfo::isWindows() ? ['where', $program] : ['command', '-v', $program];
         $process = new Process($command);

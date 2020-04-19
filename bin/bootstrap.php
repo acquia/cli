@@ -43,8 +43,8 @@ function find_repo_root()
 {
     $possible_repo_roots = [
       getcwd(),
-      realpath(__DIR__ . '/../'),
-      realpath(__DIR__ . '/../../../'),
+      dirname(__DIR__) . '/',
+      dirname(dirname(dirname(__DIR__))) . '/',
     ];
     // Check for PWD - some local environments will not have this key.
     if (isset($_SERVER['PWD'])) {
@@ -86,7 +86,7 @@ function find_directory_containing_files($working_directory, array $files, $max_
         if (files_exist($file_path, $files)) {
             return $file_path;
         } else {
-            $file_path = realpath($file_path . '/..');
+            $file_path = dirname($file_path) . '';
         }
     }
 
