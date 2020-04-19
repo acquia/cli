@@ -29,15 +29,13 @@ class ApiCommandBase extends CommandBase
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *
      * @return int 0 if everything went fine, or an exit code
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $client = new CloudApiClient($this->getApplication()->getDatastore());
-        $api_url = $this->servers[0]['url'];
-
+        // Filter out default Command options.
         $options = $input->getOptions();
         $default_options = ['help', 'quiet', 'verbose', 'version', 'ansi', 'no-ansi', 'no-interaction'];
-        // Filter out default Command options.
         $request_options = array_diff(array_keys($options), $default_options);
         $request_options = array_intersect_key($options, array_flip($request_options));
 
@@ -51,8 +49,12 @@ class ApiCommandBase extends CommandBase
 
         // @todo Create a body for post commands.
         $path = $this->getRequestPath($input);
-        // @todo Replace $client with Acquia Cloud Connector.
-        $response = $client->request($api_url, $path, $query, $this->method);
+        $acquia_cloud_client = $this->getAcquiaCloudClient();
+        $options = [
+          'query' => $query,
+        ];
+        $response = $acquia_cloud_client->makeRequest($this->method, $path, $options);
+        // @todo Add sytax highlighting to json output.
         $this->output->writeln($response->getBody()->getContents());
 
         return 0;
