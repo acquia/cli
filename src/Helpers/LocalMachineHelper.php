@@ -31,6 +31,8 @@ class LocalMachineHelper
      * Executes the given command on the local machine and return the exit code and output.
      *
      * @param string $cmd The command to execute
+     * @param null $callback
+     *
      * @return array The command output and exit_code
      */
     public function exec($cmd, $callback = null)

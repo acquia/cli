@@ -106,9 +106,11 @@ class FileStore implements DataStoreInterface
 
     /**
      * Get a valid file name for the given key.
+     *
      * @param string $key The data key to be written or read
+     * @param bool $writable
+     *
      * @return string A file path
-     * @throws AdsException
      */
     protected function getFileName($key, $writable = false)
     {

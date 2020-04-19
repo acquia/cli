@@ -28,7 +28,7 @@ class RefreshCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output->writeln("<comment>This is a command stub. The command logic has not been written yet.");
+        $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
         return 0;
     }
 }

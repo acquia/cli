@@ -6,6 +6,10 @@ use Acquia\Ads\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use Exception;
+use PharData;
+use RecursiveIteratorIterator;
+use RuntimeException;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -30,6 +34,7 @@ class AliasesDownloadCommand extends SshCommand
 
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
@@ -41,20 +46,18 @@ class AliasesDownloadCommand extends SshCommand
 
         if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
             if (!$home = getenv('HOME')) {
-                throw new \Exception('Home directory not found.');
+                throw new \RuntimeException('Home directory not found.');
             }
                 $drushDirectory = $home . '/.drush';
-            if (!is_dir($drushDirectory)) {
-                if (!mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
-                    throw new \RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
-                }
+            if (!is_dir($drushDirectory) && !mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
+                throw new RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
             }
             if (!is_writable($drushDirectory)) {
                 chmod($drushDirectory, 0700);
             }
-                $archive = new \PharData($drushArchive . '/.drush');
+                $archive = new PharData($drushArchive . '/.drush');
                 $drushFiles = [];
-            foreach (new \RecursiveIteratorIterator($archive, \RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+            foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
                 $drushFiles[] = '.drush/' . $file->getFileName();
             }
 

@@ -40,9 +40,9 @@ class AuthCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $token_url = "https://cloud.acquia.com/a/profile/tokens";
+        $token_url = 'https://cloud.acquia.com/a/profile/tokens';
         $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>.");
-        $this->output->writeln("You should create a new token specifically for Developer Studio and enter the associated key and secret below.");
+        $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
         $helper = $this->getHelper('question');
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>', true);
@@ -64,5 +64,7 @@ class AuthCommand extends CommandBase
             'secret' => $api_secret,
         ];
         $this->fs->dumpFile($this->getHomeDir() . '/.acquia/cloud_api.conf', json_encode($file_contents, JSON_PRETTY_PRINT));
+
+        return 0;
     }
 }

@@ -2,8 +2,6 @@
 
 namespace Acquia\Ads\Command\Api;
 
-use Couchbase\BooleanFieldSearchQuery;
-use Doctrine\Common\Cache\PhpFileCache;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
@@ -105,7 +103,7 @@ class ApiCommandHelper
     /**
      * @param $schema
      * @param $acquia_cloud_spec
-     * @param \Acquia\Ads\Command\ApiCommand $command
+     * @param \Acquia\Ads\Command\Api\ApiCommandBase $command
      */
     protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void
     {

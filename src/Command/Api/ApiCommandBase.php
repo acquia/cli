@@ -14,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ApiCommandBase extends CommandBase
 {
-    /** @var Method */
+    /** @var string */
     protected $method;
 
     /** @var array */

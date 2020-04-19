@@ -6,6 +6,7 @@ use Acquia\Ads\DataStore\DataStoreInterface;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 
 class CloudApiClient
 {
@@ -31,9 +32,14 @@ class CloudApiClient
     }
 
     /**
+     * @param $api_url
+     * @param $path
+     * @param $query
+     * @param $method
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function request($api_url, $path, $query, $method): ?\Psr\Http\Message\ResponseInterface
+    public function request($api_url, $path, $query, $method): ?ResponseInterface
     {
         try {
             // Try to get an access token using the client credentials grant.

@@ -40,7 +40,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * @return \Acquia\Ads\Helpers\LocalMachineHelper
      */
-    public function getLocalMachineHelper(): \Acquia\Ads\Helpers\LocalMachineHelper
+    public function getLocalMachineHelper(): LocalMachineHelper
     {
         return $this->localMachineHelper;
     }
@@ -90,7 +90,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
     {
         $xdebug_loaded = extension_loaded('xdebug');
         if ($xdebug_loaded) {
-            $this->logger->warning("<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>");
+            $this->logger->warning('<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>');
         }
     }
 
@@ -102,7 +102,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * @return \Psr\Log\LoggerInterface
      */
-    public function getLogger(): \Psr\Log\LoggerInterface
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }

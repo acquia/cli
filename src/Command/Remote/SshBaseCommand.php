@@ -2,16 +2,11 @@
 
 namespace Acquia\Ads\Command\Remote;
 
-use Acquia\Ads\Application\ApplicationAwareInterface;
-use Acquia\Ads\Application\ApplicationAwareTrait;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exception\AdsException;
-use Acquia\Ads\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Process\ProcessUtils;
 
 /**
@@ -19,10 +14,8 @@ use Symfony\Component\Process\ProcessUtils;
  * Base class for Ads commands that deal with sending SSH commands
  * @package Acquia\Ads\Commands\Remote
  */
-abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInterface
+abstract class SshBaseCommand extends CommandBase
 {
-
-    use ApplicationAwareTrait;
 
     /**
      * @var string Name of the command to be run as it will be used on server
@@ -87,6 +80,8 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
      * Sends a command to an environment via SSH.
      *
      * @param array $command The command to be run on the platform
+     *
+     * @return
      */
     protected function sendCommandViaSsh($command)
     {
@@ -96,87 +91,6 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
             $this->getOutputCallback(),
             $this->progressAllowed
         );
-    }
-
-    /**
-     * Validates that the environment's connection mode is appropriately set
-     *
-     * @param Environment $environment
-     */
-    protected function validateEnvironment($environment)
-    {
-        // Only warn in dev / multidev
-        if ($environment->isDevelopment()) {
-            $this->validateConnectionMode($environment->get('connection_mode'));
-        }
-    }
-
-    /**
-     * Validates that the environment is using the correct connection mode
-     *
-     * @param string $mode
-     */
-    protected function validateConnectionMode($mode)
-    {
-        if ((!$this->getConfig()->get('hide_git_mode_warning')) && ($mode == 'git')) {
-            $this->log()->warning(
-                'This environment is in read-only Git mode. If you want to make changes to the codebase of this site '
-                . '(e.g. updating modules or plugins), you will need to toggle into read/write SFTP mode first.'
-            );
-        }
-    }
-
-    /**
-     * Outputs a message if Ads is in test mode and uses it to mock the command's response
-     *
-     * @string $ssh_command
-     * @return string[] $response Elements as follow:
-     *         string output    The output from the command run
-     *         string exit_code The status code returned by the command run
-     */
-    private function divertForTestMode($ssh_command)
-    {
-        $output = "Ads is in test mode. SSH commands will not be sent over the wire. "
-          . PHP_EOL . "SSH Command: ${ssh_command}";
-        $container = $this->getContainer();
-        if ($container->has('output')) {
-            $container->get('output')->write($output);
-        }
-        return [
-          'output' => $output,
-          'exit_code' => 0
-        ];
-    }
-
-    /**
-     * Escape the command-line args
-     *
-     * @param string[] $args All of the arguments to escape
-     * @param string[]
-     */
-    private function escapeArguments($args)
-    {
-        return array_map(
-            function ($arg) {
-                return $this->escapeArgument($arg);
-            },
-            $args
-        );
-    }
-
-    /**
-     * Escape one command-line arg
-     *
-     * @param string $arg The argument to escape
-     * @return string
-     */
-    private function escapeArgument($arg)
-    {
-        // Omit escaping for simple args.
-        if (preg_match('/^[a-zA-Z0-9_-]*$/', $arg)) {
-            return $arg;
-        }
-        return ProcessUtils::escapeArgument($arg);
     }
 
     /**
@@ -199,7 +113,6 @@ abstract class SshBaseCommand extends CommandBase implements ApplicationAwareInt
     }
 
     /**
-     * @param boolean $usesTty
      * @return \Closure
      */
     private function getOutputCallback()

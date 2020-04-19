@@ -16,8 +16,7 @@ class LinkCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('link')
-          ->setDescription('Associate your project with an Acquia Cloud application');
+        $this->setName('link')->setDescription('Associate your project with an Acquia Cloud application');
     }
 
     /**
@@ -28,7 +27,13 @@ class LinkCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output->writeln("<comment>This is a command stub. The command logic has not been written yet.");
+        // @todo Indicate if the current local repo is already associated with a cloud
+        // application.
+
+        $acquia_cloud_client = $this->getAcquiaCloudClient();
+        $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
+        $this->saveLocalConfigCloudAppUuid($application_uuid);
+
         return 0;
     }
 }

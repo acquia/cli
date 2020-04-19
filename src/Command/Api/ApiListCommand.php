@@ -21,6 +21,7 @@ class ApiListCommand extends CommandBase
 
     /**
      * {@inheritdoc}
+     * @throws \Exception
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

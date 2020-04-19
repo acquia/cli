@@ -8,9 +8,9 @@
  *   - Exits with a status code
  */
 
-$pharPath = \Phar::running(true);
+$pharPath = Phar::running(true);
 if ($pharPath) {
-    include_once("$pharPath/vendor/autoload.php");
+    include_once "$pharPath/vendor/autoload.php";
 } else {
     $repo_root = __DIR__ . '/..';
 

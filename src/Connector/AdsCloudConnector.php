@@ -17,6 +17,12 @@ class AdsCloudConnector extends Connector
 {
     /**
      * Adds caching handler to the default AcquiaCloudApi\Connector\Connector.
+     *
+     * @param $verb
+     * @param $path
+     * @param $options
+     *
+     * @return \Psr\Http\Message\ResponseInterface
      */
     public function sendRequest($verb, $path, $options)
     {

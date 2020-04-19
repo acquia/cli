@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Command\Ssh;
 
 use Acquia\Ads\Command\CommandBase;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
@@ -45,10 +46,10 @@ class SshKeyCreateCommand extends SshKeyCommandBase
         });
         $question->setValidator(function ($answer) {
             if (!is_string($answer) || preg_match("/\s/", $answer)) {
-                throw new \RuntimeException('The filename cannot contain any spaces');
+                throw new RuntimeException('The filename cannot contain any spaces');
             }
             if (trim($answer) === '') {
-                throw new \RuntimeException('The filename cannot be empty');
+                throw new RuntimeException('The filename cannot be empty');
             }
 
             return $answer;
@@ -68,7 +69,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
         $question->setHiddenFallback(false);
         $question->setValidator(function ($answer) {
             if (trim($answer) === '') {
-                throw new \RuntimeException('The password cannot be empty');
+                throw new RuntimeException('The password cannot be empty');
             }
 
             return $answer;

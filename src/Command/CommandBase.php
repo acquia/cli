@@ -4,6 +4,7 @@ namespace Acquia\Ads\Command;
 
 use Acquia\Ads\AdsApplication;
 use Acquia\Ads\Connector\AdsCloudConnector;
+use Acquia\Ads\DataStore\DataStoreInterface;
 use Acquia\Ads\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -91,7 +92,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return \Acquia\Ads\DataStore\DataStoreInterface
      */
-    public function getDatastore(): \Acquia\Ads\DataStore\DataStoreInterface
+    public function getDatastore(): DataStoreInterface
     {
         return $this->datastore;
     }
@@ -210,10 +211,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     {
         $local_vcs_remotes = [];
         foreach ($git_config as $section_name => $section) {
-            if (strpos($section_name, 'remote ') !== false) {
-                if (strpos($section['url'], 'acquia.com')) {
-                    $local_vcs_remotes[] = $section['url'];
-                }
+            if ((strpos($section_name, 'remote ') !== false) && strpos($section['url'], 'acquia.com')) {
+                $local_vcs_remotes[] = $section['url'];
             }
         }
 
@@ -245,7 +244,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         // Search Cloud applications.
         foreach ($customer_applications as $application) {
-            ;
             $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
             $application_environments = $environments_resource->getAll($application->uuid);
             if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)) {
@@ -266,7 +264,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return ApplicationResponse|null
      */
-    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)
+    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes): ?ApplicationResponse
     {
         foreach ($application_environments as $environment) {
             if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
@@ -288,11 +286,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         Client $acquia_cloud_client
     ): ?ApplicationResponse {
         $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
-        $question = new ConfirmationQuestion("<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>");
+        $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>');
         $helper = $this->getHelper('question');
         $answer = $helper->ask($this->input, $this->output, $question);
         if ($answer) {
-            $this->output->writeln("Searching for a matching Cloud application...");
+            $this->output->writeln('Searching for a matching Cloud application...');
             $git_config = $this->getGitConfig($application);
             $local_git_remotes = $this->getGitRemotes($git_config);
             $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client, $local_git_remotes);

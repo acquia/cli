@@ -44,5 +44,4 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand
 
         return $command->run($list_input, $output);
     }
-
 }

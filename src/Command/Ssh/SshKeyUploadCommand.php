@@ -2,10 +2,11 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
-use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exception\AdsException;
+use AcquiaCloudApi\Connector\Client;
 use AlecRabbit\Snake\Spinner;
-use React\EventLoop\Factory;;
+use React\EventLoop\Factory;
+use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,10 +27,10 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         $this->setName('ssh-key:upload')
           ->setDescription('Upload a local SSH key to Acquia Cloud')
           ->addOption(
-            'filepath',
-            null,
-            InputOption::VALUE_REQUIRED,
-            'The filepath of the public SSH key to upload'
+              'filepath',
+              null,
+              InputOption::VALUE_REQUIRED,
+              'The filepath of the public SSH key to upload'
           );
     }
 
@@ -48,8 +49,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         if ($input->hasOption('filepath')) {
             $public_key = file_get_contents($input->getOption('filepath'));
             $chosen_local_key = basename($input->getOption('filepath'));
-        }
-        else {
+        } else {
             // Get local key and contents.
             $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
             $public_key = $this->getLocalSshKeyContents($local_keys, $chosen_local_key);
@@ -83,9 +83,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase
      * @param string $public_key
      */
     protected function pollAcquiaCloud(
-      OutputInterface $output,
-      \AcquiaCloudApi\Connector\Client $acquia_cloud_client,
-      string $public_key
+        OutputInterface $output,
+        Client $acquia_cloud_client,
+        string $public_key
     ): void {
 // Create a loop to periodically poll Acquia Cloud.
         $loop = Factory::create();
@@ -110,7 +110,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
 
         // Add a 10 minute timeout.
         $loop->addTimer(10 * 60, function ($timer) use ($loop) {
-            $this->logger->debug("Timed out after 10 minutes!");
+            $this->logger->debug('Timed out after 10 minutes!');
             $loop->stop();
         });
 
@@ -131,8 +131,10 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         foreach ($local_keys as $local_key) {
             $labels[] = $local_key->getFilename();
         }
-        $question = new ChoiceQuestion('<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
-          $labels);
+        $question = new ChoiceQuestion(
+            '<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
+            $labels
+        );
         $helper = $this->getHelper('question');
         $answer = $helper->ask($this->input, $this->output, $question);
 
@@ -147,13 +149,13 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
         $question->setNormalizer(static function ($value) {
             // It may only contain letters, numbers and underscores,
-            $value = preg_replace("/[^A-Za-z0-9_]/", '', $value);
+            $value = preg_replace('/[^A-Za-z0-9_]/', '', $value);
 
             return $value;
         });
         $question->setValidator(function ($answer) {
             if (trim($answer) === '') {
-                throw new \RuntimeException('The label cannot be empty');
+                throw new RuntimeException('The label cannot be empty');
             }
 
             return $answer;
@@ -180,5 +182,5 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         $public_key = file_get_contents($filepath);
 
         return $public_key;
-}
+    }
 }

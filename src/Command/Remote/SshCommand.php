@@ -44,7 +44,7 @@ class SshCommand extends SSHBaseCommand
         $this->environment = $this->getEnvFromAlias($drush_site, $drush_env);
         $arguments = $input->getArguments();
         array_shift($arguments);
-        array_unshift($arguments, "bash", "-l");
+        array_unshift($arguments, 'bash', '-l');
 
         return $this->executeCommand($arguments);
     }

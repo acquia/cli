@@ -2,10 +2,12 @@
 
 namespace Acquia\Ads\Exception;
 
+use Exception;
+
 /**
  * Class AdsException
  */
-class AdsException extends \Exception
+class AdsException extends Exception
 {
     /**
      * @var array

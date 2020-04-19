@@ -32,11 +32,12 @@ class DrushCommand extends SSHBaseCommand
             ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
             ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
             ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
-            ->addUsage("@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar");
+            ->addUsage('@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar');
     }
 
     /**
      * {@inheritdoc}
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

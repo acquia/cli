@@ -3,7 +3,6 @@
 use Acquia\Ads\AdsApplication;
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Command\AuthCommand;
-use Acquia\Ads\Command\CloneCommand;
 use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Command\Ide\IdeListCommand;
@@ -15,7 +14,6 @@ use Acquia\Ads\Command\Remote\AliasesDownloadCommand;
 use Acquia\Ads\Command\Remote\AliasListCommand;
 use Acquia\Ads\Command\Remote\DrushCommand;
 use Acquia\Ads\Command\Remote\SshCommand;
-use Acquia\Ads\Command\SiteAliasesCommand;
 use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
