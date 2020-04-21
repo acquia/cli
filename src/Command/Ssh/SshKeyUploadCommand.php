@@ -87,7 +87,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         Client $acquia_cloud_client,
         string $public_key
     ): void {
-// Create a loop to periodically poll Acquia Cloud.
+        // Create a loop to periodically poll Acquia Cloud.
         $loop = Factory::create();
 
         // Add a spinner.
@@ -98,6 +98,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase
 
         // Poll Cloud every 5 seconds.
         $loop->addPeriodicTimer(5, static function () use ($output, $loop, $acquia_cloud_client, $public_key) {
+            // @todo Change this to test an actual ssh connection, not just Cloud API.
+            // But which server do we check a connection to?
             $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
             $cloud_keys = $acquia_cloud_client->processResponse($response);
             foreach ($cloud_keys as $cloud_key) {

@@ -194,6 +194,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function getGitConfig(AdsApplication $application)
     {
+
         $git_config = parse_ini_file($application->getRepoRoot() . '/.git/config', true);
 
         return $git_config;

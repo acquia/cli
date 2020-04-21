@@ -45,7 +45,6 @@ class AuthCommand extends CommandBase
             $this->startBrowser($token_url);
         }
 
-        // Open browser.
         $question = new Question('<question>Please enter your API Key:</question>');
         $api_key = $helper->ask($input, $output, $question);
 
