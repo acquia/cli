@@ -34,8 +34,7 @@ class IdeCreateCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('ide:create')
-          ->setDescription('Create remote IDE for development');
+        $this->setName('ide:create')->setDescription('Create remote IDE for development');
         // @todo Add option to accept an IDE label.
     }
 
@@ -127,8 +126,8 @@ class IdeCreateCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\IdeResponse
      */
     protected function getIdeFromResponse(
-        \AcquiaCloudApi\Response\OperationResponse $response,
-        \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+      \AcquiaCloudApi\Response\OperationResponse $response,
+      \AcquiaCloudApi\Connector\Client $acquia_cloud_client
     ): \AcquiaCloudApi\Response\IdeResponse {
         $cloud_api_ide_url = $response->links->self->href;
         $url_parts = explode('/', $cloud_api_ide_url);

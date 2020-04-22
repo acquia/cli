@@ -40,6 +40,7 @@ class LocalMachineHelper
     {
         $process = $this->getProcess($cmd);
         $process->run($callback);
+
         return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
     }
 
@@ -49,6 +50,7 @@ class LocalMachineHelper
      * @param array $cmd The command to execute
      * @param callable $callback A function to run while waiting for the process to complete
      * @param bool $progressIndicatorAllowed Allow the progress bar to be used (if in tty mode only)
+     *
      * @return array The command output and exit_code
      */
     public function execute($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null): array
@@ -70,6 +72,7 @@ class LocalMachineHelper
         $process->setTty($useTty);
         $process->start();
         $process->wait($callback);
+
         return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
     }
 
@@ -97,6 +100,7 @@ class LocalMachineHelper
      * Reads to a file from the local system.
      *
      * @param string $filename Name of the file to read
+     *
      * @return string Content read from that file
      */
     public function readFile($filename): string
@@ -137,6 +141,7 @@ class LocalMachineHelper
      * Accepts a filename/full path and localizes it to the user's system.
      *
      * @param string $filename
+     *
      * @return string
      */
     protected function fixFilename($filename): string
@@ -148,12 +153,14 @@ class LocalMachineHelper
      * Returns a set-up process object.
      *
      * @param string $cmd The command to execute
+     *
      * @return Process
      */
     protected function getProcess($cmd): Process
     {
         $process = new Process($cmd);
         $process->setTimeout(600);
+
         return $process;
     }
 
@@ -162,10 +169,10 @@ class LocalMachineHelper
      * Returns the appropriate home directory.
      *
      * Adapted from Ads Package Manager by Ed Reel
+     * @return string
      * @author Ed Reel <@uberhacker>
      * @url    https://github.com/uberhacker/tpm
      *
-     * @return string
      */
     public function getHomeDir(): string
     {
@@ -179,6 +186,7 @@ class LocalMachineHelper
                 $home = getenv('HOMEPATH');
             }
         }
+
         return $home;
     }
 }

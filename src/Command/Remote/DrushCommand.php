@@ -24,12 +24,12 @@ class DrushCommand extends SSHBaseCommand
     protected function configure()
     {
         $this->setName('remote:drush')
-            ->setAliases(['drush'])
-            ->setDescription('Runs a Drush command remotely on a application\'s environment.')
-            ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
-            ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
-            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
-            ->addUsage('@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar');
+          ->setAliases(['drush'])
+          ->setDescription('Runs a Drush command remotely on a application\'s environment.')
+          ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
+          ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
+          ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
+          ->addUsage('@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar');
     }
 
     /**
@@ -50,6 +50,7 @@ class DrushCommand extends SSHBaseCommand
         $arguments = $input->getArguments();
         array_shift($arguments);
         array_unshift($arguments, "cd /var/www/html/{$drush_site}.{$drush_env}/docroot; ", 'drush');
+
         return $this->executeCommand($arguments);
     }
 }

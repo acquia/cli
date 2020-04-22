@@ -111,5 +111,6 @@ function files_exist($dir, array $files)
             return false;
         }
     }
+
     return true;
 }

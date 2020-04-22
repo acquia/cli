@@ -20,8 +20,7 @@ class IdeOpenCommand extends IdeCommandBase
      */
     protected function configure()
     {
-        $this->setName('ide:open')
-          ->setDescription('The application associated with the IDE');
+        $this->setName('ide:open')->setDescription('The application associated with the IDE');
     }
 
     /**

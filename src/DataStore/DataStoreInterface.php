@@ -12,6 +12,7 @@ interface DataStoreInterface
      * Reads retrieves data from the store
      *
      * @param string $key A key
+     *
      * @return mixed The value fpr the given key or null.
      */
     public function get($key);
@@ -28,6 +29,7 @@ interface DataStoreInterface
      * Checks if a key is in the store
      *
      * @param string $key A key
+     *
      * @return bool Whether a value exists with the given key
      */
     public function has($key);

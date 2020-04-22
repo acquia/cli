@@ -24,6 +24,7 @@ class FileStore implements DataStoreInterface
      * Reads retrieves data from the store
      *
      * @param string $key A key
+     *
      * @return mixed The value fpr the given key or null.
      * @throws \Acquia\Ads\Exception\AdsException
      */
@@ -36,6 +37,7 @@ class FileStore implements DataStoreInterface
             $out = file_get_contents($path);
             $out = json_decode($out, true);
         }
+
         return $out;
     }
 
@@ -44,6 +46,7 @@ class FileStore implements DataStoreInterface
      *
      * @param string $key A key
      * @param mixed $data Data to save to the store
+     *
      * @throws \Acquia\Ads\Exception\AdsException
      */
     public function set($key, $data)
@@ -56,12 +59,14 @@ class FileStore implements DataStoreInterface
      * Checks if a key is in the store
      *
      * @param string $key A key
+     *
      * @return bool Whether a value exists with the given key
      * @throws \Acquia\Ads\Exception\AdsException
      */
     public function has($key)
     {
         $path = $this->getFileName($key);
+
         return file_exists($path);
     }
 
@@ -69,6 +74,7 @@ class FileStore implements DataStoreInterface
      * Remove value from the store
      *
      * @param string $key A key
+     *
      * @throws \Acquia\Ads\Exception\AdsException
      */
     public function remove($key)
@@ -101,6 +107,7 @@ class FileStore implements DataStoreInterface
         if (file_exists($root) && is_readable($root)) {
             return array_diff(scandir($root), array('..', '.'));
         }
+
         return [];
     }
 
@@ -124,6 +131,7 @@ class FileStore implements DataStoreInterface
         if (!$key) {
             throw new AdsException('Could not save data to a file because it is missing an ID');
         }
+
         return $this->directory . '/' . $key;
     }
 
@@ -133,6 +141,7 @@ class FileStore implements DataStoreInterface
      * few already safe keys.
      *
      * @param $key
+     *
      * @return mixed
      */
     protected function cleanKey($key)
@@ -152,18 +161,12 @@ class FileStore implements DataStoreInterface
             throw new AdsException('Could not save data to a file because the path setting is mis-configured.');
         }
 
-        $writable = is_dir($this->directory)
-            || (!file_exists($this->directory) && !mkdir(
-                $concurrentDirectory = $this->directory,
-                0777,
-                true
-            ) && !is_dir($concurrentDirectory));
+        $writable = is_dir($this->directory) || (!file_exists($this->directory) && !mkdir($concurrentDirectory = $this->directory,
+              0777, true) && !is_dir($concurrentDirectory));
         $writable = $writable && is_writable($this->directory);
         if (!$writable) {
-            throw new AdsException(
-                'Could not save data to a file because the path {path} cannot be written to.',
-                ['path' => $this->directory]
-            );
+            throw new AdsException('Could not save data to a file because the path {path} cannot be written to.',
+              ['path' => $this->directory]);
         }
     }
 }

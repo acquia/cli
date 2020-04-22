@@ -18,62 +18,19 @@ class RefreshCommand extends CommandBase
     protected function configure()
     {
         $this->setName('refresh')
-            ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
-          ->addOption(
-            'from',
-            null,
-            InputOption::VALUE_NONE,
-            'The source environment'
-          )
-          ->addOption(
-            'no-code',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not refresh code from remote repository'
-            )
-          ->addOption(
-            'no-files',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not refresh files'
-          )
-          ->addOption(
-            'no-databases',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not refresh databases'
-          )
-          ->addOption(
-            'no-scripts',
-            null,
-            InputOption::VALUE_NONE,
-            'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
-          )
-          ->addOption(
-            'code',
-            null,
-            InputOption::VALUE_NONE,
-            'Copy only code from remote repository'
-          )
-          ->addOption(
-            'files',
-            null,
-            InputOption::VALUE_NONE,
-            'Copy only files from remote Acquia Cloud environment'
-          )
-          ->addOption(
-            'databases',
-            null,
-            InputOption::VALUE_NONE,
-            'Copy only databases from remote Acquia Cloud environment'
-          )
-          ->addOption(
-            'scripts',
-            null,
-            InputOption::VALUE_NONE,
-            'Only execute additional scripts'
-          );
-          // @todo Add option to allow specifying source environment.
+          ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
+          ->addOption('from', null, InputOption::VALUE_NONE, 'The source environment')
+          ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
+          ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
+          ->addOption('no-databases', null, InputOption::VALUE_NONE, 'Do not refresh databases')
+          ->addOption('no-scripts', null, InputOption::VALUE_NONE,
+            'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.')
+          ->addOption('code', null, InputOption::VALUE_NONE, 'Copy only code from remote repository')
+          ->addOption('files', null, InputOption::VALUE_NONE, 'Copy only files from remote Acquia Cloud environment')
+          ->addOption('databases', null, InputOption::VALUE_NONE,
+            'Copy only databases from remote Acquia Cloud environment')
+          ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
+        // @todo Add option to allow specifying source environment.
     }
 
     /**

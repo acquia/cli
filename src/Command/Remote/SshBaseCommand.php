@@ -36,11 +36,13 @@ abstract class SshBaseCommand extends CommandBase
      * bar will be used in tty mode.
      *
      * @param type|bool $allowed
+     *
      * @return $this
      */
     protected function setProgressAllowed($allowed = true): self
     {
         $this->progressAllowed = $allowed;
+
         return $this;
     }
 
@@ -63,9 +65,9 @@ abstract class SshBaseCommand extends CommandBase
         /** @var \Acquia\Ads\AdsApplication $application */
         $application = $this->getApplication();
         $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
-          'env'     => $this->environment->name,
+          'env' => $this->environment->name,
           'command' => $command_summary,
-          'exit'    => $ssh_data['exit_code'],
+          'exit' => $ssh_data['exit_code'],
         ]);
 
         if ($ssh_data['exit_code'] != 0) {
@@ -85,17 +87,17 @@ abstract class SshBaseCommand extends CommandBase
     protected function sendCommandViaSsh($command)
     {
         $command = array_merge($this->getConnectionArgs(), $command);
-        return $this->getApplication()->getLocalMachineHelper()->execute(
-            $command,
-            $this->getOutputCallback(),
-            $this->progressAllowed
-        );
+
+        return $this->getApplication()
+          ->getLocalMachineHelper()
+          ->execute($command, $this->getOutputCallback(), $this->progressAllowed);
     }
 
     /**
      * Return the first item of the $command_args that is not an option.
      *
      * @param array $command_args
+     *
      * @return string
      */
     private function firstArguments($command_args): string
@@ -108,6 +110,7 @@ abstract class SshBaseCommand extends CommandBase
             }
             $result .= " $first";
         }
+
         return $result;
     }
 
@@ -124,6 +127,7 @@ abstract class SshBaseCommand extends CommandBase
                 $output->write($buffer);
             };
         }
+
         return function ($type, $buffer) {
         };
     }
@@ -134,6 +138,7 @@ abstract class SshBaseCommand extends CommandBase
      * CI scripts.
      *
      * @param array $command_args
+     *
      * @return string
      */
     private function getCommandSummary($command_args): string
@@ -162,8 +167,8 @@ abstract class SshBaseCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\EnvironmentResponse
      */
     protected function getEnvFromAlias(
-        $drush_site,
-        $drush_env
+      $drush_site,
+      $drush_env
     ): EnvironmentResponse {
         // @todo Speed this up with some kind of caching.
         $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
@@ -181,6 +186,7 @@ abstract class SshBaseCommand extends CommandBase
                 foreach ($environments as $environment) {
                     if ($environment->name === $drush_env) {
                         $this->logger->debug("Found environment matching $drush_env.");
+
                         return $environment;
                     }
                 }

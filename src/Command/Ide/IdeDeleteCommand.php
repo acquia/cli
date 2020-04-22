@@ -22,8 +22,7 @@ class IdeDeleteCommand extends IdeCommandBase
      */
     protected function configure()
     {
-        $this->setName('ide:delete')
-          ->setDescription('Delete an IDE');
+        $this->setName('ide:delete')->setDescription('Delete an IDE');
         // @todo Add option to accept an IDE label or UUID.
     }
 

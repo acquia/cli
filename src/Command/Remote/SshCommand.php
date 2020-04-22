@@ -20,9 +20,9 @@ class SshCommand extends SSHBaseCommand
     protected function configure()
     {
         $this->setName('remote:ssh')
-            ->setDescription('Opens a new SSH connection to an Acquia Cloud environment.')
-            ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
-            ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
+          ->setDescription('Opens a new SSH connection to an Acquia Cloud environment.')
+          ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
+          ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
     }
 
     /**

@@ -26,12 +26,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
     {
         $this->setName('ssh-key:upload')
           ->setDescription('Upload a local SSH key to Acquia Cloud')
-          ->addOption(
-              'filepath',
-              null,
-              InputOption::VALUE_REQUIRED,
-              'The filepath of the public SSH key to upload'
-          );
+          ->addOption('filepath', null, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload');
     }
 
     /**
@@ -83,9 +78,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase
      * @param string $public_key
      */
     protected function pollAcquiaCloud(
-        OutputInterface $output,
-        Client $acquia_cloud_client,
-        string $public_key
+      OutputInterface $output,
+      Client $acquia_cloud_client,
+      string $public_key
     ): void {
         // Create a loop to periodically poll Acquia Cloud.
         $loop = Factory::create();
@@ -133,10 +128,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         foreach ($local_keys as $local_key) {
             $labels[] = $local_key->getFilename();
         }
-        $question = new ChoiceQuestion(
-            '<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
-            $labels
-        );
+        $question = new ChoiceQuestion('<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
+          $labels);
         $helper = $this->getHelper('question');
         $answer = $helper->ask($this->input, $this->output, $question);
 

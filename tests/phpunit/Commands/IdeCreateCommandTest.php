@@ -1,4 +1,3 @@
-
 <?php
 
 namespace Acquia\Ads\Tests;
@@ -21,8 +20,8 @@ class IdeCreateCommandTest extends CommandTestBase
         $command = $this->application->find('lint');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
-          'command'  => $command->getName(),
-          'filename' => $file
+          'command' => $command->getName(),
+          'filename' => $file,
         ), ['verbosity' => Output::VERBOSITY_VERBOSE]);
 
         $output = $commandTester->getDisplay();
@@ -41,7 +40,11 @@ class IdeCreateCommandTest extends CommandTestBase
 
         return [
           ['tests/resources/good.yml', "The file tests/resources/good.yml contains valid YAML.", 0],
-          ['tests/resources/bad.yml', "There was an error parsing tests/resources/bad.yml. The contents are not valid YAML.", 1],
+          [
+            'tests/resources/bad.yml',
+            "There was an error parsing tests/resources/bad.yml. The contents are not valid YAML.",
+            1,
+          ],
           ['missing.yml', "The file missing.yml does not exist.", 1],
         ];
     }

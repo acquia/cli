@@ -36,28 +36,30 @@ class AliasesDownloadCommand extends SshCommand
         $account_adapter = new Account($acquia_cloud_client);
         $aliases = $account_adapter->getDrushAliases();
         $drushArchive = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases') . '.tar.gz';
-        $this->output->writeln(sprintf('Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>', $drushArchive));
+        $this->output->writeln(sprintf('Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
+          $drushArchive));
 
         if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
             if (!$home = getenv('HOME')) {
                 throw new RuntimeException('Home directory not found.');
             }
-                $drushDirectory = $home . '/.drush';
+            $drushDirectory = $home . '/.drush';
             if (!is_dir($drushDirectory) && !mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
                 throw new RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
             }
             if (!is_writable($drushDirectory)) {
                 chmod($drushDirectory, 0700);
             }
-                $archive = new PharData($drushArchive . '/.drush');
-                $drushFiles = [];
+            $archive = new PharData($drushArchive . '/.drush');
+            $drushFiles = [];
             foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
                 $drushFiles[] = '.drush/' . $file->getFileName();
             }
 
-                $archive->extractTo($home, $drushFiles, true);
-                $this->output->writeln(sprintf('Acquia Cloud Drush aliases installed into <comment>%s</comment>', $drushDirectory));
-                unlink($drushArchive);
+            $archive->extractTo($home, $drushFiles, true);
+            $this->output->writeln(sprintf('Acquia Cloud Drush aliases installed into <comment>%s</comment>',
+              $drushDirectory));
+            unlink($drushArchive);
         } else {
             $this->logger->error('Unable to download Drush Aliases');
         }

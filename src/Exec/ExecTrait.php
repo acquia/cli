@@ -22,6 +22,7 @@ trait ExecTrait
      * @param int $sleep
      * @param bool $port
      * @param bool $browser
+     *
      * @return bool
      *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
      *   default browser could not be found.
@@ -33,6 +34,7 @@ trait ExecTrait
             // POSIX or are running Windows or OS X.
             if (!getenv('DISPLAY') && !OsInfo::isWindows() && !OsInfo::isApple()) {
                 $this->logger->info('No graphical display appears to be available, not starting browser.');
+
                 return false;
             }
             $host = parse_url($uri, PHP_URL_HOST);
@@ -47,7 +49,9 @@ trait ExecTrait
             $hosterror = (gethostbynamel($host) === false);
             $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
             if ($hosterror || $iperror) {
-                $this->logger->warning('!host does not appear to be a resolvable hostname or IP, not starting browser. You may need to use the --uri option in your command or site alias to indicate the correct URL of this site.', ['!host' => $host]);
+                $this->logger->warning('!host does not appear to be a resolvable hostname or IP, not starting browser. You may need to use the --uri option in your command or site alias to indicate the correct URL of this site.',
+                  ['!host' => $host]);
+
                 return false;
             }
             if ($port) {
@@ -57,13 +61,17 @@ trait ExecTrait
                 // See if we can find an OS helper to open URLs in default browser.
                 if ($this->programExists('xdg-open')) {
                     $browser = 'xdg-open';
-                } else if ($this->programExists('open')) {
-                    $browser = 'open';
-                } else if ($this->programExists('start')) {
-                    $browser = 'start';
                 } else {
-                    // Can't find a valid browser.
-                    $browser = false;
+                    if ($this->programExists('open')) {
+                        $browser = 'open';
+                    } else {
+                        if ($this->programExists('start')) {
+                            $browser = 'start';
+                        } else {
+                            // Can't find a valid browser.
+                            $browser = false;
+                        }
+                    }
                 }
             }
 
@@ -81,6 +89,7 @@ trait ExecTrait
                 return true;
             }
         }
+
         return false;
     }
 
@@ -100,6 +109,7 @@ trait ExecTrait
         if (!$process->isSuccessful()) {
             $this->logger->debug($process->getErrorOutput());
         }
+
         return $process->isSuccessful();
     }
 }

@@ -23,7 +23,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
 
     use LoggerAwareTrait;
 
-    /** @var \Acquia\Ads\DataStore\FileStore  */
+    /** @var \Acquia\Ads\DataStore\FileStore */
     private $datastore;
 
     /** @var null|string */
@@ -55,8 +55,14 @@ class AdsApplication extends Application implements LoggerAwareInterface
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function __construct(string $name = 'UNKNOWN', string $version = 'UNKNOWN', InputInterface $input, OutputInterface $output, LoggerInterface $logger, $repo_root)
-    {
+    public function __construct(
+      string $name = 'UNKNOWN',
+      string $version = 'UNKNOWN',
+      InputInterface $input,
+      OutputInterface $output,
+      LoggerInterface $logger,
+      $repo_root
+    ) {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
         $this->repoRoot = $repo_root;
@@ -69,7 +75,8 @@ class AdsApplication extends Application implements LoggerAwareInterface
         $this->addCommands($api_command_helper->getApiCommands());
 
         // Register custom progress bar format.
-        ProgressBar::setFormatDefinition('message', "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
+        ProgressBar::setFormatDefinition('message',
+          "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
     }
 
     /**

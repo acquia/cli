@@ -23,8 +23,7 @@ class AuthCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('auth:login')
-          ->setDescription('Register your Cloud API key and secret to use API functionality');
+        $this->setName('auth:login')->setDescription('Register your Cloud API key and secret to use API functionality');
     }
 
     /**
@@ -40,7 +39,8 @@ class AuthCommand extends CommandBase
         $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
         $helper = $this->getHelper('question');
-        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>', true);
+        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
+          true);
         if ($helper->ask($input, $output, $question)) {
             $this->startBrowser($token_url);
         }
@@ -54,10 +54,11 @@ class AuthCommand extends CommandBase
         $api_secret = $helper->ask($input, $output, $question);
 
         $file_contents = [
-            'key' => $api_key,
-            'secret' => $api_secret,
+          'key' => $api_key,
+          'secret' => $api_secret,
         ];
-        $this->fs->dumpFile($this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf', json_encode($file_contents, JSON_PRETTY_PRINT));
+        $this->fs->dumpFile($this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf',
+          json_encode($file_contents, JSON_PRETTY_PRINT));
 
         return 0;
     }

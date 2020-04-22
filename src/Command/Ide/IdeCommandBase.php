@@ -21,8 +21,8 @@ abstract class IdeCommandBase extends CommandBase
      * @return false|int|string
      */
     protected function promptIdeChoice(
-        $question_text,
-        Ides $ides_resource
+      $question_text,
+      Ides $ides_resource
     ) {
         $cloud_application_uuid = $this->determineCloudApplication();
         $ides_list = [];

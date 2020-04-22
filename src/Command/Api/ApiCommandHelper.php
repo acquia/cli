@@ -23,10 +23,7 @@ class ApiCommandHelper
         $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
         $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
 
-        $cache = new PhpArrayAdapter(
-            __DIR__ . '/../../../cache/ApiCommands.cache',
-            new FilesystemAdapter()
-        );
+        $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiCommands.cache', new FilesystemAdapter());
 
         // Check to see if the API spec has changed since we cached commands.
         $is_command_cache_valid = $this->isCommandCacheValid($cache, $acquia_cloud_spec_file_checksum);
@@ -74,10 +71,12 @@ class ApiCommandHelper
         if (array_key_exists('example', $param_definition)) {
             if (is_array($param_definition['example'])) {
                 $usage = reset($param_definition['example']);
-            } else if (strpos($param_definition['example'], ' ') !== false) {
-                $usage .= '"' . $param_definition['example'] . '" ';
             } else {
-                $usage .= $param_definition['example'] . ' ';
+                if (strpos($param_definition['example'], ' ') !== false) {
+                    $usage .= '"' . $param_definition['example'] . '" ';
+                } else {
+                    $usage .= $param_definition['example'] . ' ';
+                }
             }
         }
 
@@ -116,19 +115,12 @@ class ApiCommandHelper
                 $param_definition = $acquia_cloud_spec['components']['parameters'][$param_name];
                 $required = array_key_exists('required', $param_definition) && $param_definition['required'];
                 if ($required) {
-                    $input_definition[] = new InputArgument(
-                        $param_definition['name'],
-                        InputArgument::REQUIRED,
-                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
-                    );
+                    $input_definition[] = new InputArgument($param_definition['name'], InputArgument::REQUIRED,
+                      $acquia_cloud_spec['components']['parameters'][$param_name]['description']);
                     $usage = $this->addArgumentExampleToUsage($param_definition, $usage);
                 } else {
-                    $input_definition[] = new InputOption(
-                        $param_definition['name'],
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
-                    );
+                    $input_definition[] = new InputOption($param_definition['name'], null, InputOption::VALUE_OPTIONAL,
+                      $acquia_cloud_spec['components']['parameters'][$param_name]['description']);
                     $usage = $this->addOptionExampleToUsage($param_definition, $param_name, $usage);
                 }
             }

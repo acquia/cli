@@ -21,12 +21,7 @@ class NewCommand extends CommandBase
     {
         $this->setName('new')
           ->setDescription('Create a new Drupal project')
-          ->addOption(
-            'distribution',
-            null,
-            InputOption::VALUE_REQUIRED,
-            ''
-          );
+          ->addOption('distribution', null, InputOption::VALUE_REQUIRED, '');
     }
 
     /**
@@ -42,19 +37,16 @@ class NewCommand extends CommandBase
           'acquia/lightning-project',
           'drupal/recommended-project',
         ];
-        $question = new ChoiceQuestion(
-          '<question>Which starting project would you like to use?</question>',
-          $distros
-        );
+        $question = new ChoiceQuestion('<question>Which starting project would you like to use?</question>', $distros);
         $helper = $this->getHelper('question');
         $project = $helper->ask($this->input, $this->output, $question);
 
-        $dir = getcwd() .'/drupal';
+        $dir = getcwd() . '/drupal';
         $filepath = $dir . '/composer.json';
 
         $this->createProject($project, $dir);
 
-        if (strpos($project, 'drupal/recommended-project') !== FALSE) {
+        if (strpos($project, 'drupal/recommended-project') !== false) {
             $this->replaceWebRoot($filepath);
             $this->requireDrush($dir);
         }

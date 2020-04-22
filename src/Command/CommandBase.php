@@ -59,7 +59,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Initializes the command just after the input has been validated.
      *
-     * @param InputInterface  $input  An InputInterface instance
+     * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
@@ -139,17 +139,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return string
      */
     protected function promptChooseApplication(
-        InputInterface $input,
-        OutputInterface $output,
-        Client $acquia_cloud_client
+      InputInterface $input,
+      OutputInterface $output,
+      Client $acquia_cloud_client
     ): string {
         $application_list = $this->getApplicationList($acquia_cloud_client);
         $application_names = array_values($application_list);
         $helper = $this->getHelper('question');
-        $question = new ChoiceQuestion(
-            'Please select the application for which you\'d like to create a new IDE',
-            $application_names
-        );
+        $question = new ChoiceQuestion('Please select the application for which you\'d like to create a new IDE',
+          $application_names);
         $choice_id = $helper->ask($input, $output, $question);
         $application_uuid = array_search($choice_id, $application_list, true);
 
@@ -172,6 +170,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 if ($project['directory'] === $application->getRepoRoot()) {
                     $this->logger->debug("Matching local project found.");
                     $this->localProjectInfo = $project;
+
                     return;
                 }
             }
@@ -231,8 +230,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function findCloudApplicationByGitUrl(
-        Client $acquia_cloud_client,
-        array $local_git_remotes
+      Client $acquia_cloud_client,
+      array $local_git_remotes
     ): ?ApplicationResponse {
 
         // Set up API resources.
@@ -251,8 +250,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         foreach ($customer_applications as $application) {
             $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
             $application_environments = $environments_resource->getAll($application->uuid);
-            if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes)) {
+            if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments,
+              $local_git_remotes)) {
                 $progressBar->finish();
+
                 return $application;
             }
             $progressBar->advance();
@@ -269,14 +270,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return ApplicationResponse|null
      */
-    protected function searchApplicationEnvironmentsForGitUrl($application, $application_environments, $local_git_remotes): ?ApplicationResponse
-    {
+    protected function searchApplicationEnvironmentsForGitUrl(
+      $application,
+      $application_environments,
+      $local_git_remotes
+    ): ?ApplicationResponse {
         foreach ($application_environments as $environment) {
             if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
                 $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");
+
                 return $application;
             }
         }
+
         return null;
     }
 
@@ -287,8 +293,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function inferCloudAppFromLocalGitConfig(
-        AdsApplication $application,
-        Client $acquia_cloud_client
+      AdsApplication $application,
+      Client $acquia_cloud_client
     ): ?ApplicationResponse {
         if ($application->getRepoRoot()) {
             $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
@@ -327,6 +333,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         // Try to guess based on local git url config.
         if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
             $this->promptLinkApplication($ads_application, $cloud_application);
+
             return $cloud_application->uuid;
         }
 
@@ -350,6 +357,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 $local_user_config['localProjects'][$key] = $project;
                 $this->localProjectInfo = $local_user_config;
                 $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
+
                 return;
             }
         }

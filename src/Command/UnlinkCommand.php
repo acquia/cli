@@ -16,7 +16,8 @@ class UnlinkCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('unlink')->setDescription('Remove local association between your project and an Acquia Cloud application');
+        $this->setName('unlink')
+          ->setDescription('Remove local association between your project and an Acquia Cloud application');
     }
 
     /**
