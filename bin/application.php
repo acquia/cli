@@ -19,6 +19,7 @@ use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Ads\Command\Ssh\SshKeyListCommand;
 use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Ads\Command\UnlinkCommand;
 use Acquia\Ads\Command\UpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -53,6 +54,7 @@ $application->addCommands([
     new SshKeyListCommand(),
     new SshKeyUploadCommand(),
     new SshKeyCreateUploadCommand(),
+    new UnlinkCommand(),
     new UpdateCommand(),
 ]);
 

@@ -2,8 +2,11 @@
 
 namespace Acquia\Ads\Command;
 
+use Acquia\Ads\Exception\AdsException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 
 /**
  * Class NewCommand.
@@ -17,7 +20,13 @@ class NewCommand extends CommandBase
     protected function configure()
     {
         $this->setName('new')
-          ->setDescription('Create a new Drupal project');
+          ->setDescription('Create a new Drupal project')
+          ->addOption(
+            'distribution',
+            null,
+            InputOption::VALUE_REQUIRED,
+            ''
+          );
     }
 
     /**
@@ -28,10 +37,99 @@ class NewCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
+        $distros = [
+          'acquia/blt-project',
+          'acquia/lightning-project',
+          'drupal/recommended-project',
+        ];
+        $question = new ChoiceQuestion(
+          '<question>Which starting project would you like to use?</question>',
+          $distros
+        );
+        $helper = $this->getHelper('question');
+        $project = $helper->ask($this->input, $this->output, $question);
 
+        $dir = getcwd() .'/drupal';
+        $filepath = $dir . '/composer.json';
 
+        $this->createProject($project, $dir);
+
+        if (strpos($project, 'drupal/recommended-project') !== FALSE) {
+            $this->replaceWebRoot($filepath);
+            $this->requireDrush($dir);
+        }
+
+        // We've deferred all installation until now.
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'composer',
+          'update',
+        ], null, false, $dir);
+
+        $this->initializeGitRepository($dir);
 
         return 0;
+    }
+
+    /**
+     * @param string $filepath
+     */
+    protected function replaceWebRoot(string $filepath): void
+    {
+        $contents = file_get_contents($filepath);
+        $contents = str_replace('web/', 'docroot/', $contents);
+        file_put_contents($filepath, $contents);
+    }
+
+    /**
+     * @param string $dir
+     */
+    protected function requireDrush(string $dir): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'composer',
+          'require',
+          'drush/drush',
+          '--no-update',
+        ], null, false, $dir);
+    }
+
+    /**
+     * @param $project
+     * @param string $dir
+     */
+    protected function createProject($project, string $dir): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'composer',
+          'create-project',
+          '--no-install',
+          $project,
+          $dir,
+        ]);
+    }
+
+    /**
+     * @param string $dir
+     */
+    protected function initializeGitRepository(string $dir): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'git',
+          'init',
+        ], null, false, $dir);
+
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'git',
+          'add',
+          '-A',
+        ], null, false, $dir);
+
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'git',
+          'commit',
+          '--message',
+          'Initial commit.',
+          '--quiet',
+        ], null, false, $dir);
     }
 }

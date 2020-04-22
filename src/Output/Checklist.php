@@ -4,7 +4,8 @@ namespace Acquia\Ads\Output;
 
 use Symfony\Component\Console\Output\ConsoleOutput;
 
-class Checklist {
+class Checklist
+{
     /**
      * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
      */
@@ -18,7 +19,8 @@ class Checklist {
      *
      * @param \Symfony\Component\Console\Output\ConsoleOutput $output
      */
-    public function __construct(ConsoleOutput $output) {
+    public function __construct(ConsoleOutput $output)
+    {
         $this->section = $output->section();
     }
 

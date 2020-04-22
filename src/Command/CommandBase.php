@@ -162,29 +162,36 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     protected function loadLocalProjectInfo(AdsApplication $application)
     {
+        $this->logger->debug("Loading local project information...");
         $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
         // Save empty local project info.
         // @todo Abstract this.
-        if ($local_user_config !== null) {
+        if ($local_user_config !== null && $application->getRepoRoot() !== null) {
+            $this->logger->debug("Searching local datastore for matching project...");
             foreach ($local_user_config['localProjects'] as $project) {
                 if ($project['directory'] === $application->getRepoRoot()) {
+                    $this->logger->debug("Matching local project found.");
                     $this->localProjectInfo = $project;
                     return;
                 }
             }
         } else {
+            $this->logger->debug("No matching local project found.");
             $local_user_config = [];
         }
 
         // @todo Abstract this.
         // Save new project info.
-        $project = [];
-        $project['name'] = basename($this->getApplication()->getRepoRoot());
-        $project['directory'] = $this->getApplication()->getRepoRoot();
-        $local_user_config['localProjects'][] = $project;
+        if ($application->getRepoRoot()) {
+            $project = [];
+            $project['name'] = basename($application->getRepoRoot());
+            $project['directory'] = $application->getRepoRoot();
+            $local_user_config['localProjects'][] = $project;
 
-        $this->localProjectInfo = $local_user_config;
-        $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
+            $this->localProjectInfo = $local_user_config;
+            $this->logger->debug("Saving local project information.");
+            $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
+        }
     }
 
     /**
@@ -283,16 +290,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         AdsApplication $application,
         Client $acquia_cloud_client
     ): ?ApplicationResponse {
-        $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
-        $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>');
-        $helper = $this->getHelper('question');
-        $answer = $helper->ask($this->input, $this->output, $question);
-        if ($answer) {
-            $this->output->writeln('Searching for a matching Cloud application...');
-            $git_config = $this->getGitConfig($application);
-            $local_git_remotes = $this->getGitRemotes($git_config);
-            $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client, $local_git_remotes);
-            return $cloud_application;
+        if ($application->getRepoRoot()) {
+            $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
+            $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>');
+            $helper = $this->getHelper('question');
+            $answer = $helper->ask($this->input, $this->output, $question);
+            if ($answer) {
+                $this->output->writeln('Searching for a matching Cloud application...');
+                $git_config = $this->getGitConfig($application);
+                $local_git_remotes = $this->getGitRemotes($git_config);
+                $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client, $local_git_remotes);
+
+                return $cloud_application;
+            }
         }
 
         return null;
@@ -308,20 +318,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         /** @var \Acquia\Ads\AdsApplication $ads_application */
         $ads_application = $this->getApplication();
         $this->loadLocalProjectInfo($ads_application);
-        if (isset($this->localProjectInfo) && array_key_exists('cloud_application_uuid', $this->localProjectInfo)) {
-            $application_uuid = $this->localProjectInfo['cloud_application_uuid'];
-        } elseif ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
-            $question = new ConfirmationQuestion("<question>Would you like to link the project at {$ads_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>?");
-            $helper = $this->getHelper('question');
-            $answer = $helper->ask($this->input, $this->output, $question);
-            if ($answer) {
-                $this->saveLocalConfigCloudAppUuid($cloud_application->uuid);
-            }
-            $application_uuid = $cloud_application->uuid;
-        } else {
-            $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
-            $this->saveLocalConfigCloudAppUuid($application_uuid);
+
+        // Try local project infor.
+        if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
+            return $application_uuid;
         }
+
+        // Try to guess based on local git url config.
+        if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
+            $this->promptLinkApplication($ads_application, $cloud_application);
+            return $cloud_application->uuid;
+        }
+
+        // Finally, just ask.
+        $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
+        $this->saveLocalConfigCloudAppUuid($application_uuid);
 
         return $application_uuid;
     }
@@ -341,6 +352,34 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
                 return;
             }
+        }
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function getAppUuidFromLocalProjectInfo()
+    {
+        if (isset($this->localProjectInfo) && array_key_exists('cloud_application_uuid', $this->localProjectInfo)) {
+            return $this->localProjectInfo['cloud_application_uuid'];
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Acquia\Ads\AdsApplication $ads_application
+     * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
+     */
+    protected function promptLinkApplication(
+      AdsApplication $ads_application,
+      ?ApplicationResponse $cloud_application
+    ): void {
+        $question = new ConfirmationQuestion("<question>Would you like to link the project at {$ads_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
+        $helper = $this->getHelper('question');
+        $answer = $helper->ask($this->input, $this->output, $question);
+        if ($answer) {
+            $this->saveLocalConfigCloudAppUuid($cloud_application->uuid);
         }
     }
 }

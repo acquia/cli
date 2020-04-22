@@ -85,7 +85,7 @@ abstract class SshBaseCommand extends CommandBase
     protected function sendCommandViaSsh($command)
     {
         $command = array_merge($this->getConnectionArgs(), $command);
-        return $this->local_machine_helper->execute(
+        return $this->getApplication()->getLocalMachineHelper()->execute(
             $command,
             $this->getOutputCallback(),
             $this->progressAllowed
@@ -116,7 +116,7 @@ abstract class SshBaseCommand extends CommandBase
      */
     private function getOutputCallback(): callable
     {
-        if ($this->local_machine_helper->useTty() === false) {
+        if ($this->getApplication()->getLocalMachineHelper()->useTty() === false) {
             $output = $this->output;
 
             return function ($type, $buffer) use ($output) {
@@ -165,6 +165,8 @@ abstract class SshBaseCommand extends CommandBase
         $drush_site,
         $drush_env
     ): EnvironmentResponse {
+        // @todo Speed this up with some kind of caching.
+        $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $applications_resource = new Applications($acquia_cloud_client);
         $customer_applications = $applications_resource->getAll();
@@ -174,9 +176,11 @@ abstract class SshBaseCommand extends CommandBase
             $parts = explode(':', $site_id);
             $site_prefix = $parts[1];
             if ($site_prefix === $drush_site) {
+                $this->logger->debug("Found application matching $drush_site. Searching environments...");
                 $environments = $environments_resource->getAll($customer_application->uuid);
                 foreach ($environments as $environment) {
                     if ($environment->name === $drush_env) {
+                        $this->logger->debug("Found environment matching $drush_env.");
                         return $environment;
                     }
                 }

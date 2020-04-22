@@ -51,7 +51,7 @@ class LocalMachineHelper
      * @param bool $progressIndicatorAllowed Allow the progress bar to be used (if in tty mode only)
      * @return array The command output and exit_code
      */
-    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false): array
+    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null): array
     {
         $process = $this->getProcess($cmd);
         $useTty = $this->useTty();
@@ -63,6 +63,9 @@ class LocalMachineHelper
             if (!posix_isatty(STDIN)) {
                 $process->setInput(STDIN);
             }
+        }
+        if ($cwd) {
+            $process->setWorkingDirectory($cwd);
         }
         $process->setTty($useTty);
         $process->start();
@@ -88,37 +91,6 @@ class LocalMachineHelper
     public function getFinder(): Finder
     {
         return new Finder();
-    }
-
-    /**
-     * Opens the given URL in a browser on the local machine.
-     *
-     * @param $url The URL to be opened
-     *
-     * @throws \Acquia\Ads\Exception\AdsException*@throws \Acquia\Ads\Exception\AdsException
-     * @throws \Acquia\Ads\Exception\AdsException
-     */
-    public function openUrl($url): void
-    {
-        // Otherwise attempt to launch it.
-        $cmd = '';
-        switch (PHP_OS) {
-            case 'Linux':
-                $cmd = 'xdg-open';
-                break;
-            case 'Darwin':
-                $cmd = 'open';
-                break;
-            case 'Windows NT':
-                $cmd = 'start';
-                break;
-        }
-        if (!$cmd) {
-            throw new AdsException('Ads is unable to open a browser on this OS.');
-        }
-        $command = sprintf('%s %s', $cmd, $url);
-
-        $this->getProcess($command)->run();
     }
 
     /**

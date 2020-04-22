@@ -101,8 +101,7 @@ class IdeCreateCommand extends CommandBase
                     $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $this->ide->links->web->href);
                     // @todo Prompt to open browser.
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $this->logger->debug($e->getMessage());
             }
         });
@@ -128,8 +127,8 @@ class IdeCreateCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\IdeResponse
      */
     protected function getIdeFromResponse(
-      \AcquiaCloudApi\Response\OperationResponse $response,
-      \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+        \AcquiaCloudApi\Response\OperationResponse $response,
+        \AcquiaCloudApi\Connector\Client $acquia_cloud_client
     ): \AcquiaCloudApi\Response\IdeResponse {
         $cloud_api_ide_url = $response->links->self->href;
         $url_parts = explode('/', $cloud_api_ide_url);
@@ -137,5 +136,5 @@ class IdeCreateCommand extends CommandBase
         $ides_resource = new Ides($acquia_cloud_client);
 
         return $ides_resource->get($ide_uuid);
-}
+    }
 }

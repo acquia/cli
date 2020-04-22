@@ -52,7 +52,7 @@ function find_repo_root()
     }
     foreach ($possible_repo_roots as $possible_repo_root) {
         if ($repo_root = find_directory_containing_files($possible_repo_root, ['docroot', 'vendor/autoload.php'])) {
-            return $repo_root;
+            return realpath($repo_root);
         }
     }
 

@@ -153,8 +153,11 @@ class FileStore implements DataStoreInterface
         }
 
         $writable = is_dir($this->directory)
-            || (!file_exists($this->directory) && !mkdir($concurrentDirectory = $this->directory, 0777,
-              true) && !is_dir($concurrentDirectory));
+            || (!file_exists($this->directory) && !mkdir(
+                $concurrentDirectory = $this->directory,
+                0777,
+                true
+            ) && !is_dir($concurrentDirectory));
         $writable = $writable && is_writable($this->directory);
         if (!$writable) {
             throw new AdsException(
