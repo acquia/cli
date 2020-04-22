@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Tests;
 
 use Acquia\Ads\AdsApplication;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -15,7 +16,7 @@ use Symfony\Component\Console\Output\NullOutput;
  *
  * Base class for all tests that are executed for BLT itself.
  */
-abstract class CommandTestBase extends \PHPUnit_Framework_TestCase
+abstract class CommandTestBase extends PHPUnit_Framework_TestCase
 {
 
     /** @var Application */

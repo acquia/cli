@@ -22,6 +22,7 @@ class AliasListCommand extends CommandBase
     protected function configure()
     {
         $this->setName('remote:aliases:list')->setDescription('List all aliases for Acquia Cloud environments');
+        // @todo Add argument to allow specifying application.
     }
 
     /**

@@ -57,7 +57,12 @@ class NewCommand extends CommandBase
           'update',
         ], null, false, $dir);
 
+        // @todo Add a .gitignore and other recommended default files.
+
         $this->initializeGitRepository($dir);
+
+        $output->writeln('');
+        $output->writeln("<info>New 💧Drupal project created in $dir. 🎉");
 
         return 0;
     }

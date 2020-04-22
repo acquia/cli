@@ -27,6 +27,7 @@ class LinkCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $this->validateCwdIsValidDrupalProject();
         // @todo Indicate if the current local repo is already associated with a cloud
         // application.
 

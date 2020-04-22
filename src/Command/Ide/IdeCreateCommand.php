@@ -5,7 +5,11 @@ namespace Acquia\Ads\Command\Ide;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exec\ExecTrait;
 use Acquia\Ads\Output\Checklist;
+use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Endpoints\Ides;
+use AcquiaCloudApi\Response\IdeResponse;
+use AcquiaCloudApi\Response\OperationResponse;
+use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
@@ -80,7 +84,7 @@ class IdeCreateCommand extends CommandBase
     protected function waitForDnsPropagation($ide_url): void
     {
         $loop = Factory::create();
-        $spinner = new \Acquia\Ads\Output\Spinner\Spinner($this->output, 4);
+        $spinner = new Spinner($this->output, 4);
         $spinner->setMessage('Waiting for DNS to propagate... ');
         $loop->addPeriodicTimer($spinner->interval(), static function () use ($spinner) {
             $spinner->advance();
@@ -100,7 +104,7 @@ class IdeCreateCommand extends CommandBase
                     $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $this->ide->links->web->href);
                     // @todo Prompt to open browser.
                 }
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $this->logger->debug($e->getMessage());
             }
         });
@@ -126,9 +130,9 @@ class IdeCreateCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\IdeResponse
      */
     protected function getIdeFromResponse(
-      \AcquiaCloudApi\Response\OperationResponse $response,
+      OperationResponse $response,
       \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-    ): \AcquiaCloudApi\Response\IdeResponse {
+    ): IdeResponse {
         $cloud_api_ide_url = $response->links->self->href;
         $url_parts = explode('/', $cloud_api_ide_url);
         $ide_uuid = end($url_parts);

@@ -5,6 +5,7 @@ namespace Acquia\Ads\Command;
 use Acquia\Ads\AdsApplication;
 use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\DataStore\DataStoreInterface;
+use Acquia\Ads\Exception\AdsException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -170,7 +171,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
                 if ($project['directory'] === $application->getRepoRoot()) {
                     $this->logger->debug("Matching local project found.");
                     $this->localProjectInfo = $project;
-
                     return;
                 }
             }
@@ -253,12 +253,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments,
               $local_git_remotes)) {
                 $progressBar->finish();
+                $progressBar->clear();
 
                 return $application;
             }
             $progressBar->advance();
         }
         $progressBar->finish();
+        $progressBar->clear();
 
         return null;
     }
@@ -298,7 +300,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     ): ?ApplicationResponse {
         if ($application->getRepoRoot()) {
             $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
-            $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question>');
+            $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question> ');
             $helper = $this->getHelper('question');
             $answer = $helper->ask($this->input, $this->output, $question);
             if ($answer) {
@@ -325,13 +327,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $ads_application = $this->getApplication();
         $this->loadLocalProjectInfo($ads_application);
 
-        // Try local project infor.
+        // Try local project info.
         if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
             return $application_uuid;
         }
 
         // Try to guess based on local git url config.
         if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
+            $this->output->writeln('<info>Found a matching application!');
             $this->promptLinkApplication($ads_application, $cloud_application);
 
             return $cloud_application->uuid;
@@ -388,6 +391,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $answer = $helper->ask($this->input, $this->output, $question);
         if ($answer) {
             $this->saveLocalConfigCloudAppUuid($cloud_application->uuid);
+            $this->output->writeln("Your local repository is now linked with {$cloud_application->name}.");
+        }
+    }
+
+    protected function validateCwdIsValidDrupalProject(): void
+    {
+        if (!$this->getApplication()->getRepoRoot()) {
+            throw new AdsException("Could not find a local Drupal project. Please execute this command from within a Drupal project directory.");
         }
     }
 }
