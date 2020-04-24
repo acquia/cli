@@ -100,6 +100,8 @@ class Spinner
         // Create progress bar.
         $this->progressBar = new ProgressBar($this->section);
         $this->progressBar->setBarCharacter('<info>✔</info>');
+        $this->progressBar->setProgressCharacter('⌛');
+        $this->progressBar->setEmptyBarCharacter('⌛');
         $this->progressBar->setFormat($this->indentString . '%bar% %message%');
         $this->progressBar->setBarWidth(1);
         $this->progressBar->setRedrawFrequency($this->interval());
@@ -137,7 +139,7 @@ class Spinner
 
     public function setMessage(string $message): void
     {
-        $this->progressBar->setMessage($message, 'message');
+        $this->progressBar->setMessage($message);
     }
 
     public function finish(): void

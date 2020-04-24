@@ -59,21 +59,21 @@ class LocalMachineHelper
      * @param callable $callback A function to run while waiting for the process to complete
      * @param null $cwd
      *
-     * @return array The command output and exit_code
+     * @return Process
      */
-    public function execute($cmd, $callback = null, $cwd = null, $print_output = true): array
+    public function execute($cmd, $callback = null, $cwd = null, $print_output = true): Process
     {
         $process = $this->getProcess($cmd);
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
-    public function executeFromCmd($cmd, $callback = null, $cwd = null, $print_output = true): array
+    public function executeFromCmd($cmd, $callback = null, $cwd = null, $print_output = true): Process
     {
         $process = Process::fromShellCommandline($cmd);
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
-    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): array {
+    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): Process {
         if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
             $process->setInput(STDIN);
         }
@@ -86,13 +86,12 @@ class LocalMachineHelper
         $process->start(null);
         $process->wait($callback);
 
-
         $this->logger->notice('Command: {command} [Exit: {exit}]', [
           'command' => $process->getCommandLine(),
           'exit' => $process->getExitCode(),
         ]);
 
-        return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
+        return $process;
     }
 
     protected function isInteractive() {

@@ -60,21 +60,21 @@ abstract class SshBaseCommand extends CommandBase
 
         // Remove site_env arg.
         unset($command_args['site_env']);
-        $ssh_data = $this->sendCommandViaSsh($command_args);
+        $process = $this->sendCommandViaSsh($command_args);
 
         /** @var \Acquia\Ads\AdsApplication $application */
         $application = $this->getApplication();
         $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
           'env' => $this->environment->name,
           'command' => $command_summary,
-          'exit' => $ssh_data['exit_code'],
+          'exit' => $process->getExitCode(),
         ]);
 
-        if ($ssh_data['exit_code'] != 0) {
-            throw new AdsException($ssh_data['output']);
+        if (!$process->isSuccessful()) {
+            throw new AdsException($process->getOutput());
         }
 
-        return $ssh_data['exit_code'];
+        return $process->getExitCode();
     }
 
     /**

@@ -2,22 +2,17 @@
 
 namespace Acquia\Ads\Output;
 
-use Symfony\Component\Console\Helper\ProgressBar;
+use Acquia\Ads\Output\Spinner\Spinner;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Checklist
 {
-    /**
-     * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
-     */
-    private $section;
-
     /** @var array */
     private $items = [];
     /**
-     * @var \Symfony\Component\Console\Helper\ProgressBar
+     * @var \Symfony\Component\Console\Output\ConsoleOutput
      */
-    private $progressBar;
+    private $output;
 
     /**
      * Checklist constructor.
@@ -26,30 +21,48 @@ class Checklist
      */
     public function __construct(ConsoleOutput $output)
     {
-        $this->section = $output->section();
-        $this->progressBar = new ProgressBar();
+        $this->output = $output;
     }
 
     public function addItem($message): void
     {
-        $this->section->writeln($this->getIndent() . $message . '...');
-        $this->items[] = $message;
+        $spinner = new Spinner($this->output, 4);
+
+        $this->items[] = [
+          'message' => $message,
+          'spinner' => $spinner,
+        ];
+        $spinner->setMessage($message . '...');
+        $spinner->start();
     }
 
     /**
      */
     public function completePreviousItem(): void
     {
-        $this->section->clear(1);
-        $this->section->writeln($this->getIndent() . '<info>✔</info> ' . end($this->items));
+        $item = $this->getLastItem();
+        /** @var Spinner $spinner */
+        $spinner = $item['spinner'];
+        $spinner->setMessage($item['message']);
+        $spinner->finish();
     }
 
-    protected function getIndent(): string
+    protected function getLastItem() {
+        return end($this->items);
+    }
+
+    public function updateProgressBar($update_message): void
     {
-        return str_repeat(' ', 4);
-    }
-
-    public function streamProgressMessage() {
-
+        $item = $this->getLastItem();
+        /** @var Spinner $spinner */
+        $spinner = $item['spinner'];
+        $message_lines = explode(PHP_EOL, $update_message);
+        foreach ($message_lines as $line) {
+            $spinner->advance();
+            // @todo Replace this with logger.
+            if ($this->output->isVeryVerbose()) {
+                $this->output->writeln($line);
+            }
+        }
     }
 }
