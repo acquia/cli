@@ -55,7 +55,7 @@ class NewCommand extends CommandBase
         $this->getApplication()->getLocalMachineHelper()->execute([
           'composer',
           'update',
-        ], null, false, $dir);
+        ], null, $dir);
 
         // @todo Add a .gitignore and other recommended default files.
 
@@ -87,7 +87,7 @@ class NewCommand extends CommandBase
           'require',
           'drush/drush',
           '--no-update',
-        ], null, false, $dir);
+        ], null, $dir);
     }
 
     /**
@@ -113,13 +113,13 @@ class NewCommand extends CommandBase
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
           'init',
-        ], null, false, $dir);
+        ], null, $dir);
 
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
           'add',
           '-A',
-        ], null, false, $dir);
+        ], null, $dir);
 
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
@@ -127,6 +127,6 @@ class NewCommand extends CommandBase
           '--message',
           'Initial commit.',
           '--quiet',
-        ], null, false, $dir);
+        ], null, $dir);
     }
 }

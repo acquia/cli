@@ -2,8 +2,10 @@
 
 namespace Acquia\Ads\Command;
 
+use Acquia\Ads\Exception\AdsException;
 use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\ClientInterface;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,10 +31,6 @@ class RefreshCommand extends CommandBase
           ->addOption('no-databases', null, InputOption::VALUE_NONE, 'Do not refresh databases')
           ->addOption('no-scripts', null, InputOption::VALUE_NONE,
             'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.')
-          ->addOption('code', null, InputOption::VALUE_NONE, 'Copy only code from remote repository')
-          ->addOption('files', null, InputOption::VALUE_NONE, 'Copy only files from remote Acquia Cloud environment')
-          ->addOption('databases', null, InputOption::VALUE_NONE,
-            'Copy only databases from remote Acquia Cloud environment')
           ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
         // @todo Add option to allow specifying source environment.
     }
@@ -54,69 +52,112 @@ class RefreshCommand extends CommandBase
         // @todo Write name of Cloud application to screen.
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
+        $checklist = new Checklist($output);
 
         // Git clone if no local repo found.
         // @todo This won't actually execute if repo is missing because of $this->validateCwdIsValidDrupalProject();
-        $checklist = new Checklist($output);
-        $checklist->addItem('Pulling code from Acquia Cloud');
-        // $this->pullCodeFromCloud($chosen_environment);
-        $checklist->completePreviousItem();
+        if (!$input->getOption('no-code')) {
+            $checklist->addItem('Pulling code from Acquia Cloud');
+            $this->pullCodeFromCloud($chosen_environment);
+            $checklist->completePreviousItem();
+        }
 
         // Copy databases.
-        $checklist->addItem('Importing Drupal default database copy from Acquia Cloud');
-        $this->importDatabaseFromEnvironment($acquia_cloud_client, $chosen_environment);
-        $checklist->completePreviousItem();
+        if (!$input->getOption('no-databases')) {
+            $checklist->addItem('Importing Drupal default database copy from Acquia Cloud');
+            $this->importDatabaseFromEnvironment($acquia_cloud_client, $chosen_environment);
+            $checklist->completePreviousItem();
+        }
 
         // Copy files.
-        $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
-        $this->getApplication()->getLocalMachineHelper()->execute([
-          'rsync',
-          '-rve',
-          'ssh -o StrictHostKeyChecking=no',
-          $chosen_environment->sshUrl . ':' . $chosen_environment->name . '/sites/default/files',
-          $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
-        ]);
-        $checklist->completePreviousItem();
+        if (!$input->getOption('no-files')) {
+            $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
+            $this->rsyncFilesFromCloud($chosen_environment);
+            $checklist->completePreviousItem();
+        }
 
-        // Composer install.
+        if (!$input->getOption('no-scripts')) {
+            if (file_exists($this->getApplication()->getRepoRoot() . '/composer.json') && $this->getApplication()
+                ->getLocalMachineHelper()
+                ->commandExists('composer')) {
+                $checklist->addItem('Installing Composer dependencies');
+                $this->composerInstall();
+                $checklist->completePreviousItem();
+            }
 
+            if ($this->drushHasActiveDatabaseConnection()) {
+                // Drush rebuild caches.
+                $checklist->addItem('Clearing Drupal caches via Drush');
+                $this->drushRebuildCaches();
+                $checklist->completePreviousItem();
 
-        // Drush sanitize.
-
-        // Drush rebuild caches.
+                // Drush sanitize.
+                $checklist->addItem('Sanitizing database via Drush');
+                $this->drushSqlSanitize();
+                $checklist->completePreviousItem();
+            }
+        }
 
         return 0;
     }
 
     /**
+     * @return bool
+     */
+    protected function drushHasActiveDatabaseConnection(): bool
+    {
+        if ($this->getApplication()->getLocalMachineHelper()->commandExists('drush')) {
+            $drush_status_return = $this->getApplication()->getLocalMachineHelper()->execute([
+              'drush',
+              'status',
+              '--fields=db-status,drush-version',
+              '--format=json',
+              '--no-interaction',
+            ], null, null, false);
+            if ($drush_status_return['exit_code'] === 0) {
+                $drush_status_return_output = json_decode($drush_status_return['output'], TRUE);
+                if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param $chosen_environment
+     *
+     * @throws \Acquia\Ads\Exception\AdsException
      */
     protected function pullCodeFromCloud($chosen_environment): void
     {
         $repo_root = $this->getApplication()->getRepoRoot();
-        if ($repo_root . '/.git') {
+        if (!file_exists($repo_root . '/.git')) {
             $this->getApplication()->getLocalMachineHelper()->execute([
               'git',
               'clone',
-              $chosen_environment->vcs_url,
+              $chosen_environment->vcs->url,
               $this->getApplication()->getRepoRoot(),
             ]);
         } else {
             $is_dirty = $this->isLocalGitRepoDirty($repo_root);
-            if (!$is_dirty) {
-                $this->getApplication()->getLocalMachineHelper()->execute([
-                  'git',
-                  'fetch',
-                  $chosen_environment->vcs_url,
-                  $this->getApplication()->getRepoRoot(),
-                ], null, false, $repo_root);
-                $this->getApplication()->getLocalMachineHelper()->execute([
-                  'git',
-                  'checkout',
-                  $chosen_environment->vcs_url,
-                  $this->getApplication()->getRepoRoot(),
-                ], null, false, $repo_root);
+            if ($is_dirty) {
+                throw new AdsException('Local git is dirty!');
             }
+
+            $this->getApplication()->getLocalMachineHelper()->execute([
+              'git',
+              'fetch',
+              $chosen_environment->vcs_url,
+              $this->getApplication()->getRepoRoot(),
+            ], null, $repo_root);
+            $this->getApplication()->getLocalMachineHelper()->execute([
+              'git',
+              'checkout',
+              $chosen_environment->vcs_url,
+              $this->getApplication()->getRepoRoot(),
+            ], null, $repo_root);
         }
     }
 
@@ -174,14 +215,14 @@ class RefreshCommand extends CommandBase
     }
 
     /**
-     * @param $db_host
-     * @param $db_user
-     * @param $db_name
-     * @param $db_password
+     * @param string $db_host
+     * @param string $db_user
+     * @param string $db_name
+     * @param string $db_password
      */
     protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password): void
     {
-        $this->getApplication()->getLocalMachineHelper()->execute([
+        $this->getApplication()->getLocalMachineHelper()->exec([
           'mysql',
           '--host',
           $db_host,
@@ -195,14 +236,14 @@ class RefreshCommand extends CommandBase
     }
 
     /**
-     * @param $db_host
-     * @param $db_user
-     * @param $db_name
-     * @param $db_password
+     * @param string $db_host
+     * @param string $db_user
+     * @param string $db_name
+     * @param string $db_password
      */
     protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password): void
     {
-        $this->getApplication()->getLocalMachineHelper()->execute([
+        $this->getApplication()->getLocalMachineHelper()->exec([
           'mysql',
           '--host',
           $db_host,
@@ -216,11 +257,11 @@ class RefreshCommand extends CommandBase
     }
 
     /**
-     * @param $dump_filepath
-     * @param $db_host
-     * @param $db_user
-     * @param $db_name
-     * @param $db_password
+     * @param string $dump_filepath
+     * @param string $db_host
+     * @param string $db_user
+     * @param string $db_name
+     * @param string $db_password
      */
     protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password): void
     {
@@ -255,18 +296,18 @@ class RefreshCommand extends CommandBase
           'git',
           'diff',
           '--stat',
-        ], null, false, $repo_root);
+        ], null, $repo_root, false);
 
         return $is_dirty;
     }
 
     /**
      * @param $acquia_cloud_client
-     * @param string|null $cloud_application_uuid
+     * @param string $cloud_application_uuid
      *
      * @return mixed
      */
-    protected function promptChooseEnvironment($acquia_cloud_client, ?string $cloud_application_uuid)
+    protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid)
     {
         $environment_resource = new Environments($acquia_cloud_client);
         $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
@@ -287,6 +328,39 @@ class RefreshCommand extends CommandBase
     }
 
     /**
+     * @param $acquia_cloud_client
+     * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+     *
+     * @return mixed
+     * @throws \Exception
+     */
+    protected function promptChooseDatabase(ClientInterface $acquia_cloud_client, $cloud_environment)
+    {
+        $response = $acquia_cloud_client->makeRequest('get', '/environments/' . $cloud_environment->uuid . '/databases');
+        $environment_databases = $acquia_cloud_client->processResponse($response);
+        $choices = [];
+        $default_database_index = 0;
+        foreach ($environment_databases as $index => $database) {
+            // @todo For ACSF, map database name to site name from
+            // /var/www/site-php/<sitegroup>.<env>/multisite-config.json.
+            if ($database->flags->default) {
+                $default_database_index = $index;
+                $choices[] = $database->name . ' (default)';
+            }
+            else {
+                $choices[] = $database->name;
+            }
+        }
+        $question = new ChoiceQuestion('<question>Choose a database to copy</question>:',
+          $choices, $default_database_index);
+        $helper = $this->getHelper('question');
+        $chosen_database_label = $helper->ask($this->input, $this->output, $question);
+        $chosen_database_index = array_search($chosen_database_label, $choices, true);
+
+        return $environment_databases[$chosen_database_index];
+    }
+
+    /**
      * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
      * @param $chosen_environment
      *
@@ -299,15 +373,60 @@ class RefreshCommand extends CommandBase
         $response = $acquia_cloud_client->makeRequest('get',
           '/environments/' . $chosen_environment->uuid . '/databases');
         $databases = $acquia_cloud_client->processResponse($response);
-        foreach ($databases as $database) {
-            if ($database->flags->default) {
-                $db_url_parts = explode('/', $database->url);
-                $db_name = end($db_url_parts);
-                // Workaround until db_host is fixed (CXAPI-7018).
-                $db_host = $database->db_host ?: "db-${$db_name}.cdb.database.services.acquia.io";
-                $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name);
-                break;
-            }
+        if (count($databases) > 1) {
+            $database = $this->promptChooseDatabase($acquia_cloud_client, $chosen_environment);
         }
+        else {
+            $database = reset($databases);
+        }
+        $db_url_parts = explode('/', $database->url);
+        $db_name = end($db_url_parts);
+        // Workaround until db_host is fixed (CXAPI-7018).
+        $db_host = $database->db_host ?: "db-${$db_name}.cdb.database.services.acquia.io";
+        $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name);
+    }
+
+    protected function drushRebuildCaches(): void
+    {
+// @todo Add support for Drush 8.
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'drush',
+          'cache:rebuild',
+          '--yes',
+          '--no-interaction',
+        ], null, $this->getApplication()->getRepoRoot(), false);
+    }
+
+    protected function drushSqlSanitize(): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'drush',
+          'sql:sanitize',
+          '--yes',
+          '--no-interaction',
+        ], null, $this->getApplication()->getRepoRoot(), false);
+    }
+
+    protected function composerInstall(): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'composer',
+          'install',
+          '--no-interaction'
+        ], null, $this->getApplication()->getRepoRoot(), false);
+    }
+
+    /**
+     * @param $chosen_environment
+     */
+    protected function rsyncFilesFromCloud($chosen_environment): void
+    {
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'rsync',
+          '-rve',
+          'ssh -o StrictHostKeyChecking=no',
+          $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
+          $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
+        ], null, null, false);
     }
 }

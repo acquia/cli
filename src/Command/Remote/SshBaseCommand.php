@@ -90,7 +90,7 @@ abstract class SshBaseCommand extends CommandBase
 
         return $this->getApplication()
           ->getLocalMachineHelper()
-          ->execute($command, $this->getOutputCallback(), $this->progressAllowed);
+          ->execute($command, $this->getOutputCallback());
     }
 
     /**

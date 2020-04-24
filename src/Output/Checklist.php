@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Output;
 
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class Checklist
@@ -13,6 +14,10 @@ class Checklist
 
     /** @var array */
     private $items = [];
+    /**
+     * @var \Symfony\Component\Console\Helper\ProgressBar
+     */
+    private $progressBar;
 
     /**
      * Checklist constructor.
@@ -22,6 +27,7 @@ class Checklist
     public function __construct(ConsoleOutput $output)
     {
         $this->section = $output->section();
+        $this->progressBar = new ProgressBar();
     }
 
     public function addItem($message): void
@@ -41,5 +47,9 @@ class Checklist
     protected function getIndent(): string
     {
         return str_repeat(' ', 4);
+    }
+
+    public function streamProgressMessage() {
+
     }
 }

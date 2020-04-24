@@ -47,7 +47,8 @@ class LocalMachineHelper
         return $process;
     }
 
-    public function commandExists($command) {
+    public function commandExists($command): bool
+    {
         return $this->exec(['type', $command])->isSuccessful();
     }
 
@@ -56,38 +57,35 @@ class LocalMachineHelper
      *
      * @param array $cmd The command to execute
      * @param callable $callback A function to run while waiting for the process to complete
-     * @param bool $progressIndicatorAllowed Allow the progress bar to be used (if in tty mode only)
+     * @param null $cwd
      *
      * @return array The command output and exit_code
      */
-    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []): array
+    public function execute($cmd, $callback = null, $cwd = null, $print_output = true): array
     {
         $process = $this->getProcess($cmd);
-        return $this->executeProcess($process, $callback, $progressIndicatorAllowed, $cwd, $env);
+        return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
-    public function executeFromCmd($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []) {
+    public function executeFromCmd($cmd, $callback = null, $cwd = null, $print_output = true): array
+    {
         $process = Process::fromShellCommandline($cmd);
-        return $this->executeProcess($process, $callback, $progressIndicatorAllowed, $cwd, $env);
+        return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
-    protected function executeProcess(Process $process, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []): array {
-        $useTty = $this->useTty();
-        // Set tty mode if the user is running Ads iteractively.
-        if (function_exists('posix_isatty')) {
-            if (!isset($useTty)) {
-                $useTty = (posix_isatty(STDOUT) && posix_isatty(STDIN));
-            }
-            if (!posix_isatty(STDIN)) {
-                $process->setInput(STDIN);
-            }
+    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): array {
+        if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
+            $process->setInput(STDIN);
         }
         if ($cwd) {
             $process->setWorkingDirectory($cwd);
         }
-        $process->setTty($useTty);
-        $process->start(null, $env);
+        if ($print_output) {
+            $process->setTty($this->useTty());
+        }
+        $process->start(null);
         $process->wait($callback);
+
 
         $this->logger->notice('Command: {command} [Exit: {exit}]', [
           'command' => $process->getCommandLine(),
@@ -95,6 +93,18 @@ class LocalMachineHelper
         ]);
 
         return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
+    }
+
+    protected function isInteractive() {
+        if (function_exists('posix_isatty')) {
+            $useTty = $this->useTty();
+            if (!$useTty) {
+                $useTty = (posix_isatty(STDOUT) && posix_isatty(STDIN));
+            }
+            if (!posix_isatty(STDIN)) {
+                return false;
+            }
+        }
     }
 
     /**
@@ -132,19 +142,24 @@ class LocalMachineHelper
     /**
      * Determine whether the use of a tty is appropriate.
      *
-     * @return bool|null
+     * @return bool
      */
-    public function useTty(): ?bool
+    public function useTty(): bool
     {
         // If we are not in interactive mode, then never use a tty.
         if (!$this->input->isInteractive()) {
             return false;
         }
+
         // If we are in interactive mode (or at least the user did not
         // specify -n / --no-interaction), then also prevent the use
         // of a tty if stdout is redirected.
         // Otherwise, let the local machine helper decide whether to use a tty.
-        return (function_exists('posix_isatty') && !posix_isatty(STDOUT)) ? false : null;
+        if (function_exists('posix_isatty')) {
+            return (posix_isatty(STDOUT) && posix_isatty(STDIN));
+        }
+
+        return false;
     }
 
     /**
