@@ -2,10 +2,14 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class SshKeyCreateCommand.
@@ -42,19 +46,20 @@ class SshKeyCreateCommand extends SshKeyCommandBase
         $question->setNormalizer(static function ($value) {
             return $value ? trim($value) : '';
         });
-        $question->setValidator(function ($answer) {
-            if (!is_string($answer) || preg_match("/\s/", $answer)) {
-                throw new RuntimeException('The filename cannot contain any spaces');
-            }
-            if (trim($answer) === '') {
-                throw new RuntimeException('The filename cannot be empty');
+        $question->setValidator(static function ($answer) {
+            $violations = Validation::createValidator()->validate($answer, [
+              new Length(['min' => 5]),
+              new NotBlank(),
+              new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces'])
+            ]);
+            if (count($violations)) {
+                throw new ValidatorException($violations->get(0)->getMessage());
             }
 
             return $answer;
         });
-        $filename = $this->questionHelper->ask($this->input, $this->output, $question);
 
-        return $filename;
+        return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
     /**
@@ -66,15 +71,17 @@ class SshKeyCreateCommand extends SshKeyCommandBase
         $question->setHidden(true);
         $question->setHiddenFallback(false);
         $question->setValidator(function ($answer) {
-            if (trim($answer) === '') {
-                throw new RuntimeException('The password cannot be empty');
+            $violations = Validation::createValidator()->validate($answer, [
+              new NotBlank(),
+            ]);
+            if (count($violations)) {
+                throw new ValidatorException($violations->get(0)->getMessage());
             }
 
             return $answer;
         });
-        $password = $this->questionHelper->ask($this->input, $this->output, $question);
 
-        return $password;
+        return $this->questionHelper->ask($this->input, $this->output, $question);
     }
 
     /**
