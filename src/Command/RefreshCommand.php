@@ -63,15 +63,26 @@ class RefreshCommand extends CommandBase
         $checklist->completePreviousItem();
 
         // Copy databases.
-        $checklist->addItem('Importing database copy from Acquia Cloud');
+        $checklist->addItem('Importing Drupal default database copy from Acquia Cloud');
         $this->importDatabaseFromEnvironment($acquia_cloud_client, $chosen_environment);
         $checklist->completePreviousItem();
 
         // Copy files.
-        $checklist->addItem('Copying public files from Acquia Cloud');
+        $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
+        $this->getApplication()->getLocalMachineHelper()->execute([
+          'rsync',
+          '-rve',
+          'ssh -o StrictHostKeyChecking=no',
+          $chosen_environment->sshUrl . ':' . $chosen_environment->name . '/sites/default/files',
+          $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
+        ]);
         $checklist->completePreviousItem();
+
         // Composer install.
+
+
         // Drush sanitize.
+
         // Drush rebuild caches.
 
         return 0;
