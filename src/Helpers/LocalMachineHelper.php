@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Helpers;
 
 use Acquia\Ads\Exception\AdsException;
+use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -18,30 +19,36 @@ use Symfony\Component\Process\Process;
  */
 class LocalMachineHelper
 {
+    use LoggerAwareTrait;
 
     private $output;
     private $input;
 
-    public function __construct(InputInterface $input, OutputInterface $output)
+    public function __construct(InputInterface $input, OutputInterface $output, $logger)
     {
         $this->input = $input;
         $this->output = $output;
+        $this->setLogger($logger);
     }
 
     /**
      * Executes the given command on the local machine and return the exit code and output.
      *
-     * @param string $cmd The command to execute
+     * @param array $cmd The command to execute
      * @param null $callback
      *
-     * @return array The command output and exit_code
+     * @return Process
      */
-    public function exec($cmd, $callback = null): array
+    public function exec($cmd, $callback = null): Process
     {
         $process = $this->getProcess($cmd);
         $process->run($callback);
 
-        return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
+        return $process;
+    }
+
+    public function commandExists($command) {
+        return $this->exec(['type', $command])->isSuccessful();
     }
 
     /**
@@ -53,9 +60,18 @@ class LocalMachineHelper
      *
      * @return array The command output and exit_code
      */
-    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null): array
+    public function execute($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []): array
     {
         $process = $this->getProcess($cmd);
+        return $this->executeProcess($process, $callback, $progressIndicatorAllowed, $cwd, $env);
+    }
+
+    public function executeFromCmd($cmd, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []) {
+        $process = Process::fromShellCommandline($cmd);
+        return $this->executeProcess($process, $callback, $progressIndicatorAllowed, $cwd, $env);
+    }
+
+    protected function executeProcess(Process $process, $callback = null, $progressIndicatorAllowed = false, $cwd = null, $env = []): array {
         $useTty = $this->useTty();
         // Set tty mode if the user is running Ads iteractively.
         if (function_exists('posix_isatty')) {
@@ -70,8 +86,13 @@ class LocalMachineHelper
             $process->setWorkingDirectory($cwd);
         }
         $process->setTty($useTty);
-        $process->start();
+        $process->start(null, $env);
         $process->wait($callback);
+
+        $this->logger->notice('Command: {command} [Exit: {exit}]', [
+          'command' => $process->getCommandLine(),
+          'exit' => $process->getExitCode(),
+        ]);
 
         return ['output' => $process->getOutput(), 'exit_code' => $process->getExitCode(),];
     }
@@ -152,7 +173,7 @@ class LocalMachineHelper
     /**
      * Returns a set-up process object.
      *
-     * @param string $cmd The command to execute
+     * @param array $cmd The command to execute
      *
      * @return Process
      */

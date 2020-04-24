@@ -66,7 +66,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
         $this->repoRoot = $repo_root;
-        $this->localMachineHelper = new LocalMachineHelper($input, $output);
+        $this->localMachineHelper = new LocalMachineHelper($input, $output, $logger);
         parent::__construct($name, $version);
         $this->datastore = new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia');
 
@@ -77,6 +77,35 @@ class AdsApplication extends Application implements LoggerAwareInterface
         // Register custom progress bar format.
         ProgressBar::setFormatDefinition('message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
+    }
+
+    /**
+     * Runs the current application.
+     *
+     * @return int 0 if everything went fine, or an error code
+     *
+     * @throws \Exception When running fails. Bypass this when {@link setCatchExceptions()}.
+     */
+    public function run(InputInterface $input = null, OutputInterface $output = null)
+    {
+        // @todo Add telemetry.
+
+        $exit_code = parent::run($input, $output);
+        return $exit_code;
+    }
+
+    /**
+     * Initializes Amplitude.
+     */
+    private function initializeAmplitude() {
+        $userConfig = new UserConfig(self::configDir());
+        $amplitude = Amplitude::getInstance();
+        $amplitude->init('dfd3cba7fa72065cde9edc2ca22d0f37')
+          ->setDeviceId(EnvironmentDetector::getMachineUuid());
+        if (!$userConfig->isTelemetryEnabled()) {
+            $amplitude->setOptOut(TRUE);
+        }
+        $amplitude->logQueuedEvents();
     }
 
     /**

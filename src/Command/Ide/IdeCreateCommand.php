@@ -13,7 +13,6 @@ use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
