@@ -159,19 +159,16 @@ class RefreshCommand extends CommandBase
             if ($is_dirty) {
                 throw new AdsException('Local git is dirty!');
             }
-
             $this->getApplication()->getLocalMachineHelper()->execute([
               'git',
               'fetch',
-              $chosen_environment->vcs_url,
-              $this->getApplication()->getRepoRoot(),
-            ], $output_callback, $repo_root);
+              '--all',
+            ], $output_callback, $repo_root, false);
             $this->getApplication()->getLocalMachineHelper()->execute([
               'git',
               'checkout',
-              $chosen_environment->vcs_url,
-              $this->getApplication()->getRepoRoot(),
-            ], $output_callback, $repo_root);
+              $chosen_environment->vcs->path,
+            ], $output_callback, $repo_root, false);
         }
     }
 
@@ -320,7 +317,7 @@ class RefreshCommand extends CommandBase
           '--stat',
         ], null, $repo_root, false);
 
-        return $process->isSuccessful();
+        return !$process->isSuccessful();
     }
 
     /**

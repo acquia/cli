@@ -339,7 +339,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
         // Try to guess based on local git url config.
         if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
-            $this->output->writeln('<info>Found a matching application!');
+            $this->output->writeln('<info>Found a matching application!</info>');
             $this->promptLinkApplication($ads_application, $cloud_application);
 
             return $cloud_application->uuid;

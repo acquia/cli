@@ -43,11 +43,9 @@ function find_repo_root()
 {
     $possible_repo_roots = [
       getcwd(),
-      dirname(__DIR__) . '/',
-      dirname(dirname(dirname(__DIR__))) . '/',
     ];
     // Check for PWD - some local environments will not have this key.
-    if (isset($_SERVER['PWD'])) {
+    if (isset($_SERVER['PWD']) && !in_array($_SERVER['PWD'], $possible_repo_roots, true)) {
         array_unshift($possible_repo_roots, $_SERVER['PWD']);
     }
     foreach ($possible_repo_roots as $possible_repo_root) {
