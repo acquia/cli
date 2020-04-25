@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Remote;
 
+use Acquia\Ads\Command\Remote\SshBaseCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
