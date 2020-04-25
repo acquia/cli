@@ -5,6 +5,7 @@ namespace Acquia\Ads\Command\Logs;
 use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * Class LogsTailCommand
  */
@@ -16,7 +17,7 @@ class LogsTailDbCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('logs:tail-db')->setDescription('');
+        $this->setName('logs:tail-db')->setDescription("Tail Drupal's dblog on your local environment");
     }
 
     /**

@@ -17,7 +17,7 @@ class LogsTailCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('logs:tail')->setDescription('');
+        $this->setName('logs:tail')->setDescription('Tail the logs from your environments');
     }
 
     /**

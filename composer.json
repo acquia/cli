@@ -11,9 +11,9 @@
   ],
   "minimum-stability": "dev",
   "require": {
+    "php": "^7.3",
     "ext-json": "*",
     "ext-posix": "*",
-    "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6",
     "kevinrob/guzzle-cache-middleware": "^3.3",
     "league/oauth2-client": "^2.4",
@@ -40,7 +40,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Acquia\\Ads\\Tests\\": "tests/src/"
+      "Acquia\\Ads\\Tests\\": "tests/phpunit/src/"
     }
   },
   "bin": [

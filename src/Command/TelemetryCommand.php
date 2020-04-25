@@ -4,6 +4,7 @@ namespace Acquia\Ads\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 /**
  * Class TelemetryCommand
  */
@@ -15,7 +16,7 @@ class TelemetryCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('telemetry')->setDescription('');
+        $this->setName('telemetry')->setDescription('Toggle anonymous sharing of usage and performance data');
     }
 
     /**
