@@ -84,9 +84,12 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * Runs the current application.
      *
+     * @param \Symfony\Component\Console\Input\InputInterface|null $input
+     * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+     *
      * @return int 0 if everything went fine, or an error code
      *
-     * @throws \Exception When running fails. Bypass this when {@link setCatchExceptions()}.
+     * @throws \Exception When running fails. Bypass this when <a href='psi_element://setCatchExceptions()'>setCatchExceptions()</a>.
      */
     public function run(InputInterface $input = null, OutputInterface $output = null)
     {
@@ -94,21 +97,6 @@ class AdsApplication extends Application implements LoggerAwareInterface
 
         $exit_code = parent::run($input, $output);
         return $exit_code;
-    }
-
-    /**
-     * Initializes Amplitude.
-     */
-    private function initializeAmplitude()
-    {
-        $userConfig = new UserConfig(self::configDir());
-        $amplitude = Amplitude::getInstance();
-        $amplitude->init('dfd3cba7fa72065cde9edc2ca22d0f37')
-          ->setDeviceId(EnvironmentDetector::getMachineUuid());
-        if (!$userConfig->isTelemetryEnabled()) {
-            $amplitude->setOptOut(true);
-        }
-        $amplitude->logQueuedEvents();
     }
 
     /**

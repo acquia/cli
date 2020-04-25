@@ -2,17 +2,18 @@
 
 namespace Acquia\Ads\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class IdeCreateCommandTest extends CommandTestBase
+class IdeCreateCommandTest extends TestCase
 {
 
     /**
      * Tests the 'ide:create' command.
      */
-    public function testCreate($file, $expected_output, $expected_exit_code): void
+    public function testCreate(): void
     {
         $this->application->add(new IdeCreateCommand());
 

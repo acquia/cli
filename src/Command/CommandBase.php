@@ -80,9 +80,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * Gets the application instance for this command.
      *
-     * @return AdsApplication|null An Application instance
+     * @return AdsApplication An Application instance
      */
-    public function getApplication(): ?AdsApplication
+    public function getApplication(): AdsApplication
     {
         return $this->application;
     }

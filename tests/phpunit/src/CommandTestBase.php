@@ -3,12 +3,10 @@
 namespace Acquia\Ads\Tests;
 
 use Acquia\Ads\AdsApplication;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\NullOutput;
 
 /**
@@ -16,7 +14,7 @@ use Symfony\Component\Console\Output\NullOutput;
  *
  * Base class for all tests that are executed for BLT itself.
  */
-abstract class CommandTestBase extends PHPUnit_Framework_TestCase
+abstract class CommandTestBase extends TestCase
 {
 
     /** @var Application */
@@ -34,8 +32,8 @@ abstract class CommandTestBase extends PHPUnit_Framework_TestCase
         $input = new ArrayInput([]);
         $output = new NullOutput();
         $logger = new ConsoleLogger($output);
-        $repo_root = '';
-        $this->application = new AdsApplication('ads', UNKNOWN, $input, $output, $logger, $repo_root);
+        $repo_root = null;
+        $this->application = new AdsApplication('ads', 'UNKNOWN', $input, $output, $logger, $repo_root);
     }
 
     /**
