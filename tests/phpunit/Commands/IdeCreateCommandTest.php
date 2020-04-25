@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Tests;
 
+use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -9,43 +10,19 @@ class IdeCreateCommandTest extends CommandTestBase
 {
 
     /**
-     * Tests the 'lint' command.
-     *
-     * @dataProvider getValueProvider
+     * Tests the 'ide:create' command.
      */
-    public function testLint($file, $expected_output, $expected_exit_code): void
+    public function testCreate($file, $expected_output, $expected_exit_code): void
     {
-        $this->application->add(new LintCommand());
+        $this->application->add(new IdeCreateCommand());
 
-        $command = $this->application->find('lint');
+        $command = $this->application->find('ide:create');
         $commandTester = new CommandTester($command);
         $commandTester->execute(array(
           'command' => $command->getName(),
-          'filename' => $file,
         ), ['verbosity' => Output::VERBOSITY_VERBOSE]);
 
         $output = $commandTester->getDisplay();
-        $this->assertContains($expected_output, $output);
-        $this->assertEquals($expected_exit_code, $commandTester->getStatusCode());
     }
 
-    /**
-     * Provides values to testLint().
-     *
-     * @return array
-     *   An array of values to test.
-     */
-    public function getValueProvider()
-    {
-
-        return [
-          ['tests/resources/good.yml', "The file tests/resources/good.yml contains valid YAML.", 0],
-          [
-            'tests/resources/bad.yml',
-            "There was an error parsing tests/resources/bad.yml. The contents are not valid YAML.",
-            1,
-          ],
-          ['missing.yml', "The file missing.yml does not exist.", 1],
-        ];
-    }
 }

@@ -1,15 +1,13 @@
 <?php
 
-namespace Acquia\Ads\Command\Logs;
+namespace Acquia\Ads\Command;
 
-use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 /**
- * Class LogsTailCommand
+ * Class TelemetryCommand
  */
-class LogsTailCommand extends CommandBase
+class TelemetryCommand extends CommandBase
 {
 
     /**
@@ -17,7 +15,7 @@ class LogsTailCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('logs:tail')->setDescription('');
+        $this->setName('telemetry')->setDescription('');
     }
 
     /**

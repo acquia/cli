@@ -8,6 +8,8 @@ use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Command\Ide\IdeListCommand;
 use Acquia\Ads\Command\Ide\IdeOpenCommand;
 use Acquia\Ads\Command\LinkCommand;
+use Acquia\Ads\Command\Logs\LogsTailCommand;
+use Acquia\Ads\Command\Logs\LogsTailDbCommand;
 use Acquia\Ads\Command\NewCommand;
 use Acquia\Ads\Command\RefreshCommand;
 use Acquia\Ads\Command\Remote\AliasesDownloadCommand;
@@ -19,6 +21,7 @@ use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Ads\Command\Ssh\SshKeyListCommand;
 use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Ads\Command\TelemetryCommand;
 use Acquia\Ads\Command\UnlinkCommand;
 use Acquia\Ads\Command\UpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -46,6 +49,8 @@ $application->addCommands([
   new IdeListCommand(),
   new IdeOpenCommand(),
   new LinkCommand(),
+  new LogsTailCommand(),
+  new LogsTailDbCommand(),
   new NewCommand(),
   new RefreshCommand(),
   new SshCommand(),
@@ -54,6 +59,7 @@ $application->addCommands([
   new SshKeyListCommand(),
   new SshKeyUploadCommand(),
   new SshKeyCreateUploadCommand(),
+  new TelemetryCommand(),
   new UnlinkCommand(),
   new UpdateCommand(),
 ]);

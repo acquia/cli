@@ -5,11 +5,10 @@ namespace Acquia\Ads\Command\Logs;
 use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-
 /**
  * Class LogsTailCommand
  */
-class LogsTailCommand extends CommandBase
+class LogsTailDbCommand extends CommandBase
 {
 
     /**
@@ -17,7 +16,7 @@ class LogsTailCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('logs:tail')->setDescription('');
+        $this->setName('logs:tail-db')->setDescription('');
     }
 
     /**
