@@ -93,11 +93,7 @@ class RefreshCommand extends CommandBase
                 $checklist->completePreviousItem();
             }
 
-            $checklist->addItem('Checking local MySQL connection');
-            $found_mysql = $this->drushHasActiveDatabaseConnection();
-            $checklist->completePreviousItem();
-
-            if ($found_mysql) {
+            if ($this->drushHasActiveDatabaseConnection()) {
                 // Drush rebuild caches.
                 $checklist->addItem('Clearing Drupal caches via Drush');
                 $this->drushRebuildCaches($output_callback);
@@ -107,9 +103,6 @@ class RefreshCommand extends CommandBase
                 $checklist->addItem('Sanitizing database via Drush');
                 $this->drushSqlSanitize($output_callback);
                 $checklist->completePreviousItem();
-            }
-            else {
-
             }
         }
 
