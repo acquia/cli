@@ -52,7 +52,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     private $cloudApplication;
 
-    private $localProjectInfo;
+    protected $localProjectInfo;
 
     /** @var \Symfony\Component\Console\Helper\QuestionHelper */
     protected $questionHelper;

@@ -44,6 +44,7 @@ class Checklist
         /** @var Spinner $spinner */
         $spinner = $item['spinner'];
         $spinner->setMessage($item['message']);
+        $spinner->advance();
         $spinner->finish();
     }
 

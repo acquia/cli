@@ -17,9 +17,6 @@ class IdeListCommand extends CommandBase
 
     use ExecTrait;
 
-    /** @var \stdClass */
-    private $localProjectInfo;
-
     /**
      * {inheritdoc}
      */

@@ -350,19 +350,29 @@ class RefreshCommand extends CommandBase
     {
         $response = $acquia_cloud_client->makeRequest('get', '/environments/' . $cloud_environment->uuid . '/databases');
         $environment_databases = $acquia_cloud_client->processResponse($response);
+
         $choices = [];
         $default_database_index = 0;
+        if ($this->isAcsfEnv($cloud_environment)) {
+            $acsf_sites = $this->getAcsfSites($cloud_environment);
+        }
         foreach ($environment_databases as $index => $database) {
-            // @todo For ACSF, map database name to site name from
-            // /var/www/site-php/<sitegroup>.<env>/multisite-config.json.
+            $suffix = '';
+            if (isset($acsf_sites)) {
+                foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
+                    if ($acsf_site['conf']['gardens_db_name'] === $database->name) {
+                       $suffix .= ' (' . $domain . ')';
+                        break;
+                    }
+                }
+            }
             if ($database->flags->default) {
                 $default_database_index = $index;
-                $choices[] = $database->name . ' (default)';
+                $suffix .= ' (default)';
             }
-            else {
-                $choices[] = $database->name;
-            }
+            $choices[] = $database->name . $suffix;
         }
+
         $question = new ChoiceQuestion('<question>Choose a database to copy</question>:',
           $choices, $default_database_index);
         $helper = $this->getHelper('question');
@@ -453,4 +463,47 @@ class RefreshCommand extends CommandBase
 
         return $database;
     }
+
+    /**
+     * @param $cloud_environment
+     */
+    protected function isAcsfEnv($cloud_environment): bool
+    {
+        if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== false) {
+            return true;
+        }
+        foreach ($cloud_environment->domains as $domain) {
+            if (strpos($domain, 'acsitefactory') !== FALSE) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param $cloud_environment
+     *
+     * @return array
+     */
+    protected function getAcsfSites($cloud_environment): array
+    {
+        $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
+        $sitegroup = reset($ssh_url_parts);
+        $process = $this->getApplication()->getLocalMachineHelper()->execute([
+          'ssh',
+          '-T',
+          '-o',
+          'StrictHostKeyChecking no',
+          '-o',
+          'LogLevel=ERROR',
+          $cloud_environment->sshUrl,
+          "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json",
+        ], null, null, false);
+        if ($process->isSuccessful()) {
+            return json_decode($process->getOutput(), TRUE);
+        }
+
+        return null;
+}
 }
