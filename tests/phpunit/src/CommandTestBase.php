@@ -25,7 +25,7 @@ abstract class CommandTestBase extends TestCase
      *
      * @see https://symfony.com/doc/current/console.html#testing-commands
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -39,7 +39,7 @@ abstract class CommandTestBase extends TestCase
     /**
      * Removes temporary file.
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
     }

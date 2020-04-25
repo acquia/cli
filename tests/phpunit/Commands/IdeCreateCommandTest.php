@@ -7,7 +7,7 @@ use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Tester\CommandTester;
 
-class IdeCreateCommandTest extends TestCase
+class IdeCreateCommandTest extends CommandTestBase
 {
 
     /**

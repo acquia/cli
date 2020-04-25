@@ -14,6 +14,7 @@
     "php": "^7.3",
     "ext-json": "*",
     "ext-posix": "*",
+    "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6",
     "kevinrob/guzzle-cache-middleware": "^3.3",
     "league/oauth2-client": "^2.4",
@@ -69,14 +70,15 @@
     ],
     "cs": "phpcs -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
     "cbf": "phpcbf -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
-    "unit": "phpunit",
+    "unit": "phpunit tests/phpunit",
     "lint": [
       "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
       "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
     ],
     "test": [
       "@lint",
-      "@cs"
+      "@cs",
+      "@unit"
     ]
   }
 }
