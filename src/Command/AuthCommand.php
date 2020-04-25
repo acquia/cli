@@ -34,6 +34,7 @@ class AuthCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // @todo Check if user is already authenticated.
         $token_url = 'https://cloud.acquia.com/a/profile/tokens';
         $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>.");
         $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
