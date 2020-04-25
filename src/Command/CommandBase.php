@@ -140,15 +140,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return string
      */
     protected function promptChooseApplication(
-      InputInterface $input,
-      OutputInterface $output,
-      Client $acquia_cloud_client
+        InputInterface $input,
+        OutputInterface $output,
+        Client $acquia_cloud_client
     ): string {
         $application_list = $this->getApplicationList($acquia_cloud_client);
         $application_names = array_values($application_list);
         $helper = $this->getHelper('question');
-        $question = new ChoiceQuestion('Please select the application for which you\'d like to create a new IDE',
-          $application_names);
+        $question = new ChoiceQuestion(
+            'Please select the application for which you\'d like to create a new IDE',
+            $application_names
+        );
         $choice_id = $helper->ask($input, $output, $question);
         $application_uuid = array_search($choice_id, $application_list, true);
 
@@ -230,8 +232,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function findCloudApplicationByGitUrl(
-      Client $acquia_cloud_client,
-      array $local_git_remotes
+        Client $acquia_cloud_client,
+        array $local_git_remotes
     ): ?ApplicationResponse {
 
         // Set up API resources.
@@ -250,8 +252,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         foreach ($customer_applications as $application) {
             $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
             $application_environments = $environments_resource->getAll($application->uuid);
-            if ($application = $this->searchApplicationEnvironmentsForGitUrl($application, $application_environments,
-              $local_git_remotes)) {
+            if ($application = $this->searchApplicationEnvironmentsForGitUrl(
+                $application,
+                $application_environments,
+                $local_git_remotes
+            )) {
                 $progressBar->finish();
                 $progressBar->clear();
 
@@ -273,9 +278,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return ApplicationResponse|null
      */
     protected function searchApplicationEnvironmentsForGitUrl(
-      $application,
-      $application_environments,
-      $local_git_remotes
+        $application,
+        $application_environments,
+        $local_git_remotes
     ): ?ApplicationResponse {
         foreach ($application_environments as $environment) {
             if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
@@ -295,8 +300,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @return \AcquiaCloudApi\Response\ApplicationResponse|null
      */
     protected function inferCloudAppFromLocalGitConfig(
-      AdsApplication $application,
-      Client $acquia_cloud_client
+        AdsApplication $application,
+        Client $acquia_cloud_client
     ): ?ApplicationResponse {
         if ($application->getRepoRoot()) {
             $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
@@ -383,8 +388,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
      */
     protected function promptLinkApplication(
-      AdsApplication $ads_application,
-      ?ApplicationResponse $cloud_application
+        AdsApplication $ads_application,
+        ?ApplicationResponse $cloud_application
     ): void {
         $question = new ConfirmationQuestion("<question>Would you like to link the project at {$ads_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
         $helper = $this->getHelper('question');

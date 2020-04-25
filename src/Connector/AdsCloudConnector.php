@@ -28,8 +28,9 @@ class AdsCloudConnector extends Connector
     {
         $stack = HandlerStack::create();
         $stack->push(// This will respect the header's cache response!
-          new CacheMiddleware(new PrivateCacheStrategy(new DoctrineCacheStorage(new FilesystemCache(__DIR__ . '/../../cache')))),
-          'cache');
+            new CacheMiddleware(new PrivateCacheStrategy(new DoctrineCacheStorage(new FilesystemCache(__DIR__ . '/../../cache')))),
+            'cache'
+        );
         $client = new GuzzleClient(['handler' => $stack]);
         $request = $this->createRequest($verb, $path);
 

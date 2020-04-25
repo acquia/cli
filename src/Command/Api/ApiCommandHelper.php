@@ -115,12 +115,19 @@ class ApiCommandHelper
                 $param_definition = $acquia_cloud_spec['components']['parameters'][$param_name];
                 $required = array_key_exists('required', $param_definition) && $param_definition['required'];
                 if ($required) {
-                    $input_definition[] = new InputArgument($param_definition['name'], InputArgument::REQUIRED,
-                      $acquia_cloud_spec['components']['parameters'][$param_name]['description']);
+                    $input_definition[] = new InputArgument(
+                        $param_definition['name'],
+                        InputArgument::REQUIRED,
+                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
+                    );
                     $usage = $this->addArgumentExampleToUsage($param_definition, $usage);
                 } else {
-                    $input_definition[] = new InputOption($param_definition['name'], null, InputOption::VALUE_OPTIONAL,
-                      $acquia_cloud_spec['components']['parameters'][$param_name]['description']);
+                    $input_definition[] = new InputOption(
+                        $param_definition['name'],
+                        null,
+                        InputOption::VALUE_OPTIONAL,
+                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
+                    );
                     $usage = $this->addOptionExampleToUsage($param_definition, $param_name, $usage);
                 }
             }

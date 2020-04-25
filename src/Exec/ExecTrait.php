@@ -49,8 +49,10 @@ trait ExecTrait
             $hosterror = (gethostbynamel($host) === false);
             $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
             if ($hosterror || $iperror) {
-                $this->logger->warning('!host does not appear to be a resolvable hostname or IP, not starting browser. You may need to use the --uri option in your command or site alias to indicate the correct URL of this site.',
-                  ['!host' => $host]);
+                $this->logger->warning(
+                    '!host does not appear to be a resolvable hostname or IP, not starting browser. You may need to use the --uri option in your command or site alias to indicate the correct URL of this site.',
+                    ['!host' => $host]
+                );
 
                 return false;
             }

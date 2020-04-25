@@ -129,8 +129,8 @@ class IdeCreateCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\IdeResponse
      */
     protected function getIdeFromResponse(
-      OperationResponse $response,
-      \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+        OperationResponse $response,
+        \AcquiaCloudApi\Connector\Client $acquia_cloud_client
     ): IdeResponse {
         $cloud_api_ide_url = $response->links->self->href;
         $url_parts = explode('/', $cloud_api_ide_url);

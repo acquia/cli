@@ -56,12 +56,12 @@ class AdsApplication extends Application implements LoggerAwareInterface
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function __construct(
-      string $name = 'UNKNOWN',
-      string $version = 'UNKNOWN',
-      InputInterface $input,
-      OutputInterface $output,
-      LoggerInterface $logger,
-      $repo_root
+        string $name = 'UNKNOWN',
+        string $version = 'UNKNOWN',
+        InputInterface $input,
+        OutputInterface $output,
+        LoggerInterface $logger,
+        $repo_root
     ) {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
@@ -75,8 +75,10 @@ class AdsApplication extends Application implements LoggerAwareInterface
         $this->addCommands($api_command_helper->getApiCommands());
 
         // Register custom progress bar format.
-        ProgressBar::setFormatDefinition('message',
-          "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%");
+        ProgressBar::setFormatDefinition(
+            'message',
+            "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
+        );
     }
 
     /**
@@ -97,13 +99,14 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * Initializes Amplitude.
      */
-    private function initializeAmplitude() {
+    private function initializeAmplitude()
+    {
         $userConfig = new UserConfig(self::configDir());
         $amplitude = Amplitude::getInstance();
         $amplitude->init('dfd3cba7fa72065cde9edc2ca22d0f37')
           ->setDeviceId(EnvironmentDetector::getMachineUuid());
         if (!$userConfig->isTelemetryEnabled()) {
-            $amplitude->setOptOut(TRUE);
+            $amplitude->setOptOut(true);
         }
         $amplitude->logQueuedEvents();
     }

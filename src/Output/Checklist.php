@@ -48,7 +48,8 @@ class Checklist
         $spinner->finish();
     }
 
-    protected function getLastItem() {
+    protected function getLastItem()
+    {
         return end($this->items);
     }
 

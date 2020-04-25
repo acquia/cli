@@ -27,9 +27,9 @@ class AdsException extends Exception
      * @param int $code Exit code
      */
     public function __construct(
-      $message = null,
-      array $replacements = [],
-      $code = 0
+        $message = null,
+        array $replacements = [],
+        $code = 0
     ) {
         $this->replacements = $replacements;
         $this->raw_message = $message;

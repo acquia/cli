@@ -73,7 +73,8 @@ class LocalMachineHelper
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
-    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): Process {
+    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): Process
+    {
         if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
             $process->setInput(STDIN);
         }
@@ -94,7 +95,8 @@ class LocalMachineHelper
         return $process;
     }
 
-    protected function isInteractive() {
+    protected function isInteractive()
+    {
         if (function_exists('posix_isatty')) {
             $useTty = $this->useTty();
             if (!$useTty) {

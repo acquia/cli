@@ -161,12 +161,17 @@ class FileStore implements DataStoreInterface
             throw new AdsException('Could not save data to a file because the path setting is mis-configured.');
         }
 
-        $writable = is_dir($this->directory) || (!file_exists($this->directory) && !mkdir($concurrentDirectory = $this->directory,
-              0777, true) && !is_dir($concurrentDirectory));
+        $writable = is_dir($this->directory) || (!file_exists($this->directory) && !mkdir(
+            $concurrentDirectory = $this->directory,
+            0777,
+            true
+        ) && !is_dir($concurrentDirectory));
         $writable = $writable && is_writable($this->directory);
         if (!$writable) {
-            throw new AdsException('Could not save data to a file because the path {path} cannot be written to.',
-              ['path' => $this->directory]);
+            throw new AdsException(
+                'Could not save data to a file because the path {path} cannot be written to.',
+                ['path' => $this->directory]
+            );
         }
     }
 }

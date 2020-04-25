@@ -36,8 +36,10 @@ class AliasesDownloadCommand extends SshCommand
         $account_adapter = new Account($acquia_cloud_client);
         $aliases = $account_adapter->getDrushAliases();
         $drushArchive = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases') . '.tar.gz';
-        $this->output->writeln(sprintf('Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
-          $drushArchive));
+        $this->output->writeln(sprintf(
+            'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
+            $drushArchive
+        ));
 
         if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
             if (!$home = getenv('HOME')) {
@@ -57,8 +59,10 @@ class AliasesDownloadCommand extends SshCommand
             }
 
             $archive->extractTo($home, $drushFiles, true);
-            $this->output->writeln(sprintf('Acquia Cloud Drush aliases installed into <comment>%s</comment>',
-              $drushDirectory));
+            $this->output->writeln(sprintf(
+                'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
+                $drushDirectory
+            ));
             unlink($drushArchive);
         } else {
             $this->logger->error('Unable to download Drush Aliases');

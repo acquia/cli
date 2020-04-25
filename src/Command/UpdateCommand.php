@@ -114,8 +114,11 @@ class UpdateCommand extends CommandBase
 
         $context = stream_context_create($opts);
 
-        $releases = file_get_contents('https://api.github.com/repos/' . $this->gitHubRepository . '/releases', false,
-          $context);
+        $releases = file_get_contents(
+            'https://api.github.com/repos/' . $this->gitHubRepository . '/releases',
+            false,
+            $context
+        );
         $releases = json_decode($releases);
 
         if (!isset($releases[0])) {

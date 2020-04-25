@@ -31,8 +31,12 @@ class RefreshCommand extends CommandBase
           ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
           ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
           ->addOption('no-databases', null, InputOption::VALUE_NONE, 'Do not refresh databases')
-          ->addOption('no-scripts', null, InputOption::VALUE_NONE,
-            'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.')
+          ->addOption(
+              'no-scripts',
+              null,
+              InputOption::VALUE_NONE,
+              'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
+          )
           ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
         // @todo Add option to allow specifying source environment.
     }
@@ -125,7 +129,7 @@ class RefreshCommand extends CommandBase
               '--no-interaction',
             ], null, null, false);
             if ($process->isSuccessful()) {
-                $drush_status_return_output = json_decode($process->getOutput(), TRUE);
+                $drush_status_return_output = json_decode($process->getOutput(), true);
                 if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
                     return true;
                 }
@@ -190,8 +194,14 @@ class RefreshCommand extends CommandBase
         $local_db_password = 'drupal';
         $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
         $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-        $this->importDatabaseDump($mysql_dump_filepath, $local_db_host, $local_db_user, $local_db_name,
-          $local_db_password, $output_callback);
+        $this->importDatabaseDump(
+            $mysql_dump_filepath,
+            $local_db_host,
+            $local_db_user,
+            $local_db_name,
+            $local_db_password,
+            $output_callback
+        );
     }
 
     /**
@@ -330,8 +340,10 @@ class RefreshCommand extends CommandBase
                 $choices[] = "{$environment->label} (vcs: {$environment->vcs->path})";
             }
         }
-        $question = new ChoiceQuestion('<question>Choose an Acquia Cloud environment to copy from</question>:',
-          $choices);
+        $question = new ChoiceQuestion(
+            '<question>Choose an Acquia Cloud environment to copy from</question>:',
+            $choices
+        );
         $helper = $this->getHelper('question');
         $chosen_environment_label = $helper->ask($this->input, $this->output, $question);
         $chosen_environment_index = array_search($chosen_environment_label, $choices, true);
@@ -361,7 +373,7 @@ class RefreshCommand extends CommandBase
             if (isset($acsf_sites)) {
                 foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
                     if ($acsf_site['conf']['gardens_db_name'] === $database->name) {
-                       $suffix .= ' (' . $domain . ')';
+                        $suffix .= ' (' . $domain . ')';
                         break;
                     }
                 }
@@ -373,8 +385,11 @@ class RefreshCommand extends CommandBase
             $choices[] = $database->name . $suffix;
         }
 
-        $question = new ChoiceQuestion('<question>Choose a database to copy</question>:',
-          $choices, $default_database_index);
+        $question = new ChoiceQuestion(
+            '<question>Choose a database to copy</question>:',
+            $choices,
+            $default_database_index
+        );
         $helper = $this->getHelper('question');
         $chosen_database_label = $helper->ask($this->input, $this->output, $question);
         $chosen_database_index = array_search($chosen_database_label, $choices, true);
@@ -388,9 +403,9 @@ class RefreshCommand extends CommandBase
      * @param callable $output_callback
      */
     protected function importRemoteDatabase(
-      $chosen_environment,
-      $database,
-      $output_callback = null
+        $chosen_environment,
+        $database,
+        $output_callback = null
     ): void {
         $db_url_parts = explode('/', $database->url);
         $db_name = end($db_url_parts);
@@ -452,8 +467,10 @@ class RefreshCommand extends CommandBase
      */
     protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass
     {
-        $response = $acquia_cloud_client->makeRequest('get',
-          '/environments/' . $chosen_environment->uuid . '/databases');
+        $response = $acquia_cloud_client->makeRequest(
+            'get',
+            '/environments/' . $chosen_environment->uuid . '/databases'
+        );
         $databases = $acquia_cloud_client->processResponse($response);
         if (count($databases) > 1) {
             $database = $this->promptChooseDatabase($acquia_cloud_client, $chosen_environment);
@@ -473,7 +490,7 @@ class RefreshCommand extends CommandBase
             return true;
         }
         foreach ($cloud_environment->domains as $domain) {
-            if (strpos($domain, 'acsitefactory') !== FALSE) {
+            if (strpos($domain, 'acsitefactory') !== false) {
                 return true;
             }
         }
@@ -501,9 +518,9 @@ class RefreshCommand extends CommandBase
           "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json",
         ], null, null, false);
         if ($process->isSuccessful()) {
-            return json_decode($process->getOutput(), TRUE);
+            return json_decode($process->getOutput(), true);
         }
 
         return null;
-}
+    }
 }

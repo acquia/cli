@@ -167,8 +167,8 @@ abstract class SshBaseCommand extends CommandBase
      * @return \AcquiaCloudApi\Response\EnvironmentResponse
      */
     protected function getEnvFromAlias(
-      $drush_site,
-      $drush_env
+        $drush_site,
+        $drush_env
     ): EnvironmentResponse {
         // @todo Speed this up with some kind of caching.
         $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
