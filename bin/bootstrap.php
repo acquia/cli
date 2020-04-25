@@ -83,9 +83,9 @@ function find_directory_containing_files($working_directory, array $files, $max_
     for ($i = 0; $i <= $max_height; $i++) {
         if (files_exist($file_path, $files)) {
             return $file_path;
-        } else {
-            $file_path = dirname($file_path) . '';
         }
+
+        $file_path = dirname($file_path) . '';
     }
 
     return false;
@@ -105,10 +105,10 @@ function find_directory_containing_files($working_directory, array $files, $max_
 function files_exist($dir, array $files)
 {
     foreach ($files as $file) {
-        if (!file_exists($dir . '/' . $file)) {
-            return false;
+        if (file_exists($dir . '/' . $file)) {
+            return true;
         }
     }
 
-    return true;
+    return false;
 }

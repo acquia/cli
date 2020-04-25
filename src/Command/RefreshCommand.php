@@ -7,12 +7,10 @@ use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ClientInterface;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\DatabaseResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Process\Process;
 
 /**
  * Class RefreshCommand.
@@ -63,19 +61,19 @@ class RefreshCommand extends CommandBase
             $checklist->updateProgressBar($buffer);
         };
 
-        // Git clone if no local repo found.
-        // @todo This won't actually execute if repo is missing because of $this->validateCwdIsValidDrupalProject();
-        if (!$input->getOption('no-code')) {
-            $checklist->addItem('Pulling code from Acquia Cloud');
-            $this->pullCodeFromCloud($chosen_environment, $output_callback);
-            $checklist->completePreviousItem();
-        }
-
         // Copy databases.
         if (!$input->getOption('no-databases')) {
             $database = $this->determineSourceDatabase($acquia_cloud_client, $chosen_environment);
             $checklist->addItem('Importing Drupal database copy from Acquia Cloud');
             $this->importRemoteDatabase($chosen_environment, $database, $output_callback);
+            $checklist->completePreviousItem();
+        }
+
+        // Git clone if no local repo found.
+        // @todo This won't actually execute if repo is missing because of $this->validateCwdIsValidDrupalProject();
+        if (!$input->getOption('no-code')) {
+            $checklist->addItem('Pulling code from Acquia Cloud');
+            $this->pullCodeFromCloud($chosen_environment, $output_callback);
             $checklist->completePreviousItem();
         }
 
@@ -95,7 +93,7 @@ class RefreshCommand extends CommandBase
                 $checklist->completePreviousItem();
             }
 
-            $checklist->addItem('Validating local MySQL connection');
+            $checklist->addItem('Checking local MySQL connection');
             $found_mysql = $this->drushHasActiveDatabaseConnection();
             $checklist->completePreviousItem();
 
@@ -109,6 +107,9 @@ class RefreshCommand extends CommandBase
                 $checklist->addItem('Sanitizing database via Drush');
                 $this->drushSqlSanitize($output_callback);
                 $checklist->completePreviousItem();
+            }
+            else {
+
             }
         }
 
