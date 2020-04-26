@@ -60,10 +60,13 @@ class AuthCommand extends CommandBase
           'key' => $api_key,
           'secret' => $api_secret,
         ];
+        $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf';
         $this->fs->dumpFile(
-            $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf',
+            $filepath,
             json_encode($file_contents, JSON_PRETTY_PRINT)
         );
+
+        $output->writeln("<info>Saved credentials to $filepath</info>");
 
         return 0;
     }
