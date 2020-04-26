@@ -105,7 +105,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      */
     public function getApplication(): AdsApplication
     {
-        return $this->application;
+        return parent::getApplication();
     }
 
     /**
