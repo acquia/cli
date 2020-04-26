@@ -23,6 +23,14 @@ class IdeCreateCommand extends CommandBase
 {
 
     use ExecTrait;
+
+    /**
+     * The default command name.
+     *
+     * @var string
+     */
+    protected static $defaultName = 'ide:create';
+
     /**
      * @var \AcquiaCloudApi\Response\IdeResponse
      */
@@ -37,7 +45,7 @@ class IdeCreateCommand extends CommandBase
      */
     protected function configure()
     {
-        $this->setName('ide:create')->setDescription('Create remote IDE for development');
+        $this->setDescription('Create remote IDE for development');
         // @todo Add option to accept an IDE label.
     }
 

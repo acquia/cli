@@ -76,17 +76,25 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $application = $this->getApplication();
         $this->datastore = $application->getDatastore();
 
-        if ($this->commandRequireAuthentication() && !$this->isMachineAuthenticated()) {
+        if ($this->commandRequiresAuthentication() && !$this->isMachineAuthenticated()) {
             throw new AdsException('This machine is not yet authenticated with Acquia Cloud. Please run `ads auth:login`');
         }
     }
 
-    protected function isMachineAuthenticated() {
+    /**
+     * @return bool
+     */
+    protected function isMachineAuthenticated(): bool
+    {
         $cloud_api_conf = $this->datastore->get('cloud_api.conf');
         return $cloud_api_conf !== null && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
     }
 
-    protected function commandRequireAuthentication() {
+    /**
+     * @return bool
+     */
+    protected function commandRequiresAuthentication(): bool
+    {
         return $this->input->getFirstArgument() !== 'auth:login';
     }
 

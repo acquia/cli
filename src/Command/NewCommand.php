@@ -67,6 +67,14 @@ class NewCommand extends CommandBase
     }
 
     /**
+     * @return bool
+     */
+    protected function commandRequiresAuthentication(): bool
+    {
+        return false;
+    }
+
+    /**
      * @param string $filepath
      */
     protected function replaceWebRoot(string $filepath): void

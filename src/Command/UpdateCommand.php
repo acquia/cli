@@ -33,6 +33,14 @@ class UpdateCommand extends CommandBase
     }
 
     /**
+     * @return bool
+     */
+    protected function commandRequiresAuthentication(): bool
+    {
+        return false;
+    }
+
+    /**
      * {@inheritdoc}
      * @throws \Exception
      * @throws \Exception
