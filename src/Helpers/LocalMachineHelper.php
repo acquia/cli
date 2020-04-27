@@ -95,19 +95,6 @@ class LocalMachineHelper
         return $process;
     }
 
-    protected function isInteractive()
-    {
-        if (function_exists('posix_isatty')) {
-            $useTty = $this->useTty();
-            if (!$useTty) {
-                $useTty = (posix_isatty(STDOUT) && posix_isatty(STDIN));
-            }
-            if (!posix_isatty(STDIN)) {
-                return false;
-            }
-        }
-    }
-
     /**
      * Returns a set-up filesystem object.
      *
@@ -137,7 +124,17 @@ class LocalMachineHelper
      */
     public function readFile($filename): string
     {
-        return file_get_contents($this->fixFilename($filename));
+        return file_get_contents($this->getLocalFilepath($filename));
+    }
+
+    /**
+     * @param $filepath
+     *
+     * @return string
+     */
+    public function getLocalFilepath($filepath): string
+    {
+        return $this->fixFilename($filepath);
     }
 
     /**
@@ -171,7 +168,7 @@ class LocalMachineHelper
      */
     public function writeFile($filename, $content): void
     {
-        $this->getFilesystem()->dumpFile($this->fixFilename($filename), $content);
+        $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
     }
 
     /**

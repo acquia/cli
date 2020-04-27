@@ -42,8 +42,12 @@ class SshKeyUploadCommand extends SshKeyCommandBase
         $local_keys = $this->findLocalSshKeys();
 
         if ($input->hasOption('filepath')) {
-            $public_key = file_get_contents($input->getOption('filepath'));
-            $chosen_local_key = basename($input->getOption('filepath'));
+            $filepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath($input->getOption('filepath'));
+            if (!file_exists($filepath)) {
+                throw new AdsException("The filepath $filepath is not valid");
+            }
+            $public_key = file_get_contents($filepath);
+            $chosen_local_key = basename($filepath);
         } else {
             // Get local key and contents.
             $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
