@@ -1,0 +1,36 @@
+language: php
+os: linux
+version: ~> 1.0
+php: "7.3"
+
+cache:
+  directories:
+    - "$HOME/.composer/cache"
+    - "vendor"
+
+services:
+  - mysql
+
+# @see https://pantheon.io/blog/highest-lowest-testing-multiple-symfony-versions
+matrix:
+  include:
+    - php: 7.4
+      env: 'HIGHEST_LOWEST="update"'
+    - php: 7.3
+      env: 'HIGHEST_LOWEST="update"'
+    - php: 7.2
+      env: 'HIGHEST_LOWEST="update --prefer-lowest"'
+
+before_install:
+  - composer selfupdate
+
+install:
+  # Load composer dependencies.
+  - composer validate --no-check-all --ansi
+  - 'composer -n ${HIGHEST_LOWEST-install} --prefer-dist -o'
+
+script:
+  - composer test
+
+after_success:
+  - ./vendor/bin/coveralls -vvv

@@ -379,6 +379,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     protected function saveLocalConfigCloudAppUuid($application_uuid): void
     {
         $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
+        if (!$local_user_config) {
+            $local_user_config = [
+              'localProjects' => [],
+            ];
+        }
         foreach ($local_user_config['localProjects'] as $key => $project) {
             if ($project['directory'] === $this->getApplication()->getRepoRoot()) {
                 $project['cloud_application_uuid'] = $application_uuid;

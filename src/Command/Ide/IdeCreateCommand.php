@@ -35,10 +35,6 @@ class IdeCreateCommand extends CommandBase
      * @var \AcquiaCloudApi\Response\IdeResponse
      */
     private $ide;
-    /**
-     * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
-     */
-    private $section;
 
     /**
      * {inheritdoc}
@@ -58,7 +54,6 @@ class IdeCreateCommand extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $cloud_application_uuid = $this->determineCloudApplication();
-        $this->section = $output->section();
         $checklist = new Checklist($output);
 
         $question = new Question('<question>Please enter a label for your Remote IDE:</question> ');

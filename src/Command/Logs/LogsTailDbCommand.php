@@ -28,6 +28,5 @@ class LogsTailDbCommand extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-
     }
 }

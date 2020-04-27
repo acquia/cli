@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Output\Spinner;
 
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Spinner
@@ -90,7 +91,7 @@ class Spinner
      */
     private $indentString;
 
-    public function __construct(OutputInterface $output, $indent = 0, $colorLevel = Color::COLOR_256)
+    public function __construct(ConsoleOutput $output, $indent = 0, $colorLevel = Color::COLOR_256)
     {
         $this->section = $output->section();
         $this->colorLevel = $colorLevel;

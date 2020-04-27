@@ -211,7 +211,7 @@ class LocalMachineHelper
      * @url    https://github.com/uberhacker/tpm
      *
      */
-    public function getHomeDir(): string
+    public static function getHomeDir(): string
     {
         $home = getenv('HOME');
         if (!$home) {

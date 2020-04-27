@@ -16,12 +16,20 @@ use Symfony\Component\Validator\Validation;
  */
 class SshKeyCreateCommand extends SshKeyCommandBase
 {
+
+    /**
+     * The default command name.
+     *
+     * @var string
+     */
+    protected static $defaultName = 'ssh-key:create';
+
     /**
      * {inheritdoc}
      */
     protected function configure()
     {
-        $this->setName('ssh-key:create')->setDescription('Create an ssh key on your local machine');
+        $this->setDescription('Create an ssh key on your local machine');
     }
 
     /**
