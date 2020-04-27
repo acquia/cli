@@ -3,7 +3,6 @@
 namespace Acquia\Ads\Command\Ide;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exec\ExecTrait;
 use Acquia\Ads\Output\Checklist;
 use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -21,8 +20,6 @@ use Symfony\Component\Console\Question\Question;
  */
 class IdeCreateCommand extends CommandBase
 {
-
-    use ExecTrait;
 
     /**
      * The default command name.

@@ -3,9 +3,9 @@
 namespace Acquia\Ads\Command\Ide;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -14,8 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeListCommand extends CommandBase
 {
-
-    use ExecTrait;
 
     /**
      * {inheritdoc}
@@ -40,9 +38,15 @@ class IdeListCommand extends CommandBase
         $application_ides = $ides_resource->getAll($application_uuid);
 
         $table = new Table($output);
-        $table->setHeaders(['Label', 'Web URL', 'IDE URL']);
+        $table->setStyle('borderless');
+        $table->setHeaders(['IDEs']);
         foreach ($application_ides as $ide) {
-            $table->addRow([$ide->label, $ide->links->web->href, $ide->links->ide->href]);
+            $table->addRows([
+              ['<comment>' . $ide->label . ':</comment>'],
+              ["Web URL: " . $ide->links->web->href],
+              ["IDE URL: " . $ide->links->ide->href],
+              new TableSeparator(),
+            ]);
         }
         $table->render();
 

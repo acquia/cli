@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Command;
 
-use Acquia\Ads\Exec\ExecTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -15,8 +14,6 @@ use Symfony\Component\Console\Question\Question;
  */
 class AuthCommand extends CommandBase
 {
-
-    use ExecTrait;
 
     /**
      * {inheritdoc}
@@ -45,7 +42,7 @@ class AuthCommand extends CommandBase
             true
         );
         if ($helper->ask($input, $output, $question)) {
-            $this->startBrowser($token_url);
+            $this->getApplication()->getLocalMachineHelper()->startBrowser($token_url);
         }
 
         $question = new Question('<question>Please enter your API Key:</question>');
@@ -61,7 +58,7 @@ class AuthCommand extends CommandBase
           'secret' => $api_secret,
         ];
         $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf';
-        $this->fs->dumpFile(
+        $this->getApplication()->getLocalMachineHelper()->getFilesystem()->dumpFile(
             $filepath,
             json_encode($file_contents, JSON_PRETTY_PRINT)
         );

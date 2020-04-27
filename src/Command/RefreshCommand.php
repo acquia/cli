@@ -217,9 +217,10 @@ class RefreshCommand extends CommandBase
         ], $output_callback, null, false);
 
         if ($process->isSuccessful()) {
-            $filepath = $this->fs->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
+            $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
+            $filepath = $fs->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
             $filepath .= '.sql.gz';
-            $this->fs->dumpFile($filepath, $process->getOutput());
+            $fs->dumpFile($filepath, $process->getOutput());
 
             return $filepath;
         }

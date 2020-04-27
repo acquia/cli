@@ -79,13 +79,10 @@ class UpdateCommand extends CommandBase
             return;
         }
 
-        $fs = new Filesystem();
-
+        $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
         $output->writeln('Downloading ' . $this->getApplication()
             ->getName() . ' (' . $this->gitHubRepository . ') ' . $latest);
-
         $fs->copy($downloadUrl, $tempFilename);
-
         $output->writeln('Download finished');
 
         try {

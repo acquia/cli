@@ -3,7 +3,6 @@
 namespace Acquia\Ads\Command\Ide;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exec\ExecTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 
@@ -12,7 +11,6 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
  */
 abstract class IdeCommandBase extends CommandBase
 {
-    use ExecTrait;
 
     /**
      * @param string $question_text

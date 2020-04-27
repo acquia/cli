@@ -32,8 +32,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    /** @var Filesystem */
-    protected $fs;
     /**
      * @var InputInterface
      */
@@ -68,7 +66,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $this->input = $input;
         $this->output = $output;
         $this->formatter = $this->getHelper('formatter');
-        $this->fs = new Filesystem();
         $this->setLogger(new ConsoleLogger($output));
         $this->questionHelper = $this->getHelper('question');
 
