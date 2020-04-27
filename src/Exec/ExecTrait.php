@@ -70,8 +70,8 @@ trait ExecTrait
                         if ($this->programExists('start')) {
                             $browser = 'start';
                         } else {
-                            // Can't find a valid browser.
-                            $browser = false;
+                            $this->logger->warning('Could not find a browser on your local machine.');
+                            return false;
                         }
                     }
                 }
