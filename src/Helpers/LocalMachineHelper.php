@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Helpers;
 
-use Acquia\Ads\Exception\AdsException;
 use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Input\InputInterface;
@@ -74,12 +73,28 @@ class LocalMachineHelper
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
+    /**
+     * @param $cmd
+     * @param null $callback
+     * @param null $cwd
+     * @param bool $print_output
+     *
+     * @return \Symfony\Component\Process\Process
+     */
     public function executeFromCmd($cmd, $callback = null, $cwd = null, $print_output = true): Process
     {
         $process = Process::fromShellCommandline($cmd);
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
 
+    /**
+     * @param \Symfony\Component\Process\Process $process
+     * @param null $callback
+     * @param null $cwd
+     * @param bool $print_output
+     *
+     * @return \Symfony\Component\Process\Process
+     */
     protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): Process
     {
         if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
@@ -205,7 +220,6 @@ class LocalMachineHelper
         return $process;
     }
 
-
     /**
      * Returns the appropriate home directory.
      *
@@ -230,7 +244,6 @@ class LocalMachineHelper
 
         return $home;
     }
-
 
     /**
      * Starts a background browser/tab for the current site or a specified URL.
@@ -272,7 +285,7 @@ class LocalMachineHelper
             $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
             if ($hosterror || $iperror) {
                 $this->logger->warning(
-                    '!host does not appear to be a resolvable hostname or IP, not starting browser. You may need to use the --uri option in your command or site alias to indicate the correct URL of this site.',
+                    '!host does not appear to be a resolvable hostname or IP, not starting browser.',
                     ['!host' => $host]
                 );
 

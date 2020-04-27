@@ -35,6 +35,10 @@ class ApiCommandHelper
         $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
         $api_commands = [];
         foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
+            if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
+                continue;
+            }
+
             foreach ($endpoint as $method => $schema) {
                 $command_name = 'api:' . $schema['x-cli-name'];
                 $command = new ApiCommandBase($command_name);
