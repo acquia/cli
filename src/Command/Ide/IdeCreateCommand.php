@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -32,6 +33,11 @@ class IdeCreateCommand extends CommandBase
      * @var \AcquiaCloudApi\Response\IdeResponse
      */
     private $ide;
+
+    /**
+     * @var \GuzzleHttp\Client
+     */
+    private $client;
 
     /**
      * {inheritdoc}
@@ -82,19 +88,26 @@ class IdeCreateCommand extends CommandBase
      */
     protected function waitForDnsPropagation($ide_url): void
     {
-        $loop = Factory::create();
-        $spinner = new Spinner($this->output, 4);
-        $spinner->setMessage('Waiting for DNS to propagate... ');
-        $loop->addPeriodicTimer($spinner->interval(), static function () use ($spinner) {
-            $spinner->advance();
-        });
+        if (!$this->getClient()) {
+            $this->setClient(new Client(['base_uri' => $ide_url]));
+        }
 
-        $loop->addPeriodicTimer(5, function () use ($loop, $ide_url, $spinner) {
-            $client = new Client(['base_uri' => $ide_url]);
+        $loop = Factory::create();
+        if ($this->useSpinner()) {
+            $spinner = new Spinner($this->output, 4);
+            $spinner->setMessage('Waiting for DNS to propagate...');
+            $spinner->start();
+            $loop->addPeriodicTimer($spinner->interval(), static function () use ($spinner) {
+                $spinner->advance();
+            });
+        } else {
+            $this->output->writeln('Waiting for DNS to propagate...');
+        }
+
+        $loop->addPeriodicTimer(5, function () use ($loop, $ide_url) {
             try {
-                $response = $client->request('GET', '/health');
+                $response = $this->client->request('GET', '/health');
                 if ($response->getStatusCode() === 200) {
-                    $spinner->finish();
                     $loop->stop();
                     $this->output->writeln('');
                     $this->output->writeln('<info>Your IDE is ready!</info>');
@@ -109,17 +122,36 @@ class IdeCreateCommand extends CommandBase
         });
 
         // Add a 15 minute timeout.
-        $loop->addTimer(15 * 60, function () use ($loop, $spinner) {
+        $loop->addTimer(15 * 60, function () use ($loop) {
             $this->output->writeln("<error>Timed out after waiting 15 minutes for DNS to propogate.");
             $this->output->writeln("Either wait longer, or update your local machine to use different DNS servers.");
             $this->output->writeln("@see [docs url]");
-            $spinner->fail();
             $loop->stop();
         });
 
-        // Start the loop and spinner.
-        $spinner->start();
+        // Start the loop.
         $loop->run();
+
+        // After loop.
+        if ($this->useSpinner()) {
+            $spinner->finish();
+        }
+    }
+
+    /**
+     * @return \GuzzleHttp\Client|null
+     */
+    public function getClient(): ?Client
+    {
+        return $this->client;
+    }
+
+    /**
+     * @param \GuzzleHttp\Client $client
+     */
+    public function setClient(\GuzzleHttp\Client $client): void
+    {
+        $this->client = $client;
     }
 
     /**

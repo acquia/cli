@@ -80,7 +80,7 @@ class Checklist
         }
     }
 
-    private function useSpinner()
+    private function useSpinner(): bool
     {
         return $this->output instanceof ConsoleOutput;
     }

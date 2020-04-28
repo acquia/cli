@@ -179,6 +179,7 @@ class RefreshCommand extends CommandBase
 
         // @todo Determine this dynamically?
         // @todo Validate local MySQL connection before running commands.
+        // @todo Enable these vars to be configured.
         $local_db_host = 'localhost';
         $local_db_user = 'drupal';
         $local_db_name = 'drupal';

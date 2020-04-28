@@ -16,6 +16,7 @@ use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Filesystem\Filesystem;
@@ -54,6 +55,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
 
     /** @var \Symfony\Component\Console\Helper\QuestionHelper */
     protected $questionHelper;
+
+    /**
+     * @var \AcquiaCloudApi\Connector\Client
+     */
+    private $acquiaCloudClient;
 
     /**
      * Initializes the command just after the input has been validated.
@@ -114,18 +120,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     }
 
     /**
+     * @param \AcquiaCloudApi\Connector\Client $client
+     */
+    public function setAcquiaCloudClient(Client $client)
+    {
+        $this->acquiaCloudClient = $client;
+    }
+
+    /**
      * @return \AcquiaCloudApi\Connector\Client
      */
     protected function getAcquiaCloudClient(): Client
     {
+        if (isset($this->acquiaCloudClient)) {
+            return $this->acquiaCloudClient;
+        }
+
         $cloud_api_conf = $this->datastore->get('cloud_api.conf');
         $config = [
           'key' => $cloud_api_conf['key'],
           'secret' => $cloud_api_conf['secret'],
         ];
         $connector = new AdsCloudConnector($config);
+        $this->acquiaCloudClient = Client::factory($connector);
 
-        return Client::factory($connector);
+        return $this->acquiaCloudClient;
     }
 
     /**
@@ -428,5 +447,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         if (!$this->getApplication()->getRepoRoot()) {
             throw new AdsException("Could not find a local Drupal project. Please execute this command from within a Drupal project directory.");
         }
+    }
+
+    protected function useSpinner(): bool
+    {
+        return $this->output instanceof ConsoleOutput;
     }
 }
