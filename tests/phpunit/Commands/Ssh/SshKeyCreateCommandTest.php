@@ -19,7 +19,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
     }
 
     /**
-     * Tests the 'ide:create' command.
+     * Tests the 'ssh-key:create' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function testCreate(): void
