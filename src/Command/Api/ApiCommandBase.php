@@ -23,8 +23,8 @@ class ApiCommandBase extends CommandBase
 
     /** @var String */
     protected $path;
-    private $queryParams;
-    private $postParams;
+    private $queryParams = [];
+    private $postParams = [];
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -35,18 +35,19 @@ class ApiCommandBase extends CommandBase
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // Filter out default Command options.
-        $options = $input->getOptions();
-        $default_options = ['help', 'quiet', 'verbose', 'version', 'ansi', 'no-ansi', 'no-interaction'];
-        $request_options = array_diff(array_keys($options), $default_options);
-        $request_options = array_intersect_key($options, array_flip($request_options));
-
         // Build query from non-null options.
-        // @todo Use $this->queryParams and $this->postParams to determine how to add.
         $acquia_cloud_client = $this->getAcquiaCloudClient();
-        foreach ($request_options as $key => $value) {
-            if ($value !== null) {
-                $acquia_cloud_client->addQuery($key, $value);
+        if ($this->queryParams) {
+            foreach ($this->queryParams as $key) {
+                $value = $input->getOption($key);
+                if ($value !== null) {
+                    $acquia_cloud_client->addQuery($key, $value);
+                }
+            }
+        }
+        if ($this->postParams) {
+            foreach ($this->postParams as $param_name) {
+                $acquia_cloud_client->addOption('form_params', [$param_name => $input->getArgument($param_name)]);
             }
         }
 
@@ -121,13 +122,6 @@ class ApiCommandBase extends CommandBase
         $this->postParams[] = $param_name;
     }
 
-    /**
-     * @param $params
-     */
-    public function setPostParameters($params): void
-    {
-        $this->postParams = $params;
-    }
 
     /**
      * @param $param_name
@@ -135,12 +129,5 @@ class ApiCommandBase extends CommandBase
     public function addQueryParameter($param_name)
     {
         $this->queryParams[] = $param_name;
-    }
-    /**
-     * @param $params
-     */
-    public function setQueryParameters($params): void
-    {
-        $this->queryParams = $params;
     }
 }

@@ -33,12 +33,15 @@ class ApiCommandTest extends CommandTestBase
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
         $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-        $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items);
+        $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
 
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
         $this->executeCommand();
+        $this->prophet->checkPredictions();
+
         $output = $this->getDisplay();
+        $this->assertNotNull($output);
         $this->assertJson($output);
 
         $contents = json_decode($output, true);
@@ -53,21 +56,26 @@ class ApiCommandTest extends CommandTestBase
     {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
-        $mock_request_body = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-        $options = [
-          'form_params' => $mock_request_body,
-        ];
+        $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
         $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
-        $cloud_client->request('post', '/account/ssh-keys', $options)->willReturn($mock_response_body);
-        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        foreach ($mock_request_args as $name => $value) {
+            $cloud_client->addOption('form_params', [$name => $value])->shouldBeCalled();
+        }
+        $cloud_client->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
-        $this->executeCommand();
+        $this->executeCommand($mock_request_args);
+        $this->prophet->checkPredictions();
+        $output = $this->getDisplay();
+        $this->assertNotNull($output);
+        $this->assertJson($output);
+        $this->assertStringContainsString('Adding SSH key.', $output);
     }
 
     /**
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandDefinition(): void
+    public function testApiCommandDefinitionForGetEndpoint(): void
     {
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
         $resource = $this->getResourceFromSpec('/account/ssh-keys', 'get');
@@ -82,7 +90,26 @@ class ApiCommandTest extends CommandTestBase
                 $this->command->getDefinition()->hasOption($param_name) ||
                 $this->command->getDefinition()->hasArgument($param_name),
                 "Command $expected_command_name does not have expected argument or option $param_name"
+                // @todo Validate usage example.
             );
+        }
+    }
+
+
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function testApiCommandDefinitionForPostEndpoint(): void
+    {
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
+        $resource = $this->getResourceFromSpec('/account/ssh-keys', 'post');
+        foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
+            $this->assertTrue(
+                $this->command->getDefinition()->hasArgument($key) ||
+                $this->command->getDefinition()->hasOption($key),
+                "Command {$this->command->getName()} does not have expected argument or option $key"
+            );
+            // @todo Validate usage example.
         }
     }
 
