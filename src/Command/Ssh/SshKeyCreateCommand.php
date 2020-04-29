@@ -76,8 +76,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
     protected function promptForPassword()
     {
         $question = new Question('<question>Enter a password for your SSH key:</question> ');
-        $question->setHidden(true);
-        $question->setHiddenFallback(false);
+        $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
         $question->setValidator(function ($answer) {
             $violations = Validation::createValidator()->validate($answer, [
               new NotBlank(),

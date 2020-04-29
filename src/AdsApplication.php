@@ -45,29 +45,27 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * Ads constructor.
      *
-     * @param string $name
-     * @param string $version
-     *
+     * @param \Psr\Log\LoggerInterface $logger
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @param \Psr\Log\LoggerInterface $logger
      * @param $repo_root
+     *
+     * @param string $version
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function __construct(
-        string $name = 'UNKNOWN',
-        string $version = 'UNKNOWN',
+        LoggerInterface $logger,
         InputInterface $input,
         OutputInterface $output,
-        LoggerInterface $logger,
-        $repo_root
+        $repo_root,
+        string $version = 'UNKNOWN'
     ) {
         $this->setLogger($logger);
         $this->warnIfXdebugLoaded();
         $this->repoRoot = $repo_root;
         $this->localMachineHelper = new LocalMachineHelper($input, $output, $logger);
-        parent::__construct($name, $version);
+        parent::__construct('acli', $version);
         $this->datastore = new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia');
 
         // Add API commands.

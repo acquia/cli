@@ -1,7 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests;
+namespace Acquia\Ads\Tests\Api;
 
+use Acquia\Ads\Command\Api\ApiListCommand;
+use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\ListCommand;
 
@@ -17,14 +19,14 @@ class ListCommandTest extends CommandTestBase
     }
 
     /**
+     * Tests the 'list' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandsHidden(): void
+    public function testListCommand(): void
     {
-        $this->command = new ListCommand();
         $this->executeCommand();
         $output = $this->getDisplay();
+        //$this->assertStringContainsString('api', $output);
         $this->assertStringNotContainsString('api:', $output);
-        $this->assertStringContainsString('api', $output);
     }
 }

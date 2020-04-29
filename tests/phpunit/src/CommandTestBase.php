@@ -103,14 +103,14 @@ abstract class CommandTestBase extends TestCase
         if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln("");
             $this->consoleOutput->writeln("Executing <comment>" . $this->command::getDefaultName() . "</comment> in " . $cwd);
-            $this->consoleOutput->writeln("<comment>------Begin command output-------</comment>");
+            $this->consoleOutput->writeln('<comment>------Begin command output-------</comment>');
         }
 
         $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
 
         if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln($tester->getDisplay());
-            $this->consoleOutput->writeln("<comment>------End command output---------</comment>");
+            $this->consoleOutput->writeln('<comment>------End command output---------</comment>');
             $this->consoleOutput->writeln("");
         }
     }
@@ -136,7 +136,7 @@ abstract class CommandTestBase extends TestCase
         $output = new BufferedOutput();
         $logger = new ConsoleLogger($output);
         $repo_root = null;
-        $this->application = new AdsApplication('ads', 'UNKNOWN', $input, $output, $logger, $repo_root);
+        $this->application = new AdsApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
         $this->application->add($this->command);
         $found_command = $this->application->find($this->command->getName());
         $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');

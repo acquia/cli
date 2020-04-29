@@ -78,12 +78,10 @@ class ApiCommandHelper
         if (array_key_exists('example', $param_definition)) {
             if (is_array($param_definition['example'])) {
                 $usage = reset($param_definition['example']);
+            } else if (strpos($param_definition['example'], ' ') !== false) {
+                $usage .= '"' . $param_definition['example'] . '" ';
             } else {
-                if (strpos($param_definition['example'], ' ') !== false) {
-                    $usage .= '"' . $param_definition['example'] . '" ';
-                } else {
-                    $usage .= $param_definition['example'] . ' ';
-                }
+                $usage .= $param_definition['example'] . ' ';
             }
         }
 
@@ -182,8 +180,6 @@ class ApiCommandHelper
                 $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'option', $usage);
                 // @todo Add validator for $param['enum'] values?
             }
-
-            //$param['format'];
         }
         /** @var InputArgument|InputOption $parameter_definition */
         foreach ($input_definition as $index => $parameter_definition) {
@@ -194,7 +190,6 @@ class ApiCommandHelper
             }
         }
 
-        // @todo Use $schema['requestBody']['content']['application/json']['example'] to generate usage example.
         return [$input_definition, $usage];
     }
 
@@ -232,6 +227,7 @@ class ApiCommandHelper
                             $value = implode(',', $example[$param_name]);
                         } else {
                             // @todo Pretty sure this doesn't help the user send the arguments.
+                            // Probably a bug.
                             $value = json_encode($example[$param_name]);
                         }
                         $usage .= $prefix . "\"$value\" ";

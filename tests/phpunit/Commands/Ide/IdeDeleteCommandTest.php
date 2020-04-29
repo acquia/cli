@@ -51,7 +51,8 @@ class IdeDeleteCommandTest extends CommandTestBase
         $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
         $cloud_client->request(
             'delete',
-            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7',)->willReturn($response->{"De-provisioning IDE"}->value)
+            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7',
+        )->willReturn($response->{"De-provisioning IDE"}->value)
           ->shouldBeCalled();
 
         $inputs = [
