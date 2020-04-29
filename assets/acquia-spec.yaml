@@ -70,6 +70,14 @@ servers:
     description: Cloud API
 components:
   parameters:
+    ApmType:
+      name: apmType
+      in: path
+      required: true
+      description: The APM type.
+      schema:
+        type: string
+      example: newrelic
     ArtifactId:
       name: artifactId
       in: path
@@ -449,6 +457,24 @@ components:
       schema:
         type: string
       example: f2daa9cc-e5a0-4036-a5c8-f96e336c62b5
+    DeprecatedFrom:
+      name: from
+      in: query
+      description: '(Use filter `from` instead.) Specifies an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted date. Used in conjunction with `to` query.'
+      deprecated: true
+      required: false
+      schema:
+        type: string
+      example: '2019-10-01T00:00:00.000Z'
+    DeprecatedTo:
+      name: to
+      in: query
+      description: '(Use filter `to` instead.) Specifies an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted date. Used in conjunction with `from` query.'
+      deprecated: true
+      required: false
+      schema:
+        type: string
+      example: '2020-01-01T00:00:00.000Z'
     From:
       name: from
       in: query
@@ -809,9 +835,6 @@ components:
           remote_admin:
             type: boolean
             description: Whether this application has remote administration enabled.
-          service_management:
-            type: boolean
-            description: Whether this application has self-service.
     Applications:
       type: object
       properties:
@@ -2223,6 +2246,19 @@ components:
           description: A collection of variables matching the request parameters.
           items:
             $ref: '#/components/schemas/EnvironmentVariable'
+    FileDownload:
+      type: object
+      description: A JSON response containing the url and url expiration.
+      required:
+        - url
+        - expires_at
+      properties:
+        url:
+          type: string
+          description: The url for the download.
+        expires_at:
+          type: string
+          description: The expiration for the url.
     Log:
       type: object
       description: Details for a log file.
@@ -2289,7 +2325,7 @@ components:
               description: 'Connection details such as a timestamp, hmac, site name and environment.'
             commands:
               type: array
-              description: Command for the logstream backend.
+              description: Commands for the logstream backend.
               items:
                 type: string
         _links:
@@ -2305,6 +2341,7 @@ components:
         - address
         - status
         - flags
+        - health
         - environment
         - _links
       description: The Log Forwarding destination.
@@ -2358,6 +2395,8 @@ components:
             - failing
         flags:
           $ref: '#/components/schemas/LogForwardingDestinationFlags'
+        health:
+          $ref: '#/components/schemas/LogForwardingDestinationHealth'
         environment:
           $ref: '#/components/schemas/EnvironmentStub'
         _links:
@@ -2408,6 +2447,19 @@ components:
         certificate_expiring:
           type: boolean
           description: Whether the destination certificate is in danger of expiring soon (within 30 days).
+    LogForwardingDestinationHealth:
+      type: object
+      description: Health information for this log forwarding destination.
+      additionalProperties:
+        code:
+          type: string
+          description: The error code for this log forwarding destination if an error occured.
+        details:
+          type: string
+          description: The details regarding the health of this log forwarding destination.
+        summary:
+          type: string
+          description: A brief summary that explains why an error code is present.
     PostCertificate:
       type: object
       description: Certificate POST schema.
@@ -2635,14 +2687,24 @@ components:
     Ide:
       type: object
       required:
-        - message
+        - uuid
+        - label
         - _links
       properties:
-        message:
+        uuid:
           type: string
-          description: The human-friendly confirmation of the creating Remote IDE.
+          format: uuid
+          description: The unique identifier of the Remote IDE.
+        label:
+          type: string
+          description: The human-friendly label of the Remote IDE.
         _links:
           $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          properties:
+            owner:
+              $ref: '#/components/schemas/UserProfile'
     IdentityProvider:
       type: object
       required:
@@ -3498,6 +3560,23 @@ components:
       items:
         type: string
         description: Contextual information regarding the notification.
+    NotificationTasks:
+      type: object
+      required:
+        - total
+        - _links
+        - _embedded
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of tasks matching the request parameters.
+          items:
+            $ref: '#/components/schemas/Task'
     Organization:
       type: object
       description: Organization information.
@@ -4354,6 +4433,48 @@ components:
             - inactive
         _links:
           $ref: '#/components/schemas/Links'
+    ApmType:
+      type: object
+      required:
+        - type
+        - flags
+        - key
+        - _links
+      properties:
+        type:
+          type: string
+          description: The APM type.
+          enum:
+            - newrelic
+        flags:
+          type: object
+          description: Additional APM information.
+          properties:
+            opted-in:
+              type: boolean
+              description: Whether the organization owner has opted into the APM type.
+        key:
+          type: string
+          description: The APM license key.
+        _links:
+          $ref: '#/components/schemas/Links'
+    ApmTypes:
+      type: object
+      required:
+        - total
+        - _links
+        - _embedded
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of APM types matching the request parameters.
+          items:
+            $ref: '#/components/schemas/ApmType'
     Subscription:
       type: object
       description: |
@@ -4373,6 +4494,7 @@ components:
         - organization
         - flags
         - _links
+        - _embedded
       properties:
         id:
           type: integer
@@ -4418,11 +4540,28 @@ components:
           type: number
           description: The number of hours used.
         organization:
-          $ref: '#/components/schemas/OrganizationStub'
+          type: object
+          deprecated: true
+          required:
+            - uuid
+            - name
+          properties:
+            uuid:
+              type: string
+              format: uuid
+              description: The organization's UUID.
+            name:
+              type: string
+              description: The human-readable organization name.
         flags:
           $ref: '#/components/schemas/SubscriptionFlags'
         _links:
           $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of resources related to the subscription.
+          items:
+            $ref: '#/components/schemas/OrganizationStub'
     SubscriptionFlags:
       type: object
       description: An array of various flags that indicate functionality associated with subscription.
@@ -4988,6 +5127,7 @@ components:
       required:
         - api_key
         - api_secret
+        - _links
       description: Details about a created user access token.
       properties:
         api_key:
@@ -4996,6 +5136,8 @@ components:
         api_secret:
           type: string
           description: The API key secret.
+        _links:
+          $ref: '#/components/schemas/Links'
     Tokens:
       type: object
       required:
@@ -5448,6 +5590,48 @@ components:
           support:
             type: boolean
             description: Whether or not this user is a member of Acquia support.
+    UserProfile:
+      type: object
+      description: A user profile.
+      required:
+        - uuid
+        - first_name
+        - last_name
+        - last_login_at
+        - created_at
+        - email
+        - picture_url
+        - username
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The user's UUID.
+        first_name:
+          type: string
+          description: The user's first name.
+        last_name:
+          type: string
+          description: The user's last name.
+        last_login_at:
+          type: string
+          format: date-time
+          description: The date/time of the last login for the user.
+        created_at:
+          type: string
+          format: date-time
+          description: The date the user was created.
+        email:
+          type: string
+          format: email
+          description: The user's email address.
+        picture_url:
+          type: string
+          format: uri
+          description: The URL for the user's picture.
+        username:
+          type: string
+          description: The user's internal user name.
     UserStub:
       type: object
       required:
@@ -6077,6 +6261,63 @@ paths:
                   value:
                     error: not_found
                     message: 'The user does not exist, or you do not have access to it.'
+  /account/ides:
+    get:
+      tags:
+        - Account
+      summary: Returns a list of Remote IDEs associated with the current user.
+      description: Returns a list of Remote IDEs associated with the current user.
+      operationId: getAccountIdes
+      x-cli-name: 'accounts:ide-list'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ides'
+              example:
+                total: 2
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/account/ides'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/account'
+                _embedded:
+                  items:
+                    - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
+                      label: IDE Label 1
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
+                        web:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud'
+                        ide:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ide.ahdev.cloud'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+                    - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
+                      label: IDE Label 2
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
+                        web:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud'
+                        ide:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.ide.ahdev.cloud'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/cc26f963-6e9e-49df-a159-230f75e455aa'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                User not found:
+                  value:
+                    error: not_found
+                    message: 'The user does not exist, or you do not have access to it.'
   /account/invites:
     get:
       tags:
@@ -6511,11 +6752,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Adding key:
-                  value:
-                    message: Adding SSH key.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Adding SSH key.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/account/ssh-keys'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/account'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/5fef247f-3c99-42a2-bb3c-69b32a06e7e9'
         '400':
           description: Bad Request
           content:
@@ -6631,11 +6877,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Removed key:
                   value:
                     message: Removed SSH key.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/account/ssh-keys/1acbb1a5-e864-4b8e-a3f9-b1ed462afd25'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/account/ssh-keys'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/519caf5f-007a-4562-a726-37624cff7fd8'
         '404':
           description: Not Found
           content:
@@ -6957,8 +7210,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/TokenCreation'
               example:
-                api_key: 11Bi/qwi0lM3r61Y3YWezQRme+iOojKlhOAh0WicDB0=
-                api_secret: 17feaf34-5d04-402b-9a67-15d5161d24e1
+                api_key: 137bd484-dcc8-4950-a784-1f01de7f6378
+                api_secret: 4DmbUmGiUkafdjcZk2yV6u17jPmmunwt8/47mKdAQIc=
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/account/tokens'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/account'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/ab142771-826e-42b0-a53c-e112b70448d2'
         '404':
           description: Not Found
           content:
@@ -7027,15 +7287,20 @@ paths:
         - OAuth2: []
       responses:
         '200':
-          description: Created
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Has been revoked:
-                  value:
-                    message: The access token has been revoked.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The access token has been revoked.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/account/tokens/03c86402-5e3b-4212-b6fd-009d271da1d0'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/account/tokens'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/7815f68b-fc52-4dc8-bdde-04d0960943e9'
         '404':
           description: Not Found
           content:
@@ -7406,7 +7671,6 @@ paths:
                         name: Sample organization
                       flags:
                         remote_admin: true
-                        service_management: false
                       status: normal
                       type: drupal
                       _links:
@@ -7442,7 +7706,6 @@ paths:
                       type: node
                       flags:
                         remote_admin: false
-                        service_management: false
                       status: provisioning
                       _links:
                         self:
@@ -7507,7 +7770,6 @@ paths:
                   name: Sample organization
                 flags:
                   remote_admin: true
-                  service_management: false
                 type: drupal
                 status: normal
                 _links:
@@ -7523,6 +7785,8 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/events'
                   features:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/features'
+                  ides:
+                    href: 'https://cloud.acquia.dev/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/ides'
                   insight:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/insight'
                   permissions:
@@ -7612,9 +7876,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Application renamed.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/db1d0e46-6799-4208-9786-c7e64150a7c7'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/27698331-bcf9-48e9-9f12-931ac88f446f'
         '400':
           description: Bad Request
           content:
@@ -7980,11 +8251,11 @@ paths:
                 message: The database is being created.
                 _links:
                   self:
-                    href: 'https://cloud.acquia.com/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/databases'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/databases'
                   notification:
                     href: 'https://cloud.acquia.com/api/notifications/6992a41d-a953-4ded-ae99-41d2f4d62f69'
                   parent:
-                    href: 'https://cloud.acquia.com/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1'
         '400':
           description: Bad Request
           content:
@@ -8070,14 +8341,21 @@ paths:
         - $ref: '#/components/parameters/ApplicationUuid'
         - $ref: '#/components/parameters/Name'
       responses:
-        '200':
-          description: OK
+        '202':
+          description: Accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageWithLinks'
               example:
-                ref: delete-delete-database-response-example.json
+                message: The database is being deleted.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/f75e226b-2d8c-48c7-b3a7-614bb440272d/databases/testdatabase'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/a90295b6-f50f-4670-8ca4-bb936a55c3a3'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/f75e226b-2d8c-48c7-b3a7-614bb440272d/databases'
         '400':
           description: Bad Request
           content:
@@ -8111,34 +8389,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to delete this database.
-              Non hosted application:
-                value:
-                  error: forbidden
-                  message: Databases cannot be deleted on non-hosted applications.
-              ACSF application:
-                value:
-                  error: forbidden
-                  message: Databases cannot be deleted on Acquia Cloud Site Factory applications.
-              Node.js application:
-                value:
-                  error: forbidden
-                  message: Databases cannot be erased on Node.js applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to delete this database.
+                Non hosted application:
+                  value:
+                    error: forbidden
+                    message: Databases cannot be deleted on non-hosted applications.
+                ACSF application:
+                  value:
+                    error: forbidden
+                    message: Databases cannot be deleted on Acquia Cloud Site Factory applications.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Databases cannot be erased on Node.js applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/databases/{name}/actions/erase':
     post:
       tags:
@@ -8158,9 +8436,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The database is being erased.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/da1c0a8e-ff69-45db-88fc-acd6d2affbb7/databases/test_database/actions/erase'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/a90295b6-f50f-4670-8ca4-bb936a55c3a3'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/da1c0a8e-ff69-45db-88fc-acd6d2affbb7/databases/test_database/actions'
         '400':
           description: Bad Request
           content:
@@ -8238,44 +8523,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ides'
-            example:
-              total: 2
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/applications/feea197a-9503-4441-9f49-b4d420b0ecf8/ides'
-                parent:
-                  href: 'https://cloud.acquia.com/api/applications/feea197a-9503-4441-9f49-b4d420b0ecf8'
-              _embedded:
-                items:
-                  - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
-                    label: IDE Label 1
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
-                      ide:
-                        href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com'
-                      application:
-                        href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
-                  - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
-                    label: IDE Label 2
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
-                      ide:
-                        href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com'
-                      application:
-                        href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+              example:
+                total: 2
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/feea197a-9503-4441-9f49-b4d420b0ecf8/ides'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/feea197a-9503-4441-9f49-b4d420b0ecf8'
+                _embedded:
+                  items:
+                    - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
+                      label: IDE Label 1
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
+                        web:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud'
+                        ide:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+                      _embedded:
+                        owner:
+                          uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
+                          first_name: First
+                          last_name: Last
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
+                          email: user.name@example.com
+                          picture_url: 'https://accounts.acquia.com/path/to/image.png'
+                          username: user.name
+                    - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
+                      label: IDE Label 2
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
+                        web:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud'
+                        ide:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+                      _embedded:
+                        owner:
+                          uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
+                          first_name: First
+                          last_name: Last
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
+                          email: user.name@example.com
+                          picture_url: 'https://accounts.acquia.com/path/to/image.png'
+                          username: user.name
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No application or permission:
-              value:
-                error: not_found
-                message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
     post:
       tags:
         - Applications
@@ -8300,7 +8609,7 @@ paths:
                   minLength: 1
                   maxLength: 255
             example:
-              name: My new IDE
+              label: My new IDE
           application/x-www-form-urlencoded:
             schema:
               type: object
@@ -8313,21 +8622,27 @@ paths:
                   minLength: 1
                   maxLength: 255
             example:
-              name: My new IDE
+              label: My new IDE
       security:
         - OAuth2: []
       responses:
-        '200':
-          description: OK
+        '202':
+          description: Accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Ide'
-              example:
-                message: The remote IDE is being created.
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/ides/215824ff-272a-4a8c-9027-df32ed1d68a9'
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                IDE created:
+                  value:
+                    message: The remote IDE is being created.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/ides'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/e47da6d7-371e-4bb9-a7fe-d9ab8aa899c3'
         '400':
           description: Bad Request
           content:
@@ -8467,18 +8782,22 @@ paths:
         Returns a list of notifications associated with this application. A notification represents an item of work to be done, initiated by someone (typically the current user) associated with the application.
 
         Filterable fields:
-        * `name`
+        * `event`
         * `label`
         * `description`
         * `status`
         * `author`
+        * `created_at`
+        * `completed_at`
 
         Sortable fields:
-        * `name`
+        * `event`
         * `label`
         * `description`
         * `status`
         * `author`
+        * `created_at`
+        * `completed_at`
       operationId: getApplicationNotifications
       x-cli-name: 'applications:notification-list'
       parameters:
@@ -8502,20 +8821,20 @@ paths:
                   offset: 0
                 _links:
                   self:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/notifications'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/notifications'
                   parent:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1'
                   limit:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/notifications{?limit}'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/notifications{?limit}'
                     templated: true
                   offset:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/notifications{?offset}'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/notifications{?offset}'
                     templated: true
                   sort:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/notifications{?sort}'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/notifications{?sort}'
                     templated: true
                   filter:
-                    href: 'https://cloud.acquia.dev/api/applications/f027502b-ed6c-448e-97e8-4a0def7d25e1/notifications{?filter}'
+                    href: 'https://cloud.acquia.com/api/applications/a027502b-ad6c-a48e-a7e8-aa0def7d25e1/notifications{?filter}'
                     templated: true
                 _embedded:
                   items:
@@ -8536,7 +8855,7 @@ paths:
                             - 5391a8a9-d273-4f88-8114-7f884bbfe08b
                         application:
                           uuids:
-                            - f027502b-ed6c-448e-97e8-4a0def7d25e1
+                            - a027502b-ad6c-a48e-a7e8-aa0def7d25e1
         '404':
           description: Not Found
           content:
@@ -8780,10 +9099,6 @@ paths:
                     - name: access cloud api
                       label: Access the Cloud API
                       description: Grants the ability to use the API and bypass all other permissions via command line tools.
-                      group_label: Administration
-                    - name: activate add on
-                      label: Activate an Acquia Subscription add-on
-                      description: null
                       group_label: Administration
                     - name: administer cron non-prod
                       label: Modify cron tasks for non-production environments
@@ -9695,6 +10010,11 @@ paths:
                         application:
                           uuids:
                             - 185f07c7-9c4f-407b-8968-67892ebcb38a
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/tags/Dev'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/tags'
         '404':
           description: Not Found
           content:
@@ -9764,9 +10084,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The tag has been added to the application.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/0d9fc48f-9871-41d9-8b41-0f815e6039eb/tags'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/0d9fc48f-9871-41d9-8b41-0f815e6039eb'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/773fca86-9d87-45dc-9220-9ba38306bbb1'
         '404':
           description: Not Found
           content:
@@ -9797,9 +10124,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The tag has been removed from the application.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/0d9fc48f-9871-41d9-8b41-0f815e6039eb/tags/test_tag'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/0d9fc48f-9871-41d9-8b41-0f815e6039eb/tags'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/37cdf705-9774-4526-9bf0-9feb279630ee'
         '404':
           description: Not Found
           content:
@@ -10050,7 +10384,7 @@ paths:
     get:
       tags:
         - Applications
-      summary: Retrieves traversal links for an application's usage data.
+      summary: Retrieves traversal links for detailed metrics on usage (views and visits) of your application.
       description: Retrieves traversal links for an application's usage data.
       operationId: getApplicationsUsageLinks
       x-cli-name: 'applications:usage-links'
@@ -10109,7 +10443,7 @@ paths:
     get:
       tags:
         - Applications
-      summary: Retrieves aggregate usage data for an application.
+      summary: 'Retrieves aggregate usage data for an application, filterable by views or visits and by environment.'
       description: |
         Filterable fields:
         * `metric` - One of: {`views`, `visits`}
@@ -10217,7 +10551,7 @@ paths:
     get:
       tags:
         - Applications
-      summary: 'Retrieves usage data for an application, broken down by environment.'
+      summary: 'Retrieves usage data (views or visits) for an application, broken down by environment.'
       description: |
         Filterable fields:
         * `metric` - One of: {`views`, `visits`}
@@ -10403,7 +10737,7 @@ paths:
     get:
       tags:
         - Applications
-      summary: Retrieves aggregate usage metric data for an application.
+      summary: Retrieves aggregate usage metric data (views or visits) for an application..
       description: |
         Filterable fields:
         * `environment`
@@ -11560,11 +11894,10 @@ paths:
               version: '7.1'
               max_execution_time: 10
               memory_limit: 192
-              apc: 128
+              apcu: 8
               max_input_vars: 1000
               max_post_size: 256
               sendmail_path: /usr/bin/sendmail
-              varnish_over_ssl: false
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/EnvironmentConfigurations'
@@ -11650,7 +11983,7 @@ paths:
                 message: The environment is being deleted.
                 _links:
                   self:
-                    href: 'https://cloud.acquia.com/api/environments/123-f027502b-ed6c-448e-97e8-4a0def7d25e1'
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1'
                   notification:
                     href: 'https://cloud.acquia.com/api/notifications/6992a41d-a953-4ded-ae99-41d2f4d62f69'
         '403':
@@ -11783,135 +12116,6 @@ paths:
                 value:
                   error: not_found
                   message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-  '/environments/{environmentId}/actions/resize':
-    post:
-      tags:
-        - Environments
-      summary: Resize an environment.
-      description: Resize an environment.
-      operationId: postResizeEnvironment
-      x-cli-name: 'environments:resize'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - size
-              properties:
-                size:
-                  type: string
-                  description: The new environment size.
-                  enum:
-                    - small
-                    - medium
-                    - large
-            example:
-              size: medium
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - size
-              properties:
-                size:
-                  type: string
-                  description: The new environment size.
-                  enum:
-                    - small
-                    - medium
-                    - large
-            example:
-              size: medium
-      responses:
-        '202':
-          description: Accepted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Resizing environment:
-                  value:
-                    message: Resizing environment.
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-              examples:
-                Missing parameter:
-                  value:
-                    error: validation_failed
-                    message:
-                      name: 'Missing required parameter(s): example_param'
-                Action not supported:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: This environment does not support service management.
-                Can only be resized by one size:
-                  value:
-                    error: validation_failed
-                    message:
-                      size: Environments can only be resized by one size at a time.
-                Cannot be downsized below base size:
-                  value:
-                    error: validation_failed
-                    message:
-                      size: Environments cannot be resized below their base size.
-                Invalid environment size:
-                  value:
-                    error: validation_failed
-                    message:
-                      size: 'The new environment size must be ''small'', ''medium'' or ''large''.'
-        '403':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Insufficient permissions:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to resize this environment.
-                Environments cannot be resized:
-                  value:
-                    error: forbidden
-                    message: Environments cannot be resized on non-hosted applications.
-                Environment does not support resizing:
-                  value:
-                    error: forbidden
-                    message: This environment does not support resizing.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Invalid size:
-                  value:
-                    error: conflict
-                    message: The environment size is already set to medium.
   '/environments/{environmentId}/artifacts/actions/switch':
     post:
       tags:
@@ -11955,11 +12159,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Deploying artifact:
                   value:
                     message: Deploying artifact.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/642-99d416c4-88b5-48c0-ae8e-4719007d7b8d/artifacts/actions/switch'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/737a97a4-4c02-47e4-9924-d008de1aa7e5'
         '400':
           description: Forbidden
           content:
@@ -12198,11 +12407,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Switching code:
                   value:
                     message: Switching code.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/861-ddccebef-eb2f-48ce-a92f-e0a16a3a0b53/code/actions/switch'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/bfd9a39b-a85e-4de3-8a70-042d1c7e607a'
         '400':
           description: Bad Request
           content:
@@ -12283,11 +12497,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Site is being imported:
                   value:
                     message: The site is being imported.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/code/actions/import'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/d82a122d-b7b8-46fc-9999-39cb824fac8d'
         '400':
           description: Bad Request
           content:
@@ -12463,11 +12682,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Adding cron:
                   value:
                     message: Creating a new cron.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/01fde3bb-b65f-4629-b761-9072a35e8e50'
         '400':
           description: Bad Request
           content:
@@ -12604,9 +12830,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Updating cron.
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Update cron:
+                  value:
+                    message: Updating cron.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons/2582'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/ba232d96-dfe7-4850-9ca7-02e01a04f58d'
         '403':
           description: Forbidden
           content:
@@ -12676,9 +12911,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Deleting cron.
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Deleting cron:
+                  value:
+                    message: Deleting cron.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons/1891'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/767cee8d-05f6-4761-a3dc-755957dfc9e6'
         '403':
           description: Forbidden
           content:
@@ -12732,9 +12976,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The cron is being enabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons/1889/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons/1889/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/ceda2e82-54b7-4181-ae97-6a3163b187b8'
         '403':
           description: Forbidden
           content:
@@ -12795,9 +13046,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The cron is being disabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/crons/1234/actions/disable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/crons/1234/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/7b37b885-8ae4-454b-b8fa-ffaeff54f6a4'
         '403':
           description: Forbidden
           content:
@@ -12990,11 +13248,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Database being copied:
                   value:
-                    message: The database is being copied.
+                    message: The database is being copied
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/24-8fc7d3c6-2a53-11e9-b210-d663bd873d93/databases'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/a49eeebb-0929-444a-972c-07b94ce93ab9'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/24-8fc7d3c6-2a53-11e9-b210-d663bd873d93'
         '400':
           description: Bad Request
           content:
@@ -13182,16 +13447,18 @@ paths:
 
         Filterable fields:
         * `type`
+        * `created` Specifies an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted date.
 
         Sortable fields:
         * `type`
+        * `created`
       operationId: getEnvironmentsDatabaseBackups
       x-cli-name: 'environments:database-backup-list'
       parameters:
         - $ref: '#/components/parameters/EnvironmentId'
         - $ref: '#/components/parameters/DatabaseName'
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/DeprecatedFrom'
+        - $ref: '#/components/parameters/DeprecatedTo'
         - $ref: '#/components/parameters/Sort'
         - $ref: '#/components/parameters/Filter'
         - $ref: '#/components/parameters/Limit'
@@ -13205,20 +13472,27 @@ paths:
                 $ref: '#/components/schemas/Backups'
               example:
                 total: 2
+                pagination:
+                  total: 2
+                  limit: 2
+                  offset: 0
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups{?offset}'
+                    templated: true
                   sort:
                     href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups{?sort}'
                     templated: true
                   filter:
                     href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups{?filter}'
                     templated: true
-                  limit:
-                    href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups{?limit}'
-                    templated: true
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name'
                 _embedded:
                   items:
                     - id: 1
@@ -13235,9 +13509,11 @@ paths:
                         name: Production
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/1'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/1'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases'
                         download:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/1/actions/download'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/1/actions/download'
                     - id: 2
                       database:
                         id: 14
@@ -13252,9 +13528,11 @@ paths:
                         name: Production
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/2'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases'
                         download:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2/actions/download'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/2/actions/download'
                     - id: 3
                       database:
                         id: 14
@@ -13269,9 +13547,11 @@ paths:
                         name: Production
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/3'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases'
                         download:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2/actions/download'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/3/actions/download'
                     - id: 4
                       database:
                         id: 14
@@ -13286,9 +13566,11 @@ paths:
                         name: Production
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/4'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases'
                         download:
-                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/database-backups/2/actions/download'
+                          href: 'https://cloud.acquia.com/api/environments/1-a47ac10b-58cc-4372-a567-0e02b2c3d470/databases/db_name/backups/4/actions/download'
         '404':
           description: Not Found
           content:
@@ -13326,11 +13608,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Creating backup:
                   value:
                     message: Creating the backup.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/databases/my_db/backups/'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/databases/my_db/'
         '400':
           description: Bad Request
           content:
@@ -13544,6 +13833,20 @@ paths:
             application/octet-stream:
               schema:
                 $ref: '#/components/schemas/File'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
+              examples:
+                File download:
+                  value:
+                    url: 'http://sitedatabaseenv.hosting.test-site.com/AH_DOWNLOAD?t=1571509&d490=/mnt/gfs/csitedatabase.env/backups/env-sitedatabase-sitedatabaseenv-2018-11-23.sql.gz&env=d157=fecac803549db007378f0f'
+                    expires_at: '2019-11-30T23:21:02+00:00'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
         '403':
           description: Forbidden
           content:
@@ -13596,11 +13899,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Restoring backup:
                   value:
                     message: Restoring the database backup.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/databases/test_database_1/backups/4189098/actions/restore'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/f295cd91-c3c0-422c-a1ab-e91fe972041a'
         '400':
           description: Bad Request
           content:
@@ -13842,11 +14150,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Adding domain:
                   value:
                     message: Adding domain example.com
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/642-99d416c4-88b5-48c0-ae8e-4719007d7b8d/domains'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/737a97a4-4c02-47e4-9924-d008de1aa7e5'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/642-99d416c4-88b5-48c0-ae8e-4719007d7b8d'
         '403':
           description: Forbidden
           content:
@@ -13943,11 +14258,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Clearing cache:
                   value:
                     message: Varnish is being cleared for the selected domains.
+                    _links:
+                      self:
+                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-varnish
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
         '403':
           description: Forbidden
           content:
@@ -14049,11 +14369,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Deleting domain:
                   value:
                     message: Removing the domain example.com
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/domains/example.com'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/67b7f08f-2dff-4c86-a8a0-35c4196880a3'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/domains'
         '403':
           description: Forbidden
           content:
@@ -14107,11 +14434,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Clearing cache:
                   value:
                     message: Varnish is being cleared for domain 'example.com'.
+                    _links:
+                      self:
+                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/actions/clear-varnish
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
         '403':
           description: Forbidden
           content:
@@ -14630,6 +14962,20 @@ paths:
             application/octet-stream:
               schema:
                 $ref: '#/components/schemas/File'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
+              examples:
+                File download:
+                  value:
+                    url: 'http://appsiteenv.host.site-example.com/AH_DOWNLOAD?d=/mnt/gfs/appsiteenv/logs/log_type_log_appsiteenv_1574901901.sql&t=157492&env=fecac803549db0072661378f0f'
+                    expires_at: '2019-11-30T23:21:02+00:00'
+            application/hal+json:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
+            text/html:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
         '403':
           description: Forbidden
           content:
@@ -15009,6 +15355,10 @@ paths:
                       flags:
                         enabled: true
                         certificate_expiring: false
+                      health:
+                        code: '200'
+                        details: Destination OK
+                        summary: OK
                       environment:
                         id: 123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577
                         name: Test
@@ -15029,6 +15379,10 @@ paths:
                       flags:
                         enabled: false
                         certificate_expiring: true
+                      health:
+                        code: '200'
+                        details: Destination OK
+                        summary: OK
                       environment:
                         id: 123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577
                         name: Test
@@ -15121,7 +15475,7 @@ paths:
                   description: The URL or host name and port of the destination.
             example:
               label: Test destination
-              soures:
+              sources:
                 - apache-access
                 - apache-error
               consumer: syslog
@@ -15134,11 +15488,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Log Forwarding destination created:
-                  value:
-                    message: Log forwarding destination for the environment has been created.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Log forwarding destination for the environment has been created.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/log-forwarding-destinations/95739829-0093-4673-9ee0-5f5bdac04d11'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/log-forwarding-destinations'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/bc17cfd2-487b-4e10-b3cf-9fe1f0c10e3f'
         '400':
           description: Bad Request
           content:
@@ -15309,6 +15668,10 @@ paths:
                 flags:
                   enabled: true
                   certificate_expiring: false
+                health:
+                  code: '200'
+                  details: Destination OK
+                  summary: OK
                 environment:
                   id: 123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577
                   name: Test
@@ -15403,7 +15766,7 @@ paths:
                   description: The URL or host name and port of the destination.
             example:
               label: Test destination
-              soures:
+              sources:
                 - apache-access
                 - apache-error
               consumer: syslog
@@ -15420,7 +15783,6 @@ paths:
               examples:
                 Log Forwarding destination has been updated:
                   value:
-                    error: forbidden
                     message: Log forwarding destination has been updated.
         '400':
           description: Bad Request
@@ -15583,12 +15945,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Log Forwarding destination has been deleted:
-                  value:
-                    error: forbidden
-                    message: Log forwarding destination has been deleted.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Log forwarding destination has been deleted.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations/df4c5428-8d2e-453d-9edf-e412647449b1'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/dfe6afd7-3619-4ab7-8aef-ab26fb506b3a'
         '400':
           description: Bad Request
           content:
@@ -15651,12 +16017,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Log Forwarding destination has been disabled:
-                  value:
-                    error: forbidden
-                    message: Log forwarding destination has been disabled.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Log forwarding destination has been disabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations/df4c5428-8d2e-453d-9edf-e412647449b1'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/d1e9dde1-7a60-4f39-951f-295ee7fe343f'
         '400':
           description: Bad Request
           content:
@@ -15719,12 +16089,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Log Forwarding destination has been enabled:
-                  value:
-                    error: forbidden
-                    message: Log forwarding destination has been enabled.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Log forwarding destination has been enabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations/df4c5428-8d2e-453d-9edf-e412647449b1'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/63a804eb-ad38-4f66-9644-725f0c04e87c'
         '400':
           description: Bad Request
           content:
@@ -17204,9 +17578,10 @@ paths:
   '/environments/{environmentId}/settings/apm':
     get:
       tags:
-        - Environments
-      summary: Return details about a specific APM.
-      description: Return details about a specific application performance monitor (APM).
+        - Application Performance Monitoring Services
+      deprecated: true
+      summary: Returns a list of Application Performance Monitoring services associated with the environment.
+      description: Returns a list of Application Performance Monitoring services associated with the environment.
       operationId: getEnvironmentsApmSetting
       x-cli-name: 'environments:apm-find'
       parameters:
@@ -17260,9 +17635,10 @@ paths:
                     message: APM settings are not available on non-hosted applications.
     put:
       tags:
-        - Environments
-      summary: Update configuration for an APM tool.
-      description: Update configuration for an application performance monitor (APM) tool.
+        - Application Performance Monitoring Services
+      deprecated: true
+      summary: Update configuration for an Application Performance Monitoring tool.
+      description: Update configuration for an Application Performance Monitoring tool.
       operationId: putEnvironmentsApmSetting
       x-cli-name: 'environments:apm-update'
       parameters:
@@ -17462,6 +17838,10 @@ paths:
                         active: true
                         csr: false
                         legacy: false
+                      expires_at: '2021-01-01T00:00:00-0400'
+                      domains:
+                        - example2.com
+                        - www.example2.com
                       environment:
                         id: 5-a1a10dab-62f4-418c-bc58-ab7742078ba8
                         name: prod
@@ -17477,6 +17857,10 @@ paths:
                         active: false
                         csr: true
                         legacy: false
+                      expires_at: '2021-01-01T00:00:00-0400'
+                      domains:
+                        - example3.com
+                        - www.example3.com
                       environment:
                         id: 5-a1a10dab-62f4-418c-bc58-ab7742078ba8
                         name: prod
@@ -17529,11 +17913,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
-                Adding environment:
+                Site is being imported:
                   value:
                     message: Installing the certificate.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-4ba86d4a-e193-4282-8963-d9d24746f444/ssl/certificates'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/8fdacf25-38e4-4621-b5de-e78638fe2ceb'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-4ba86d4a-e193-4282-8963-d9d24746f444/ssl'
         '400':
           description: Bad Request
           content:
@@ -17663,9 +18054,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Deleting the certificate.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/ssl/certificates/9'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/ssl/certificates'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/767cee8d-05f6-4761-a3dc-755957dfc9e6'
         '403':
           description: Forbidden
           content:
@@ -17731,9 +18129,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Activating the certificate.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/ssl/certificates/1/actions/activate'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/4ee513c7-13b4-459f-af60-ba50c4f7cb5d'
         '400':
           description: Bad Request
           content:
@@ -17841,11 +18244,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Deactivating certificate:
-                  value:
-                    message: Deactivating the certificate.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Deactivating the certificate.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/ssl/certificates/4547/actions/deactivate'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/cb5de18e-5721-4c26-9f67-1a7d806dd09e'
         '400':
           description: Bad Request
           content:
@@ -18411,11 +18817,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Variable is being added:
                   value:
                     message: The environment variable is being added.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-c7056b9e-0fb7-44e9-a434-426a404211c1/variables'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/f3c2bdc1-60c1-48af-8777-996477f901d5'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-c7056b9e-0fb7-44e9-a434-426a404211c1'
         '400':
           description: Bad Request
           content:
@@ -18555,11 +18968,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Variable is being removed:
                   value:
                     message: The environment variable is being removed.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/variables/EXAMPLE_VARIABLE_NAME'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/variables'
         '400':
           description: Bad Request
           content:
@@ -18674,11 +19094,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Variable is being updated:
                   value:
                     message: The environment variable is being updated.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/24-734b7960-2b1f-11e9-b210-d663bd873d93/variables/name'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/37c8646c-bbe8-423a-970b-cbeb530b981d'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/24-734b7960-2b1f-11e9-b210-d663bd873d93/variables'
         '400':
           description: Bad Request
           content:
@@ -18770,6 +19197,16 @@ paths:
                     href: 'https://ide-215824ff-272a-4a8c-9027-df32ed1d68a9.prod.acquia-sites.com'
                   ide:
                     href: 'https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com'
+                _embedded:
+                  owner:
+                    uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
+                    first_name: First
+                    last_name: Last
+                    last_login_at: '2019-01-31T10:53:11-05:00'
+                    created_at: '2016-08-14T17:38:59-04:00'
+                    email: user.name@example.com
+                    picture_url: 'https://accounts.acquia.com/path/to/image.png'
+                    username: user.name
         '404':
           description: Not Found
           content:
@@ -18780,7 +19217,7 @@ paths:
                 Not found:
                   value:
                     error: not_found
-                    message: 'The Remote IDE you are trying to access does not exist, or you do not have permission to access it.'
+                    message: 'The IDE you are trying to access does not exist, or you do not have permission to access it.'
     delete:
       tags:
         - Remote IDE
@@ -18798,11 +19235,18 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 De-provisioning IDE:
                   value:
-                    message: The Remote IDE is being removed.
+                    message: The remote IDE is being deleted.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/ides/215824ff-272a-4a8c-9027-df32ed1d68a9'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/ides'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/e98577df-840a-4fef-8775-66cf90b3530e'
         '404':
           description: Not Found
           content:
@@ -18813,7 +19257,7 @@ paths:
                 Not found:
                   value:
                     error: not_found
-                    message: 'The Remote IDE you are trying to remove does not exist, or you do not have permission to access it.'
+                    message: 'The IDE you are trying to access does not exist, or you do not have permission to access it.'
   /identity-providers:
     get:
       tags:
@@ -19006,6 +19450,13 @@ paths:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Identity Provider has been updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/identity-providers/8030f025-47dc-4926-940b-0b04d98d1ea2'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/identity-providers'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/29dcc1e2-3cfc-447c-9fcb-d51c1c26b4da'
         '400':
           description: Bad Request
           content:
@@ -19062,6 +19513,10 @@ paths:
                   value:
                     error: not_found
                     message: An identity provider with UUID idp1234-aaaa-1234-abcd-0123456789ab does not exist.
+                No Associated Organization:
+                  value:
+                    error: not_found
+                    message: An organization with associated identity provider UUID idp1234-aaaa-1234-abcd-0123456789ab cannot be found.
         '409':
           description: Conflict
           content:
@@ -19094,9 +19549,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Identity provider has been deleted.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/identity-providers/da1c0a8e-ff69-45db-88fc-acd6d2affbb7'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/identity-providers'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/29dcc1e2-3cfc-447c-9fcb-d51c1c26b4da'
         '403':
           description: Forbidden
           content:
@@ -19112,9 +19574,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-              example:
-                error: not_found
-                message: 'The identity provider you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Not Found or Does Not Exist:
+                  value:
+                    error: not_found
+                    message: 'The identity provider you are trying to access does not exist, or you do not have permission to access it.'
+                No Associated Organization:
+                  value:
+                    error: not_found
+                    message: An organization with associated identity provider UUID da1c0a8e-ff69-45db-88fc-acd6d2affbb7 cannot be found.
   '/identity-providers/{identityProviderUuid}/actions/enable':
     post:
       tags:
@@ -19133,9 +19601,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Identity Provider has been enabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/identity-providers/e1851cef-aa3c-4153-bb81-1c25fcf7dc77'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/identity-providers'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/31660dfd-def7-49f0-b1f2-847fa267a021'
         '403':
           description: Forbidden
           content:
@@ -19183,9 +19658,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: Identity Provider has been disabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/identity-providers/e1851cef-aa3c-4153-bb81-1c25fcf7dc77'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/identity-providers'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/31660dfd-def7-49f0-b1f2-847fa267a021'
         '403':
           description: Forbidden
           content:
@@ -19303,36 +19785,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Site revoked:
-                value:
-                  message: Site revoked from submitting Insight score data.
+              examples:
+                Site revoked:
+                  value:
+                    message: Site revoked from submitting Insight score data.
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to revoke this site.
-              Node.js app cannot be revoked:
-                value:
-                  error: node_js_app
-                  message: Sites cannot be revoked from submitting Insight score data on Node.js applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to revoke this site.
+                Node.js app cannot be revoked:
+                  value:
+                    error: node_js_app
+                    message: Sites cannot be revoked from submitting Insight score data on Node.js applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/insight/{siteId}/actions/unrevoke':
     post:
       tags:
@@ -19351,36 +19833,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Site un-revoked:
-                value:
-                  message: Site un-revoked.
+              examples:
+                Site un-revoked:
+                  value:
+                    message: Site un-revoked.
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to un-revoke this site.
-              Node.js app cannot be revoked:
-                value:
-                  error: node_js_app
-                  message: Sites cannot be un-revoked from submitting Insight score data on Node.js applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to un-revoke this site.
+                Node.js app cannot be revoked:
+                  value:
+                    error: node_js_app
+                    message: Sites cannot be un-revoked from submitting Insight score data on Node.js applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/insight/{siteId}/alerts':
     get:
       tags:
@@ -19411,92 +19893,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InsightAlerts'
-            example:
-              total: 3
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/insight/site_id/alerts'
-                parent:
-                  href: 'https://cloud.acquia.com/api/insight/site_id'
-              _embedded:
-                items:
-                  - alert_id: 40
-                    uuid: a47ac10b-58cc-4372-a567-0e02b2c3d470
-                    name: PHP errors visible
-                    message: <p>Your website is configured to display PHP error messages to users. These error messages can reveal sensitive information about your website and its server to site visitors.</p>
-                    article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
-                    severity: 8
-                    severity_label: WARNING
-                    failed_value: display_errors
-                    fix_details: '<p>To suppress the error messages, edit your settings.php file.</p>'
-                    categories:
-                      - insight
-                      - security
-                    flags:
-                      ignored: false
-                      cleared: false
-                      resolved: false
-                      pass_hide: false
-                      free_tier_hide: true
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/a47ac10b-58cc-4372-a567-0e02b2c3d470'
-                  - alert_id: 43
-                    uuid: f938d912-a6a0-11e2-b0d3-12313931d529
-                    name: Scheduler module not enabled
-                    message: '<p>Writing content and scheduling its publishing is an easy way to keep your site current and appealing to site visitors. The Scheduler module makes it easy to release content over a period of time, and thus maintain freshness.</p>'
-                    article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
-                    severity: 0
-                    severity_label: DEBUG
-                    failed_value: scheduler
-                    fix_details: <p>Enable the Scheduler module for your website.</p>
-                    categories:
-                      - seo
-                    flags:
-                      ignored: false
-                      cleared: false
-                      resolved: false
-                      pass_hide: false
-                      free_tier_hide: false
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f938d912-a6a0-11e2-b0d3-12313931d529'
-                  - alert_id: 82
-                    uuid: f93dbb1f-a6a0-11e2-b0d3-12313931d529
-                    name: CSS optimization disabled
-                    message: '<p>With CSS optimization disabled, your website visitors are experiencing slower page performance and the server load is increased.</p>'
-                    article_link: 'https://docs.acquia.com/acquia-cloud/performance/#sts=CSS%20and%20JavaScript%20aggregation%C2%B6'
-                    severity: 16
-                    severity_label: ERROR
-                    failed_value: preprocess_css
-                    fix_details: '<p>To enable CSS optimization, on your website, open the Performance page at <code>/admin/config/development/performance</code>, and then select <strong>Aggregate and compress CSS files</strong>.</p>'
-                    categories:
-                      - insight
-                      - performance
-                    flags:
-                      ignored: false
-                      cleared: true
-                      resolved: true
-                      pass_hide: false
-                      free_tier_hide: true
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f93dbb1f-a6a0-11e2-b0d3-12313931d529'
+              example:
+                total: 3
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/insight/site_id/alerts'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/insight/site_id'
+                _embedded:
+                  items:
+                    - alert_id: 40
+                      uuid: a47ac10b-58cc-4372-a567-0e02b2c3d470
+                      name: PHP errors visible
+                      message: <p>Your website is configured to display PHP error messages to users. These error messages can reveal sensitive information about your website and its server to site visitors.</p>
+                      article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
+                      severity: 8
+                      severity_label: WARNING
+                      failed_value: display_errors
+                      fix_details: '<p>To suppress the error messages, edit your settings.php file.</p>'
+                      categories:
+                        - insight
+                        - security
+                      flags:
+                        ignored: false
+                        cleared: false
+                        resolved: false
+                        pass_hide: false
+                        free_tier_hide: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/a47ac10b-58cc-4372-a567-0e02b2c3d470'
+                    - alert_id: 43
+                      uuid: f938d912-a6a0-11e2-b0d3-12313931d529
+                      name: Scheduler module not enabled
+                      message: '<p>Writing content and scheduling its publishing is an easy way to keep your site current and appealing to site visitors. The Scheduler module makes it easy to release content over a period of time, and thus maintain freshness.</p>'
+                      article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
+                      severity: 0
+                      severity_label: DEBUG
+                      failed_value: scheduler
+                      fix_details: <p>Enable the Scheduler module for your website.</p>
+                      categories:
+                        - seo
+                      flags:
+                        ignored: false
+                        cleared: false
+                        resolved: false
+                        pass_hide: false
+                        free_tier_hide: false
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f938d912-a6a0-11e2-b0d3-12313931d529'
+                    - alert_id: 82
+                      uuid: f93dbb1f-a6a0-11e2-b0d3-12313931d529
+                      name: CSS optimization disabled
+                      message: '<p>With CSS optimization disabled, your website visitors are experiencing slower page performance and the server load is increased.</p>'
+                      article_link: 'https://docs.acquia.com/acquia-cloud/performance/#sts=CSS%20and%20JavaScript%20aggregation%C2%B6'
+                      severity: 16
+                      severity_label: ERROR
+                      failed_value: preprocess_css
+                      fix_details: '<p>To enable CSS optimization, on your website, open the Performance page at <code>/admin/config/development/performance</code>, and then select <strong>Aggregate and compress CSS files</strong>.</p>'
+                      categories:
+                        - insight
+                        - performance
+                      flags:
+                        ignored: false
+                        cleared: true
+                        resolved: true
+                        pass_hide: false
+                        free_tier_hide: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f93dbb1f-a6a0-11e2-b0d3-12313931d529'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No data or permission:
-              value:
-                error: not_found
-                message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
-            Not available on Node.js:
-              value:
-                error: not_found
-                message: Insight alerts are not available on Node.js applications.
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_found
+                    message: Insight alerts are not available on Node.js applications.
   '/insight/{siteId}/alerts/{alertUuid}':
     get:
       tags:
@@ -20207,7 +20689,6 @@ paths:
               value:
                 error: not_found
                 message: 'The message you are trying to follow the link for does not exist, or you do not have permission to access it.'
-  /notifications: {}
   '/notifications/{notificationUuid}':
     get:
       tags:
@@ -20245,9 +20726,9 @@ paths:
                       - 5391a8a9-d273-4f88-8114-7f884bbfe08b
                 _links:
                   self:
-                    href: 'https://cloud.acquia.dev/api/notifications/1bd3487e-71d1-4fca-a2d9-5f969b3d35c1'
+                    href: 'https://cloud.acquia.com/api/notifications/1bd3487e-71d1-4fca-a2d9-5f969b3d35c1'
                   parent:
-                    href: 'https://cloud.acquia.dev/api/notifications'
+                    href: 'https://cloud.acquia.com/api/notifications'
         '404':
           description: Not Found
           content:
@@ -21680,9 +22161,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
-                message: Tags have been added to context resources.
+                message: Tags have been updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/organizations/87c7be4d-d65d-4a5c-b36b-d921ca86c590/available-tags'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/6992a41d-a953-4ded-ae99-41d2f4d62f69'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/organizations/87c7be4d-d65d-4a5c-b36b-d921ca86c590'
         '403':
           description: Forbidden
           content:
@@ -21825,9 +22313,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
-                message: Tags have been removed from context resources.
+                message: Tags have been updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/organizations/1be8dcdf-e4fd-4a89-9d64-9e4486272c7a/available-tags'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/organizations/1be8dcdf-e4fd-4a89-9d64-9e4486272c7a'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/154f88be-b9c0-47c4-b0cb-83eb6aebb7b7'
         '403':
           description: Forbidden
           content:
@@ -22307,10 +22802,6 @@ paths:
                         - name: administer team
                           label: Add or remove a user of a team
                           description: Granting this permission will give any user with this role full permissions on this team.
-                          group_label: Administration
-                        - name: activate add on
-                          label: Activate an Acquia Subscription add-on
-                          description: null
                           group_label: Administration
                       organization:
                         uuid: 065f4d9e-efbf-4b0e-8cf6-42fa432baede
@@ -23001,10 +23492,6 @@ paths:
                       label: Access the Cloud API
                       description: Grants the ability to use the API and bypass all other permissions via command line tools.
                       group_label: Administration
-                    - name: activate add on
-                      label: Activate an Acquia Subscription add-on
-                      description: null
-                      group_label: Administration
                     - name: administer cron non-prod
                       label: Modify cron tasks for non-production environments
                       description: null
@@ -23327,6 +23814,15 @@ paths:
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/subscriptions/faa297f3-f59a-4abc-8d71-904f51bcb1c5'
+                      _embedded:
+                        organization:
+                          uuid: 39f38840-c494-4622-80a5-fc40269cb42d
+                          name: Acquia Inc.
+                          _links:
+                            self:
+                              href: 'https://cloud.acquia.com/api/organizations/39f38840-c494-4622-80a5-fc40269cb42d'
+                            parent:
+                              href: 'https://cloud.acquia.com/api/organizations'
                     - id: 222
                       uuid: 36496037-6eb5-482d-8549-e45e1718f2b7
                       name: My Acquia Subscription
@@ -23350,6 +23846,15 @@ paths:
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/subscriptions/36496037-6eb5-482d-8549-e45e1718f2b7'
+                      _embedded:
+                        organization:
+                          uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
+                          name: My Organization
+                          _links:
+                            self:
+                              href: 'https://cloud.acquia.com/api/organizations/93c97126-2870-47f0-9ffd-9a92033c443e'
+                            parent:
+                              href: 'https://cloud.acquia.com/api/organizations'
                     - id: 333
                       uuid: 2d92f652-882c-458a-8183-4d9cef7c2fde
                       name: My Acquia Subscription 2
@@ -23373,6 +23878,15 @@ paths:
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/subscriptions/2d92f652-882c-458a-8183-4d9cef7c2fde'
+                      _embedded:
+                        organization:
+                          uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
+                          name: My Organization
+                          _links:
+                            self:
+                              href: 'https://cloud.acquia.com/api/organizations/93c97126-2870-47f0-9ffd-9a92033c443e'
+                            parent:
+                              href: 'https://cloud.acquia.com/api/organizations'
         '404':
           description: Not Found
           content:
@@ -23431,10 +23945,21 @@ paths:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/applications'
                   entitlements:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/entitlements'
+                  ides:
+                    href: 'https://cloud.acquia.dev/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/ides'
                   shield-acl:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/shield-acl'
                   parent:
                     href: 'https://cloud.acquia.com/api/subscriptions'
+                _embedded:
+                  organization:
+                    uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
+                    name: My Organization
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/organizations/93c97126-2870-47f0-9ffd-9a92033c443e'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/organizations'
         '404':
           description: Not Found
           content:
@@ -23490,6 +24015,181 @@ paths:
                 value:
                   error: not_found
                   message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+  '/subscriptions/{subscriptionUuid}/apm':
+    get:
+      tags:
+        - Application Performance Monitoring Services
+      summary: Returns a list of Application Performance Monitoring services associated with the subscription.
+      description: Returns a list of Application Performance Monitoring services associated with the subscription.
+      operationId: getSubscriptionApmTypes
+      x-cli-name: 'subscriptions:apm-list'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApmTypes'
+              example:
+                total: 1
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - type: newrelic
+                      flags:
+                        opted-in: true
+                      key: 2d1dfa83d5e1494793957e7ce572942b
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm/newrelic'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to access APM summaries for this subscription.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+  '/subscriptions/{subscriptionUuid}/apm/{apmType}':
+    get:
+      tags:
+        - Application Performance Monitoring Services
+      summary: Returns the Application Performance Monitoring service type associated with the subscription.
+      description: Returns the Application Performance Monitoring service type associated with the subscription.
+      operationId: getSubscriptionApmType
+      x-cli-name: 'subscriptions:apm-list'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/ApmType'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApmType'
+              example:
+                type: newrelic
+                flags:
+                  opted-in: true
+                key: 2d1dfa83d5e1494793957e7ce572942b
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to access this APM summary type.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+  '/subscriptions/{subscriptionUuid}/apm/{apmType}/actions/opt-in':
+    post:
+      tags:
+        - Application Performance Monitoring Services
+      summary: Enables New Relic Pro APM license for all applications on a subscription.
+      description: Enables New Relic Pro APM license for all applications on a subscription. This authorizes Acquia to create a new user account on the third-party New Relic platform using the name and e-mail address of the organization owner.
+      operationId: postSubscriptionApmOptIn
+      x-cli-name: 'subscriptions:apm-opt-in'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/ApmType'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                APM Type Enabled:
+                  value:
+                    message: APM type newrelic has been enabled on the example subscription.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm/newrelic/actions/opt-in'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/apm/newrelic/actions'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/7b37b885-8ae4-454b-b8fa-ffaeff54f6a4'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                APM type unavailable:
+                  value:
+                    error: validation_failed
+                    message:
+                      name: New Relic is not available for this subscription.
+                Must be organization owner:
+                  value:
+                    error: validation_failed
+                    message:
+                      name: Only the organization owner may opt into data sharing.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to opt-in to APM settings for this subscription.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
   '/subscriptions/{subscriptionUuid}/applications':
     get:
       tags:
@@ -23667,44 +24367,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Ides'
-            example:
-              total: 2
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/subscriptions/5d278c52-4876-4c70-a666-d671f77a602d/ides'
-                parent:
-                  href: 'https://cloud.acquia.com/api/subscriptions/5d278c52-4876-4c70-a666-d671f77a602d'
-              _embedded:
-                items:
-                  - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
-                    label: IDE Label 1
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
-                      ide:
-                        href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com'
-                      application:
-                        href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
-                  - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
-                    label: IDE Label 2
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
-                      ide:
-                        href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com'
-                      application:
-                        href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+              example:
+                total: 2
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/5d278c52-4876-4c70-a666-d671f77a602d/ides'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/5d278c52-4876-4c70-a666-d671f77a602d'
+                _embedded:
+                  items:
+                    - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
+                      label: IDE Label 1
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
+                        web:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud'
+                        ide:
+                          href: 'https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+                      _embedded:
+                        owner:
+                          uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
+                          first_name: First
+                          last_name: Last
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
+                          email: user.name@example.com
+                          picture_url: 'https://accounts.acquia.com/path/to/image.png'
+                          username: user.name
+                    - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
+                      label: IDE Label 2
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
+                        web:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud'
+                        ide:
+                          href: 'https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com'
+                        application:
+                          href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
+                      _embedded:
+                        owner:
+                          uuid: 10be1d3e-f2b4-4d34-855d-321df3938ffd
+                          first_name: First
+                          last_name: Last
+                          last_login_at: '2019-01-31T10:53:11-05:00'
+                          created_at: '2016-08-14T17:38:59-04:00'
+                          email: user.name@example.com
+                          picture_url: 'https://accounts.acquia.com/path/to/image.png'
+                          username: user.name
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No subscription or permission:
-              value:
-                error: not_found
-                message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
   '/subscriptions/{subscriptionUuid}/metrics/usage':
     get:
       tags:
@@ -24348,33 +25072,67 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-            examples:
-              Rule created:
-                value:
-                  example: Shield ACL rule for subscription has been created.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Shield ACL rule for subscription has been created.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019/shield-acl/bf8b6858-1e36-4b8e-bb05-35bdd986f5d2'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019/shield-acl'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/fbd0581d-7606-43d0-9d2e-4d9fa6570a0d'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Acquia Shield not available:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Shield rules can only be added to subscriptions that have Acquia Shield.
+                Maximum Shield ACL rules:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: You have already used the maximum number of Shield rules for this subscription.
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No subscription or permission:
-                value:
-                  error: not_found
-                  message: You do not have permission to create a new Shield ACL rule.
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: You do not have permission to create a new Shield ACL rule.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No subscription or permission:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Shield ACL updates in progress:
+                  value:
+                    error: conflict
+                    message:
+                      general: Shield ACL rules cannot be created while ACL rule updates are in progress.
   '/subscriptions/{subscriptionUuid}/shield-acl/{shieldAclUuid}':
     get:
       tags:
@@ -24473,33 +25231,38 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-            examples:
-              Rule updated:
-                value:
-                  message: Updated ACL rule for subscription.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Updated ACL rule for subscription.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019/shield-acl/b23588f8-dbfa-4fb8-92a1-60e0dd08eee9'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019/shield-acl'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/87ae4d57-24d6-4b4b-8552-d9658b4e2dea'
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to edit a Shield ACL rule.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to edit a Shield ACL rule.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Validation failed:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Validation failed:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
         '409':
           description: Conflict
           content:
@@ -24533,39 +25296,72 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-            examples:
-              Deleted Shield Acl:
-                value:
-                  message: |
-                    Deleted ACL rule (UUID: d5afa695-92a0-401b-b973-1f09992d6ba2) for subscription (UUID: 720d4df4-7469-47f2-9e42-a6a5152761bf).
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: 'Deleted ACL rule (UUID: 93136254-7d65-465c-82e9-5e92d74ae6b4) for subscription (UUID: 720d4df4-7469-47f2-9e42-a6a5152761bf).'
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl/93136254-7d65-465c-82e9-5e92d74ae6b4'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/98c1c68d-d33d-4340-8cd2-f32bdbf035f3'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Acquia Shield not available:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Shield rules can only be deleted from subscriptions that have Acquia Shield.
+                Shield ACL rule not associated:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The Shield ACL Rule with UUID 638c13e7-0455-45de-ab63-def9d348d50f does not belong to the subscription with UUID e3959c8a-f53d-49a1-adb7-acdc8e717940.
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: unauthorized
-                  message: You do not have permission to delete a Shield ACL rule.
+              examples:
+                No permission:
+                  value:
+                    error: unauthorized
+                    message: You do not have permission to delete a Shield ACL rule.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No subscription or permission:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
-              No subscription:
-                value:
-                  error: not_found
-                  message: The subscription with UUID 720d4df4-7469-47f2-9e42-a6a5152761bf does not exist.
-  '/subscriptions/{subscriptionUuid}/shield-acl/{shieldAclUuid}/actions/reset':
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+                No subscription:
+                  value:
+                    error: not_found
+                    message: The subscription with UUID 720d4df4-7469-47f2-9e42-a6a5152761bf does not exist.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Shield ACL updates in progress:
+                  value:
+                    error: conflict
+                    message:
+                      general: Shield ACL rules cannot be deleted while ACL rule updates are in progress.
+  '/subscriptions/{subscriptionUuid}/shield-acl/actions/reset':
     post:
       tags:
         - Subscriptions
@@ -24574,18 +25370,22 @@ paths:
       x-cli-name: 'subscriptions:shield-acl-reset'
       parameters:
         - $ref: '#/components/parameters/SubscriptionUuid'
-        - $ref: '#/components/parameters/ShieldAclUuid'
       responses:
-        '200':
-          description: OK
+        '202':
+          description: Accepted
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Rules reset:
-                  value: null
-                  message: Shield ACL rules reset for subscription with UUID 720d4df4-7469-47f2-9e42-a6a5152761bf.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Shield ACL rules reset for subscription with UUID 94afc849-3b5a-49cd-bcae-464333994019.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019/shield-acl'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/94afc849-3b5a-49cd-bcae-464333994019'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/a894467e-8ea2-4b0d-9b03-27909098ee3a'
         '400':
           description: Bad Request
           content:
@@ -24593,7 +25393,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ValidationError'
               examples:
-                No permission:
+                Acquia Shield not available:
                   value:
                     error: validation_failed
                     message:
@@ -24615,15 +25415,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No subscription or permission:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
-              No subscription:
-                value:
-                  error: not_found
-                  message: A subscription with UUID 720d4df4-7469-47f2-9e42-a6a5152761bf cannot be found.
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+                No subscription:
+                  value:
+                    error: not_found
+                    message: A subscription with UUID 720d4df4-7469-47f2-9e42-a6a5152761bf cannot be found.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Shield ACL updates in progress:
+                  value:
+                    error: conflict
+                    message:
+                      general: Shield ACL rules cannot be reset while ACL rule updates are in progress.
   /teams:
     get:
       tags:

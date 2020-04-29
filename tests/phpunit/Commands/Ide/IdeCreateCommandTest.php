@@ -34,17 +34,17 @@ class IdeCreateCommandTest extends CommandTestBase
         $cloud_client->request('get', '/applications')->willReturn($response->{'_embedded'}->items)->shouldBeCalled();
 
         // Request to create IDE.
-        $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '200');
+        $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');
         $cloud_client->request(
             'post',
             // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
             '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides',
             ['form_params' => ['label' => 'Example IDE']]
-        )->willReturn($response);
+        )->willReturn($response->{'IDE created'}->value);
 
         // Request for IDE data.
         $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-        $cloud_client->request('get', '/ides/215824ff-272a-4a8c-9027-df32ed1d68a9')->willReturn($response)->shouldBeCalled();
+        $cloud_client->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
         
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
 
