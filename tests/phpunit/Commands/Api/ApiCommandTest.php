@@ -28,22 +28,24 @@ class ApiCommandTest extends CommandTestBase
      * Tests the 'api:*' commands.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandWithHttpGet(): void
+    public function testApiCommandExecutionForHttpGet(): void
     {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
         $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+        $cloud_client->addQuery('limit', '1')->shouldBeCalled();
         $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
-
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
-        $this->executeCommand();
-        $this->prophet->checkPredictions();
+        // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
+        // client's query correctly.
+        $this->executeCommand(['--limit' => '1']);
 
+        // Assert.
+        $this->prophet->checkPredictions();
         $output = $this->getDisplay();
         $this->assertNotNull($output);
         $this->assertJson($output);
-
         $contents = json_decode($output, true);
         $this->assertArrayHasKey(0, $contents);
         $this->assertArrayHasKey('uuid', $contents[0]);
@@ -52,7 +54,7 @@ class ApiCommandTest extends CommandTestBase
     /**
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandWithHttpPost(): void
+    public function testApiCommandExecutionForHttpPost(): void
     {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
@@ -65,6 +67,8 @@ class ApiCommandTest extends CommandTestBase
         $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
         $this->executeCommand($mock_request_args);
+
+        // Assert.
         $this->prophet->checkPredictions();
         $output = $this->getDisplay();
         $this->assertNotNull($output);
@@ -90,9 +94,9 @@ class ApiCommandTest extends CommandTestBase
                 $this->command->getDefinition()->hasOption($param_name) ||
                 $this->command->getDefinition()->hasArgument($param_name),
                 "Command $expected_command_name does not have expected argument or option $param_name"
-                // @todo Validate usage example.
             );
         }
+        $this->assertStringContainsString('api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ', $this->command->getUsages()[0]);
     }
 
 
@@ -109,11 +113,9 @@ class ApiCommandTest extends CommandTestBase
                 $this->command->getDefinition()->hasOption($key),
                 "Command {$this->command->getName()} does not have expected argument or option $key"
             );
-            // @todo Validate usage example.
         }
+        $this->assertStringContainsString('api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com" ', $this->command->getUsages()[0]);
     }
-
-    // @todo Assert parameters are actually passed to the client. E.g., --limit.
 
     /**
      * @param $name
