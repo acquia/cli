@@ -23,6 +23,8 @@ class ApiCommandBase extends CommandBase
 
     /** @var String */
     protected $path;
+    private $queryParams;
+    private $postParams;
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -40,6 +42,7 @@ class ApiCommandBase extends CommandBase
         $request_options = array_intersect_key($options, array_flip($request_options));
 
         // Build query from non-null options.
+        // @todo Use $this->queryParams and $this->postParams to determine how to add.
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         foreach ($request_options as $key => $value) {
             if ($value !== null) {
@@ -50,7 +53,7 @@ class ApiCommandBase extends CommandBase
         // @todo Create a body for post commands.
         $path = $this->getRequestPath($input);
         $response = $acquia_cloud_client->request($this->method, $path);
-        // @todo Add sytax highlighting to json output.
+        // @todo Add syntax highlighting to json output.
         $contents = json_encode($response, JSON_PRETTY_PRINT);
         $this->output->writeln($contents);
 
@@ -108,5 +111,36 @@ class ApiCommandBase extends CommandBase
         }
 
         return $path;
+    }
+
+    /**
+     * @param $param_name
+     */
+    public function addPostParameter($param_name): void
+    {
+        $this->postParams[] = $param_name;
+    }
+
+    /**
+     * @param $params
+     */
+    public function setPostParameters($params): void
+    {
+        $this->postParams = $params;
+    }
+
+    /**
+     * @param $param_name
+     */
+    public function addQueryParameter($param_name)
+    {
+        $this->queryParams[] = $param_name;
+    }
+    /**
+     * @param $params
+     */
+    public function setQueryParameters($params): void
+    {
+        $this->queryParams = $params;
     }
 }

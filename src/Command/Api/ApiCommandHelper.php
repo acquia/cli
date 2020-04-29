@@ -112,59 +112,137 @@ class ApiCommandHelper
      */
     protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void
     {
-        $usage = '';
-        $input_definition = [];
-        // Parameters are only set for GET methods.
+        // Parameters are only set for GET endpoints.
         if (array_key_exists('parameters', $schema)) {
-            foreach ($schema['parameters'] as $parameter) {
-                $parts = explode('/', $parameter['$ref']);
-                $param_name = end($parts);
-                $param_definition = $this->getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec);
-                $required = array_key_exists('required', $param_definition) && $param_definition['required'];
-                if ($required) {
-                    $input_definition[] = new InputArgument(
-                        $param_definition['name'],
-                        InputArgument::REQUIRED,
-                        $param_definition['description']
-                    );
-                    $usage = $this->addArgumentExampleToUsage($param_definition, $usage);
-                } else {
-                    $input_definition[] = new InputOption(
-                        $param_definition['name'],
-                        null,
-                        InputOption::VALUE_OPTIONAL,
-                        $param_definition['description']
-                    );
-                    $usage = $this->addOptionExampleToUsage($param_definition, $param_name, $usage);
-                }
+            [$input_definition, $usage] = $this->addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec);
+            /** @var InputOption|InputArgument $parameter_definition */
+            foreach ($input_definition as $parameter_definition) {
+                $command->addQueryParameter($parameter_definition->getName());
             }
-            if ($input_definition) {
-                $command->setDefinition(new InputDefinition($input_definition));
-            }
+        }
 
+        // Parameters for POST endpoints.
+        if (array_key_exists('requestBody', $schema)) {
+            [$input_definition, $usage] = $this->addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec);
+            /** @var InputOption|InputArgument $parameter_definition */
+            foreach ($input_definition as $parameter_definition) {
+                $command->addPostParameter($parameter_definition->getName());
+            }
+        }
+
+        if (isset($input_definition)) {
+            $command->setDefinition(new InputDefinition($input_definition));
             $command->addUsage($usage);
         }
-        // @todo Make this work! POST method. Split into separate function.
-        if (array_key_exists('requestBody', $schema)) {
-            $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
-            if (array_key_exists('$ref', $request_body_schema)) {
-                // Go grab from components array.
-                $parts = explode('/', $request_body_schema['$ref']);
-                $param_name = end($parts);
-                $request_body_schema = $this->getParameterSchemaFromSpec($param_name, $acquia_cloud_spec);
-            }
-            foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
+    }
+
+    /**
+     * @param $schema
+     * @param $acquia_cloud_spec
+     *
+     * @return array
+     */
+    protected function addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec): array
+    {
+        $usage = '';
+        $input_definition = [];
+        $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
+
+        // If this is a reference to the top level schema, go grab the referenced component.
+        if (array_key_exists('$ref', $request_body_schema)) {
+            $parts = explode('/', $request_body_schema['$ref']);
+            $param_name = end($parts);
+            $request_body_schema = $this->getParameterSchemaFromSpec($param_name, $acquia_cloud_spec);
+        }
+
+        foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
+            $is_required = array_key_exists('required', $request_body_schema) && in_array($param_name, $request_body_schema['required'], true);
+            if ($is_required) {
                 $input_definition[] = new InputArgument(
                     $param_name,
-                    in_array($param_name, $request_body_schema['required'], true) ? InputArgument::REQUIRED : InputArgument::OPTIONAL,
+                    $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
                     $param_definition['description'],
                 );
-                //$param['type'];
-                //$param['enum'];
-                //$param['format'];
+                if (array_key_exists('example', $schema["requestBody"]["content"]["application/json"])) {
+                    $example = $schema["requestBody"]["content"]["application/json"]['example'];
+                    if (array_key_exists($param_name, $example)) {
+                        switch ($param_definition['type']) {
+                            case 'array':
+                                $value = implode(',', $example[$param_name]);
+                                $usage .= "\"$value\" ";
+                                break;
+                            case 'object':
+                                $usage .= '"' . json_encode($example[$param_name]) . '"" ';
+                                break;
+                            case 'string':
+                            case 'boolean':
+                            case 'integer':
+                                $usage .= "\"{$example[$param_name]}\" ";
+                                break;
+                        }
+                    }
+                }
+            } else {
+                $input_definition[] = new InputOption(
+                    $param_name,
+                    null,
+                    $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
+                    $param_definition['description']
+                );
+                if (array_key_exists('example', $schema["requestBody"]["content"]["application/json"])) {
+                    $example = $schema["requestBody"]["content"]["application/json"]['example'];
+                    if (array_key_exists($param_name, $example)) {
+                        if ($param_definition['type'] === 'array') {
+                            $value = implode(',', $example[$param_name]);
+                            $usage .= "--{$param_name}=\"$value\" ";
+                        } else {
+                            $usage .= "--{$param_name}=\"{$example[$param_name]}\" ";
+                        }
+                    }
+                }
+                // @todo Add validator for $param['enum'] values?
             }
-            // @todo Use $schema['requestBody']['content']['application/json']['example'] to generate usage example.
+
+            //$param['format'];
         }
+        // @todo Use $schema['requestBody']['content']['application/json']['example'] to generate usage example.
+        return [$input_definition, $usage];
+    }
+
+    /**
+     * @param $schema
+     * @param $acquia_cloud_spec
+     *
+     * @return array
+     */
+    protected function addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec): array
+    {
+        $usage = '';
+        $input_definition = [];
+        foreach ($schema['parameters'] as $parameter) {
+            $parts = explode('/', $parameter['$ref']);
+            $param_name = end($parts);
+            $param_definition = $this->getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec);
+            $required = array_key_exists('required', $param_definition) && $param_definition['required'];
+            if ($required) {
+                $input_definition[] = new InputArgument(
+                    $param_definition['name'],
+                    InputArgument::REQUIRED,
+                    $param_definition['description']
+                );
+                $usage = $this->addArgumentExampleToUsage($param_definition, $usage);
+            } else {
+                $input_definition[] = new InputOption(
+                    $param_definition['name'],
+                    null,
+                    InputOption::VALUE_REQUIRED,
+                    $param_definition['description']
+                );
+                $usage = $this->addOptionExampleToUsage($param_definition, $param_name, $usage);
+            }
+        }
+
+        return [$input_definition, $usage];
     }
 
     protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec)
@@ -193,6 +271,7 @@ class ApiCommandHelper
             return false;
         }
 
+        // @todo Make this true!
         return false;
     }
 }
