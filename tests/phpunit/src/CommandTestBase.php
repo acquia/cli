@@ -97,7 +97,7 @@ abstract class CommandTestBase extends TestCase
         chdir($cwd);
         $tester = $this->getCommandTester();
         $tester->setInputs($inputs);
-        $command_name = $this->command::getDefaultName();
+        $command_name = $this->command->getName();
         $args = array_merge(['command' => $command_name], $args);
 
         if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
@@ -138,7 +138,7 @@ abstract class CommandTestBase extends TestCase
         $repo_root = null;
         $this->application = new AdsApplication('ads', 'UNKNOWN', $input, $output, $logger, $repo_root);
         $this->application->add($this->command);
-        $found_command = $this->application->find($this->command::getDefaultName());
+        $found_command = $this->application->find($this->command->getName());
         $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
         $this->commandTester = new CommandTester($found_command);
 
@@ -201,13 +201,26 @@ abstract class CommandTestBase extends TestCase
      * @param $method
      * @param $http_code
      *
+     * @return mixed
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    protected function getResourceFromSpec($path, $method)
+    {
+        $acquia_cloud_spec = $this->getCloudApiSpec();
+        return $acquia_cloud_spec['paths'][$path][$method];
+    }
+
+    /**
+     * @param $path
+     * @param $method
+     * @param $http_code
+     *
      * @return false|string
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function getMockResponseFromSpec($path, $method, $http_code)
     {
-        $acquia_cloud_spec = $this->getCloudApiSpec();
-        $endpoint = $acquia_cloud_spec['paths'][$path][$method];
+        $endpoint = $this->getResourceFromSpec($path, $method);
         $response = $endpoint['responses'][$http_code];
         $response_body = json_encode($response['content']['application/json']['example']);
 

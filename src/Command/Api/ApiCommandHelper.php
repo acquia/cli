@@ -42,6 +42,7 @@ class ApiCommandHelper
             foreach ($endpoint as $method => $schema) {
                 $command_name = 'api:' . $schema['x-cli-name'];
                 $command = new ApiCommandBase($command_name);
+                $command->setName($command_name);
                 $command->setDescription($schema['summary']);
                 $command->setMethod($method);
                 $command->setResponses($schema['responses']);
@@ -97,7 +98,7 @@ class ApiCommandHelper
     protected function addOptionExampleToUsage($param_definition, $param_name, string $usage): string
     {
         if (array_key_exists('example', $param_definition)) {
-            $usage .= '--' . $param_name . '="' . $param_definition['example'] . '""';
+            $usage .= '--' . $param_name . '="' . $param_definition['example'] . '" ';
         }
 
         return $usage;

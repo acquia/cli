@@ -5,6 +5,7 @@ namespace Acquia\Ads\Tests\Api;
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Command\ListCommand;
 
 class ApiListCommandTest extends CommandTestBase
 {
@@ -19,8 +20,13 @@ class ApiListCommandTest extends CommandTestBase
 
     /**
      * Tests the 'api:list' command.
+     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function testApiListCommand(): void
     {
+        $this->executeCommand();
+        $output = $this->getDisplay();
+        $this->assertStringContainsString(' api:accounts:ssh-keys-list', $output);
     }
+
 }

@@ -40,22 +40,19 @@ class ApiCommandBase extends CommandBase
         $request_options = array_intersect_key($options, array_flip($request_options));
 
         // Build query from non-null options.
-        $query = [];
+        $acquia_cloud_client = $this->getAcquiaCloudClient();
         foreach ($request_options as $key => $value) {
             if ($value !== null) {
-                $query[$key] = $value;
+                $acquia_cloud_client->addQuery($key, $value);
             }
         }
 
         // @todo Create a body for post commands.
         $path = $this->getRequestPath($input);
-        $acquia_cloud_client = $this->getAcquiaCloudClient();
-        $options = [
-          'query' => $query,
-        ];
-        $response = $acquia_cloud_client->makeRequest($this->method, $path, $options);
+        $response = $acquia_cloud_client->request($this->method, $path);
         // @todo Add sytax highlighting to json output.
-        $this->output->writeln($response->getBody()->getContents());
+        $contents = json_encode($response, JSON_PRETTY_PRINT);
+        $this->output->writeln($contents);
 
         return 0;
     }
