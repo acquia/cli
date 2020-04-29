@@ -4,6 +4,7 @@ namespace Acquia\Ads\Command\Api;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
+use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -111,19 +112,20 @@ class ApiCommandHelper
      */
     protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void
     {
+        $usage = '';
+        $input_definition = [];
+        // Parameters are only set for GET methods.
         if (array_key_exists('parameters', $schema)) {
-            $usage = '';
-            $input_definition = [];
             foreach ($schema['parameters'] as $parameter) {
                 $parts = explode('/', $parameter['$ref']);
                 $param_name = end($parts);
-                $param_definition = $acquia_cloud_spec['components']['parameters'][$param_name];
+                $param_definition = $this->getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec);
                 $required = array_key_exists('required', $param_definition) && $param_definition['required'];
                 if ($required) {
                     $input_definition[] = new InputArgument(
                         $param_definition['name'],
                         InputArgument::REQUIRED,
-                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
+                        $param_definition['description']
                     );
                     $usage = $this->addArgumentExampleToUsage($param_definition, $usage);
                 } else {
@@ -131,7 +133,7 @@ class ApiCommandHelper
                         $param_definition['name'],
                         null,
                         InputOption::VALUE_OPTIONAL,
-                        $acquia_cloud_spec['components']['parameters'][$param_name]['description']
+                        $param_definition['description']
                     );
                     $usage = $this->addOptionExampleToUsage($param_definition, $param_name, $usage);
                 }
@@ -142,6 +144,37 @@ class ApiCommandHelper
 
             $command->addUsage($usage);
         }
+        // @todo Make this work! POST method. Split into separate function.
+        if (array_key_exists('requestBody', $schema)) {
+            $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
+            if (array_key_exists('$ref', $request_body_schema)) {
+                // Go grab from components array.
+                $parts = explode('/', $request_body_schema['$ref']);
+                $param_name = end($parts);
+                $request_body_schema = $this->getParameterSchemaFromSpec($param_name, $acquia_cloud_spec);
+            }
+            foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
+                $input_definition[] = new InputArgument(
+                    $param_name,
+                    in_array($param_name, $request_body_schema['required'], true) ? InputArgument::REQUIRED : InputArgument::OPTIONAL,
+                    $param_definition['description'],
+                );
+                //$param['type'];
+                //$param['enum'];
+                //$param['format'];
+            }
+            // @todo Use $schema['requestBody']['content']['application/json']['example'] to generate usage example.
+        }
+    }
+
+    protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec)
+    {
+        return $acquia_cloud_spec['components']['parameters'][$param_name];
+    }
+
+    protected function getParameterSchemaFromSpec($param_name, $acquia_cloud_spec)
+    {
+        return $acquia_cloud_spec['components']['schemas'][$param_name];
     }
 
     /**
@@ -160,6 +193,6 @@ class ApiCommandHelper
             return false;
         }
 
-        return true;
+        return false;
     }
 }

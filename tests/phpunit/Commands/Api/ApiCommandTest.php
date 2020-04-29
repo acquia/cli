@@ -46,9 +46,22 @@ class ApiCommandTest extends CommandTestBase
         $this->assertArrayHasKey('uuid', $contents[0]);
     }
 
+    /**
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
     public function testApiCommandWithHttpPost(): void
     {
-
+        /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
+        $cloud_client = $this->prophet->prophesize(Client::class);
+        $mock_request_body = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+        $options = [
+          'form_params' => $mock_request_body,
+        ];
+        $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
+        $cloud_client->request('post', '/account/ssh-keys', $options)->willReturn($mock_response_body);
+        $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
+        $this->command->setAcquiaCloudClient($cloud_client->reveal());
+        $this->executeCommand();
     }
 
     /**

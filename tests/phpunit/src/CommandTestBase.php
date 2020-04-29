@@ -228,6 +228,18 @@ abstract class CommandTestBase extends TestCase
     }
 
     /**
+     * @param $path
+     *
+     * @return mixed
+     * @throws \Psr\Cache\InvalidArgumentException
+     */
+    public function getMockRequestBodyFromSpec($path)
+    {
+        $endpoint = $this->getResourceFromSpec($path, 'post');
+        return $endpoint['requestBody']['content']['application/json']['example'];
+    }
+
+    /**
      * @return mixed
      * @throws \Psr\Cache\InvalidArgumentException
      */
