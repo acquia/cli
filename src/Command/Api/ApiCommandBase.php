@@ -51,7 +51,6 @@ class ApiCommandBase extends CommandBase
             }
         }
 
-        // @todo Create a body for post commands.
         $path = $this->getRequestPath($input);
         $response = $acquia_cloud_client->request($this->method, $path);
         // @todo Add syntax highlighting to json output.

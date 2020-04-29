@@ -31,7 +31,7 @@ class IdeCreateCommandTest extends CommandTestBase
 
         // Request for applications.
         $response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-        $cloud_client->request('get', '/applications')->willReturn($response->{'_embedded'}->items);
+        $cloud_client->request('get', '/applications')->willReturn($response->{'_embedded'}->items)->shouldBeCalled();
 
         // Request to create IDE.
         $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '200');
@@ -42,8 +42,9 @@ class IdeCreateCommandTest extends CommandTestBase
             ['form_params' => ['label' => 'Example IDE']]
         )->willReturn($response);
 
+        // Request for IDE data.
         $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-        $cloud_client->request('get', '/ides/215824ff-272a-4a8c-9027-df32ed1d68a9')->willReturn($response);
+        $cloud_client->request('get', '/ides/215824ff-272a-4a8c-9027-df32ed1d68a9')->willReturn($response)->shouldBeCalled();
         
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
 
@@ -51,7 +52,7 @@ class IdeCreateCommandTest extends CommandTestBase
         $guzzle_response = $this->prophet->prophesize(Response::class);
         $guzzle_response->getStatusCode()->willReturn(200);
         $guzzle_client = $this->prophet->prophesize(\GuzzleHttp\Client::class);
-        $guzzle_client->request('GET', '/health')->willReturn($guzzle_response->reveal());
+        $guzzle_client->request('GET', '/health')->willReturn($guzzle_response->reveal())->shouldBeCalled();
         $this->command->setClient($guzzle_client->reveal());
 
         $inputs = [
@@ -63,6 +64,9 @@ class IdeCreateCommandTest extends CommandTestBase
         ];
 
         $this->executeCommand([], $inputs);
+
+        // Assert.
+        $this->prophet->checkPredictions();
         $output = $this->getDisplay();
         $this->assertStringContainsString('Please select the application for which you\'d like to create a new IDE:', $output);
         $this->assertStringContainsString('  [0] Sample application 1', $output);

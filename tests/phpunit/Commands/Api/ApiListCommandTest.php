@@ -27,5 +27,4 @@ class ApiListCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString(' api:accounts:ssh-keys-list', $output);
     }
-
 }

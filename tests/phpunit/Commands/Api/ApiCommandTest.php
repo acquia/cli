@@ -99,7 +99,6 @@ class ApiCommandTest extends CommandTestBase
         $this->assertStringContainsString('api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ', $this->command->getUsages()[0]);
     }
 
-
     /**
      * @throws \Psr\Cache\InvalidArgumentException
      */

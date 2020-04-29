@@ -222,15 +222,19 @@ abstract class CommandTestBase extends TestCase
     {
         $endpoint = $this->getResourceFromSpec($path, $method);
         $response = $endpoint['responses'][$http_code];
+
         if (array_key_exists('application/json', $response['content'])) {
             $content = $response['content']['application/json'];
         } else {
             $content = $response['content']['application/x-www-form-urlencoded'];
         }
+
         if (array_key_exists('example', $content)) {
             $response_body = json_encode($content['example']);
         } elseif (array_key_exists('examples', $content)) {
             $response_body = json_encode($content['examples']);
+        } elseif (array_key_exists('example', $response['content'])) {
+            $response_body = json_encode($response['content']['example']);
         } else {
             return [];
         }
