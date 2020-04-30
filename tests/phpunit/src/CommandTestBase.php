@@ -102,7 +102,7 @@ abstract class CommandTestBase extends TestCase
 
         if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln("");
-            $this->consoleOutput->writeln("Executing <comment>" . $this->command::getDefaultName() . "</comment> in " . $cwd);
+            $this->consoleOutput->writeln("Executing <comment>" . $this->command->getName() . "</comment> in " . $cwd);
             $this->consoleOutput->writeln('<comment>------Begin command output-------</comment>');
         }
 
