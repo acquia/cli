@@ -31,6 +31,9 @@
     "zumba/amplitude-php": "^1.0"
   },
   "require-dev": {
+    "acquia/coding-standards": "^0.4.3",
+    "brainmaestro/composer-git-hooks": "^2.8",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2",
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
     "satooshi/php-coveralls": "^2.2",
@@ -58,7 +61,14 @@
   "extra": {
     "branch-alias": {
       "dev-master": "1.x-dev"
-    }
+    },
+    "hooks": {
+      "pre-commit": "vendor/bin/phpcs",
+      "pre-push": "vendor/bin/phpcs",
+      "post-install-cmd": "cghooks add --ignore-lock",
+      "post-update-cmd": "cghooks update"
+    },
+    "phpcodesniffer-search-depth": 4
   },
   "prefer-stable": true,
   "scripts": {
@@ -75,7 +85,7 @@
       "cd ..",
       "rm -rf cx-api-spec"
     ],
-    "cs": "phpcs -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
+    "cs": "phpcs",
     "cbf": "phpcbf -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
     "unit": "phpunit tests/phpunit -vvv",
     "lint": [
