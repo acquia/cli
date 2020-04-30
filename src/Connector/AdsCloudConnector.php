@@ -28,9 +28,9 @@ class AdsCloudConnector extends Connector
     {
         $stack = HandlerStack::create();
         $stack->push(
-          // This will respect the header's cache response!
-          // Unfortunately, that means it actually doesn't help us at all with Cloud API
-          // given that all responses will have a 'no-cache' header.
+            // This will respect the header's cache response!
+            // Unfortunately, that means it actually doesn't help us at all with Cloud API
+            // given that all responses will have a 'no-cache' header.
             new CacheMiddleware(new PrivateCacheStrategy(new DoctrineCacheStorage(new FilesystemCache(__DIR__ . '/../../cache')))),
             'cache'
         );
