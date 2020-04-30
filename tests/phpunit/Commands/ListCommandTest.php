@@ -6,6 +6,7 @@ use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\ListCommand;
+use Symfony\Component\Process\Process;
 
 class ListCommandTest extends CommandTestBase
 {
@@ -30,7 +31,14 @@ class ListCommandTest extends CommandTestBase
         $this->assertStringNotContainsString('api:', $output);
     }
 
-    // @todo Add a test that invokes ads via bash from a Process rather than via
-    // the command tester class. This will test the bash bootstrap process which
-    // is bypassed otherwise in phpunit testing.
+    /**
+     * Tests the execution of bin/ads via bash.
+     */
+    public function testBinExec()
+    {
+        $process = new Process(['./ads', 'list'], __DIR__ . '/../../../bin');
+        $process->mustRun();
+        $this->assertStringContainsString('api', $process->getOutput());
+        $this->assertStringNotContainsString('api:ssh-key:create', $process->getOutput());
+    }
 }
