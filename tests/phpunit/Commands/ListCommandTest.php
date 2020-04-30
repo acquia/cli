@@ -29,4 +29,8 @@ class ListCommandTest extends CommandTestBase
         //$this->assertStringContainsString('api', $output);
         $this->assertStringNotContainsString('api:', $output);
     }
+
+    // @todo Add a test that invokes ads via bash from a Process rather than via
+    // the command tester class. This will test the bash bootstrap process which
+    // is bypassed otherwise in phpunit testing.
 }

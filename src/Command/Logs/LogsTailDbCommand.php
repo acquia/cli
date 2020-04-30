@@ -18,6 +18,7 @@ class LogsTailDbCommand extends CommandBase
     protected function configure()
     {
         $this->setName('logs:tail-db')->setDescription("Tail Drupal's dblog on your local environment");
+        // @todo Add option to accept environment uuid.
     }
 
     /**

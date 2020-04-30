@@ -18,6 +18,8 @@ class IdeOpenCommand extends IdeCommandBase
     protected function configure()
     {
         $this->setName('ide:open')->setDescription('The application associated with the IDE');
+        // @todo Add option to specify application uuid.
+        // @todo Add option to accept an ide UUID.
     }
 
     /**
@@ -32,6 +34,11 @@ class IdeOpenCommand extends IdeCommandBase
         $ides_resource = new Ides($acquia_cloud_client);
         $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
         $ide = $ides_resource->get($ide_uuid);
+
+        $this->output->writeln('');
+        $this->output->writeln('<comment>Your IDE URL:</comment> ' . $ide->links->ide->href);
+        $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
+
         $this->getApplication()->getLocalMachineHelper()->startBrowser($ide->links->ide->href);
 
         return 0;

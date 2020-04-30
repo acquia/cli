@@ -35,6 +35,8 @@ class AdsException extends Exception
         $this->raw_message = $message;
 
         parent::__construct($this->interpolateString($message, $replacements), $code);
+
+        // @todo Log via Telemetry.
     }
 
     /**

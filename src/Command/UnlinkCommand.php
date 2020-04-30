@@ -44,6 +44,7 @@ class UnlinkCommand extends CommandBase
         $repo_root = $this->getApplication()->getRepoRoot();
         foreach ($local_user_config['localProjects'] as $key => $project) {
             if ($project['directory'] === $repo_root) {
+                // @todo Add confirmation.
                 unset($local_user_config['localProjects'][$key]);
                 $this->localProjectInfo = null;
                 $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
