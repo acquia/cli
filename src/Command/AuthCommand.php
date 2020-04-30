@@ -104,8 +104,8 @@ class AuthCommand extends CommandBase
             $this->validateApiKey($api_secret);
         } else {
             $question = new Question('<question>Please enter your API Secret:</question>');
-            $question->setHidden(true);
-            $question->setHiddenFallback(false);
+            $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
+            $question->setHiddenFallback(true);
             $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
             $api_secret = $this->questionHelper->ask($input, $output, $question);
         }
