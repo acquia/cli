@@ -65,5 +65,4 @@ class AuthCommandTest extends CommandTestBase
         $this->assertEquals('testkey123123', $config['key']);
         $this->assertEquals('testsecret123123', $config['secret']);
     }
-
 }
