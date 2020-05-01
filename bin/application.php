@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 use Acquia\Ads\AdsApplication;
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Command\AuthCommand;
@@ -30,9 +34,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 $pharPath = Phar::running(TRUE);
 if ($pharPath) {
-    require_once "$pharPath/vendor/autoload.php";
-} else {
-    require_once __DIR__ . '/../vendor/autoload.php';
+  require_once "$pharPath/vendor/autoload.php";
+}
+else {
+  require_once __DIR__ . '/../vendor/autoload.php';
 }
 
 // Create the input and output objects for ads to run against.
@@ -81,20 +86,20 @@ exit($status_code);
  *   Root.
  */
 function find_repo_root() {
-    $possible_repo_roots = [
-      getcwd(),
-    ];
-    // Check for PWD - some local environments will not have this key.
-    if (isset($_SERVER['PWD']) && !in_array($_SERVER['PWD'], $possible_repo_roots, TRUE)) {
-        array_unshift($possible_repo_roots, $_SERVER['PWD']);
+  $possible_repo_roots = [
+    getcwd(),
+  ];
+  // Check for PWD - some local environments will not have this key.
+  if (isset($_SERVER['PWD']) && !in_array($_SERVER['PWD'], $possible_repo_roots, TRUE)) {
+    array_unshift($possible_repo_roots, $_SERVER['PWD']);
+  }
+  foreach ($possible_repo_roots as $possible_repo_root) {
+    if ($repo_root = find_directory_containing_files($possible_repo_root, ['docroot/index.php'])) {
+      return realpath($repo_root);
     }
-    foreach ($possible_repo_roots as $possible_repo_root) {
-        if ($repo_root = find_directory_containing_files($possible_repo_root, ['docroot/index.php'])) {
-            return realpath($repo_root);
-        }
-    }
+  }
 
-    return NULL;
+  return NULL;
 }
 
 /**
@@ -115,19 +120,19 @@ function find_repo_root() {
  *   file.
  */
 function find_directory_containing_files($working_directory, array $files, $max_height = 10) {
-    // Find the root directory of the git repository containing BLT.
-    // We traverse the file tree upwards $max_height times until we find
-    // vendor/bin/blt.
-    $file_path = $working_directory;
-    for ($i = 0; $i <= $max_height; $i++) {
-        if (files_exist($file_path, $files)) {
-            return $file_path;
-        }
-
-        $file_path = dirname($file_path) . '';
+  // Find the root directory of the git repository containing BLT.
+  // We traverse the file tree upwards $max_height times until we find
+  // vendor/bin/blt.
+  $file_path = $working_directory;
+  for ($i = 0; $i <= $max_height; $i++) {
+    if (files_exist($file_path, $files)) {
+      return $file_path;
     }
 
-    return FALSE;
+    $file_path = dirname($file_path) . '';
+  }
+
+  return FALSE;
 }
 
 /**
@@ -142,11 +147,11 @@ function find_directory_containing_files($working_directory, array $files, $max_
  *   Exists.
  */
 function files_exist($dir, array $files) {
-    foreach ($files as $file) {
-        if (file_exists($dir . '/' . $file)) {
-            return TRUE;
-        }
+  foreach ($files as $file) {
+    if (file_exists($dir . '/' . $file)) {
+      return TRUE;
     }
+  }
 
-    return FALSE;
+  return FALSE;
 }

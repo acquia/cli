@@ -21,6 +21,6 @@
 
   <exclude-pattern>vendor/*</exclude-pattern>
 
-  <rule ref="AcquiaPHP"/>
+  <rule ref="AcquiaDrupalTransitional"/>
 
 </ruleset>
