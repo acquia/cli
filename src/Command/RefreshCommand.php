@@ -34,7 +34,7 @@ class RefreshCommand extends CommandBase
               InputOption::VALUE_NONE,
               'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
           )
-          ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
+          ->addOption('scripts', NULL, InputOption::VALUE_NONE, 'Only execute additional scripts');
         // @todo Add option to allow specifying source environment uuid.
     }
 

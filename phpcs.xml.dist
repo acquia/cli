@@ -15,8 +15,8 @@
   <!-- Can be removed after upstream bug is fixed. -->
   <!-- @see https://github.com/acquia/coding-standards-php/pull/10 -->
   <rule ref="Internal.NoCodeFound">
-    <!-- No PHP code in *.md or *.yml -->
-    <exclude-pattern>*.(md|yml)</exclude-pattern>
+    <!-- No PHP code in *.md, *.txt, or *.yml -->
+    <exclude-pattern>*.(md|txt|yml)</exclude-pattern>
   </rule>
   <file>.</file>
 
