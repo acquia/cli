@@ -35,8 +35,8 @@ class IdeDeleteCommand extends IdeCommandBase
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $ides_resource = new Ides($acquia_cloud_client);
 
-        $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource);
-        $response = $ides_resource->delete($ide_uuid);
+        $ide = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource);
+        $response = $ides_resource->delete($ide->uuid);
         $this->output->writeln($response->message);
 
         return 0;

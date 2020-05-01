@@ -185,7 +185,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $application_names = array_values($application_list);
         $helper = $this->getHelper('question');
         $question = new ChoiceQuestion(
-            'Please select the application for which you\'d like to create a new IDE:',
+            'Please select an Acquia Cloud application:',
             $application_names
         );
         $choice_id = $helper->ask($input, $output, $question);
