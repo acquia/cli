@@ -28,8 +28,6 @@ class AuthCommandTest extends CommandTestBase
      */
     public function testAuthLoginCommand(): void
     {
-        // @todo Stop this from messing up local credentials with test values.
-        // E.g., write to a temporary directory by setting the target with an injected property.
         $this->setCommand($this->createCommand());
         $this->command->setCloudApiConfFilePath(sys_get_temp_dir() . '/cloud_api.conf');
 

@@ -70,9 +70,9 @@ class ApiCommandHelper
     public function useCommandCache(): bool
     {
         if (getenv('ADS_CLI_USE_COMMAND_CACHE') === '0') {
-            return FALSE;
+            return false;
         }
-        return TRUE;
+        return true;
     }
 
     /**

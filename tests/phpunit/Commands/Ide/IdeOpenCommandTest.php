@@ -65,6 +65,5 @@ class IdeOpenCommandTest extends CommandTestBase
         $this->assertStringContainsString('Your IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com', $output);
         $this->assertStringContainsString('Your Drupal Site URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
         $this->assertStringContainsString('Opening your IDE in browser...', $output);
-
     }
 }
