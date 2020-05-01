@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Acquia\Ads\Commands\Remote
  */
-class SshCommand extends SSHBaseCommand {
+class SshCommand extends SshBaseCommand {
 
   /**
    * {inheritdoc}.
