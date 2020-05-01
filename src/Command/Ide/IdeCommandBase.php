@@ -38,7 +38,7 @@ abstract class IdeCommandBase extends CommandBase
             }
         }
 
-        return null;
+        return NULL;
     }
 
 }

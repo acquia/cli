@@ -66,12 +66,11 @@ class ApiCommandHelper
         return $api_commands;
     }
 
-    public function useCommandCache(): bool
-    {
+    public function useCommandCache(): bool {
         if (getenv('ADS_CLI_USE_COMMAND_CACHE') === '0') {
-            return false;
+            return FALSE;
         }
-        return true;
+        return TRUE;
     }
 
     /**
