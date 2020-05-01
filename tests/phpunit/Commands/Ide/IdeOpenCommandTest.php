@@ -18,8 +18,7 @@ class IdeOpenCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeOpenCommand();
     }
 
@@ -27,8 +26,7 @@ class IdeOpenCommandTest extends CommandTestBase
      * Tests the 'ide:open' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeOpenCommand(): void
-    {
+    public function testIdeOpenCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -66,4 +64,5 @@ class IdeOpenCommandTest extends CommandTestBase
         $this->assertStringContainsString('Your Drupal Site URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
         $this->assertStringContainsString('Opening your IDE in browser...', $output);
     }
+
 }

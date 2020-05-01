@@ -13,16 +13,16 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\ApplicationsResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class CommandBase
@@ -67,8 +67,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      */
-    protected function initialize(InputInterface $input, OutputInterface $output)
-    {
+    protected function initialize(InputInterface $input, OutputInterface $output) {
         $this->input = $input;
         $this->output = $output;
         $this->formatter = $this->getHelper('formatter');
@@ -87,17 +86,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return bool
      */
-    protected function isMachineAuthenticated(): bool
-    {
+    protected function isMachineAuthenticated(): bool {
         $cloud_api_conf = $this->datastore->get('cloud_api.conf');
-        return $cloud_api_conf !== null && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
+        return $cloud_api_conf !== NULL && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
     }
 
     /**
      * @return bool
      */
-    protected function commandRequiresAuthentication(): bool
-    {
+    protected function commandRequiresAuthentication(): bool {
         return $this->input->getFirstArgument() !== 'auth:login';
     }
 
@@ -106,32 +103,28 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return \Acquia\Ads\AdsApplication|\Symfony\Component\Console\Application
      */
-    public function getApplication()
-    {
+    public function getApplication() {
         return parent::getApplication();
     }
 
     /**
      * @return \Acquia\Ads\DataStore\DataStoreInterface
      */
-    public function getDatastore(): DataStoreInterface
-    {
+    public function getDatastore(): DataStoreInterface {
         return $this->datastore;
     }
 
     /**
      * @param \AcquiaCloudApi\Connector\Client $client
      */
-    public function setAcquiaCloudClient(Client $client)
-    {
+    public function setAcquiaCloudClient(Client $client) {
         $this->acquiaCloudClient = $client;
     }
 
     /**
      * @return \AcquiaCloudApi\Connector\Client
      */
-    protected function getAcquiaCloudClient(): Client
-    {
+    protected function getAcquiaCloudClient(): Client {
         if (isset($this->acquiaCloudClient)) {
             return $this->acquiaCloudClient;
         }
@@ -154,8 +147,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return ApplicationsResponse[]
      */
-    protected function getApplicationList(Client $acquia_cloud_client): array
-    {
+    protected function getApplicationList(Client $acquia_cloud_client): array {
         $applications_resource = new Applications($acquia_cloud_client);
 
         // Get all applications.
@@ -189,22 +181,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             $application_names
         );
         $choice_id = $helper->ask($input, $output, $question);
-        $application_uuid = array_search($choice_id, $application_list, true);
+        $application_uuid = array_search($choice_id, $application_list, TRUE);
 
         return $application_uuid;
     }
 
-
     /**
      * @param \Acquia\Ads\AdsApplication $application
      */
-    protected function loadLocalProjectInfo(AdsApplication $application)
-    {
+    protected function loadLocalProjectInfo(AdsApplication $application) {
         $this->logger->debug("Loading local project information...");
         $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
         // Save empty local project info.
         // @todo Abstract this.
-        if ($local_user_config !== null && $application->getRepoRoot() !== null) {
+        if ($local_user_config !== NULL && $application->getRepoRoot() !== NULL) {
             $this->logger->debug("Searching local datastore for matching project...");
             foreach ($local_user_config['localProjects'] as $project) {
                 if ($project['directory'] === $application->getRepoRoot()) {
@@ -237,10 +227,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return array|bool
      */
-    protected function getGitConfig(AdsApplication $application)
-    {
+    protected function getGitConfig(AdsApplication $application) {
 
-        $git_config = parse_ini_file($application->getRepoRoot() . '/.git/config', true);
+        $git_config = parse_ini_file($application->getRepoRoot() . '/.git/config', TRUE);
 
         return $git_config;
     }
@@ -250,11 +239,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
      *
      * @return array
      */
-    protected function getGitRemotes($git_config): array
-    {
+    protected function getGitRemotes($git_config): array {
         $local_vcs_remotes = [];
         foreach ($git_config as $section_name => $section) {
-            if ((strpos($section_name, 'remote ') !== false) && strpos($section['url'], 'acquia.com')) {
+            if ((strpos($section_name, 'remote ') !== FALSE) && strpos($section['url'], 'acquia.com')) {
                 $local_vcs_remotes[] = $section['url'];
             }
         }
@@ -304,7 +292,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $progressBar->finish();
         $progressBar->clear();
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -320,14 +308,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         $local_git_remotes
     ): ?ApplicationResponse {
         foreach ($application_environments as $environment) {
-            if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, true)) {
+            if ($environment->flags->production && in_array($environment->vcs->url, $local_git_remotes, TRUE)) {
                 $this->logger->debug("Found matching Cloud application! {$application->name} with uuid {$application->uuid} matches local git URL {$environment->vcs->url}");
 
                 return $application;
             }
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -355,15 +343,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
             }
         }
 
-        return null;
+        return NULL;
     }
 
     /**
      *
      * @return string|null
      */
-    protected function determineCloudApplication(): ?string
-    {
+    protected function determineCloudApplication(): ?string {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         /** @var \Acquia\Ads\AdsApplication $ads_application */
         $ads_application = $this->getApplication();
@@ -392,8 +379,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @param string $application_uuid
      */
-    protected function saveLocalConfigCloudAppUuid($application_uuid): void
-    {
+    protected function saveLocalConfigCloudAppUuid($application_uuid): void {
         $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
         if (!$local_user_config) {
             $local_user_config = [
@@ -416,13 +402,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
     /**
      * @return mixed
      */
-    protected function getAppUuidFromLocalProjectInfo()
-    {
+    protected function getAppUuidFromLocalProjectInfo() {
         if (isset($this->localProjectInfo) && array_key_exists('cloud_application_uuid', $this->localProjectInfo)) {
             return $this->localProjectInfo['cloud_application_uuid'];
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -442,15 +427,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface
         }
     }
 
-    protected function validateCwdIsValidDrupalProject(): void
-    {
+    protected function validateCwdIsValidDrupalProject(): void {
         if (!$this->getApplication()->getRepoRoot()) {
             throw new AdsException("Could not find a local Drupal project. Please execute this command from within a Drupal project directory.");
         }
     }
 
-    protected function useSpinner(): bool
-    {
+    protected function useSpinner(): bool {
         return $this->output instanceof ConsoleOutput;
     }
+
 }

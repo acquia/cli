@@ -17,8 +17,7 @@ class AuthCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new AuthCommand();
     }
 
@@ -26,8 +25,7 @@ class AuthCommandTest extends CommandTestBase
      * Tests the 'auth:login' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testAuthLoginCommand(): void
-    {
+    public function testAuthLoginCommand(): void {
         $this->setCommand($this->createCommand());
         $this->command->setCloudApiConfFilePath(sys_get_temp_dir() . '/cloud_api.conf');
 
@@ -56,10 +54,11 @@ class AuthCommandTest extends CommandTestBase
         $this->assertFileExists($creds_file);
         $contents = file_get_contents($creds_file);
         $this->assertJson($contents);
-        $config = json_decode($contents, true);
+        $config = json_decode($contents, TRUE);
         $this->assertArrayHasKey('key', $config);
         $this->assertArrayHasKey('secret', $config);
         $this->assertEquals('testkey123123', $config['key']);
         $this->assertEquals('testsecret123123', $config['secret']);
     }
+
 }

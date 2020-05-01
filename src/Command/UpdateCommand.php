@@ -8,7 +8,6 @@ use PharException;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use UnexpectedValueException;
 use function error_reporting;
 
@@ -20,24 +19,20 @@ class UpdateCommand extends CommandBase
 
     protected $gitHubRepository;
 
-    protected $currentVersion;
-
     protected $applicationName;
 
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('update')->setDescription('update to the latest version');
     }
 
     /**
      * @return bool
      */
-    protected function commandRequiresAuthentication(): bool
-    {
-        return false;
+    protected function commandRequiresAuthentication(): bool {
+        return FALSE;
     }
 
     /**
@@ -48,8 +43,7 @@ class UpdateCommand extends CommandBase
      * @throws \Exception
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->gitHubRepository = 'https://github.com/grasmash/ads-cli-php';
 
         if (empty(Phar::running())) {
@@ -57,6 +51,7 @@ class UpdateCommand extends CommandBase
                 ->getName() . '.');
         }
 
+        // phpcs:ignore
         $localFilename = realpath($_SERVER['argv'][0]) ?: $_SERVER['argv'][0];
         $programName = basename($localFilename);
         $tempFilename = dirname($localFilename) . '/' . basename($localFilename, '.phar') . '-temp.phar';
@@ -71,7 +66,6 @@ class UpdateCommand extends CommandBase
         }
 
         list($latest, $downloadUrl) = $this->getLatestReleaseFromGithub();
-
 
         if ($this->getApplication()->getVersion() === $latest) {
             $output->writeln('No update available');
@@ -106,8 +100,7 @@ class UpdateCommand extends CommandBase
         }
     }
 
-    protected function getLatestReleaseFromGithub(): array
-    {
+    protected function getLatestReleaseFromGithub(): array {
         $opts = [
           'http' => [
             'method' => 'GET',
@@ -121,7 +114,7 @@ class UpdateCommand extends CommandBase
 
         $releases = file_get_contents(
             'https://api.github.com/repos/' . $this->gitHubRepository . '/releases',
-            false,
+            FALSE,
             $context
         );
         $releases = json_decode($releases);
@@ -144,8 +137,8 @@ class UpdateCommand extends CommandBase
      *
      * @return void
      */
-    protected function _exit(): void
-    {
+    protected function _exit(): void {
         exit;
     }
+
 }

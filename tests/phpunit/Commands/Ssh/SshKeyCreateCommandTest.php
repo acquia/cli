@@ -13,8 +13,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new SshKeyCreateCommand();
     }
 
@@ -22,8 +21,7 @@ class SshKeyCreateCommandTest extends CommandTestBase
      * Tests the 'ssh-key:create' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testCreate(): void
-    {
+    public function testCreate(): void {
         $ssh_key_filename = 'id_rsa_acli_test';
         $ssh_key_filepath = LocalMachineHelper::getHomeDir() . '/.ssh/' . $ssh_key_filename;
         $this->fs->remove($ssh_key_filepath);
@@ -38,4 +36,5 @@ class SshKeyCreateCommandTest extends CommandTestBase
         $this->assertFileExists($ssh_key_filepath);
         $this->assertFileExists($ssh_key_filepath . '.pub');
     }
+
 }

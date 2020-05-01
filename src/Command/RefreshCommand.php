@@ -21,21 +21,20 @@ class RefreshCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('refresh')
           ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
-          ->addOption('from', null, InputOption::VALUE_NONE, 'The source environment')
-          ->addOption('no-code', null, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
-          ->addOption('no-files', null, InputOption::VALUE_NONE, 'Do not refresh files')
-          ->addOption('no-databases', null, InputOption::VALUE_NONE, 'Do not refresh databases')
+          ->addOption('from', NULL, InputOption::VALUE_NONE, 'The source environment')
+          ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
+          ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
+          ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')
           ->addOption(
               'no-scripts',
-              null,
+              NULL,
               InputOption::VALUE_NONE,
               'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
           )
-          ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
+          ->addOption('scripts', NULL, InputOption::VALUE_NONE, 'Only execute additional scripts');
         // @todo Add option to allow specifying source environment uuid.
     }
 
@@ -46,8 +45,7 @@ class RefreshCommand extends CommandBase
      * @return int 0 if everything went fine, or an exit code
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         // @todo Identify a valid target, throw exception if not found.
         $this->validateCwdIsValidDrupalProject();
 
@@ -113,8 +111,7 @@ class RefreshCommand extends CommandBase
     /**
      * @return bool
      */
-    protected function drushHasActiveDatabaseConnection(): bool
-    {
+    protected function drushHasActiveDatabaseConnection(): bool {
         if ($this->getApplication()->getLocalMachineHelper()->commandExists('drush')) {
             $process = $this->getApplication()->getLocalMachineHelper()->execute([
               'drush',
@@ -122,16 +119,16 @@ class RefreshCommand extends CommandBase
               '--fields=db-status,drush-version',
               '--format=json',
               '--no-interaction',
-            ], null, null, false);
+            ], NULL, NULL, FALSE);
             if ($process->isSuccessful()) {
-                $drush_status_return_output = json_decode($process->getOutput(), true);
+                $drush_status_return_output = json_decode($process->getOutput(), TRUE);
                 if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
-                    return true;
+                    return TRUE;
                 }
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -139,8 +136,7 @@ class RefreshCommand extends CommandBase
      *
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function pullCodeFromCloud($chosen_environment, $output_callback = null): void
-    {
+    protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
         $repo_root = $this->getApplication()->getRepoRoot();
         if (!file_exists($repo_root . '/.git')) {
             $this->getApplication()->getLocalMachineHelper()->execute([
@@ -158,12 +154,12 @@ class RefreshCommand extends CommandBase
               'git',
               'fetch',
               '--all',
-            ], $output_callback, $repo_root, false);
+            ], $output_callback, $repo_root, FALSE);
             $this->getApplication()->getLocalMachineHelper()->execute([
               'git',
               'checkout',
               $chosen_environment->vcs->path,
-            ], $output_callback, $repo_root, false);
+            ], $output_callback, $repo_root, FALSE);
         }
     }
 
@@ -174,8 +170,7 @@ class RefreshCommand extends CommandBase
      * @param $db_name
      * @param callable $output_callback
      */
-    protected function createAndImportRemoteDatabaseDump($environment, $database, string $db_host, $db_name, $output_callback = null): void
-    {
+    protected function createAndImportRemoteDatabaseDump($environment, $database, string $db_host, $db_name, $output_callback = NULL): void {
         $mysql_dump_filepath = $this->dumpFromRemoteHost($environment, $database, $db_host, $db_name, $output_callback);
 
         // @todo Determine this dynamically?
@@ -205,8 +200,7 @@ class RefreshCommand extends CommandBase
      *
      * @return string|null
      */
-    protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = null): ?string
-    {
+    protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
         $process = $this->getApplication()->getLocalMachineHelper()->execute([
           'ssh',
           '-T',
@@ -216,7 +210,7 @@ class RefreshCommand extends CommandBase
           'LogLevel=ERROR',
           $environment->sshUrl,
           "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9",
-        ], $output_callback, null, false);
+        ], $output_callback, NULL, FALSE);
 
         if ($process->isSuccessful()) {
             $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
@@ -227,7 +221,7 @@ class RefreshCommand extends CommandBase
             return $filepath;
         }
 
-        return null;
+        return NULL;
     }
 
     /**
@@ -236,8 +230,7 @@ class RefreshCommand extends CommandBase
      * @param string $db_name
      * @param string $db_password
      */
-    protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = null): void
-    {
+    protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'mysql',
           '--host',
@@ -248,7 +241,7 @@ class RefreshCommand extends CommandBase
           '--password=' . $db_password,
           '-e',
           'DROP DATABASE IF EXISTS ' . $db_name,
-        ], $output_callback, null, false);
+        ], $output_callback, NULL, FALSE);
     }
 
     /**
@@ -257,8 +250,7 @@ class RefreshCommand extends CommandBase
      * @param string $db_name
      * @param string $db_password
      */
-    protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = null): void
-    {
+    protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'mysql',
           '--host',
@@ -269,7 +261,7 @@ class RefreshCommand extends CommandBase
           '--password=' . $db_password,
           '-e',
           'create database ' . $db_name,
-        ], $output_callback, null, false);
+        ], $output_callback, NULL, FALSE);
     }
 
     /**
@@ -279,8 +271,7 @@ class RefreshCommand extends CommandBase
      * @param string $db_name
      * @param string $db_password
      */
-    protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = null): void
-    {
+    protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
         // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
         // @see https://github.com/symfony/symfony/issues/10025.
         $command = '';
@@ -298,7 +289,7 @@ class RefreshCommand extends CommandBase
 
         $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
 
-        $this->getApplication()->getLocalMachineHelper()->executeFromCmd($command, $output_callback, null, false);
+        $this->getApplication()->getLocalMachineHelper()->executeFromCmd($command, $output_callback, NULL, FALSE);
     }
 
     /**
@@ -306,13 +297,12 @@ class RefreshCommand extends CommandBase
      *
      * @return bool
      */
-    protected function isLocalGitRepoDirty(?string $repo_root): bool
-    {
+    protected function isLocalGitRepoDirty(?string $repo_root): bool {
         $process = $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
           'diff',
           '--stat',
-        ], null, $repo_root, false);
+        ], NULL, $repo_root, FALSE);
 
         return !$process->isSuccessful();
     }
@@ -323,8 +313,7 @@ class RefreshCommand extends CommandBase
      *
      * @return mixed
      */
-    protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid)
-    {
+    protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid) {
         $environment_resource = new Environments($acquia_cloud_client);
         $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
         $choices = [];
@@ -340,7 +329,7 @@ class RefreshCommand extends CommandBase
         );
         $helper = $this->getHelper('question');
         $chosen_environment_label = $helper->ask($this->input, $this->output, $question);
-        $chosen_environment_index = array_search($chosen_environment_label, $choices, true);
+        $chosen_environment_index = array_search($chosen_environment_label, $choices, TRUE);
 
         return $application_environments[$chosen_environment_index];
     }
@@ -352,8 +341,7 @@ class RefreshCommand extends CommandBase
      * @return mixed
      * @throws \Exception
      */
-    protected function promptChooseDatabase(ClientInterface $acquia_cloud_client, $cloud_environment)
-    {
+    protected function promptChooseDatabase(ClientInterface $acquia_cloud_client, $cloud_environment) {
         $response = $acquia_cloud_client->makeRequest('get', '/environments/' . $cloud_environment->uuid . '/databases');
         $environment_databases = $acquia_cloud_client->processResponse($response);
 
@@ -386,7 +374,7 @@ class RefreshCommand extends CommandBase
         );
         $helper = $this->getHelper('question');
         $chosen_database_label = $helper->ask($this->input, $this->output, $question);
-        $chosen_database_index = array_search($chosen_database_label, $choices, true);
+        $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
 
         return $environment_databases[$chosen_database_index];
     }
@@ -399,7 +387,7 @@ class RefreshCommand extends CommandBase
     protected function importRemoteDatabase(
         $chosen_environment,
         $database,
-        $output_callback = null
+        $output_callback = NULL
     ): void {
         $db_url_parts = explode('/', $database->url);
         $db_name = end($db_url_parts);
@@ -408,48 +396,44 @@ class RefreshCommand extends CommandBase
         $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name, $output_callback);
     }
 
-    protected function drushRebuildCaches($output_callback = null): void
-    {
+    protected function drushRebuildCaches($output_callback = NULL): void {
         // @todo Add support for Drush 8.
         $this->getApplication()->getLocalMachineHelper()->execute([
           'drush',
           'cache:rebuild',
           '--yes',
           '--no-interaction',
-        ], $output_callback, $this->getApplication()->getRepoRoot(), false);
+        ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
     }
 
-    protected function drushSqlSanitize($output_callback = null): void
-    {
+    protected function drushSqlSanitize($output_callback = NULL): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'drush',
           'sql:sanitize',
           '--yes',
           '--no-interaction',
-        ], $output_callback, $this->getApplication()->getRepoRoot(), false);
+        ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
     }
 
-    protected function composerInstall($output_callback = null): void
-    {
+    protected function composerInstall($output_callback = NULL): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'composer',
           'install',
           '--no-interaction'
-        ], $output_callback, $this->getApplication()->getRepoRoot(), false);
+        ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
     }
 
     /**
      * @param $chosen_environment
      */
-    protected function rsyncFilesFromCloud($chosen_environment, $output_callback = null): void
-    {
+    protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'rsync',
           '-rve',
           'ssh -o StrictHostKeyChecking=no',
           $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
           $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
-        ], $output_callback, null, false);
+        ], $output_callback, NULL, FALSE);
     }
 
     /**
@@ -459,8 +443,7 @@ class RefreshCommand extends CommandBase
      * @return \stdClass
      * @throws \Exception
      */
-    protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass
-    {
+    protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
         $response = $acquia_cloud_client->makeRequest(
             'get',
             '/environments/' . $chosen_environment->uuid . '/databases'
@@ -478,18 +461,17 @@ class RefreshCommand extends CommandBase
     /**
      * @param $cloud_environment
      */
-    protected function isAcsfEnv($cloud_environment): bool
-    {
-        if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== false) {
-            return true;
+    protected function isAcsfEnv($cloud_environment): bool {
+        if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== FALSE) {
+            return TRUE;
         }
         foreach ($cloud_environment->domains as $domain) {
-            if (strpos($domain, 'acsitefactory') !== false) {
-                return true;
+            if (strpos($domain, 'acsitefactory') !== FALSE) {
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -497,8 +479,7 @@ class RefreshCommand extends CommandBase
      *
      * @return array
      */
-    protected function getAcsfSites($cloud_environment): array
-    {
+    protected function getAcsfSites($cloud_environment): array {
         $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
         $sitegroup = reset($ssh_url_parts);
         $process = $this->getApplication()->getLocalMachineHelper()->execute([
@@ -510,11 +491,12 @@ class RefreshCommand extends CommandBase
           'LogLevel=ERROR',
           $cloud_environment->sshUrl,
           "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json",
-        ], null, null, false);
+        ], NULL, NULL, FALSE);
         if ($process->isSuccessful()) {
-            return json_decode($process->getOutput(), true);
+            return json_decode($process->getOutput(), TRUE);
         }
 
-        return null;
+        return NULL;
     }
+
 }

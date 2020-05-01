@@ -24,8 +24,7 @@ class LocalMachineHelper
     private $output;
     private $input;
 
-    public function __construct(InputInterface $input, OutputInterface $output, $logger)
-    {
+    public function __construct(InputInterface $input, OutputInterface $output, $logger) {
         $this->input = $input;
         $this->output = $output;
         $this->setLogger($logger);
@@ -39,8 +38,8 @@ class LocalMachineHelper
      *
      * @return Process
      */
-    public function exec($cmd, $callback = null): Process
-    {
+    // phpcs:ignore
+    public function exec($cmd, $callback = NULL): Process {
         $process = $this->getProcess($cmd);
         $process->run($callback);
 
@@ -52,9 +51,9 @@ class LocalMachineHelper
      *
      * @return bool
      */
-    public function commandExists($command): bool
-    {
+    public function commandExists($command): bool {
         $os_command = OsInfo::isWindows() ? ['where', $command] : ['command', '-v', $command];
+        // phpcs:ignore
         return $this->exec($os_command)->isSuccessful();
     }
 
@@ -67,8 +66,7 @@ class LocalMachineHelper
      *
      * @return Process
      */
-    public function execute($cmd, $callback = null, $cwd = null, $print_output = true): Process
-    {
+    public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
         $process = $this->getProcess($cmd);
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
@@ -81,8 +79,7 @@ class LocalMachineHelper
      *
      * @return \Symfony\Component\Process\Process
      */
-    public function executeFromCmd($cmd, $callback = null, $cwd = null, $print_output = true): Process
-    {
+    public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
         $process = Process::fromShellCommandline($cmd);
         return $this->executeProcess($process, $callback, $cwd, $print_output);
     }
@@ -95,8 +92,7 @@ class LocalMachineHelper
      *
      * @return \Symfony\Component\Process\Process
      */
-    protected function executeProcess(Process $process, $callback = null, $cwd = null, $print_output = true): Process
-    {
+    protected function executeProcess(Process $process, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
         if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
             $process->setInput(STDIN);
         }
@@ -106,7 +102,7 @@ class LocalMachineHelper
         if ($print_output) {
             $process->setTty($this->useTty());
         }
-        $process->start(null);
+        $process->start(NULL);
         $process->wait($callback);
 
         $this->logger->notice('Command: {command} [Exit: {exit}]', [
@@ -122,8 +118,7 @@ class LocalMachineHelper
      *
      * @return Filesystem
      */
-    public function getFilesystem(): Filesystem
-    {
+    public function getFilesystem(): Filesystem {
         return new Filesystem();
     }
 
@@ -132,8 +127,7 @@ class LocalMachineHelper
      *
      * @return Finder
      */
-    public function getFinder(): Finder
-    {
+    public function getFinder(): Finder {
         return new Finder();
     }
 
@@ -144,8 +138,7 @@ class LocalMachineHelper
      *
      * @return string Content read from that file
      */
-    public function readFile($filename): string
-    {
+    public function readFile($filename): string {
         return file_get_contents($this->getLocalFilepath($filename));
     }
 
@@ -154,8 +147,7 @@ class LocalMachineHelper
      *
      * @return string
      */
-    public function getLocalFilepath($filepath): string
-    {
+    public function getLocalFilepath($filepath): string {
         return $this->fixFilename($filepath);
     }
 
@@ -164,11 +156,10 @@ class LocalMachineHelper
      *
      * @return bool
      */
-    public function useTty(): bool
-    {
+    public function useTty(): bool {
         // If we are not in interactive mode, then never use a tty.
         if (!$this->input->isInteractive()) {
-            return false;
+            return FALSE;
         }
 
         // If we are in interactive mode (or at least the user did not
@@ -179,7 +170,7 @@ class LocalMachineHelper
             return (posix_isatty(STDOUT) && posix_isatty(STDIN));
         }
 
-        return false;
+        return FALSE;
     }
 
     /**
@@ -188,8 +179,7 @@ class LocalMachineHelper
      * @param string $filename Name of the file to write to
      * @param string $content Content to write to the file
      */
-    public function writeFile($filename, $content): void
-    {
+    public function writeFile($filename, $content): void {
         $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
     }
 
@@ -200,8 +190,7 @@ class LocalMachineHelper
      *
      * @return string
      */
-    private function fixFilename($filename): string
-    {
+    private function fixFilename($filename): string {
         return str_replace('~', self::getHomeDir(), $filename);
     }
 
@@ -212,8 +201,7 @@ class LocalMachineHelper
      *
      * @return Process
      */
-    private function getProcess($cmd): Process
-    {
+    private function getProcess($cmd): Process {
         $process = new Process($cmd);
         $process->setTimeout(600);
 
@@ -229,12 +217,11 @@ class LocalMachineHelper
      * @url    https://github.com/uberhacker/tpm
      *
      */
-    public static function getHomeDir(): string
-    {
+    public static function getHomeDir(): string {
         $home = getenv('HOME');
         if (!$home) {
             $system = '';
-            if (getenv('MSYSTEM') !== null) {
+            if (getenv('MSYSTEM') !== NULL) {
                 $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
             }
             if ($system != 'MING') {
@@ -262,15 +249,14 @@ class LocalMachineHelper
      *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
      *   default browser could not be found.
      */
-    public function startBrowser($uri = null, $sleep = 0, $port = false, $browser = true): bool
-    {
+    public function startBrowser($uri = NULL, $sleep = 0, $port = FALSE, $browser = TRUE): bool {
         if ($browser) {
             // We can only open a browser if we have a DISPLAY environment variable on
             // POSIX or are running Windows or OS X.
             if (!getenv('DISPLAY') && !OsInfo::isWindows() && !OsInfo::isApple()) {
                 $this->logger->info('No graphical display appears to be available, not starting browser.');
 
-                return false;
+                return FALSE;
             }
             $host = parse_url($uri, PHP_URL_HOST);
             if (!$host) {
@@ -281,7 +267,7 @@ class LocalMachineHelper
             }
             // Validate that the host part of the URL resolves, so we don't attempt to
             // open the browser for http://default or similar invalid hosts.
-            $hosterror = (gethostbynamel($host) === false);
+            $hosterror = (gethostbynamel($host) === FALSE);
             $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
             if ($hosterror || $iperror) {
                 $this->logger->warning(
@@ -289,12 +275,12 @@ class LocalMachineHelper
                     ['!host' => $host]
                 );
 
-                return false;
+                return FALSE;
             }
             if ($port) {
                 $uri = str_replace($host, "localhost:$port", $uri);
             }
-            if ($browser === true) {
+            if ($browser === TRUE) {
                 // See if we can find an OS helper to open URLs in default browser.
                 if ($this->commandExists('xdg-open')) {
                     $browser = 'xdg-open';
@@ -306,7 +292,7 @@ class LocalMachineHelper
                             $browser = 'start';
                         } else {
                             $this->logger->warning('Could not find a browser on your local machine.');
-                            return false;
+                            return FALSE;
                         }
                     }
                 }
@@ -323,10 +309,11 @@ class LocalMachineHelper
                 $process = new Process(array_merge($args, [$browser, $uri]));
                 $process->run();
 
-                return true;
+                return TRUE;
             }
         }
 
-        return false;
+        return FALSE;
     }
+
 }

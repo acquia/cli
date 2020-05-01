@@ -20,8 +20,7 @@ class AliasesDownloadCommand extends SshCommand
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('remote:aliases:download')
           ->setDescription('Download drush aliases for Acquia Cloud environments');
     }
@@ -30,8 +29,7 @@ class AliasesDownloadCommand extends SshCommand
      * {@inheritdoc}
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $account_adapter = new Account($acquia_cloud_client);
         $aliases = $account_adapter->getDrushAliases();
@@ -58,7 +56,7 @@ class AliasesDownloadCommand extends SshCommand
                 $drushFiles[] = '.drush/' . $file->getFileName();
             }
 
-            $archive->extractTo($home, $drushFiles, true);
+            $archive->extractTo($home, $drushFiles, TRUE);
             $this->output->writeln(sprintf(
                 'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
                 $drushDirectory
@@ -70,4 +68,5 @@ class AliasesDownloadCommand extends SshCommand
 
         return 0;
     }
+
 }

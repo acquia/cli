@@ -6,7 +6,6 @@ php: "7.3"
 cache:
   directories:
     - "$HOME/.composer/cache"
-    - "vendor"
 
 services:
   - mysql

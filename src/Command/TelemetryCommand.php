@@ -14,8 +14,7 @@ class TelemetryCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('telemetry')->setDescription('Toggle anonymous sharing of usage and performance data');
     }
 
@@ -25,9 +24,9 @@ class TelemetryCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
         return 0;
     }
+
 }

@@ -22,11 +22,10 @@ class SshKeyUploadCommand extends SshKeyCommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ssh-key:upload')
           ->setDescription('Upload a local SSH key to Acquia Cloud')
-          ->addOption('filepath', null, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload');
+          ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload');
     }
 
     /**
@@ -36,8 +35,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
      * @return int 0 if everything went fine, or an exit code
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $local_keys = $this->findLocalSshKeys();
 
@@ -126,8 +124,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
      *
      * @return string
      */
-    protected function promptChooseLocalSshKey($local_keys): string
-    {
+    protected function promptChooseLocalSshKey($local_keys): string {
         $labels = [];
         foreach ($local_keys as $local_key) {
             $labels[] = $local_key->getFilename();
@@ -145,8 +142,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
     /**
      * @return string
      */
-    protected function promptSshKeyLabel(): string
-    {
+    protected function promptSshKeyLabel(): string {
         $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
         $question->setNormalizer(static function ($value) {
             // It may only contain letters, numbers and underscores,
@@ -172,8 +168,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase
      *
      * @return false|string
      */
-    protected function getLocalSshKeyContents($local_keys, string $chosen_local_key)
-    {
+    protected function getLocalSshKeyContents($local_keys, string $chosen_local_key) {
         foreach ($local_keys as $local_key) {
             if ($local_key->getFilename() === $chosen_local_key) {
                 $filepath = $local_key->getRealPath();
@@ -184,4 +179,5 @@ class SshKeyUploadCommand extends SshKeyCommandBase
 
         return $public_key;
     }
+
 }

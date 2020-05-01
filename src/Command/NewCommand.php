@@ -16,11 +16,10 @@ class NewCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('new')
           ->setDescription('Create a new Drupal project')
-          ->addOption('distribution', null, InputOption::VALUE_REQUIRED, '');
+          ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, '');
     }
 
     /**
@@ -29,8 +28,7 @@ class NewCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $distros = [
           'acquia/blt-project',
           'acquia/lightning-project',
@@ -45,7 +43,7 @@ class NewCommand extends CommandBase
 
         $this->createProject($project, $dir);
 
-        if (strpos($project, 'drupal/recommended-project') !== false) {
+        if (strpos($project, 'drupal/recommended-project') !== FALSE) {
             $this->replaceWebRoot($filepath);
             $this->requireDrush($dir);
         }
@@ -54,7 +52,7 @@ class NewCommand extends CommandBase
         $this->getApplication()->getLocalMachineHelper()->execute([
           'composer',
           'update',
-        ], null, $dir);
+        ], NULL, $dir);
 
         // @todo Add a .gitignore and other recommended default files.
 
@@ -69,16 +67,14 @@ class NewCommand extends CommandBase
     /**
      * @return bool
      */
-    protected function commandRequiresAuthentication(): bool
-    {
-        return false;
+    protected function commandRequiresAuthentication(): bool {
+        return FALSE;
     }
 
     /**
      * @param string $filepath
      */
-    protected function replaceWebRoot(string $filepath): void
-    {
+    protected function replaceWebRoot(string $filepath): void {
         $contents = file_get_contents($filepath);
         $contents = str_replace('web/', 'docroot/', $contents);
         file_put_contents($filepath, $contents);
@@ -87,22 +83,20 @@ class NewCommand extends CommandBase
     /**
      * @param string $dir
      */
-    protected function requireDrush(string $dir): void
-    {
+    protected function requireDrush(string $dir): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'composer',
           'require',
           'drush/drush',
           '--no-update',
-        ], null, $dir);
+        ], NULL, $dir);
     }
 
     /**
      * @param $project
      * @param string $dir
      */
-    protected function createProject($project, string $dir): void
-    {
+    protected function createProject($project, string $dir): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'composer',
           'create-project',
@@ -115,18 +109,17 @@ class NewCommand extends CommandBase
     /**
      * @param string $dir
      */
-    protected function initializeGitRepository(string $dir): void
-    {
+    protected function initializeGitRepository(string $dir): void {
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
           'init',
-        ], null, $dir);
+        ], NULL, $dir);
 
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
           'add',
           '-A',
-        ], null, $dir);
+        ], NULL, $dir);
 
         $this->getApplication()->getLocalMachineHelper()->execute([
           'git',
@@ -134,6 +127,7 @@ class NewCommand extends CommandBase
           '--message',
           'Initial commit.',
           '--quiet',
-        ], null, $dir);
+        ], NULL, $dir);
     }
+
 }

@@ -2,7 +2,6 @@
 
 namespace Acquia\Ads\Tests\Ide;
 
-use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
@@ -19,8 +18,7 @@ class IdeDeleteCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeDeleteCommand();
     }
 
@@ -28,8 +26,7 @@ class IdeDeleteCommandTest extends CommandTestBase
      * Tests the 'ide:delete' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeDeleteCommand(): void
-    {
+    public function testIdeDeleteCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -51,7 +48,7 @@ class IdeDeleteCommandTest extends CommandTestBase
         $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
         $cloud_client->request(
             'delete',
-            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7',
+            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
         )->willReturn($response->{"De-provisioning IDE"}->value)
           ->shouldBeCalled();
 
@@ -70,4 +67,5 @@ class IdeDeleteCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('The remote IDE is being deleted.', $output);
     }
+
 }

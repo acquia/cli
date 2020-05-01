@@ -27,8 +27,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setDescription('Create an ssh key on your local machine');
     }
 
@@ -38,8 +37,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->createSshKey();
 
         return 0;
@@ -48,8 +46,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
     /**
      * @return mixed
      */
-    protected function promptForFilename()
-    {
+    protected function promptForFilename() {
         $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ');
         $question->setNormalizer(static function ($value) {
             return $value ? trim($value) : '';
@@ -73,8 +70,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
     /**
      * @return mixed
      */
-    protected function promptForPassword()
-    {
+    protected function promptForPassword() {
         $question = new Question('<question>Enter a password for your SSH key:</question> ');
         $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
         $question->setValidator(function ($answer) {
@@ -94,8 +90,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase
     /**
      * @return string
      */
-    protected function createSshKey(): string
-    {
+    protected function createSshKey(): string {
         $filename = $this->promptForFilename();
         $password = $this->promptForPassword();
 
@@ -112,4 +107,5 @@ class SshKeyCreateCommand extends SshKeyCommandBase
 
         return $filepath;
     }
+
 }

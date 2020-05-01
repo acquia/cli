@@ -13,22 +13,19 @@ use Symfony\Component\Console\Command\Command;
  * @property ApiCommandBase $command
  * @package Acquia\Ads\Tests\Api
  */
-class ApiCommandTest extends CommandTestBase
-{
+class ApiCommandTest extends CommandTestBase {
 
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new ApiCommandBase();
     }
 
     /**
      * Tests the 'api:*' commands.
      */
-    public function testApiCommandExecutionForHttpGet(): void
-    {
+    public function testApiCommandExecutionForHttpGet(): void {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
         $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
@@ -45,7 +42,7 @@ class ApiCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertNotNull($output);
         $this->assertJson($output);
-        $contents = json_decode($output, true);
+        $contents = json_decode($output, TRUE);
         $this->assertArrayHasKey(0, $contents);
         $this->assertArrayHasKey('uuid', $contents[0]);
     }
@@ -53,16 +50,14 @@ class ApiCommandTest extends CommandTestBase
     /**
      *
      */
-    public function providerTestApiCommandDefinition(): array
-    {
+    public function providerTestApiCommandDefinition(): array {
         return [
             ['0'],
             ['1'],
         ];
     }
 
-    public function testApiCommandExecutionForHttpPost(): void
-    {
+    public function testApiCommandExecutionForHttpPost(): void {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
         $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -87,8 +82,7 @@ class ApiCommandTest extends CommandTestBase
      * @dataProvider providerTestApiCommandDefinition
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void
-    {
+    public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void {
         putenv('ADS_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
@@ -113,8 +107,7 @@ class ApiCommandTest extends CommandTestBase
      * @dataProvider providerTestApiCommandDefinition
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandDefinitionForPostEndpoint(): void
-    {
+    public function testApiCommandDefinitionForPostEndpoint(): void {
         $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
         $resource = $this->getResourceFromSpec('/account/ssh-keys', 'post');
         foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
@@ -133,8 +126,7 @@ class ApiCommandTest extends CommandTestBase
      * @return \Acquia\Ads\Command\Api\ApiCommandBase|null
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getApiCommandByName($name): ?ApiCommandBase
-    {
+    protected function getApiCommandByName($name): ?ApiCommandBase {
         $api_command_helper = new ApiCommandHelper();
         $api_commands = $api_command_helper->getApiCommands();
         foreach ($api_commands as $api_command) {
@@ -143,6 +135,7 @@ class ApiCommandTest extends CommandTestBase
             }
         }
 
-        return null;
+        return NULL;
     }
+
 }

@@ -22,13 +22,11 @@ class Checklist
      *
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      */
-    public function __construct(OutputInterface $output)
-    {
+    public function __construct(OutputInterface $output) {
         $this->output = $output;
     }
 
-    public function addItem($message): void
-    {
+    public function addItem($message): void {
         $item = ['message' => $message];
 
         if ($this->useSpinner()) {
@@ -43,8 +41,7 @@ class Checklist
 
     /**
      */
-    public function completePreviousItem(): void
-    {
+    public function completePreviousItem(): void {
         if ($this->useSpinner()) {
             $item = $this->getLastItem();
             /** @var Spinner $spinner */
@@ -55,13 +52,11 @@ class Checklist
         }
     }
 
-    protected function getLastItem()
-    {
+    protected function getLastItem() {
         return end($this->items);
     }
 
-    public function updateProgressBar($update_message): void
-    {
+    public function updateProgressBar($update_message): void {
         if ($this->useSpinner()) {
             $item = $this->getLastItem();
             /** @var Spinner $spinner */
@@ -80,8 +75,8 @@ class Checklist
         }
     }
 
-    private function useSpinner(): bool
-    {
+    private function useSpinner(): bool {
         return $this->output instanceof ConsoleOutput;
     }
+
 }

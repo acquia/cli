@@ -17,15 +17,14 @@ class AliasesListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new AliasListCommand();
     }
 
     /**
      * Tests the 'remote:aliases:list' commands.
      */
-    public function testRemoteAliasesListCommand(): void
-    {
+    public function testRemoteAliasesListCommand(): void {
     }
+
 }

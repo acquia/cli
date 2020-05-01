@@ -15,8 +15,7 @@ class LogsTailDbCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('logs:tail-db')->setDescription("Tail Drupal's dblog on your local environment");
         // @todo Add option to accept environment uuid.
     }
@@ -27,9 +26,9 @@ class LogsTailDbCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
         return 0;
     }
+
 }

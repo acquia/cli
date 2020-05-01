@@ -17,15 +17,14 @@ class SshCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new SshCommand();
     }
 
     /**
      * Tests the 'remote:ssh' commands.
      */
-    public function testRemoteAliasesDownloadCommand(): void
-    {
+    public function testRemoteAliasesDownloadCommand(): void {
     }
+
 }

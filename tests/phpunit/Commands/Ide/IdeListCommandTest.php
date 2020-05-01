@@ -18,8 +18,7 @@ class IdeListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeListCommand();
     }
 
@@ -27,8 +26,7 @@ class IdeListCommandTest extends CommandTestBase
      * Tests the 'ide:list' commands.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeListCommand(): void
-    {
+    public function testIdeListCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -67,4 +65,5 @@ class IdeListCommandTest extends CommandTestBase
         $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
         $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
     }
+
 }

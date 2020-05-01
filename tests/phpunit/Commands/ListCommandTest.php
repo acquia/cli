@@ -19,8 +19,7 @@ class ListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new ListCommand();
     }
 
@@ -28,8 +27,7 @@ class ListCommandTest extends CommandTestBase
      * Tests the 'list' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testListCommand(): void
-    {
+    public function testListCommand(): void {
         $this->executeCommand();
         $output = $this->getDisplay();
         $this->assertStringNotContainsString('api:', $output);
@@ -38,11 +36,11 @@ class ListCommandTest extends CommandTestBase
     /**
      * Tests the execution of bin/ads via bash.
      */
-    public function testBinExec()
-    {
+    public function testBinExec() {
         $process = new Process(['./ads', 'list'], __DIR__ . '/../../../bin');
         $process->mustRun();
         $this->assertStringContainsString('api', $process->getOutput());
         $this->assertStringNotContainsString('api:ssh-key:create', $process->getOutput());
     }
+
 }

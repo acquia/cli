@@ -18,8 +18,7 @@ class IdeListCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ide:list')->setDescription('Please select the application to list the IDEs for.');
         // @todo Add option to specify application uuid.
     }
@@ -30,8 +29,7 @@ class IdeListCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $application_uuid = $this->determineCloudApplication();
 
         $acquia_cloud_client = $this->getAcquiaCloudClient();
@@ -53,4 +51,5 @@ class IdeListCommand extends CommandBase
 
         return 0;
     }
+
 }

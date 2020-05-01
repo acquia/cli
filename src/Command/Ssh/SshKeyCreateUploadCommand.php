@@ -14,11 +14,11 @@ use Symfony\Component\Console\Question\Question;
  */
 class SshKeyCreateUploadCommand extends SshKeyCreateCommand
 {
+
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ssh-key:create-upload')
           ->setDescription('Create an SSH key on your local machine and upload it to Acquia Cloud');
     }
@@ -30,8 +30,7 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand
      * @return int 0 if everything went fine, or an exit code
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $private_ssh_key_filepath = $this->createSshKey();
         $public_ssh_key_filepath = $private_ssh_key_filepath . '.pub';
 
@@ -44,4 +43,5 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand
 
         return $command->run($list_input, $output);
     }
+
 }
