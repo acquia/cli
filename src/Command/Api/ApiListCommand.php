@@ -14,7 +14,9 @@ class ApiListCommand extends CommandBase
      * {inheritdoc}
      */
     protected function configure() {
-        $this->setName('api:list')->setDescription('List all commands in the api namespace');
+        $this->setName('api:list')
+          ->setDescription('List all commands in the api namespace')
+          ->setAliases(['api']);
     }
 
     /**

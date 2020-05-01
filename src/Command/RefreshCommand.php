@@ -34,8 +34,8 @@ class RefreshCommand extends CommandBase
               InputOption::VALUE_NONE,
               'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
           )
-          ->addOption('scripts', NULL, InputOption::VALUE_NONE, 'Only execute additional scripts');
-        // @todo Add option to allow specifying source environment.
+          ->addOption('scripts', null, InputOption::VALUE_NONE, 'Only execute additional scripts');
+        // @todo Add option to allow specifying source environment uuid.
     }
 
     /**
@@ -69,6 +69,7 @@ class RefreshCommand extends CommandBase
 
         // Git clone if no local repo found.
         // @todo This won't actually execute if repo is missing because of $this->validateCwdIsValidDrupalProject();
+        // This is a bug!
         if (!$input->getOption('no-code')) {
             $checklist->addItem('Pulling code from Acquia Cloud');
             $this->pullCodeFromCloud($chosen_environment, $output_callback);

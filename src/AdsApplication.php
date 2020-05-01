@@ -90,7 +90,6 @@ class AdsApplication extends Application implements LoggerAwareInterface
      */
     public function run(InputInterface $input = NULL, OutputInterface $output = NULL) {
         // @todo Add telemetry.
-
         $exit_code = parent::run($input, $output);
         return $exit_code;
     }

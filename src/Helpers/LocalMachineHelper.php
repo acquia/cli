@@ -190,7 +190,7 @@ class LocalMachineHelper
      * @return string
      */
     private function fixFilename($filename): string {
-        return str_replace('~', $this->getHomeDir(), $filename);
+        return str_replace('~', self::getHomeDir(), $filename);
     }
 
     /**

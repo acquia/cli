@@ -45,6 +45,7 @@ class IdeCreateCommand extends CommandBase
     protected function configure() {
         $this->setDescription('Create remote IDE for development');
         // @todo Add option to accept an IDE label.
+        // @todo Add option to specify application uuid.
     }
 
     /**

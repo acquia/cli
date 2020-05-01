@@ -16,6 +16,7 @@ class LinkCommand extends CommandBase
      */
     protected function configure() {
         $this->setName('link')->setDescription('Associate your project with an Acquia Cloud application');
+        // @todo Add option to allow specifying application uuid.
     }
 
     /**
@@ -28,7 +29,7 @@ class LinkCommand extends CommandBase
     protected function execute(InputInterface $input, OutputInterface $output) {
         $this->validateCwdIsValidDrupalProject();
         // @todo Indicate if the current local repo is already associated with a cloud
-        // application.
+        // application. Confirm to overwrite.
 
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);

@@ -49,6 +49,7 @@ class ApiCommandHelper
                 $command->setPath($path);
                 // This is unhidden when `ads api:list` is run.
                 // @todo This breaks console's ability to help with "did you mean?" for command typos!
+                // Consider hiding ONLY when the `list` command is being executed.
                 $command->setHidden(TRUE);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
@@ -75,7 +76,7 @@ class ApiCommandHelper
         if (array_key_exists('example', $param_definition)) {
             if (is_array($param_definition['example'])) {
                 $usage = reset($param_definition['example']);
-            } else if (strpos($param_definition['example'], ' ') !== FALSE) {
+            } elseif (strpos($param_definition['example'], ' ') !== FALSE) {
                 $usage .= '"' . $param_definition['example'] . '" ';
             } else {
                 $usage .= $param_definition['example'] . ' ';
@@ -219,8 +220,9 @@ class ApiCommandHelper
                         if (!$is_multidimensional) {
                             $value = implode(',', $example[$param_name]);
                         } else {
-                            // @todo Pretty sure this doesn't help the user send the arguments.
-                            // Probably a bug.
+                            // @todo Pretty sure prevents the user from using the arguments.
+                            // Probably a bug. How can we allow users to specify a multidimensional array as an
+                            // argument?
                             $value = json_encode($example[$param_name]);
                         }
                         $usage .= $prefix . "\"$value\" ";

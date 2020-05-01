@@ -6,6 +6,11 @@ use Acquia\Ads\Command\Remote\SshCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * Class SshCommandTest
+ * @property SshCommand $command
+ * @package Acquia\Ads\Tests\Remote
+ */
 class SshCommandTest extends CommandTestBase
 {
 
