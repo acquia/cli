@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Tests\Api;
+namespace Acquia\Ads\Tests\Commands;
 
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Tests\CommandTestBase;
@@ -37,7 +37,7 @@ class ListCommandTest extends CommandTestBase
      * Tests the execution of bin/ads via bash.
      */
     public function testBinExec() {
-        $process = new Process(['./ads', 'list'], __DIR__ . '/../../../bin');
+        $process = new Process(['./ads', 'list'], __DIR__ . '/../../../../bin');
         $process->mustRun();
         $this->assertStringContainsString('api', $process->getOutput());
         $this->assertStringNotContainsString('api:ssh-key:create', $process->getOutput());

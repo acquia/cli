@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Tests\Ide;
+namespace Acquia\Ads\Tests\Commands\Ide;
 
 use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Acquia\Ads\Tests\CommandTestBase;

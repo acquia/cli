@@ -1,32 +1,32 @@
 <?php
 
-namespace Acquia\Ads\Tests\Ide;
+namespace Acquia\Ads\Tests\Commands\Ide;
 
-use Acquia\Ads\Command\Ide\IdeListCommand;
+use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeListCommandTest
- * @property \Acquia\Ads\Command\Ide\IdeListCommand $command
+ * Class IdeDeleteCommandTest
+ * @property IdeDeleteCommand $command
  * @package Acquia\Ads\Tests\Ide
  */
-class IdeListCommandTest extends CommandTestBase
+class IdeDeleteCommandTest extends CommandTestBase
 {
 
     /**
      * {@inheritdoc}
      */
     protected function createCommand(): Command {
-        return new IdeListCommand();
+        return new IdeDeleteCommand();
     }
 
     /**
-     * Tests the 'ide:list' commands.
+     * Tests the 'ide:delete' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeListCommand(): void {
+    public function testIdeDeleteCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -44,9 +44,19 @@ class IdeListCommandTest extends CommandTestBase
           ->willReturn($response->{'_embedded'}->items)
           ->shouldBeCalled();
 
+        // Request to delete IDE.
+        $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
+        $cloud_client->request(
+            'delete',
+            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
+        )->willReturn($response->{"De-provisioning IDE"}->value)
+          ->shouldBeCalled();
+
         $inputs = [
-            // Please select the application..
-          '0'
+          // Please select the application for which you'd like to create a new IDE
+          '0',
+          // Please select the IDE you'd like to delete:
+          '0',
         ];
 
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
@@ -55,15 +65,7 @@ class IdeListCommandTest extends CommandTestBase
         // Assert.
         $this->prophet->checkPredictions();
         $output = $this->getDisplay();
-        $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
-        $this->assertStringContainsString('[0] Sample application 1', $output);
-        $this->assertStringContainsString('[1] Sample application 2', $output);
-        $this->assertStringContainsString('IDE Label 1', $output);
-        $this->assertStringContainsString('Web URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
-        $this->assertStringContainsString('IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com', $output);
-        $this->assertStringContainsString('IDE Label 2', $output);
-        $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
-        $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
+        $this->assertStringContainsString('The remote IDE is being deleted.', $output);
     }
 
 }
