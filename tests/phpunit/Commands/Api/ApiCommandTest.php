@@ -13,8 +13,7 @@ use Symfony\Component\Console\Command\Command;
  * @property ApiCommandBase $command
  * @package Acquia\Ads\Tests\Api
  */
-class ApiCommandTest extends CommandTestBase
-{
+class ApiCommandTest extends CommandTestBase {
 
     /**
      * {@inheritdoc}
@@ -51,20 +50,14 @@ class ApiCommandTest extends CommandTestBase
     /**
      *
      */
-<<<<<<< HEAD
-    public function testApiCommandExecutionForHttpPost(): void {
-=======
-    public function providerTestApiCommandDefinition(): array
-    {
+    public function providerTestApiCommandDefinition(): array {
         return [
             ['0'],
             ['1'],
         ];
     }
 
-    public function testApiCommandExecutionForHttpPost(): void
-    {
->>>>>>> upstream/master
+    public function testApiCommandExecutionForHttpPost(): void {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
         $cloud_client = $this->prophet->prophesize(Client::class);
         $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -89,14 +82,9 @@ class ApiCommandTest extends CommandTestBase
      * @dataProvider providerTestApiCommandDefinition
      * @throws \Psr\Cache\InvalidArgumentException
      */
-<<<<<<< HEAD
-    public function testApiCommandDefinitionForGetEndpoint(): void {
-=======
-    public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void
-    {
+    public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void {
         putenv('ADS_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
->>>>>>> upstream/master
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
         $resource = $this->getResourceFromSpec('/account/ssh-keys', 'get');
         $this->assertEquals($resource['summary'], $this->command->getDescription());
