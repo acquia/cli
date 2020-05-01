@@ -6,6 +6,11 @@ use Acquia\Ads\Command\Remote\AliasListCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
+/**
+ * Class AliasesListCommandTest
+ * @property AliasListCommand $command
+ * @package Acquia\Ads\Tests\Remote
+ */
 class AliasesListCommandTest extends CommandTestBase
 {
 

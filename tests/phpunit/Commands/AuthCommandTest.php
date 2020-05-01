@@ -4,7 +4,6 @@ namespace Acquia\Ads\Tests\Ide;
 
 use Acquia\Ads\Command\AuthCommand;
 use Acquia\Ads\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**

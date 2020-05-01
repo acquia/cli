@@ -8,6 +8,11 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\ListCommand;
 use Symfony\Component\Process\Process;
 
+/**
+ * Class ListCommandTest
+ * @property ListCommand $command
+ * @package Acquia\Ads\Tests\Api
+ */
 class ListCommandTest extends CommandTestBase
 {
 
@@ -27,7 +32,6 @@ class ListCommandTest extends CommandTestBase
     {
         $this->executeCommand();
         $output = $this->getDisplay();
-        //$this->assertStringContainsString('api', $output);
         $this->assertStringNotContainsString('api:', $output);
     }
 
