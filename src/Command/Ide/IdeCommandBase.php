@@ -16,12 +16,12 @@ abstract class IdeCommandBase extends CommandBase
      * @param string $question_text
      * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
      *
-     * @return false|int|string
+     * @return \AcquiaCloudApi\Response\IdeResponse|null
      */
     protected function promptIdeChoice(
         $question_text,
         Ides $ides_resource
-    ) {
+    ): ?\AcquiaCloudApi\Response\IdeResponse {
         $cloud_application_uuid = $this->determineCloudApplication();
         $ides = iterator_to_array($ides_resource->getAll($cloud_application_uuid));
         foreach ($ides as $ide) {
