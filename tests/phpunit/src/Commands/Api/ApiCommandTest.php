@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Tests\Api;
+namespace Acquia\Ads\Tests\Commands\Api;
 
 use Acquia\Ads\Command\Api\ApiCommandBase;
 use Acquia\Ads\Command\Api\ApiCommandHelper;

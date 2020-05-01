@@ -1,32 +1,32 @@
 <?php
 
-namespace Acquia\Ads\Tests\Ide;
+namespace Acquia\Ads\Tests\Commands\Ide;
 
-use Acquia\Ads\Command\Ide\IdeDeleteCommand;
+use Acquia\Ads\Command\Ide\IdeOpenCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeDeleteCommandTest
- * @property IdeDeleteCommand $command
+ * Class IdeOpenCommandTest
+ * @property IdeOpenCommand $command
  * @package Acquia\Ads\Tests\Ide
  */
-class IdeDeleteCommandTest extends CommandTestBase
+class IdeOpenCommandTest extends CommandTestBase
 {
 
     /**
      * {@inheritdoc}
      */
     protected function createCommand(): Command {
-        return new IdeDeleteCommand();
+        return new IdeOpenCommand();
     }
 
     /**
-     * Tests the 'ide:delete' command.
+     * Tests the 'ide:open' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeDeleteCommand(): void {
+    public function testIdeOpenCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -44,18 +44,9 @@ class IdeDeleteCommandTest extends CommandTestBase
           ->willReturn($response->{'_embedded'}->items)
           ->shouldBeCalled();
 
-        // Request to delete IDE.
-        $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
-        $cloud_client->request(
-            'delete',
-            '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
-        )->willReturn($response->{"De-provisioning IDE"}->value)
-          ->shouldBeCalled();
-
         $inputs = [
-          // Please select the application for which you'd like to create a new IDE
+          // Please select the application..
           '0',
-          // Please select the IDE you'd like to delete:
           '0',
         ];
 
@@ -65,7 +56,13 @@ class IdeDeleteCommandTest extends CommandTestBase
         // Assert.
         $this->prophet->checkPredictions();
         $output = $this->getDisplay();
-        $this->assertStringContainsString('The remote IDE is being deleted.', $output);
+        $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+        $this->assertStringContainsString('[0] Sample application 1', $output);
+        $this->assertStringContainsString('Please select the IDE you\'d like to open:', $output);
+        $this->assertStringContainsString('[0] IDE Label 1', $output);
+        $this->assertStringContainsString('Your IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com', $output);
+        $this->assertStringContainsString('Your Drupal Site URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
+        $this->assertStringContainsString('Opening your IDE in browser...', $output);
     }
 
 }

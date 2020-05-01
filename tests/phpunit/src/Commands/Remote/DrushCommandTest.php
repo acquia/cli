@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Tests\Remote;
+namespace Acquia\Ads\Tests\Commands\Remote;
 
 use Acquia\Ads\Command\Remote\DrushCommand;
 use Acquia\Ads\Tests\CommandTestBase;

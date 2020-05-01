@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Tests\Ssh;
+namespace Acquia\Ads\Tests\Commands\Ssh;
 
 use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Ads\Helpers\LocalMachineHelper;
