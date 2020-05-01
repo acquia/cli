@@ -68,7 +68,7 @@ class IdeCreateCommandTest extends CommandTestBase
         // Assert.
         $this->prophet->checkPredictions();
         $output = $this->getDisplay();
-        $this->assertStringContainsString('Please select the application for which you\'d like to create a new IDE:', $output);
+        $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
         $this->assertStringContainsString('  [0] Sample application 1', $output);
         $this->assertStringContainsString('  [1] Sample application 2', $output);
         $this->assertStringContainsString('Please enter a label for your Remote IDE:', $output);
