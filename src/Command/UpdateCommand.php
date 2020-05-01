@@ -19,8 +19,6 @@ class UpdateCommand extends CommandBase
 
     protected $gitHubRepository;
 
-    protected $currentVersion;
-
     protected $applicationName;
 
     /**
