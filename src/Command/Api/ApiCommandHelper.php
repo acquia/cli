@@ -25,7 +25,7 @@ class ApiCommandHelper
         $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiCommands.cache', new FilesystemAdapter());
 
         // Check to see if the API spec has changed since we cached commands.
-        $is_command_cache_valid = $this->isCommandCacheValid($cache, $acquia_cloud_spec_file_checksum);
+        $is_command_cache_valid = $this->useCommandCache() && $this->isCommandCacheValid($cache, $acquia_cloud_spec_file_checksum);
         $api_commands_cache_item = $cache->getItem('commands.api');
         if ($is_command_cache_valid && $api_commands_cache_item->isHit()) {
             return $api_commands_cache_item->get();
@@ -64,6 +64,14 @@ class ApiCommandHelper
         $cache->save($api_commands_cache_item);
 
         return $api_commands;
+    }
+
+    public function useCommandCache(): bool
+    {
+        if (getenv('ADS_CLI_USE_COMMAND_CACHE') === '0') {
+            return false;
+        }
+        return true;
     }
 
     /**

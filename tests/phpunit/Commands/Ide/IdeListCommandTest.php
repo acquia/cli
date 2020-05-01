@@ -45,10 +45,8 @@ class IdeListCommandTest extends CommandTestBase
           ->shouldBeCalled();
 
         $inputs = [
-            // Please select the application for which you'd like to create a new IDE
-          '0',
-            // Please select the IDE you'd like to delete:
-          '0',
+            // Please select the application..
+          '0'
         ];
 
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
@@ -57,7 +55,7 @@ class IdeListCommandTest extends CommandTestBase
         // Assert.
         $this->prophet->checkPredictions();
         $output = $this->getDisplay();
-        $this->assertStringContainsString('Please select the application for which you\'d like to create a new IDE:', $output);
+        $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
         $this->assertStringContainsString('[0] Sample application 1', $output);
         $this->assertStringContainsString('[1] Sample application 2', $output);
         $this->assertStringContainsString('IDE Label 1', $output);

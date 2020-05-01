@@ -30,12 +30,12 @@ class IdeOpenCommand extends IdeCommandBase
     protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $ides_resource = new Ides($acquia_cloud_client);
-        $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
-        $ide = $ides_resource->get($ide_uuid);
+        $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
 
         $this->output->writeln('');
         $this->output->writeln('<comment>Your IDE URL:</comment> ' . $ide->links->ide->href);
         $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
+        $this->output->writeln('Opening your IDE in browser...');
 
         $this->getApplication()->getLocalMachineHelper()->startBrowser($ide->links->ide->href);
 

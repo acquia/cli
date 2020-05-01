@@ -2,4 +2,4 @@ drupal
 /vendor/
 .idea
 .phpcs-cache
-cx-api-spec
+build

@@ -73,6 +73,7 @@
   "prefer-stable": true,
   "scripts": {
     "update-cloud-api-spec": [
+      "cd build",
       "git clone git@github.com:acquia/cx-api-spec.git",
       "cd cx-api-spec",
       "npm i -g npm@6.6",
