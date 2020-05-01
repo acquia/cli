@@ -7,24 +7,24 @@ use Acquia\Ads\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AliasesListCommandTest
+ * Class AliasesListCommandTest.
+ *
  * @property AliasListCommand $command
  * @package Acquia\Ads\Tests\Remote
  */
-class AliasesListCommandTest extends CommandTestBase
-{
+class AliasesListCommandTest extends CommandTestBase {
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function createCommand(): Command {
-        return new AliasListCommand();
-    }
+  /**
+   * {@inheritdoc}
+   */
+  protected function createCommand(): Command {
+    return new AliasListCommand();
+  }
 
-    /**
-     * Tests the 'remote:aliases:list' commands.
-     */
-    public function testRemoteAliasesListCommand(): void {
-    }
+  /**
+   * Tests the 'remote:aliases:list' commands.
+   */
+  public function testRemoteAliasesListCommand(): void {
+  }
 
 }
