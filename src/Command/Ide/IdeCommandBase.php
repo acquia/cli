@@ -23,8 +23,8 @@ abstract class IdeCommandBase extends CommandBase
         Ides $ides_resource
     ) {
         $cloud_application_uuid = $this->determineCloudApplication();
-        $ides_list = [];
-        foreach ($ides_resource->getAll($cloud_application_uuid) as $ide) {
+        $ides = iterator_to_array($ides_resource->getAll($cloud_application_uuid));
+        foreach ($ides as $ide) {
             $ides_list[$ide->uuid] = $ide->label;
         }
         $ide_labels = array_values($ides_list);
@@ -32,7 +32,12 @@ abstract class IdeCommandBase extends CommandBase
         $helper = $this->getHelper('question');
         $choice_id = $helper->ask($this->input, $this->output, $question);
         $ide_uuid = array_search($choice_id, $ides_list, true);
+        foreach ($ides as $ide) {
+            if ($ide->uuid === $ide_uuid) {
+                return $ide;
+            }
+        }
 
-        return $ide_uuid;
+        return null;
     }
 }

@@ -26,7 +26,6 @@ class ApiCommandTest extends CommandTestBase
 
     /**
      * Tests the 'api:*' commands.
-     * @throws \Psr\Cache\InvalidArgumentException
      */
     public function testApiCommandExecutionForHttpGet(): void
     {
@@ -52,8 +51,16 @@ class ApiCommandTest extends CommandTestBase
     }
 
     /**
-     * @throws \Psr\Cache\InvalidArgumentException
+     *
      */
+    public function providerTestApiCommandDefinition(): array
+    {
+        return [
+            ['0'],
+            ['1'],
+        ];
+    }
+
     public function testApiCommandExecutionForHttpPost(): void
     {
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -77,10 +84,13 @@ class ApiCommandTest extends CommandTestBase
     }
 
     /**
+     * @dataProvider providerTestApiCommandDefinition
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiCommandDefinitionForGetEndpoint(): void
+    public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void
     {
+        putenv('ADS_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
+
         $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
         $resource = $this->getResourceFromSpec('/account/ssh-keys', 'get');
         $this->assertEquals($resource['summary'], $this->command->getDescription());
@@ -100,6 +110,7 @@ class ApiCommandTest extends CommandTestBase
     }
 
     /**
+     * @dataProvider providerTestApiCommandDefinition
      * @throws \Psr\Cache\InvalidArgumentException
      */
     public function testApiCommandDefinitionForPostEndpoint(): void

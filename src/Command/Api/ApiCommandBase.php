@@ -23,7 +23,9 @@ class ApiCommandBase extends CommandBase
 
     /** @var String */
     protected $path;
+    /** @var array */
     private $queryParams = [];
+    /** @var array */
     private $postParams = [];
 
     /**
