@@ -88,7 +88,7 @@
       "rm -rf cx-api-spec"
     ],
     "cs": "phpcs",
-    "cbf": "phpcbf -n --standard=PSR2 src tests bin --exclude=Generic.Files.LineLength",
+    "cbf": "phpcbf",
     "unit": "phpunit tests/phpunit -vvv",
     "lint": [
       "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
