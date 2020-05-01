@@ -214,9 +214,6 @@ class ApiCommandHelper
         if (array_key_exists('example', $request_body_schema)) {
             $example = $request_body['content']['application/json']['example'];
             $prefix = $type === 'argument' ? '' : strtolower("--{$param_name}=");
-            if (is_array($param_name)) {
-                $wtf = TRUE;
-            }
             if (array_key_exists($param_name, $example)) {
                 switch ($param_definition['type']) {
                     case 'object':
