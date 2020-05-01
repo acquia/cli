@@ -4,7 +4,6 @@ namespace Acquia\Ads\Command\Api;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
-use Symfony\Component\Console\Input\Input;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
@@ -162,7 +161,7 @@ class ApiCommandHelper
                 $input_definition[] = new InputArgument(
                     $param_name,
                     $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
-                    $param_definition['description'],
+                    $param_definition['description']
                 );
                 $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'argument', $usage);
             } else {

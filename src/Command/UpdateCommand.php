@@ -8,7 +8,6 @@ use PharException;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use UnexpectedValueException;
 use function error_reporting;
 
@@ -54,6 +53,7 @@ class UpdateCommand extends CommandBase
                 ->getName() . '.');
         }
 
+        // phpcs:ignore
         $localFilename = realpath($_SERVER['argv'][0]) ?: $_SERVER['argv'][0];
         $programName = basename($localFilename);
         $tempFilename = dirname($localFilename) . '/' . basename($localFilename, '.phar') . '-temp.phar';

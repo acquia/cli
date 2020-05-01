@@ -38,6 +38,7 @@ class LocalMachineHelper
      *
      * @return Process
      */
+    // phpcs:ignore
     public function exec($cmd, $callback = NULL): Process {
         $process = $this->getProcess($cmd);
         $process->run($callback);
