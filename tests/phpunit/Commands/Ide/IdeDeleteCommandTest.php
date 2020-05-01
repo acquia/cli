@@ -19,8 +19,7 @@ class IdeDeleteCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeDeleteCommand();
     }
 
@@ -28,8 +27,7 @@ class IdeDeleteCommandTest extends CommandTestBase
      * Tests the 'ide:delete' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testIdeDeleteCommand(): void
-    {
+    public function testIdeDeleteCommand(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -70,4 +68,5 @@ class IdeDeleteCommandTest extends CommandTestBase
         $output = $this->getDisplay();
         $this->assertStringContainsString('The remote IDE is being deleted.', $output);
     }
+
 }

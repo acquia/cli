@@ -39,8 +39,7 @@ abstract class SshBaseCommand extends CommandBase
      *
      * @return $this
      */
-    protected function setProgressAllowed($allowed = true): self
-    {
+    protected function setProgressAllowed($allowed = TRUE): self {
         $this->progressAllowed = $allowed;
 
         return $this;
@@ -54,8 +53,7 @@ abstract class SshBaseCommand extends CommandBase
      * @return int
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function executeCommand(array $command_args): int
-    {
+    protected function executeCommand(array $command_args): int {
         $command_summary = $this->getCommandSummary($command_args);
 
         // Remove site_env arg.
@@ -84,8 +82,7 @@ abstract class SshBaseCommand extends CommandBase
      *
      * @return
      */
-    protected function sendCommandViaSsh($command)
-    {
+    protected function sendCommandViaSsh($command) {
         $command = array_merge($this->getConnectionArgs(), $command);
 
         return $this->getApplication()
@@ -100,8 +97,7 @@ abstract class SshBaseCommand extends CommandBase
      *
      * @return string
      */
-    private function firstArguments($command_args): string
-    {
+    private function firstArguments($command_args): string {
         $result = '';
         while (!empty($command_args)) {
             $first = array_shift($command_args);
@@ -117,9 +113,8 @@ abstract class SshBaseCommand extends CommandBase
     /**
      * @return \Closure
      */
-    private function getOutputCallback(): callable
-    {
-        if ($this->getApplication()->getLocalMachineHelper()->useTty() === false) {
+    private function getOutputCallback(): callable {
+        if ($this->getApplication()->getLocalMachineHelper()->useTty() === FALSE) {
             $output = $this->output;
 
             return function ($type, $buffer) use ($output) {
@@ -141,16 +136,14 @@ abstract class SshBaseCommand extends CommandBase
      *
      * @return string
      */
-    private function getCommandSummary($command_args): string
-    {
+    private function getCommandSummary($command_args): string {
         return $this->firstArguments($command_args);
     }
 
     /**
      * @return array SSH connection string
      */
-    private function getConnectionArgs(): array
-    {
+    private function getConnectionArgs(): array {
         return [
           'ssh',
           '-T',
@@ -193,6 +186,7 @@ abstract class SshBaseCommand extends CommandBase
             }
         }
 
-        return null;
+        return NULL;
     }
+
 }

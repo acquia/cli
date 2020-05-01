@@ -19,8 +19,7 @@ class AliasListCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('remote:aliases:list')->setDescription('List all aliases for Acquia Cloud environments');
         // @todo Add argument to allow specifying application.
     }
@@ -28,8 +27,7 @@ class AliasListCommand extends CommandBase
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $applications_resource = new Applications($acquia_cloud_client);
         $customer_applications = $applications_resource->getAll();
@@ -61,4 +59,5 @@ class AliasListCommand extends CommandBase
 
         return 0;
     }
+
 }

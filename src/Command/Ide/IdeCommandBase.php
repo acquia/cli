@@ -31,8 +31,9 @@ abstract class IdeCommandBase extends CommandBase
         $question = new ChoiceQuestion($question_text, $ide_labels);
         $helper = $this->getHelper('question');
         $choice_id = $helper->ask($this->input, $this->output, $question);
-        $ide_uuid = array_search($choice_id, $ides_list, true);
+        $ide_uuid = array_search($choice_id, $ides_list, TRUE);
 
         return $ide_uuid;
     }
+
 }

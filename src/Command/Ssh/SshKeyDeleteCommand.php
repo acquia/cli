@@ -17,8 +17,7 @@ class SshKeyDeleteCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ssh-key:delete')->setDescription('Delete an SSH key');
     }
 
@@ -31,8 +30,7 @@ class SshKeyDeleteCommand extends CommandBase
      * @throws \Acquia\Ads\Exception\AdsException
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
         $cloud_keys = $acquia_cloud_client->processResponse($response);
@@ -45,7 +43,7 @@ class SshKeyDeleteCommand extends CommandBase
         $question = new ChoiceQuestion('<question>Choose an SSH key to delete from Acquia Cloud</question>:', $labels);
         $helper = $this->getHelper('question');
         $choice_id = $helper->ask($this->input, $this->output, $question);
-        $cloud_key_uuid = array_search($choice_id, $list, true);
+        $cloud_key_uuid = array_search($choice_id, $list, TRUE);
 
         $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key_uuid);
         if ($response->getStatusCode() == 202) {
@@ -54,4 +52,5 @@ class SshKeyDeleteCommand extends CommandBase
 
         throw new AdsException($response->getBody()->getContents());
     }
+
 }

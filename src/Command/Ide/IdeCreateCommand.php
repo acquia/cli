@@ -42,8 +42,7 @@ class IdeCreateCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setDescription('Create remote IDE for development');
         // @todo Add option to accept an IDE label.
     }
@@ -54,8 +53,7 @@ class IdeCreateCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $cloud_application_uuid = $this->determineCloudApplication();
         $checklist = new Checklist($output);
 
@@ -86,8 +84,7 @@ class IdeCreateCommand extends CommandBase
     /**
      * @param $ide_url
      */
-    protected function waitForDnsPropagation($ide_url): void
-    {
+    protected function waitForDnsPropagation($ide_url): void {
         if (!$this->getClient()) {
             $this->setClient(new Client(['base_uri' => $ide_url]));
         }
@@ -141,16 +138,14 @@ class IdeCreateCommand extends CommandBase
     /**
      * @return \GuzzleHttp\Client|null
      */
-    public function getClient(): ?Client
-    {
+    public function getClient(): ?Client {
         return $this->client;
     }
 
     /**
      * @param \GuzzleHttp\Client $client
      */
-    public function setClient(\GuzzleHttp\Client $client): void
-    {
+    public function setClient(\GuzzleHttp\Client $client): void {
         $this->client = $client;
     }
 
@@ -171,4 +166,5 @@ class IdeCreateCommand extends CommandBase
 
         return $ides_resource->get($ide_uuid);
     }
+
 }

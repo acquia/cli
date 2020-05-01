@@ -13,8 +13,7 @@ class ListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new ListCommand();
     }
 
@@ -22,11 +21,11 @@ class ListCommandTest extends CommandTestBase
      * Tests the 'list' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testListCommand(): void
-    {
+    public function testListCommand(): void {
         $this->executeCommand();
         $output = $this->getDisplay();
         //$this->assertStringContainsString('api', $output);
         $this->assertStringNotContainsString('api:', $output);
     }
+
 }

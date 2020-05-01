@@ -14,8 +14,7 @@ class LinkCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('link')->setDescription('Associate your project with an Acquia Cloud application');
     }
 
@@ -26,8 +25,7 @@ class LinkCommand extends CommandBase
      * @return int 0 if everything went fine, or an exit code
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->validateCwdIsValidDrupalProject();
         // @todo Indicate if the current local repo is already associated with a cloud
         // application.
@@ -38,4 +36,5 @@ class LinkCommand extends CommandBase
 
         return 0;
     }
+
 }

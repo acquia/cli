@@ -18,8 +18,7 @@ class SshCommand extends SSHBaseCommand
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('remote:ssh')
           ->setDescription('Opens a new SSH connection to an Acquia Cloud environment.')
           ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
@@ -30,8 +29,7 @@ class SshCommand extends SSHBaseCommand
      * {@inheritdoc}
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         // @todo Validate the arg format.
         $site_env = $input->getArgument('site_env');
         $site_env_parts = explode('.', $site_env);
@@ -46,4 +44,5 @@ class SshCommand extends SSHBaseCommand
 
         return $this->executeCommand($arguments);
     }
+
 }

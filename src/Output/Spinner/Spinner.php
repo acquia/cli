@@ -91,8 +91,7 @@ class Spinner
      */
     private $indentString;
 
-    public function __construct(ConsoleOutput $output, $indent = 0, $colorLevel = Color::COLOR_256)
-    {
+    public function __construct(ConsoleOutput $output, $indent = 0, $colorLevel = Color::COLOR_256) {
         $this->section = $output->section();
         $this->colorLevel = $colorLevel;
         $this->colorCount = count(self::COLORS);
@@ -108,13 +107,11 @@ class Spinner
         $this->progressBar->setRedrawFrequency($this->interval());
     }
 
-    public function start(): void
-    {
+    public function start(): void {
         $this->progressBar->start();
     }
 
-    public function advance(): void
-    {
+    public function advance(): void {
         ++$this->currentCharIdx;
         ++$this->currentColorIdx;
         $char = $this->getSpinnerCharacter();
@@ -122,8 +119,7 @@ class Spinner
         $this->progressBar->advance();
     }
 
-    protected function getSpinnerCharacter(): ?string
-    {
+    protected function getSpinnerCharacter(): ?string {
         if ($this->currentColorIdx === $this->colorCount) {
             $this->currentColorIdx = 0;
         }
@@ -138,19 +134,16 @@ class Spinner
         }
     }
 
-    public function setMessage(string $message): void
-    {
+    public function setMessage(string $message): void {
         $this->progressBar->setMessage($message);
     }
 
-    public function finish(): void
-    {
+    public function finish(): void {
         $this->section->overwrite($this->indentString . '<info>✔</info> ' . $this->progressBar->getMessage());
         $this->progressBar->finish();
     }
 
-    public function fail(): void
-    {
+    public function fail(): void {
         $this->section->overwrite($this->indentString . '❌' . $this->progressBar->getMessage());
         $this->progressBar->finish();
     }
@@ -159,8 +152,8 @@ class Spinner
      * Returns spinner refresh interval
      * @return float
      */
-    public function interval(): float
-    {
+    public function interval(): float {
         return 0.1;
     }
+
 }

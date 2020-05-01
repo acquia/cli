@@ -17,8 +17,7 @@ class ApiCommandHelper
      * @return ApiCommandBase[]
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getApiCommands(): array
-    {
+    public function getApiCommands(): array {
         // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
         // by running `composer update-cloud-api-spec`.
         $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
@@ -51,7 +50,7 @@ class ApiCommandHelper
                 $command->setPath($path);
                 // This is unhidden when `ads api:list` is run.
                 // @todo This breaks console's ability to help with "did you mean?" for command typos!
-                $command->setHidden(true);
+                $command->setHidden(TRUE);
                 $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
                 $api_commands[] = $command;
             }
@@ -73,12 +72,11 @@ class ApiCommandHelper
      *
      * @return mixed|string
      */
-    protected function addArgumentExampleToUsageForGetEndpoint($param_definition, string $usage)
-    {
+    protected function addArgumentExampleToUsageForGetEndpoint($param_definition, string $usage) {
         if (array_key_exists('example', $param_definition)) {
             if (is_array($param_definition['example'])) {
                 $usage = reset($param_definition['example']);
-            } else if (strpos($param_definition['example'], ' ') !== false) {
+            } else if (strpos($param_definition['example'], ' ') !== FALSE) {
                 $usage .= '"' . $param_definition['example'] . '" ';
             } else {
                 $usage .= $param_definition['example'] . ' ';
@@ -95,8 +93,7 @@ class ApiCommandHelper
      *
      * @return string
      */
-    protected function addOptionExampleToUsageForGetEndpoint($param_definition, $param_name, string $usage): string
-    {
+    protected function addOptionExampleToUsageForGetEndpoint($param_definition, $param_name, string $usage): string {
         if (array_key_exists('example', $param_definition)) {
             $usage .= '--' . strtolower($param_name) . '="' . $param_definition['example'] . '" ';
         }
@@ -109,8 +106,7 @@ class ApiCommandHelper
      * @param $acquia_cloud_spec
      * @param \Acquia\Ads\Command\Api\ApiCommandBase $command
      */
-    protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void
-    {
+    protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
         // Parameters are only set for GET endpoints.
         if (array_key_exists('parameters', $schema)) {
             [$input_definition, $usage] = $this->addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec);
@@ -141,8 +137,7 @@ class ApiCommandHelper
      *
      * @return array
      */
-    protected function addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec): array
-    {
+    protected function addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec): array {
         $usage = '';
         $input_definition = [];
         if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
@@ -162,7 +157,7 @@ class ApiCommandHelper
             return [];
         }
         foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
-            $is_required = array_key_exists('required', $request_body_schema) && in_array($param_name, $request_body_schema['required'], true);
+            $is_required = array_key_exists('required', $request_body_schema) && in_array($param_name, $request_body_schema['required'], TRUE);
             if ($is_required) {
                 $input_definition[] = new InputArgument(
                     $param_name,
@@ -173,7 +168,7 @@ class ApiCommandHelper
             } else {
                 $input_definition[] = new InputOption(
                     $param_name,
-                    null,
+                    NULL,
                     $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
                     $param_definition['description']
                 );
@@ -202,8 +197,7 @@ class ApiCommandHelper
      *
      * @return string
      */
-    protected function addPostArgumentUsageToExample($request_body, $param_name, $param_definition, $type, $usage): string
-    {
+    protected function addPostArgumentUsageToExample($request_body, $param_name, $param_definition, $type, $usage): string {
         if (!array_key_exists('application/json', $request_body['content'])) {
             $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
         } else {
@@ -214,7 +208,7 @@ class ApiCommandHelper
             $example = $request_body['content']['application/json']['example'];
             $prefix = $type === 'argument' ? '' : strtolower("--{$param_name}=");
             if (is_array($param_name)) {
-                $wtf = true;
+                $wtf = TRUE;
             }
             if (array_key_exists($param_name, $example)) {
                 switch ($param_definition['type']) {
@@ -254,8 +248,7 @@ class ApiCommandHelper
      *
      * @return array
      */
-    protected function addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec): array
-    {
+    protected function addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec): array {
         $usage = '';
         $input_definition = [];
         foreach ($schema['parameters'] as $parameter) {
@@ -273,7 +266,7 @@ class ApiCommandHelper
             } else {
                 $input_definition[] = new InputOption(
                     $param_definition['name'],
-                    null,
+                    NULL,
                     InputOption::VALUE_REQUIRED,
                     $param_definition['description']
                 );
@@ -284,13 +277,11 @@ class ApiCommandHelper
         return [$input_definition, $usage];
     }
 
-    protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec)
-    {
+    protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec) {
         return $acquia_cloud_spec['components']['parameters'][$param_name];
     }
 
-    protected function getParameterSchemaFromSpec($param_name, $acquia_cloud_spec)
-    {
+    protected function getParameterSchemaFromSpec($param_name, $acquia_cloud_spec) {
         return $acquia_cloud_spec['components']['schemas'][$param_name];
     }
 
@@ -302,14 +293,14 @@ class ApiCommandHelper
      * @return bool
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function isCommandCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool
-    {
+    protected function isCommandCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
         $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
         // If there's an invalid entry OR there's no entry, return false.
         if (!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit() && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum)) {
-            return false;
+            return FALSE;
         }
 
-        return true;
+        return TRUE;
     }
+
 }

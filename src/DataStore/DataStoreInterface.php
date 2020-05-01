@@ -8,6 +8,7 @@ namespace Acquia\Ads\DataStore;
  */
 interface DataStoreInterface
 {
+
     /**
      * Reads retrieves data from the store
      *
@@ -46,4 +47,5 @@ interface DataStoreInterface
      * @return array A list of keys
      */
     public function keys();
+
 }

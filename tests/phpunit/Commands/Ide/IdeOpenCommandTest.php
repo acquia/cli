@@ -12,15 +12,14 @@ class IdeOpenCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeOpenCommand();
     }
 
     /**
      * Tests the 'ide:open' command.
      */
-    public function testIdeOpenCommand(): void
-    {
+    public function testIdeOpenCommand(): void {
     }
+
 }

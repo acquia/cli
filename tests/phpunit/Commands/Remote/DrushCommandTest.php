@@ -12,15 +12,14 @@ class DrushCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new DrushCommand();
     }
 
     /**
      * Tests the 'remote:drush' commands.
      */
-    public function testRemoteDrushCommand(): void
-    {
+    public function testRemoteDrushCommand(): void {
     }
+
 }

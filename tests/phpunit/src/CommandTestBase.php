@@ -65,8 +65,7 @@ abstract class CommandTestBase extends TestCase
     /**
      * This method is called before each test.
      */
-    protected function setUp(): void
-    {
+    protected function setUp(): void {
         $this->consoleOutput = new ConsoleOutput();
         $this->fs = new Filesystem();
         $this->prophet = new Prophet();
@@ -75,8 +74,7 @@ abstract class CommandTestBase extends TestCase
         parent::setUp();
     }
 
-    protected function setCommand(Command $command): void
-    {
+    protected function setCommand(Command $command): void {
         $this->command = $command;
     }
 
@@ -91,8 +89,7 @@ abstract class CommandTestBase extends TestCase
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function executeCommand(array $args = [], array $inputs = []): void
-    {
+    protected function executeCommand(array $args = [], array $inputs = []): void {
         $cwd = __DIR__ . '/../../fixtures/project';
         chdir($cwd);
         $tester = $this->getCommandTester();
@@ -122,8 +119,7 @@ abstract class CommandTestBase extends TestCase
      *   A command tester.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getCommandTester(): CommandTester
-    {
+    protected function getCommandTester(): CommandTester {
         if ($this->commandTester) {
             return $this->commandTester;
         }
@@ -135,7 +131,7 @@ abstract class CommandTestBase extends TestCase
         $input = new ArrayInput([]);
         $output = new BufferedOutput();
         $logger = new ConsoleLogger($output);
-        $repo_root = null;
+        $repo_root = NULL;
         $this->application = new AdsApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
         $this->application->add($this->command);
         $found_command = $this->application->find($this->command->getName());
@@ -152,8 +148,7 @@ abstract class CommandTestBase extends TestCase
      *   The display.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getDisplay(): string
-    {
+    protected function getDisplay(): string {
         return $this->getCommandTester()->getDisplay();
     }
 
@@ -164,8 +159,7 @@ abstract class CommandTestBase extends TestCase
      *   The status code.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getStatusCode(): int
-    {
+    protected function getStatusCode(): int {
         return $this->getCommandTester()->getStatusCode();
     }
 
@@ -177,8 +171,7 @@ abstract class CommandTestBase extends TestCase
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      *   Output.
      */
-    protected function writeFullWidthLine($message, OutputInterface $output): void
-    {
+    protected function writeFullWidthLine($message, OutputInterface $output): void {
         $terminal_width = (new Terminal())->getWidth();
         $padding_len = ($terminal_width - strlen($message)) / 2;
         $pad = $padding_len > 0 ? str_repeat('-', $padding_len) : '';
@@ -188,8 +181,7 @@ abstract class CommandTestBase extends TestCase
     /**
      *
      */
-    protected function printTestName(): void
-    {
+    protected function printTestName(): void {
         if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
             $this->consoleOutput->writeln("");
             $this->writeFullWidthLine(get_class($this) . "::" . $this->getName(), $this->consoleOutput);
@@ -204,8 +196,7 @@ abstract class CommandTestBase extends TestCase
      * @return mixed
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    protected function getResourceFromSpec($path, $method)
-    {
+    protected function getResourceFromSpec($path, $method) {
         $acquia_cloud_spec = $this->getCloudApiSpec();
         return $acquia_cloud_spec['paths'][$path][$method];
     }
@@ -218,8 +209,7 @@ abstract class CommandTestBase extends TestCase
      * @return false|string
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getMockResponseFromSpec($path, $method, $http_code)
-    {
+    public function getMockResponseFromSpec($path, $method, $http_code) {
         $endpoint = $this->getResourceFromSpec($path, $method);
         $response = $endpoint['responses'][$http_code];
 
@@ -248,8 +238,7 @@ abstract class CommandTestBase extends TestCase
      * @return mixed
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function getMockRequestBodyFromSpec($path)
-    {
+    public function getMockRequestBodyFromSpec($path) {
         $endpoint = $this->getResourceFromSpec($path, 'post');
         return $endpoint['requestBody']['content']['application/json']['example'];
     }
@@ -258,8 +247,7 @@ abstract class CommandTestBase extends TestCase
      * @return mixed
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    private function getCloudApiSpec()
-    {
+    private function getCloudApiSpec() {
         // We cache the yaml file because it's 20k+ lines and takes FOREVER
         // to parse when xDebug is enabled.
         $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
@@ -286,8 +274,7 @@ abstract class CommandTestBase extends TestCase
      * @return bool
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    private function isApiSpecCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool
-    {
+    private function isApiSpecCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
         $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
         // If there's an invalid entry OR there's no entry, return false.
         return !(!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit()
@@ -314,4 +301,5 @@ abstract class CommandTestBase extends TestCase
         $api_spec_cache_item->set($api_spec);
         $cache->save($api_spec_cache_item);
     }
+
 }

@@ -15,8 +15,7 @@ class IdeOpenCommand extends IdeCommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ide:open')->setDescription('The application associated with the IDE');
     }
 
@@ -26,8 +25,7 @@ class IdeOpenCommand extends IdeCommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $ides_resource = new Ides($acquia_cloud_client);
         $ide_uuid = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
@@ -36,4 +34,5 @@ class IdeOpenCommand extends IdeCommandBase
 
         return 0;
     }
+
 }

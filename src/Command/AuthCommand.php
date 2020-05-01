@@ -25,8 +25,7 @@ class AuthCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('auth:login')
           ->setDescription('Register your Cloud API key and secret to use API functionality')
           ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
@@ -39,8 +38,7 @@ class AuthCommand extends CommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         // @todo Check if user is already authenticated.
         $this->promptOpenBrowserToCreateToken($input, $output);
 
@@ -59,8 +57,7 @@ class AuthCommand extends CommandBase
      *
      * @return string
      */
-    protected function determineApiKey(InputInterface $input, OutputInterface $output): string
-    {
+    protected function determineApiKey(InputInterface $input, OutputInterface $output): string {
         if ($input->getOption('key')) {
             $api_key = $input->getOption('key');
             $this->validateApiKey($api_key);
@@ -78,8 +75,7 @@ class AuthCommand extends CommandBase
      *
      * @return string
      */
-    protected function validateApiKey($key): string
-    {
+    protected function validateApiKey($key): string {
         $violations = Validation::createValidator()->validate($key, [
           new Length(['min' => 10]),
           new NotBlank(),
@@ -97,15 +93,14 @@ class AuthCommand extends CommandBase
      *
      * @return string
      */
-    protected function determineApiSecret(InputInterface $input, OutputInterface $output): string
-    {
+    protected function determineApiSecret(InputInterface $input, OutputInterface $output): string {
         if ($input->getOption('secret')) {
             $api_secret = $input->getOption('secret');
             $this->validateApiKey($api_secret);
         } else {
             $question = new Question('<question>Please enter your API Secret:</question>');
             $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
-            $question->setHiddenFallback(true);
+            $question->setHiddenFallback(TRUE);
             $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
             $api_secret = $this->questionHelper->ask($input, $output, $question);
         }
@@ -117,8 +112,7 @@ class AuthCommand extends CommandBase
      * @param array $api_key
      * @param $api_secret
      */
-    protected function writeApiCredentialsToDisk($api_key, $api_secret): void
-    {
+    protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
         $file_contents = [
           'key' => $api_key,
           'secret' => $api_secret,
@@ -133,16 +127,14 @@ class AuthCommand extends CommandBase
     /**
      * @param $filepath
      */
-    public function setCloudApiConfFilePath($filepath): void
-    {
+    public function setCloudApiConfFilePath($filepath): void {
         $this->cloudApiConfFilePath = $filepath;
     }
 
     /**
      * @return mixed
      */
-    public function getCloudApiConfFilePath()
-    {
+    public function getCloudApiConfFilePath() {
         if (isset($this->cloudApiConfFilePath)) {
             return $this->cloudApiConfFilePath;
         }
@@ -165,11 +157,12 @@ class AuthCommand extends CommandBase
 
             $question = new ConfirmationQuestion(
                 '<question>Do you want to open this page to generate a token now?</question>',
-                true
+                TRUE
             );
             if ($this->questionHelper->ask($input, $output, $question)) {
                 $this->getApplication()->getLocalMachineHelper()->startBrowser($token_url);
             }
         }
     }
+
 }

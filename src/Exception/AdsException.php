@@ -27,7 +27,7 @@ class AdsException extends Exception
      * @param int $code Exit code
      */
     public function __construct(
-        $message = null,
+        $message = NULL,
         array $replacements = [],
         $code = 0
     ) {
@@ -42,8 +42,7 @@ class AdsException extends Exception
      *
      * @return string $this->replacements
      */
-    public function getRawMessage(): string
-    {
+    public function getRawMessage(): string {
         return $this->raw_message;
     }
 
@@ -52,8 +51,7 @@ class AdsException extends Exception
      *
      * @return array $this->replacements The replacement variables.
      */
-    public function getReplacements(): array
-    {
+    public function getReplacements(): array {
         return $this->replacements;
     }
 
@@ -65,8 +63,7 @@ class AdsException extends Exception
      *
      * @return string
      */
-    protected function interpolateString($message, $replacements): string
-    {
+    protected function interpolateString($message, $replacements): string {
         $tr = [];
         foreach ($replacements as $key => $val) {
             $tr['{' . $key . '}'] = $val;
@@ -77,4 +74,5 @@ class AdsException extends Exception
 
         return strtr($message, $tr);
     }
+
 }

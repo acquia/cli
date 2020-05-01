@@ -8,6 +8,7 @@ namespace Acquia\Ads\DataStore;
  */
 interface DataStoreAwareInterface
 {
+
     /***
      * Inject a data store object.
      *
@@ -21,4 +22,5 @@ interface DataStoreAwareInterface
      * @return DataStoreInterface
      */
     public function getDataStore(): DataStoreInterface;
+
 }

@@ -18,8 +18,7 @@ class AuthCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new AuthCommand();
     }
 
@@ -27,8 +26,7 @@ class AuthCommandTest extends CommandTestBase
      * Tests the 'auth:login' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testAuthLoginCommand(): void
-    {
+    public function testAuthLoginCommand(): void {
         // @todo Stop this from messing up local credentials with test values.
         // E.g., write to a temporary directory by setting the target with an injected property.
         $this->setCommand($this->createCommand());
@@ -59,10 +57,11 @@ class AuthCommandTest extends CommandTestBase
         $this->assertFileExists($creds_file);
         $contents = file_get_contents($creds_file);
         $this->assertJson($contents);
-        $config = json_decode($contents, true);
+        $config = json_decode($contents, TRUE);
         $this->assertArrayHasKey('key', $config);
         $this->assertArrayHasKey('secret', $config);
         $this->assertEquals('testkey123123', $config['key']);
         $this->assertEquals('testsecret123123', $config['secret']);
     }
+
 }

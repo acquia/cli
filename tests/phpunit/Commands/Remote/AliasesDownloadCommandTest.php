@@ -12,15 +12,14 @@ class AliasesDownloadCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new AliasesDownloadCommand();
     }
 
     /**
      * Tests the 'remote:aliases:download' commands.
      */
-    public function testRemoteAliasesDownloadCommand(): void
-    {
+    public function testRemoteAliasesDownloadCommand(): void {
     }
+
 }

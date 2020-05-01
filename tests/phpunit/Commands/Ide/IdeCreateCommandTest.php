@@ -22,8 +22,7 @@ class IdeCreateCommandTest extends CommandTestBase
      *
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testCreate(): void
-    {
+    public function testCreate(): void {
         $this->setCommand($this->createCommand());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
@@ -45,7 +44,7 @@ class IdeCreateCommandTest extends CommandTestBase
         // Request for IDE data.
         $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
         $cloud_client->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
-        
+
         $this->command->setAcquiaCloudClient($cloud_client->reveal());
 
         /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
@@ -81,8 +80,8 @@ class IdeCreateCommandTest extends CommandTestBase
     /**
      * @return IdeCreateCommand
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeCreateCommand();
     }
+
 }

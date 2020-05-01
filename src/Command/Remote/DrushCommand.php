@@ -21,8 +21,7 @@ class DrushCommand extends SSHBaseCommand
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('remote:drush')
           ->setAliases(['drush'])
           ->setDescription('Runs a Drush command remotely on a application\'s environment.')
@@ -36,8 +35,7 @@ class DrushCommand extends SSHBaseCommand
      * {@inheritdoc}
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         // @todo Validate the arg format.
         $site_env = $input->getArgument('site_env');
         $site_env_parts = explode('.', $site_env);
@@ -53,4 +51,5 @@ class DrushCommand extends SSHBaseCommand
 
         return $this->executeCommand($arguments);
     }
+
 }

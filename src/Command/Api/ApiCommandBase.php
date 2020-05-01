@@ -33,14 +33,13 @@ class ApiCommandBase extends CommandBase
      * @return int 0 if everything went fine, or an exit code
      * @throws \Exception
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         // Build query from non-null options.
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         if ($this->queryParams) {
             foreach ($this->queryParams as $key) {
                 $value = $input->getOption($key);
-                if ($value !== null) {
+                if ($value !== NULL) {
                     $acquia_cloud_client->addQuery($key, $value);
                 }
             }
@@ -63,32 +62,28 @@ class ApiCommandBase extends CommandBase
     /**
      * @param string $method
      */
-    public function setMethod($method): void
-    {
+    public function setMethod($method): void {
         $this->method = $method;
     }
 
     /**
      * @param array $responses
      */
-    public function setResponses($responses): void
-    {
+    public function setResponses($responses): void {
         $this->responses = $responses;
     }
 
     /**
      * @param array $servers
      */
-    public function setServers($servers): void
-    {
+    public function setServers($servers): void {
         $this->servers = $servers;
     }
 
     /**
      * @param string $path
      */
-    public function setPath($path): void
-    {
+    public function setPath($path): void {
         $this->path = $path;
     }
 
@@ -97,15 +92,14 @@ class ApiCommandBase extends CommandBase
      *
      * @return string
      */
-    protected function getRequestPath(InputInterface $input): string
-    {
+    protected function getRequestPath(InputInterface $input): string {
         $path = $this->path;
         $arguments = $input->getArguments();
         // The command itself is the first argument. Remove it.
         array_shift($arguments);
         foreach ($arguments as $key => $value) {
             $token = '{' . $key . '}';
-            if (strpos($path, $token) !== false) {
+            if (strpos($path, $token) !== FALSE) {
                 $path = str_replace($token, $value, $this->path);
             }
         }
@@ -116,17 +110,15 @@ class ApiCommandBase extends CommandBase
     /**
      * @param $param_name
      */
-    public function addPostParameter($param_name): void
-    {
+    public function addPostParameter($param_name): void {
         $this->postParams[] = $param_name;
     }
-
 
     /**
      * @param $param_name
      */
-    public function addQueryParameter($param_name)
-    {
+    public function addQueryParameter($param_name) {
         $this->queryParams[] = $param_name;
     }
+
 }

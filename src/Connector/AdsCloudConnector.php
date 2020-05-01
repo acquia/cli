@@ -15,6 +15,7 @@ use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
  */
 class AdsCloudConnector extends Connector
 {
+
     /**
      * Adds caching handler to the default AcquiaCloudApi\Connector\Connector.
      *
@@ -24,8 +25,7 @@ class AdsCloudConnector extends Connector
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function sendRequest($verb, $path, $options)
-    {
+    public function sendRequest($verb, $path, $options) {
         $stack = HandlerStack::create();
         $stack->push(// This will respect the header's cache response!
             new CacheMiddleware(new PrivateCacheStrategy(new DoctrineCacheStorage(new FilesystemCache(__DIR__ . '/../../cache')))),
@@ -36,4 +36,5 @@ class AdsCloudConnector extends Connector
 
         return $client->send($request, $options);
     }
+
 }

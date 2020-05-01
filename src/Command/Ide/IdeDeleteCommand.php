@@ -17,8 +17,7 @@ class IdeDeleteCommand extends IdeCommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('ide:delete')->setDescription('Delete an IDE');
         // @todo Add option to accept an IDE label or UUID.
     }
@@ -29,8 +28,7 @@ class IdeDeleteCommand extends IdeCommandBase
      *
      * @return int 0 if everything went fine, or an exit code
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $acquia_cloud_client = $this->getAcquiaCloudClient();
         $ides_resource = new Ides($acquia_cloud_client);
 
@@ -40,4 +38,5 @@ class IdeDeleteCommand extends IdeCommandBase
 
         return 0;
     }
+
 }

@@ -15,8 +15,7 @@ class UnlinkCommand extends CommandBase
     /**
      * {inheritdoc}
      */
-    protected function configure()
-    {
+    protected function configure() {
         $this->setName('unlink')
           ->setDescription('Remove local association between your project and an Acquia Cloud application');
     }
@@ -24,9 +23,8 @@ class UnlinkCommand extends CommandBase
     /**
      * @return bool
      */
-    protected function commandRequiresAuthentication(): bool
-    {
-        return false;
+    protected function commandRequiresAuthentication(): bool {
+        return FALSE;
     }
 
     /**
@@ -36,8 +34,7 @@ class UnlinkCommand extends CommandBase
      * @return int 0 if everything went fine, or an exit code
      * @throws \Acquia\Ads\Exception\AdsException
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
+    protected function execute(InputInterface $input, OutputInterface $output) {
         $this->validateCwdIsValidDrupalProject();
 
         $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
@@ -45,7 +42,7 @@ class UnlinkCommand extends CommandBase
         foreach ($local_user_config['localProjects'] as $key => $project) {
             if ($project['directory'] === $repo_root) {
                 unset($local_user_config['localProjects'][$key]);
-                $this->localProjectInfo = null;
+                $this->localProjectInfo = NULL;
                 $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
 
                 $output->writeln("<info>Unlinked $repo_root from Cloud application {$project['cloud_application_uuid']}</info>");
@@ -55,4 +52,5 @@ class UnlinkCommand extends CommandBase
 
         throw new AdsException("This project is not linked to a Cloud application.");
     }
+
 }

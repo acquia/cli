@@ -12,15 +12,14 @@ class IdeListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new IdeOpenCommand();
     }
 
     /**
      * Tests the 'ide:list' commands.
      */
-    public function testIdeListCommand(): void
-    {
+    public function testIdeListCommand(): void {
     }
+
 }

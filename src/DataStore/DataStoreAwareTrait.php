@@ -16,16 +16,15 @@ trait DataStoreAwareTrait
     /**
      * @return mixed
      */
-    public function getDataStore()
-    {
+    public function getDataStore() {
         return $this->data_store;
     }
 
     /**
      * @param DataStoreInterface $data_store
      */
-    public function setDataStore(DataStoreInterface $data_store): void
-    {
+    public function setDataStore(DataStoreInterface $data_store): void {
         $this->data_store = $data_store;
     }
+
 }

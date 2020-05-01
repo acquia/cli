@@ -12,8 +12,7 @@ class ApiListCommandTest extends CommandTestBase
     /**
      * {@inheritdoc}
      */
-    protected function createCommand(): Command
-    {
+    protected function createCommand(): Command {
         return new ApiListCommand();
     }
 
@@ -21,10 +20,10 @@ class ApiListCommandTest extends CommandTestBase
      * Tests the 'api:list' command.
      * @throws \Psr\Cache\InvalidArgumentException
      */
-    public function testApiListCommand(): void
-    {
+    public function testApiListCommand(): void {
         $this->executeCommand();
         $output = $this->getDisplay();
         $this->assertStringContainsString(' api:accounts:ssh-keys-list', $output);
     }
+
 }

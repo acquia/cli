@@ -37,8 +37,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * @return \Acquia\Ads\Helpers\LocalMachineHelper
      */
-    public function getLocalMachineHelper(): LocalMachineHelper
-    {
+    public function getLocalMachineHelper(): LocalMachineHelper {
         return $this->localMachineHelper;
     }
 
@@ -89,8 +88,7 @@ class AdsApplication extends Application implements LoggerAwareInterface
      *
      * @throws \Exception When running fails. Bypass this when <a href='psi_element://setCatchExceptions()'>setCatchExceptions()</a>.
      */
-    public function run(InputInterface $input = null, OutputInterface $output = null)
-    {
+    public function run(InputInterface $input = NULL, OutputInterface $output = NULL) {
         // @todo Add telemetry.
 
         $exit_code = parent::run($input, $output);
@@ -100,32 +98,29 @@ class AdsApplication extends Application implements LoggerAwareInterface
     /**
      * @return null|string
      */
-    public function getRepoRoot(): ?string
-    {
+    public function getRepoRoot(): ?string {
         return $this->repoRoot;
     }
 
     /**
      * Warns the user if the xDebug extension is loaded.
      */
-    protected function warnIfXdebugLoaded()
-    {
+    protected function warnIfXdebugLoaded() {
         $xdebug_loaded = extension_loaded('xdebug');
         if ($xdebug_loaded) {
             $this->logger->warning('<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>');
         }
     }
 
-    public function getDataStore()
-    {
+    public function getDataStore() {
         return $this->datastore;
     }
 
     /**
      * @return \Psr\Log\LoggerInterface
      */
-    public function getLogger(): LoggerInterface
-    {
+    public function getLogger(): LoggerInterface {
         return $this->logger;
     }
+
 }
