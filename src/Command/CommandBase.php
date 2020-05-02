@@ -183,7 +183,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $application;
   }
 
-
   /**
    * @param \stdClass[] $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.

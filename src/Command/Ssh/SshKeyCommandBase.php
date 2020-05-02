@@ -12,7 +12,7 @@ use Symfony\Component\Finder\Finder;
 abstract class SshKeyCommandBase extends CommandBase {
 
   /** @var string|null */
-  private $sshKeysDir = null;
+  private $sshKeysDir = NULL;
 
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
