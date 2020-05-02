@@ -6,7 +6,6 @@ use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exception\AdsException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 
 /**
  * Class SshKeyDeleteCommand.
@@ -31,8 +30,7 @@ class SshKeyDeleteCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
-    $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
-    $cloud_keys = $acquia_cloud_client->processResponse($response);
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $cloud_key = $this->promptChooseFromObjects(
       $cloud_keys,
       'uuid',
@@ -40,7 +38,8 @@ class SshKeyDeleteCommand extends CommandBase {
       '<question>Choose an SSH key to delete from Acquia Cloud</question>:'
     );
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);
-    if ($response->getStatusCode() == 202) {
+    if ($response->getStatusCode() === 202) {
+      $output->writeln("<info>Successfully deleted SSH key <comment>{$cloud_key->label}</comment> from Acquia Cloud.</info>");
       return 0;
     }
 
