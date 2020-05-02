@@ -3,8 +3,8 @@
 namespace Acquia\Ads\Command\Ssh;
 
 use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
-use AlecRabbit\Snake\Spinner;
 use React\EventLoop\Factory;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,21 +36,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
-    $local_keys = $this->findLocalSshKeys();
-
-    if ($input->hasOption('filepath')) {
-      $filepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath($input->getOption('filepath'));
-      if (!file_exists($filepath)) {
-        throw new AdsException("The filepath $filepath is not valid");
-      }
-      $public_key = file_get_contents($filepath);
-      $chosen_local_key = basename($filepath);
-    }
-    else {
-      // Get local key and contents.
-      $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
-      $public_key = $this->getLocalSshKeyContents($local_keys, $chosen_local_key);
-    }
+    [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
 
     // Get label.
     $label = $this->promptSshKeyLabel();
@@ -75,6 +61,30 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   }
 
   /**
+   * @return array
+   * @throws \Acquia\Ads\Exception\AdsException
+   */
+  protected function determinePublicSshKey(): array {
+    if ($this->input->getOption('filepath')) {
+      $filepath = $this->getApplication()
+        ->getLocalMachineHelper()
+        ->getLocalFilepath($this->input->getOption('filepath'));
+      if (!file_exists($filepath)) {
+        throw new AdsException("The filepath $filepath is not valid");
+      }
+      $public_key = file_get_contents($filepath);
+      $chosen_local_key = basename($filepath);
+    } else {
+      // Get local key and contents.
+      $local_keys = $this->findLocalSshKeys();
+      $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
+      $public_key = $this->getLocalSshKeyContents($local_keys, $chosen_local_key);
+    }
+
+    return [$chosen_local_key, $public_key];
+  }
+
+  /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $public_key
@@ -88,17 +98,20 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     $loop = Factory::create();
 
     // Add a spinner.
-    $spinner = new Spinner();
-    $loop->addPeriodicTimer($spinner->interval(), static function () use ($spinner) {
-        $spinner->spin();
-    });
+    if ($this->useSpinner()) {
+      $spinner = new Spinner();
+      $loop->addPeriodicTimer($spinner->interval(),
+        static function () use ($spinner) {
+          $spinner->spin();
+        });
+      $spinner->begin();
+    }
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, static function () use ($output, $loop, $acquia_cloud_client, $public_key) {
         // @todo Change this to test an actual ssh connection, not just Cloud API.
         // But which server do we check a connection to?
-        $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
-        $cloud_keys = $acquia_cloud_client->processResponse($response);
+      $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $cloud_key) {
         if (trim($cloud_key->public_key) === trim($public_key)) {
           $output->writeln("\n<info>Your SSH key is ready for use.</info>");
@@ -113,10 +126,11 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         $loop->stop();
     });
 
-    // Start the loop and spinner.
-    $spinner->begin();
     $loop->run();
-    $spinner->end();
+
+    if ($this->useSpinner()) {
+      $spinner->end();
+    }
   }
 
   /**
