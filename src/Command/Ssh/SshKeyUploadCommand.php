@@ -99,12 +99,12 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
     // Add a spinner.
     if ($this->useSpinner()) {
-      $spinner = new Spinner();
+      $spinner = new Spinner($this->output, 4);
       $loop->addPeriodicTimer($spinner->interval(),
         static function () use ($spinner) {
-          $spinner->spin();
+          $spinner->advance();
         });
-      $spinner->begin();
+      $spinner->start();
     }
 
     // Poll Cloud every 5 seconds.
@@ -129,7 +129,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     $loop->run();
 
     if ($this->useSpinner()) {
-      $spinner->end();
+      $spinner->finish();
     }
   }
 
