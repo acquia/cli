@@ -52,17 +52,13 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->command->setAcquiaCloudClient($cloud_client->reveal());
 
     // Choose a local SSH key to upload to Acquia Cloud.
-    $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub');
-    $this->fs->remove($finder->files());
-    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'ads') . '.pub';
-    $this->fs->dumpFile($temp_file_name, $mock_request_args["public_key"]);
+    $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
     $this->command->setSshKeysDir(sys_get_temp_dir());
     $inputs = [
       // Choose key.
       '0',
       // Label
-      $mock_request_args["label"],
+      $mock_request_args['label'],
     ];
     $this->executeCommand([], $inputs);
 

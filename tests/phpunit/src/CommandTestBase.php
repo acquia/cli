@@ -18,6 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -209,7 +210,7 @@ abstract class CommandTestBase extends TestCase {
    * @param $method
    * @param $http_code
    *
-   * @return false|string
+   * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function getMockResponseFromSpec($path, $method, $http_code) {
@@ -307,6 +308,20 @@ abstract class CommandTestBase extends TestCase {
     $cache->save($api_spec_checksum_item);
     $api_spec_cache_item->set($api_spec);
     $cache->save($api_spec_cache_item);
+  }
+
+  /**
+   * @param $contents
+   *
+   * @return string
+   */
+  protected function createLocalSshKey($contents): string {
+    $finder = new Finder();
+    $finder->files()->in(sys_get_temp_dir())->name('*.pub');
+    $this->fs->remove($finder->files());
+    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'ads') . '.pub';
+    $this->fs->dumpFile($temp_file_name, $contents);
+    return $temp_file_name;
   }
 
 }
