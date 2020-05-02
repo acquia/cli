@@ -165,25 +165,48 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   *
-   * @return string
    */
   protected function promptChooseApplication(
-        InputInterface $input,
-        OutputInterface $output,
-        Client $acquia_cloud_client
-    ): string {
-    $application_list = $this->getApplicationList($acquia_cloud_client);
-    $application_names = array_values($application_list);
-    $helper = $this->getHelper('question');
-    $question = new ChoiceQuestion(
-          'Please select an Acquia Cloud application:',
-          $application_names
-      );
-    $choice_id = $helper->ask($input, $output, $question);
-    $application_uuid = array_search($choice_id, $application_list, TRUE);
+    InputInterface $input,
+    OutputInterface $output,
+    Client $acquia_cloud_client
+  ) {
+    $applications_resource = new Applications($acquia_cloud_client);
+    $customer_applications = $applications_resource->getAll();
+    $application = $this->promptChooseFromObjects(
+      $customer_applications,
+      'uuid',
+      'name',
+      'Please select an Acquia Cloud application:'
+    );
 
-    return $application_uuid;
+    return $application;
+  }
+
+  /**
+   * @param \stdClass[] $items An array of objects.
+   * @param string $unique_property The property of the $item that will be used to identify the object.
+   * @param string $question_text
+   *
+   * @return mixed
+   */
+  public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text) {
+    $list = [];
+    foreach ($items as $item) {
+      $list[$item->$unique_property] = $item->$label_property;
+    }
+    $labels = array_values($list);
+    $question = new ChoiceQuestion($question_text, $labels);
+    $helper = $this->getHelper('question');
+    $choice_id = $helper->ask($this->input, $this->output, $question);
+    $identifier = array_search($choice_id, $list, TRUE);
+    foreach ($items as $item) {
+      if ($item->$unique_property === $identifier) {
+        return $item;
+      }
+    }
+
+    return NULL;
   }
 
   /**
@@ -371,10 +394,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
-    $this->saveLocalConfigCloudAppUuid($application_uuid);
+    $application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
+    $this->saveLocalConfigCloudAppUuid($application->uuid);
 
-    return $application_uuid;
+    return $application->uuid;
   }
 
   /**

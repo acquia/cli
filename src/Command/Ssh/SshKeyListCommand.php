@@ -27,8 +27,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
-    $response = $acquia_cloud_client->makeRequest('get', '/account/ssh-keys');
-    $cloud_keys = $acquia_cloud_client->processResponse($response);
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
 
     $table = new Table($output);
