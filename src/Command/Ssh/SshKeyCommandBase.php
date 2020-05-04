@@ -17,12 +17,10 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
    */
-  protected function findLocalSshKeys() {
+  protected function findLocalSshKeys(): array {
     $finder = new Finder();
     $finder->files()->in($this->getSshKeysDir())->name('*.pub');
-    $local_keys = iterator_to_array($finder);
-
-    return $local_keys;
+    return iterator_to_array($finder);
   }
 
   /**
@@ -41,6 +39,18 @@ abstract class SshKeyCommandBase extends CommandBase {
     }
 
     return $this->sshKeysDir;
+  }
+
+  /**
+   * @param $label
+   *
+   * @return string|string[]|null
+   */
+  public static function normalizeSshKeyLabel($label) {
+    // It may only contain letters, numbers and underscores,.
+    $label = preg_replace('/[^A-Za-z0-9_]/', '', $label);
+
+    return $label;
   }
 
 }

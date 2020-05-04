@@ -97,7 +97,9 @@ class Spinner {
   private $indentString;
 
   /**
-   *
+   * @param \Symfony\Component\Console\Output\ConsoleOutput $output
+   * @param int $indent
+   * @param int $colorLevel
    */
   public function __construct(ConsoleOutput $output, $indent = 0, $colorLevel = Color::COLOR_256) {
     $this->section = $output->section();

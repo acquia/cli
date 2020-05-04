@@ -89,22 +89,13 @@ class IdeCreateCommand extends CommandBase {
     }
 
     $loop = Factory::create();
-    if ($this->useSpinner()) {
-      $spinner = new Spinner($this->output, 4);
-      $spinner->setMessage('Waiting for DNS to propagate...');
-      $spinner->start();
-      $loop->addPeriodicTimer($spinner->interval(), static function () use ($spinner) {
-          $spinner->advance();
-      });
-    }
-    else {
-      $this->output->writeln('Waiting for DNS to propagate...');
-    }
+    $spinner = $this->addSpinnerToLoop($loop, 'Waiting for DNS to propagate...');
 
-    $loop->addPeriodicTimer(5, function () use ($loop, $ide_url) {
+    $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {
       try {
-            $response = $this->client->request('GET', '/health');
+        $response = $this->client->request('GET', '/health');
         if ($response->getStatusCode() === 200) {
+          $this->finishSpinner($spinner);
           $loop->stop();
           $this->output->writeln('');
           $this->output->writeln('<info>Your IDE is ready!</info>');
@@ -115,25 +106,22 @@ class IdeCreateCommand extends CommandBase {
         }
       }
       catch (Exception $e) {
-                $this->logger->debug($e->getMessage());
+        $this->logger->debug($e->getMessage());
       }
     });
 
     // Add a 15 minute timeout.
-    $loop->addTimer(15 * 60, function () use ($loop) {
-        $this->output->writeln("<error>Timed out after waiting 15 minutes for DNS to propogate.");
-        $this->output->writeln("Either wait longer, or update your local machine to use different DNS servers.");
-        $this->output->writeln("@see [docs url]");
-        $loop->stop();
+    $loop->addTimer(15 * 60, function () use ($loop, $spinner) {
+      $this->finishSpinner($spinner);
+      $this->output->writeln('<error>Timed out after waiting 15 minutes for DNS to propogate.');
+      $this->output->writeln('Either wait longer, or update your local machine to use different DNS servers.');
+      // @todo Add docs url.
+      $this->output->writeln('@see [docs url]');
+      $loop->stop();
     });
 
     // Start the loop.
     $loop->run();
-
-    // After loop.
-    if ($this->useSpinner()) {
-      $spinner->finish();
-    }
   }
 
   /**
@@ -157,9 +145,9 @@ class IdeCreateCommand extends CommandBase {
    * @return \AcquiaCloudApi\Response\IdeResponse
    */
   protected function getIdeFromResponse(
-        OperationResponse $response,
-        \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-    ): IdeResponse {
+    OperationResponse $response,
+    \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+  ): IdeResponse {
     $cloud_api_ide_url = $response->links->self->href;
     $url_parts = explode('/', $cloud_api_ide_url);
     $ide_uuid = end($url_parts);

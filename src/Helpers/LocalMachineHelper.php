@@ -67,6 +67,7 @@ class LocalMachineHelper {
    * @param callable $callback
    *   A function to run while waiting for the process to complete.
    * @param null $cwd
+   * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
    */

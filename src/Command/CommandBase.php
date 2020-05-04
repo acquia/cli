@@ -6,6 +6,7 @@ use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\DataStore\DataStoreInterface;
 use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -385,6 +386,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $application_uuid;
     }
 
+    // If an IDE, get from env var.
+    if ($this::isAcquiaRemoteIde() && $application_uuid = $this::getThisRemoteIdeUuid()) {
+      return $application_uuid;
+    }
+
     // Try to guess based on local git url config.
     if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
       $this->output->writeln('<info>Found a matching application!</info>');
@@ -465,6 +471,70 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function useSpinner(): bool {
     return $this->output instanceof ConsoleOutput;
+  }
+
+  /**
+   * @return array|false|string
+   */
+  public static function isAcquiaRemoteIde() {
+    return getenv('AH_SITE_ENVIRONMENT') === 'IDE';
+  }
+
+  /**
+   * @return array|false|string
+   */
+  public static function getThisRemoteIdeUuid() {
+    $ide_uuid = getenv('REMOTEIDE_UUID');
+    return $ide_uuid;
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   *
+   * @param string $message
+   *
+   * @return \Acquia\Ads\Output\Spinner\Spinner
+   */
+  public function addSpinnerToLoop(
+    \React\EventLoop\LoopInterface $loop,
+    $message
+  ): \Acquia\Ads\Output\Spinner\Spinner {
+    if ($this->useSpinner()) {
+      $spinner = new Spinner($this->output, 4);
+      $spinner->setMessage($message);
+      $spinner->start();
+      $loop->addPeriodicTimer($spinner->interval(),
+        static function () use ($spinner) {
+          $spinner->advance();
+        });
+    }
+    else {
+      $this->output->writeln($message);
+    }
+    return $spinner;
+  }
+
+  protected function finishSpinner(Spinner $spinner) {
+    if ($this->useSpinner()) {
+      $spinner->finish();
+    }
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   * @param $minutes
+   * @param \Acquia\Ads\Output\Spinner\Spinner $spinner
+   */
+  public function addTimeoutToLoop(
+    \React\EventLoop\LoopInterface $loop,
+    $minutes,
+    Spinner $spinner
+  ): void {
+    $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
+      $this->finishSpinner($spinner);
+      $this->logger->debug("Timed out after $minutes minutes!");
+      $loop->stop();
+    });
   }
 
 }
