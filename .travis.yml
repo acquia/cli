@@ -1,7 +1,5 @@
 language: php
-os:
-  - linux
-  - windows
+os: linux
 version: ~> 1.0
 php:
   - 7.3
@@ -20,6 +18,12 @@ env:
   matrix:
     - 'HIGHEST_LOWEST="update"'
     - 'HIGHEST_LOWEST="update --prefer-lowest"'
+
+jobs:
+  # We have to explicitly add Windows jobs because Travis CI doesn't support PHP on Windows.
+  include:
+    - os: windows
+      language: bash
 
 before_install:
   - composer selfupdate
