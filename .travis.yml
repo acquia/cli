@@ -25,16 +25,9 @@ jobs:
     - os: windows
       language: bash
       before_install:
-        - git clone git://github.com/phpenv/phpenv.git ~/.phpenv
-        - export PATH="$HOME/.phpenv/libexec:$PATH"
-        - eval "$(phpenv init -)"
-        - git clone https://github.com/php-build/php-build $(phpenv root)/plugins/php-build
-        - phpenv help
-        - phpenv versions
-        - phpenv install 7.3.17
-        - phpenv rehash
-        - php -v
-        - php -i
+        - choco install php
+        - export PATH=/c/tools/php72:$PATH
+        - ls /c/tools
 
 before_install:
   - composer selfupdate
