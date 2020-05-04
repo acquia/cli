@@ -27,6 +27,8 @@ jobs:
   include:
     - os: windows
       language: bash
+      git:
+        autocrlf: false
       before_install:
         - choco install php
         - choco install composer
