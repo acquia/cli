@@ -24,6 +24,7 @@ jobs:
   include:
     - os: windows
       language: bash
+      before_install: php -v
 
 before_install:
   - composer selfupdate
