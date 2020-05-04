@@ -27,7 +27,7 @@ class SshCommand extends SshBaseCommand {
   /**
    * {@inheritdoc}
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // @todo Validate the arg format.

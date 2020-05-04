@@ -2,7 +2,7 @@
 
 namespace Acquia\Ads\Tests;
 
-use Acquia\Ads\AdsApplication;
+use Acquia\Ads\AcquiaCliApplication;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -134,7 +134,7 @@ abstract class CommandTestBase extends TestCase {
     $output = new BufferedOutput();
     $logger = new ConsoleLogger($output);
     $repo_root = NULL;
-    $this->application = new AdsApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
+    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
     $this->application->add($this->command);
     $found_command = $this->application->find($this->command->getName());
     $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
@@ -319,7 +319,7 @@ abstract class CommandTestBase extends TestCase {
     $finder = new Finder();
     $finder->files()->in(sys_get_temp_dir())->name('*.pub');
     $this->fs->remove($finder->files());
-    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'ads') . '.pub';
+    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'acli') . '.pub';
     $this->fs->dumpFile($temp_file_name, $contents);
     return $temp_file_name;
   }
