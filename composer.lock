@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "209ab5b30bc394c6ef179185698049d2",
+    "content-hash": "87044a29dc50b6d0c09ca65a964715c9",
     "packages": [
         {
             "name": "doctrine/cache",
@@ -1081,12 +1081,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "b3ee7d5b1c50a1e85455664805012ce56f35267a"
+                "reference": "89634a068a02f941f7d8021bf062e67a37060271"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/b3ee7d5b1c50a1e85455664805012ce56f35267a",
-                "reference": "b3ee7d5b1c50a1e85455664805012ce56f35267a",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/89634a068a02f941f7d8021bf062e67a37060271",
+                "reference": "89634a068a02f941f7d8021bf062e67a37060271",
                 "shasum": ""
             },
             "require": {
@@ -1137,7 +1137,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-04-12T14:42:09+00:00"
+            "time": "2020-05-04T14:13:31+00:00"
         },
         {
             "name": "symfony/finder",
@@ -1887,12 +1887,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "0beceb574a547f4e014cdca75bd948487c417654"
+                "reference": "4af90fdc2d6a90178abc2d9acdce30b46349a208"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/0beceb574a547f4e014cdca75bd948487c417654",
-                "reference": "0beceb574a547f4e014cdca75bd948487c417654",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/4af90fdc2d6a90178abc2d9acdce30b46349a208",
+                "reference": "4af90fdc2d6a90178abc2d9acdce30b46349a208",
                 "shasum": ""
             },
             "require": {
@@ -1956,7 +1956,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2020-04-28T18:01:52+00:00"
+            "time": "2020-05-04T16:35:27+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
@@ -4350,8 +4350,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3",
-        "ext-json": "*",
-        "ext-posix": "*"
+        "ext-json": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
