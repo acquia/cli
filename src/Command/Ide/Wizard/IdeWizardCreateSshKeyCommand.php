@@ -73,7 +73,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($ide_uuid);
-    $ssh_key_label = $this->getIdeSshKeyLabel($ide->uuid);
+    $ssh_key_label = $this->getIdeSshKeyLabel($ide);
     $filepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.ssh/' . $filename . '.pub');
     $command = $this->getApplication()->find('ssh-key:upload');
     $arguments = [

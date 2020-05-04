@@ -90,7 +90,9 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function findIdeSshKeyOnCloud($acquia_cloud_client): ?\stdClass {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $ssh_key_label = $this->getIdeSshKeyLabel($this::getThisRemoteIdeUuid());
+    $ides_resource = new Ides($acquia_cloud_client);
+    $ide = $ides_resource->get($this::getThisRemoteIdeUuid());
+    $ssh_key_label = $this->getIdeSshKeyLabel($ide);
     foreach ($cloud_keys as $cloud_key) {
       if ($cloud_key->label === $ssh_key_label) {
         return $cloud_key;

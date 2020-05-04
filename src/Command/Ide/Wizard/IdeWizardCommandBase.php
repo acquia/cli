@@ -9,6 +9,7 @@ use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\IdeResponse;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,13 +23,12 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
 
   /**
    *
-   * @param $uuid
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
    *
    * @return string
    */
-  public function getIdeSshKeyLabel($uuid): string {
-    // @todo Add IDE label to this!
-    return SshKeyCommandBase::normalizeSshKeyLabel('Remote_IDE_' . $uuid);
+  public function getIdeSshKeyLabel(IdeResponse $ide): string {
+    return SshKeyCommandBase::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
 
   /**
