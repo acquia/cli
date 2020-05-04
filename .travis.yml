@@ -26,8 +26,7 @@ jobs:
       language: bash
       before_install:
         - choco install php
-        - export PATH=/c/tools/php72:$PATH
-        - ls /c/tools
+        - choco install composer
 
 before_install:
   - composer selfupdate
