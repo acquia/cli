@@ -1,3 +1,6 @@
+_anchors:
+  - &refreshpath eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+
 language: php
 os: linux
 version: ~> 1.0
@@ -27,6 +30,7 @@ jobs:
       before_install:
         - choco install php
         - choco install composer
+        - *refreshpath
 
 before_install:
   - composer selfupdate
