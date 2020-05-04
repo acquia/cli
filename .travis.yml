@@ -3,7 +3,9 @@ os:
   - linux
   - windows
 version: ~> 1.0
-php: "7.3"
+php:
+  - 7.3
+  - 7.4
 
 cache:
   directories:
@@ -14,14 +16,10 @@ services:
 
 env:
   global: ADS_PRINT_COMMAND_OUTPUT=1
-
-# @see https://pantheon.io/blog/highest-lowest-testing-multiple-symfony-versions
-jobs:
-  include:
-    - php: 7.4
-      env: 'HIGHEST_LOWEST="update"'
-    - php: 7.3
-      env: 'HIGHEST_LOWEST="update --prefer-lowest"'
+  # @see https://pantheon.io/blog/highest-lowest-testing-multiple-symfony-versions
+  matrix:
+    - 'HIGHEST_LOWEST="update"'
+    - 'HIGHEST_LOWEST="update --prefer-lowest"'
 
 before_install:
   - composer selfupdate
