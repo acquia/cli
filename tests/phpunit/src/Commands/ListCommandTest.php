@@ -39,8 +39,10 @@ class ListCommandTest extends CommandTestBase {
   public function testBinExec() {
     $process = new Process(['pwd']);
     $process->mustRun();
+    print($process->getOutput());
     $process = new Process(['ls']);
     $process->mustRun();
+    print($process->getOutput());
     $process = new Process(['bin\ads']);
     $process->mustRun();
     $this->assertStringContainsString('api', $process->getOutput());
