@@ -27,7 +27,6 @@
     "symfony/validator": "^5.0",
     "symfony/yaml": "^5.1@dev",
     "typhonius/acquia-php-sdk-v2": "dev-master",
-    "webmozart/path-util": "^2.3",
     "zumba/amplitude-php": "^1.0"
   },
   "require-dev": {
@@ -38,7 +37,8 @@
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
     "php-coveralls/php-coveralls": "^2.2",
-    "squizlabs/php_codesniffer": "^3.5"
+    "squizlabs/php_codesniffer": "^3.5",
+    "webmozart/path-util": "^2.3"
   },
   "autoload": {
     "psr-4": {
