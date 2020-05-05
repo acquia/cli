@@ -3,7 +3,7 @@
 namespace Acquia\Ads\Command\Remote;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -52,7 +52,7 @@ abstract class SshBaseCommand extends CommandBase {
    *
    * @return int
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function executeCommand(array $command_args): int {
     $command_summary = $this->getCommandSummary($command_args);
@@ -61,7 +61,7 @@ abstract class SshBaseCommand extends CommandBase {
     unset($command_args['site_env']);
     $process = $this->sendCommandViaSsh($command_args);
 
-    /** @var \Acquia\Ads\AdsApplication $application */
+    /** @var \Acquia\Ads\AcquiaCliApplication $application */
     $application = $this->getApplication();
     $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
       'env' => $this->environment->name,
@@ -70,7 +70,7 @@ abstract class SshBaseCommand extends CommandBase {
     ]);
 
     if (!$process->isSuccessful()) {
-      throw new AdsException($process->getOutput());
+      throw new AcquiaCliException($process->getOutput());
     }
 
     return $process->getExitCode();

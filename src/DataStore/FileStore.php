@@ -2,7 +2,7 @@
 
 namespace Acquia\Ads\DataStore;
 
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 
 /**
  * Class FileStore.
@@ -30,7 +30,7 @@ class FileStore implements DataStoreInterface {
    *
    * @return mixed The value fpr the given key or null.
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   public function get($key) {
     $out = NULL;
@@ -52,7 +52,7 @@ class FileStore implements DataStoreInterface {
    * @param mixed $data
    *   Data to save to the store.
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   public function set($key, $data) {
     $path = $this->getFileName($key, TRUE);
@@ -67,7 +67,7 @@ class FileStore implements DataStoreInterface {
    *
    * @return bool Whether a value exists with the given key
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   public function has($key) {
     $path = $this->getFileName($key);
@@ -81,7 +81,7 @@ class FileStore implements DataStoreInterface {
    * @param string $key
    *   A key.
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   public function remove($key) {
     $path = $this->getFileName($key, TRUE);
@@ -93,7 +93,7 @@ class FileStore implements DataStoreInterface {
   /**
    * Remove all values from the store.
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   public function removeAll(): void {
     foreach ($this->keys() as $key) {
@@ -124,7 +124,7 @@ class FileStore implements DataStoreInterface {
    *
    * @return string A file path
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function getFileName($key, $writable = FALSE): string {
     $key = $this->cleanKey($key);
@@ -134,7 +134,7 @@ class FileStore implements DataStoreInterface {
     }
 
     if (!$key) {
-      throw new AdsException('Could not save data to a file because it is missing an ID');
+      throw new AcquiaCliException('Could not save data to a file because it is missing an ID');
     }
 
     return $this->directory . '/' . $key;
@@ -156,12 +156,12 @@ class FileStore implements DataStoreInterface {
   /**
    * Check that the directory is writable and create it if we can.
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function ensureDirectoryWritable(): void {
     // Reality check to prevent stomping on the local filesystem if there is something wrong with the config.
     if (!$this->directory) {
-      throw new AdsException('Could not save data to a file because the path setting is mis-configured.');
+      throw new AcquiaCliException('Could not save data to a file because the path setting is mis-configured.');
     }
 
     $writable = is_dir($this->directory) || (!file_exists($this->directory) && !mkdir(
@@ -171,7 +171,7 @@ class FileStore implements DataStoreInterface {
       ) && !is_dir($concurrentDirectory));
     $writable = $writable && is_writable($this->directory);
     if (!$writable) {
-      throw new AdsException(
+      throw new AcquiaCliException(
             'Could not save data to a file because the path {path} cannot be written to.',
             ['path' => $this->directory]
         );

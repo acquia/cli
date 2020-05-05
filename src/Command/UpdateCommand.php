@@ -44,7 +44,7 @@ class UpdateCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->gitHubRepository = 'https://github.com/grasmash/ads-cli-php';
+    $this->gitHubRepository = 'https://github.com/acquia/cli';
 
     if (empty(Phar::running())) {
       throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()

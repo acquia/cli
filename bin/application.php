@@ -4,7 +4,7 @@
  * @file
  */
 
-use Acquia\Ads\AdsApplication;
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Api\ApiListCommand;
 use Acquia\Ads\Command\AuthCommand;
 use Acquia\Ads\Command\Ide\IdeCreateCommand;
@@ -40,16 +40,16 @@ else {
   require_once __DIR__ . '/../vendor/autoload.php';
 }
 
-// Create the input and output objects for ads to run against.
+// Create the input and output objects for Acquia CLI to run against.
 $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
 $repo_root = find_repo_root();
 
 /**
- * Running ads.
+ * Running Acquia CLI.
  */
-$application = new AdsApplication($logger, $input, $output, $repo_root, '@package_version@');
+$application = new AcquiaCliApplication($logger, $input, $output, $repo_root, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),

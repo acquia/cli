@@ -34,10 +34,10 @@ class ListCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the execution of bin/ads via bash.
+   * Tests the execution of bin/acli via bash.
    */
   public function testBinExec() {
-    $process = new Process(['./ads', 'list'], __DIR__ . '/../../../../bin');
+    $process = new Process(['./acli', 'list'], __DIR__ . '/../../../../bin');
     $process->mustRun();
     $this->assertStringContainsString('api', $process->getOutput());
     $this->assertStringNotContainsString('api:ssh-key:create', $process->getOutput());
