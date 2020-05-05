@@ -3,9 +3,7 @@
 namespace Acquia\Ads\Command\Ide\Wizard;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Command\Ide\IdeCommandBase;
-use Acquia\Ads\Command\Ssh\SshKeyCommandBase;
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -35,7 +33,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
@@ -45,7 +43,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $cloud_app_uuid = getenv('ACQUIA_APPLICATION_UUID');
 
     if ($this->userHasUploadedLocalKeyToCloud()) {
-      // throw new AdsException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");
+      // throw new AcquiaCliException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");
     }
 
     $checklist = new Checklist($output);
@@ -64,7 +62,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $create_input = new ArrayInput($arguments);
     $returnCode = $command->run($create_input, $output);
     if ($returnCode !== 0) {
-      throw new AdsException('Unable to generate a local SSH key.');
+      throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
     $checklist->completePreviousItem();
 
@@ -85,7 +83,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $upload_input = new ArrayInput($arguments);
     $returnCode = $command->run($upload_input, new NullOutput());
     if ($returnCode !== 0) {
-      throw new AdsException('Unable to upload SSH key to Acquia Cloud');
+      throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
 

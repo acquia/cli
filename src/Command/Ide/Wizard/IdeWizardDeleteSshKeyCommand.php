@@ -3,17 +3,10 @@
 namespace Acquia\Ads\Command\Ide\Wizard;
 
 use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Command\Ssh\SshKeyCommandBase;
-use Acquia\Ads\Exception\AdsException;
-use Acquia\Ads\Output\Checklist;
-use AcquiaCloudApi\Endpoints\Environments;
+use Acquia\Ads\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Response\EnvironmentResponse;
-use React\EventLoop\Factory;
-use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -35,7 +28,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
@@ -44,7 +37,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
     $cloud_key = $this->findIdeSshKeyOnCloud($acquia_cloud_client);
     if (!$cloud_key) {
-      throw new AdsException('Could not find an SSH key on Acquia Cloud matching any local key in this IDE.');
+      throw new AcquiaCliException('Could not find an SSH key on Acquia Cloud matching any local key in this IDE.');
     }
 
     $command = $this->getApplication()->find('ssh-key:delete');
@@ -55,7 +48,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
     $upload_input = new ArrayInput($arguments);
     $returnCode = $command->run($upload_input, $output);
     if ($returnCode !== 0) {
-      throw new AdsException('Unable to delete SSH key from Acquia Cloud');
+      throw new AcquiaCliException('Unable to delete SSH key from Acquia Cloud');
     }
 
     $local_key = $this->findMatchingLocalKey($cloud_key);
