@@ -49,7 +49,7 @@ class ApiCommandHelper {
         $command->setResponses($schema['responses']);
         $command->setServers($acquia_cloud_spec['servers']);
         $command->setPath($path);
-        // This is unhidden when `ads api:list` is run.
+        // This is unhidden when `acli api:list` is run.
         // @todo This breaks console's ability to help with "did you mean?" for command typos!
         // Consider hiding ONLY when the `list` command is being executed.
         $command->setHidden(TRUE);

@@ -27,6 +27,7 @@
     "symfony/validator": "^5.0",
     "symfony/yaml": "^5.1@dev",
     "typhonius/acquia-php-sdk-v2": "dev-master",
+    "webmozart/path-util": "^2.3",
     "zumba/amplitude-php": "^1.0"
   },
   "require-dev": {
@@ -50,7 +51,7 @@
     }
   },
   "bin": [
-    "bin/ads"
+    "bin/acli"
   ],
   "config": {
     "process-timeout": 3600,

@@ -2,7 +2,7 @@
 
 namespace Acquia\Ads\Command;
 
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ClientInterface;
@@ -133,7 +133,7 @@ class RefreshCommand extends CommandBase {
   /**
    * @param $chosen_environment
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $repo_root = $this->getApplication()->getRepoRoot();
@@ -148,7 +148,7 @@ class RefreshCommand extends CommandBase {
     else {
       $is_dirty = $this->isLocalGitRepoDirty($repo_root);
       if ($is_dirty) {
-        throw new AdsException('Local git is dirty!');
+        throw new AcquiaCliException('Local git is dirty!');
       }
       $this->getApplication()->getLocalMachineHelper()->execute([
         'git',

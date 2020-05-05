@@ -34,7 +34,7 @@ class DrushCommand extends SSHBaseCommand {
   /**
    * {@inheritdoc}
    *
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // @todo Validate the arg format.

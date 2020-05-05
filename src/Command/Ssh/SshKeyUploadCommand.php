@@ -2,7 +2,7 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use React\EventLoop\Factory;
@@ -32,7 +32,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
@@ -49,7 +49,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     ];
     $response = $acquia_cloud_client->makeRequest('post', '/account/ssh-keys', $options);
     if ($response->getStatusCode() != 202) {
-      throw new AdsException($response->getBody()->getContents());
+      throw new AcquiaCliException($response->getBody()->getContents());
     }
 
     // Wait for the key to register on Acquia Cloud.
@@ -62,7 +62,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
   /**
    * @return array
-   * @throws \Acquia\Ads\Exception\AdsException
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {
@@ -70,7 +70,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         ->getLocalMachineHelper()
         ->getLocalFilepath($this->input->getOption('filepath'));
       if (!file_exists($filepath)) {
-        throw new AdsException("The filepath $filepath is not valid");
+        throw new AcquiaCliException("The filepath $filepath is not valid");
       }
       $public_key = file_get_contents($filepath);
       $chosen_local_key = basename($filepath);

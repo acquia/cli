@@ -2,10 +2,10 @@
 
 namespace Acquia\Ads\Command;
 
-use Acquia\Ads\AdsApplication;
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\DataStore\DataStoreInterface;
-use Acquia\Ads\Exception\AdsException;
+use Acquia\Ads\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -74,12 +74,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->setLogger(new ConsoleLogger($output));
     $this->questionHelper = $this->getHelper('question');
 
-    /** @var \Acquia\Ads\AdsApplication $application */
+    /** @var \Acquia\Ads\AcquiaCliApplication $application */
     $application = $this->getApplication();
     $this->datastore = $application->getDatastore();
 
     if ($this->commandRequiresAuthentication() && !$this->isMachineAuthenticated()) {
-      throw new AdsException('This machine is not yet authenticated with Acquia Cloud. Please run `ads auth:login`');
+      throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `ads auth:login`');
     }
   }
 
@@ -101,7 +101,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Gets the application instance for this command.
    *
-   * @return \Acquia\Ads\AdsApplication|\Symfony\Component\Console\Application
+   * @return \Acquia\Ads\AcquiaCliApplication|\Symfony\Component\Console\Application
    */
   public function getApplication() {
     return parent::getApplication();
@@ -210,11 +210,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AdsApplication $application
+   * @param \Acquia\Ads\AcquiaCliApplication $application
    */
-  protected function loadLocalProjectInfo(AdsApplication $application) {
+  protected function loadLocalProjectInfo(AcquiaCliApplication $application) {
     $this->logger->debug("Loading local project information...");
-    $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
+    $local_user_config = $this->getDatastore()->get('acquia-cli/user.json');
     // Save empty local project info.
     // @todo Abstract this.
     if ($local_user_config !== NULL && $application->getRepoRoot() !== NULL) {
@@ -242,16 +242,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
       $this->localProjectInfo = $local_user_config;
       $this->logger->debug("Saving local project information.");
-      $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
+      $this->getDatastore()->set('acquia-cli/user.json', $local_user_config);
     }
   }
 
   /**
-   * @param \Acquia\Ads\AdsApplication $application
+   * @param \Acquia\Ads\AcquiaCliApplication $application
    *
    * @return array|bool
    */
-  protected function getGitConfig(AdsApplication $application) {
+  protected function getGitConfig(AcquiaCliApplication $application) {
 
     $git_config = parse_ini_file($application->getRepoRoot() . '/.git/config', TRUE);
 
@@ -343,14 +343,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AdsApplication $application
+   * @param \Acquia\Ads\AcquiaCliApplication $application
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
    * @return \AcquiaCloudApi\Response\ApplicationResponse|null
    */
   protected function inferCloudAppFromLocalGitConfig(
-        AdsApplication $application,
-        Client $acquia_cloud_client
+    AcquiaCliApplication $application,
+    Client $acquia_cloud_client
     ): ?ApplicationResponse {
     if ($application->getRepoRoot()) {
       $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
@@ -376,7 +376,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function determineCloudApplication(): ?string {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
-    /** @var \Acquia\Ads\AdsApplication $ads_application */
+    /** @var \Acquia\Ads\AcquiaCliApplication $ads_application */
     $ads_application = $this->getApplication();
     $this->loadLocalProjectInfo($ads_application);
 
@@ -404,7 +404,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $application_uuid
    */
   protected function saveLocalConfigCloudAppUuid($application_uuid): void {
-    $local_user_config = $this->getDatastore()->get('ads-cli/user.json');
+    $local_user_config = $this->getDatastore()->get('acquia-cli/user.json');
     if (!$local_user_config) {
       $local_user_config = [
         'localProjects' => [],
@@ -416,7 +416,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
-        $this->getDatastore()->set('ads-cli/user.json', $local_user_config);
+        $this->getDatastore()->set('acquia-cli/user.json', $local_user_config);
 
         return;
       }
@@ -435,12 +435,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AdsApplication $ads_application
+   * @param \Acquia\Ads\AcquiaCliApplication $ads_application
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    */
   protected function promptLinkApplication(
-        AdsApplication $ads_application,
-        ?ApplicationResponse $cloud_application
+    AcquiaCliApplication $ads_application,
+    ?ApplicationResponse $cloud_application
     ): void {
     $question = new ConfirmationQuestion("<question>Would you like to link the project at {$ads_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
     $helper = $this->getHelper('question');
@@ -456,7 +456,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function validateCwdIsValidDrupalProject(): void {
     if (!$this->getApplication()->getRepoRoot()) {
-      throw new AdsException("Could not find a local Drupal project. Please execute this command from within a Drupal project directory.");
+      throw new AcquiaCliException("Could not find a local Drupal project. Please execute this command from within a Drupal project directory.");
     }
   }
 

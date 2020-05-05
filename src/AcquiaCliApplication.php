@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Grasmash\YamlCli\Command
  */
-class AdsApplication extends Application implements LoggerAwareInterface {
+class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
