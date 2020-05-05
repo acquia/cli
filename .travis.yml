@@ -31,6 +31,7 @@ jobs:
         - choco install composer
         # Emulate RefreshEnv to pick up new bin paths.
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+        - cmd.exe //c "RefreshEnv.cmd"
 
 before_install:
   - composer selfupdate
