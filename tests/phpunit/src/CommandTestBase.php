@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Tests;
+namespace Acquia\Cli\Tests;
 
-use Acquia\Ads\AcquiaCliApplication;
+use Acquia\Cli\AcquiaCliApplication;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -98,7 +98,7 @@ abstract class CommandTestBase extends TestCase {
     $command_name = $this->command->getName();
     $args = array_merge(['command' => $command_name], $args);
 
-    if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
+    if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln("");
       $this->consoleOutput->writeln("Executing <comment>" . $this->command->getName() . "</comment> in " . $cwd);
       $this->consoleOutput->writeln('<comment>------Begin command output-------</comment>');
@@ -106,7 +106,7 @@ abstract class CommandTestBase extends TestCase {
 
     $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
 
-    if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
+    if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln($tester->getDisplay());
       $this->consoleOutput->writeln('<comment>------End command output---------</comment>');
       $this->consoleOutput->writeln("");
@@ -186,7 +186,7 @@ abstract class CommandTestBase extends TestCase {
    *
    */
   protected function printTestName(): void {
-    if (getenv('ADS_PRINT_COMMAND_OUTPUT')) {
+    if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln("");
       $this->writeFullWidthLine(get_class($this) . "::" . $this->getName(), $this->consoleOutput);
     }

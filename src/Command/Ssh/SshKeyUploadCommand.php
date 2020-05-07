@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Command\Ssh;
+namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Ads\Exception\AcquiaCliException;
-use Acquia\Ads\Output\Spinner\Spinner;
+use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use React\EventLoop\Factory;
 use RuntimeException;
@@ -32,7 +32,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
@@ -62,7 +62,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
   /**
    * @return array
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {

@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Command\Ssh;
+namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Ads\Command\CommandBase;
+use Acquia\Cli\Command\CommandBase;
 
 use Symfony\Component\Finder\Finder;
 

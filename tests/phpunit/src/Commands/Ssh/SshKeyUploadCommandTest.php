@@ -1,12 +1,12 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ssh;
+namespace Acquia\Cli\Tests\Commands\Ssh;
 
-use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
-use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Ads\Helpers\LocalMachineHelper;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Cli\Command\Ssh\SshKeyCreateUploadCommand;
+use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * Class SshKeyCreateUploadCommandTest
  * @property SshKeyUploadCommand $command
- * @package Acquia\Ads\Tests\Ssh
+ * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyUploadCommandTest extends CommandTestBase
 {

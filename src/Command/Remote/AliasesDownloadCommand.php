@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command\Remote;
+namespace Acquia\Cli\Command\Remote;
 
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
  *
- * @package Acquia\Ads\Commands\Remote
+ * @package Acquia\Cli\Commands\Remote
  */
 class AliasesDownloadCommand extends SshCommand {
 

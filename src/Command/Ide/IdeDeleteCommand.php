@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command\Ide;
+namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;

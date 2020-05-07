@@ -1,10 +1,10 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Api;
+namespace Acquia\Cli\Tests\Commands\Api;
 
-use Acquia\Ads\Command\Api\ApiCommandBase;
-use Acquia\Ads\Command\Api\ApiCommandHelper;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Api\ApiCommandBase;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
  * Class ApiCommandTest.
  *
  * @property ApiCommandBase $command
- * @package Acquia\Ads\Tests\Api
+ * @package Acquia\Cli\Tests\Api
  */
 class ApiCommandTest extends CommandTestBase {
 
@@ -84,7 +84,7 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void {
-    putenv('ADS_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
+    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
     $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
     $resource = $this->getResourceFromSpec('/account/ssh-keys', 'get');
@@ -124,7 +124,7 @@ class ApiCommandTest extends CommandTestBase {
   /**
    * @param $name
    *
-   * @return \Acquia\Ads\Command\Api\ApiCommandBase|null
+   * @return \Acquia\Cli\Command\Api\ApiCommandBase|null
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommandByName($name): ?ApiCommandBase {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ssh;
+namespace Acquia\Cli\Tests\Commands\Ssh;
 
-use Acquia\Ads\Command\Ssh\SshKeyListCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ssh\SshKeyListCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
@@ -12,7 +12,7 @@ use Symfony\Component\Finder\Finder;
 /**
  * Class SshKeyListCommandTest
  * @property SshKeyListCommand $command
- * @package Acquia\Ads\Tests\Ssh
+ * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyListCommandTest extends CommandTestBase
 {

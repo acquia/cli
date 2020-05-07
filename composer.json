@@ -1,6 +1,6 @@
 {
-  "name": "acquia/ads-cli-php",
-  "description": "ADS CLI written in PHP.",
+  "name": "acquia/cli",
+  "description": "Acquia CLI",
   "type": "library",
   "license": "GPL-2.0-only",
   "authors": [
@@ -42,12 +42,12 @@
   },
   "autoload": {
     "psr-4": {
-      "Acquia\\Ads\\": "src/"
+      "Acquia\\Cli\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Acquia\\Ads\\Tests\\": "tests/phpunit/src/"
+      "Acquia\\Cli\\Tests\\": "tests/phpunit/src/"
     }
   },
   "bin": [

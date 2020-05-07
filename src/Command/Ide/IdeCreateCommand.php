@@ -1,10 +1,10 @@
 <?php
 
-namespace Acquia\Ads\Command\Ide;
+namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Output\Checklist;
-use Acquia\Ads\Output\Spinner\Spinner;
+use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Output\Checklist;
+use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;

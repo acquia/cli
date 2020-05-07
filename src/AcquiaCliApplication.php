@@ -1,10 +1,10 @@
 <?php
 
-namespace Acquia\Ads;
+namespace Acquia\Cli;
 
-use Acquia\Ads\Command\Api\ApiCommandHelper;
-use Acquia\Ads\DataStore\FileStore;
-use Acquia\Ads\Helpers\LocalMachineHelper;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\DataStore\FileStore;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -23,7 +23,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   use LoggerAwareTrait;
 
   /**
-   * @var \Acquia\Ads\DataStore\FileStore*/
+   * @var \Acquia\Cli\DataStore\FileStore*/
   private $datastore;
 
   /**
@@ -31,19 +31,19 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private $repoRoot;
 
   /**
-   * @var \Acquia\Ads\Helpers\LocalMachineHelper
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
   protected $localMachineHelper;
 
   /**
-   * @return \Acquia\Ads\Helpers\LocalMachineHelper
+   * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
     return $this->localMachineHelper;
   }
 
   /**
-   * Ads constructor.
+   * Cli constructor.
    *
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Symfony\Component\Console\Input\InputInterface $input

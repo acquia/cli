@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Api;
+namespace Acquia\Cli\Tests\Commands\Api;
 
-use Acquia\Ads\Command\Api\ApiListCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Api\ApiListCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 class ApiListCommandTest extends CommandTestBase {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide;
+namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Ads\Command\Ide\IdeOpenCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ide\IdeOpenCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeOpenCommandTest.
  *
  * @property IdeOpenCommand $command
- * @package Acquia\Ads\Tests\Ide
+ * @package Acquia\Cli\Tests\Ide
  */
 class IdeOpenCommandTest extends CommandTestBase {
 

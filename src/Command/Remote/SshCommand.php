@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command\Remote;
+namespace Acquia\Cli\Command\Remote;
 
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
  *
- * @package Acquia\Ads\Commands\Remote
+ * @package Acquia\Cli\Commands\Remote
  */
 class SshCommand extends SshBaseCommand {
 
@@ -27,7 +27,7 @@ class SshCommand extends SshBaseCommand {
   /**
    * {@inheritdoc}
    *
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // @todo Validate the arg format.

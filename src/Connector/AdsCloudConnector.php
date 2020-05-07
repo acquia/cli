@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Connector;
+namespace Acquia\Cli\Connector;
 
 use AcquiaCloudApi\Connector\Connector;
 use Doctrine\Common\Cache\FilesystemCache;
@@ -11,9 +11,9 @@ use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 
 /**
- * Class AdsCloudConnector.
+ * Class CliCloudConnector.
  */
-class AdsCloudConnector extends Connector {
+class CliCloudConnector extends Connector {
 
   /**
    * Adds caching handler to the default AcquiaCloudApi\Connector\Connector.

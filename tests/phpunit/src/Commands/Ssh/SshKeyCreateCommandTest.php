@@ -1,10 +1,10 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ssh;
+namespace Acquia\Cli\Tests\Commands\Ssh;
 
-use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Ads\Helpers\LocalMachineHelper;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 class SshKeyCreateCommandTest extends CommandTestBase {

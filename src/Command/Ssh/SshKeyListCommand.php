@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command\Ssh;
+namespace Acquia\Cli\Command\Ssh;
 
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;

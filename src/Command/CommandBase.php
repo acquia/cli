@@ -1,11 +1,11 @@
 <?php
 
-namespace Acquia\Ads\Command;
+namespace Acquia\Cli\Command;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Connector\AdsCloudConnector;
-use Acquia\Ads\DataStore\DataStoreInterface;
-use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Connector\CliCloudConnector;
+use Acquia\Cli\DataStore\DataStoreInterface;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -42,7 +42,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
   protected $formatter;
   /**
-   * @var \Acquia\Ads\DataStore\DataStoreInterface
+   * @var \Acquia\Cli\DataStore\DataStoreInterface
    */
   private $datastore;
 
@@ -74,12 +74,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->setLogger(new ConsoleLogger($output));
     $this->questionHelper = $this->getHelper('question');
 
-    /** @var \Acquia\Ads\AcquiaCliApplication $application */
+    /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
     $this->datastore = $application->getDatastore();
 
     if ($this->commandRequiresAuthentication() && !$this->isMachineAuthenticated()) {
-      throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `ads auth:login`');
+      throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
     }
   }
 
@@ -101,14 +101,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Gets the application instance for this command.
    *
-   * @return \Acquia\Ads\AcquiaCliApplication|\Symfony\Component\Console\Application
+   * @return \Acquia\Cli\AcquiaCliApplication|\Symfony\Component\Console\Application
    */
   public function getApplication() {
     return parent::getApplication();
   }
 
   /**
-   * @return \Acquia\Ads\DataStore\DataStoreInterface
+   * @return \Acquia\Cli\DataStore\DataStoreInterface
    */
   public function getDatastore(): DataStoreInterface {
     return $this->datastore;
@@ -134,7 +134,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'key' => $cloud_api_conf['key'],
       'secret' => $cloud_api_conf['secret'],
     ];
-    $connector = new AdsCloudConnector($config);
+    $connector = new CliCloudConnector($config);
     $this->acquiaCloudClient = Client::factory($connector);
 
     return $this->acquiaCloudClient;
@@ -210,7 +210,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AcquiaCliApplication $application
+   * @param \Acquia\Cli\AcquiaCliApplication $application
    */
   protected function loadLocalProjectInfo(AcquiaCliApplication $application) {
     $this->logger->debug("Loading local project information...");
@@ -247,7 +247,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AcquiaCliApplication $application
+   * @param \Acquia\Cli\AcquiaCliApplication $application
    *
    * @return array|bool
    */
@@ -343,7 +343,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AcquiaCliApplication $application
+   * @param \Acquia\Cli\AcquiaCliApplication $application
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
    * @return \AcquiaCloudApi\Response\ApplicationResponse|null
@@ -354,7 +354,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ): ?ApplicationResponse {
     if ($application->getRepoRoot()) {
       $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
-      $question = new ConfirmationQuestion('<question>Would you like ADS to search for a Cloud application that matches your local git config?</question> ');
+      $question = new ConfirmationQuestion('<question>Would you like Acquia CLI to search for a Cloud application that matches your local git config?</question> ');
       $helper = $this->getHelper('question');
       $answer = $helper->ask($this->input, $this->output, $question);
       if ($answer) {
@@ -376,9 +376,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function determineCloudApplication(): ?string {
     $acquia_cloud_client = $this->getAcquiaCloudClient();
-    /** @var \Acquia\Ads\AcquiaCliApplication $ads_application */
-    $ads_application = $this->getApplication();
-    $this->loadLocalProjectInfo($ads_application);
+    /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
+    $cli_application = $this->getApplication();
+    $this->loadLocalProjectInfo($cli_application);
 
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
@@ -386,9 +386,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Try to guess based on local git url config.
-    if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($ads_application, $acquia_cloud_client)) {
+    if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($cli_application, $acquia_cloud_client)) {
       $this->output->writeln('<info>Found a matching application!</info>');
-      $this->promptLinkApplication($ads_application, $cloud_application);
+      $this->promptLinkApplication($cli_application, $cloud_application);
 
       return $cloud_application->uuid;
     }
@@ -435,14 +435,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Ads\AcquiaCliApplication $ads_application
+   * @param \Acquia\Cli\AcquiaCliApplication $cli_application
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    */
   protected function promptLinkApplication(
-    AcquiaCliApplication $ads_application,
+    AcquiaCliApplication $cli_application,
     ?ApplicationResponse $cloud_application
     ): void {
-    $question = new ConfirmationQuestion("<question>Would you like to link the project at {$ads_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
+    $question = new ConfirmationQuestion("<question>Would you like to link the project at {$cli_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {

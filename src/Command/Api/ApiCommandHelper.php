@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command\Api;
+namespace Acquia\Cli\Command\Api;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
@@ -72,7 +72,7 @@ class ApiCommandHelper {
    *
    */
   public function useCommandCache(): bool {
-    if (getenv('ADS_CLI_USE_COMMAND_CACHE') === '0') {
+    if (getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0') {
       return FALSE;
     }
     return TRUE;
@@ -118,7 +118,7 @@ class ApiCommandHelper {
   /**
    * @param $schema
    * @param $acquia_cloud_spec
-   * @param \Acquia\Ads\Command\Api\ApiCommandBase $command
+   * @param \Acquia\Cli\Command\Api\ApiCommandBase $command
    */
   protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
     // Parameters are only set for GET endpoints.
