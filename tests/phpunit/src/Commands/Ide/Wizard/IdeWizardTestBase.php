@@ -1,11 +1,11 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide\Wizard;
+namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
-use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
-use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
+use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 
 /**
  * Class IdeWizardTestBase.
