@@ -11,34 +11,13 @@ use Symfony\Component\Finder\Finder;
  */
 abstract class SshKeyCommandBase extends CommandBase {
 
-  /** @var string|null */
-  private $sshKeysDir = NULL;
-
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
    */
   protected function findLocalSshKeys(): array {
     $finder = new Finder();
-    $finder->files()->in($this->getSshKeysDir())->name('*.pub');
+    $finder->files()->in($this->getApplication()->getSshKeysDir())->name('*.pub');
     return iterator_to_array($finder);
-  }
-
-  /**
-   * @param string|null $sshKeysDir
-   */
-  public function setSshKeysDir(?string $sshKeysDir): void {
-    $this->sshKeysDir = $sshKeysDir;
-  }
-
-  /**
-   * @return string
-   */
-  protected function getSshKeysDir(): string {
-    if (!isset($this->sshKeysDir)) {
-    $this->sshKeysDir = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.ssh');
-    }
-
-    return $this->sshKeysDir;
   }
 
   /**

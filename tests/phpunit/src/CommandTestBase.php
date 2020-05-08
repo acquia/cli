@@ -22,9 +22,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class BltTestBase.
- *
- * Base class for all tests that are executed for BLT itself.
+ * Class CommandTestBase.
  */
 abstract class CommandTestBase extends TestCase {
 
@@ -212,6 +210,8 @@ abstract class CommandTestBase extends TestCase {
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
+   *
+   * @see CXAPI-7208
    */
   public function getMockResponseFromSpec($path, $method, $http_code) {
     $endpoint = $this->getResourceFromSpec($path, $method);

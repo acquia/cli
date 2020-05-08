@@ -4,8 +4,46 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "209ab5b30bc394c6ef179185698049d2",
+    "content-hash": "ad75f735f37db3f3e67d6c145038ce02",
     "packages": [
+        {
+            "name": "acquia/drupal-environment-detector",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/acquia/drupal-environment-detector.git",
+                "reference": "5f42dbc6c9a4edd4cd6be1011a5266986c88419b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/5f42dbc6c9a4edd4cd6be1011a5266986c88419b",
+                "reference": "5f42dbc6c9a4edd4cd6be1011a5266986c88419b",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Acquia\\DrupalEnvironmentDetector\\": "src/",
+                    "Acquia\\DrupalEnvironmentDetector\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Acquia Engineering",
+                    "homepage": "https://www.acquia.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Provides common methods for detecting the current Acquia environment",
+            "time": "2020-05-06T20:01:08+00:00"
+        },
         {
             "name": "doctrine/cache",
             "version": "1.10.0",
@@ -4342,6 +4380,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "acquia/drupal-environment-detector": 20,
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
         "typhonius/acquia-php-sdk-v2": 20

@@ -52,7 +52,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     $filename = $this->determineFilename($input, $output);
     $password = $this->determinePassword($input, $output);
 
-    $filepath = $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.ssh/' . $filename;
+    $filepath = $this->getApplication()->getSshKeysDir() . '/' . $filename;
     $this->getApplication()->getLocalMachineHelper()->execute([
       'ssh-keygen',
       '-b',

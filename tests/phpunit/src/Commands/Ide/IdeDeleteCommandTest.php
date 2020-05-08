@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Tests\Commands\Ide;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Ide\IdeDeleteCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
@@ -60,7 +61,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
       '0',
     ];
 
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    AcquiaCliApplication::setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], $inputs);
 
     // Assert.

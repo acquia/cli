@@ -3,8 +3,11 @@
 namespace Acquia\Ads;
 
 use Acquia\Ads\Command\Api\ApiCommandHelper;
+use Acquia\Ads\Command\CommandBase;
+use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\DataStore\FileStore;
 use Acquia\Ads\Helpers\LocalMachineHelper;
+use AcquiaCloudApi\Connector\Client;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -34,6 +37,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @var \Acquia\Ads\Helpers\LocalMachineHelper
    */
   protected $localMachineHelper;
+  /**
+   * @var string|null
+   */
+  private $sshKeysDir;
+  /**
+   * @var \AcquiaCloudApi\Connector\Client
+   */
+  private $acquiaCloudClient;
 
   /**
    * @return \Acquia\Ads\Helpers\LocalMachineHelper
@@ -124,6 +135,52 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getLogger(): LoggerInterface {
     return $this->logger;
+  }
+
+
+  /**
+   * @param string|null $sshKeysDir
+   */
+  public function setSshKeysDir(?string $sshKeysDir): void {
+    $this->sshKeysDir = $sshKeysDir;
+  }
+
+  /**
+   * @return string
+   */
+  public function getSshKeysDir(): string {
+    if (!isset($this->sshKeysDir)) {
+      $this->sshKeysDir = $this->getLocalMachineHelper()->getLocalFilepath('~/.ssh');
+    }
+
+    return $this->sshKeysDir;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $client
+   */
+  public function setAcquiaCloudClient(Client $client) {
+    $this->acquiaCloudClient = $client;
+  }
+
+  /**
+   * @return \AcquiaCloudApi\Connector\Client
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   */
+  public function getAcquiaCloudClient(): Client {
+    if (isset($this->acquiaCloudClient)) {
+      return $this->acquiaCloudClient;
+    }
+
+    $cloud_api_conf = $this->datastore->get('cloud_api.conf');
+    $config = [
+      'key' => $cloud_api_conf['key'],
+      'secret' => $cloud_api_conf['secret'],
+    ];
+    $connector = new AdsCloudConnector($config);
+    $this->acquiaCloudClient = Client::factory($connector);
+
+    return $this->acquiaCloudClient;
   }
 
 }

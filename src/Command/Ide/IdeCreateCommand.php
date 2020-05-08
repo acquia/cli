@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Ide;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Output\Checklist;
 use Acquia\Ads\Output\Spinner\Spinner;
@@ -60,7 +61,7 @@ class IdeCreateCommand extends CommandBase {
     $helper = $this->getHelper('question');
     $ide_label = $helper->ask($input, $output, $question);
 
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.

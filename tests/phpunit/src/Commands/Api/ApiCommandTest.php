@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Tests\Commands\Api;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Api\ApiCommandBase;
 use Acquia\Ads\Command\Api\ApiCommandHelper;
 use Acquia\Ads\Tests\CommandTestBase;
@@ -33,7 +34,7 @@ class ApiCommandTest extends CommandTestBase {
     $cloud_client->addQuery('limit', '1')->shouldBeCalled();
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    AcquiaCliApplication::setAcquiaCloudClient($cloud_client->reveal());
     // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
     // client's query correctly.
     $this->executeCommand(['--limit' => '1']);
@@ -68,7 +69,7 @@ class ApiCommandTest extends CommandTestBase {
     }
     $cloud_client->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    AcquiaCliApplication::setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand($mock_request_args);
 
     // Assert.

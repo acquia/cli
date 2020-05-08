@@ -34,7 +34,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireRemoteIdeEnvironment();
 
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $cloud_key = $this->findIdeSshKeyOnCloud($acquia_cloud_client);
     if (!$cloud_key) {
       throw new AcquiaCliException('Could not find an SSH key on Acquia Cloud matching any local key in this IDE.');

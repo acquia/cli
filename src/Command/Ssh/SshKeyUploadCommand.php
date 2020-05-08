@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use React\EventLoop\Factory;
@@ -36,7 +37,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
 

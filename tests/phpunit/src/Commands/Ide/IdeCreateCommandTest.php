@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Tests\Commands\Ide;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Ide\IdeCreateCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
@@ -44,7 +45,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $cloud_client->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
 
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    AcquiaCliApplication::setAcquiaCloudClient($cloud_client->reveal());
 
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);

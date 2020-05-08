@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\CommandBase;
 use Acquia\Ads\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +33,7 @@ class SshKeyDeleteCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $cloud_key = $this->determineCloudKey($acquia_cloud_client);
 
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);
