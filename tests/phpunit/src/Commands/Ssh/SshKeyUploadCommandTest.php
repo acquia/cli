@@ -30,8 +30,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
   public function testUpload(): void {
     $this->setCommand($this->createCommand());
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+    $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $options = [
       'form_params' => $mock_request_args

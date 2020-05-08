@@ -20,6 +20,7 @@
   <file>.</file>
 
   <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
   <rule ref="AcquiaPHP"/>
 

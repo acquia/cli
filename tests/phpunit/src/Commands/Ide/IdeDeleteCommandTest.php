@@ -29,9 +29,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
    */
   public function testIdeDeleteCommand(): void {
     $this->setCommand($this->createCommand());
-
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+    $cloud_client = $this->getMockClient();
 
     // Request for applications.
     $response = $this->getMockResponseFromSpec('/applications', 'get', '200');

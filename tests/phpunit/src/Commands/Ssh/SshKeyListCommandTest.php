@@ -29,8 +29,7 @@ class SshKeyListCommandTest extends CommandTestBase
   public function testUpload(): void {
     $this->setCommand($this->createCommand());
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+    $cloud_client = $this->getMockClient();
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());

@@ -3,8 +3,8 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Connector\CliCloudConnector;
+use Acquia\Cli\DataStore\DataStoreAwareTrait;
 use Acquia\Cli\DataStore\FileStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
@@ -24,10 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
-
-  /**
-   * @var \Acquia\Cli\DataStore\FileStore*/
-  private $datastore;
+  use DataStoreAwareTrait;
 
   /**
    * @var null|string*/
@@ -77,7 +74,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->repoRoot = $repo_root;
     $this->localMachineHelper = new LocalMachineHelper($input, $output, $logger);
     parent::__construct('acli', $version);
-    $this->datastore = new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia');
+    $this->setDatastore(new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia'));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -121,13 +118,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     if ($xdebug_loaded) {
       $this->logger->warning('<comment>The xDebug extension is loaded. This will significantly decrease performance.</comment>');
     }
-  }
-
-  /**
-   *
-   */
-  public function getDataStore() {
-    return $this->datastore;
   }
 
   /**

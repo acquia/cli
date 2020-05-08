@@ -3,3 +3,4 @@ drupal
 .idea
 .phpcs-cache
 build
+.DS_STORE
