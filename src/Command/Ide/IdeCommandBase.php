@@ -3,6 +3,7 @@
 namespace Acquia\Ads\Command\Ide;
 
 use Acquia\Ads\Command\CommandBase;
+use Acquia\Ads\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Question\ChoiceQuestion;

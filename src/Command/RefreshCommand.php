@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Exception\AcquiaCliException;
 use Acquia\Ads\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
@@ -51,7 +52,7 @@ class RefreshCommand extends CommandBase {
     // Choose remote environment.
     $cloud_application_uuid = $this->determineCloudApplication();
     // @todo Write name of Cloud application to screen.
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist) {

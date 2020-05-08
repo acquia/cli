@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Api;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -41,7 +42,7 @@ class ApiCommandBase extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // Build query from non-null options.
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     if ($this->queryParams) {
       foreach ($this->queryParams as $key) {
         $value = $input->getOption($key);

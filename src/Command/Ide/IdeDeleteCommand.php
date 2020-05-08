@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Command\Ide;
 
+use Acquia\Ads\AcquiaCliApplication;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,7 +30,7 @@ class IdeDeleteCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource);

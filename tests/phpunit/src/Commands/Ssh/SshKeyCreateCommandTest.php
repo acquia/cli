@@ -23,6 +23,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    */
   public function testCreate(): void {
     $ssh_key_filename = 'id_rsa_acli_test';
+    // @todo Change the default ssh key dir for testing.
     $ssh_key_filepath = LocalMachineHelper::getHomeDir() . '/.ssh/' . $ssh_key_filename;
     $this->fs->remove($ssh_key_filepath);
 

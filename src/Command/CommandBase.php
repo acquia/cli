@@ -6,12 +6,15 @@ use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Connector\AdsCloudConnector;
 use Acquia\Ads\DataStore\DataStoreInterface;
 use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Ads\Output\Spinner\Spinner;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -112,32 +115,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getDatastore(): DataStoreInterface {
     return $this->datastore;
-  }
-
-  /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   */
-  public function setAcquiaCloudClient(Client $client) {
-    $this->acquiaCloudClient = $client;
-  }
-
-  /**
-   * @return \AcquiaCloudApi\Connector\Client
-   */
-  protected function getAcquiaCloudClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
-    $cloud_api_conf = $this->datastore->get('cloud_api.conf');
-    $config = [
-      'key' => $cloud_api_conf['key'],
-      'secret' => $cloud_api_conf['secret'],
-    ];
-    $connector = new AdsCloudConnector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
-
-    return $this->acquiaCloudClient;
   }
 
   /**
@@ -375,13 +352,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string|null
    */
   protected function determineCloudApplication(): ?string {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     /** @var \Acquia\Ads\AcquiaCliApplication $ads_application */
     $ads_application = $this->getApplication();
     $this->loadLocalProjectInfo($ads_application);
 
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
+      return $application_uuid;
+    }
+
+    // If an IDE, get from env var.
+    if ($this::isAcquiaRemoteIde() && $application_uuid = $this::getThisRemoteIdeUuid()) {
       return $application_uuid;
     }
 
@@ -461,10 +443,60 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
+   * @return bool
    */
-  protected function useSpinner(): bool {
-    return $this->output instanceof ConsoleOutput;
+  public static function isAcquiaRemoteIde(): bool {
+    return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
+  }
+
+  /**
+   * @return false|string
+   */
+  public static function getThisRemoteIdeUuid() {
+    return getenv('REMOTEIDE_UUID');
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   *
+   * @param string $message
+   *
+   * @return \Acquia\Ads\Output\Spinner\Spinner
+   */
+  public function addSpinnerToLoop(
+    LoopInterface $loop,
+    $message
+  ): Spinner {
+      $spinner = new Spinner($this->output, 4);
+      $spinner->setMessage($message);
+      $spinner->start();
+      $loop->addPeriodicTimer($spinner->interval(),
+        static function () use ($spinner) {
+          $spinner->advance();
+        });
+
+    return $spinner;
+  }
+
+  protected function finishSpinner(Spinner $spinner) {
+    $spinner->finish();
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   * @param $minutes
+   * @param \Acquia\Ads\Output\Spinner\Spinner $spinner
+   */
+  public function addTimeoutToLoop(
+    LoopInterface $loop,
+    $minutes,
+    Spinner $spinner
+  ): void {
+    $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
+      $this->finishSpinner($spinner);
+      $this->logger->debug("Timed out after $minutes minutes!");
+      $loop->stop();
+    });
   }
 
 }

@@ -2,15 +2,12 @@
 
 namespace Acquia\Ads\Tests\Commands\Ssh;
 
-use Acquia\Ads\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Ads\Command\Ssh\SshKeyCreateUploadCommand;
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Ads\Helpers\LocalMachineHelper;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Finder\Finder;
 
 /**
  * Class SshKeyCreateUploadCommandTest
@@ -37,7 +34,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
     /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
     $cloud_client = $this->prophet->prophesize(Client::class);
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     $options = [
       'form_params' => $mock_request_args
     ];
@@ -49,11 +45,11 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->_embedded->items[3] = (object) $mock_request_args;
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     // Choose a local SSH key to upload to Acquia Cloud.
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $this->command->setSshKeysDir(sys_get_temp_dir());
+    $this->application->setSshKeysDir(sys_get_temp_dir());
     $inputs = [
       // Choose key.
       '0',

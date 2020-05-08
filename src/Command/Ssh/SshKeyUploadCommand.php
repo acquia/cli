@@ -2,8 +2,8 @@
 
 namespace Acquia\Ads\Command\Ssh;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Exception\AcquiaCliException;
-use Acquia\Ads\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
 use React\EventLoop\Factory;
 use RuntimeException;
@@ -24,7 +24,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   protected function configure() {
     $this->setName('ssh-key:upload')
       ->setDescription('Upload a local SSH key to Acquia Cloud')
-      ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload');
+      ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
+      ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used in Acquia Cloud')
+      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");
   }
 
   /**
@@ -35,11 +37,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
-
-    // Get label.
-    $label = $this->promptSshKeyLabel();
+    $label = $this->determineSshKeyLabel($input, $output);
 
     $options = [
       'form_params' => [
@@ -48,14 +48,17 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       ],
     ];
     $response = $acquia_cloud_client->makeRequest('post', '/account/ssh-keys', $options);
-    if ($response->getStatusCode() != 202) {
+    if ($response->getStatusCode() !== 202) {
       throw new AcquiaCliException($response->getBody()->getContents());
     }
 
-    // Wait for the key to register on Acquia Cloud.
     $this->output->writeln("<info>Uploaded $chosen_local_key to Acquia Cloud with label $label</info>");
-    $this->output->write('Waiting for new key to be provisioned on Acquia Cloud servers...');
-    $this->pollAcquiaCloud($output, $acquia_cloud_client, $public_key);
+
+    // Wait for the key to register on Acquia Cloud.
+    if ($input->getOption('no-wait') === FALSE) {
+      $this->output->write('Waiting for new key to be provisioned on Acquia Cloud servers...');
+      $this->pollAcquiaCloud($output, $acquia_cloud_client, $public_key);
+    }
 
     return 0;
   }
@@ -72,6 +75,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       if (!file_exists($filepath)) {
         throw new AcquiaCliException("The filepath $filepath is not valid");
       }
+      if (strpos($filepath, '.pub') === FALSE) {
+        throw new AcquiaCliException("The filepath $filepath does not have the .pub extension");
+      }
       $public_key = file_get_contents($filepath);
       $chosen_local_key = basename($filepath);
     } else {
@@ -85,55 +91,6 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string $public_key
-   */
-  protected function pollAcquiaCloud(
-        OutputInterface $output,
-        Client $acquia_cloud_client,
-        string $public_key
-    ): void {
-    // Create a loop to periodically poll Acquia Cloud.
-    $loop = Factory::create();
-
-    // Add a spinner.
-    if ($this->useSpinner()) {
-      $spinner = new Spinner($this->output, 4);
-      $loop->addPeriodicTimer($spinner->interval(),
-        static function () use ($spinner) {
-          $spinner->advance();
-        });
-      $spinner->start();
-    }
-
-    // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, static function () use ($output, $loop, $acquia_cloud_client, $public_key) {
-        // @todo Change this to test an actual ssh connection, not just Cloud API.
-        // But which server do we check a connection to?
-      $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-      foreach ($cloud_keys as $cloud_key) {
-        if (trim($cloud_key->public_key) === trim($public_key)) {
-          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
-          $loop->stop();
-        }
-      }
-    });
-
-    // Add a 10 minute timeout.
-    $loop->addTimer(10 * 60, function () use ($loop) {
-        $this->logger->debug('Timed out after 10 minutes!');
-        $loop->stop();
-    });
-
-    $loop->run();
-
-    if ($this->useSpinner()) {
-      $spinner->finish();
-    }
-  }
-
-  /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
    *
    * @return string
@@ -144,9 +101,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $labels[] = $local_key->getFilename();
     }
     $question = new ChoiceQuestion(
-          '<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
-          $labels
-      );
+      '<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
+      $labels
+    );
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
 
@@ -154,24 +111,36 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   }
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
    * @return string
    */
-  protected function promptSshKeyLabel(): string {
-    $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
-    $question->setNormalizer(static function ($value) {
-        // It may only contain letters, numbers and underscores,.
-        $value = preg_replace('/[^A-Za-z0-9_]/', '', $value);
+  protected function determineSshKeyLabel(InputInterface $input, OutputInterface $output): string {
+    if ($input->getOption('label')) {
+      $label = $input->getOption('label');
+      $label = SshKeyCommandBase::normalizeSshKeyLabel($label);
+      $label = $this->validateSshKeyLabel($label);
+    }
+    else {
+      $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
+      $question->setNormalizer(\Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
+      $question->setValidator(\Closure::fromCallable([$this, 'validateSshKeyLabel']));
+      $label = $this->questionHelper->ask($input, $output, $question);
+    }
 
-        return $value;
-    });
-    $question->setValidator(function ($answer) {
-      if (trim($answer) === '') {
-            throw new RuntimeException('The label cannot be empty');
-      }
+    return $label;
+  }
 
-        return $answer;
-    });
-    $label = $this->questionHelper->ask($this->input, $this->output, $question);
+  /**
+   * @param $label
+   *
+   * @return mixed
+   */
+  protected function validateSshKeyLabel($label) {
+    if (trim($label) === '') {
+      throw new RuntimeException('The label cannot be empty');
+    }
 
     return $label;
   }
@@ -189,9 +158,38 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         break;
       }
     }
-    $public_key = file_get_contents($filepath);
+    return file_get_contents($filepath);
+  }
 
-    return $public_key;
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param string $public_key
+   */
+  protected function pollAcquiaCloud(
+    OutputInterface $output,
+    Client $acquia_cloud_client,
+    string $public_key
+  ): void {
+    // Create a loop to periodically poll Acquia Cloud.
+    $loop = Factory::create();
+    $spinner = $this->addSpinnerToLoop($loop, 'Waiting for SSH key to become available on Acquia Cloud...');
+
+    // Poll Cloud every 5 seconds.
+    $loop->addPeriodicTimer(5, function () use ($output, $loop, $acquia_cloud_client, $public_key, $spinner) {
+      // @todo Change this to test an actual ssh connection, not just Cloud API.
+      // But which server do we check a connection to?
+      $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
+      foreach ($cloud_keys as $cloud_key) {
+        if (trim($cloud_key->public_key) === trim($public_key)) {
+          $this->finishSpinner($spinner);
+          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
+          $loop->stop();
+        }
+      }
+    });
+    $this->addTimeoutToLoop($loop, 10, $spinner);
+    $loop->run();
   }
 
 }

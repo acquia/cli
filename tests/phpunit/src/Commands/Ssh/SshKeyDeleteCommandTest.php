@@ -2,6 +2,7 @@
 
 namespace Acquia\Ads\Tests\Commands\Ssh;
 
+use Acquia\Ads\AcquiaCliApplication;
 use Acquia\Ads\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Ads\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
@@ -40,7 +41,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
     $mock_delete_body = $this->getMockResponseFromSpec('/account/ssh-keys/{sshKeyUuid}', 'delete', '202');
     $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $mock_get_body->_embedded->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
 
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
       // Choose key.
       '0',
