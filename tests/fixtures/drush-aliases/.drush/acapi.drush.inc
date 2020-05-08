@@ -15,12 +15,11 @@ function acapi_drush_command() {
   //////////////////////////////////////////////////////////////////////
   // Acquia Update
   //////////////////////////////////////////////////////////////////////
-  $items['acquia-update'] = array(
+  $items['acquia-update'] = [
     'description' => 'Retrieve Drush aliases for all accessible Acquia Cloud sites.',
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'options' => $options,
-  );
+  ];
 
   // Most of the commands below use drush_acapi_ac_generic_callback, which
   // translates their 'method', 'resource', and 'arguments' properties into
@@ -29,250 +28,244 @@ function acapi_drush_command() {
   //////////////////////////////////////////////////////////////////////
   // Login
   //////////////////////////////////////////////////////////////////////
-  $items['ac-api-login'] = array(
+  $items['ac-api-login'] = [
     'description' => 'Store Acquia Cloud API credentials and configuration information.',
-    'arguments' => array(
-    ),
-    'options' => $options + array(
-      'reset' => array(
+    'arguments' => [],
+    'options' => $options + [
+      'reset' => [
         'description' => 'Discard any existing stored values from a previous call. Without this option, new values will be merged with existing values.'
-      ),
-    ),
-  );
+      ],
+    ],
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Sites and environments
   //////////////////////////////////////////////////////////////////////
-  $items['ac-site-list'] = array(
+  $items['ac-site-list'] = [
     'description' => 'List all sites available to the current user.',
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-site-info'] = array(
+  ];
+  $items['ac-site-info'] = [
     'description' => 'Show information about a site.',
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-environment-list'] = array(
+  ];
+  $items['ac-environment-list'] = [
     'description' => "List a site's environments.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-environment-info'] = array(
+  ];
+  $items['ac-environment-info'] = [
     'description' => "Show information about a site environment.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-environment-install'] = array(
+  ];
+  $items['ac-environment-install'] = [
     'description' => "Install a Drupal distribution from a pre-selected list, URL, or Drush Makefile.",
-    'arguments' => array(
+    'arguments' => [
       'type' => 'Type of distro source: distro_url or make_url.',
       'source' => 'A URL to a distro or URL to a Drush make file.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/install/:type',
-    'params' => array('source'),
+    'params' => ['source'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-environment-livedev'] = array(
+  ];
+  $items['ac-environment-livedev'] = [
     'description' => "Configure Live Development on a site environment.",
-    'arguments' => array(
+    'arguments' => [
       'action' => 'Action to take.  \'enable\' or \'disable\' live development.',
       'discard' => 'When action is \'disable\', set to 1 to discard uncommitted changes.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/livedev/:action',
-    'params' => array('discard'),
+    'params' => ['discard'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Servers
   //////////////////////////////////////////////////////////////////////
-  $items['ac-server-list'] = array(
+  $items['ac-server-list'] = [
     'description' => "List servers for a site and environment.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/servers',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-server-info'] = array(
+  ];
+  $items['ac-server-info'] = [
     'description' => "Show information about a server.",
-    'arguments' => array(
+    'arguments' => [
       'server' => 'Server name.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/servers/:server',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-server-php-procs'] = array(
+  ];
+  $items['ac-server-php-procs'] = [
     'description' => "Calculate the php max procs value based on possible memory limits and apc shm settings.",
-    'arguments' => array(
+    'arguments' => [
       'server' => 'Server name.',
       'memory_limits' => 'Memory limits.',
       'apc_shm' => 'APC shm settings.'
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/servers/:server/php-procs',
-    'params_array' => array(
+    'params_array' => [
       'memory_limits',
       'apc_shm',
-    ),
+    ],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Databases
   //////////////////////////////////////////////////////////////////////
-  $items['ac-database-list'] = array(
+  $items['ac-database-list'] = [
     'description' => "List a site's databases.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/dbs',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-info'] = array(
+  ];
+  $items['ac-database-info'] = [
     'description' => "Show information about a site database.",
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/dbs/:db',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-add'] = array(
+  ];
+  $items['ac-database-add'] = [
     'description' => 'Add a database.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The database.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/dbs',
-    'body_fields' => array('db'),
+    'body_fields' => ['db'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-delete'] = array(
+  ];
+  $items['ac-database-delete'] = [
     'description' => 'Delete a database.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/dbs/:db',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-list'] = array(
+  ];
+  $items['ac-database-instance-list'] = [
     'description' => "List a site environment's database instances.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/dbs',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-info'] = array(
+  ];
+  $items['ac-database-instance-info'] = [
     'description' => "Show information about a site environment's database instance.",
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-backup-list'] = array(
+  ];
+  $items['ac-database-instance-backup-list'] = [
     'description' => "List a site environment's database instance backups.",
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-backup-info'] = array(
+  ];
+  $items['ac-database-instance-backup-info'] = [
     'description' => "Show information about a site environment's database instance backup.",
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
       'backup' => 'Backup id.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups/:backup',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-backup-download'] = array(
+  ];
+  $items['ac-database-instance-backup-download'] = [
     'description' => "Download a site environment database instance backup.",
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
       'backup' => 'Backup id.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups/:backup/download',
     'callback' => 'drush_acapi_ac_database_backup_download',
-    'options' => array('result-file' =>
-      array(
+    'options' => [
+'result-file' =>
+      [
         'description' => 'Save to a file; specify the full path in which to store the backup. If not provided, the backup is sent the standard output.',
         'example-value' => '/path/to/file',
-      )) + $options,
-  );
-  $items['ac-database-instance-backup'] = array(
+      ]
+] + $options,
+  ];
+  $items['ac-database-instance-backup'] = [
     'description' => 'Create a database instance backup.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-backup-restore'] = array(
+  ];
+  $items['ac-database-instance-backup-restore'] = [
     'description' => 'Restore a database instance backup.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
       'backupid' => 'The backup id.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups/:backupid/restore',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-instance-backup-delete'] = array(
+  ];
+  $items['ac-database-instance-backup-delete'] = [
     'description' => 'Delete a database instance backup.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The environment-agnostic database name; this is the name shown on the Workflow page of the Cloud UI.',
       'backupid' => 'The backup id.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/envs/:env/dbs/:db/backups/:backupid',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Tasks
@@ -282,248 +275,250 @@ function acapi_drush_command() {
   // non-standard callback. We'd have to make N API calls to implement this the
   // way other data types work, which I think shows that the returning a list of
   // records is better.
-  $items['ac-task-list'] = array(
+  $items['ac-task-list'] = [
     'description' => "List a site's tasks.",
-    'arguments' => array(
-    ),
-    'options' => array(
-      'state' => array(
+    'arguments' => [],
+    'options' => [
+      'state' => [
         'description' => 'The task state to retrieve. If not specified, retrieve all tasks for the site.',
         'example-value' => 'done',
-      ),
-      'days' => array(
+      ],
+      'days' => [
         'description' => 'The number of days worth of tasks to retrieve. If not specified, retrieve, at a maximum, 7 days worth of tasks.',
         'example-value' => '5',
-      ),
-      'limit' => array(
+      ],
+      'limit' => [
         'description' => 'The maximum number of tasks to retrieve. If not specified, retrieve a maximum of 50 tasks. The maximum value allowed is 1000.',
         'example-value' => '500'
-      ),
-    ) + $options,
-  );
+      ],
+    ] + $options,
+  ];
 
-  $items['ac-task-info'] = array(
+  $items['ac-task-info'] = [
     'description' => "Show information about a site task.",
-    'arguments' => array(
+    'arguments' => [
       'task' => 'The task id.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/tasks/:task',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Workflow
   //////////////////////////////////////////////////////////////////////
-  $items['ac-code-deploy'] = array(
+  $items['ac-code-deploy'] = [
     'description' => 'Deploy code from one site environment to another.',
-    'arguments' => array(
+    'arguments' => [
       'target' => 'The target environment.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/code-deploy/:env/:target',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-code-path-deploy'] = array(
+  ];
+  $items['ac-code-path-deploy'] = [
     'description' => 'Deploy a specific branch or tag in an environment.',
-    'arguments' => array(
+    'arguments' => [
       'path' => 'The branch or tag to deploy.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/code-deploy',
-    'params' => array('path'),
+    'params' => ['path'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-database-copy'] = array(
+  ];
+  $items['ac-database-copy'] = [
     'description' => 'Copy a database from one site environment to another.',
-    'arguments' => array(
+    'arguments' => [
       'db' => 'The database.',
       'target' => 'The target environment.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/dbs/:db/db-copy/:env/:target',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-files-copy'] = array(
+  ];
+  $items['ac-files-copy'] = [
     'description' => 'Copy user-uploaded files from one site environment to another.',
-    'arguments' => array(
+    'arguments' => [
       'target' => 'The target environment.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/files-copy/:env/:target',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-domain-move'] = array(
+  ];
+  $items['ac-domain-move'] = [
     'description' => 'Move a domain from one site environment to another.',
-    'arguments' => array(
+    'arguments' => [
       'target' => 'The target environment.',
       'domains' => 'Comma separated list of domains, or * for all.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/domain-move/:env/:target',
-    'body_fields_array' => array('domains'),
+    'body_fields_array' => ['domains'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // SSH keys
   //////////////////////////////////////////////////////////////////////
-  $items['ac-sshkey-list'] = array(
+  $items['ac-sshkey-list'] = [
     'description' => "List a site's SSH keys.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/sshkeys',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-sshkey-info'] = array(
+  ];
+  $items['ac-sshkey-info'] = [
     'description' => "Show information about a site SSH key.",
-    'arguments' => array(
+    'arguments' => [
       'sshkeyid' => 'SSH key id.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/sshkeys/:sshkeyid',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-sshkey-add'] = array(
+  ];
+  $items['ac-sshkey-add'] = [
     'description' => 'Add an SSH key to a site.',
-    'arguments' => array(
+    'arguments' => [
       'ssh_pub_key' => 'File containing the SSH public key.',
       'nickname' => 'The SSH key nickname.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/sshkeys',
-    'params' => array('nickname'),
-    'body_fields_path' => array('ssh_pub_key'),
+    'params' => ['nickname'],
+    'body_fields_path' => ['ssh_pub_key'],
     'callback' => 'drush_acapi_ac_generic_callback',
-    'options' => $options + array(
+    'options' => $options + [
       'shell_access' =>
-        array('description' => 'Set shell access for this key. (true or false)',
-          'param' => 'shell_access',),
+        [
+'description' => 'Set shell access for this key. (true or false)',
+          'param' => 'shell_access',
+],
       'vcs_access' =>
-        array('description' => 'Set git access for this key. (true or false)',
-          'param' => 'vcs_access',),
+        [
+'description' => 'Set git access for this key. (true or false)',
+          'param' => 'vcs_access',
+],
       'blacklist' =>
-        array('description' => 'Array containing a list of environments to disallow access for this key',
-          'param' => 'blacklist',),
-    ),
-  );
-  $items['ac-sshkey-delete'] = array(
+        [
+'description' => 'Array containing a list of environments to disallow access for this key',
+          'param' => 'blacklist',
+],
+    ],
+  ];
+  $items['ac-sshkey-delete'] = [
     'description' => 'Delete an SSH key from a site.',
-    'arguments' => array(
+    'arguments' => [
       'sshkeyid' => 'The SSH key id to delete.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/sshkeys/:sshkeyid',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // SVN users
   //////////////////////////////////////////////////////////////////////
-  $items['ac-svnuser-list'] = array(
+  $items['ac-svnuser-list'] = [
     'description' => "List a site's SVN users.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/svnusers',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-svnuser-info'] = array(
+  ];
+  $items['ac-svnuser-info'] = [
     'description' => "Show information about a site SVN user.",
-    'arguments' => array(
+    'arguments' => [
       'svnuserid' => 'SVN user id.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/svnusers/:svnuserid',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-svnuser-add'] = array(
+  ];
+  $items['ac-svnuser-add'] = [
     'description' => 'Add an SVN user to a site.',
-    'arguments' => array(
+    'arguments' => [
       'username' => 'SVN username.',
       'password' => 'SVN password.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/svnusers/:username',
-    'body_fields' => array('password'),
+    'body_fields' => ['password'],
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-svnuser-delete'] = array(
+  ];
+  $items['ac-svnuser-delete'] = [
     'description' => 'Delete an SVN user from a site.',
-    'arguments' => array(
+    'arguments' => [
       'svnuserid' => 'The SVN user id to delete.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/svnusers/:svnuserid',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   //////////////////////////////////////////////////////////////////////
   // Domains
   //////////////////////////////////////////////////////////////////////
-  $items['ac-domain-list'] = array(
+  $items['ac-domain-list'] = [
     'description' => "List a site's domains.",
-    'arguments' => array(
-    ),
+    'arguments' => [],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/domains',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-domain-info'] = array(
+  ];
+  $items['ac-domain-info'] = [
     'description' => "Show information about a site domain.",
-    'arguments' => array(
+    'arguments' => [
       'domain' => 'Domain name.',
-    ),
+    ],
     'method' => 'GET',
     'resource' => '/sites/:realm::site/envs/:env/domains/:domain',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-domain-add'] = array(
+  ];
+  $items['ac-domain-add'] = [
     'description' => "Add a domain name to an environment.",
-    'arguments' => array(
+    'arguments' => [
       'domain' => 'Domain name.',
-    ),
+    ],
     'method' => 'POST',
     'resource' => '/sites/:realm::site/envs/:env/domains/:domain',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-domain-delete'] = array(
+  ];
+  $items['ac-domain-delete'] = [
     'description' => "Delete a domain name from an environment.",
-    'arguments' => array(
+    'arguments' => [
       'domain' => 'Domain name.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/envs/:env/domains/:domain',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
-  $items['ac-domain-purge'] = array(
+  ];
+  $items['ac-domain-purge'] = [
     'description' => "Purge a domain from the Varnish cache.",
-    'arguments' => array(
+    'arguments' => [
       'domain' => 'Domain name.',
-    ),
+    ],
     'method' => 'DELETE',
     'resource' => '/sites/:realm::site/envs/:env/domains/:domain/cache',
     'callback' => 'drush_acapi_ac_generic_callback',
     'options' => $options,
-  );
+  ];
 
   foreach ($items as $command => $item) {
     $items[$command]['orig_options'] = $item['options'];
@@ -556,7 +551,7 @@ function acapi_drush_help($section) {
       $file = '$HOME/.acquia/cloudapi.conf';
       return dt("Store Acquia Cloud API credentials and endpoint information.
 
-This command stores default email, key, and optionally endpoint values for future Acquia Cloud API commands in @file. File location can be altered with the ac-config option on all Acquia Cloud commands.", array('@file' => $file));
+This command stores default email, key, and optionally endpoint values for future Acquia Cloud API commands in @file. File location can be altered with the ac-config option on all Acquia Cloud commands.", ['@file' => $file]);
   }
 }
 
@@ -575,7 +570,7 @@ function drush_acapi_update_file($path, $content) {
   $current = @file_get_contents($path);
   if ($current != $content) {
     file_put_contents($path, $content);
-    drush_log(dt('Updated %path.', array('%path' => $path)), 'ok');
+    drush_log(dt('Updated %path.', ['%path' => $path]), 'ok');
     return TRUE;
   }
   return FALSE;
@@ -585,7 +580,7 @@ function drush_acapi_update_file($path, $content) {
  * Update the Drush aliases for all accessible Cloud sites.
  */
 function drush_acapi_acquia_update() {
-  list($status, $all_aliases) = acapi_call('GET', '/me/drushrc', array(), array(), array(), array('display' => FALSE));
+  list($status, $all_aliases) = acapi_call('GET', '/me/drushrc', [], [], [], ['display' => FALSE]);
   if ($status == 200) {
     foreach ($all_aliases as $realm_site => $aliases) {
       list($realm, $site) = explode(':', $realm_site);
@@ -600,7 +595,7 @@ function drush_acapi_acquia_update() {
       // $aliases is keyed by environment name, but the JSON data is not
       // guaranteed to arrive in a consistent order. Sort by env name to avoid
       // unnecessary rewrites.
-      $aliases = (array)$aliases;
+      $aliases = (array) $aliases;
       ksort($aliases);
       $content .= implode($aliases, "\n");
       drush_acapi_update_file($file, $content);
@@ -617,7 +612,7 @@ function drush_acapi_ac_api_login() {
   $hide_default = '<existing value>';
 
   // Preserve existing defaults by loading them unless the user said not to.
-  $acapi_options = array();
+  $acapi_options = [];
   if (! drush_get_option('reset', FALSE)) {
     $acapi_options = acapi_load_options();
   }
@@ -675,7 +670,7 @@ function drush_acapi_ac_api_login() {
 function acapi_save_options($options) {
   $file = acapi_get_option_file();
   $dir = dirname($file);
-  $dt_args = array('@file' => $file, '@dir' => $dir);
+  $dt_args = ['@file' => $file, '@dir' => $dir];
   $verbose = drush_get_option('verbose', FALSE);
   $simulate = drush_get_option('simulate', FALSE);
   if ($verbose || $simulate) {
@@ -704,7 +699,7 @@ function acapi_save_options($options) {
  *   A hash of saved acapi option names and values.
  */
 function acapi_load_options() {
-  $ret = array();
+  $ret = [];
   $file = acapi_get_option_file();
   $contents = @file_get_contents($file);
   if ($contents !== FALSE) {
@@ -721,7 +716,7 @@ function acapi_load_options() {
         $ret = $data;
       }
       else {
-        drush_set_error('ACAPI_INVALID_CONF', dt('Acquia Cloud API config file @file is invalid. Run drush ac-api-login.', array('@file' => $file)));
+        drush_set_error('ACAPI_INVALID_CONF', dt('Acquia Cloud API config file @file is invalid. Run drush ac-api-login.', ['@file' => $file]));
       }
     }
   }
@@ -760,7 +755,7 @@ function drush_acapi_ac_database_backup_download($db, $backupid) {
     if (empty($backup_dir)) {
       $backup_dir = "/tmp";
     }
-    $result_file = $backup_dir . '/' . $db . '-' . $backupid .'.sql.gz';
+    $result_file = $backup_dir . '/' . $db . '-' . $backupid . '.sql.gz';
   }
   if ($result_file == '') {
     $fp = STDOUT;
@@ -768,21 +763,21 @@ function drush_acapi_ac_database_backup_download($db, $backupid) {
   else {
     $fp = fopen($result_file, 'w');
     if ($fp == NULL) {
-      return drush_set_error('ACAPI_ENOENT', dt('Cannot write to result file @result_file.', array('@name' => $result_file)));
+      return drush_set_error('ACAPI_ENOENT', dt('Cannot write to result file @result_file.', ['@name' => $result_file]));
     }
   }
 
-  $api_args = acapi_get_site_args() + array(
+  $api_args = acapi_get_site_args() + [
     ':db' => $db,
     ':backup' => $backupid,
-  );
+  ];
   list($status, $result) = acapi_call(
     $command['method'],
     $command['resource'],
     $api_args,
-    array(),
-    array(),
-    array('result_stream' => $fp, 'redirect' => 1, 'display' => FALSE)
+    [],
+    [],
+    ['result_stream' => $fp, 'redirect' => 1, 'display' => FALSE]
   );
 }
 
@@ -796,7 +791,7 @@ function drush_acapi_ac_task_list() {
   $state = drush_get_option('state', NULL);
   $days = drush_get_option('days', NULL);
   $limit = drush_get_option('limit', NULL);
-  $params = array();
+  $params = [];
   if (isset($state)) {
     $params['state'] = $state;
   }
@@ -812,8 +807,8 @@ function drush_acapi_ac_task_list() {
     '/sites/:realm::site/tasks',
     $api_args,
     $params,
-    array(),
-    array('display' => !empty($format))
+    [],
+    ['display' => !empty($format)]
   );
 
   $simulate = drush_get_option('simulate', FALSE);
@@ -822,7 +817,7 @@ function drush_acapi_ac_task_list() {
   }
 
   if (empty($format)) {
-    $display = array();
+    $display = [];
     foreach ($result as $id => $task) {
       $display[$task->id] = $task->description;
     }
@@ -838,46 +833,46 @@ function drush_acapi_ac_task_list() {
  * Define common options for Acquia Cloud API commands, and their defaults.
  */
 function acapi_common_options() {
-  $options = array(
-    'email' => array(
+  $options = [
+    'email' => [
       'description' => 'Email address for your Acquia Network user account',
       'default_value' => '',
-      'prompt' => array('Email', NULL, TRUE, FALSE),
+      'prompt' => ['Email', NULL, TRUE, FALSE],
       'example-value' => 'example@acquia.com',
-    ),
-    'key' => array(
+    ],
+    'key' => [
       'description' => 'Private Cloud API key for your Acquia Network user account',
       'default_value' => '',
-      'prompt' => array('Key', NULL, TRUE, TRUE),
+      'prompt' => ['Key', NULL, TRUE, TRUE],
       'example-value' => 'apikey',
-    ),
-    'acapi-conf-path' => array(
+    ],
+    'acapi-conf-path' => [
       'description' => 'Acquia Cloud API config files location. If not specified config will be loaded from $HOME/.drush',
       'default_value' => '',
       'example-value' => '/home/user/acapi-site-configs',
-    ),
-    'ac-config' => array(
+    ],
+    'ac-config' => [
       'description' => 'Acquia Cloud API user config file location. If not specified config will be loaded from $HOME',
       'default_value' => drush_server_home() . '/.acquia/cloudapi.conf',
       'example-value' => drush_server_home() . '/.acquia/cloudapi-site-specific.conf',
-    ),
-    'endpoint' => array(
+    ],
+    'endpoint' => [
       'description' => 'Acquia Cloud API endpoint URL.',
       'default_value' => 'https://cloudapi.acquia.com/v1',
-      'prompt' => array('Endpoint URL', NULL, TRUE, FALSE),
+      'prompt' => ['Endpoint URL', NULL, TRUE, FALSE],
       'example-value' => 'https://cloudapi.acquia.com/v1',
-    ),
-    'cainfo' => array(
+    ],
+    'cainfo' => [
       'description' => 'Path to a file containing the SSL certificates needed to verify the ac-api-endpoint.',
       'default_value' => dirname(__FILE__) . '/cloudapi.acquia.com.pem',
       'example-value' => 'cloudapi.acquia.com.pem',
-    ),
-    'format' => array(
+    ],
+    'format' => [
       'description' => 'Format to output the object. Use "print_r" for print_r, "export" for var_export, and "json" for JSON. If not provided, the output is printed in a human-readable format.',
       'default_value' => '',
       'example-value' => 'json',
-    ),
-  );
+    ],
+  ];
   return $options;
 }
 
@@ -898,7 +893,7 @@ function acapi_get_option($name) {
   // Make sure $name is an acapi option.
   $options = acapi_common_options();
   if (!isset($options[$name])) {
-    return drush_set_error('ACAPI_UNKNOWN_OPTION', dt('Unknown ac-api option @name.', array('@name' => $name)));
+    return drush_set_error('ACAPI_UNKNOWN_OPTION', dt('Unknown ac-api option @name.', ['@name' => $name]));
   }
 
   // If the user specified --$name=<value> on the command line, return <value>.
@@ -938,9 +933,9 @@ function acapi_get_option($name) {
  */
 function drush_acapi_ac_generic_callback() {
   $command = drush_get_context('command');
-  $api_args = preg_match('@:site@', $command['resource']) ? acapi_get_site_args() : array();
-  $params = array();
-  $body = array();
+  $api_args = preg_match('@:site@', $command['resource']) ? acapi_get_site_args() : [];
+  $params = [];
+  $body = [];
 
   if (isset($command['default_params'])) {
     $params += $command['default_params'];
@@ -963,7 +958,7 @@ function drush_acapi_ac_generic_callback() {
       $path = array_shift($command['arguments']);
       $body[$k] = file_get_contents($path);
       if ($body[$k] === FALSE) {
-        drush_set_error('ACAPI_ENOENT', dt('Cannot read @arg path @path.', array('@arg' => $k, '@path' => $path)));
+        drush_set_error('ACAPI_ENOENT', dt('Cannot read @arg path @path.', ['@arg' => $k, '@path' => $path]));
         return;
       }
     }
@@ -1010,23 +1005,23 @@ function acapi_get_site($site_required = TRUE) {
  *   empty array if site alias option not found.
  */
 function acapi_get_site_args($site_required = TRUE) {
-  $params = array(
+  $params = [
     ':site' => drush_get_option('ac-site'),
     ':env' => drush_get_option('ac-env'),
     ':realm' => drush_get_option('ac-realm'),
-  );
+  ];
 
-  $missing = array_intersect($params, array(NULL));
+  $missing = array_intersect($params, [NULL]);
   if ($missing) {
     if ($site_required) {
       $missing = str_replace(':', 'ac-', implode(', ', array_keys($missing)));
       $error = dt(
         'Alias file is missing Acquia Cloud information: !missing. Be sure to specify a complete Acquia Cloud alias name, such as @mysite.dev.',
-        array('!missing' => $missing)
+        ['!missing' => $missing]
       );
       drush_set_error('ACAPI_SITE_REQUIRED', $error);
     }
-    return array();
+    return [];
   }
 
   return $params;
@@ -1052,10 +1047,10 @@ function acapi_get_site_args($site_required = TRUE) {
  *   - result_stream: open stream to which to write the response body
  *   - redirect: the maximum number of redirects to allow
  */
-function acapi_call($method, $resource, $args, $params = array(), $body = array(), $options = array()) {
-  $default_options = array(
+function acapi_call($method, $resource, $args, $params = [], $body = [], $options = []) {
+  $default_options = [
     'display' => TRUE,
-  );
+  ];
   $options = array_merge($default_options, $options);
 
   $debug = drush_get_option('debug', FALSE);
@@ -1105,7 +1100,7 @@ function acapi_call($method, $resource, $args, $params = array(), $body = array(
     return;
   }
 
-  $headers = array();
+  $headers = [];
   $ch = curl_init($url);
   // Basic request settings
   curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
@@ -1145,7 +1140,7 @@ function acapi_call($method, $resource, $args, $params = array(), $body = array(
   // Go
   $content = curl_exec($ch);
   if (curl_errno($ch) > 0) {
-    return drush_set_error('ACAPI_CURL_ERROR', dt('Error accessing @url: @err', array('@url' => $url, '@err' => curl_error($ch))));
+    return drush_set_error('ACAPI_CURL_ERROR', dt('Error accessing @url: @err', ['@url' => $url, '@err' => curl_error($ch)]));
   }
 
   $result = json_decode($content);
@@ -1169,7 +1164,7 @@ function acapi_call($method, $resource, $args, $params = array(), $body = array(
     else {
       if ($method == 'POST') {
         // All POST actions return a task. Display something helpful.
-        drush_log(dt('Task @taskid started.', array('@taskid' => $result->id)), 'ok');
+        drush_log(dt('Task @taskid started.', ['@taskid' => $result->id]), 'ok');
       }
       else {
         drush_print_table(drush_key_value_to_array_table(acapi_convert_values($result)));
@@ -1178,10 +1173,10 @@ function acapi_call($method, $resource, $args, $params = array(), $body = array(
   }
 
   if ($status != 200) {
-    return drush_set_error('ACAPI_HTTP_STATUS_' . $status, dt('API status code @status', array('@status' => $status)));
+    return drush_set_error('ACAPI_HTTP_STATUS_' . $status, dt('API status code @status', ['@status' => $status]));
   }
 
-  return array($status, $result);
+  return [$status, $result];
 }
 
 /**
@@ -1217,7 +1212,7 @@ function acapi_convert_values($arr) {
  * dt() wrapper that URL-encodes all substituted parameters that begin with
  * a colon (':').
  */
-function acapi_dt($string, $args = array()) {
+function acapi_dt($string, $args = []) {
   foreach ($args as $k => $v) {
     if ($k[0] == ':') {
       $args[$k] = urlencode($v);

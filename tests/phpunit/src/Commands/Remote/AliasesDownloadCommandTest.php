@@ -2,8 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
-use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
 use Acquia\Ads\Helpers\LocalMachineHelper;
+use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
