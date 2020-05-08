@@ -2,13 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
-use Acquia\Ads\Helpers\LocalMachineHelper;
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Endpoints\Account;
-use GuzzleHttp\Psr7\Response;
-use GuzzleHttp\Psr7\Stream;
 use Symfony\Component\Console\Command\Command;
 use function GuzzleHttp\Psr7\stream_for;
 

@@ -58,7 +58,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpPost(): void {
-$cloud_client = $this->getMockClient();
+    $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     foreach ($mock_request_args as $name => $value) {
@@ -66,7 +66,7 @@ $cloud_client = $this->getMockClient();
     }
     $cloud_client->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
-   $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand($mock_request_args);
 
     // Assert.

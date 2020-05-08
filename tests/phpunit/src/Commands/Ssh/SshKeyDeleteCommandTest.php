@@ -30,7 +30,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
   public function testDelete(): void {
     $this->setCommand($this->createCommand());
 
-$cloud_client = $this->getMockClient();
+    $cloud_client = $this->getMockClient();
     $mock_get_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_get_body->{'_embedded'}->items)->shouldBeCalled();
 

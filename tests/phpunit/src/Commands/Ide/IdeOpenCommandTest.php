@@ -30,7 +30,7 @@ class IdeOpenCommandTest extends CommandTestBase {
   public function testIdeOpenCommand(): void {
     $this->setCommand($this->createCommand());
 
-$cloud_client = $this->getMockClient();
+    $cloud_client = $this->getMockClient();
 
     // Request for applications.
     $response = $this->getMockResponseFromSpec('/applications', 'get', '200');

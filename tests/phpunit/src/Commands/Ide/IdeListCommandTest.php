@@ -30,7 +30,7 @@ class IdeListCommandTest extends CommandTestBase {
   public function testIdeListCommand(): void {
     $this->setCommand($this->createCommand());
 
-$cloud_client = $this->getMockClient();
+    $cloud_client = $this->getMockClient();
 
     // Request for applications.
     $response = $this->getMockResponseFromSpec('/applications', 'get', '200');
