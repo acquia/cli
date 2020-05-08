@@ -11,20 +11,20 @@ trait DataStoreAwareTrait {
   /**
    * @var DataStoreInterface
    */
-  protected $data_store;
+  protected $datastore;
 
   /**
    * @return mixed
    */
-  public function getDataStore() {
-    return $this->data_store;
+  public function getDatastore() {
+    return $this->datastore;
   }
 
   /**
-   * @param DataStoreInterface $data_store
+   * @param DataStoreInterface $datastore
    */
-  public function setDataStore(DataStoreInterface $data_store): void {
-    $this->data_store = $data_store;
+  public function setDatastore(DataStoreInterface $datastore): void {
+    $this->datastore = $datastore;
   }
 
 }

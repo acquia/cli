@@ -23,8 +23,7 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
    */
   public function testDelete(): void {
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+$cloud_client = $this->getMockClient();
 
     // Request for IDE data.
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');

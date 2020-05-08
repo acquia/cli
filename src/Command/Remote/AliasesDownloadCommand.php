@@ -6,7 +6,6 @@ use Acquia\Cli\AcquiaCliApplication;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,6 +16,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package Acquia\Cli\Commands\Remote
  */
 class AliasesDownloadCommand extends SshCommand {
+  /**
+   * @var string
+   */
+  private $drushArchiveFilepath;
+
+  /** @var string */
+  private $drushAliasesDir;
 
   /**
    * {inheritdoc}.
@@ -35,41 +41,73 @@ class AliasesDownloadCommand extends SshCommand {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
-    $drushArchive = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases') . '.tar.gz';
-    $this->output->writeln(sprintf(
-          'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
-          $drushArchive
+    $drush_archive_filepath = $this->getDrushArchiveTempFilepath();
+
+    if (file_put_contents($drush_archive_filepath, $aliases, LOCK_EX)) {
+      $drush_aliases_dir = $this->getDrushAliasesDir();
+
+      $this->output->writeln(sprintf(
+        'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
+        $drush_archive_filepath
       ));
 
-    if (file_put_contents($drushArchive, $aliases, LOCK_EX)) {
-      if (!$home = getenv('HOME')) {
-        throw new RuntimeException('Home directory not found.');
-      }
-      $drushDirectory = $home . '/.drush';
-      if (!is_dir($drushDirectory) && !mkdir($drushDirectory, 0700) && !is_dir($drushDirectory)) {
-        throw new RuntimeException(sprintf('Directory "%s" was not created', $drushDirectory));
-      }
-      if (!is_writable($drushDirectory)) {
-        chmod($drushDirectory, 0700);
-      }
-      $archive = new PharData($drushArchive . '/.drush');
+      $this->getApplication()->getLocalMachineHelper()->getFilesystem()->mkdir($drush_aliases_dir);
+      $this->getApplication()->getLocalMachineHelper()->getFilesystem()->chmod($drush_aliases_dir, 0700);
+
+      $archive = new PharData($drush_archive_filepath . '/.drush');
       $drushFiles = [];
       foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
         $drushFiles[] = '.drush/' . $file->getFileName();
       }
 
-      $archive->extractTo($home, $drushFiles, TRUE);
+      $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
       $this->output->writeln(sprintf(
-            'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
-            $drushDirectory
-        ));
-      unlink($drushArchive);
+        'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
+        $drush_aliases_dir
+      ));
+      unlink($drush_archive_filepath);
     }
     else {
-      $this->logger->error('Unable to download Drush Aliases');
+      throw new AcquiaCliException('Unable to download Drush Aliases');
     }
 
     return 0;
+  }
+
+  /**
+   * @param string $drushAliasesDir
+   */
+  public function setDrushAliasesDir(string $drushAliasesDir): void {
+    $this->drushAliasesDir = $drushAliasesDir;
+  }
+
+  /**
+   * @param string $drushArchiveFilepath
+   */
+  public function setDrushArchiveFilepath(string $drushArchiveFilepath): void {
+    $this->drushArchiveFilepath = $drushArchiveFilepath;
+  }
+
+  /**
+   * @return string
+   */
+  public function getDrushArchiveTempFilepath(): string {
+    if (!isset($this->drushArchiveFilepath)) {
+      $this->drushArchiveFilepath = tempnam(sys_get_temp_dir(),
+          'AcquiaDrushAliases') . '.tar.gz';
+    }
+
+    return $this->drushArchiveFilepath;
+  }
+
+  protected function getDrushAliasesDir(): string {
+    if (!isset($this->drushAliasesDir)) {
+      $this->drushAliasesDir = $this->getApplication()
+          ->getLocalMachineHelper()
+          ->getLocalFilepath('~') . '/.drush';
+    }
+
+    return $this->drushAliasesDir;
   }
 
 }

@@ -27,8 +27,7 @@ class ApiCommandTest extends CommandTestBase {
    * Tests the 'api:*' commands.
    */
   public function testApiCommandExecutionForHttpGet(): void {
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+$cloud_client = $this->getMockClient();
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $cloud_client->addQuery('limit', '1')->shouldBeCalled();
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
@@ -59,8 +58,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpPost(): void {
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+$cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     foreach ($mock_request_args as $name => $value) {

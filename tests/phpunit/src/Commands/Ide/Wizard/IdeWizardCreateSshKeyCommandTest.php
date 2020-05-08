@@ -24,8 +24,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    */
   public function testCreate(): void {
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client */
-    $cloud_client = $this->prophet->prophesize(Client::class);
+$cloud_client = $this->getMockClient();
 
     // Request for list of SSH keys in Cloud.
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');

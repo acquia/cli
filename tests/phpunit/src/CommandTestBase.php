@@ -58,7 +58,8 @@ abstract class CommandTestBase extends TestCase {
   abstract protected function createCommand(): Command;
 
   /**
-   * @var \Symfony\Component\Console\Application*/
+   * @var AcquiaCliApplication
+   */
   protected $application;
 
   /**
@@ -322,6 +323,13 @@ abstract class CommandTestBase extends TestCase {
     $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'acli') . '.pub';
     $this->fs->dumpFile($temp_file_name, $contents);
     return $temp_file_name;
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client
+   */
+  protected function getMockClient() {
+    return $this->prophet->prophesize(Client::class);
   }
 
 }
