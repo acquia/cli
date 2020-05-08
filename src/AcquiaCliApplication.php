@@ -2,10 +2,9 @@
 
 namespace Acquia\Cli;
 
-use Acquia\Ads\DataStore\DataStoreAwareTrait;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Connector\CliCloudConnector;
+use Acquia\Cli\DataStore\DataStoreAwareTrait;
 use Acquia\Cli\DataStore\FileStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
@@ -26,10 +25,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
   use DataStoreAwareTrait;
-
-  /**
-   * @var \Acquia\Cli\DataStore\FileStore*/
-  private $datastore;
 
   /**
    * @var null|string*/

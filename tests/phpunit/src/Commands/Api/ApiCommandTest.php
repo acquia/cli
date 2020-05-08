@@ -27,7 +27,7 @@ class ApiCommandTest extends CommandTestBase {
    * Tests the 'api:*' commands.
    */
   public function testApiCommandExecutionForHttpGet(): void {
-$cloud_client = $this->getMockClient();
+    $cloud_client = $this->getMockClient();
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $cloud_client->addQuery('limit', '1')->shouldBeCalled();
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();

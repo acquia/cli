@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
+use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
