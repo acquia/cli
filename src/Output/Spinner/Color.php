@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Output\Spinner;
+namespace Acquia\Cli\Output\Spinner;
 
 /**
  *

@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Command;
+namespace Acquia\Cli\Command;
 
 use Exception;
 use Phar;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Output\Spinner;
+namespace Acquia\Cli\Output\Spinner;
 
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;

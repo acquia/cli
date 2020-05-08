@@ -1,11 +1,11 @@
 <?php
 
-namespace Acquia\Ads\DataStore;
+namespace Acquia\Cli\DataStore;
 
 /**
  * Interface DataStoreInterface.
  *
- * @package Acquia\Ads\DataStore
+ * @package Acquia\Cli\DataStore
  */
 interface DataStoreInterface {
 

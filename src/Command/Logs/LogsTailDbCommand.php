@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Command\Logs;
+namespace Acquia\Cli\Command\Logs;
 
-use Acquia\Ads\Command\CommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

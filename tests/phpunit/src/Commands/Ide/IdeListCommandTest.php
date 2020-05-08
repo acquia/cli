@@ -1,18 +1,17 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide;
+namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\Ide\IdeListCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ide\IdeListCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class IdeListCommandTest.
  *
- * @property \Acquia\Ads\Command\Ide\IdeListCommand $command
- * @package Acquia\Ads\Tests\Ide
+ * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
+ * @package Acquia\Cli\Tests\Ide
  */
 class IdeListCommandTest extends CommandTestBase {
 

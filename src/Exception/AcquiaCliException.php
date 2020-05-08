@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Exception;
+namespace Acquia\Cli\Exception;
 
 use Exception;
 

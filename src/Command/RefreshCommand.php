@@ -1,10 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Command;
+namespace Acquia\Cli\Command;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Exception\AcquiaCliException;
-use Acquia\Ads\Output\Checklist;
+use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ClientInterface;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -134,7 +133,7 @@ class RefreshCommand extends CommandBase {
   /**
    * @param $chosen_environment
    *
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $repo_root = $this->getApplication()->getRepoRoot();

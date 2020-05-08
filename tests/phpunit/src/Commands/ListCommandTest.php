@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\ListCommand;
 use Symfony\Component\Process\Process;
@@ -12,7 +12,7 @@ use Webmozart\PathUtil\Path;
  * Class ListCommandTest.
  *
  * @property ListCommand $command
- * @package Acquia\Ads\Tests\Api
+ * @package Acquia\Cli\Tests\Api
  */
 class ListCommandTest extends CommandTestBase {
 

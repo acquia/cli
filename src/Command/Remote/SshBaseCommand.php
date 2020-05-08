@@ -1,19 +1,19 @@
 <?php
 
-namespace Acquia\Ads\Command\Remote;
+namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 
 /**
  * Class SSHBaseCommand
- * Base class for Ads commands that deal with sending SSH commands.
+ * Base class for Acquia CLI commands that deal with sending SSH commands.
  *
- * @package Acquia\Ads\Commands\Remote
+ * @package Acquia\Cli\Commands\Remote
  */
 abstract class SshBaseCommand extends CommandBase {
 
@@ -53,7 +53,7 @@ abstract class SshBaseCommand extends CommandBase {
    *
    * @return int
    *
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function executeCommand(array $command_args): int {
     $command_summary = $this->getCommandSummary($command_args);
@@ -62,7 +62,7 @@ abstract class SshBaseCommand extends CommandBase {
     unset($command_args['site_env']);
     $process = $this->sendCommandViaSsh($command_args);
 
-    /** @var \Acquia\Ads\AcquiaCliApplication $application */
+    /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
     $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
       'env' => $this->environment->name,
@@ -160,7 +160,7 @@ abstract class SshBaseCommand extends CommandBase {
    * @param string $drush_env
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvFromAlias(
         $drush_site,

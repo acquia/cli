@@ -1,12 +1,12 @@
 <?php
 
-namespace Acquia\Ads;
+namespace Acquia\Cli;
 
-use Acquia\Ads\Command\Api\ApiCommandHelper;
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Connector\AdsCloudConnector;
-use Acquia\Ads\DataStore\FileStore;
-use Acquia\Ads\Helpers\LocalMachineHelper;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Connector\CliCloudConnector;
+use Acquia\Cli\DataStore\FileStore;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -26,7 +26,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   use LoggerAwareTrait;
 
   /**
-   * @var \Acquia\Ads\DataStore\FileStore*/
+   * @var \Acquia\Cli\DataStore\FileStore*/
   private $datastore;
 
   /**
@@ -34,7 +34,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private $repoRoot;
 
   /**
-   * @var \Acquia\Ads\Helpers\LocalMachineHelper
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
   protected $localMachineHelper;
   /**
@@ -47,14 +47,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private $acquiaCloudClient;
 
   /**
-   * @return \Acquia\Ads\Helpers\LocalMachineHelper
+   * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
     return $this->localMachineHelper;
   }
 
   /**
-   * Ads constructor.
+   * Cli constructor.
    *
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -164,7 +164,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getAcquiaCloudClient(): Client {
     if (isset($this->acquiaCloudClient)) {
@@ -176,7 +176,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'key' => $cloud_api_conf['key'],
       'secret' => $cloud_api_conf['secret'],
     ];
-    $connector = new AdsCloudConnector($config);
+    $connector = new CliCloudConnector($config);
     $this->acquiaCloudClient = Client::factory($connector);
 
     return $this->acquiaCloudClient;

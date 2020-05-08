@@ -1,10 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide;
+namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\Ide\IdeCreateCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ide\IdeCreateCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
@@ -13,7 +12,7 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeCreateCommandTest.
  *
  * @property IdeCreateCommand $command
- * @package Acquia\Ads\Tests\Ide
+ * @package Acquia\Cli\Tests\Ide
  */
 class IdeCreateCommandTest extends CommandTestBase {
 
@@ -78,7 +77,7 @@ class IdeCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return \Acquia\Ads\Command\Ide\IdeCreateCommand
+   * @return \Acquia\Cli\Command\Ide\IdeCreateCommand
    */
   protected function createCommand(): Command {
     return new IdeCreateCommand();

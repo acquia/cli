@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide\Wizard;
+namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
-use Acquia\Ads\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
+use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use Prophecy\Argument;
@@ -12,8 +12,8 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class IdeWizardCreateSshKeyCommandTest.
  *
- * @property \Acquia\Ads\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
- * @package Acquia\Ads\Tests\Ide
+ * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
+ * @package Acquia\Cli\Tests\Ide
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
@@ -71,7 +71,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   }
 
   /**
-   * @return \Acquia\Ads\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
+   * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
   protected function createCommand(): Command {
     return new IdeWizardCreateSshKeyCommand();

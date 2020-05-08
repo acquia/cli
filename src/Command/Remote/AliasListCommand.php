@@ -1,9 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Command\Remote;
+namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\CommandBase;
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\ProgressBar;

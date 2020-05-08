@@ -1,10 +1,10 @@
 <?php
 
-namespace Acquia\Ads\Command\Ide\Wizard;
+namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Command\Ssh\SshKeyCommandBase;
-use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Response\IdeResponse;
 
 /**
@@ -23,7 +23,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   }
 
   /**
-   * @throws \Acquia\Ads\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function requireRemoteIdeEnvironment(): void {
     if (!CommandBase::isAcquiaRemoteIde()) {

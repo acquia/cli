@@ -1,12 +1,10 @@
 <?php
 
-namespace Acquia\Ads\Command\Ide;
+namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Ads\Command\CommandBase;
-use Acquia\Ads\Exception\AcquiaCliException;
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 
 /**
  * Class IdeCommandBase.

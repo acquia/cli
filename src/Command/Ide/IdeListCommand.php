@@ -1,9 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Command\Ide;
+namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\CommandBase;
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;

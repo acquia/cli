@@ -1,16 +1,16 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Ads\Command\AuthCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\AuthCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class IdeDeleteCommandTest.
  *
  * @property AuthCommand $command
- * @package Acquia\Ads\Tests
+ * @package Acquia\Cli\Tests
  */
 class AuthCommandTest extends CommandTestBase {
 

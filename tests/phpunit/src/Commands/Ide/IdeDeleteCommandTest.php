@@ -1,10 +1,9 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Ide;
+namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\Ide\IdeDeleteCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Ide\IdeDeleteCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
@@ -12,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeDeleteCommandTest.
  *
  * @property IdeDeleteCommand $command
- * @package Acquia\Ads\Tests\Ide
+ * @package Acquia\Cli\Tests\Ide
  */
 class IdeDeleteCommandTest extends CommandTestBase {
 

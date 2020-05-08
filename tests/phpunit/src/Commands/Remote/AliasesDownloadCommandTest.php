@@ -1,16 +1,16 @@
 <?php
 
-namespace Acquia\Ads\Tests\Commands\Remote;
+namespace Acquia\Cli\Tests\Commands\Remote;
 
-use Acquia\Ads\Command\Remote\AliasesDownloadCommand;
-use Acquia\Ads\Tests\CommandTestBase;
+use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class AliasesDownloadCommandTest.
  *
  * @property AliasesDownloadCommand $command
- * @package Acquia\Ads\Tests\Remote
+ * @package Acquia\Cli\Tests\Remote
  */
 class AliasesDownloadCommandTest extends CommandTestBase {
 

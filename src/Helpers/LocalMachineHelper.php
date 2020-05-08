@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Ads\Helpers;
+namespace Acquia\Cli\Helpers;
 
 use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
@@ -15,7 +15,7 @@ use Symfony\Component\Process\Process;
  *
  * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
  *
- * @package Acquia\Ads\Helpers
+ * @package Acquia\Cli\Helpers
  */
 class LocalMachineHelper {
   use LoggerAwareTrait;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Output;
+namespace Acquia\Cli\Output;
 
-use Acquia\Ads\Output\Spinner\Spinner;
+use Acquia\Cli\Output\Spinner\Spinner;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -50,7 +50,7 @@ class Checklist {
   public function completePreviousItem(): void {
     if ($this->useSpinner()) {
       $item = $this->getLastItem();
-      /** @var \Acquia\Ads\Output\Spinner\Spinner $spinner */
+      /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
       $spinner = $item['spinner'];
       $spinner->setMessage($item['message']);
       $spinner->advance();
@@ -71,7 +71,7 @@ class Checklist {
   public function updateProgressBar($update_message): void {
     if ($this->useSpinner()) {
       $item = $this->getLastItem();
-      /** @var \Acquia\Ads\Output\Spinner\Spinner $spinner */
+      /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
       $spinner = $item['spinner'];
     }
 

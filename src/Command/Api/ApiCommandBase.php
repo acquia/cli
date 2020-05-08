@@ -1,9 +1,8 @@
 <?php
 
-namespace Acquia\Ads\Command\Api;
+namespace Acquia\Cli\Command\Api;
 
-use Acquia\Ads\AcquiaCliApplication;
-use Acquia\Ads\Command\CommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
