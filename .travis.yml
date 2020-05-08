@@ -20,8 +20,8 @@ env:
     - 'HIGHEST_LOWEST="update --prefer-lowest"'
 
 jobs:
-  # We have to explicitly add Windows jobs because Travis CI doesn't support PHP on Windows.
   include:
+    # We have to explicitly add Windows jobs because Travis CI doesn't support PHP on Windows.
     - os: windows
       language: shell
       git:
@@ -34,6 +34,15 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+    # Run static analysis in its own job to save resources.
+    - name: "Static code analysis"
+      before_script:
+        - composer require --dev "php-coveralls/php-coveralls:^2.2"
+      script:
+        - composer lint
+        - composer cs
+      after_success:
+        - ./vendor/bin/php-coveralls -vvv
 
 before_install:
   - composer selfupdate
@@ -42,10 +51,9 @@ install:
   # Load composer dependencies.
   - composer validate --no-check-all --ansi
   - 'composer -n ${HIGHEST_LOWEST-install} --prefer-dist -o'
+
+before_script:
   - ./bin/acli auth:login --key=notarealkeyatall --secret=thisisaplaceholder
 
 script:
-  - composer test
-
-after_success:
-  - ./vendor/bin/php-coveralls -vvv
+  - composer unit
