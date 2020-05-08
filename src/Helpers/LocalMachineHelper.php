@@ -328,7 +328,6 @@ class LocalMachineHelper {
     return FALSE;
   }
 
-
   /**
    * @param $environment
    *

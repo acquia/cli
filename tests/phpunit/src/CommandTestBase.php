@@ -63,12 +63,19 @@ abstract class CommandTestBase extends TestCase {
 
   /**
    * This method is called before each test.
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp(): void {
     $this->consoleOutput = new ConsoleOutput();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->printTestName();
+
+    $input = new ArrayInput([]);
+    $output = new BufferedOutput();
+    $logger = new ConsoleLogger($output);
+    $repo_root = NULL;
+    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
 
     parent::setUp();
   }
@@ -116,8 +123,6 @@ abstract class CommandTestBase extends TestCase {
    *
    * @return \Symfony\Component\Console\Tester\CommandTester
    *   A command tester.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getCommandTester(): CommandTester {
     if ($this->commandTester) {
@@ -128,11 +133,6 @@ abstract class CommandTestBase extends TestCase {
       $this->command = $this->createCommand();
     }
 
-    $input = new ArrayInput([]);
-    $output = new BufferedOutput();
-    $logger = new ConsoleLogger($output);
-    $repo_root = NULL;
-    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
     $this->application->add($this->command);
     $found_command = $this->application->find($this->command->getName());
     $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');

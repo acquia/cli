@@ -184,10 +184,10 @@ class Spinner {
    *
    */
   public function finish(): void {
-    $this->section->overwrite($this->indentString . '<info>✔</info> ' . $this->progressBar->getMessage());
     if (!$this->spinnerIsSupported()) {
       return;
     }
+    $this->section->overwrite($this->indentString . '<info>✔</info> ' . $this->progressBar->getMessage());
     $this->progressBar->finish();
   }
 
@@ -195,10 +195,10 @@ class Spinner {
    *
    */
   public function fail(): void {
-    $this->section->overwrite($this->indentString . '❌' . $this->progressBar->getMessage());
     if (!$this->spinnerIsSupported()) {
       return;
     }
+    $this->section->overwrite($this->indentString . '❌' . $this->progressBar->getMessage());
     $this->progressBar->finish();
   }
 

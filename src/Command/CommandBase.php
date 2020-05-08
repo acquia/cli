@@ -14,6 +14,7 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -463,9 +464,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return \Acquia\Ads\Output\Spinner\Spinner
    */
   public function addSpinnerToLoop(
-    \React\EventLoop\LoopInterface $loop,
+    LoopInterface $loop,
     $message
-  ): \Acquia\Ads\Output\Spinner\Spinner {
+  ): Spinner {
       $spinner = new Spinner($this->output, 4);
       $spinner->setMessage($message);
       $spinner->start();
@@ -487,7 +488,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Acquia\Ads\Output\Spinner\Spinner $spinner
    */
   public function addTimeoutToLoop(
-    \React\EventLoop\LoopInterface $loop,
+    LoopInterface $loop,
     $minutes,
     Spinner $spinner
   ): void {

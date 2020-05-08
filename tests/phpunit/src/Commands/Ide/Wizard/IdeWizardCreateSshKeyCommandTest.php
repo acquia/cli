@@ -60,7 +60,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Choose a local SSH key to upload to Acquia Cloud.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
     $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->command->getApplication()->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([
       '--no-wait' => '',
     ]);

@@ -45,11 +45,11 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->_embedded->items[3] = (object) $mock_request_args;
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
-    AcquiaCliApplication::setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     // Choose a local SSH key to upload to Acquia Cloud.
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
+    $this->application->setSshKeysDir(sys_get_temp_dir());
     $inputs = [
       // Choose key.
       '0',

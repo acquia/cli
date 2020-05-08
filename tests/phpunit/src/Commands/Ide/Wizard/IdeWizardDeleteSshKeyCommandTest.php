@@ -47,7 +47,7 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
     $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
 
     // Set the mock client.
-    $this->command->getApplication()->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     // Create the file so it can be deleted.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);

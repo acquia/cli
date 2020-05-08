@@ -82,7 +82,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(\Closure::fromCallable([$this, 'validateFilename']));
       $filename = $this->questionHelper->ask($input, $output, $question);
     }
 

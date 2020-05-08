@@ -137,7 +137,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     return $this->logger;
   }
 
-
   /**
    * @param string|null $sshKeysDir
    */
