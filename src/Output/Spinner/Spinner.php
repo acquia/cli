@@ -4,6 +4,7 @@ namespace Acquia\Cli\Output\Spinner;
 
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  *
@@ -95,15 +96,26 @@ class Spinner {
    * @var string
    */
   private $indentString;
+  /**
+   * OutputInterface
+   */
+  private $output;
 
   /**
-   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param int $indent
+   * @param int $colorLevel
    */
-  public function __construct(ConsoleOutput $output, $indent = 0, $colorLevel = Color::COLOR_256) {
+  public function __construct(OutputInterface $output, $indent = 0, $colorLevel = Color::COLOR_256) {
+    $this->output = $output;
+    $this->indentString = str_repeat(' ', $indent);
+
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
     $this->section = $output->section();
     $this->colorLevel = $colorLevel;
     $this->colorCount = count(self::COLORS);
-    $this->indentString = str_repeat(' ', $indent);
 
     // Create progress bar.
     $this->progressBar = new ProgressBar($this->section);
@@ -119,6 +131,9 @@ class Spinner {
    *
    */
   public function start(): void {
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
     $this->progressBar->start();
   }
 
@@ -126,6 +141,10 @@ class Spinner {
    *
    */
   public function advance(): void {
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
+
     ++$this->currentCharIdx;
     ++$this->currentColorIdx;
     $char = $this->getSpinnerCharacter();
@@ -155,6 +174,9 @@ class Spinner {
    *
    */
   public function setMessage(string $message): void {
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
     $this->progressBar->setMessage($message);
   }
 
@@ -162,6 +184,9 @@ class Spinner {
    *
    */
   public function finish(): void {
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
     $this->section->overwrite($this->indentString . '<info>✔</info> ' . $this->progressBar->getMessage());
     $this->progressBar->finish();
   }
@@ -170,6 +195,9 @@ class Spinner {
    *
    */
   public function fail(): void {
+    if (!$this->spinnerIsSupported()) {
+      return;
+    }
     $this->section->overwrite($this->indentString . '❌' . $this->progressBar->getMessage());
     $this->progressBar->finish();
   }
@@ -181,6 +209,13 @@ class Spinner {
    */
   public function interval(): float {
     return 0.1;
+  }
+
+  /**
+   *
+   */
+  protected function spinnerIsSupported(): bool {
+    return $this->output instanceof ConsoleOutput;
   }
 
 }

@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command\Ide;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 
 /**
  * Class IdeCommandBase.

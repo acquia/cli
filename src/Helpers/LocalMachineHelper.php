@@ -11,7 +11,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 
 /**
- * Class ShellExecHelper.
+ * Class LocalMachineHelper.
  *
  * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
  *
@@ -67,6 +67,7 @@ class LocalMachineHelper {
    * @param callable $callback
    *   A function to run while waiting for the process to complete.
    * @param null $cwd
+   * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
    */
@@ -325,6 +326,24 @@ class LocalMachineHelper {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param $environment
+   *
+   * @return \Symfony\Component\Process\Process
+   */
+  protected function listRemoteFilesViaSsh($environment): Process {
+    return $this->execute([
+      'ssh',
+      '-T',
+      '-o',
+      'StrictHostKeyChecking no',
+      '-o',
+      'LogLevel=ERROR',
+      $environment->sshUrl,
+      'ls',
+    ], NULL, NULL, FALSE);
   }
 
 }

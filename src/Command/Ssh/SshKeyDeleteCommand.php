@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -16,7 +17,9 @@ class SshKeyDeleteCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:delete')->setDescription('Delete an SSH key');
+    $this->setName('ssh-key:delete')
+      ->setDescription('Delete an SSH key')
+      ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
   }
 
   /**
@@ -29,14 +32,9 @@ class SshKeyDeleteCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $cloud_key = $this->promptChooseFromObjects(
-      $cloud_keys,
-      'uuid',
-      'label',
-      '<question>Choose an SSH key to delete from Acquia Cloud</question>:'
-    );
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $cloud_key = $this->determineCloudKey($acquia_cloud_client);
+
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);
     if ($response->getStatusCode() === 202) {
       $output->writeln("<info>Successfully deleted SSH key <comment>{$cloud_key->label}</comment> from Acquia Cloud.</info>");
@@ -44,6 +42,23 @@ class SshKeyDeleteCommand extends CommandBase {
     }
 
     throw new AcquiaCliException($response->getBody()->getContents());
+  }
+
+  protected function determineCloudKey($acquia_cloud_client) {
+    if ($this->input->getOption('cloud-key-uuid')) {
+      $cloud_key_uuid = $this->input->getOption('cloud-key-uuid');
+      $cloud_key = $acquia_cloud_client->request('get', '/account/ssh-keys/' . $cloud_key_uuid);
+      return $cloud_key;
+    }
+
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
+    $cloud_key = $this->promptChooseFromObjects(
+      $cloud_keys,
+      'uuid',
+      'label',
+      '<question>Choose an SSH key to delete from Acquia Cloud</question>:'
+    );
+    return $cloud_key;
   }
 
 }

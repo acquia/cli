@@ -31,7 +31,7 @@ class IdeListCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $application_ides = $ides_resource->getAll($application_uuid);
 
@@ -41,8 +41,8 @@ class IdeListCommand extends CommandBase {
     foreach ($application_ides as $ide) {
       $table->addRows([
           ['<comment>' . $ide->label . ':</comment>'],
-          ["Web URL: " . $ide->links->web->href],
-          ["IDE URL: " . $ide->links->ide->href],
+          ['Web URL: ' . $ide->links->web->href],
+          ['IDE URL: ' . $ide->links->ide->href],
         new TableSeparator(),
       ]);
     }

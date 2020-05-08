@@ -60,7 +60,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
       '0',
     ];
 
-    $this->command->setAcquiaCloudClient($cloud_client->reveal());
+   $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], $inputs);
 
     // Assert.

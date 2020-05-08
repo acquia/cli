@@ -6,12 +6,15 @@ use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\DataStore\DataStoreInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Spinner\Spinner;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -115,6 +118,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+<<<<<<< HEAD
    * @param \AcquiaCloudApi\Connector\Client $client
    */
   public function setAcquiaCloudClient(Client $client) {
@@ -141,6 +145,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+=======
+>>>>>>> upstream/master
    * Get a list of customer applications suitable for display as CLI choice.
    *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
@@ -375,13 +381,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string|null
    */
   protected function determineCloudApplication(): ?string {
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
     $cli_application = $this->getApplication();
     $this->loadLocalProjectInfo($cli_application);
 
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
+      return $application_uuid;
+    }
+
+    // If an IDE, get from env var.
+    if ($this::isAcquiaRemoteIde() && $application_uuid = $this::getThisRemoteIdeUuid()) {
       return $application_uuid;
     }
 
@@ -461,10 +472,60 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
+   * @return bool
    */
-  protected function useSpinner(): bool {
-    return $this->output instanceof ConsoleOutput;
+  public static function isAcquiaRemoteIde(): bool {
+    return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
+  }
+
+  /**
+   * @return false|string
+   */
+  public static function getThisRemoteIdeUuid() {
+    return getenv('REMOTEIDE_UUID');
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   *
+   * @param string $message
+   *
+   * @return \Acquia\Cli\Output\Spinner\Spinner
+   */
+  public function addSpinnerToLoop(
+    LoopInterface $loop,
+    $message
+  ): Spinner {
+      $spinner = new Spinner($this->output, 4);
+      $spinner->setMessage($message);
+      $spinner->start();
+      $loop->addPeriodicTimer($spinner->interval(),
+        static function () use ($spinner) {
+          $spinner->advance();
+        });
+
+    return $spinner;
+  }
+
+  protected function finishSpinner(Spinner $spinner) {
+    $spinner->finish();
+  }
+
+  /**
+   * @param \React\EventLoop\LoopInterface $loop
+   * @param $minutes
+   * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
+   */
+  public function addTimeoutToLoop(
+    LoopInterface $loop,
+    $minutes,
+    Spinner $spinner
+  ): void {
+    $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
+      $this->finishSpinner($spinner);
+      $this->logger->debug("Timed out after $minutes minutes!");
+      $loop->stop();
+    });
   }
 
 }

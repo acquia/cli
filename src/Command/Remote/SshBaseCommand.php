@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -119,8 +120,7 @@ abstract class SshBaseCommand extends CommandBase {
     if ($this->getApplication()->getLocalMachineHelper()->useTty() === FALSE) {
       $output = $this->output;
 
-      return function ($type, $buffer) use ($output) {
-        // @todo Separate the stderr output.
+      return static function ($type, $buffer) use ($output) {
         $output->write($buffer);
       };
     }
@@ -160,6 +160,7 @@ abstract class SshBaseCommand extends CommandBase {
    * @param string $drush_env
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Ads\Exception\AcquiaCliException
    */
   protected function getEnvFromAlias(
         $drush_site,
@@ -167,7 +168,7 @@ abstract class SshBaseCommand extends CommandBase {
     ): EnvironmentResponse {
     // @todo Speed this up with some kind of caching.
     $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
-    $acquia_cloud_client = $this->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
     $environments_resource = new Environments($acquia_cloud_client);

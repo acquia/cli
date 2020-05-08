@@ -28,6 +28,7 @@ jobs:
         autocrlf: false
       before_install:
         - choco install php
+        - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
         # Refresh env to pick up new paths added by Choco installs.
         - cmd.exe //c "RefreshEnv.cmd"
