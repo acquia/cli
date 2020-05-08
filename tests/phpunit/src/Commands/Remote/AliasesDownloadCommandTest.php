@@ -40,7 +40,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $cloud_client->request('get', '/account/drush-aliases/download')->willReturn($stream);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
-    $drush_aliases_dir = sys_get_temp_dir() . './drush';
+    $drush_aliases_dir = sys_get_temp_dir() . '/.drush';
     $this->command->setDrushAliasesDir($drush_aliases_dir);
 
     $inputs = [];
