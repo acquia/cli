@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Ads\AcquiaCliApplication;
+use Acquia\Cli\AcquiaCliApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

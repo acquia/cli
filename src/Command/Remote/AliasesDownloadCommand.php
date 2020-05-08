@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Ads\AcquiaCliApplication;
+use Acquia\Cli\AcquiaCliApplication;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;

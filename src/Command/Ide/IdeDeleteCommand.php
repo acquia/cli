@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Ads\AcquiaCliApplication;
+use Acquia\Cli\AcquiaCliApplication;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
