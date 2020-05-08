@@ -317,7 +317,7 @@ abstract class CommandTestBase extends TestCase {
    */
   protected function createLocalSshKey($contents): string {
     $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub');
+    $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
     $this->fs->remove($finder->files());
     $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'acli') . '.pub';
     $this->fs->dumpFile($temp_file_name, $contents);

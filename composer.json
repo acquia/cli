@@ -13,7 +13,6 @@
   "require": {
     "php": "^7.3",
     "ext-json": "*",
-    "ext-posix": "*",
     "acquia/drupal-environment-detector": "dev-master",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6",
@@ -39,7 +38,8 @@
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
     "php-coveralls/php-coveralls": "^2.2",
-    "squizlabs/php_codesniffer": "^3.5"
+    "squizlabs/php_codesniffer": "^3.5",
+    "webmozart/path-util": "^2.3"
   },
   "autoload": {
     "psr-4": {
