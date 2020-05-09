@@ -10,6 +10,7 @@
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">bin</directory>
             <directory suffix=".php">src</directory>
         </whitelist>
     </filter>
