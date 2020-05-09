@@ -50,6 +50,7 @@ class IdeCreateCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $cloud_application_uuid = $this->determineCloudApplication();

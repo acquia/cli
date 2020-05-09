@@ -72,7 +72,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
     $this->repoRoot = $repo_root;
-    $this->localMachineHelper = new LocalMachineHelper($input, $output, $logger);
+    $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
     $this->setDatastore(new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia'));
 
@@ -85,6 +85,15 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
       );
+  }
+
+  /**
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   */
+  public function setLocalMachineHelper(
+    \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+  ): void {
+    $this->localMachineHelper = $localMachineHelper;
   }
 
   /**

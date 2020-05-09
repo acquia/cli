@@ -25,7 +25,7 @@ class DrushCommand extends SSHBaseCommand {
     $this->setName('remote:drush')
       ->setAliases(['drush'])
       ->setDescription('Runs a Drush command remotely on a application\'s environment.')
-      ->addArgument('site_env', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
+      ->addArgument('alias', InputArgument::REQUIRED, 'Alias for site & environment in the format `app-name.env`')
       ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
       ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
       ->addUsage('@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar');
@@ -37,18 +37,14 @@ class DrushCommand extends SSHBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // @todo Validate the arg format.
-    $site_env = $input->getArgument('site_env');
-    $site_env_parts = explode('.', $site_env);
-    $drush_site = $site_env_parts[0];
-    $drush_env = $site_env_parts[1];
-
-    // @todo Add error handling.
-    $this->environment = $this->getEnvFromAlias($drush_site, $drush_env);
+    $alias = $this->validateAlias($input->getArgument('alias'));
+    $this->environment = $this->getEnvironmentFromAliasArg($alias);
 
     $arguments = $input->getArguments();
+    // Remove 'remote:drush' command from array.
     array_shift($arguments);
-    array_unshift($arguments, "cd /var/www/html/{$drush_site}.{$drush_env}/docroot; ", 'drush');
+    // Add command to array.
+    array_unshift($arguments, "cd /var/www/html/{$alias}/docroot; ", 'drush');
 
     return $this->executeCommand($arguments);
   }

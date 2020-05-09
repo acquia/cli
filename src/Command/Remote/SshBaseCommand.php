@@ -2,12 +2,18 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Cli\AcquiaCliApplication;
+;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class SSHBaseCommand
@@ -18,33 +24,9 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 abstract class SshBaseCommand extends CommandBase {
 
   /**
-   * @var stringNameofthecommandtoberunasitwillbeusedonserver
-   */
-  protected $command = '';
-  /**
    * @var \AcquiaCloudApi\Response\EnvironmentResponse
    */
   protected $environment;
-
-  /**
-   * @var bool
-   */
-  protected $progressAllowed;
-
-  /**
-   * ProgressAllowed sets the field that controls whether a progress bar
-   * may be displayed when a program is executed. If allowed, a progress
-   * bar will be used in tty mode.
-   *
-   * @param mixed|bool $allowed
-   *
-   * @return $this
-   */
-  protected function setProgressAllowed($allowed = TRUE): self {
-    $this->progressAllowed = $allowed;
-
-    return $this;
-  }
 
   /**
    * Execute the command remotely.
@@ -59,7 +41,7 @@ abstract class SshBaseCommand extends CommandBase {
     $command_summary = $this->getCommandSummary($command_args);
 
     // Remove site_env arg.
-    unset($command_args['site_env']);
+    unset($command_args['alias']);
     $process = $this->sendCommandViaSsh($command_args);
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
@@ -83,10 +65,10 @@ abstract class SshBaseCommand extends CommandBase {
    * @param array $command
    *   The command to be run on the platform.
    *
-   * @return
+   * @return \Symfony\Component\Process\Process
    */
-  protected function sendCommandViaSsh($command) {
-    $command = array_merge($this->getConnectionArgs(), $command);
+  protected function sendCommandViaSsh($command): Process {
+    $command = $this->getSshCommand($command);
 
     return $this->getApplication()
       ->getLocalMachineHelper()
@@ -125,8 +107,7 @@ abstract class SshBaseCommand extends CommandBase {
       };
     }
 
-    return function ($type, $buffer) {
-    };
+    return static function ($type, $buffer) {};
   }
 
   /**
@@ -153,6 +134,37 @@ abstract class SshBaseCommand extends CommandBase {
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
     ];
+  }
+
+  /**
+   * @param string $alias
+   *
+   * @return string
+   */
+  protected function validateAlias($alias): string {
+    $violations = Validation::createValidator()->validate($alias, [
+      new Length(['min' => 5]),
+      new NotBlank(),
+      new Regex(['pattern' => '/.+\..+/', 'message' => 'Alias must match pattern `[app-name].[env]']),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+
+    return $alias;
+  }
+
+  /**
+   * @param $alias
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
+    $site_env_parts = explode('.', $alias);
+    [$drush_site, $drush_env] = $site_env_parts;
+
+    return $this->getEnvFromAlias($drush_site, $drush_env);
   }
 
   /**
@@ -190,6 +202,15 @@ abstract class SshBaseCommand extends CommandBase {
     }
 
     return NULL;
+  }
+
+  /**
+   * @param $command
+   *
+   * @return array
+   */
+  protected function getSshCommand($command): array {
+    return array_merge($this->getConnectionArgs(), $command);
   }
 
 }
