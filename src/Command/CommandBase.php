@@ -69,6 +69,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *   An InputInterface instance.
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
