@@ -30,14 +30,9 @@ class SshCommand extends SshBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // @todo Validate the arg format.
-    $site_env = $input->getArgument('site_env');
-    $site_env_parts = explode('.', $site_env);
-    $drush_site = $site_env_parts[0];
-    $drush_env = $site_env_parts[1];
+    $alias = $this->validateAlias($input->getArgument('alias'));
+    $this->environment = $this->getEnvironmentFromAliasArg($alias);
 
-    // @todo Add error handling.
-    $this->environment = $this->getEnvFromAlias($drush_site, $drush_env);
     $arguments = $input->getArguments();
     array_shift($arguments);
     array_unshift($arguments, 'bash', '-l');
