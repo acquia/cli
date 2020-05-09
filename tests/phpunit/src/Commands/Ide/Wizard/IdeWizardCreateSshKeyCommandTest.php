@@ -37,7 +37,6 @@ $cloud_client = $this->getMockClient();
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    // This is a bug in the spec.
     $cloud_client->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$response])->shouldBeCalled();
 
     // Request to upload new SSH key.
