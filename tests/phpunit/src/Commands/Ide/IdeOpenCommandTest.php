@@ -43,15 +43,16 @@ class IdeOpenCommandTest extends CommandTestBase {
     $cloud_client->request('get', '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      0,
       // Please select an Acquia Cloud application:
-      '0',
+      0,
       // Please select the IDE you'd like to open:
-      '0',
+      0,
     ];
-
-   $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], $inputs);
 
     // Assert.

@@ -44,8 +44,10 @@ class IdeListCommandTest extends CommandTestBase {
       ->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
-      // Please select the application..
-      '0',
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      0,
+      // Please select the application.
+      0,
     ];
     $this->executeCommand([], $inputs);
 
