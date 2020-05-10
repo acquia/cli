@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\DataStore\FileStore;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
@@ -24,6 +25,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class CommandTestBase.
+ * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class CommandTestBase extends TestCase {
 
@@ -84,6 +86,10 @@ abstract class CommandTestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
+    $this->application->setDatastore(new FileStore($this->fixtureDir . '/.acquia'));
+    $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename());
+    $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getAcliConfigFilename());
+    $this->createMockConfigFile();
 
     parent::setUp();
   }
@@ -112,8 +118,8 @@ abstract class CommandTestBase extends TestCase {
     $args = array_merge(['command' => $command_name], $args);
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
-      $this->consoleOutput->writeln("");
-      $this->consoleOutput->writeln("Executing <comment>" . $this->command->getName() . "</comment> in " . $cwd);
+      $this->consoleOutput->writeln('');
+      $this->consoleOutput->writeln('Executing <comment>' . $this->command->getName() . '</comment> in ' . $cwd);
       $this->consoleOutput->writeln('<comment>------Begin command output-------</comment>');
     }
 
@@ -122,7 +128,7 @@ abstract class CommandTestBase extends TestCase {
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln($tester->getDisplay());
       $this->consoleOutput->writeln('<comment>------End command output---------</comment>');
-      $this->consoleOutput->writeln("");
+      $this->consoleOutput->writeln('');
     }
   }
 
@@ -154,8 +160,6 @@ abstract class CommandTestBase extends TestCase {
    *
    * @return string
    *   The display.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getDisplay(): string {
     return $this->getCommandTester()->getDisplay();
@@ -337,6 +341,12 @@ abstract class CommandTestBase extends TestCase {
    */
   protected function getMockClient() {
     return $this->prophet->prophesize(Client::class);
+  }
+
+  protected function createMockConfigFile(): void {
+    $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
+    $filepath = $this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename();
+    $this->fs->dumpFile($filepath, $contents);
   }
 
 }

@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -43,13 +42,11 @@ class IdeListCommandTest extends CommandTestBase {
     $cloud_client->request('get', '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
-
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
-          // Please select the application..
+      // Please select the application..
       '0',
     ];
-
-   $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], $inputs);
 
     // Assert.

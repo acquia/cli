@@ -2,8 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Command\LinkCommand;
-use Acquia\Cli\DataStore\FileStore;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -29,13 +29,11 @@ class LinkCommandTest extends CommandTestBase {
    */
   public function testLinkCommand(): void {
     $this->setCommand($this->createCommand());
-    $this->application->setDatastore(new FileStore($this->fixtureDir . '/.acquia'));
     $cloud_client = $this->getMockClient();
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
     $cloud_client->request('get', '/applications')->willReturn($applications_response->{'_embedded'}->items)->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
-    $this->createMockConfigFile();
 
     $inputs = [
       // Please select an Acquia Cloud application.
@@ -43,7 +41,7 @@ class LinkCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $acquia_cli_config = $this->command->getDatastore()->get($this->command->getAcliConfigFilename());
+    $acquia_cli_config = $this->command->getDatastore()->get($this->application->getAcliConfigFilename());
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
@@ -53,19 +51,6 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
     $this->assertStringContainsString("The Cloud application with uuid {$applications_response->{'_embedded'}->items[0]->uuid} has been linked to the repository {$this->projectFixtureDir}", $output);
-
-  }
-
-  protected function createMockConfigFile(): void {
-    $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
-    $filepath = $this->fixtureDir . '/.acquia/' . $this->command->getCloudConfigFilename();
-    $this->fs->dumpFile($filepath, $contents);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    unlink($this->fixtureDir . '/.acquia/' . $this->command->getCloudConfigFilename());
-    unlink($this->fixtureDir . '/.acquia/' . $this->command->getAcliConfigFilename());
   }
 
 }

@@ -45,8 +45,9 @@ class IdeOpenCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     $inputs = [
-        // Please select the application..
+      // Please select an Acquia Cloud application:
       '0',
+      // Please select the IDE you'd like to open:
       '0',
     ];
 

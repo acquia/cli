@@ -46,13 +46,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $formatter;
 
   /**
-   * @return string
-   */
-  public function getCloudConfigFilename(): string {
-    return $this->cloudConfigFilename;
-  }
-
-  /**
    * @var \Acquia\Cli\DataStore\DataStoreInterface
    */
   private $datastore;
@@ -69,23 +62,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \AcquiaCloudApi\Connector\Client
    */
   private $acquiaCloudClient;
-
-  /**
-   * @var string
-   */
-  protected $acliConfigFilename = 'acquia-cli.json';
-
-  /**
-   * @var string
-   */
-  protected $cloudConfigFilename = 'cloud_api.conf';
-
-  /**
-   * @return string
-   */
-  public function getAcliConfigFilename(): string {
-    return $this->acliConfigFilename;
-  }
 
   /**
    * Initializes the command just after the input has been validated.
@@ -119,7 +95,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   protected function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->datastore->get($this->cloudConfigFilename);
+    $cloud_api_conf = $this->datastore->get($this->getApplication()->getCloudConfigFilename());
     return $cloud_api_conf !== NULL && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
   }
 
@@ -225,7 +201,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
-    $local_user_config = $this->getDatastore()->get($this->acliConfigFilename);
+    $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     // Save empty local project info.
     // @todo Abstract this.
     if ($local_user_config !== NULL && $this->getApplication()->getRepoRoot() !== NULL) {
@@ -244,7 +220,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     if ($this->getApplication()->getRepoRoot()) {
-      $this->creatLocalProjectStubInConfig($this->getApplication(), $local_user_config);
+      $this->creatLocalProjectStubInConfig($local_user_config);
     }
   }
 
@@ -254,10 +230,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array|bool
    */
   protected function getGitConfig(AcquiaCliApplication $application) {
-
-    $git_config = parse_ini_file($application->getRepoRoot() . '/.git/config', TRUE);
-
-    return $git_config;
+    return parse_ini_file($application->getRepoRoot() . '/.git/config', TRUE);
   }
 
   /**
@@ -410,7 +383,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $application_uuid
    */
   protected function saveLocalConfigCloudAppUuid($application_uuid): void {
-    $local_user_config = $this->getDatastore()->get($this->getAcliConfigFilename());
+    $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     if (!$local_user_config) {
       $local_user_config = [
         'localProjects' => [],
@@ -421,7 +394,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $project['cloud_application_uuid'] = $application_uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
-        $this->getDatastore()->set($this->getAcliConfigFilename(), $local_user_config);
+        $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
         $this->output->writeln("<info>The Cloud application with uuid <comment>$application_uuid</comment> has been linked to the repository <comment>{$project['directory']}</comment></info>");
         return;
       }
@@ -523,11 +496,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Cli\AcquiaCliApplication $application
    * @param array $local_user_config
    */
   protected function creatLocalProjectStubInConfig(
-    AcquiaCliApplication $application,
     array $local_user_config
   ): void {
     $project = [];
@@ -537,7 +508,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
-    $this->getDatastore()->set($this->getAcliConfigFilename(), $local_user_config);
+    $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
   }
 
 }
