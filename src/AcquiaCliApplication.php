@@ -3,6 +3,7 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\DataStore\DataStoreAwareTrait;
 use Acquia\Cli\DataStore\FileStore;
@@ -42,6 +43,16 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @var \AcquiaCloudApi\Connector\Client
    */
   private $acquiaCloudClient;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilename = 'acquia-cli.json';
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilename = 'cloud_api.conf';
 
   /**
    * @return \Acquia\Cli\Helpers\LocalMachineHelper
@@ -91,7 +102,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    */
   public function setLocalMachineHelper(
-    \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+    LocalMachineHelper $localMachineHelper
   ): void {
     $this->localMachineHelper = $localMachineHelper;
   }
@@ -179,6 +190,20 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->acquiaCloudClient = Client::factory($connector);
 
     return $this->acquiaCloudClient;
+  }
+
+  /**
+   * @return string
+   */
+  public function getCloudConfigFilename(): string {
+    return $this->cloudConfigFilename;
+  }
+
+  /**
+   * @return string
+   */
+  public function getAcliConfigFilename(): string {
+    return $this->acliConfigFilename;
   }
 
 }

@@ -52,10 +52,12 @@ class IdeDeleteCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     $inputs = [
-        // Please select the application for which you'd like to create a new IDE.
-      '0',
-        // Please select the IDE you'd like to delete:
-      '0',
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      0,
+      // Please select the application for which you'd like to create a new IDE.
+      0,
+      // Please select the IDE you'd like to delete:
+      0,
     ];
 
    $this->application->setAcquiaCloudClient($cloud_client->reveal());

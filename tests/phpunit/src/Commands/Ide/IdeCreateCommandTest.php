@@ -52,13 +52,13 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->command->setClient($guzzle_client->reveal());
 
     $inputs = [
-          // @todo Don't assume we're authenticated!
-          // Please select the application for which you'd like to create a new IDE
-      '0',
-          // Please enter a label for your Remote IDE:
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      0,
+      // Please select the application for which you'd like to create a new IDE
+      0,
+      // Please enter a label for your Remote IDE:
       'Example IDE',
     ];
-
     $this->executeCommand([], $inputs);
 
     // Assert.

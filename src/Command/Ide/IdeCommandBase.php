@@ -16,6 +16,7 @@ abstract class IdeCommandBase extends CommandBase {
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
    * @return \AcquiaCloudApi\Response\IdeResponse|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
     $question_text,
