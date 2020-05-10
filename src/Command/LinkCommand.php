@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,8 +30,8 @@ class LinkCommand extends CommandBase {
     // @todo Indicate if the current local repo is already associated with a cloud
     // application. Confirm to overwrite.
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
-    $application_uuid = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
-    $this->saveLocalConfigCloudAppUuid($application_uuid);
+    $application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
+    $this->saveLocalConfigCloudAppUuid($application->uuid);
 
     return 0;
   }

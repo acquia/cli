@@ -50,6 +50,10 @@ abstract class CommandTestBase extends TestCase {
    */
   protected $command;
 
+  protected $projectFixtureDir;
+
+  protected $fixtureDir;
+
   /**
    * Creates a command object to test.
    *
@@ -76,7 +80,9 @@ abstract class CommandTestBase extends TestCase {
     $input = new ArrayInput([]);
     $output = new BufferedOutput();
     $logger = new ConsoleLogger($output);
-    $repo_root = NULL;
+    $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
+    $this->projectFixtureDir = $this->fixtureDir . '/project';
+    $repo_root = $this->projectFixtureDir;
     $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
 
     parent::setUp();
@@ -98,7 +104,7 @@ abstract class CommandTestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
-    $cwd = __DIR__ . '/../../fixtures/project';
+    $cwd = $this->projectFixtureDir;
     chdir($cwd);
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);

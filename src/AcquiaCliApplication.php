@@ -91,7 +91,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    */
   public function setLocalMachineHelper(
-    \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+    LocalMachineHelper $localMachineHelper
   ): void {
     $this->localMachineHelper = $localMachineHelper;
   }
