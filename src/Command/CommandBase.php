@@ -235,7 +235,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return parse_ini_file($file_path, TRUE);
     }
 
-    return null;
+    return NULL;
   }
 
   /**
