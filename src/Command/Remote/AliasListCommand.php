@@ -8,7 +8,9 @@ use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class AliasListCommand.
@@ -19,17 +21,24 @@ class AliasListCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:aliases:list')->setDescription('List all aliases for Acquia Cloud environments');
-    // @todo Add option to allow specifying application.
+    $this->setName('remote:aliases:list')
+      ->setDescription('List all aliases for Acquia Cloud environments')
+      ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED);
   }
 
   /**
    * {@inheritdoc}
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $applications_resource = new Applications($acquia_cloud_client);
-    $customer_applications = $applications_resource->getAll();
+    if ($cloud_application_uuid = $this->determineCloudApplication()) {
+      $customer_applications = [$applications_resource->get($cloud_application_uuid)];
+    }
+    else {
+      $customer_applications = $applications_resource->getAll();
+    }
     $environments_resource = new Environments($acquia_cloud_client);
 
     $table = new Table($this->output);
@@ -52,7 +61,6 @@ class AliasListCommand extends CommandBase {
       }
       $progressBar->advance();
     }
-
     $progressBar->finish();
     $table->render();
 

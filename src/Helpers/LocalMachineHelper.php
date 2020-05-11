@@ -22,6 +22,7 @@ class LocalMachineHelper {
 
   private $output;
   private $input;
+  private $isTty = null;
 
   /**
    *
@@ -109,6 +110,7 @@ class LocalMachineHelper {
     }
     $process->start(NULL);
     $process->wait($callback);
+    //$process->mustRun($callback);
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),
@@ -163,6 +165,10 @@ class LocalMachineHelper {
    * @return bool
    */
   public function useTty(): bool {
+    if (isset($this->isTty) && $this->isTty) {
+      return TRUE;
+    }
+
     // If we are not in interactive mode, then never use a tty.
     if (!$this->input->isInteractive()) {
       return FALSE;
@@ -177,6 +183,13 @@ class LocalMachineHelper {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param null $isTty
+   */
+  public function setIsTty($isTty): void {
+    $this->isTty = $isTty;
   }
 
   /**

@@ -23,6 +23,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Uuid;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class CommandBase.
@@ -361,6 +368,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
     $cli_application = $this->getApplication();
 
+    if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
+      $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');
+      return $this->validateUuid($cloud_application_uuid);
+    }
+
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
       return $application_uuid;
@@ -384,6 +396,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->saveLocalConfigCloudAppUuid($application->uuid);
 
     return $application->uuid;
+  }
+
+  /**
+   * @param $uuid
+   *
+   * @return mixed
+   */
+  protected function validateUuid($uuid) {
+    $violations = Validation::createValidator()->validate($uuid, [
+      new NotBlank(),
+      new Uuid(),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+
+    return $uuid;
   }
 
   /**

@@ -68,6 +68,7 @@ abstract class SshBaseCommand extends CommandBase {
    * @return \Symfony\Component\Process\Process
    */
   protected function sendCommandViaSsh($command): Process {
+    $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
     $command = $this->getSshCommand($command);
 
     return $this->getApplication()
@@ -129,7 +130,7 @@ abstract class SshBaseCommand extends CommandBase {
   private function getConnectionArgs(): array {
     return [
       'ssh',
-      '-T',
+      //'-T',
       $this->environment->sshUrl,
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
