@@ -19,6 +19,7 @@ class NewCommand extends CommandBase {
     $this->setName('new')
       ->setDescription('Create a new Drupal project')
       ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, '');
+    // @todo Add argument to set destination directory.
   }
 
   /**
@@ -102,6 +103,7 @@ class NewCommand extends CommandBase {
       $project,
       $dir,
     ]);
+    // @todo Check that this was successful!
   }
 
   /**
