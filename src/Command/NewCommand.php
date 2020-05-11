@@ -6,6 +6,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class NewCommand.
@@ -38,8 +39,8 @@ class NewCommand extends CommandBase {
     $helper = $this->getHelper('question');
     $project = $helper->ask($this->input, $this->output, $question);
 
-    $dir = getcwd() . '/drupal';
-    $filepath = $dir . '/composer.json';
+    $dir = Path::join(getcwd(), 'drupal');
+    $filepath = Path::join($dir, 'composer.json');
 
     $this->createProject($project, $dir);
 

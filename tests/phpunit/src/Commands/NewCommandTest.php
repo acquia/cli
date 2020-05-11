@@ -5,9 +5,9 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\NewCommand;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class NewCommandTest.
@@ -38,7 +38,7 @@ class NewCommandTest extends CommandTestBase {
 
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
-    $project_dir =  $this->projectFixtureDir . '/drupal';
+    $project_dir =  Path::join($this->projectFixtureDir, 'drupal');
 
     $command = [
       'composer',
