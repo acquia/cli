@@ -33,6 +33,7 @@ use Acquia\Cli\Command\UpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Webmozart\PathUtil\Path;
 
 $pharPath = Phar::running(TRUE);
 if ($pharPath) {
@@ -152,7 +153,7 @@ function find_directory_containing_files($working_directory, array $files, $max_
  */
 function files_exist($dir, array $files) {
   foreach ($files as $file) {
-    if (file_exists($dir . '/' . $file)) {
+    if (file_exists(Path::join($dir, $file))) {
       return TRUE;
     }
   }

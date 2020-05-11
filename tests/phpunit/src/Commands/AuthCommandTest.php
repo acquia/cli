@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\AuthCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class IdeDeleteCommandTest.
@@ -28,7 +29,7 @@ class AuthCommandTest extends CommandTestBase {
    */
   public function testAuthLoginCommand(): void {
     $this->setCommand($this->createCommand());
-    $this->command->setCloudApiConfFilePath(sys_get_temp_dir() . '/cloud_api.conf');
+    $this->command->setCloudApiConfFilePath(Path::join(sys_get_temp_dir(), 'cloud_api.conf'));
 
     $inputs = [
           // Do you want to open this page to generate a token now?
