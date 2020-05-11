@@ -29,11 +29,9 @@ class IdeOpenCommandTest extends CommandTestBase {
    */
   public function testIdeOpenCommand(): void {
     $this->setCommand($this->createCommand());
-
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
     $ide_list_response = $this->mockIdeListRequest($cloud_client);
-
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [

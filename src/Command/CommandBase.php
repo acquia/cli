@@ -227,10 +227,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \Acquia\Cli\AcquiaCliApplication $application
    *
-   * @return array|bool
+   * @return array|null
    */
-  protected function getGitConfig(AcquiaCliApplication $application) {
-    return parse_ini_file($application->getRepoRoot() . '/.git/config', TRUE);
+  protected function getGitConfig(AcquiaCliApplication $application): ?array {
+    $file_path = $application->getRepoRoot() . '/.git/config';
+    if (file_exists($file_path)) {
+      return parse_ini_file($file_path, TRUE);
+    }
+
+    return NULL;
   }
 
   /**
@@ -334,11 +339,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $answer = $helper->ask($this->input, $this->output, $question);
       if ($answer) {
         $this->output->writeln('Searching for a matching Cloud application...');
-        $git_config = $this->getGitConfig($application);
-        $local_git_remotes = $this->getGitRemotes($git_config);
-        $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client, $local_git_remotes);
+        if ($git_config = $this->getGitConfig($application)) {
+          $local_git_remotes = $this->getGitRemotes($git_config);
+          $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
+            $local_git_remotes);
 
-        return $cloud_application;
+          return $cloud_application;
+        }
       }
     }
 
