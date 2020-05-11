@@ -72,10 +72,10 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         ->getLocalMachineHelper()
         ->getLocalFilepath($this->input->getOption('filepath'));
       if (!file_exists($filepath)) {
-        throw new AcquiaCliException("The filepath $filepath is not valid");
+        throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
       }
       if (strpos($filepath, '.pub') === FALSE) {
-        throw new AcquiaCliException("The filepath $filepath does not have the .pub extension");
+        throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
       $public_key = file_get_contents($filepath);
       $chosen_local_key = basename($filepath);

@@ -3,10 +3,12 @@
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class SshKeyCreateUploadCommandTest
@@ -65,6 +67,23 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->assertStringContainsString("Uploaded $base_filename to Acquia Cloud with label " . $mock_request_args['label'], $output);
     $this->assertStringContainsString('Waiting for new key to be provisioned on Acquia Cloud servers...', $output);
     $this->assertStringContainsString('Your SSH key is ready for use.', $output);
+  }
+
+  public function testUnvalidFilepath() {
+    $inputs = [
+      // Choose key.
+      '0',
+      // Label
+      'Test'
+    ];
+    $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
+    $args = ['--filepath' => $filepath];
+    try {
+      $this->executeCommand($args, $inputs);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals("The filepath $filepath is not valid", $exception->getMessage());
+    }
   }
 
 }
