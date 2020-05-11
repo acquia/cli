@@ -357,7 +357,7 @@ abstract class CommandTestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockApplicationsRequest($cloud_client): object {
+  public function mockApplicationsRequest($cloud_client) {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
@@ -376,8 +376,8 @@ abstract class CommandTestBase extends TestCase {
    */
   public function mockEnvironmentsRequest(
     $cloud_client,
-    object $applications_response
-  ): object {
+    $applications_response
+  ) {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
@@ -394,14 +394,13 @@ abstract class CommandTestBase extends TestCase {
     return $response;
   }
 
-
   /**
    * @param $cloud_client
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeListRequest($cloud_client): object {
+  protected function mockIdeListRequest($cloud_client) {
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides',
       'get', '200');
     $cloud_client->request('get',
@@ -418,7 +417,7 @@ abstract class CommandTestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockListSshKeysRequest($cloud_client): object {
+  protected function mockListSshKeysRequest($cloud_client) {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
     $cloud_client->request('get', '/account/ssh-keys')

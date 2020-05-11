@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\LinkCommand;
+use Acquia\Cli\Command\RefreshCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -18,7 +19,7 @@ class RefreshCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new LinkCommand();
+    return new RefreshCommand();
   }
 
   /**
@@ -31,8 +32,7 @@ class RefreshCommandTest extends CommandTestBase {
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
-
-
+    // Request databases.
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
   }
 
