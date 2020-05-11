@@ -151,7 +151,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      0,
+      'y',
       // Please select an Acquia Cloud application:
       0,
       // Please choose an Acquia environment:
@@ -161,6 +161,14 @@ class RefreshCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database to copy:', $output);
+    $this->assertStringContainsString('[0] my_db (default)', $output);
   }
 
 }
