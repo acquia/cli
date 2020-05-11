@@ -24,10 +24,7 @@ class IdeCreateCommandTest extends CommandTestBase {
   public function testCreate(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-
-    // Request for applications.
-    $response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $cloud_client->request('get', '/applications')->willReturn($response->{'_embedded'}->items)->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
 
     // Request to create IDE.
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');

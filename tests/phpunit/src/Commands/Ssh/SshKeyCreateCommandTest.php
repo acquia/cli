@@ -22,9 +22,9 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
+    $this->application->setSshKeysDir(sys_get_temp_dir());
     $ssh_key_filename = 'id_rsa_acli_test';
-    // @todo Change the default ssh key dir for testing.
-    $ssh_key_filepath = LocalMachineHelper::getHomeDir() . '/.ssh/' . $ssh_key_filename;
+    $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
     $this->fs->remove($ssh_key_filepath);
 
     $inputs = [

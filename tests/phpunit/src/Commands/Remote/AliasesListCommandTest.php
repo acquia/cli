@@ -29,15 +29,8 @@ class AliasesListCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
 
-    // Request for applications.
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $cloud_client->request('get', '/applications')->willReturn($applications_response->{'_embedded'}->items)->shouldBeCalled();
-
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
-    $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [];

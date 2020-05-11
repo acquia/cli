@@ -30,18 +30,8 @@ class IdeDeleteCommandTest extends CommandTestBase {
   public function testIdeDeleteCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-
-    // Request for applications.
-    $response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $cloud_client->request('get', '/applications')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
-
-    // Request to list IDEs.
-    $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'get', '200');
-    $cloud_client->request('get', '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $ide_list_response = $this->mockIdeListRequest($cloud_client);
 
     // Request to delete IDE.
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');

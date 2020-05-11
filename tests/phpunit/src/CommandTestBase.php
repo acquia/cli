@@ -4,6 +4,8 @@ namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\DataStore\FileStore;
+use Acquia\Cli\Tests\Commands\RefreshCommandTest;
+use Acquia\Cli\Tests\Commands\Remote\AliasesListCommandTest;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
@@ -220,7 +222,7 @@ abstract class CommandTestBase extends TestCase {
    * @param $method
    * @param $http_code
    *
-   * @return array
+   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    *
    * @see CXAPI-7208
@@ -246,7 +248,7 @@ abstract class CommandTestBase extends TestCase {
       $response_body = json_encode($response['content']['example']);
     }
     else {
-      return [];
+      return (object) [];
     }
 
     return json_decode($response_body);
@@ -347,6 +349,82 @@ abstract class CommandTestBase extends TestCase {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename();
     $this->fs->dumpFile($filepath, $contents);
+  }
+
+  /**
+   * @param $cloud_client
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function mockApplicationsRequest($cloud_client): object {
+    // Request for applications.
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $cloud_client->request('get', '/applications')
+      ->willReturn($applications_response->{'_embedded'}->items)
+      ->shouldBeCalled();
+    return $applications_response;
+  }
+
+  /**
+   * @param $cloud_client
+   * @param object $applications_response
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function mockEnvironmentsRequest(
+    $cloud_client,
+    object $applications_response
+  ): object {
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209.
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      'get', '200');
+    $cloud_client->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$response])
+      ->shouldBeCalled();
+    $cloud_client->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
+      ->willReturn([$response])
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+
+  /**
+   * @param $cloud_client
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockIdeListRequest($cloud_client): object {
+    $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides',
+      'get', '200');
+    $cloud_client->request('get',
+      '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
+      ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @param $cloud_client
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockListSshKeysRequest($cloud_client): object {
+    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
+      '200');
+    $cloud_client->request('get', '/account/ssh-keys')
+      ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+    return $response;
   }
 
 }
