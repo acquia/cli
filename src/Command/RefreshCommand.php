@@ -138,28 +138,31 @@ class RefreshCommand extends CommandBase {
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $repo_root = $this->getApplication()->getRepoRoot();
     if (!file_exists($repo_root . '/.git')) {
-      $this->getApplication()->getLocalMachineHelper()->execute([
+      $command = [
         'git',
         'clone',
         $chosen_environment->vcs->url,
         $this->getApplication()->getRepoRoot(),
-      ], $output_callback);
+      ];
+      $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback);
     }
     else {
       $is_dirty = $this->isLocalGitRepoDirty($repo_root);
       if ($is_dirty) {
         throw new AcquiaCliException('Local git is dirty!');
       }
-      $this->getApplication()->getLocalMachineHelper()->execute([
+      $command = [
         'git',
         'fetch',
         '--all',
-      ], $output_callback, $repo_root, FALSE);
-      $this->getApplication()->getLocalMachineHelper()->execute([
+      ];
+      $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, $repo_root, FALSE);
+      $command = [
         'git',
         'checkout',
         $chosen_environment->vcs->path,
-      ], $output_callback, $repo_root, FALSE);
+      ];
+      $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, $repo_root, FALSE);
     }
   }
 
@@ -201,7 +204,7 @@ class RefreshCommand extends CommandBase {
    * @return string|null
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
-    $process = $this->getApplication()->getLocalMachineHelper()->execute([
+    $ssh_command = [
       'ssh',
       '-T',
       '-o',
@@ -210,8 +213,8 @@ class RefreshCommand extends CommandBase {
       'LogLevel=ERROR',
       $environment->sshUrl,
       "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9",
-    ], $output_callback, NULL, FALSE);
-
+    ];
+    $process = $this->getApplication()->getLocalMachineHelper()->execute($ssh_command, $output_callback, NULL, FALSE);
     if ($process->isSuccessful()) {
       $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
       $filepath = $fs->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
@@ -231,17 +234,18 @@ class RefreshCommand extends CommandBase {
    * @param string $db_password
    */
   protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->getApplication()->getLocalMachineHelper()->execute([
+    $command = [
       'mysql',
       '--host',
       $db_host,
       '--user',
       $db_user,
-          // @todo Is this insecure in any way?
+      // @todo Is this insecure in any way?
       '--password=' . $db_password,
       '-e',
       'DROP DATABASE IF EXISTS ' . $db_name,
-    ], $output_callback, NULL, FALSE);
+    ];
+    $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -251,17 +255,18 @@ class RefreshCommand extends CommandBase {
    * @param string $db_password
    */
   protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->getApplication()->getLocalMachineHelper()->execute([
+    $command = [
       'mysql',
       '--host',
       $db_host,
       '--user',
       $db_user,
-          // @todo Is this insecure in any way?
+      // @todo Is this insecure in any way?
       '--password=' . $db_password,
       '-e',
       'create database ' . $db_name,
-    ], $output_callback, NULL, FALSE);
+    ];
+    $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -336,16 +341,16 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param $acquia_cloud_client
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    *
+   * @param $environment_databases
+   *
    * @return mixed
-   * @throws \Exception
    */
-  protected function promptChooseDatabase(ClientInterface $acquia_cloud_client, $cloud_environment) {
-    $response = $acquia_cloud_client->makeRequest('get', '/environments/' . $cloud_environment->uuid . '/databases');
-    $environment_databases = $acquia_cloud_client->processResponse($response);
-
+  protected function promptChooseDatabase(
+    $cloud_environment,
+    $environment_databases
+  ) {
     $choices = [];
     $default_database_index = 0;
     if ($this->isAcsfEnv($cloud_environment)) {
@@ -437,13 +442,14 @@ class RefreshCommand extends CommandBase {
    * @param $chosen_environment
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
-    $this->getApplication()->getLocalMachineHelper()->execute([
+    $command = [
       'rsync',
       '-rve',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
       $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
-    ], $output_callback, NULL, FALSE);
+    ];
+    $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -454,13 +460,12 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
-    $response = $acquia_cloud_client->makeRequest(
+    $databases = $acquia_cloud_client->request(
           'get',
           '/environments/' . $chosen_environment->uuid . '/databases'
       );
-    $databases = $acquia_cloud_client->processResponse($response);
     if (count($databases) > 1) {
-      $database = $this->promptChooseDatabase($acquia_cloud_client, $chosen_environment);
+      $database = $this->promptChooseDatabase($chosen_environment, $databases);
     }
     else {
       $database = reset($databases);
