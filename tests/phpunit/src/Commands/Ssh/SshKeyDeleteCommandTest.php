@@ -31,13 +31,12 @@ class SshKeyDeleteCommandTest extends CommandTestBase
     $this->setCommand($this->createCommand());
 
     $cloud_client = $this->getMockClient();
-    $mock_get_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_get_body->{'_embedded'}->items)->shouldBeCalled();
+    $ssh_key_list_response = $this->mockListSshKeysRequest($cloud_client);
 
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $mock_delete_body = $this->getMockResponseFromSpec('/account/ssh-keys/{sshKeyUuid}', 'delete', '202');
-    $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $mock_get_body->_embedded->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
+    $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $ssh_key_list_response->_embedded->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
 
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
@@ -50,7 +49,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Choose an SSH key to delete from Acquia Cloud:', $output);
-    $this->assertStringContainsString($mock_get_body->_embedded->items[0]->label, $output);
+    $this->assertStringContainsString($ssh_key_list_response->_embedded->items[0]->label, $output);
   }
 
 }

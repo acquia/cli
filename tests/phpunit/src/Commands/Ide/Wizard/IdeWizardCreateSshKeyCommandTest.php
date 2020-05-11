@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
-use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
@@ -23,12 +22,8 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-
-$cloud_client = $this->getMockClient();
-
-    // Request for list of SSH keys in Cloud.
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
+    $cloud_client = $this->getMockClient();
+    $ssh_key_list_response = $this->mockListSshKeysRequest($cloud_client);
 
     // Request for IDE data.
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');

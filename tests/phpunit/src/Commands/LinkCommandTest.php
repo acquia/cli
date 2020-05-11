@@ -30,9 +30,7 @@ class LinkCommandTest extends CommandTestBase {
   public function testLinkCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    // Request for applications.
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $cloud_client->request('get', '/applications')->willReturn($applications_response->{'_embedded'}->items)->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [

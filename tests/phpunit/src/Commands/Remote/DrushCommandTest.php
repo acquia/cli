@@ -33,10 +33,7 @@ class DrushCommandTest extends CommandTestBase {
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-
-    // Request for applications.
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $cloud_client->request('get', '/applications')->willReturn($applications_response->{'_embedded'}->items)->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
