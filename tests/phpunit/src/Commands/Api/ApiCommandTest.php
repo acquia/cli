@@ -80,6 +80,7 @@ class ApiCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestApiCommandDefinition
    * @throws \Psr\Cache\InvalidArgumentException
+   * @group noCache
    */
   public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void {
     putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);

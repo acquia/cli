@@ -4,8 +4,6 @@ namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\DataStore\FileStore;
-use Acquia\Cli\Tests\Commands\RefreshCommandTest;
-use Acquia\Cli\Tests\Commands\Remote\AliasesListCommandTest;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
@@ -94,6 +92,12 @@ abstract class CommandTestBase extends TestCase {
     $this->createMockConfigFile();
 
     parent::setUp();
+  }
+
+  protected function tearDown(): void {
+    parent::tearDown();
+    $filepath = $this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename();
+    $this->fs->remove($filepath);
   }
 
   protected function setCommand(Command $command): void {
