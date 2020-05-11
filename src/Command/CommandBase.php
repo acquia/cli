@@ -4,7 +4,6 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Connector\CliCloudConnector;
-use Acquia\Cli\DataStore\DataStoreInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Spinner\Spinner;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -19,10 +18,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 
 /**
  * Class CommandBase.
@@ -46,7 +45,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $formatter;
 
   /**
-   * @var \Acquia\Cli\DataStore\DataStoreInterface
+   * @var \Webmozart\KeyValueStore\Api\KeyValueStore
    */
   private $datastore;
 
@@ -116,9 +115,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return \Acquia\Cli\DataStore\DataStoreInterface
+   * @return \Webmozart\KeyValueStore\Api\KeyValueStore
    */
-  public function getDatastore(): DataStoreInterface {
+  public function getDatastore(): KeyValueStore {
     return $this->datastore;
   }
 

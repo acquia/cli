@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
-use Acquia\Cli\DataStore\FileStore;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
@@ -22,6 +21,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
@@ -86,7 +86,7 @@ abstract class CommandTestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
-    $this->application->setDatastore(new FileStore($this->fixtureDir . '/.acquia'));
+    $this->application->setDatastore(new JsonFileStore($this->fixtureDir . '/.acquia/storage.json'));
     $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename());
     $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getAcliConfigFilename());
     $this->createMockConfigFile();

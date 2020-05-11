@@ -28,6 +28,8 @@
     "symfony/validator": "^5.0",
     "symfony/yaml": "^5.1@dev",
     "typhonius/acquia-php-sdk-v2": "dev-master",
+    "webmozart/json": "^1.2",
+    "webmozart/key-value-store": "^1.0",
     "zumba/amplitude-php": "^1.0"
   },
   "require-dev": {

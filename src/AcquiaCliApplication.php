@@ -3,10 +3,8 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Connector\CliCloudConnector;
-use Acquia\Cli\DataStore\DataStoreAwareTrait;
-use Acquia\Cli\DataStore\FileStore;
+use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use Psr\Log\LoggerAwareInterface;
@@ -16,6 +14,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBase.
@@ -85,7 +84,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
-    $this->setDatastore(new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia'));
+    $this->setDatastore(new JsonFileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia/storage.json'));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
