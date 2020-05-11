@@ -196,30 +196,20 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param $environment
-   * @param $database
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
    * @param string $db_host
-   * @param $db_name
+   * @param string $db_name
    *
    * @return string|null
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
-    $ssh_command = [
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      $environment->sshUrl,
-      "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9",
-    ];
-    $process = $this->getApplication()->getLocalMachineHelper()->execute($ssh_command, $output_callback, NULL, FALSE);
+    $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
+    $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($environment->sshUrl, $command);
     if ($process->isSuccessful()) {
-      $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
-      $filepath = $fs->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
+      $filepath = $this->getApplication()->getLocalMachineHelper()->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
-      $fs->dumpFile($filepath, $process->getOutput());
+      $this->getApplication()->getLocalMachineHelper()->writeFile($filepath, $process->getOutput());
 
       return $filepath;
     }
@@ -491,23 +481,15 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param $cloud_environment
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    *
    * @return array
    */
   protected function getAcsfSites($cloud_environment): array {
     $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
     $sitegroup = reset($ssh_url_parts);
-    $process = $this->getApplication()->getLocalMachineHelper()->execute([
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      $cloud_environment->sshUrl,
-      "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json",
-    ], NULL, NULL, FALSE);
+    $command = "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json";
+    $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($cloud_environment->sshUrl, $command);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
     }

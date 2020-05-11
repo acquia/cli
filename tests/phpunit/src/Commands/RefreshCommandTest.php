@@ -56,19 +56,9 @@ class RefreshCommandTest extends CommandTestBase {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
 
-    $ssh_command = [
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      // site.dev@server-123.hosted.hosting.acquia.com
-      $environments_response->ssh_url,
-      'MYSQL_PWD=supersecretdbpassword1! mysqldump --host=dbhost.example.com --user=my_db_user my_db | gzip -9',
-    ];
+    $command = 'MYSQL_PWD=supersecretdbpassword1! mysqldump --host=dbhost.example.com --user=my_db_user my_db | gzip -9';
     $local_machine_helper
-      ->execute($ssh_command, Argument::type('callable'), NULL, FALSE)
+      ->runCommandViaSsh($environments_response->ssh_url, $command)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
 
@@ -139,6 +129,11 @@ class RefreshCommandTest extends CommandTestBase {
     $local_machine_helper
       ->commandExists('drush')
       ->willReturn(FALSE)
+      ->shouldBeCalled();
+
+    // Download MySQL dump.
+    $local_machine_helper
+      ->writeFile(Argument::type('string'), 'dbdumpcontents')
       ->shouldBeCalled();
 
     // Set up file system.

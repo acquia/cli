@@ -329,11 +329,12 @@ class LocalMachineHelper {
   }
 
   /**
-   * @param $environment
+   * @param $ssh_url
+   * @param $command
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function listRemoteFilesViaSsh($environment): Process {
+  public function runCommandViaSsh($ssh_url, $command): Process {
     return $this->execute([
       'ssh',
       '-T',
@@ -341,8 +342,8 @@ class LocalMachineHelper {
       'StrictHostKeyChecking no',
       '-o',
       'LogLevel=ERROR',
-      $environment->sshUrl,
-      'ls',
+      $ssh_url,
+      $command,
     ], NULL, NULL, FALSE);
   }
 
