@@ -153,7 +153,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $process = $this->listRemoteFilesViaSsh($environment);
+      $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($environment->sshUrl, 'ls');
       if ($process->isSuccessful()) {
         $this->finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");
@@ -162,24 +162,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     });
     $this->addTimeoutToLoop($loop, 10, $spinner);
     $loop->run();
-  }
-
-  /**
-   * @param $environment
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  protected function listRemoteFilesViaSsh($environment): Process {
-    return $this->getApplication()->getLocalMachineHelper()->execute([
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      $environment->sshUrl,
-      'ls',
-    ], NULL, NULL, FALSE);
   }
 
 }

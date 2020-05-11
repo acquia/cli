@@ -121,8 +121,7 @@ class AuthCommand extends CommandBase {
     $filepath = $this->getCloudApiConfFilePath();
     $this->getApplication()
       ->getLocalMachineHelper()
-      ->getFilesystem()
-      ->dumpFile($filepath, json_encode($file_contents, JSON_PRETTY_PRINT));
+      ->writeFile($filepath, json_encode($file_contents, JSON_PRETTY_PRINT));
   }
 
   /**
