@@ -110,7 +110,6 @@ class LocalMachineHelper {
     }
     $process->start(NULL);
     $process->wait($callback);
-    //$process->mustRun($callback);
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),

@@ -33,29 +33,34 @@ class DrushCommandTest extends CommandTestBase {
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $cloud_client->request('get', '/applications')
+      ->willReturn($applications_response->{'_embedded'}->items)
+      ->shouldBeCalled();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
     $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
+    $cloud_client->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $cloud_client->clearQuery()->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
-
-    $ssh_command = [
-      0 => 'ssh',
-      1 => '-T',
-      2 => 'site.dev@server-123.hosted.hosting.acquia.com',
-      3 => '-o StrictHostKeyChecking=no',
-      4 => '-o AddressFamily inet',
-      5 => 'cd /var/www/html/devcloud2.dev/docroot; ',
-      6 => 'drush',
-      'drush_command' => 'status',
-    ];
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
+    $local_machine_helper->useTty()->willReturn(FALSE)->shouldBeCalled();
+    $local_machine_helper->setIsTty(TRUE)->shouldBeCalled();
+    $ssh_command = [
+      'ssh',
+      'site.dev@server-123.hosted.hosting.acquia.com',
+      '-o StrictHostKeyChecking=no',
+      '-o AddressFamily inet',
+      'cd /var/www/html/devcloud2.dev/docroot; ',
+      'drush',
+      'status',
+    ];
     $local_machine_helper
       ->execute($ssh_command, Argument::type('callable'))
       ->willReturn($process->reveal())

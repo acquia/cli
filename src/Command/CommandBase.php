@@ -392,10 +392,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    $application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
-    $this->saveLocalConfigCloudAppUuid($application->uuid);
+    if ($application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client)) {
+      $this->saveLocalConfigCloudAppUuid($application->uuid);
+      return $application->uuid;
+    }
 
-    return $application->uuid;
+    return NULL;
   }
 
   /**
