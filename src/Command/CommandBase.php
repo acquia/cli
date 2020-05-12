@@ -94,7 +94,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   protected function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->datastore->get($this->getApplication()->getCloudConfigFilename());
+    $cloud_api_conf = $this->datastore->get('cloud_api');
     return $cloud_api_conf !== NULL && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
   }
 

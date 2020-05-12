@@ -49,8 +49,7 @@ class AuthCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
     $this->assertStringContainsString('Please enter your API Key:', $output);
     $this->assertStringContainsString('Please enter your API Secret:', $output);
-    $this->assertStringContainsString('Saved credentials to ', $output);
-    $this->assertStringContainsString('/cloud_api.conf', $output);
+    $this->assertStringContainsString('Saved credentials. ', $output);
 
     $creds_file = $this->command->getCloudApiConfFilePath();
     $this->assertFileExists($creds_file);
