@@ -31,13 +31,11 @@ class SshCommandTest extends SshCommandTestBase {
     $cloud_client = $this->getMockClient();
     $this->mockForGetEnvironmentFromAliasArg($cloud_client);
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
-
     $ssh_command = [
       'ssh',
       'site.dev@server-123.hosted.hosting.acquia.com',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
-      'cd /var/www/html/devcloud2.dev/docroot; ',
     ];
     $local_machine_helper
       ->execute($ssh_command, Argument::type('callable'))
