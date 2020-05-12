@@ -17,7 +17,7 @@ use Symfony\Component\Process\Process;
  * @property DrushCommand $command
  * @package Acquia\Cli\Tests\Remote
  */
-class DrushCommandTest extends CommandTestBase {
+class DrushCommandTest extends SshCommandTestBase {
 
   /**
    * {@inheritdoc}
@@ -33,24 +33,9 @@ class DrushCommandTest extends CommandTestBase {
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->getMockResponseFromSpec('/applications',
-      'get', '200');
-    $cloud_client->request('get', '/applications')
-      ->willReturn($applications_response->{'_embedded'}->items)
-      ->shouldBeCalled();
+    $this->mockForGetEnvironmentFromAliasArg($cloud_client);
+    [$process, $local_machine_helper] = $this->mockForExecuteCommand();
 
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
-    $cloud_client->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE)->shouldBeCalled();
-    $local_machine_helper->setIsTty(TRUE)->shouldBeCalled();
     $ssh_command = [
       'ssh',
       'site.dev@server-123.hosted.hosting.acquia.com',

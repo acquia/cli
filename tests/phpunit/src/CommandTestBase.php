@@ -390,10 +390,6 @@ abstract class CommandTestBase extends TestCase {
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
       ->shouldBeCalled();
-    $cloud_client->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
-      ->willReturn([$response])
-      ->shouldBeCalled();
 
     return $response;
   }

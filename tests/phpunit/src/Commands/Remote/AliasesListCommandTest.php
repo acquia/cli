@@ -31,6 +31,10 @@ class AliasesListCommandTest extends CommandTestBase {
 
     $applications_response = $this->mockApplicationsRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
+    $cloud_client->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
+      ->willReturn([$environments_response])
+      ->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [];

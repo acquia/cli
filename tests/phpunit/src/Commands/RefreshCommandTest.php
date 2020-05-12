@@ -33,14 +33,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
-    $cloud_client->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$environments_response])
-      ->shouldBeCalled();
+    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases',
       'get', '200');
     $cloud_client->request('get',
