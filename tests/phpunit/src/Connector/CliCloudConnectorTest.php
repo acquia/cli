@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Connector;
 
-
 use Acquia\Cli\Tests\TestBase;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
