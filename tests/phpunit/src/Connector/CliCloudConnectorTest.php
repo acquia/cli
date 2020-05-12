@@ -20,7 +20,7 @@ class CliCloudConnectorTest extends TestBase {
     catch (\Exception $e) {
       // This at least tells us we created a success and correctly failed
       // to authenticate.
-      $this->assertEquals(get_class($e), IdentityProviderException::class);
+      $this->assertEquals(get_class($e), IdentityProviderException::class, $e->getMessage());
     }
   }
 
