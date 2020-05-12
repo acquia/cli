@@ -69,7 +69,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->assertStringContainsString('Your SSH key is ready for use.', $output);
   }
 
-  public function testUnvalidFilepath() {
+  public function testInvalidFilepath() {
     $inputs = [
       // Choose key.
       '0',

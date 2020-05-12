@@ -23,6 +23,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Uuid;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class CommandBase.
@@ -57,11 +64,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Symfony\Component\Console\Helper\QuestionHelper*/
   protected $questionHelper;
-
-  /**
-   * @var \AcquiaCloudApi\Connector\Client
-   */
-  private $acquiaCloudClient;
 
   /**
    * Initializes the command just after the input has been validated.
@@ -133,19 +135,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return \AcquiaCloudApi\Connector\Client
    */
   protected function getAcquiaCloudClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
     $cloud_api_conf = $this->datastore->get('cloud_api.conf');
     $config = [
       'key' => $cloud_api_conf['key'],
       'secret' => $cloud_api_conf['secret'],
     ];
     $connector = new CliCloudConnector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
-
-    return $this->acquiaCloudClient;
+    return Client::factory($connector);
   }
 
   /**
@@ -361,6 +357,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
     $cli_application = $this->getApplication();
 
+    if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
+      $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');
+      return $this->validateUuid($cloud_application_uuid);
+    }
+
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
       return $application_uuid;
@@ -380,10 +381,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    $application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
-    $this->saveLocalConfigCloudAppUuid($application->uuid);
+    if ($application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client)) {
+      $this->saveLocalConfigCloudAppUuid($application->uuid);
+      return $application->uuid;
+    }
 
-    return $application->uuid;
+    return NULL;
+  }
+
+  /**
+   * @param $uuid
+   *
+   * @return mixed
+   */
+  protected function validateUuid($uuid) {
+    $violations = Validation::createValidator()->validate($uuid, [
+      new NotBlank(),
+      new Uuid(),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+
+    return $uuid;
   }
 
   /**
