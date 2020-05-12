@@ -66,11 +66,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $questionHelper;
 
   /**
-   * @var \AcquiaCloudApi\Connector\Client
-   */
-  private $acquiaCloudClient;
-
-  /**
    * Initializes the command just after the input has been validated.
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -140,19 +135,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return \AcquiaCloudApi\Connector\Client
    */
   protected function getAcquiaCloudClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
     $cloud_api_conf = $this->datastore->get('cloud_api.conf');
     $config = [
       'key' => $cloud_api_conf['key'],
       'secret' => $cloud_api_conf['secret'],
     ];
     $connector = new CliCloudConnector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
-
-    return $this->acquiaCloudClient;
+    return Client::factory($connector);
   }
 
   /**

@@ -44,7 +44,6 @@ class DrushCommandTest extends CommandTestBase {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
     $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
     $cloud_client->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
-    $cloud_client->clearQuery()->shouldBeCalled();
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);

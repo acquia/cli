@@ -187,7 +187,7 @@ abstract class SshBaseCommand extends CommandBase {
     );
     // @todo Throw exception if not found.
     $customer_application = $customer_applications[0];
-    $acquia_cloud_client->clearQuery();
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $environments_resource = new Environments($acquia_cloud_client);
     $site_id = $customer_application->hosting->id;
     $parts = explode(':', $site_id);
