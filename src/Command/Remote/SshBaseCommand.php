@@ -172,7 +172,6 @@ abstract class SshBaseCommand extends CommandBase {
    * @param string $drush_env
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvFromAlias(
         $drush_site,

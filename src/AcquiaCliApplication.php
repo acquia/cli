@@ -174,7 +174,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getAcquiaCloudClient(): Client {
     if (isset($this->acquiaCloudClient)) {
