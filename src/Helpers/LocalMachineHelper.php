@@ -22,7 +22,7 @@ class LocalMachineHelper {
 
   private $output;
   private $input;
-  private $isTty = null;
+  private $isTty = NULL;
 
   /**
    *
