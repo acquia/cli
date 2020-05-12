@@ -30,23 +30,26 @@ class AliasesListCommandTest extends CommandTestBase {
     $cloud_client = $this->getMockClient();
 
     $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
-    $cloud_client->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
-      ->willReturn([$environments_response])
+    $application_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $cloud_client->request('get', '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
+      ->willReturn($applications_response->{'_embedded'}->items[0])
       ->shouldBeCalled();
+    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
-    $inputs = [];
+    $inputs = [
+      '0',
+      '0',
+    ];
     $this->executeCommand([], $inputs);
 
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Fetching aliases for 2 applications from Acquia Cloud...', $output);
+    $this->assertStringContainsString('Fetching aliases for 1 applications from Acquia Cloud...', $output);
     $this->assertStringContainsString('| Sample application 1 | devcloud2.dev | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 |', $output);
-    $this->assertStringContainsString('| Sample application 2 | devcloud2.dev | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 |', $output);
   }
 
 }
