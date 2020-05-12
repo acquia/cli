@@ -68,7 +68,8 @@ abstract class SshBaseCommand extends CommandBase {
    * @return \Symfony\Component\Process\Process
    */
   protected function sendCommandViaSsh($command): Process {
-    $command = $this->getSshCommand($command);
+    $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
+    $command = array_values($this->getSshCommand($command));
 
     return $this->getApplication()
       ->getLocalMachineHelper()
@@ -129,7 +130,6 @@ abstract class SshBaseCommand extends CommandBase {
   private function getConnectionArgs(): array {
     return [
       'ssh',
-      '-T',
       $this->environment->sshUrl,
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
@@ -178,25 +178,28 @@ abstract class SshBaseCommand extends CommandBase {
         $drush_site,
         $drush_env
     ): EnvironmentResponse {
-    // @todo Speed this up with some kind of caching.
     $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
-    $applications_resource = new Applications($acquia_cloud_client);
-    $customer_applications = $applications_resource->getAll();
+    $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $drush_site);
+    $customer_applications = $acquia_cloud_client->request(
+      'get',
+      '/applications'
+    );
+    // @todo Throw exception if not found.
+    $customer_application = $customer_applications[0];
+    $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
-    foreach ($customer_applications as $customer_application) {
-      $site_id = $customer_application->hosting->id;
-      $parts = explode(':', $site_id);
-      $site_prefix = $parts[1];
-      if ($site_prefix === $drush_site) {
-        $this->logger->debug("Found application matching $drush_site. Searching environments...");
-        $environments = $environments_resource->getAll($customer_application->uuid);
-        foreach ($environments as $environment) {
-          if ($environment->name === $drush_env) {
-            $this->logger->debug("Found environment matching $drush_env.");
+    $site_id = $customer_application->hosting->id;
+    $parts = explode(':', $site_id);
+    $site_prefix = $parts[1];
+    if ($site_prefix === $drush_site) {
+      $this->logger->debug("Found application matching $drush_site. Searching environments...");
+      $environments = $environments_resource->getAll($customer_application->uuid);
+      foreach ($environments as $environment) {
+        if ($environment->name === $drush_env) {
+          $this->logger->debug("Found environment matching $drush_env.");
 
-            return $environment;
-          }
+          return $environment;
         }
       }
     }

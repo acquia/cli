@@ -22,6 +22,7 @@ class LocalMachineHelper {
 
   private $output;
   private $input;
+  private $isTty = NULL;
 
   /**
    *
@@ -163,6 +164,10 @@ class LocalMachineHelper {
    * @return bool
    */
   public function useTty(): bool {
+    if (isset($this->isTty) && $this->isTty) {
+      return TRUE;
+    }
+
     // If we are not in interactive mode, then never use a tty.
     if (!$this->input->isInteractive()) {
       return FALSE;
@@ -177,6 +182,13 @@ class LocalMachineHelper {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param null $isTty
+   */
+  public function setIsTty($isTty): void {
+    $this->isTty = $isTty;
   }
 
   /**

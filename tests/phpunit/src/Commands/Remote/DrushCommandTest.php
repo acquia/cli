@@ -17,7 +17,7 @@ use Symfony\Component\Process\Process;
  * @property DrushCommand $command
  * @package Acquia\Cli\Tests\Remote
  */
-class DrushCommandTest extends CommandTestBase {
+class DrushCommandTest extends SshCommandTestBase {
 
   /**
    * {@inheritdoc}
@@ -33,29 +33,18 @@ class DrushCommandTest extends CommandTestBase {
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $cloud_client->request('get', "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")->willReturn([$response])->shouldBeCalled();
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->mockForGetEnvironmentFromAliasArg($cloud_client);
+    [$process, $local_machine_helper] = $this->mockForExecuteCommand();
 
     $ssh_command = [
-      0 => 'ssh',
-      1 => '-T',
-      2 => 'site.dev@server-123.hosted.hosting.acquia.com',
-      3 => '-o StrictHostKeyChecking=no',
-      4 => '-o AddressFamily inet',
-      5 => 'cd /var/www/html/devcloud2.dev/docroot; ',
-      6 => 'drush',
-      'drush_command' => 'status',
+      'ssh',
+      'site.dev@server-123.hosted.hosting.acquia.com',
+      '-o StrictHostKeyChecking=no',
+      '-o AddressFamily inet',
+      'cd /var/www/html/devcloud2.dev/docroot; ',
+      'drush',
+      'status',
     ];
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper
       ->execute($ssh_command, Argument::type('callable'))
       ->willReturn($process->reveal())

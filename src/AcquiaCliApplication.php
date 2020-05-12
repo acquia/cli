@@ -93,7 +93,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     // Register custom progress bar format.
     ProgressBar::setFormatDefinition(
           'message',
-          "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
+          "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
   }
 
