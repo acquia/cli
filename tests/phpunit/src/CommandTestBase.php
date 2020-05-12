@@ -36,8 +36,8 @@ abstract class CommandTestBase extends TestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp(): void {
-    $this->printTestName();
     parent::setUp();
+    $this->printTestName();
   }
 
   protected function setCommand(Command $command): void {
