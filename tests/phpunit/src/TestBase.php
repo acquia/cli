@@ -14,6 +14,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
@@ -62,6 +63,7 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp(): void {
+    $this->consoleOutput = new ConsoleOutput();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
 
