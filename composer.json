@@ -16,8 +16,6 @@
     "acquia/drupal-environment-detector": "dev-master",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6",
-    "kevinrob/guzzle-cache-middleware": "^3.3",
-    "league/oauth2-client": "^2.4",
     "psr/log": "^1.1",
     "react/event-loop": "^1.1",
     "symfony/cache": "^5.0",
