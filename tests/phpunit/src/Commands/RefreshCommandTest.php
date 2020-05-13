@@ -31,51 +31,37 @@ class RefreshCommandTest extends CommandTestBase {
    */
   public function testRefreshCommand(): void {
     $this->setCommand($this->createCommand());
+
+    // Client responses.
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
+
     $process = $this->mockProcess();
-    $process->getOutput()->willReturn('dbdumpcontents');
     $local_machine_helper = $this->mockLocalMachineHelper();
 
-    $local_machine_helper
-      ->runCommandViaSsh(
-        $environments_response->ssh_url,
-        'MYSQL_PWD=supersecretdbpassword1! mysqldump --host=dbhost.example.com --user=my_db_user my_db | gzip -9')
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
+    // Database.
+    $this->mockExecuteSshMySqlDump($local_machine_helper, $environments_response, $process);
+    $this->mockWriteMySqlDump($local_machine_helper);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
-
-    $local_machine_helper
-      ->commandExists('pv')
-      ->willReturn(TRUE)
-      ->shouldBeCalled();
-
+    $this->mockExecutePvExists($local_machine_helper);
     $this->mockExecuteMySqlImport($local_machine_helper, $process);
     $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
+
+    // Files.
     $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
 
-    $local_machine_helper
-      ->commandExists('composer')
-      ->willReturn(TRUE)
-      ->shouldBeCalled();
+    // Composer.
+    $this->mockExecuteComposerExists($local_machine_helper);
     $this->mockExecuteComposerInstall($local_machine_helper, $process);
 
-    $local_machine_helper
-      ->commandExists('drush')
-      ->willReturn(TRUE)
-      ->shouldBeCalled();
+    // Drush.
+    $this->mockExecuteDrushExists($local_machine_helper);
     $this->mockExecuteDrushStatus($local_machine_helper);
     $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
     $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
-
-    // Download MySQL dump.
-    $local_machine_helper
-      ->writeFile(Argument::type('string'), 'dbdumpcontents')
-      ->shouldBeCalled();
 
     // Set up file system.
     $local_machine_helper
@@ -328,6 +314,73 @@ class RefreshCommandTest extends CommandTestBase {
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
         NULL, FALSE)
       ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecuteDrushExists(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+    $local_machine_helper
+      ->commandExists('drush')
+      ->willReturn(TRUE)
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecuteComposerExists(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+    $local_machine_helper
+      ->commandExists('composer')
+      ->willReturn(TRUE)
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecutePvExists(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+    $local_machine_helper
+      ->commandExists('pv')
+      ->willReturn(TRUE)
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param object $environments_response
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   */
+  protected function mockExecuteSshMySqlDump(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    object $environments_response,
+    \Prophecy\Prophecy\ObjectProphecy $process
+  ): void {
+    $process->getOutput()->willReturn('dbdumpcontents');
+    $local_machine_helper
+      ->runCommandViaSsh(
+        $environments_response->ssh_url,
+        'MYSQL_PWD=supersecretdbpassword1! mysqldump --host=dbhost.example.com --user=my_db_user my_db | gzip -9')
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockWriteMySqlDump(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+// Download MySQL dump.
+    $local_machine_helper
+      ->writeFile(Argument::type('string'), 'dbdumpcontents')
       ->shouldBeCalled();
   }
 
