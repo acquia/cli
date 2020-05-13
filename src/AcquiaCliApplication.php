@@ -78,6 +78,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @param string $version
    *
+   * @param null $data_dir
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function __construct(
@@ -85,14 +87,15 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
         InputInterface $input,
         OutputInterface $output,
         $repo_root,
-        string $version = 'UNKNOWN'
+        string $version = 'UNKNOWN',
+        $data_dir = NULL
     ) {
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
-    $this->dataDir = $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
+    $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
 
