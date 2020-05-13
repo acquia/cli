@@ -30,6 +30,12 @@ jobs:
         - choco install php
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
+        # Install Xdebug and configure curl certs, both needed by coveralls. Consider running coveralls only in a dedicated linux job to avoid this rigmarole, which would save build time but limit coverage.
+        - curl -o /c/tools/php74/ext/php_xdebug.dll https://xdebug.org/files/php_xdebug-2.9.5-7.4-vc15-nts-x86_64.dll
+        - echo "zend_extension=xdebug" >> /c/tools/php74/php.ini
+        # Fix curl errors in coveralls.
+        - curl -o /c/tools/php74/extras/ssl/cacert.pem https://curl.haxx.se/ca/cacert.pem
+        - echo 'curl.cainfo = "C:\tools\php74\extras\ssl\cacert.pem"' >> /c/tools/php74/php.ini
         # Refresh env to pick up new paths added by Choco installs.
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
