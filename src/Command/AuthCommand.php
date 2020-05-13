@@ -45,7 +45,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials.</info>");
+    $output->writeln("<info>Saved credentials to {$this->getCloudApiConfFilePath()}</info>");
 
     return 0;
   }
@@ -114,11 +114,8 @@ class AuthCommand extends CommandBase {
    * @param $api_secret
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
-    $file_contents = [
-      'key' => $api_key,
-      'secret' => $api_secret,
-    ];
-    $this->getDatastore()->set('cloud_api', $file_contents);
+    $this->getCloudApiDatastore()->set('key', $api_key);
+    $this->getCloudApiDatastore()->set('secret', $api_secret);
   }
 
   /**
