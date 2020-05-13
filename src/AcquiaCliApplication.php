@@ -9,6 +9,7 @@ use Acquia\Cli\DataStore\DataStoreAwareTrait;
 use Acquia\Cli\DataStore\FileStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -174,7 +175,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getAcquiaCloudClient(): Client {
     if (isset($this->acquiaCloudClient)) {
@@ -186,7 +186,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'key' => $cloud_api_conf['key'],
       'secret' => $cloud_api_conf['secret'],
     ];
-    $connector = new CliCloudConnector($config);
+    $connector = new Connector($config);
     $this->acquiaCloudClient = Client::factory($connector);
 
     return $this->acquiaCloudClient;
