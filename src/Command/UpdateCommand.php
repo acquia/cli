@@ -51,8 +51,8 @@ class UpdateCommand extends CommandBase {
         ->getName() . '.');
     }
 
-        // phpcs:ignore
-        $localFilename = realpath($_SERVER['argv'][0]) ?: $_SERVER['argv'][0];
+    // phpcs:ignore
+    $localFilename = realpath($_SERVER['argv'][0]) ?: $_SERVER['argv'][0];
     $programName = basename($localFilename);
     $tempFilename = dirname($localFilename) . '/' . basename($localFilename, '.phar') . '-temp.phar';
 
@@ -65,7 +65,7 @@ class UpdateCommand extends CommandBase {
       throw new RuntimeException($programName . ' update failed: the "' . $localFilename . '" file could not be written (execute with sudo)');
     }
 
-    list($latest, $downloadUrl) = $this->getLatestReleaseFromGithub();
+    [$latest, $downloadUrl] = $this->getLatestReleaseFromGithub();
 
     if ($this->getApplication()->getVersion() === $latest) {
       $output->writeln('No update available');
@@ -80,7 +80,7 @@ class UpdateCommand extends CommandBase {
     $output->writeln('Download finished');
 
     try {
-      // Supress notices.
+      // Suppress notices.
       error_reporting(E_ALL);
 
       @chmod($tempFilename, 0777 & ~umask());
@@ -116,7 +116,6 @@ class UpdateCommand extends CommandBase {
     ];
 
     $context = stream_context_create($opts);
-
     $releases = file_get_contents(
           'https://api.github.com/repos/' . $this->gitHubRepository . '/releases',
           FALSE,
