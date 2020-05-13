@@ -178,8 +178,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text) {
     $list = [];
+    // @todo sort alphabetically by label.
     foreach ($items as $item) {
-      $list[$item->$unique_property] = $item->$label_property;
+      $list[$item->$unique_property] = trim($item->$label_property);
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);

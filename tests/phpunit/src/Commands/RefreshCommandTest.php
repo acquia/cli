@@ -38,11 +38,21 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
 
-    $process = $this->mockProcess();
     $local_machine_helper = $this->mockLocalMachineHelper();
 
+    $acsf_multisite_fetch_process = $this->mockProcess();
+    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents($this->fixtureDir . '/multisite-config.json'))->shouldBeCalled();
+    $local_machine_helper
+      ->runCommandViaSsh(
+        $environments_response->ssh_url,
+        'cat /var/www/site-php/site.dev/multisite-config.json')
+      ->willReturn($acsf_multisite_fetch_process->reveal())
+      ->shouldBeCalled();
+
+    $process = $this->mockProcess();
+
     // Database.
-    $this->mockExecuteSshMySqlDump($local_machine_helper, $environments_response, $process);
+    $this->mockExecuteSshMySqlDump($local_machine_helper, $environments_response);
     $this->mockWriteMySqlDump($local_machine_helper);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
@@ -90,7 +100,8 @@ class RefreshCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
     $this->assertStringContainsString('Choose a database to copy:', $output);
-    $this->assertStringContainsString('[0] my_db (default)', $output);
+    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('profserv2 (default)', $output);
   }
 
   /**
@@ -104,11 +115,10 @@ class RefreshCommandTest extends CommandTestBase {
     $cloud_client,
     $environments_response
   ) {
-    $databases_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases',
-      'get', '200');
+    $databases_response = json_decode(file_get_contents($this->fixtureDir . '/acsf_db_response.json'));
     $cloud_client->request('get',
       "/environments/{$environments_response->id}/databases")
-      ->willReturn($databases_response->_embedded->items)
+      ->willReturn($databases_response)
       ->shouldBeCalled();
 
     return $databases_response;
@@ -356,18 +366,18 @@ class RefreshCommandTest extends CommandTestBase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param object $environments_response
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteSshMySqlDump(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    $environments_response,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    $environments_response
   ): void {
+    $process = $this->mockProcess();
     $process->getOutput()->willReturn('dbdumpcontents');
     $local_machine_helper
       ->runCommandViaSsh(
+        // site.dev@server-123.hosted.hosting.acquia.com
         $environments_response->ssh_url,
-        'MYSQL_PWD=supersecretdbpassword1! mysqldump --host=dbhost.example.com --user=my_db_user my_db | gzip -9')
+        'MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9')
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -378,10 +388,17 @@ class RefreshCommandTest extends CommandTestBase {
   protected function mockWriteMySqlDump(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
   ): void {
-// Download MySQL dump.
+    // Download MySQL dump.
     $local_machine_helper
       ->writeFile(Argument::type('string'), 'dbdumpcontents')
       ->shouldBeCalled();
+  }
+
+  /**
+   * @return object
+   */
+  protected function getAcsfEnvResponse() {
+    return json_decode(file_get_contents($this->fixtureDir . '/acsf_env_response.json'));
   }
 
 }
