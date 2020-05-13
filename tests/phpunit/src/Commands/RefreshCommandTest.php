@@ -219,7 +219,7 @@ class RefreshCommandTest extends CommandTestBase {
    */
   protected function mockExecuteRsync(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    object $environments_response,
+    $environments_response,
     \Prophecy\Prophecy\ObjectProphecy $process
   ): void {
     $local_machine_helper
@@ -241,7 +241,7 @@ class RefreshCommandTest extends CommandTestBase {
    */
   protected function mockExecuteGitClone(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    object $environments_response,
+    $environments_response,
     \Prophecy\Prophecy\ObjectProphecy $process
   ): void {
     $local_machine_helper
@@ -360,7 +360,7 @@ class RefreshCommandTest extends CommandTestBase {
    */
   protected function mockExecuteSshMySqlDump(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    object $environments_response,
+    $environments_response,
     \Prophecy\Prophecy\ObjectProphecy $process
   ): void {
     $process->getOutput()->willReturn('dbdumpcontents');
