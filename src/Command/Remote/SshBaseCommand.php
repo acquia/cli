@@ -196,6 +196,7 @@ abstract class SshBaseCommand extends CommandBase {
       $environments = $environments_resource->getAll($customer_application->uuid);
       foreach ($environments as $environment) {
         if ($environment->name === $drush_env) {
+          // @todo Create a cache entry for this alias.
           $this->logger->debug("Found environment matching $drush_env.");
 
           return $environment;
