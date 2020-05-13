@@ -69,7 +69,8 @@ abstract class TestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
-    $this->application->setDatastore(new JsonFileStore($this->fixtureDir . '/.acquia'));
+    $this->application->setDatastore(new JsonFileStore($this->fixtureDir . '/.acquia/' . $this->application->getAcliConfigFilename()));
+    $this->application->setCloudApiDatastore(new JsonFileStore($this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename()));
     $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename());
     $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getAcliConfigFilename());
     $this->createMockConfigFile();
