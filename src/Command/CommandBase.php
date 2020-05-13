@@ -4,8 +4,9 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Connector\CliCloudConnector;
-use Acquia\Cli\DataStore\DataStoreInterface;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
+use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Output\Spinner\Spinner;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -19,14 +20,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
@@ -37,6 +34,8 @@ use Symfony\Component\Validator\Validation;
  * @package Grasmash\YamlCli\Command
  */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
+  use CloudApiDataStoreAwareTrait;
+  use DataStoreAwareTrait;
   use LoggerAwareTrait;
 
   /**
@@ -51,11 +50,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
   protected $formatter;
-
-  /**
-   * @var \Acquia\Cli\DataStore\DataStoreInterface
-   */
-  private $datastore;
 
   private $cloudApplication;
 
@@ -84,7 +78,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
-    $this->datastore = $application->getDatastore();
+    $this->setDatastore($application->getDatastore());
+    $this->setCloudApiDatastore($application->getCloudApiDatastore());
 
     if ($this->commandRequiresAuthentication() && !$this->isMachineAuthenticated()) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
@@ -97,8 +92,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   protected function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->datastore->get($this->getApplication()->getCloudConfigFilename());
-    return $cloud_api_conf !== NULL && array_key_exists('key', $cloud_api_conf) && array_key_exists('secret', $cloud_api_conf);
+    $cloud_api_conf = $this->getCloudApiDatastore();
+    return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 
   /**
@@ -115,13 +110,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getApplication() {
     return parent::getApplication();
-  }
-
-  /**
-   * @return \Acquia\Cli\DataStore\DataStoreInterface
-   */
-  public function getDatastore(): DataStoreInterface {
-    return $this->datastore;
   }
 
   /**

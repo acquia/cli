@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
-use Acquia\Cli\DataStore\FileStore;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Prophet;
@@ -17,6 +16,7 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
@@ -68,10 +68,9 @@ abstract class TestBase extends TestCase {
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
-    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN');
-    $this->application->setDatastore(new FileStore($this->fixtureDir . '/.acquia'));
-    $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename());
-    $this->fs->remove($this->fixtureDir . '/.acquia/' . $this->application->getAcliConfigFilename());
+    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->fs->remove($this->application->getCloudConfigFilepath());
+    $this->fs->remove($this->application->getAcliConfigFilepath());
     $this->createMockConfigFile();
 
     parent::setUp();
@@ -79,7 +78,7 @@ abstract class TestBase extends TestCase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $filepath = $this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename();
+    $filepath = $this->application->getCloudConfigFilepath();
     $this->fs->remove($filepath);
   }
 
@@ -225,7 +224,7 @@ abstract class TestBase extends TestCase {
 
   protected function createMockConfigFile(): void {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
-    $filepath = $this->fixtureDir . '/.acquia/' . $this->application->getCloudConfigFilename();
+    $filepath = $this->application->getCloudConfigFilepath();
     $this->fs->dumpFile($filepath, $contents);
   }
 

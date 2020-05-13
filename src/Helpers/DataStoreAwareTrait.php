@@ -1,6 +1,8 @@
 <?php
 
-namespace Acquia\Cli\DataStore;
+namespace Acquia\Cli\Helpers;
+
+use Webmozart\KeyValueStore\Api\KeyValueStore;
 
 /**
  * Class DataStoreAwareTrait.
@@ -9,21 +11,21 @@ namespace Acquia\Cli\DataStore;
  */
 trait DataStoreAwareTrait {
   /**
-   * @var DataStoreInterface
+   * @var KeyValueStore
    */
   protected $datastore;
 
   /**
-   * @return mixed
+   * @return KeyValueStore
    */
   public function getDatastore() {
     return $this->datastore;
   }
 
   /**
-   * @param DataStoreInterface $datastore
+   * @param KeyValueStore $datastore
    */
-  public function setDatastore(DataStoreInterface $datastore): void {
+  public function setDatastore(KeyValueStore $datastore): void {
     $this->datastore = $datastore;
   }
 
