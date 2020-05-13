@@ -4,6 +4,7 @@ namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Connector\CliCloudConnector;
+use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
@@ -25,6 +26,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
   use DataStoreAwareTrait;
+  use CloudApiDatastoreAwareTrait;
 
   /**
    * @var null|string*/
@@ -85,6 +87,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
     $this->setDatastore(new JsonFileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia/storage.json'));
+    $this->setCloudApiDatastore(new JsonFileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf'));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -180,10 +183,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       return $this->acquiaCloudClient;
     }
 
-    $cloud_api_conf = $this->datastore->get('cloud_api.conf');
+    $cloud_api_conf = $this->getCloudApiDatastore();
     $config = [
-      'key' => $cloud_api_conf['key'],
-      'secret' => $cloud_api_conf['secret'],
+      'key' => $cloud_api_conf->get('key'),
+      'secret' => $cloud_api_conf->get('secret'),
     ];
     $connector = new CliCloudConnector($config);
     $this->acquiaCloudClient = Client::factory($connector);

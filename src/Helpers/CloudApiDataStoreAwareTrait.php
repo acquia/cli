@@ -9,7 +9,7 @@ use Webmozart\KeyValueStore\Api\KeyValueStore;
  *
  * @package Acquia\Cli\DataStore
  */
-trait DataStoreAwareTrait {
+trait CloudApiDataStoreAwareTrait {
   /**
    * @var KeyValueStore
    */
@@ -18,14 +18,14 @@ trait DataStoreAwareTrait {
   /**
    * @return KeyValueStore
    */
-  public function getDatastore() {
+  public function getCloudApiDatastore() {
     return $this->datastore;
   }
 
   /**
    * @param KeyValueStore $datastore
    */
-  public function setDatastore(KeyValueStore $datastore): void {
+  public function setCloudApiDatastore(KeyValueStore $datastore): void {
     $this->datastore = $datastore;
   }
 
