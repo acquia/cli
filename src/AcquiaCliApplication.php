@@ -56,6 +56,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   protected $cloudConfigFilename = 'cloud_api.conf';
 
   /**
+   * @var string
+   */
+  protected $dataDir;
+
+  /**
    * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
@@ -86,8 +91,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
-    $this->setDatastore(new JsonFileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia/storage.json'));
-    $this->setCloudApiDatastore(new JsonFileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf'));
+    $this->dataDir = $this->getLocalMachineHelper()->getHomeDir();
+    $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
+    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath()));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -176,7 +182,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getAcquiaCloudClient(): Client {
     if (isset($this->acquiaCloudClient)) {
@@ -206,6 +211,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getAcliConfigFilename(): string {
     return $this->acliConfigFilename;
+  }
+
+  public function getCloudConfigFilepath(): string {
+    return $this->dataDir . '/' . $this->getCloudConfigFilename();
+  }
+
+  public function getAcliConfigFilepath(): string {
+    return $this->dataDir . '/' . $this->getAcliConfigFilename();
   }
 
 }

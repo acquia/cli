@@ -19,7 +19,6 @@ use Symfony\Component\Validator\Validation;
  * @package Grasmash\YamlCli\Command
  */
 class AuthCommand extends CommandBase {
-  private $cloudApiConfFilePath;
 
   /**
    * {inheritdoc}.
@@ -45,7 +44,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->getCloudApiConfFilePath()}</info>");
+    $output->writeln("<info>Saved credentials to {$this->getApplication()->getCloudConfigFilepath()}</info>");
 
     return 0;
   }
@@ -116,24 +115,6 @@ class AuthCommand extends CommandBase {
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
     $this->getCloudApiDatastore()->set('key', $api_key);
     $this->getCloudApiDatastore()->set('secret', $api_secret);
-  }
-
-  /**
-   * @param $filepath
-   */
-  public function setCloudApiConfFilePath($filepath): void {
-    $this->cloudApiConfFilePath = $filepath;
-  }
-
-  /**
-   * @return mixed
-   */
-  public function getCloudApiConfFilePath() {
-    if (isset($this->cloudApiConfFilePath)) {
-      return $this->cloudApiConfFilePath;
-    }
-
-    return $this->getApplication()->getLocalMachineHelper()->getHomeDir() . '/.acquia/cloud_api.conf';
   }
 
   /**

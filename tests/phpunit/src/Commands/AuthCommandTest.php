@@ -29,7 +29,6 @@ class AuthCommandTest extends CommandTestBase {
    */
   public function testAuthLoginCommand(): void {
     $this->setCommand($this->createCommand());
-    $this->command->setCloudApiConfFilePath(Path::join(sys_get_temp_dir(), 'cloud_api.conf'));
 
     $inputs = [
           // Do you want to open this page to generate a token now?
