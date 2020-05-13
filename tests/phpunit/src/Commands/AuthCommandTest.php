@@ -29,7 +29,6 @@ class AuthCommandTest extends CommandTestBase {
    */
   public function testAuthLoginCommand(): void {
     $this->setCommand($this->createCommand());
-    $this->command->setCloudApiConfFilePath(Path::join(sys_get_temp_dir(), 'cloud_api.conf'));
 
     $inputs = [
           // Do you want to open this page to generate a token now?
@@ -52,7 +51,7 @@ class AuthCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Saved credentials to ', $output);
     $this->assertStringContainsString('/cloud_api.conf', $output);
 
-    $creds_file = $this->command->getCloudApiConfFilePath();
+    $creds_file = $this->application->getCloudConfigFilepath();
     $this->assertFileExists($creds_file);
     $contents = file_get_contents($creds_file);
     $this->assertJson($contents);

@@ -3,10 +3,9 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Connector\CliCloudConnector;
-use Acquia\Cli\DataStore\DataStoreAwareTrait;
-use Acquia\Cli\DataStore\FileStore;
+use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
+use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -17,6 +16,7 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBase.
@@ -27,6 +27,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
   use DataStoreAwareTrait;
+  use CloudApiDatastoreAwareTrait;
 
   /**
    * @var null|string*/
@@ -56,6 +57,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   protected $cloudConfigFilename = 'cloud_api.conf';
 
   /**
+   * @var string
+   */
+  protected $dataDir;
+
+  /**
    * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
@@ -72,6 +78,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @param string $version
    *
+   * @param null $data_dir
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function __construct(
@@ -79,14 +87,17 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
         InputInterface $input,
         OutputInterface $output,
         $repo_root,
-        string $version = 'UNKNOWN'
+        string $version = 'UNKNOWN',
+        $data_dir = NULL
     ) {
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
-    $this->setDatastore(new FileStore($this->getLocalMachineHelper()->getHomeDir() . '/.acquia'));
+    $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
+    $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
+    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -181,10 +192,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       return $this->acquiaCloudClient;
     }
 
-    $cloud_api_conf = $this->datastore->get('cloud_api.conf');
+    $cloud_api_conf = $this->getCloudApiDatastore();
     $config = [
-      'key' => $cloud_api_conf['key'],
-      'secret' => $cloud_api_conf['secret'],
+      'key' => $cloud_api_conf->get('key'),
+      'secret' => $cloud_api_conf->get('secret'),
     ];
     $connector = new Connector($config);
     $this->acquiaCloudClient = Client::factory($connector);
@@ -204,6 +215,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getAcliConfigFilename(): string {
     return $this->acliConfigFilename;
+  }
+
+  public function getCloudConfigFilepath(): string {
+    return $this->dataDir . '/' . $this->getCloudConfigFilename();
+  }
+
+  public function getAcliConfigFilepath(): string {
+    return $this->dataDir . '/' . $this->getAcliConfigFilename();
   }
 
 }
