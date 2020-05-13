@@ -70,14 +70,14 @@ class RefreshCommandTest extends CommandTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     $command = [
-      0 => 'mysql',
-      1 => '--host',
-      2 => 'localhost',
-      3 => '--user',
-      4 => 'drupal',
-      5 => '--password=drupal',
-      6 => '-e',
-      7 => 'create database drupal',
+      'mysql',
+      '--host',
+      'localhost',
+      '--user',
+      'drupal',
+      '--password=drupal',
+      '-e',
+      'create database drupal',
     ];
     $local_machine_helper
       ->execute($command, Argument::type('callable'), NULL, FALSE)
@@ -96,10 +96,10 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     $command = [
-      0 => 'git',
-      1 => 'clone',
-      2 => $environments_response->vcs->url,
-      3 => $this->projectFixtureDir,
+      'git',
+      'clone',
+      $environments_response->vcs->url,
+      $this->projectFixtureDir,
     ];
     $local_machine_helper
       ->execute($command, Argument::type('callable'))
@@ -107,21 +107,73 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     $command = [
-      0 => 'rsync',
-      1 => '-rve',
-      2 => 'ssh -o StrictHostKeyChecking=no',
-      3 => $environments_response->ssh_url . ':/' . $environments_response->name . '/sites/default/files',
-      4 => $this->projectFixtureDir . '/docroot/sites/default',
+      'rsync',
+      '-rve',
+      'ssh -o StrictHostKeyChecking=no',
+      $environments_response->ssh_url . ':/' . $environments_response->name . '/sites/default/files',
+      $this->projectFixtureDir . '/docroot/sites/default',
     ];
-
     $local_machine_helper
       ->execute($command, Argument::type('callable'), NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
 
     $local_machine_helper
+      ->commandExists('composer')
+      ->willReturn(TRUE)
+      ->shouldBeCalled();
+
+    $command = [
+      'composer',
+      'install',
+      '--no-interaction',
+    ];
+    $local_machine_helper
+      ->execute($command, Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+
+    $local_machine_helper
       ->commandExists('drush')
-      ->willReturn(FALSE)
+      ->willReturn(TRUE)
+      ->shouldBeCalled();
+
+    $drush_status_process = $this->prophet->prophesize(Process::class);
+    $drush_status_process->isSuccessful()->willReturn(TRUE);
+    $drush_status_process->getExitCode()->willReturn(0);
+    $drush_status_process->getOutput()->willReturn(json_encode(['db-status' => 'Connected']));
+    $command = [
+      'drush',
+      'status',
+      '--fields=db-status,drush-version',
+      '--format=json',
+      '--no-interaction',
+    ];
+    $local_machine_helper
+      ->execute($command, NULL, NULL, FALSE)
+      ->willReturn($drush_status_process->reveal())
+      ->shouldBeCalled();
+
+    $command = [
+      'drush',
+      'cache:rebuild',
+      '--yes',
+      '--no-interaction',
+    ];
+    $local_machine_helper
+      ->execute($command, Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+
+    $command = [
+      'drush',
+      'sql:sanitize',
+      '--yes',
+      '--no-interaction',
+    ];
+    $local_machine_helper
+      ->execute($command, Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($process->reveal())
       ->shouldBeCalled();
 
     // Download MySQL dump.
