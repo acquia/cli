@@ -91,9 +91,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     parent::__construct('acli', $version);
-    $this->dataDir = $this->getLocalMachineHelper()->getHomeDir();
+    $this->dataDir = $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
-    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath()));
+    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
