@@ -8,6 +8,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class RefreshCommandTest.
@@ -41,7 +42,13 @@ class RefreshCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     $acsf_multisite_fetch_process = $this->mockProcess();
-    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents($this->fixtureDir . '/multisite-config.json'))->shouldBeCalled();
+    $acsf_multisite_fetch_process
+      ->getOutput()
+      ->willReturn(
+        file_get_contents(
+          Path::join($this->fixtureDir, '/multisite-config.json')
+        ))
+      ->shouldBeCalled();
     $local_machine_helper
       ->runCommandViaSsh(
         $environments_response->ssh_url,
@@ -115,7 +122,7 @@ class RefreshCommandTest extends CommandTestBase {
     $cloud_client,
     $environments_response
   ) {
-    $databases_response = json_decode(file_get_contents($this->fixtureDir . '/acsf_db_response.json'));
+    $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/acsf_db_response.json')));
     $cloud_client->request('get',
       "/environments/{$environments_response->id}/databases")
       ->willReturn($databases_response)
@@ -397,7 +404,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @return object
    */
   protected function getAcsfEnvResponse() {
-    return json_decode(file_get_contents($this->fixtureDir . '/acsf_env_response.json'));
+    return json_decode(file_get_contents(Path::join($this->fixtureDir, 'acsf_env_response.json')));
   }
 
   /**
