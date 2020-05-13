@@ -26,8 +26,6 @@ class NewCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'refresh' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRefreshCommand(): void {
     $this->setCommand($this->createCommand());
@@ -40,57 +38,11 @@ class NewCommandTest extends CommandTestBase {
     $local_machine_helper->useTty()->willReturn(FALSE);
     $project_dir =  Path::join($this->projectFixtureDir, 'drupal');
 
-    $command = [
-      'composer',
-      'create-project',
-      '--no-install',
-      'acquia/blt-project',
-      $project_dir,
-    ];
-    $local_machine_helper
-      ->execute($command)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    $command = [
-      'composer',
-      'update',
-    ];
-    $local_machine_helper
-      ->execute($command, NULL, $project_dir)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    $command = [
-      'git',
-      'init',
-    ];
-    $local_machine_helper
-      ->execute($command, NULL, $project_dir)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    $command = [
-      'git',
-      'add',
-      '-A',
-    ];
-    $local_machine_helper
-      ->execute($command, NULL, $project_dir)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    $command = [
-      'git',
-      'commit',
-      '--message',
-      'Initial commit.',
-      '--quiet',
-    ];
-    $local_machine_helper
-      ->execute($command, NULL, $project_dir)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
+    $this->mockExecuteComposerCreate($project_dir, $local_machine_helper, $process, 'acquia/blt-project');
+    $this->mockExecuteComposerUpdate($local_machine_helper, $project_dir, $process);
+    $this->mockExecuteGitInit($local_machine_helper, $project_dir, $process);
+    $this->mockExecuteGitAdd($local_machine_helper, $project_dir, $process);
+    $this->mockExecuteGitCommit($local_machine_helper, $project_dir, $process);
 
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
     $inputs = [
@@ -103,6 +55,123 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Which starting project would you like to use?', $output);
     $this->assertStringContainsString('[0] acquia/blt-project', $output);
     $this->assertStringContainsString('New 💧Drupal project created in ' . $project_dir, $output);
+  }
+
+  /**
+   * @param string $project_dir
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   * @param string $project
+   *
+   * @return array
+   */
+  protected function mockExecuteComposerCreate(
+    string $project_dir,
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    \Prophecy\Prophecy\ObjectProphecy $process,
+    $project
+  ) {
+    $command = [
+      'composer',
+      'create-project',
+      '--no-install',
+      $project,
+      $project_dir,
+    ];
+    $local_machine_helper
+      ->execute($command)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param string $project_dir
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   *
+   * @return array
+   */
+  protected function mockExecuteComposerUpdate(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    string $project_dir,
+    \Prophecy\Prophecy\ObjectProphecy $process
+  ) {
+    $command = [
+      'composer',
+      'update',
+    ];
+    $local_machine_helper
+      ->execute($command, NULL, $project_dir)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param string $project_dir
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   *
+   * @return array
+   */
+  protected function mockExecuteGitInit(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    string $project_dir,
+    \Prophecy\Prophecy\ObjectProphecy $process
+  ) {
+    $command = [
+      'git',
+      'init',
+    ];
+    $local_machine_helper
+      ->execute($command, NULL, $project_dir)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param string $project_dir
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   *
+   * @return array
+   */
+  protected function mockExecuteGitAdd(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    string $project_dir,
+    \Prophecy\Prophecy\ObjectProphecy $process
+  ) {
+    $command = [
+      'git',
+      'add',
+      '-A',
+    ];
+    $local_machine_helper
+      ->execute($command, NULL, $project_dir)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param string $project_dir
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   */
+  protected function mockExecuteGitCommit(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    string $project_dir,
+    \Prophecy\Prophecy\ObjectProphecy $process
+  ): void {
+    $command = [
+      'git',
+      'commit',
+      '--message',
+      'Initial commit.',
+      '--quiet',
+    ];
+    $local_machine_helper
+      ->execute($command, NULL, $project_dir)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
   }
 
 }
