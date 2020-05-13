@@ -24,7 +24,16 @@ class TelemetryCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
+    $datastore = $this->getDatastore();
+    if ($datastore->get('send_telemetry')) {
+      $datastore->set('send_telemetry', FALSE);
+      $this->output->writeln('Telemetry has been disabled.');
+    }
+    else {
+      $datastore->set('send_telemetry', TRUE);
+      $this->output->writeln('Telemetry has been enabled.');
+    }
+
     return 0;
   }
 
