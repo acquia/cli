@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\SshCommand;
-use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 

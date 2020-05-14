@@ -5,7 +5,9 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\AcquiaCliApplication;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Prophecy\Prophet;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -297,6 +299,36 @@ abstract class TestBase extends TestCase {
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $response;
+  }
+
+  /**
+   * @param $cloud_client
+   * @param array $mock_request_args
+   */
+  protected function mockUploadSshKey($cloud_client): void {
+    $response = $this->prophet->prophesize(ResponseInterface::class);
+    $response->getStatusCode()->willReturn(202);
+    $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
+      ->willReturn($response->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param $mock_request_args
+   * @param $cloud_client
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockListSshKeyRequestWithUploadedKey(
+    $mock_request_args,
+    $cloud_client
+  ): void {
+    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
+      '200');
+    $mock_body->_embedded->items[3] = (object) $mock_request_args;
+    $cloud_client->request('get', '/account/ssh-keys')
+      ->willReturn($mock_body->{'_embedded'}->items)
+      ->shouldBeCalled();
   }
 
 }

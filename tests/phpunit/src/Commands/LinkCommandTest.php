@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;

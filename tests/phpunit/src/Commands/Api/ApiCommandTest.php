@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Api;
 use Acquia\Cli\Command\Api\ApiCommandBase;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**

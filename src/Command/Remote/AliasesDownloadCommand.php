@@ -16,6 +16,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package Acquia\Cli\Commands\Remote
  */
 class AliasesDownloadCommand extends SshCommand {
+
   /**
    * @var string
    */
@@ -79,13 +80,6 @@ class AliasesDownloadCommand extends SshCommand {
    */
   public function setDrushAliasesDir(string $drushAliasesDir): void {
     $this->drushAliasesDir = $drushAliasesDir;
-  }
-
-  /**
-   * @param string $drushArchiveFilepath
-   */
-  public function setDrushArchiveFilepath(string $drushArchiveFilepath): void {
-    $this->drushArchiveFilepath = $drushArchiveFilepath;
   }
 
   /**

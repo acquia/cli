@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 

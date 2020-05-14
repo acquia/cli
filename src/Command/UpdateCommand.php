@@ -2,7 +2,10 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\AcquiaCliApplication;
 use Exception;
+use Humbug\SelfUpdate\Strategy\GithubStrategy;
+use Humbug\SelfUpdate\Updater;
 use Phar;
 use PharException;
 use RuntimeException;
@@ -16,15 +19,30 @@ use function error_reporting;
  */
 class UpdateCommand extends CommandBase {
 
+  /**
+   * @var
+   */
   protected $gitHubRepository;
 
+  /**
+   * @var
+   */
   protected $applicationName;
+
+  /**
+   * @var bool
+   */
+  protected $simulated = FALSE;
+
+  protected $pharFilepath;
+
+  protected $pharFilename;
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('update')->setDescription('update to the latest version');
+    $this->setName('self-update')->setDescription('update to the latest version');
   }
 
   /**
@@ -36,113 +54,46 @@ class UpdateCommand extends CommandBase {
 
   /**
    * {@inheritdoc}
-   *
-   * @throws \Exception
-   * @throws \Exception
-   * @throws \Exception
-   * @throws \Exception
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->gitHubRepository = 'https://github.com/acquia/cli';
-
     if (empty(Phar::running())) {
       throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()
-        ->getName() . '.');
+          ->getName() . '.');
     }
 
-    // phpcs:ignore
-    $localFilename = realpath($_SERVER['argv'][0]) ?: $_SERVER['argv'][0];
-    $programName = basename($localFilename);
-    $tempFilename = dirname($localFilename) . '/' . basename($localFilename, '.phar') . '-temp.phar';
-
-    // Check for permissions in local filesystem before start connection process.
-    if (!is_writable($tempDirectory = dirname($tempFilename))) {
-      throw new RuntimeException($programName . ' update failed: the "' . $tempDirectory . '" directory used to download the temp file could not be written');
-    }
-
-    if (!is_writable($localFilename)) {
-      throw new RuntimeException($programName . ' update failed: the "' . $localFilename . '" file could not be written (execute with sudo)');
-    }
-
-    [$latest, $downloadUrl] = $this->getLatestReleaseFromGithub();
-
-    if ($this->getApplication()->getVersion() === $latest) {
-      $output->writeln('No update available');
-
-      return;
-    }
-
-    $fs = $this->getApplication()->getLocalMachineHelper()->getFilesystem();
-    $output->writeln('Downloading ' . $this->getApplication()
-      ->getName() . ' (' . $this->gitHubRepository . ') ' . $latest);
-    $fs->copy($downloadUrl, $tempFilename);
-    $output->writeln('Download finished');
-
+    $updater = new Updater(NULL, FALSE, Updater::STRATEGY_GITHUB);
+    $updater->getStrategy()->setStability(GithubStrategy::STABLE);
+    $updater->getStrategy()->setPackageName('acquia/cli');
+    $updater->getStrategy()->setPharName('acli');
+    $updater->getStrategy()->setCurrentLocalVersion($this->getApplication()->getVersion());
     try {
-      // Suppress notices.
-      error_reporting(E_ALL);
-
-      @chmod($tempFilename, 0777 & ~umask());
-      // Test the phar validity.
-      $phar = new Phar($tempFilename);
-      // Free the variable to unlock the file.
-      unset($phar);
-      @rename($tempFilename, $localFilename);
-      $output->writeln('<info>Successfully updated ' . $programName . '</info>');
-      $this->_exit();
-    }
-    catch (Exception $e) {
-      @unlink($tempFilename);
-      if (!$e instanceof UnexpectedValueException && !$e instanceof PharException) {
-        throw $e;
+      $result = $updater->update();
+      if ($result) {
+        $new = $updater->getNewVersion();
+        $old = $updater->getOldVersion();
+        $output->writeln("<info>Updated from $old to $new</info>");
+      } else {
+        $output->writeln('<comment>No update needed.</comment>');
       }
-      $output->writeln('<error>The download is corrupted (' . $e->getMessage() . ').</error>');
-      $output->writeln('<error>Please re-run the self-update command to try again.</error>');
+      return 0;
+    } catch (\Exception $e) {
+      $output->writeln("<error>{$e->getMessage()}</error>");
+      return 1;
     }
   }
 
   /**
-   *
+   * @return bool
    */
-  protected function getLatestReleaseFromGithub(): array {
-    $opts = [
-      'http' => [
-        'method' => 'GET',
-        'header' => [
-          'User-Agent: ' . $this->applicationName . ' (' . $this->gitHubRepository . ')' . ' Self-Update (PHP)',
-        ],
-      ],
-    ];
-
-    $context = stream_context_create($opts);
-    $releases = file_get_contents(
-          'https://api.github.com/repos/' . $this->gitHubRepository . '/releases',
-          FALSE,
-          $context
-      );
-    $releases = json_decode($releases);
-
-    if (!isset($releases[0])) {
-      throw new RuntimeException('API error - no release found at GitHub repository ' . $this->gitHubRepository);
-    }
-
-    $version = $releases[0]->tag_name;
-    $url = $releases[0]->assets[0]->browser_download_url;
-
-    return [$version, $url];
+  public function isSimulated(): bool {
+    return $this->simulated;
   }
 
   /**
-   * Stop execution.
-   *
-   * This is a workaround to prevent warning of dispatcher after replacing
-   * the phar file.
-   *
-   * @return void
+   * @param bool $simulated
    */
-  protected function _exit(): void {
-    exit;
+  public function setSimulated(bool $simulated): void {
+    $this->simulated = $simulated;
   }
 
 }
