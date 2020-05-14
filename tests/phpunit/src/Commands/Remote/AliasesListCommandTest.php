@@ -39,8 +39,12 @@ class AliasesListCommandTest extends CommandTestBase {
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
       '0',
-      '0',
+      // Would you like to link the project at ...
+      'n',
     ];
     $this->executeCommand([], $inputs);
 
