@@ -49,14 +49,8 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
+    $ssh_key_filename = $this->mockCreateSshKey($cloud_client);
 
-    // Choose a local SSH key to upload to Acquia Cloud.
-    $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
-    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
-    $this->executeCommand([
-      '--no-wait' => '',
-    ]);
     $this->prophet->checkPredictions();
 
     $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename);
@@ -70,5 +64,21 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     return new IdeWizardCreateSshKeyCommand();
   }
 
-  // Test can only be run inside IDE.
+  // @todo Test that this can only be run inside IDE.
+
+  /**
+   * @param $cloud_client
+   *
+   * @return string
+   */
+  protected function mockCreateSshKey($cloud_client): string {
+    $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
+    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->executeCommand([
+      '--no-wait' => '',
+    ]);
+    return $ssh_key_filename;
+  }
+
 }

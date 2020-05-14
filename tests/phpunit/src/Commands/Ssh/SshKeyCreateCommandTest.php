@@ -3,10 +3,15 @@
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\PathUtil\Path;
 
+/**
+ * Class SshKeyCreateCommandTest
+ * @property SshKeyCreateCommand $command
+ * @package Acquia\Cli\Tests\Ssh
+ */
 class SshKeyCreateCommandTest extends CommandTestBase {
 
   /**
@@ -18,13 +23,11 @@ class SshKeyCreateCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
     $this->application->setSshKeysDir(sys_get_temp_dir());
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
+    $ssh_key_filepath = Path::join($this->application->getSshKeysDir(), '/' . $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
 
     $inputs = [
