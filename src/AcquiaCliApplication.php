@@ -182,7 +182,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $exit_code = parent::run($input, $output);
     $event_properties = $this->getTelemetryUserData();
     $event_properties['exit_code'] = $exit_code;
-    $event_properties['command'] = $input->getFirstArgument();
+    $event_properties['arguments'] = $input->getArguments();
+    $event_properties['options'] = $input->getOptions();
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
