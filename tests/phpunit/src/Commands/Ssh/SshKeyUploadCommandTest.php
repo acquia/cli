@@ -35,8 +35,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey($cloud_client, $mock_request_args);
-    $this->mockGetAllSshKeys($mock_request_args, $cloud_client);
-
+    $this->mockListSshKeyRequestWithUploadedKey($mock_request_args, $cloud_client);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     // Choose a local SSH key to upload to Acquia Cloud.
@@ -76,39 +75,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
     catch (AcquiaCliException $exception) {
       $this->assertEquals("The filepath $filepath is not valid", $exception->getMessage());
     }
-  }
-
-  /**
-   * @param $cloud_client
-   * @param array $mock_request_args
-   */
-  protected function mockUploadSshKey($cloud_client, $mock_request_args): void {
-    $options = [
-      'form_params' => $mock_request_args
-    ];
-    $response = $this->prophet->prophesize(ResponseInterface::class);
-    $response->getStatusCode()->willReturn(202);
-    $cloud_client->makeRequest('post', '/account/ssh-keys', $options)
-      ->willReturn($response->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param $mock_request_args
-   * @param $cloud_client
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  protected function mockGetAllSshKeys(
-    $mock_request_args,
-    $cloud_client
-  ): void {
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
-      '200');
-    $mock_body->_embedded->items[3] = (object) $mock_request_args;
-    $cloud_client->request('get', '/account/ssh-keys')
-      ->willReturn($mock_body->{'_embedded'}->items)
-      ->shouldBeCalled();
   }
 
 }
