@@ -120,7 +120,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private function initializeAmplitude() {
     $amplitude = Amplitude::getInstance();
     $amplitude->init('956516c74386447a3148c2cc36013ac3')
-      ->setDeviceId(self::getMachineUuid());
+      ->setDeviceId(self::getMachineUuid())
+      ->setUserProperties($this->getTelemetryUserData());
     if (!$this->getDatastore()->get('send_telemetry')) {
       $amplitude->setOptOut(TRUE);
     }
@@ -180,10 +181,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function run(InputInterface $input = NULL, OutputInterface $output = NULL) {
     $exit_code = parent::run($input, $output);
-    $event_properties = $this->getTelemetryUserData();
-    $event_properties['exit_code'] = $exit_code;
-    $event_properties['arguments'] = $input->getArguments();
-    $event_properties['options'] = $input->getOptions();
+    $event_properties = [
+      'exit_code' => $exit_code,
+      'arguments' => $input->getArguments(),
+      'options' => $input->getOptions(),
+    ];
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
