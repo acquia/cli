@@ -120,19 +120,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return \AcquiaCloudApi\Connector\Client
-   */
-  protected function getAcquiaCloudClient(): Client {
-    $cloud_api_conf = $this->datastore->get('cloud_api.conf');
-    $config = [
-      'key' => $cloud_api_conf['key'],
-      'secret' => $cloud_api_conf['secret'],
-    ];
-    $connector = new CliCloudConnector($config);
-    return Client::factory($connector);
-  }
-
-  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
