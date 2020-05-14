@@ -20,13 +20,6 @@ use Symfony\Component\Console\Question\Question;
 class IdeCreateCommand extends CommandBase {
 
   /**
-   * The default command name.
-   *
-   * @var string
-   */
-  protected static $defaultName = 'ide:create';
-
-  /**
    * @var \AcquiaCloudApi\Response\IdeResponse
    */
   private $ide;
@@ -40,7 +33,8 @@ class IdeCreateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create remote IDE for development');
+    $this->setDescription('Create remote IDE for development')
+      ->setName('ide:create');
     // @todo Add option to accept an IDE label.
     // @todo Add option to specify application uuid.
   }

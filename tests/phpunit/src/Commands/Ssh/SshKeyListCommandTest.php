@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**
