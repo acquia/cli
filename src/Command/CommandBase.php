@@ -206,7 +206,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function getGitRemotes($git_config): array {
     $local_vcs_remotes = [];
     foreach ($git_config as $section_name => $section) {
-      if ((strpos($section_name, 'remote ') !== FALSE) && strpos($section['url'], 'acquia.com')) {
+      if ((strpos($section_name, 'remote ') !== FALSE) &&
+        (strpos($section['url'], 'acquia.com') || strpos($section['url'], 'acquia-sites.com'))
+      ) {
         $local_vcs_remotes[] = $section['url'];
       }
     }
@@ -303,6 +305,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $local_git_remotes = $this->getGitRemotes($git_config);
           $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
             $local_git_remotes);
+          $this->output->writeln('<info>Found a matching application!</info>');
 
           return $cloud_application;
         }
@@ -313,10 +316,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @param bool $link_app
+   *
    * @return string|null
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudApplication(): ?string {
+  protected function determineCloudApplication($link_app = FALSE): ?string {
+    $application_uuid = $this->doDetermineCloudApplication();
+    if (isset($application_uuid)) {
+      $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+      $applications_resource = new Applications($acquia_cloud_client);
+      $application = $applications_resource->get($application_uuid);
+      if (!$this->getAppUuidFromLocalProjectInfo()) {
+        if ($link_app) {
+          $this->saveLocalConfigCloudAppUuid($application->uuid);
+        }
+        else {
+          $this->promptLinkApplication($this->getApplication(), $application);
+        }
+      }
+    }
+
+    return $application_uuid;
+  }
+
+  protected function doDetermineCloudApplication() {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
     $cli_application = $this->getApplication();
@@ -338,15 +361,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try to guess based on local git url config.
     if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($cli_application, $acquia_cloud_client)) {
-      $this->output->writeln('<info>Found a matching application!</info>');
-      $this->promptLinkApplication($cli_application, $cloud_application);
 
       return $cloud_application->uuid;
     }
 
     // Finally, just ask.
     if ($application = $this->promptChooseApplication($acquia_cloud_client)) {
-      $this->saveLocalConfigCloudAppUuid($application->uuid);
       return $application->uuid;
     }
 

@@ -36,6 +36,7 @@ class RefreshCommandTest extends CommandTestBase {
     // Client responses.
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $application_response = $this->mockApplicationRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
 
@@ -90,9 +91,11 @@ class RefreshCommandTest extends CommandTestBase {
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'y',
+      'n',
       // Please select an Acquia Cloud application:
       0,
+      // Would you like to link the project at ... ?
+      'n',
       // Please choose an Acquia environment:
       0,
       // Choose a database to copy:
