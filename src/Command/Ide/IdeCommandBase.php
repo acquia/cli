@@ -20,9 +20,9 @@ abstract class IdeCommandBase extends CommandBase {
    */
   protected function promptIdeChoice(
     $question_text,
-    Ides $ides_resource
+    Ides $ides_resource,
+    $cloud_application_uuid
   ): ?IdeResponse {
-    $cloud_application_uuid = $this->determineCloudApplication();
     $ides = iterator_to_array($ides_resource->getAll($cloud_application_uuid));
     return $this->promptChooseFromObjects($ides, 'uuid', 'label', $question_text);
   }
