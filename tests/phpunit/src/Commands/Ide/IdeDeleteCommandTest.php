@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Command\Command;
 
 /**

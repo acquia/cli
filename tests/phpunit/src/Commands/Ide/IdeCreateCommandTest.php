@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 

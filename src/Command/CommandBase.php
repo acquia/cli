@@ -113,22 +113,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   */
-  public function setAcquiaCloudClient(Client $client) {
-    $this->acquiaCloudClient = $client;
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
    * @return mixed
    */
   protected function promptChooseApplication(
-    InputInterface $input,
-    OutputInterface $output,
     Client $acquia_cloud_client
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
@@ -356,7 +345,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    if ($application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client)) {
+    if ($application = $this->promptChooseApplication($acquia_cloud_client)) {
       $this->saveLocalConfigCloudAppUuid($application->uuid);
       return $application->uuid;
     }
