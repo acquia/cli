@@ -30,7 +30,7 @@ class LinkCommand extends CommandBase {
     // @todo Indicate if the current local repo is already associated with a cloud
     // application. Confirm to overwrite.
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
-    $application = $this->promptChooseApplication($this->input, $this->output, $acquia_cloud_client);
+    $application = $this->promptChooseApplication($acquia_cloud_client);
     $this->saveLocalConfigCloudAppUuid($application->uuid);
 
     return 0;

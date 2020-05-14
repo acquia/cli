@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\ClientInterface;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

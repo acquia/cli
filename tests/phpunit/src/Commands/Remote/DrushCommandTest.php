@@ -3,13 +3,8 @@
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\DrushCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
-use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
-use Prophecy\Argument\Token\TypeToken;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Process\Process;
 
 /**
  * Class DrushCommandTest.
