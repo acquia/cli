@@ -24,6 +24,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $application_response = $this->mockApplicationRequest($cloud_client);
 
     // Request to create IDE.
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');
@@ -49,6 +50,8 @@ class IdeCreateCommandTest extends CommandTestBase {
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      // Would you like to link the project at ... ?
+      'y',
       0,
       // Please select the application for which you'd like to create a new IDE
       0,
