@@ -67,7 +67,15 @@ abstract class CommandTestBase extends TestBase {
       $this->consoleOutput->writeln('<comment>------Begin command output-------</comment>');
     }
 
-    $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+    try {
+      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+    }
+    catch (\Exception $e) {
+      if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
+        print $this->getDisplay();
+      }
+      throw $e;
+    }
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln($tester->getDisplay());

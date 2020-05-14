@@ -248,6 +248,26 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $cloud_client
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockApplicationRequest(
+    $cloud_client
+  ) {
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $application_response = $applications_response->{'_embedded'}->items[0];
+    $cloud_client->request('get',
+      '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
+      ->willReturn($application_response)
+      ->shouldBeCalled();
+
+    return $application_response;
+  }
+
+  /**
+   * @param $cloud_client
    * @param object $applications_response
    *
    * @return object

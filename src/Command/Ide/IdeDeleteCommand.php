@@ -27,12 +27,14 @@ class IdeDeleteCommand extends IdeCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
-    $ide = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource);
+    $cloud_application_uuid = $this->determineCloudApplication();
+    $ide = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource, $cloud_application_uuid);
     $response = $ides_resource->delete($ide->uuid);
     $this->output->writeln($response->message);
 
