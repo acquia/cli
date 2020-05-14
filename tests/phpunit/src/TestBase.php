@@ -330,4 +330,5 @@ abstract class TestBase extends TestCase {
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
   }
+
 }
