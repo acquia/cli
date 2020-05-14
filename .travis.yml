@@ -40,6 +40,17 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+    - stage: "Build packages for CLI"
+      if: tag IS present
+      script: composer build-phar
+      deploy:
+        provider: releases
+        api_key:
+          secure: fAdsHjYK1wlUaS9o7NdSe5qviy4qz23sGUa946LrSsd5PIW4ieV5OPB0md/EbQZxpagZktyMiNN2iW36wESE7mmZ1GLj+4PXsyVRsh1i/ir5R+3o5cwH2Nj/kH3RA+5FjcIoIvfA8D2i7M9m5w+ehPPTUNdkqQ8OKiOKMs0BLDlE/TAn71R3nvZIM/E8GxYuT+7RIDqHWCTDxpg9xwQzWuRJQRmhSgjrrBGN14ItPlmP7Rmdz02YR1s9kjqAhWLvR+8jc6aaG3W7POILt4Yw4THJL43zjFNNsn6liWAnbiFUWYfgAzoyOze1NOCqxNj6LHRhO0HLH/8x6cQay9uzNw1bItIwLLLTeflrSO9HjI7YKXD0zHAJUwg3K2HctF9izmpG2efsCNV7nsaZ0IP9FA6frbJSRyzcGZA5br03crVRtUruH22UsU5RVVsJFbDImEp8bqI+nUnDoJvN9HJ3szCfMUeSqyIFZbTKLfK4sp60dzcjt08ct19IhYhCxb0VesogIBXcL1Af0sYgfvBRU4EPPSk6+NogKJ6BGOdtbQFdMllEkYv3Qh1xZqW/CghTAY0ZzBWW4qSEIfx03lAXu4CngsdbSSdk9QMJEWE5+4tM95J7tRU4zo86opC/CXa0wvfuIHopESrZ+whmYsf5EC5fQpWzhflrtI1tN6cs45Q=
+        file: build/acli.phar
+        skip_cleanup: true
+        on:
+          tags: true
 
 before_install:
   - composer selfupdate
