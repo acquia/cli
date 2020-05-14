@@ -13,20 +13,20 @@ trait CloudApiDataStoreAwareTrait {
   /**
    * @var KeyValueStore
    */
-  protected $datastore;
+  protected $cloudApiDatastore;
 
   /**
    * @return KeyValueStore
    */
   public function getCloudApiDatastore() {
-    return $this->datastore;
+    return $this->cloudApiDatastore;
   }
 
   /**
    * @param KeyValueStore $datastore
    */
   public function setCloudApiDatastore(KeyValueStore $datastore): void {
-    $this->datastore = $datastore;
+    $this->cloudApiDatastore = $datastore;
   }
 
 }
