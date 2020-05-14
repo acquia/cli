@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -15,7 +14,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
 
 /**
  * Class IdeWizardCreateSshKeyCommand.
