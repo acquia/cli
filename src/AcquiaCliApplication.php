@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use drupol\phposinfo\Enum\FamilyName;
@@ -204,6 +205,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'platform' => OsInfo::family(),
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
+      'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
+      'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
     ];
   }
 
