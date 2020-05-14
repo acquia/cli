@@ -3,3 +3,59 @@
 /**
  * @file
  */
+
+
+namespace Acquia\Cli\Tests\Commands\Ssh;
+
+use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
+use Acquia\Cli\Command\Ssh\SshKeyCreateUploadCommand;
+use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Cli\Tests\CommandTestBase;
+use Symfony\Component\Console\Command\Command;
+
+/**
+ * Class SshKeyCreateUploadCommandTest
+ * @property SshKeyCreateUploadCommand $command
+ * @package Acquia\Cli\Tests\Ssh
+ */
+class SshKeyCreateUploadCommandTest extends CommandTestBase {
+
+  public function setUp(): void {
+    parent::setUp();
+    $this->setCommand($this->createCommand());
+    $this->getCommandTester();
+    $this->application->addCommands([
+      new SshKeyCreateCommand(),
+      new SshKeyUploadCommand(),
+    ]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function createCommand(): Command {
+    return new SshKeyCreateUploadCommand();
+  }
+
+  /**
+   * Tests the 'ssh-key:create-upload' command.
+   *
+   */
+  public function testCreate(): void {
+    $this->application->setSshKeysDir(sys_get_temp_dir());
+    $ssh_key_filename = 'id_rsa_acli_test';
+    $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
+    $this->fs->remove($ssh_key_filepath);
+
+    $inputs = [
+      // Please enter a filename for your new local SSH key:
+      $ssh_key_filename,
+      // Enter a password for your SSH key:
+      'acli123',
+    ];
+    $this->executeCommand(['--filepath' => $ssh_key_filepath], $inputs);
+    $this->assertFileExists($ssh_key_filepath);
+    $this->assertFileExists($ssh_key_filepath . '.pub');
+  }
+
+}
