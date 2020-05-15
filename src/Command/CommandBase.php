@@ -309,11 +309,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Searching for a matching Cloud application...');
         if ($git_config = $this->getGitConfig($application)) {
           $local_git_remotes = $this->getGitRemotes($git_config);
-          $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
-            $local_git_remotes);
-          $this->output->writeln('<info>Found a matching application!</info>');
-
-          return $cloud_application;
+          if ($cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
+            $local_git_remotes)) {
+            $this->output->writeln('<info>Found a matching application!</info>');
+            return $cloud_application;
+          }
+          else {
+            $this->output->writeln('<comment>Could not find a matching Cloud application.</comment>');
+            return NULL;
+          }
         }
       }
     }
@@ -361,7 +365,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // If an IDE, get from env var.
-    if ($this::isAcquiaRemoteIde() && $application_uuid = $this::getThisRemoteIdeUuid()) {
+    if (self::isAcquiaRemoteIde() && $application_uuid = self::getThisRemoteIdeCloudAppUuid()) {
       return $application_uuid;
     }
 
@@ -460,6 +464,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public static function isAcquiaRemoteIde(): bool {
     return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
+  }
+
+  /**
+   * @return array|false|string
+   */
+  protected static function getThisRemoteIdeCloudAppUuid() {
+    return getenv('ACQUIA_APPLICATION_UUID');
   }
 
   /**
