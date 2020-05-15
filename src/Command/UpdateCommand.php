@@ -20,22 +20,23 @@ use function error_reporting;
 class UpdateCommand extends CommandBase {
 
   /**
-   * @var
+   * @var string
    */
   protected $gitHubRepository;
 
   /**
-   * @var
+   * @var string
    */
   protected $applicationName;
 
   /**
-   * @var bool
+   * @var string
    */
-  protected $simulated = FALSE;
-
   protected $pharFilepath;
 
+  /**
+   * @var string
+   */
   protected $pharFilename;
 
   /**
@@ -80,20 +81,6 @@ class UpdateCommand extends CommandBase {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
     }
-  }
-
-  /**
-   * @return bool
-   */
-  public function isSimulated(): bool {
-    return $this->simulated;
-  }
-
-  /**
-   * @param bool $simulated
-   */
-  public function setSimulated(bool $simulated): void {
-    $this->simulated = $simulated;
   }
 
 }
