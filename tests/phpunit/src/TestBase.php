@@ -229,6 +229,9 @@ abstract class TestBase extends TestCase {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->application->getCloudConfigFilepath();
     $this->fs->dumpFile($filepath, $contents);
+    $contents = json_encode(['send_telemetry' => FALSE]);
+    $filepath = $this->application->getAcliConfigFilepath();
+    $this->fs->dumpFile($filepath, $contents);
   }
 
   /**
