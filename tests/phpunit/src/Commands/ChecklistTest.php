@@ -25,7 +25,7 @@ class ChecklistTest extends TestBase {
     $items = $checklist->getItems();
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
     $progress_bar = $items[0]['spinner']->getProgressBar();
-    $this->assertEquals(1, $progress_bar->getMaxSteps());
+    $this->assertEquals(1, $progress_bar->getProgress());
     $this->assertEquals('Testing!', $progress_bar->getMessage());
   }
 
