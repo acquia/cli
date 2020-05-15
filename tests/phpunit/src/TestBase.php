@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
@@ -59,13 +58,15 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function setUp(): void {
-    $this->consoleOutput = new ConsoleOutput();
+  protected function setUp($output = NULL): void {
+    if (!$output) {
+      $output = new BufferedOutput();
+    }
+
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
-
+    $this->consoleOutput = new ConsoleOutput();
     $input = new ArrayInput([]);
-    $output = new BufferedOutput();
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
@@ -244,6 +245,26 @@ abstract class TestBase extends TestCase {
       ->willReturn($applications_response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $applications_response;
+  }
+
+  /**
+   * @param $cloud_client
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockApplicationRequest(
+    $cloud_client
+  ) {
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $application_response = $applications_response->{'_embedded'}->items[0];
+    $cloud_client->request('get',
+      '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
+      ->willReturn($application_response)
+      ->shouldBeCalled();
+
+    return $application_response;
   }
 
   /**

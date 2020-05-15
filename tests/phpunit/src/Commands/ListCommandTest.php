@@ -26,7 +26,6 @@ class ListCommandTest extends CommandTestBase {
   /**
    * Tests the 'list' command.
    *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testListCommand(): void {
     $this->executeCommand();

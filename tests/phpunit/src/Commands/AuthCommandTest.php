@@ -31,11 +31,11 @@ class AuthCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
 
     $inputs = [
-          // Do you want to open this page to generate a token now?
+      // Do you want to open this page to generate a token now?
       'no',
-          // Please enter your API Key:
+      // Please enter your API Key:
       'testkey123123',
-          // Please enter your API Secret:
+      // Please enter your API Secret:
       'testsecret123123',
     ];
 

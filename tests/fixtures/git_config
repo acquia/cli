@@ -1,0 +1,14 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+	ignorecase = true
+	precomposeunicode = true
+[branch "master"]
+[remote "acquia"]
+	url = site@svn-3.hosted.acquia-sites.com:site.git
+	fetch = +refs/heads/*:refs/remotes/acquia/*
+[branch "develop"]
+	remote = acquia
+	merge = refs/heads/develop

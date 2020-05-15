@@ -29,8 +29,9 @@ class IdeOpenCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $cloud_application_uuid = $this->determineCloudApplication();
     $ides_resource = new Ides($acquia_cloud_client);
-    $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource);
+    $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
 
     $this->output->writeln('');
     $this->output->writeln('<comment>Your IDE URL:</comment> ' . $ide->links->ide->href);

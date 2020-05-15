@@ -31,13 +31,16 @@ class IdeListCommandTest extends CommandTestBase {
 
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $application_response = $this->mockApplicationRequest($cloud_client);
     $ide_list_response = $this->mockIdeListRequest($cloud_client);
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      0,
+      'n',
       // Please select the application.
       0,
+      // Would you like to link the project at ... ?
+      'y',
     ];
     $this->executeCommand([], $inputs);
 
