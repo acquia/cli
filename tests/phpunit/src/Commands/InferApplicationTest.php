@@ -23,7 +23,7 @@ class InferApplicationTest extends CommandTestBase {
     return new LinkCommand();
   }
 
-  public function setUp(): void {
+  public function setUp($output = NULL): void {
     parent::setUp();
     $this->createMockGitConfigFile();
   }

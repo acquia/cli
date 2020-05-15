@@ -14,7 +14,6 @@ class Checklist {
    * @var array*/
   private $items = [];
 
-
   /**
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
@@ -92,6 +91,13 @@ class Checklist {
    */
   private function useSpinner(): bool {
     return $this->output instanceof ConsoleOutput;
+  }
+
+  /**
+   * @return array
+   */
+  public function getItems(): array {
+    return $this->items;
   }
 
 }
