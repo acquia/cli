@@ -17,6 +17,19 @@ use Webmozart\PathUtil\Path;
  */
 class NewCommandTest extends CommandTestBase {
 
+  protected $newProjectDir;
+
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->newProjectDir =  Path::join($this->projectFixtureDir, 'drupal');
+    $this->fs->remove($this->newProjectDir);
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    $this->fs->remove($this->newProjectDir);
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -24,10 +37,19 @@ class NewCommandTest extends CommandTestBase {
     return new NewCommand();
   }
 
+  public function provideTestRefreshCommand() {
+    return [
+      ['acquia/blt-project'],
+      ['drupal/recommended-project'],
+    ];
+  }
+
   /**
    * Tests the 'refresh' command.
+   *
+   * @dataProvider provideTestRefreshCommand
    */
-  public function testRefreshCommand(): void {
+  public function testRefreshCommand($project): void {
     $this->setCommand($this->createCommand());
 
     $process = $this->prophet->prophesize(Process::class);
@@ -36,25 +58,43 @@ class NewCommandTest extends CommandTestBase {
 
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
-    $project_dir =  Path::join($this->projectFixtureDir, 'drupal');
 
-    $this->mockExecuteComposerCreate($project_dir, $local_machine_helper, $process, 'acquia/blt-project');
-    $this->mockExecuteComposerUpdate($local_machine_helper, $project_dir, $process);
-    $this->mockExecuteGitInit($local_machine_helper, $project_dir, $process);
-    $this->mockExecuteGitAdd($local_machine_helper, $project_dir, $process);
-    $this->mockExecuteGitCommit($local_machine_helper, $project_dir, $process);
+    $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
+    $this->fs->copy(Path::join($this->projectFixtureDir, 'composer.json'), Path::join($this->newProjectDir, 'composer.json'));
+    $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);
+    $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
+    $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
+    $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
+
+    if ($project === 'drupal/recommended-project') {
+      $local_machine_helper
+        ->execute([
+          'composer',
+          'require',
+          'drush/drush',
+          '--no-update',
+        ], NULL, $this->newProjectDir)
+        ->willReturn($process->reveal())
+        ->shouldBeCalled();
+    }
 
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
     $inputs = [
       // Which starting project would you like to use?
-      'acquia/blt-project',
+      $project,
     ];
     $this->executeCommand([], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Which starting project would you like to use?', $output);
-    $this->assertStringContainsString('[0] acquia/blt-project', $output);
-    $this->assertStringContainsString('New 💧Drupal project created in ' . $project_dir, $output);
+    $this->assertStringContainsString($project, $output);
+    $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
+
+    if ($project === 'drupal/recommended-project') {
+      $composer_json = file_get_contents(Path::join($this->newProjectDir, 'composer.json'));
+      $this->assertStringNotContainsString('web/', $composer_json);
+      $this->assertStringContainsString('docroot/', $composer_json);
+    }
   }
 
   /**
