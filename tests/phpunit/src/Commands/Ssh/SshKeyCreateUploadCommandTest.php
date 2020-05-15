@@ -20,7 +20,7 @@ use Symfony\Component\Console\Command\Command;
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
-  public function setUp(): void {
+  public function setUp($output = NULL): void {
     parent::setUp();
     $this->setCommand($this->createCommand());
     $this->getCommandTester();

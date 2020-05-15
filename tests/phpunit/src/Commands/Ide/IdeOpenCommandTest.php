@@ -21,7 +21,7 @@ class IdeOpenCommandTest extends CommandTestBase {
     return new IdeOpenCommand();
   }
 
-  public function setUp(): void {
+  public function setUp($output = NULL): void {
     parent::setUp();
     putenv('DISPLAY=1');
   }

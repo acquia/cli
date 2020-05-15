@@ -11,6 +11,9 @@ class ChecklistTest extends TestBase {
   protected $output = NULL;
 
   public function setUp($output = NULL): void {
+    // Unfortunately this prints to screen. Not sure how else to
+    // get the spinner and checklist to work. May need to create custom
+    // testing output class.
     $this->output = new ConsoleOutput();
     parent::setUp($this->output);
   }
@@ -20,8 +23,10 @@ class ChecklistTest extends TestBase {
     $checklist->addItem('Testing!');
     $checklist->completePreviousItem();
     $items = $checklist->getItems();
-    $this->assertEquals(1.0, $items[0]["spinner"]->getProgressBar()->getProgressPercent());
-    $this->assertEquals('Testing!', $items[0]["message"]);
+    /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
+    $progress_bar = $items[0]['spinner']->getProgressBar();
+    $this->assertEquals(1, $progress_bar->getMaxSteps());
+    $this->assertEquals('Testing!', $progress_bar->getMessage());
   }
 
 }
