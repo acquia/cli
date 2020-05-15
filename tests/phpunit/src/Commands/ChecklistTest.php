@@ -8,12 +8,13 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ChecklistTest extends TestBase {
 
-  protected $output = NULL;
+  protected $output;
 
   public function setUp($output = NULL): void {
     // Unfortunately this prints to screen. Not sure how else to
-    // get the spinner and checklist to work. May need to create custom
-    // testing output class.
+    // get the spinner and checklist to work. They require the $output->section()
+    // method which is only available for ConsoleOutput. Could make a custom testing
+    // output class with the method.
     $this->output = new ConsoleOutput();
     parent::setUp($this->output);
   }
