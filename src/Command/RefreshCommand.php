@@ -150,18 +150,16 @@ class RefreshCommand extends CommandBase {
       if ($is_dirty) {
         throw new AcquiaCliException('Local git is dirty!');
       }
-      $command = [
+      $this->getApplication()->getLocalMachineHelper()->execute([
         'git',
         'fetch',
         '--all',
-      ];
-      $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, $repo_root, FALSE);
-      $command = [
+      ], $output_callback, $repo_root, FALSE);
+      $this->getApplication()->getLocalMachineHelper()->execute([
         'git',
         'checkout',
         $chosen_environment->vcs->path,
-      ];
-      $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, $repo_root, FALSE);
+      ], $output_callback, $repo_root, FALSE);
     }
   }
 

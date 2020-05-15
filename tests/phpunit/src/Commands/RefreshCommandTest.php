@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\RefreshCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
@@ -25,12 +26,33 @@ class RefreshCommandTest extends CommandTestBase {
     return new RefreshCommand();
   }
 
+  public function setUp(): void {
+    parent::setUp();
+    $this->removeMockGitConfig();
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    $this->removeMockGitConfig();
+  }
+
+  public function providerTestRefreshCommand() {
+    return [
+      [FALSE, FALSE],
+      [TRUE, TRUE],
+      [TRUE, FALSE],
+    ];
+  }
+
   /**
    * Tests the 'refresh' command.
    *
+   * @dataProvider providerTestRefreshCommand
+   *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
-  public function testRefreshCommand(): void {
+  public function testRefreshCommand($create_mock_git_config, $is_dirty): void {
     $this->setCommand($this->createCommand());
 
     // Client responses.
@@ -41,6 +63,35 @@ class RefreshCommandTest extends CommandTestBase {
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+
+    if ($create_mock_git_config) {
+      $this->mockGitConfig();
+      $dirty_process = $this->mockProcess();
+      if (!$is_dirty) {
+        $local_machine_helper->execute([
+          'git',
+          'fetch',
+          '--all',
+        ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+          ->willReturn($dirty_process->reveal())
+          ->shouldBeCalled();
+        $local_machine_helper->execute([
+          'git',
+          'checkout',
+          $environments_response->vcs->path,
+        ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+          ->willReturn($dirty_process->reveal())
+          ->shouldBeCalled();
+      }
+      $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
+      $local_machine_helper->execute([
+        'git',
+        'diff',
+        '--stat',
+        ], NULL, $this->projectFixtureDir, FALSE)
+        ->willReturn($dirty_process->reveal())
+        ->shouldBeCalled();
+    }
 
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process
@@ -89,6 +140,7 @@ class RefreshCommandTest extends CommandTestBase {
 
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
+
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -101,17 +153,27 @@ class RefreshCommandTest extends CommandTestBase {
       // Choose a database to copy:
       0,
     ];
-    $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
-    $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
-    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a database to copy:', $output);
-    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-    $this->assertStringContainsString('profserv2 (default)', $output);
+    if ($create_mock_git_config) {
+      try {
+        $this->executeCommand([], $inputs);
+      } catch (AcquiaCliException $e) {
+        $this->assertEquals('Local git is dirty!', $e->getMessage());
+      }
+    }
+    else {
+      $this->executeCommand([], $inputs);
+      $this->prophet->checkPredictions();
+      $output = $this->getDisplay();
+
+      $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+      $this->assertStringContainsString('[0] Sample application 1', $output);
+      $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+      $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+      $this->assertStringContainsString('Choose a database to copy:', $output);
+      $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+      $this->assertStringContainsString('profserv2 (default)', $output);
+    }
   }
 
   /**
