@@ -16,7 +16,7 @@ mv acli.phar acli
 chmod +x acli
 ```
 
-Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to minimize potential dependency conflicts.
+Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to avoid dependency conflicts.
 
 ## Usage
 
