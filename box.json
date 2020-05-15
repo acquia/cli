@@ -1,0 +1,4 @@
+{
+    "files": ["assets/acquia-spec.yaml"],
+    "output": "build/acli.phar"
+}

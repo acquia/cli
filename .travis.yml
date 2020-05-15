@@ -42,7 +42,8 @@ jobs:
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
     - stage: "Build packages for CLI"
       if: tag IS present
-      script: composer build-phar
+      install: curl -O -L https://github.com/humbug/box/releases/download/3.8.4/box.phar
+      script: php box.phar compile
       deploy:
         provider: releases
         api_key:
