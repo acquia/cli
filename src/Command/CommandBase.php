@@ -92,6 +92,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $this->loadLocalProjectInfo();
+    $this->checkTelemetryPreference();
+  }
+
+  /**
+   * Check if telemetry preference is set, prompt if not.
+   */
+  protected function checkTelemetryPreference() {
+    $datastore = $this->getDatastore();
+    $telemetry = $datastore->get('send_telemetry');
+    if (!isset($telemetry)) {
+      $this->output->writeln('We strive to give you the best tools for development.');
+      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
+      $question = new ConfirmationQuestion('Would you like to share anonymous performance usage and data?', TRUE);
+      $helper = $this->getHelper('question');
+      $pref = $helper->ask($this->input, $this->output, $question);
+      $datastore->set('send_telemetry', $pref);
+      if ($pref) {
+        $this->output->writeln('Awesome! Thank you for helping!');
+      }
+      else {
+        $this->output->writeln('Ok, no data will be collected and shared with us.');
+        $this->output->writeln('We take privacy seriously.');
+        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
+      }
+    }
   }
 
   /**
