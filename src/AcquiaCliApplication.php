@@ -209,6 +209,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'os_version' => OsInfo::version(),
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
+      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     $user = $this->getUserData();
     if (isset($user['is_acquian'])) {
