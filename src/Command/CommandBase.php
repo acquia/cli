@@ -101,7 +101,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function checkTelemetryPreference() {
     $datastore = $this->getDatastore();
     $telemetry = $datastore->get('send_telemetry');
-    if (!isset($telemetry)) {
+    if (!isset($telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $question = new ConfirmationQuestion('Would you like to share anonymous performance usage and data?', TRUE);

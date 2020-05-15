@@ -131,7 +131,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
-    if (!$this->getDatastore()->get('send_telemetry') || getenv('CI')) {
+    if (!$this->getDatastore()->get('send_telemetry')) {
       $amplitude->setOptOut(TRUE);
     }
     $amplitude->logQueuedEvents();
