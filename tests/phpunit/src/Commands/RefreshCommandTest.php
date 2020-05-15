@@ -487,7 +487,7 @@ class RefreshCommandTest extends CommandTestBase {
   protected function mockExecuteGitFetchAndCheckout(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
     \Prophecy\Prophecy\ObjectProphecy $dirty_process,
-    object $environments_response
+    $environments_response
   ): void {
     $local_machine_helper->execute([
       'git',
