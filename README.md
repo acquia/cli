@@ -3,7 +3,7 @@
 
 The official command-line tool for interacting with Acquia hosting and services. Acquia CLI helps you run Drush commands and tail logs from your Acquia-hosted applications, manage Acquia Remote IDEs, create and manage applications on Acquia Cloud, and much more!
 
-Acquia CLI can also help manage your local applications by transferring files and database backups via Cloud API. However, Acquia CLI does not directly set up or manage your local development environment. If you are looking for a packaged development environment, consider [Acquia Remote IDEs](https://docs.acquia.com/dev-studio/ide/) or third-party tool such as [Lando](https://lando.dev/). 
+Acquia CLI also helps manage your local applications by transferring files and database backups via Cloud API. However, Acquia CLI does not directly set up or manage your local development environment. If you are looking for a packaged development environment, consider [Acquia Remote IDEs](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/). 
 
 ## Installation
 
