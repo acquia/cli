@@ -125,7 +125,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       ->setDeviceId(self::getMachineUuid())
       ->setUserId(self::getUserId())
       ->setUserProperties($this->getTelemetryUserData());
-    if (!$this->getDatastore()->get('send_telemetry')) {
+    if (!$this->getDatastore()->get('send_telemetry') || getenv('CI')) {
       $amplitude->setOptOut(TRUE);
     }
     $amplitude->logQueuedEvents();
