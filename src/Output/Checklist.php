@@ -99,4 +99,5 @@ class Checklist {
   public function getItems(): array {
     return $this->items;
   }
+
 }
