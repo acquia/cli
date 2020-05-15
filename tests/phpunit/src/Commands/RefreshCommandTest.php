@@ -26,7 +26,7 @@ class RefreshCommandTest extends CommandTestBase {
     return new RefreshCommand();
   }
 
-  public function setUp(): void {
+  public function setUp($output = NULL): void {
     parent::setUp();
     $this->removeMockGitConfig();
   }
