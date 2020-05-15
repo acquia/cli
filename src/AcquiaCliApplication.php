@@ -5,6 +5,7 @@ namespace Acquia\Cli;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -131,7 +132,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
-    if (!$this->getDatastore()->get('send_telemetry')) {
+    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
       $amplitude->setOptOut(TRUE);
     }
     $amplitude->logQueuedEvents();
@@ -253,7 +254,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getUserData() {
     $datastore = $this->getDatastore();
-    $user = $datastore->get('user');
+    $user = $datastore->get(DataStoreContract::USER);
 
     if (!$user && $this->isMachineAuthenticated()) {
       $client = $this->getAcquiaCloudClient();
@@ -263,7 +264,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
         'uuid' => $user_account->uuid,
         'is_acquian' => substr($user_account->mail, -10, 10) === 'acquia.com'
       ];
-      $datastore->set('user', $user);
+      $datastore->set(DataStoreContract::USER, $user);
     }
 
     return $user;

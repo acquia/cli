@@ -6,6 +6,7 @@ use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Output\Spinner\Spinner;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -100,14 +101,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function checkTelemetryPreference() {
     $datastore = $this->getDatastore();
-    $telemetry = $datastore->get('send_telemetry');
+    $telemetry = $datastore->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $question = new ConfirmationQuestion('Would you like to share anonymous performance usage and data?', TRUE);
       $helper = $this->getHelper('question');
       $pref = $helper->ask($this->input, $this->output, $question);
-      $datastore->set('send_telemetry', $pref);
+      $datastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
         $this->output->writeln('Awesome! Thank you for helping!');
       }
