@@ -7,10 +7,10 @@ Acquia CLI also helps manage your local applications by transferring files and d
 
 ## Installation
 
-Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled.
+Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled. It fully supports Windows, Linux, and macOS, and will probably work on any other platform running PHP. 
 
 Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, place it somewhere globally accessible on your machine, make it executable, and optionally rename it to `acli`. Or run the following simple script in the directory where you'd like to install Acquia CLI:
-```bash
+```console
 curl -OL https://github.com/acquia/cli/releases/latest/download/acli.phar
 mv acli.phar acli
 chmod +x acli
@@ -21,7 +21,7 @@ Acquia CLI cannot and should not be installed via Composer. It is distributed on
 ## Usage
 
 You probably want to start by linking Acquia CLI to your Acquia Cloud account using `acli auth:login`:
-```bash
+```console
 $ acli auth:login
 You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens.
 You should create a new token specifically for Developer Studio and enter the associated key and secret below.
@@ -31,7 +31,7 @@ Do you want to open this page to generate a token now?
 Note that if you use other Acquia tools such as ADS CLI, BLT, or Pipelines CLI, your computer may already be linked and you can skip this step.
 
 Acquia CLI commands provide inline help and docoumentation. Run `acli` or `acli list` to see a list of all available options and commands:
-```bash
+```console
 $ acli
 Usage:
   command [options] [arguments]
@@ -51,7 +51,7 @@ Available commands:
 ```
 
 Run `acli help [command]` to get help for a particular command:
-```bash
+```console
 $ acli help ssh-key:create
 Description:
   Create an ssh key on your local machine
