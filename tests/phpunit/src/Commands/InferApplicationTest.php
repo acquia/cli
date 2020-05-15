@@ -16,9 +16,6 @@ use Webmozart\PathUtil\Path;
  */
 class InferApplicationTest extends CommandTestBase {
 
-  protected $targetGitConfigFixture;
-  protected $sourceGitConfigFixture;
-
   /**
    * @return \Acquia\Cli\Command\LinkCommand
    */
@@ -28,12 +25,7 @@ class InferApplicationTest extends CommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
-
-    // Create mock git config file.
-    $this->sourceGitConfigFixture = Path::join($this->fixtureDir, 'git_config');
-    $this->targetGitConfigFixture = Path::join($this->fixtureDir, 'project', '.git', 'config');
-    $this->fs->remove([$this->targetGitConfigFixture]);
-    $this->fs->copy($this->sourceGitConfigFixture, $this->targetGitConfigFixture);
+    $this->mockGitConfig();
   }
 
   /**
@@ -75,7 +67,7 @@ class InferApplicationTest extends CommandTestBase {
 
   public function tearDown(): void {
     parent::tearDown();
-    $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
+    $this->removeMockGitConfig();
   }
 
 }

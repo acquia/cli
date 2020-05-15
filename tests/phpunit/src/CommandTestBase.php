@@ -7,6 +7,7 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\CommandTester;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class CommandTestBase.
@@ -20,8 +21,11 @@ abstract class CommandTestBase extends TestBase {
    * @var \Symfony\Component\Console\Tester\CommandTester
    */
   private $commandTester;
-
   protected $command;
+  /** @var string */
+  protected $targetGitConfigFixture;
+  /** @var string */
+  protected $sourceGitConfigFixture;
 
   /**
    * Creates a command object to test.
@@ -152,6 +156,24 @@ abstract class CommandTestBase extends TestBase {
       $this->consoleOutput->writeln("");
       $this->writeFullWidthLine(get_class($this) . "::" . $this->getName(), $this->consoleOutput);
     }
+  }
+
+  /**
+   *
+   */
+  protected function mockGitConfig(): void {
+    // Create mock git config file.
+    $this->sourceGitConfigFixture = Path::join($this->fixtureDir, 'git_config');
+    $this->targetGitConfigFixture = Path::join($this->fixtureDir, 'project', '.git', 'config');
+    $this->fs->remove([$this->targetGitConfigFixture]);
+    $this->fs->copy($this->sourceGitConfigFixture, $this->targetGitConfigFixture);
+  }
+
+  /**
+   *
+   */
+  protected function removeMockGitConfig(): void {
+    $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
   }
 
 }
