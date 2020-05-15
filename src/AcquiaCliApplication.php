@@ -12,6 +12,7 @@ use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\Enum\FamilyName;
 use drupol\phposinfo\OsInfo;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -123,8 +124,13 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $amplitude = Amplitude::getInstance();
     $amplitude->init('956516c74386447a3148c2cc36013ac3')
       ->setDeviceId(self::getMachineUuid())
-      ->setUserId(self::getUserId())
       ->setUserProperties($this->getTelemetryUserData());
+    try {
+      $amplitude->setUserId($this->getUserId());
+    }
+    catch (IdentityProviderException $e) {
+      // If something is wrong with the Cloud API client, don't bother users.
+    }
     if (!$this->getDatastore()->get('send_telemetry') || getenv('CI')) {
       $amplitude->setOptOut(TRUE);
     }
@@ -211,9 +217,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
       'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
-    $user = $this->getUserData();
-    if (isset($user['is_acquian'])) {
-      $data['is_acquian'] = $user['is_acquian'];
+    try {
+      $user = $this->getUserData();
+      if (isset($user['is_acquian'])) {
+        $data['is_acquian'] = $user['is_acquian'];
+      }
+    }
+    catch (IdentityProviderException $e) {
+      // If something is wrong with the Cloud API client, don't bother users.
     }
     return $data;
   }
