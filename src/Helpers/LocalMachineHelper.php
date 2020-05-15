@@ -34,22 +34,6 @@ class LocalMachineHelper {
   }
 
   /**
-   * Executes the given command on the local machine and return the exit code and output.
-   *
-   * @param array $cmd The command to execute
-   * @param null $callback
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-    // phpcs:ignore
-    public function exec($cmd, $callback = NULL): Process {
-    $process = $this->getProcess($cmd);
-    $process->run($callback);
-
-    return $process;
-  }
-
-  /**
    * @param $command
    *
    * @return bool
@@ -57,7 +41,7 @@ class LocalMachineHelper {
   public function commandExists($command): bool {
     $os_command = OsInfo::isWindows() ? ['where', $command] : ['command', '-v', $command];
         // phpcs:ignore
-        return $this->exec($os_command)->isSuccessful();
+        return $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
   }
 
   /**
