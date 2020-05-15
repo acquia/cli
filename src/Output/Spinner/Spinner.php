@@ -85,6 +85,7 @@ class Spinner {
    * @var \Symfony\Component\Console\Helper\ProgressBar
    */
   private $progressBar;
+
   /**
    * @var int*/
   private $colorLevel;
@@ -216,6 +217,13 @@ class Spinner {
    */
   protected function spinnerIsSupported(): bool {
     return $this->output instanceof ConsoleOutput;
+  }
+
+  /**
+   * @return \Symfony\Component\Console\Helper\ProgressBar
+   */
+  public function getProgressBar(): ProgressBar {
+    return $this->progressBar;
   }
 
 }
