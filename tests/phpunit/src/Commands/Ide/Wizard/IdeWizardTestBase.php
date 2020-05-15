@@ -26,7 +26,7 @@ abstract class IdeWizardTestBase extends CommandTestBase {
    * This method is called before each test.
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function setUp(): void {
+  public function setUp($output = NULL): void {
     parent::setUp();
 
     $this->setCommand($this->createCommand());

@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\AcquiaCliApplication;
-use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
@@ -34,6 +33,7 @@ use Symfony\Component\Validator\Validation;
  * @package Grasmash\YamlCli\Command
  */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
+
   use CloudApiDataStoreAwareTrait;
   use DataStoreAwareTrait;
   use LoggerAwareTrait;
@@ -51,8 +51,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
   protected $formatter;
 
+  /**
+   * @var ApplicationResponse
+   */
   private $cloudApplication;
 
+  /**
+   * @var array
+   */
   protected $localProjectInfo;
 
   /**

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\RefreshCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
@@ -25,12 +26,35 @@ class RefreshCommandTest extends CommandTestBase {
     return new RefreshCommand();
   }
 
+  public function setUp($output = NULL): void {
+    parent::setUp();
+    $this->removeMockGitConfig();
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    $this->removeMockGitConfig();
+  }
+
+  public function providerTestRefreshCommand(): array {
+    return [
+      [FALSE, FALSE],
+      [TRUE, TRUE],
+      [TRUE, FALSE],
+    ];
+  }
+
   /**
    * Tests the 'refresh' command.
    *
+   * @dataProvider providerTestRefreshCommand
+   *
+   * @param bool $create_mock_git_config
+   * @param bool $is_dirty
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testRefreshCommand(): void {
+  public function testRefreshCommand($create_mock_git_config, $is_dirty): void {
     $this->setCommand($this->createCommand());
 
     // Client responses.
@@ -39,8 +63,16 @@ class RefreshCommandTest extends CommandTestBase {
     $application_response = $this->mockApplicationRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
-
     $local_machine_helper = $this->mockLocalMachineHelper();
+
+    if ($create_mock_git_config) {
+      $this->createMockGitConfigFile();
+      $dirty_process = $this->mockProcess();
+      if (!$is_dirty) {
+        $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
+      }
+      $this->mockExecuteGitDiffStat($is_dirty, $dirty_process, $local_machine_helper);
+    }
 
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process
@@ -89,6 +121,7 @@ class RefreshCommandTest extends CommandTestBase {
 
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
+
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -101,17 +134,27 @@ class RefreshCommandTest extends CommandTestBase {
       // Choose a database to copy:
       0,
     ];
-    $this->executeCommand([], $inputs);
-    $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
-    $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
-    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a database to copy:', $output);
-    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-    $this->assertStringContainsString('profserv2 (default)', $output);
+    if ($create_mock_git_config) {
+      try {
+        $this->executeCommand([], $inputs);
+      } catch (AcquiaCliException $e) {
+        $this->assertEquals('Local git is dirty!', $e->getMessage());
+      }
+    }
+    else {
+      $this->executeCommand([], $inputs);
+      $this->prophet->checkPredictions();
+      $output = $this->getDisplay();
+
+      $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+      $this->assertStringContainsString('[0] Sample application 1', $output);
+      $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+      $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+      $this->assertStringContainsString('Choose a database to copy:', $output);
+      $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+      $this->assertStringContainsString('profserv2 (default)', $output);
+    }
   }
 
   /**
@@ -434,6 +477,50 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     return $response;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param object $environments_response
+   */
+  protected function mockExecuteGitFetchAndCheckout(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
+    $environments_response
+  ): void {
+    $local_machine_helper->execute([
+      'git',
+      'fetch',
+      '--all',
+    ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($dirty_process->reveal())
+      ->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'checkout',
+      $environments_response->vcs->path,
+    ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($dirty_process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param $is_dirty
+   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecuteGitDiffStat(
+    $is_dirty,
+    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+    $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'diff',
+      '--stat',
+    ], NULL, $this->projectFixtureDir, FALSE)->willReturn($dirty_process->reveal())->shouldBeCalled();
   }
 
 }
