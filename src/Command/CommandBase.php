@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\AcquiaCliApplication;
-use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
@@ -65,11 +64,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Symfony\Component\Console\Helper\QuestionHelper*/
   protected $questionHelper;
-
-  /**
-   * @var bool
-   */
-  protected $simulated = FALSE;
 
   /**
    * Initializes the command just after the input has been validated.
@@ -532,20 +526,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
     $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
-  }
-
-  /**
-   * @return bool
-   */
-  public function isSimulated(): bool {
-    return $this->simulated;
-  }
-
-  /**
-   * @param bool $simulated
-   */
-  public function setSimulated(bool $simulated): void {
-    $this->simulated = $simulated;
   }
 
 }
