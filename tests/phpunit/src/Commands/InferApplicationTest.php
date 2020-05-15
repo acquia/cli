@@ -63,6 +63,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
+    $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Searching 2 applications on Acquia Cloud...', $output);
     $this->assertStringContainsString('Searching Sample application 1 for git URLs that match local git config.', $output);
