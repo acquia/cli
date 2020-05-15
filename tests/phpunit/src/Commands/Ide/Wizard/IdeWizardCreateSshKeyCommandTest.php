@@ -23,6 +23,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    */
   public function testCreate(): void {
     $cloud_client = $this->getMockClient();
+    $application_response = $this->mockApplicationRequest($cloud_client);
     $ssh_key_list_response = $this->mockListSshKeysRequest($cloud_client);
 
     // Request for IDE data.
@@ -70,6 +71,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @param $cloud_client
    *
    * @return string
+   * @throws \Exception
    */
   protected function mockCreateSshKey($cloud_client): string {
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
@@ -77,6 +79,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([
       '--no-wait' => '',
+    ], [
+      // Would you like to link the project at ... ?
+      'y',
     ]);
     return $ssh_key_filename;
   }
