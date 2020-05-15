@@ -21,6 +21,16 @@ class IdeOpenCommandTest extends CommandTestBase {
     return new IdeOpenCommand();
   }
 
+  public function setUp(): void {
+    parent::setUp();
+    putenv('DISPLAY=1');
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    putenv('DISPLAY');
+  }
+
   /**
    * Tests the 'ide:open' command.
    *
