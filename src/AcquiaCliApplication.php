@@ -9,6 +9,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
+use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\Enum\FamilyName;
 use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
@@ -122,6 +123,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $amplitude = Amplitude::getInstance();
     $amplitude->init('956516c74386447a3148c2cc36013ac3')
       ->setDeviceId(self::getMachineUuid())
+      ->setUserId(self::getUserId())
       ->setUserProperties($this->getTelemetryUserData());
     if (!$this->getDatastore()->get('send_telemetry')) {
       $amplitude->setOptOut(TRUE);
@@ -199,7 +201,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *   Telemetry user data.
    */
   public function getTelemetryUserData() {
-    return [
+    $data = [
       'app_version' => $this->getVersion(),
       // phpcs:ignore
       'platform' => OsInfo::family(),
@@ -208,6 +210,51 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
     ];
+    $user = $this->getUserData();
+    if (isset($user['is_acquian'])) {
+      $data['is_acquian'] = $user['is_acquian'];
+    }
+    return $data;
+  }
+
+  /**
+   * Get user uuid.
+   *
+   * @return string|null
+   *   User UUID from Cloud.
+   */
+  public function getUserId() {
+    $user = $this->getUserData();
+    if ($user && isset($user['uuid'])) {
+      return $user['uuid'];
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get user data.
+   *
+   * @return array|null
+   *   User account data from Cloud.
+   */
+  public function getUserData() {
+    $datastore = $this->getDatastore();
+    $user = $datastore->get('user');
+
+    if (!$user && $this->isMachineAuthenticated()) {
+      $client = $this->getAcquiaCloudClient();
+      $account = new Account($client);
+      $user_account = $account->get();
+      $user = [
+        'uuid' => $user_account->uuid,
+        'is_acquian' => substr($user_account->mail, -10, 10) === 'acquia.com'
+      ];
+      $datastore->set('user', $user);
+    }
+
+    return $user;
   }
 
   /**
@@ -298,6 +345,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   public function getAcliConfigFilepath(): string {
     return $this->dataDir . '/' . $this->getAcliConfigFilename();
+  }
+
+  /**
+   * @return bool
+   */
+  public function isMachineAuthenticated(): bool {
+    $cloud_api_conf = $this->getCloudApiDatastore();
+    return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 
 }
