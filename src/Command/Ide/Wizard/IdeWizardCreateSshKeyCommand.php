@@ -42,7 +42,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $this->requireRemoteIdeEnvironment();
 
     $ide_uuid = CommandBase::getThisRemoteIdeUuid();
-    $cloud_app_uuid = getenv('ACQUIA_APPLICATION_UUID');
+    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
 
     if ($this->userHasUploadedLocalKeyToCloud()) {
       throw new AcquiaCliException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");

@@ -72,8 +72,7 @@ abstract class TestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
-    $this->fs->remove($this->application->getCloudConfigFilepath());
-    $this->fs->remove($this->application->getAcliConfigFilepath());
+    $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
     parent::setUp();
@@ -81,8 +80,7 @@ abstract class TestBase extends TestCase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $filepath = $this->application->getCloudConfigFilepath();
-    $this->fs->remove($filepath);
+    $this->removeMockConfigFiles();
   }
 
   /**
@@ -350,6 +348,11 @@ abstract class TestBase extends TestCase {
     $cloud_client->request('get', '/account/ssh-keys')
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
+  }
+
+  protected function removeMockConfigFiles(): void {
+    $this->fs->remove($this->application->getCloudConfigFilepath());
+    $this->fs->remove($this->application->getAcliConfigFilepath());
   }
 
 }

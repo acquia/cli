@@ -26,6 +26,7 @@ class AuthCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command.
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testAuthLoginCommand(): void {
     $this->setCommand($this->createCommand());

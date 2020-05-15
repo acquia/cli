@@ -38,7 +38,7 @@ abstract class IdeWizardTestBase extends CommandTestBase {
     ]);
 
     $this->remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';
-    $this->application_uuid = '257a5440-22c3-49d1-894d-29497a1cf3b8';
+    $this->application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $this->setRemoteIdeEnvVars();
   }
 
