@@ -161,7 +161,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    *
    */
-  protected function mockGitConfig(): void {
+  protected function createMockGitConfigFile(): void {
     // Create mock git config file.
     $this->sourceGitConfigFixture = Path::join($this->fixtureDir, 'git_config');
     $this->targetGitConfigFixture = Path::join($this->fixtureDir, 'project', '.git', 'config');
