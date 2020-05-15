@@ -25,7 +25,7 @@ class InferApplicationTest extends CommandTestBase {
 
   public function setUp(): void {
     parent::setUp();
-    $this->mockGitConfig();
+    $this->createMockGitConfigFile();
   }
 
   /**
