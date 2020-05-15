@@ -309,11 +309,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Searching for a matching Cloud application...');
         if ($git_config = $this->getGitConfig($application)) {
           $local_git_remotes = $this->getGitRemotes($git_config);
-          $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
-            $local_git_remotes);
-          $this->output->writeln('<info>Found a matching application!</info>');
-
-          return $cloud_application;
+          if ($cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
+            $local_git_remotes)) {
+            $this->output->writeln('<info>Found a matching application!</info>');
+            return $cloud_application;
+          }
+          else {
+            $this->output->writeln('<comment>Could not find a matching Cloud application.</comment>');
+            return NULL;
+          }
         }
       }
     }
