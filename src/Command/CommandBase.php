@@ -34,6 +34,7 @@ use Symfony\Component\Validator\Validation;
  * @package Grasmash\YamlCli\Command
  */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
+
   use CloudApiDataStoreAwareTrait;
   use DataStoreAwareTrait;
   use LoggerAwareTrait;
@@ -51,13 +52,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
   protected $formatter;
 
+  /**
+   * @var ApplicationResponse
+   */
   private $cloudApplication;
 
+  /**
+   * @var array
+   */
   protected $localProjectInfo;
 
   /**
    * @var \Symfony\Component\Console\Helper\QuestionHelper*/
   protected $questionHelper;
+
+  /**
+   * @var bool
+   */
+  protected $simulated = FALSE;
 
   /**
    * Initializes the command just after the input has been validated.
@@ -524,6 +536,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
     $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
+  }
+
+  /**
+   * @return bool
+   */
+  public function isSimulated(): bool {
+    return $this->simulated;
+  }
+
+  /**
+   * @param bool $simulated
+   */
+  public function setSimulated(bool $simulated): void {
+    $this->simulated = $simulated;
   }
 
 }

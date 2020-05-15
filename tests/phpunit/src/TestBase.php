@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
