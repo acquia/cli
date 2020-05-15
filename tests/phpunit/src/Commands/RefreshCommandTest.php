@@ -36,7 +36,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->removeMockGitConfig();
   }
 
-  public function providerTestRefreshCommand() {
+  public function providerTestRefreshCommand(): array {
     return [
       [FALSE, FALSE],
       [TRUE, TRUE],
@@ -49,8 +49,10 @@ class RefreshCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestRefreshCommand
    *
+   * @param bool $create_mock_git_config
+   * @param bool $is_dirty
+   *
    * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testRefreshCommand($create_mock_git_config, $is_dirty): void {
     $this->setCommand($this->createCommand());
@@ -61,36 +63,15 @@ class RefreshCommandTest extends CommandTestBase {
     $application_response = $this->mockApplicationRequest($cloud_client);
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
     $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
-
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     if ($create_mock_git_config) {
-      $this->mockGitConfig();
+      $this->createMockGitConfigFile();
       $dirty_process = $this->mockProcess();
       if (!$is_dirty) {
-        $local_machine_helper->execute([
-          'git',
-          'fetch',
-          '--all',
-        ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
-          ->willReturn($dirty_process->reveal())
-          ->shouldBeCalled();
-        $local_machine_helper->execute([
-          'git',
-          'checkout',
-          $environments_response->vcs->path,
-        ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
-          ->willReturn($dirty_process->reveal())
-          ->shouldBeCalled();
+        $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
       }
-      $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
-      $local_machine_helper->execute([
-        'git',
-        'diff',
-        '--stat',
-        ], NULL, $this->projectFixtureDir, FALSE)
-        ->willReturn($dirty_process->reveal())
-        ->shouldBeCalled();
+      $this->mockExecuteGitDiffStat($is_dirty, $dirty_process, $local_machine_helper);
     }
 
     $acsf_multisite_fetch_process = $this->mockProcess();
@@ -496,6 +477,50 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     return $response;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param object $environments_response
+   */
+  protected function mockExecuteGitFetchAndCheckout(
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
+    $environments_response
+  ): void {
+    $local_machine_helper->execute([
+      'git',
+      'fetch',
+      '--all',
+    ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($dirty_process->reveal())
+      ->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'checkout',
+      $environments_response->vcs->path,
+    ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ->willReturn($dirty_process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param $is_dirty
+   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecuteGitDiffStat(
+    $is_dirty,
+    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
+    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+  ): void {
+    $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'diff',
+      '--stat',
+    ], NULL, $this->projectFixtureDir, FALSE)->willReturn($dirty_process->reveal())->shouldBeCalled();
   }
 
 }
