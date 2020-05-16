@@ -51,7 +51,7 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select an Acquia Cloud application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
-    $this->assertStringContainsString("The Cloud application with uuid {$applications_response->{'_embedded'}->items[0]->uuid} has been linked to the repository {$this->projectFixtureDir}", $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
   }
 
 }

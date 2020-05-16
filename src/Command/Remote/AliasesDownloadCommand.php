@@ -43,34 +43,29 @@ class AliasesDownloadCommand extends SshCommand {
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
     $drush_archive_filepath = $this->getDrushArchiveTempFilepath();
+    $this->getApplication()->getLocalMachineHelper()->writeFile($drush_archive_filepath, $aliases);
+    $drush_aliases_dir = $this->getDrushAliasesDir();
 
-    if (file_put_contents($drush_archive_filepath, $aliases, LOCK_EX)) {
-      $drush_aliases_dir = $this->getDrushAliasesDir();
+    $this->output->writeln(sprintf(
+      'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
+      $drush_archive_filepath
+    ));
 
-      $this->output->writeln(sprintf(
-        'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
-        $drush_archive_filepath
-      ));
+    $this->getApplication()->getLocalMachineHelper()->getFilesystem()->mkdir($drush_aliases_dir);
+    $this->getApplication()->getLocalMachineHelper()->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
-      $this->getApplication()->getLocalMachineHelper()->getFilesystem()->mkdir($drush_aliases_dir);
-      $this->getApplication()->getLocalMachineHelper()->getFilesystem()->chmod($drush_aliases_dir, 0700);
-
-      $archive = new PharData($drush_archive_filepath . '/.drush');
-      $drushFiles = [];
-      foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-        $drushFiles[] = '.drush/' . $file->getFileName();
-      }
-
-      $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
-      $this->output->writeln(sprintf(
-        'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
-        $drush_aliases_dir
-      ));
-      unlink($drush_archive_filepath);
+    $archive = new PharData($drush_archive_filepath . '/.drush');
+    $drushFiles = [];
+    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+      $drushFiles[] = '.drush/' . $file->getFileName();
     }
-    else {
-      throw new AcquiaCliException('Unable to download Drush Aliases');
-    }
+
+    $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
+    $this->output->writeln(sprintf(
+      'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
+      $drush_aliases_dir
+    ));
+    unlink($drush_archive_filepath);
 
     return 0;
   }
