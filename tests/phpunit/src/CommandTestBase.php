@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -176,6 +177,15 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function removeMockGitConfig(): void {
     $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockLocalMachineHelper(): \Prophecy\Prophecy\ObjectProphecy {
+    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $local_machine_helper->useTty()->willReturn(FALSE);
+    return $local_machine_helper;
   }
 
 }

@@ -31,12 +31,11 @@ class SshCommand extends SshBaseCommand {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $alias = $this->validateAlias($input->getArgument('alias'));
-    $this->environment = $this->getEnvironmentFromAliasArg($alias);
-
+    $environment = $this->getEnvironmentFromAliasArg($alias);
     $arguments = $input->getArguments();
     array_shift($arguments);
 
-    return $this->executeCommand($arguments);
+    return $this->getApplication()->getSshHelper()->executeCommand($environment, $arguments)->getExitCode();
   }
 
 }

@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -199,10 +200,11 @@ class RefreshCommand extends CommandBase {
    * @param string $db_name
    *
    * @return string|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
-    $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($environment->sshUrl, $command);
+    $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command]);
     if ($process->isSuccessful()) {
       $filepath = $this->getApplication()->getLocalMachineHelper()->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
@@ -481,12 +483,13 @@ class RefreshCommand extends CommandBase {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    *
    * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getAcsfSites($cloud_environment): array {
     $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
     $sitegroup = reset($ssh_url_parts);
-    $command = "cat /var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json";
-    $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($cloud_environment->sshUrl, $command);
+    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
+    $process = $this->getApplication()->getSshHelper()->executeCommand($cloud_environment, $command);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
     }
