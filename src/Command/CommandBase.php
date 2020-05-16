@@ -247,7 +247,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Search Cloud applications.
     foreach ($customer_applications as $application) {
-      $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
+      $progressBar->setMessage("Searching <comment>{$application->name}</comment> for matching git URLs");
       $application_environments = $environments_resource->getAll($application->uuid);
       if ($application = $this->searchApplicationEnvironmentsForGitUrl(
             $application,
@@ -338,7 +338,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $application = $applications_resource->get($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
         if ($link_app) {
-          $this->saveLocalConfigCloudAppUuid($application->uuid);
+          $this->saveLocalConfigCloudAppUuid($application);
         }
         else {
           $this->promptLinkApplication($this->getApplication(), $application);
@@ -403,7 +403,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $application_uuid
    */
-  protected function saveLocalConfigCloudAppUuid($application_uuid): void {
+  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
     $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     if (!$local_user_config) {
       $local_user_config = [
@@ -412,11 +412,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     foreach ($local_user_config['localProjects'] as $key => $project) {
       if ($project['directory'] === $this->getApplication()->getRepoRoot()) {
-        $project['cloud_application_uuid'] = $application_uuid;
+        $project['cloud_application_uuid'] = $application->uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
         $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
-        $this->output->writeln("<info>The Cloud application with uuid <comment>$application_uuid</comment> has been linked to the repository <comment>{$project['directory']}</comment></info>");
+        $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
         return;
       }
     }
@@ -441,12 +441,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     AcquiaCliApplication $cli_application,
     ?ApplicationResponse $cloud_application
     ): void {
-    $question = new ConfirmationQuestion("<question>Would you like to link the project at {$cli_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
+    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {
-      $this->saveLocalConfigCloudAppUuid($cloud_application->uuid);
-      $this->output->writeln("Your local repository is now linked with {$cloud_application->name}.");
+      $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
   }
 
