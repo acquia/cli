@@ -7,6 +7,7 @@ use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use Psr\Log\LoggerAwareInterface;
@@ -62,6 +63,18 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   protected $dataDir;
 
   /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  protected $sshHelper;
+
+  /**
+   * @return \Acquia\Cli\Helpers\SshHelper
+   */
+  public function getSshHelper(): SshHelper {
+    return $this->sshHelper;
+  }
+
+  /**
    * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
@@ -94,6 +107,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->repoRoot = $repo_root;
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
+    $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
@@ -108,6 +122,13 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
+  }
+
+  /**
+   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
+   */
+  public function setSshHelper(\Acquia\Cli\Helpers\SshHelper $sshHelper): void {
+    $this->sshHelper = $sshHelper;
   }
 
   /**
