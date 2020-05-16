@@ -23,4 +23,10 @@ class LocalMachineHelperTest extends TestBase {
     $this->assertTrue($opened, 'Failed to open browser');
   }
 
+  public function testExecuteFromCmd() {
+    $local_machine_helper = $this->application->getLocalMachineHelper();
+    $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, FALSE);
+    $this->assertTrue($process->isSuccessful());
+  }
+
 }
