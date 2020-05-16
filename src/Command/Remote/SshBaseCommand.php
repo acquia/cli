@@ -24,119 +24,6 @@ use Symfony\Component\Validator\Validation;
 abstract class SshBaseCommand extends CommandBase {
 
   /**
-   * @var \AcquiaCloudApi\Response\EnvironmentResponse
-   */
-  protected $environment;
-
-  /**
-   * Execute the command remotely.
-   *
-   * @param array $command_args
-   *
-   * @return int
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function executeCommand(array $command_args): int {
-    $command_summary = $this->getCommandSummary($command_args);
-
-    // Remove site_env arg.
-    unset($command_args['alias']);
-    $process = $this->sendCommandViaSsh($command_args);
-
-    /** @var \Acquia\Cli\AcquiaCliApplication $application */
-    $application = $this->getApplication();
-    $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
-      'env' => $this->environment->name,
-      'command' => $command_summary,
-      'exit' => $process->getExitCode(),
-    ]);
-
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException($process->getOutput());
-    }
-
-    return $process->getExitCode();
-  }
-
-  /**
-   * Sends a command to an environment via SSH.
-   *
-   * @param array $command
-   *   The command to be run on the platform.
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  protected function sendCommandViaSsh($command): Process {
-    $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
-    $command = array_values($this->getSshCommand($command));
-
-    return $this->getApplication()
-      ->getLocalMachineHelper()
-      ->execute($command, $this->getOutputCallback());
-  }
-
-  /**
-   * Return the first item of the $command_args that is not an option.
-   *
-   * @param array $command_args
-   *
-   * @return string
-   */
-  private function firstArguments($command_args): string {
-    $result = '';
-    while (!empty($command_args)) {
-      $first = array_shift($command_args);
-      if (strlen($first) && $first[0] == '-') {
-        return $result;
-      }
-      $result .= " $first";
-    }
-
-    return $result;
-  }
-
-  /**
-   * @return \Closure
-   */
-  private function getOutputCallback(): callable {
-    if ($this->getApplication()->getLocalMachineHelper()->useTty() === FALSE) {
-      $output = $this->output;
-
-      return static function ($type, $buffer) use ($output) {
-        $output->write($buffer);
-      };
-    }
-
-    return static function ($type, $buffer) {};
-  }
-
-  /**
-   * Return a summary of the command that does not include the
-   * arguments. This avoids potential information disclosure in
-   * CI scripts.
-   *
-   * @param array $command_args
-   *
-   * @return string
-   */
-  private function getCommandSummary($command_args): string {
-    return $this->firstArguments($command_args);
-  }
-
-  /**
-   * @return array SSH connection string
-   */
-  private function getConnectionArgs(): array {
-    return [
-      'ssh',
-      $this->environment->sshUrl,
-      '-o StrictHostKeyChecking=no',
-      '-o AddressFamily inet',
-    ];
-  }
-
-  /**
    * @param string $alias
    *
    * @return string
@@ -158,7 +45,6 @@ abstract class SshBaseCommand extends CommandBase {
    * @param $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
     $site_env_parts = explode('.', $alias);
@@ -205,15 +91,6 @@ abstract class SshBaseCommand extends CommandBase {
     }
 
     return NULL;
-  }
-
-  /**
-   * @param $command
-   *
-   * @return array
-   */
-  protected function getSshCommand($command): array {
-    return array_merge($this->getConnectionArgs(), $command);
   }
 
 }

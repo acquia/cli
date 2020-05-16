@@ -92,10 +92,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
     // Wait for the key to register on Acquia Cloud.
-    if ($input->getOption('no-wait') === FALSE) {
-      $this->pollAcquiaCloud($output, $dev_environment);
-    }
-
+    $this->pollAcquiaCloud($output, $dev_environment);
     // @todo Add to local ssh key agent.
 
     return 0;
@@ -151,7 +148,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($environment->sshUrl, 'ls');
+      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls']);
       if ($process->isSuccessful()) {
         $this->finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");

@@ -5,8 +5,11 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\RefreshCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
@@ -75,24 +78,23 @@ class RefreshCommandTest extends CommandTestBase {
     }
 
     $acsf_multisite_fetch_process = $this->mockProcess();
-    $acsf_multisite_fetch_process
-      ->getOutput()
+    $acsf_multisite_fetch_process->getOutput()
       ->willReturn(
         file_get_contents(
           Path::join($this->fixtureDir, '/multisite-config.json')
         ))
       ->shouldBeCalled();
-    $local_machine_helper
-      ->runCommandViaSsh(
-        $environments_response->ssh_url,
-        'cat /var/www/site-php/site.dev/multisite-config.json')
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'])
       ->willReturn($acsf_multisite_fetch_process->reveal())
       ->shouldBeCalled();
 
     $process = $this->mockProcess();
 
     // Database.
-    $this->mockExecuteSshMySqlDump($local_machine_helper, $environments_response);
+    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response);
+    $this->application->setSshHelper($ssh_helper->reveal());
+
     $this->mockWriteMySqlDump($local_machine_helper);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
@@ -180,7 +182,7 @@ class RefreshCommandTest extends CommandTestBase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockProcess(): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockProcess(): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -188,19 +190,10 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function mockLocalMachineHelper(): \Prophecy\Prophecy\ObjectProphecy {
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
-    return $local_machine_helper;
-  }
-
-  /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteDrushStatus(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper
   ): void {
     $drush_status_process = $this->prophet->prophesize(Process::class);
     $drush_status_process->isSuccessful()->willReturn(TRUE);
@@ -224,8 +217,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteDrushCacheRebuild(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -243,8 +236,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteDrushSqlSanitize(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -262,8 +255,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteComposerInstall(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -281,9 +274,9 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteRsync(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     $environments_response,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -303,9 +296,9 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteGitClone(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     $environments_response,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -323,8 +316,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteMySqlDropDb(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -346,8 +339,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteMySqlCreateDb(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
     $local_machine_helper
       ->execute([
@@ -369,8 +362,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteMySqlImport(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process
   ): void {
 // MySQL import command.
     $local_machine_helper
@@ -384,7 +377,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteDrushExists(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper
   ): void {
     $local_machine_helper
       ->commandExists('drush')
@@ -396,7 +389,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteComposerExists(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper
   ): void {
     $local_machine_helper
       ->commandExists('composer')
@@ -408,7 +401,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecutePvExists(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper
   ): void {
     $local_machine_helper
       ->commandExists('pv')
@@ -417,19 +410,18 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
    * @param object $environments_response
    */
   protected function mockExecuteSshMySqlDump(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $ssh_helper,
     $environments_response
   ): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('dbdumpcontents');
-    $local_machine_helper
-      ->runCommandViaSsh(
-        $environments_response->ssh_url,
-        'MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9')
+    $ssh_helper->executeCommand(
+        new EnvironmentResponse($environments_response),
+        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -438,7 +430,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockWriteMySqlDump(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper
   ): void {
     // Download MySQL dump.
     $local_machine_helper
@@ -485,8 +477,8 @@ class RefreshCommandTest extends CommandTestBase {
    * @param object $environments_response
    */
   protected function mockExecuteGitFetchAndCheckout(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $dirty_process,
     $environments_response
   ): void {
     $local_machine_helper->execute([
@@ -512,8 +504,8 @@ class RefreshCommandTest extends CommandTestBase {
    */
   protected function mockExecuteGitDiffStat(
     $is_dirty,
-    \Prophecy\Prophecy\ObjectProphecy $dirty_process,
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+    ObjectProphecy $dirty_process,
+    ObjectProphecy $local_machine_helper
   ): void {
     $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
     $local_machine_helper->execute([

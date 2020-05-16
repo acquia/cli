@@ -35,6 +35,7 @@ class SshCommandTest extends SshCommandTestBase {
       'site.dev@server-123.hosted.hosting.acquia.com',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
+      '-o LogLevel=ERROR',
     ];
     $local_machine_helper
       ->execute($ssh_command, Argument::type('callable'))

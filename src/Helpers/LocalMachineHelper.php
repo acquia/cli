@@ -324,23 +324,4 @@ class LocalMachineHelper {
     return FALSE;
   }
 
-  /**
-   * @param $ssh_url
-   * @param $command
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  public function runCommandViaSsh($ssh_url, $command): Process {
-    return $this->execute([
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      $ssh_url,
-      $command,
-    ], NULL, NULL, FALSE);
-  }
-
 }
