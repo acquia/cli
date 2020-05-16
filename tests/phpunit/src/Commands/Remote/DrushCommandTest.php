@@ -36,6 +36,7 @@ class DrushCommandTest extends SshCommandTestBase {
       'site.dev@server-123.hosted.hosting.acquia.com',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
+      '-o LogLevel=ERROR',
       'cd /var/www/html/devcloud2.dev/docroot; ',
       'drush',
       'status',

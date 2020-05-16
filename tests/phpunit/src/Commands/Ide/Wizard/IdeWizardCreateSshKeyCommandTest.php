@@ -3,10 +3,15 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
+use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Process;
 
 /**
  * Class IdeWizardCreateSshKeyCommandTest.
@@ -32,8 +37,8 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $cloud_client->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$response])->shouldBeCalled();
+    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $cloud_client->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // Request to upload new SSH key.
     // We create a unique label based on the IDE, not the stock label from the
@@ -50,6 +55,18 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
+
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->executeCommand(
+        new EnvironmentResponse($environments_response),
+        ['ls'])
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    $this->application->setSshHelper($ssh_helper->reveal());
+
     $ssh_key_filename = $this->mockCreateSshKey($cloud_client);
 
     $this->prophet->checkPredictions();
@@ -77,9 +94,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
     $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
-    $this->executeCommand([
-      '--no-wait' => '',
-    ], [
+    $this->executeCommand([], [
       // Would you like to link the project at ... ?
       'y',
     ]);
