@@ -66,9 +66,9 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Searching 2 applications on Acquia Cloud...', $output);
-    $this->assertStringContainsString('Searching Sample application 1 for git URLs that match local git config.', $output);
+    $this->assertStringContainsString('Searching Sample application 1 for matching git URLs', $output);
     $this->assertStringContainsString('Found a matching application!', $output);
-    $this->assertStringContainsString('The Cloud application with uuid a47ac10b-58cc-4372-a567-0e02b2c3d470 has been linked to the repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
   }
 
   /**
@@ -111,9 +111,9 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Searching 2 applications on Acquia Cloud...', $output);
-    $this->assertStringContainsString('Searching Sample application 2 for git URLs that match local git config.', $output);
+    $this->assertStringContainsString('Searching Sample application 2 for matching git URLs', $output);
     $this->assertStringContainsString('Could not find a matching Cloud application.', $output);
-    $this->assertStringContainsString('The Cloud application with uuid a47ac10b-58cc-4372-a567-0e02b2c3d470 has been linked to the repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
   }
 
   public function tearDown(): void {
