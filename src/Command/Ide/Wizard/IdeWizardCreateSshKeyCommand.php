@@ -26,8 +26,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function configure() {
     $this->setName('ide:wizard:ssh-key:create-upload')
       ->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setHidden(!CommandBase::isAcquiaRemoteIde())
-      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");
+      ->setHidden(!CommandBase::isAcquiaRemoteIde());
   }
 
   /**
