@@ -17,9 +17,9 @@ class LocalMachineHelperTest extends TestBase {
     putenv('DISPLAY');
   }
 
-  public function testStartBrowser() {
+  public function testStartBrowser(): void {
     $local_machine_helper = $this->application->getLocalMachineHelper();
-    $opened = $local_machine_helper->startBrowser('https://google.com');
+    $opened = $local_machine_helper->startBrowser('https://google.com', 'cat');
     $this->assertTrue($opened, 'Failed to open browser');
   }
 
