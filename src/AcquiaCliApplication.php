@@ -105,7 +105,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     ) {
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
-    $this->repoRoot = $repo_root;
+    $this->setRepoRoot($repo_root);
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
@@ -122,6 +122,13 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
+  }
+
+  /**
+   * @param string|null $repoRoot
+   */
+  public function setRepoRoot(?string $repoRoot): void {
+    $this->repoRoot = $repoRoot;
   }
 
   /**
