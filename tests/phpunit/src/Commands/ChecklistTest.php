@@ -2,8 +2,11 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
+use React\EventLoop\Factory;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
 class ChecklistTest extends TestBase {
@@ -35,6 +38,16 @@ class ChecklistTest extends TestBase {
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
     $progress_bar = $items[0]['spinner']->getProgressBar();
     $this->assertEquals('Testing!', $progress_bar->getMessage());
+  }
+
+  public function testLoopTimeout(): void {
+    $loop = Factory::create();
+    $output = new BufferedOutput();
+    $message = 'Waiting for DNS to propagate...';
+    $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $output);
+    LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
+    $loop->run();
+    $this->assertStringContainsString('Timed out after 0.01 minutes!', $output->fetch());
   }
 
 }

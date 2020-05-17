@@ -6,7 +6,6 @@ use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
-use Acquia\Cli\Output\Spinner\Spinner;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -14,7 +13,6 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -450,7 +448,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateCwdIsValidDrupalProject(): void {
     if (!$this->getApplication()->getRepoRoot()) {
@@ -477,49 +475,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public static function getThisRemoteIdeUuid() {
     return getenv('REMOTEIDE_UUID');
-  }
-
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   *
-   * @param string $message
-   *
-   * @return \Acquia\Cli\Output\Spinner\Spinner
-   */
-  public function addSpinnerToLoop(
-    LoopInterface $loop,
-    $message
-  ): Spinner {
-      $spinner = new Spinner($this->output, 4);
-      $spinner->setMessage($message);
-      $spinner->start();
-      $loop->addPeriodicTimer($spinner->interval(),
-        static function () use ($spinner) {
-          $spinner->advance();
-        });
-
-    return $spinner;
-  }
-
-  protected function finishSpinner(Spinner $spinner) {
-    $spinner->finish();
-  }
-
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   * @param $minutes
-   * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
-   */
-  public function addTimeoutToLoop(
-    LoopInterface $loop,
-    $minutes,
-    Spinner $spinner
-  ): void {
-    $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
-      $this->finishSpinner($spinner);
-      $this->logger->debug("Timed out after $minutes minutes!");
-      $loop->stop();
-    });
   }
 
   /**

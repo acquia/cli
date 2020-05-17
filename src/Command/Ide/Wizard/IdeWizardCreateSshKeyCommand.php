@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -142,19 +143,18 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
-    $spinner = $this->addSpinnerToLoop($loop,
-      'Waiting for key to become available on Acquia Cloud web servers...');
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers...', $output);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
       $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls']);
       if ($process->isSuccessful()) {
-        $this->finishSpinner($spinner);
+        LoopHelper::finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");
         $loop->stop();
       }
     });
-    $this->addTimeoutToLoop($loop, 10, $spinner);
+    LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
     $loop->run();
   }
 
