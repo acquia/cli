@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
@@ -82,13 +83,13 @@ class IdeCreateCommand extends CommandBase {
     }
 
     $loop = Factory::create();
-    $spinner = $this->addSpinnerToLoop($loop, 'Waiting for DNS to propagate...');
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for DNS to propagate...', $this->output);
 
     $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {
       try {
         $response = $this->client->request('GET', '/health');
         if ($response->getStatusCode() === 200) {
-          $this->finishSpinner($spinner);
+          LoopHelper::finishSpinner($spinner);
           $loop->stop();
           $this->output->writeln('');
           $this->output->writeln('<info>Your IDE is ready!</info>');
@@ -102,16 +103,7 @@ class IdeCreateCommand extends CommandBase {
         $this->logger->debug($e->getMessage());
       }
     });
-
-    // Add a 15 minute timeout.
-    $loop->addTimer(15 * 60, function () use ($loop, $spinner) {
-      $this->finishSpinner($spinner);
-      $this->output->writeln('<error>Timed out after waiting 15 minutes for DNS to propogate.');
-      $this->output->writeln('Either wait longer, or update your local machine to use different DNS servers.');
-      // @todo Add docs url.
-      $this->output->writeln('@see [docs url]');
-      $loop->stop();
-    });
+    LoopHelper::addTimeoutToLoop($loop, 15, $spinner, $this->output);
 
     // Start the loop.
     $loop->run();
