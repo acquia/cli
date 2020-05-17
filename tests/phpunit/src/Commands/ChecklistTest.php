@@ -38,7 +38,6 @@ class ChecklistTest extends TestBase {
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
     $progress_bar = $items[0]['spinner']->getProgressBar();
     $this->assertEquals('Testing!', $progress_bar->getMessage());
-    $this->assertEquals(1.0, $progress_bar->getProgressPercent());
   }
 
   public function testLoopTimeout(): void {
