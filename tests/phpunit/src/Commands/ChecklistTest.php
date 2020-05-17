@@ -22,11 +22,18 @@ class ChecklistTest extends TestBase {
   public function testSpinner(): void {
     $checklist = new Checklist($this->output);
     $checklist->addItem('Testing!');
+
+    // Make the spinner spin with some output.
+    $output_callback = static function ($type, $buffer) use ($checklist) {
+      $checklist->updateProgressBar($buffer);
+    };
+    $this->application->getLocalMachineHelper()->execute(['echo', 'hello world'], $output_callback, NULL, FALSE);
+
+    // Complete the item.
     $checklist->completePreviousItem();
     $items = $checklist->getItems();
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
     $progress_bar = $items[0]['spinner']->getProgressBar();
-    $this->assertEquals(1, $progress_bar->getProgress());
     $this->assertEquals('Testing!', $progress_bar->getMessage());
   }
 
