@@ -38,6 +38,7 @@ class AuthCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // @todo Check if user is already authenticated.
+    if (!$input->getOption('key') && !$input->getOption('secret'))
     $this->promptOpenBrowserToCreateToken($input, $output);
 
     $api_key = $this->determineApiKey($input, $output);
