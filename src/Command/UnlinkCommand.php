@@ -38,7 +38,7 @@ class UnlinkCommand extends CommandBase {
 
     $repo_root = $this->getApplication()->getRepoRoot();
     $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
-    if ($local_user_config === NULL || !array_key_exists('localProjects', $local_user_config)) {
+    if (!$this->getAppUuidFromLocalProjectInfo()) {
       throw new AcquiaCliException('There is no Acquia Cloud application linked to {repo_root}', ['repo_root' => $repo_root]);
     }
     foreach ($local_user_config['localProjects'] as $key => $project) {
