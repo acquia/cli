@@ -15,9 +15,30 @@ class LocalMachineHelperTest extends TestBase {
     putenv('DISPLAY');
   }
 
-  public function testExecuteFromCmd(): void {
+  /**
+   * @return array
+   */
+  public function providerTestExecuteFromCmd(): array {
+    return [
+      [FALSE, NULL, NULL],
+      [FALSE, FALSE, FALSE],
+      [TRUE, FALSE, FALSE],
+      [TRUE, TRUE, FALSE],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestExecuteFromCmd()
+   *
+   * @param $interactive
+   * @param $is_tty
+   * @param $print_output
+   */
+  public function testExecuteFromCmd($interactive, $is_tty, $print_output): void {
     $local_machine_helper = $this->application->getLocalMachineHelper();
-    $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, FALSE);
+    $local_machine_helper->setIsTty($is_tty);
+    $this->input->setInteractive($interactive);
+    $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, $print_output);
     $this->assertTrue($process->isSuccessful());
   }
 
