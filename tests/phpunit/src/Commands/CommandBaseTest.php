@@ -2,14 +2,10 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\Api\ApiListCommand;
-use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class CommandBaseTest.
@@ -33,6 +29,15 @@ class CommandBaseTest extends CommandTestBase {
     catch (\Exception $e) {
       $this->assertEquals('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`', $e->getMessage());
     }
+  }
+
+  public function testCloudAppFromLocalConfig(): void {
+    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->setCommand($this->createCommand());
+    $cloud_client = $this->getMockClient();
+    $application_response = $this->mockApplicationRequest($cloud_client);
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->executeCommand([], []);
   }
 
   public function testCloudAppUuidArg(): void {

@@ -233,6 +233,17 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
+  protected function createMockAcliConfigFile($cloud_app_uuid): void {
+    $this->application->getDatastore()->set($this->application->getAcliConfigFilename(), [
+      'localProjects' => [
+        0 => [
+          'directory' => $this->projectFixtureDir,
+          'cloud_application_uuid' => $cloud_app_uuid,
+        ],
+      ],
+    ]);
+  }
+
   /**
    * @param $cloud_client
    *

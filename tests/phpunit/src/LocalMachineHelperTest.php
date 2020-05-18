@@ -24,7 +24,6 @@ class LocalMachineHelperTest extends TestBase {
       [FALSE, FALSE, FALSE],
       [TRUE, FALSE, FALSE],
       [TRUE, TRUE, FALSE],
-      [TRUE, TRUE, TRUE],
     ];
   }
 
