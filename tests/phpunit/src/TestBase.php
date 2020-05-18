@@ -53,6 +53,10 @@ abstract class TestBase extends TestCase {
    * @var AcquiaCliApplication
    */
   protected $application;
+  /**
+   * @var \Symfony\Component\Console\Input\ArrayInput
+   */
+  protected $input;
 
   /**
    * This method is called before each test.
@@ -66,12 +70,12 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $input = new ArrayInput([]);
+    $this->input = new ArrayInput([]);
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
-    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
