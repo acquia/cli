@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,6 +33,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->createSshKey($input, $output);
@@ -41,13 +43,18 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
 
   /**
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function createSshKey($input, $output): string {
     $filename = $this->determineFilename($input, $output);
     $password = $this->determinePassword($input, $output);
 
     $filepath = $this->getApplication()->getSshKeysDir() . '/' . $filename;
-    $this->getApplication()->getLocalMachineHelper()->execute([
+    if (file_exists($filepath)) {
+      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry.', ['filepath' => $filepath]);
+    }
+
+    $process = $this->getApplication()->getLocalMachineHelper()->execute([
       'ssh-keygen',
       '-b',
       '4096',
@@ -56,6 +63,9 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       '-N',
       $password,
     ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException($process->getOutput());
+    }
 
     return $filepath;
   }
