@@ -53,6 +53,10 @@ abstract class TestBase extends TestCase {
    * @var AcquiaCliApplication
    */
   protected $application;
+  /**
+   * @var \Symfony\Component\Console\Input\ArrayInput
+   */
+  protected $input;
 
   /**
    * This method is called before each test.
@@ -66,12 +70,12 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $input = new ArrayInput([]);
+    $this->input = new ArrayInput([]);
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
-    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -227,6 +231,17 @@ abstract class TestBase extends TestCase {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->application->getCloudConfigFilepath();
     $this->fs->dumpFile($filepath, $contents);
+  }
+
+  protected function createMockAcliConfigFile($cloud_app_uuid): void {
+    $this->application->getDatastore()->set($this->application->getAcliConfigFilename(), [
+      'localProjects' => [
+        0 => [
+          'directory' => $this->projectFixtureDir,
+          'cloud_application_uuid' => $cloud_app_uuid,
+        ],
+      ],
+    ]);
   }
 
   /**

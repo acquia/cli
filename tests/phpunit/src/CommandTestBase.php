@@ -60,6 +60,8 @@ abstract class CommandTestBase extends TestBase {
    * @param string[] $inputs
    *   An array of strings representing each input passed to the command input
    *   stream.
+   *
+   * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectFixtureDir;
@@ -129,8 +131,6 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return int
    *   The status code.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getStatusCode(): int {
     return $this->getCommandTester()->getStatusCode();
