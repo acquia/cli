@@ -129,6 +129,13 @@ class Spinner {
   }
 
   /**
+   * @return \Symfony\Component\Console\Output\ConsoleSectionOutput
+   */
+  public function getSection(): \Symfony\Component\Console\Output\ConsoleSectionOutput {
+    return $this->section;
+  }
+
+  /**
    *
    */
   public function start(): void {

@@ -35,9 +35,16 @@ class ChecklistTest extends TestBase {
     // Complete the item.
     $checklist->completePreviousItem();
     $items = $checklist->getItems();
+    /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
+    $spinner = $progress_bar = $items[0]['spinner'];
+    $this->assertStringContainsString('[32m✔[39m Testing!', $spinner->getSection()->getContent());
+
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
-    $progress_bar = $items[0]['spinner']->getProgressBar();
+    $progress_bar = $spinner->getProgressBar();
     $this->assertEquals('Testing!', $progress_bar->getMessage());
+    $spinner->fail();
+    $this->assertStringContainsString('❌Testing!', $spinner->getSection()->getContent());
+
   }
 
   public function testLoopTimeout(): void {
