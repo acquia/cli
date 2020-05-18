@@ -38,30 +38,27 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
     $cloud_client->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
-    $response = $this->prophet->prophesize(ResponseInterface::class);
-    $response->getStatusCode()->willReturn(202);
-    $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
 
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->executeCommand(
-        new EnvironmentResponse($environments_response),
-        ['ls'])
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
+    // List uploaded keys.
+    $this->mockUploadSshKey($cloud_client);
+
+    // Poll Cloud.
+    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->application->setSshHelper($ssh_helper->reveal());
-    $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
-    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
+    // Remove SSH key if it exists.
+    $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
     $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
 
+    // Set properties and execute.
+    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], [
       // Would you like to link the project at ... ?
       'y',
     ]);
+
+    // Assertions.
     $this->prophet->checkPredictions();
     $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename);
     $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . str_replace('.pub', '', $ssh_key_filename));
@@ -114,6 +111,22 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $cloud_client->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
     return $ide;
+  }
+
+  /**
+   * @param object $environments_response
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockPollCloudViaSsh(object $environments_response): \Prophecy\Prophecy\ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'])
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    return $ssh_helper;
   }
 
 }
