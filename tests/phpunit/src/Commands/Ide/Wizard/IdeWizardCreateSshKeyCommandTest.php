@@ -118,7 +118,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockPollCloudViaSsh(object $environments_response): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockPollCloudViaSsh($environments_response): \Prophecy\Prophecy\ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
