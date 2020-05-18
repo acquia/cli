@@ -22,33 +22,51 @@ class AuthCommandTest extends CommandTestBase {
     return new AuthCommand();
   }
 
+  public function providerTestAuthLoginCommand(): array {
+    $key = 'testkey123123';
+    $secret = 'testsecret123123';
+    return [
+      [
+        [
+        // Do you want to open this page to generate a token now?
+        'no',
+        // Please enter your API Key:
+        $key,
+        // Please enter your API Secret:
+        $secret,
+        ],
+        []
+      ],
+      [
+        [],
+        ['--key' => $key, '--secret' => $secret]
+      ],
+    ];
+  }
+
   /**
    * Tests the 'auth:login' command.
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @dataProvider providerTestAuthLoginCommand
+   *
    * @throws \Exception
    */
-  public function testAuthLoginCommand(): void {
+  public function testAuthLoginCommand($inputs, $args): void {
     $this->setCommand($this->createCommand());
 
-    $inputs = [
-      // Do you want to open this page to generate a token now?
-      'no',
-      // Please enter your API Key:
-      'testkey123123',
-      // Please enter your API Secret:
-      'testsecret123123',
-    ];
-
-    $this->executeCommand([], $inputs);
+    $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
 
     // Assert.
-    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens.', $output);
-    $this->assertStringContainsString('You should create a new token specifically for Developer Studio and enter the associated key and secret below.', $output);
-    $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
-    $this->assertStringContainsString('Please enter your API Key:', $output);
-    $this->assertStringContainsString('Please enter your API Secret:', $output);
+    if (!array_key_exists('--key', $args)) {
+      $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens.',
+        $output);
+      $this->assertStringContainsString('You should create a new token specifically for Developer Studio and enter the associated key and secret below.',
+        $output);
+      $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
+      $this->assertStringContainsString('Please enter your API Key:', $output);
+      $this->assertStringContainsString('Please enter your API Secret:', $output);
+    }
     $this->assertStringContainsString('Saved credentials to ', $output);
     $this->assertStringContainsString('/cloud_api.conf', $output);
 
