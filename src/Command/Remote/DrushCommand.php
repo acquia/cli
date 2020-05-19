@@ -34,7 +34,7 @@ class DrushCommand extends SSHBaseCommand {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $alias = $this->validateAlias($input->getArgument('alias'));
-    $this->environment = $this->getEnvironmentFromAliasArg($alias);
+    $environment = $this->getEnvironmentFromAliasArg($alias);
 
     $arguments = $input->getArguments();
     // Remove 'remote:drush' command from array.
@@ -42,7 +42,7 @@ class DrushCommand extends SSHBaseCommand {
     // Add command to array.
     array_unshift($arguments, "cd /var/www/html/{$alias}/docroot; ", 'drush');
 
-    return $this->executeCommand($arguments);
+    return $this->getApplication()->getSshHelper()->executeCommand($environment, $arguments)->getExitCode();
   }
 
 }

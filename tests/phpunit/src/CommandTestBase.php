@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -59,6 +60,8 @@ abstract class CommandTestBase extends TestBase {
    * @param string[] $inputs
    *   An array of strings representing each input passed to the command input
    *   stream.
+   *
+   * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectFixtureDir;
@@ -77,8 +80,7 @@ abstract class CommandTestBase extends TestBase {
     try {
       $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
     }
-    catch (\Exception $e) {
-      if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
+    catch (\Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
       }
       throw $e;
@@ -129,8 +131,6 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return int
    *   The status code.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getStatusCode(): int {
     return $this->getCommandTester()->getStatusCode();
@@ -177,6 +177,15 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function removeMockGitConfig(): void {
     $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockLocalMachineHelper(): \Prophecy\Prophecy\ObjectProphecy {
+    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $local_machine_helper->useTty()->willReturn(FALSE);
+    return $local_machine_helper;
   }
 
 }

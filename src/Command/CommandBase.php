@@ -7,7 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
-use Acquia\Cli\Output\Spinner\Spinner;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -15,7 +14,6 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -265,7 +263,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Search Cloud applications.
     foreach ($customer_applications as $application) {
-      $progressBar->setMessage("Searching <comment>{$application->name}</comment> for git URLs that match local git config.");
+      $progressBar->setMessage("Searching <comment>{$application->name}</comment> for matching git URLs");
       $application_environments = $environments_resource->getAll($application->uuid);
       if ($application = $this->searchApplicationEnvironmentsForGitUrl(
             $application,
@@ -327,11 +325,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Searching for a matching Cloud application...');
         if ($git_config = $this->getGitConfig($application)) {
           $local_git_remotes = $this->getGitRemotes($git_config);
-          $cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
-            $local_git_remotes);
-          $this->output->writeln('<info>Found a matching application!</info>');
-
-          return $cloud_application;
+          if ($cloud_application = $this->findCloudApplicationByGitUrl($acquia_cloud_client,
+            $local_git_remotes)) {
+            $this->output->writeln('<info>Found a matching application!</info>');
+            return $cloud_application;
+          }
+          else {
+            $this->output->writeln('<comment>Could not find a matching Cloud application.</comment>');
+            return NULL;
+          }
         }
       }
     }
@@ -352,7 +354,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $application = $applications_resource->get($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
         if ($link_app) {
-          $this->saveLocalConfigCloudAppUuid($application->uuid);
+          $this->saveLocalConfigCloudAppUuid($application);
         }
         else {
           $this->promptLinkApplication($this->getApplication(), $application);
@@ -379,7 +381,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // If an IDE, get from env var.
-    if ($this::isAcquiaRemoteIde() && $application_uuid = $this::getThisRemoteIdeUuid()) {
+    if (self::isAcquiaRemoteIde() && $application_uuid = self::getThisRemoteIdeCloudAppUuid()) {
       return $application_uuid;
     }
 
@@ -417,7 +419,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $application_uuid
    */
-  protected function saveLocalConfigCloudAppUuid($application_uuid): void {
+  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
     $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     if (!$local_user_config) {
       $local_user_config = [
@@ -426,11 +428,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     foreach ($local_user_config['localProjects'] as $key => $project) {
       if ($project['directory'] === $this->getApplication()->getRepoRoot()) {
-        $project['cloud_application_uuid'] = $application_uuid;
+        $project['cloud_application_uuid'] = $application->uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
         $this->getDatastore()->set($this->getApplication()->getAcliConfigFilename(), $local_user_config);
-        $this->output->writeln("<info>The Cloud application with uuid <comment>$application_uuid</comment> has been linked to the repository <comment>{$project['directory']}</comment></info>");
+        $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
         return;
       }
     }
@@ -455,17 +457,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     AcquiaCliApplication $cli_application,
     ?ApplicationResponse $cloud_application
     ): void {
-    $question = new ConfirmationQuestion("<question>Would you like to link the project at {$cli_application->getRepoRoot()} with the Cloud App \"{$cloud_application->name}\"</question>? ");
+    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {
-      $this->saveLocalConfigCloudAppUuid($cloud_application->uuid);
-      $this->output->writeln("Your local repository is now linked with {$cloud_application->name}.");
+      $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
   }
 
   /**
-   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateCwdIsValidDrupalProject(): void {
     if (!$this->getApplication()->getRepoRoot()) {
@@ -481,53 +482,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @return array|false|string
+   */
+  protected static function getThisRemoteIdeCloudAppUuid() {
+    return getenv('ACQUIA_APPLICATION_UUID');
+  }
+
+  /**
    * @return false|string
    */
   public static function getThisRemoteIdeUuid() {
     return getenv('REMOTEIDE_UUID');
-  }
-
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   *
-   * @param string $message
-   *
-   * @return \Acquia\Cli\Output\Spinner\Spinner
-   */
-  public function addSpinnerToLoop(
-    LoopInterface $loop,
-    $message
-  ): Spinner {
-      $spinner = new Spinner($this->output, 4);
-      $spinner->setMessage($message);
-      $spinner->start();
-      $loop->addPeriodicTimer($spinner->interval(),
-        static function () use ($spinner) {
-          $spinner->advance();
-        });
-
-    return $spinner;
-  }
-
-  protected function finishSpinner(Spinner $spinner) {
-    $spinner->finish();
-  }
-
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   * @param $minutes
-   * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
-   */
-  public function addTimeoutToLoop(
-    LoopInterface $loop,
-    $minutes,
-    Spinner $spinner
-  ): void {
-    $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
-      $this->finishSpinner($spinner);
-      $this->logger->debug("Timed out after $minutes minutes!");
-      $loop->stop();
-    });
   }
 
   /**

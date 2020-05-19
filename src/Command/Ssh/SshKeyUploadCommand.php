@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LoopHelper;
 use AcquiaCloudApi\Connector\Client;
 use React\EventLoop\Factory;
 use RuntimeException;
@@ -77,7 +78,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       if (strpos($filepath, '.pub') === FALSE) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
-      $public_key = file_get_contents($filepath);
+      $public_key = $this->getApplication()->getLocalMachineHelper()->readFile($filepath);
       $chosen_local_key = basename($filepath);
     } else {
       // Get local key and contents.
@@ -157,7 +158,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         break;
       }
     }
-    return file_get_contents($filepath);
+    return $this->getApplication()->getLocalMachineHelper()->readFile($filepath);
   }
 
   /**
@@ -172,7 +173,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
-    $spinner = $this->addSpinnerToLoop($loop, 'Waiting for SSH key to become available on Acquia Cloud...');
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for SSH key to become available on Acquia Cloud...', $output);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $acquia_cloud_client, $public_key, $spinner) {
@@ -181,13 +182,13 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $cloud_key) {
         if (trim($cloud_key->public_key) === trim($public_key)) {
-          $this->finishSpinner($spinner);
+          LoopHelper::finishSpinner($spinner);
           $output->writeln("\n<info>Your SSH key is ready for use.</info>");
           $loop->stop();
         }
       }
     });
-    $this->addTimeoutToLoop($loop, 10, $spinner);
+    LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
     $loop->run();
   }
 

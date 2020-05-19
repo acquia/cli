@@ -7,11 +7,11 @@ use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
-use drupol\phposinfo\Enum\FamilyName;
 use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
@@ -68,6 +68,18 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   protected $dataDir;
 
   /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  protected $sshHelper;
+
+  /**
+   * @return \Acquia\Cli\Helpers\SshHelper
+   */
+  public function getSshHelper(): SshHelper {
+    return $this->sshHelper;
+  }
+
+  /**
    * @return \Acquia\Cli\Helpers\LocalMachineHelper
    */
   public function getLocalMachineHelper(): LocalMachineHelper {
@@ -99,8 +111,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->setAutoExit(FALSE);
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
-    $this->repoRoot = $repo_root;
+    $this->setRepoRoot($repo_root);
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
+    $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
@@ -119,23 +132,17 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
-   * Initializes Amplitude.
+   * @param string|null $repoRoot
    */
-  private function initializeAmplitude() {
-    $amplitude = Amplitude::getInstance();
-    $amplitude->init('956516c74386447a3148c2cc36013ac3')
-      ->setDeviceId(OsInfo::uuid())
-      ->setUserProperties($this->getTelemetryUserData());
-    try {
-      $amplitude->setUserId($this->getUserId());
-    }
-    catch (IdentityProviderException $e) {
-      // If something is wrong with the Cloud API client, don't bother users.
-    }
-    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
-      $amplitude->setOptOut(TRUE);
-    }
-    $amplitude->logQueuedEvents();
+  public function setRepoRoot(?string $repoRoot): void {
+    $this->repoRoot = $repoRoot;
+  }
+
+  /**
+   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
+   */
+  public function setSshHelper(\Acquia\Cli\Helpers\SshHelper $sshHelper): void {
+    $this->sshHelper = $sshHelper;
   }
 
   /**
@@ -167,6 +174,25 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
+  }
+
+  /**
+   * Initializes Amplitude.
+   */
+  private function initializeAmplitude() {
+    $amplitude = Amplitude::getInstance();
+    $amplitude->init('956516c74386447a3148c2cc36013ac3')
+      ->setDeviceId(OsInfo::uuid())
+      ->setUserProperties($this->getTelemetryUserData());
+    try {
+      $amplitude->setUserId($this->getUserId());
+    } catch (IdentityProviderException $e) {
+      // If something is wrong with the Cloud API client, don't bother users.
+    }
+    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
+      $amplitude->setOptOut(TRUE);
+    }
+    $amplitude->logQueuedEvents();
   }
 
   /**

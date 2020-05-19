@@ -240,107 +240,65 @@ class LocalMachineHelper {
   /**
    * Starts a background browser/tab for the current site or a specified URL.
    *
-   * Uses a non-blocking Process call, so Drush execution will continue.
-   *
    * @param $uri
    *   Optional URI or site path to open in browser. If omitted, or if a site path
    *   is specified, the current site home page uri will be prepended if the site's
    *   hostname resolves.
-   * @param int $sleep
-   * @param bool $port
-   * @param bool $browser
+   * @param string $browser The command to run to launch a browser.
    *
    * @return bool
    *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.
    */
-  public function startBrowser($uri = NULL, $sleep = 0, $port = FALSE, $browser = TRUE): bool {
-    if ($browser) {
-      // We can only open a browser if we have a DISPLAY environment variable on
-      // POSIX or are running Windows or OS X.
-      if (!getenv('DISPLAY') && !OsInfo::isWindows() && !OsInfo::isApple()) {
-        $this->logger->info('No graphical display appears to be available, not starting browser.');
+  public function startBrowser($uri = NULL, $browser = NULL): bool {
+    // We can only open a browser if we have a DISPLAY environment variable on
+    // POSIX or are running Windows or OS X.
+    if (!getenv('DISPLAY') && !OsInfo::isWindows() && !OsInfo::isApple()) {
+      $this->logger->info('No graphical display appears to be available, not starting browser.');
+      return FALSE;
+    }
+    $host = parse_url($uri, PHP_URL_HOST);
 
-        return FALSE;
-      }
-      $host = parse_url($uri, PHP_URL_HOST);
-      if (!$host) {
-        // Build a URI for the current site, if we were passed a path.
-        $site = $this->uri;
-        $host = parse_url($site, PHP_URL_HOST);
-        $uri = $site . '/' . ltrim($uri, '/');
-      }
-      // Validate that the host part of the URL resolves, so we don't attempt to
-      // open the browser for http://default or similar invalid hosts.
-      $hosterror = (gethostbynamel($host) === FALSE);
-      $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
-      if ($hosterror || $iperror) {
-        $this->logger->warning(
-              '!host does not appear to be a resolvable hostname or IP, not starting browser.',
-              ['!host' => $host]
-          );
+    // Validate that the host part of the URL resolves, so we don't attempt to
+    // open the browser for http://default or similar invalid hosts.
+    $hosterror = (gethostbynamel($host) === FALSE);
+    $iperror = (ip2long($host) && gethostbyaddr($host) == $host);
+    if ($hosterror || $iperror) {
+      $this->logger->warning(
+            '!host does not appear to be a resolvable hostname or IP, not starting browser.',
+            ['!host' => $host]
+        );
 
-        return FALSE;
+      return FALSE;
+    }
+    if ($browser === NULL) {
+      // See if we can find an OS helper to open URLs in default browser.
+      if ($this->commandExists('xdg-open')) {
+        $browser = 'xdg-open';
       }
-      if ($port) {
-        $uri = str_replace($host, "localhost:$port", $uri);
-      }
-      if ($browser === TRUE) {
-        // See if we can find an OS helper to open URLs in default browser.
-        if ($this->commandExists('xdg-open')) {
-          $browser = 'xdg-open';
+      else {
+        if ($this->commandExists('open')) {
+          $browser = 'open';
         }
         else {
-          if ($this->commandExists('open')) {
-            $browser = 'open';
+          if ($this->commandExists('start')) {
+            $browser = 'start';
           }
           else {
-            if ($this->commandExists('start')) {
-              $browser = 'start';
-            }
-            else {
-              $this->logger->warning('Could not find a browser on your local machine.');
-              return FALSE;
-            }
+            $this->logger->warning('Could not find a browser on your local machine.');
+            return FALSE;
           }
         }
       }
-
-      if ($browser) {
-        $this->logger->info('Opening browser !browser at !uri', ['!browser' => $browser, '!uri' => $uri]);
-        $args = [];
-
-        if ($sleep) {
-          $args = ['sleep', $sleep, '&&'];
-        }
-        // @todo We implode because quoting is messing up the sleep.
-        $process = new Process(array_merge($args, [$browser, $uri]));
-        $process->run();
-
-        return TRUE;
-      }
     }
+    if ($browser) {
+      $this->logger->info('Opening browser !browser at !uri', ['!browser' => $browser, '!uri' => $uri]);
+      $process = new Process([$browser, $uri]);
+      $process->run();
 
+      return TRUE;
+    }
     return FALSE;
-  }
-
-  /**
-   * @param $ssh_url
-   * @param $command
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  public function runCommandViaSsh($ssh_url, $command): Process {
-    return $this->execute([
-      'ssh',
-      '-T',
-      '-o',
-      'StrictHostKeyChecking no',
-      '-o',
-      'LogLevel=ERROR',
-      $ssh_url,
-      $command,
-    ], NULL, NULL, FALSE);
   }
 
 }

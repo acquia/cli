@@ -44,10 +44,11 @@ class InferApplicationTest extends CommandTestBase {
       'get', '200');
     // The searchApplicationEnvironmentsForGitUrl() method will only look
     // for a match of the vcs url on the prod env. So, we mock a prod env.
-    $environment_response->flags->production = TRUE;
+    $environment_response2 = $environment_response;
+    $environment_response2->flags->production = TRUE;
     $cloud_client->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$environment_response])
+      ->willReturn([$environment_response, $environment_response2])
       ->shouldBeCalled();
 
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
@@ -62,7 +63,57 @@ class InferApplicationTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    // Searching for a matching Cloud application...
+    $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
+    $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
+    $this->assertStringContainsString('Searching 2 applications on Acquia Cloud...', $output);
+    $this->assertStringContainsString('Searching Sample application 1 for matching git URLs', $output);
+    $this->assertStringContainsString('Found a matching application!', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
+  }
+
+  /**
+   *
+   */
+  public function testInferFailure(): void {
+    $this->setCommand($this->createCommand());
+
+    $cloud_client = $this->getMockClient();
+    $applications_response = $this->mockApplicationsRequest($cloud_client);
+    $application_response = $this->mockApplicationRequest($cloud_client);
+
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209.
+    $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      'get', '200');
+    $cloud_client->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$environment_response, $environment_response])
+      ->shouldBeCalled();
+    $cloud_client->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
+      ->willReturn([$environment_response, $environment_response])
+      ->shouldBeCalled();
+
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+
+    $this->executeCommand([], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'y',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ...
+      'y',
+    ]);
+
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
+    $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
+    $this->assertStringContainsString('Searching 2 applications on Acquia Cloud...', $output);
+    $this->assertStringContainsString('Searching Sample application 2 for matching git URLs', $output);
+    $this->assertStringContainsString('Could not find a matching Cloud application.', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
   }
 
   public function tearDown(): void {

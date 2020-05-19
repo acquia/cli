@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -26,8 +27,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function configure() {
     $this->setName('ide:wizard:ssh-key:create-upload')
       ->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setHidden(!CommandBase::isAcquiaRemoteIde())
-      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");
+      ->setHidden(!CommandBase::isAcquiaRemoteIde());
   }
 
   /**
@@ -42,7 +42,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $this->requireRemoteIdeEnvironment();
 
     $ide_uuid = CommandBase::getThisRemoteIdeUuid();
-    $cloud_app_uuid = getenv('ACQUIA_APPLICATION_UUID');
+    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
 
     if ($this->userHasUploadedLocalKeyToCloud()) {
       throw new AcquiaCliException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");
@@ -92,10 +92,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
     // Wait for the key to register on Acquia Cloud.
-    if ($input->getOption('no-wait') === FALSE) {
-      $this->pollAcquiaCloud($output, $dev_environment);
-    }
-
+    $this->pollAcquiaCloud($output, $dev_environment);
     // @todo Add to local ssh key agent.
 
     return 0;
@@ -146,19 +143,18 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
-    $spinner = $this->addSpinnerToLoop($loop,
-      'Waiting for key to become available on Acquia Cloud web servers...');
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers...', $output);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $process = $this->getApplication()->getLocalMachineHelper()->runCommandViaSsh($environment->sshUrl, 'ls');
+      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls']);
       if ($process->isSuccessful()) {
-        $this->finishSpinner($spinner);
+        LoopHelper::finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");
         $loop->stop();
       }
     });
-    $this->addTimeoutToLoop($loop, 10, $spinner);
+    LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
     $loop->run();
   }
 

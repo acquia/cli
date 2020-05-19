@@ -54,6 +54,10 @@ abstract class TestBase extends TestCase {
    * @var AcquiaCliApplication
    */
   protected $application;
+  /**
+   * @var \Symfony\Component\Console\Input\ArrayInput
+   */
+  protected $input;
 
   /**
    * This method is called before each test.
@@ -67,14 +71,13 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $input = new ArrayInput([]);
+    $this->input = new ArrayInput([]);
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
-    $this->application = new AcquiaCliApplication($logger, $input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
-    $this->fs->remove($this->application->getCloudConfigFilepath());
-    $this->fs->remove($this->application->getAcliConfigFilepath());
+    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
     parent::setUp();
@@ -82,8 +85,7 @@ abstract class TestBase extends TestCase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $filepath = $this->application->getCloudConfigFilepath();
-    $this->fs->remove($filepath);
+    $this->removeMockConfigFiles();
   }
 
   /**
@@ -235,6 +237,17 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
+  protected function createMockAcliConfigFile($cloud_app_uuid): void {
+    $this->application->getDatastore()->set($this->application->getAcliConfigFilename(), [
+      'localProjects' => [
+        0 => [
+          'directory' => $this->projectFixtureDir,
+          'cloud_application_uuid' => $cloud_app_uuid,
+        ],
+      ],
+    ]);
+  }
+
   /**
    * @param $cloud_client
    *
@@ -354,6 +367,11 @@ abstract class TestBase extends TestCase {
     $cloud_client->request('get', '/account/ssh-keys')
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
+  }
+
+  protected function removeMockConfigFiles(): void {
+    $this->fs->remove($this->application->getCloudConfigFilepath());
+    $this->fs->remove($this->application->getAcliConfigFilepath());
   }
 
 }
