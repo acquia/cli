@@ -33,25 +33,34 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Telemetry has been disabled.', $output);
   }
 
+  public function providerTestTelemetryPrompt(): array {
+    return [
+      // Would you like to share anonymous performance usage and data?
+      [
+        ['y'],
+        ['n']
+      ],
+    ];
+  }
+
   /**
    * Tests telemetry prompt.
+   *
+   * @dataProvider providerTestTelemetryPrompt
    */
-  public function testTelemetryPrompt(): void {
+  public function testTelemetryPrompt(array $input): void {
     $this->removeMockAcliConfigFile();
     $this->setCommand($this->createCommand());
-    $this->executeCommand([], ['y']);
+    $this->executeCommand([], $input);
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
-    $this->assertStringContainsString('Awesome! Thank you for helping!', $output);
-
-    $this->removeMockAcliConfigFile();
-    $this->setCommand($this->createCommand());
-    $this->executeCommand([], ['n']);
-    $output = $this->getDisplay();
-
-    $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
-    $this->assertStringContainsString('Ok, no data will be collected and shared with us.', $output);
+    if (in_array('y', $input)) {
+      $this->assertStringContainsString('Awesome! Thank you for helping!', $output);
+    }
+    else {
+      $this->assertStringContainsString('Ok, no data will be collected and shared with us.', $output);
+    }
   }
 
 }
