@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Helpers\DataStoreContract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -24,7 +25,16 @@ class TelemetryCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
+    $datastore = $this->getDatastore();
+    if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
+      $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
+      $this->output->writeln('Telemetry has been disabled.');
+    }
+    else {
+      $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
+      $this->output->writeln('Telemetry has been enabled.');
+    }
+
     return 0;
   }
 
