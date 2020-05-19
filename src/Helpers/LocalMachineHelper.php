@@ -39,7 +39,7 @@ class LocalMachineHelper {
    * @return bool
    */
   public function commandExists($command): bool {
-    $os_command = OsInfo::isWindows() ? ['where', $command] : ['command', '-v', $command];
+    $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
         // phpcs:ignore
         return $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
   }
