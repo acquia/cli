@@ -3,13 +3,17 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Connector\CliCloudConnector;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
+use AcquiaCloudApi\Endpoints\Account;
+use drupol\phposinfo\OsInfo;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -18,6 +22,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandBase.
@@ -103,6 +108,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
         string $version = 'UNKNOWN',
         $data_dir = NULL
     ) {
+    $this->setAutoExit(FALSE);
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
     $this->setRepoRoot($repo_root);
@@ -112,6 +118,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
+    $this->initializeAmplitude();
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -158,9 +165,103 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @throws \Exception When running fails. Bypass this when <a href='psi_element://setCatchExceptions()'>setCatchExceptions()</a>.
    */
   public function run(InputInterface $input = NULL, OutputInterface $output = NULL) {
-    // @todo Add telemetry.
     $exit_code = parent::run($input, $output);
+    $event_properties = [
+      'exit_code' => $exit_code,
+      'arguments' => $input->getArguments(),
+      'options' => $input->getOptions(),
+    ];
+    Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
+
     return $exit_code;
+  }
+
+  /**
+   * Initializes Amplitude.
+   */
+  private function initializeAmplitude() {
+    $amplitude = Amplitude::getInstance();
+    $amplitude->init('956516c74386447a3148c2cc36013ac3')
+      ->setDeviceId(OsInfo::uuid())
+      ->setUserProperties($this->getTelemetryUserData());
+    try {
+      $amplitude->setUserId($this->getUserId());
+    } catch (IdentityProviderException $e) {
+      // If something is wrong with the Cloud API client, don't bother users.
+    }
+    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
+      $amplitude->setOptOut(TRUE);
+    }
+    $amplitude->logQueuedEvents();
+  }
+
+  /**
+   * Get telemetry user data.
+   *
+   * @return array
+   *   Telemetry user data.
+   */
+  public function getTelemetryUserData() {
+    $data = [
+      'app_version' => $this->getVersion(),
+      // phpcs:ignore
+      'platform' => OsInfo::family(),
+      'os_name' => OsInfo::os(),
+      'os_version' => OsInfo::version(),
+      'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
+      'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
+      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+    ];
+    try {
+      $user = $this->getUserData();
+      if (isset($user['is_acquian'])) {
+        $data['is_acquian'] = $user['is_acquian'];
+      }
+    }
+    catch (IdentityProviderException $e) {
+      // If something is wrong with the Cloud API client, don't bother users.
+    }
+    return $data;
+  }
+
+  /**
+   * Get user uuid.
+   *
+   * @return string|null
+   *   User UUID from Cloud.
+   */
+  public function getUserId() {
+    $user = $this->getUserData();
+    if ($user && isset($user['uuid'])) {
+      return $user['uuid'];
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get user data.
+   *
+   * @return array|null
+   *   User account data from Cloud.
+   */
+  public function getUserData() {
+    $datastore = $this->getDatastore();
+    $user = $datastore->get(DataStoreContract::USER);
+
+    if (!$user && $this->isMachineAuthenticated()) {
+      $client = $this->getAcquiaCloudClient();
+      $account = new Account($client);
+      $user_account = $account->get();
+      $user = [
+        'uuid' => $user_account->uuid,
+        'is_acquian' => substr($user_account->mail, -10, 10) === 'acquia.com'
+      ];
+      $datastore->set(DataStoreContract::USER, $user);
+    }
+
+    return $user;
   }
 
   /**
@@ -251,6 +352,14 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   public function getAcliConfigFilepath(): string {
     return $this->dataDir . '/' . $this->getAcliConfigFilename();
+  }
+
+  /**
+   * @return bool
+   */
+  public function isMachineAuthenticated(): bool {
+    $cloud_api_conf = $this->getCloudApiDatastore();
+    return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 
 }
