@@ -7,10 +7,20 @@ namespace Acquia\Cli\Tests;
  */
 class LocalMachineHelperTest extends TestBase {
 
-  public function testStartBrowser(): void {
+  public function providerTestStartBrowser() {
+    return [
+      ['cat'],
+      [NULL],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestStartBrowser
+   */
+  public function testStartBrowser($browser): void {
     putenv('DISPLAY=1');
     $local_machine_helper = $this->application->getLocalMachineHelper();
-    $opened = $local_machine_helper->startBrowser('https://google.com', 'cat');
+    $opened = $local_machine_helper->startBrowser('https://google.com', $browser);
     $this->assertTrue($opened, 'Failed to open browser');
     putenv('DISPLAY');
   }
@@ -47,6 +57,12 @@ class LocalMachineHelperTest extends TestBase {
     $process = $local_machine_helper->execute(['ls', '-lash'], NULL, $this->projectFixtureDir, FALSE);
     $this->assertTrue($process->isSuccessful());
     $this->assertStringContainsString('docroot', $process->getOutput());
+  }
+
+  public function testCommandExists(): void {
+    $local_machine_helper = $this->application->getLocalMachineHelper();
+    $exists = $local_machine_helper->commandExists('cat');
+    $this->assertIsBool($exists);
   }
 
 }
