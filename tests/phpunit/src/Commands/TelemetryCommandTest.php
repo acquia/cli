@@ -33,4 +33,17 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Telemetry has been disabled.', $output);
   }
 
+  /**
+   * Tests telemetry prompt.
+   */
+  public function testTelemetryPrompt(): void {
+    $this->removeMockAcliConfigFile();
+    $this->setCommand($this->createCommand());
+    $this->executeCommand([], ['y']);
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
+    $this->assertStringContainsString('Awesome! Thank you for helping!', $output);
+  }
+
 }
