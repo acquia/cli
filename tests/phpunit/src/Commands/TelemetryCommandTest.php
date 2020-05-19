@@ -44,6 +44,14 @@ class TelemetryCommandTest extends CommandTestBase {
 
     $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
     $this->assertStringContainsString('Awesome! Thank you for helping!', $output);
+
+    $this->removeMockAcliConfigFile();
+    $this->setCommand($this->createCommand());
+    $this->executeCommand([], ['n']);
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
+    $this->assertStringContainsString('Ok, no data will be collected and shared with us.', $output);
   }
 
 }
