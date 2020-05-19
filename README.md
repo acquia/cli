@@ -71,6 +71,9 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 - [Acquia BLT](https://github.com/acquia/blt): Provides an automation framework for setting up and managing Drupal applications. Acquia BLT is installed in a Drupal application and provides support for just that application, while Acquia CLI should be installed globally and allows you to interact with any Acquia service. Acquia CLI is not an automation framework like Acquia BLT.
 - [ADS CLI](https://docs.acquia.com/dev-studio/cli/): Provides local development environments based on Lando and an interface for interacting with Acquia services. Acquia CLI also provides an interface for interacting with Acquia services, but does not provide a local development environment. **Rather than ADS CLI, consider using Acquia CLI alongside either [Acquia Remote IDEs](https://docs.acquia.com/dev-studio/ide/) or third-party development environments such as [Lando](https://lando.dev/).**
 - [Pipelines CLI](https://docs.acquia.com/acquia-cloud/develop/pipelines/cli/): Provides an interface for managing [Acquia Pipelines](https://docs.acquia.com/acquia-cloud/develop/pipelines) jobs. Acquia CLI does not allow you to manage Pipelines jobs, although this functionality is in the roadmap.
+- [Typhonius Acquia CLI](https://github.com/typhonius/acquia_cli): Provides just an interface for Cloud API. Acquia CLI (acquia/cli) is a superset of this functionality, with access to the Cloud API as well as Acquia services not part of Cloud API.
+- [ACSF tools](https://github.com/acquia/acsf-tools): Provides Drush commands for interacting with ACSF. Duplicates some functionality of Acquia CLI, but in the form of Drush commands rather than a standalone CLI.
+
 ## Development / contribution
 
 Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md).
