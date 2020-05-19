@@ -170,17 +170,26 @@ class RefreshCommand extends CommandBase {
    * @param string $db_host
    * @param $db_name
    * @param callable $output_callback
+   *
+   * @return bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createAndImportRemoteDatabaseDump($environment, $database, string $db_host, $db_name, $output_callback = NULL): void {
+  protected function createAndImportRemoteDatabaseDump($environment, $database, string $db_host, $db_name, $output_callback = NULL): bool {
     $mysql_dump_filepath = $this->dumpFromRemoteHost($environment, $database, $db_host, $db_name, $output_callback);
+    if (!$mysql_dump_filepath) {
+      $this->output->writeln('<error>Unable to dump MySQL database on remote host.</error>');
+      return FALSE;
+    }
 
     // @todo Determine this dynamically?
+    // @todo Allow to be passed by argument?
     // @todo Validate local MySQL connection before running commands.
     // @todo Enable these vars to be configured.
     $local_db_host = 'localhost';
     $local_db_user = 'drupal';
     $local_db_name = 'drupal';
     $local_db_password = 'drupal';
+    // @todo See if this is successful!
     $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->importDatabaseDump(
@@ -191,6 +200,8 @@ class RefreshCommand extends CommandBase {
           $local_db_password,
           $output_callback
       );
+
+    return TRUE;
   }
 
   /**
@@ -378,21 +389,25 @@ class RefreshCommand extends CommandBase {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    * @param object $database
    * @param callable $output_callback
+   *
+   * @return bool
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function importRemoteDatabase(
         $chosen_environment,
         $database,
         $output_callback = NULL
-    ): void {
+    ): bool {
     $db_url_parts = explode('/', $database->url);
     $db_name = end($db_url_parts);
     // Workaround until db_host is fixed (CXAPI-7018).
     $db_host = $database->db_host ?: "db-${$db_name}.cdb.database.services.acquia.io";
-    $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name, $output_callback);
+    return $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name, $output_callback);
   }
 
   /**
-   *
+   * @param callable $output_callback
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     // @todo Add support for Drush 8.
@@ -405,7 +420,7 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   *
+   * @param callable $output_callback
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
     $this->getApplication()->getLocalMachineHelper()->execute([
@@ -417,7 +432,7 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   *
+   * @param callable $output_callback
    */
   protected function composerInstall($output_callback = NULL): void {
     $this->getApplication()->getLocalMachineHelper()->execute([
