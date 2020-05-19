@@ -41,9 +41,10 @@ class RefreshCommandTest extends CommandTestBase {
 
   public function providerTestRefreshCommand(): array {
     return [
-      [FALSE, FALSE],
-      [TRUE, TRUE],
-      [TRUE, FALSE],
+      [FALSE, FALSE, FALSE, TRUE],
+      [FALSE, FALSE, TRUE, TRUE],
+      [TRUE, TRUE, TRUE, TRUE],
+      [TRUE, FALSE, TRUE, TRUE],
     ];
   }
 
@@ -54,10 +55,12 @@ class RefreshCommandTest extends CommandTestBase {
    *
    * @param bool $create_mock_git_config
    * @param bool $is_dirty
+   * @param bool $drush_connection_exists
+   * @param bool $mysql_dump_successful
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testRefreshCommand($create_mock_git_config, $is_dirty): void {
+  public function testRefreshCommand($create_mock_git_config, $is_dirty, $drush_connection_exists, $mysql_dump_successful): void {
     $this->setCommand($this->createCommand());
 
     // Client responses.
@@ -92,9 +95,7 @@ class RefreshCommandTest extends CommandTestBase {
     $process = $this->mockProcess();
 
     // Database.
-    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response);
-    $this->application->setSshHelper($ssh_helper->reveal());
-
+    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response, $mysql_dump_successful);
     $this->mockWriteMySqlDump($local_machine_helper);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
@@ -111,9 +112,11 @@ class RefreshCommandTest extends CommandTestBase {
 
     // Drush.
     $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper);
-    $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
-    $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
+    $this->mockExecuteDrushStatus($local_machine_helper, $drush_connection_exists);
+    if ($drush_connection_exists) {
+      $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
+      $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
+    }
 
     // Set up file system.
     $local_machine_helper
@@ -121,8 +124,10 @@ class RefreshCommandTest extends CommandTestBase {
       ->willReturn($this->fs)
       ->shouldBeCalled();
 
+    // Set helpers.
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
     $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->application->setSshHelper($ssh_helper->reveal());
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -182,7 +187,7 @@ class RefreshCommandTest extends CommandTestBase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockProcess(): ObjectProphecy {
+  protected function mockProcess($success = TRUE): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -193,11 +198,12 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteDrushStatus(
-    ObjectProphecy $local_machine_helper
+    ObjectProphecy $local_machine_helper,
+    $has_connection
   ): void {
     $drush_status_process = $this->prophet->prophesize(Process::class);
-    $drush_status_process->isSuccessful()->willReturn(TRUE);
-    $drush_status_process->getExitCode()->willReturn(0);
+    $drush_status_process->isSuccessful()->willReturn($has_connection);
+    $drush_status_process->getExitCode()->willReturn($has_connection ? 0 : 1);
     $drush_status_process->getOutput()
       ->willReturn(json_encode(['db-status' => 'Connected']));
     $local_machine_helper
@@ -412,12 +418,14 @@ class RefreshCommandTest extends CommandTestBase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
    * @param object $environments_response
+   * @param bool $success
    */
   protected function mockExecuteSshMySqlDump(
     ObjectProphecy $ssh_helper,
-    $environments_response
+    $environments_response,
+    $success
   ): void {
-    $process = $this->mockProcess();
+    $process = $this->mockProcess($success);
     $process->getOutput()->willReturn('dbdumpcontents');
     $ssh_helper->executeCommand(
         new EnvironmentResponse($environments_response),
