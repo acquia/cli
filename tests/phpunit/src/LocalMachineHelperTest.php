@@ -49,4 +49,10 @@ class LocalMachineHelperTest extends TestBase {
     $this->assertStringContainsString('docroot', $process->getOutput());
   }
 
+  public function testCommandExists(): void {
+    $local_machine_helper = $this->application->getLocalMachineHelper();
+    $exists = $local_machine_helper->commandExists('cat');
+    $this->assertIsBool($exists);
+  }
+
 }
