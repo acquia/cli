@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Helpers\DataStoreContract;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -231,6 +232,9 @@ abstract class TestBase extends TestCase {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->application->getCloudConfigFilepath();
     $this->fs->dumpFile($filepath, $contents);
+    $contents = json_encode([DataStoreContract::SEND_TELEMETRY => FALSE]);
+    $filepath = $this->application->getAcliConfigFilepath();
+    $this->fs->dumpFile($filepath, $contents);
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
@@ -367,6 +371,10 @@ abstract class TestBase extends TestCase {
 
   protected function removeMockConfigFiles(): void {
     $this->fs->remove($this->application->getCloudConfigFilepath());
+    $this->removeMockAcliConfigFile();
+  }
+
+  protected function removeMockAcliConfigFile(): void {
     $this->fs->remove($this->application->getAcliConfigFilepath());
   }
 

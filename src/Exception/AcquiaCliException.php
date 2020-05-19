@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Exception;
 
 use Exception;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class AcquiaCliException.
@@ -36,9 +37,13 @@ class AcquiaCliException extends Exception {
     $this->replacements = $replacements;
     $this->raw_message = $message;
 
-    parent::__construct($this->interpolateString($message, $replacements), $code);
+    $event_properties = [
+      'message' => $message,
+      'code' => $code
+    ];
+    Amplitude::getInstance()->queueEvent('Threw exception', $event_properties);
 
-    // @todo Log via Telemetry.
+    parent::__construct($this->interpolateString($message, $replacements), $code);
   }
 
   /**
