@@ -7,20 +7,10 @@ namespace Acquia\Cli\Tests;
  */
 class LocalMachineHelperTest extends TestBase {
 
-  public function providerTestStartBrowser() {
-    return [
-      ['cat'],
-      [NULL],
-    ];
-  }
-
-  /**
-   * @dataProvider providerTestStartBrowser
-   */
-  public function testStartBrowser($browser): void {
+  public function testStartBrowser(): void {
     putenv('DISPLAY=1');
     $local_machine_helper = $this->application->getLocalMachineHelper();
-    $opened = $local_machine_helper->startBrowser('https://google.com', $browser);
+    $opened = $local_machine_helper->startBrowser('https://google.com', 'cat');
     $this->assertTrue($opened, 'Failed to open browser');
     putenv('DISPLAY');
   }
