@@ -35,6 +35,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Webmozart\PathUtil\Path;
+use Zumba\Amplitude\Amplitude;
 
 $pharPath = Phar::running(TRUE);
 if ($pharPath) {
@@ -49,11 +50,12 @@ $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
 $repo_root = find_repo_root();
+$amplitude = Amplitude::getInstance();
 
 /**
  * Running Acquia CLI.
  */
-$application = new AcquiaCliApplication($logger, $input, $output, $repo_root, '@package_version@');
+$application = new AcquiaCliApplication($logger, $input, $output, $repo_root, $amplitude, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),
