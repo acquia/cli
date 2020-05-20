@@ -36,7 +36,6 @@ class CommandBaseTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
     $application_response = $this->mockApplicationRequest($cloud_client);
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], []);
   }
 
@@ -44,7 +43,6 @@ class CommandBaseTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
     $application_response = $this->mockApplicationRequest($cloud_client);
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([
       '--cloud-app-uuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
     ], []);
@@ -53,7 +51,6 @@ class CommandBaseTest extends CommandTestBase {
   public function testInvalidCloudAppUuidArg(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     try {
       $this->executeCommand([
         '--cloud-app-uuid' => 'a47ac10b-i-do-not-feel-validated',

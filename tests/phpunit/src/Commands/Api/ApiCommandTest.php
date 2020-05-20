@@ -31,7 +31,6 @@ class ApiCommandTest extends CommandTestBase {
     $cloud_client->addQuery('limit', '1')->shouldBeCalled();
     $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
     // client's query correctly.
     $this->executeCommand(['--limit' => '1']);

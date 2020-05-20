@@ -83,6 +83,7 @@ abstract class TestBase extends TestCase {
     $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $this->amplitudeProphecy->reveal(), 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
+    $this->getMockClient();
 
     parent::setUp();
   }
@@ -229,7 +230,14 @@ abstract class TestBase extends TestCase {
    * @return \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client
    */
   protected function getMockClient() {
-    return $this->prophet->prophesize(Client::class);
+    $client = $this->prophet->prophesize(Client::class);
+    $application_response = $this->getMockResponseFromSpec('/account',
+      'get', '200');
+    $client->request('get',
+      '/account')
+      ->willReturn($application_response);
+    $this->application->setAcquiaCloudClient($client->reveal());
+    return $client;
   }
 
   protected function createMockConfigFile(): void {
