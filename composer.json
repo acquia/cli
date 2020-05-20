@@ -89,6 +89,12 @@
       "cd ..",
       "rm -rf cx-api-spec"
     ],
+    "box-install": [
+      "curl -O -L https://github.com/humbug/box/releases/download/3.8.4/box.phar"
+    ],
+    "box-compile": [
+      "php box.phar compile"
+    ],
     "cs": "phpcs",
     "cbf": "phpcbf",
     "unit": "phpunit tests/phpunit -vvv",
