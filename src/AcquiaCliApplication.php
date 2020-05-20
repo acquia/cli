@@ -371,4 +371,21 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 
+  /**
+   * Checks validity of Cloud API credentials by actually pinging Cloud API.
+   *
+   * @return bool
+   */
+  public function areAcquiaCloudCredentialsValid(): bool {
+    $client = $this->getAcquiaCloudClient();
+    try {
+      $account = new Account($client);
+      $account->get();
+    }
+    catch (IdentityProviderException $e) {
+      return FALSE;
+    }
+    return TRUE;
+  }
+
 }
