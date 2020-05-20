@@ -55,7 +55,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   /**
    * @var \Zumba\Amplitude\Amplitude
    */
-  public $amplitude;
+  private $amplitude;
 
   /**
    * @var string
@@ -99,6 +99,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param $repo_root
    *
+   * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $version
    *
    * @param null $data_dir
@@ -110,6 +111,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
         InputInterface $input,
         OutputInterface $output,
         $repo_root,
+        $amplitude,
         string $version = 'UNKNOWN',
         $data_dir = NULL
     ) {
@@ -123,6 +125,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
+    $this->amplitude = $amplitude;
     $this->initializeAmplitude();
 
     // Add API commands.
@@ -185,10 +188,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * Initializes Amplitude.
    */
   private function initializeAmplitude() {
-    $this->amplitude = Amplitude::getInstance();
-    $this->amplitude->init('956516c74386447a3148c2cc36013ac3')
-      ->setDeviceId(OsInfo::uuid())
-      ->setUserProperties($this->getTelemetryUserData());
+    $this->amplitude->init('956516c74386447a3148c2cc36013ac3');
+    // Method chaining breaks Prophecy?
+    // @see https://github.com/phpspec/prophecy/issues/25
+    $this->amplitude->setDeviceId(OsInfo::uuid());
+    $this->amplitude->setUserProperties($this->getTelemetryUserData());
     try {
       $this->amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
