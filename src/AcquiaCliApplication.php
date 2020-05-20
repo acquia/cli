@@ -53,6 +53,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private $acquiaCloudClient;
 
   /**
+   * @var \Zumba\Amplitude\Amplitude
+   */
+  public $amplitude;
+
+  /**
    * @var string
    */
   protected $acliConfigFilename = 'acquia-cli.json';
@@ -171,7 +176,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
     ];
-    Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
+    $this->amplitude->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
   }
@@ -180,19 +185,19 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * Initializes Amplitude.
    */
   private function initializeAmplitude() {
-    $amplitude = Amplitude::getInstance();
-    $amplitude->init('956516c74386447a3148c2cc36013ac3')
+    $this->amplitude = Amplitude::getInstance();
+    $this->amplitude->init('956516c74386447a3148c2cc36013ac3')
       ->setDeviceId(OsInfo::uuid())
       ->setUserProperties($this->getTelemetryUserData());
     try {
-      $amplitude->setUserId($this->getUserId());
+      $this->amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
     if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
-      $amplitude->setOptOut(TRUE);
+      $this->amplitude->setOptOut(TRUE);
     }
-    $amplitude->logQueuedEvents();
+    $this->amplitude->logQueuedEvents();
   }
 
   /**
