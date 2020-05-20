@@ -42,7 +42,7 @@ jobs:
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
     - stage: "Build packages for CLI"
       if: tag IS present
-      install: composer box-install
+      install: composer install --no-dev --optimize-autoloader && composer box-install
       script: composer box-compile
       deploy:
         provider: releases
