@@ -37,11 +37,13 @@ class TelemetryCommandTest extends CommandTestBase {
     return [
       [
         // Would you like to share anonymous performance usage and data?
-        ['y', 'Awesome! Thank you for helping!'],
+        ['y'],
+        'Awesome! Thank you for helping!',
       ],
       [
         // Would you like to share anonymous performance usage and data?
-        ['n', 'Ok, no data will be collected and shared with us.']
+        ['n'],
+        'Ok, no data will be collected and shared with us.',
       ],
     ];
   }
