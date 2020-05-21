@@ -31,4 +31,12 @@ class UpdateCommandTest extends CommandTestBase {
     }
   }
 
+  public function testUpdate() {
+    $this->setCommand($this->createCommand());
+    $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
+    $this->command->setPharPath($stub_phar);
+
+    $this->executeCommand([], []);
+  }
+
 }

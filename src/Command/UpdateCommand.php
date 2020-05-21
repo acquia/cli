@@ -2,42 +2,20 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\AcquiaCliApplication;
-use Exception;
-use Humbug\SelfUpdate\Strategy\GithubStrategy;
+use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Humbug\SelfUpdate\Updater;
 use Phar;
-use PharException;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use UnexpectedValueException;
-use function error_reporting;
 
 /**
  * Class UpdateCommand.
  */
 class UpdateCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
-  protected $gitHubRepository;
-
-  /**
-   * @var string
-   */
-  protected $applicationName;
-
-  /**
-   * @var string
-   */
-  protected $pharFilepath;
-
-  /**
-   * @var string
-   */
-  protected $pharFilename;
+  /** @var string */
+  protected $pharPath;
 
   /**
    * {inheritdoc}.
@@ -57,12 +35,13 @@ class UpdateCommand extends CommandBase {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if (empty(Phar::running())) {
+    if (!$this->getPharPath()) {
       throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()
           ->getName() . '.');
     }
 
-    $updater = new Updater(NULL, FALSE, Updater::STRATEGY_GITHUB);
+    $updater = new Updater($this->getPharPath(), FALSE);
+    $updater->setStrategyObject(new GithubStrategy());
     $updater->getStrategy()->setStability(GithubStrategy::STABLE);
     $updater->getStrategy()->setPackageName('acquia/cli');
     $updater->getStrategy()->setPharName('acli');
@@ -81,6 +60,23 @@ class UpdateCommand extends CommandBase {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
     }
+  }
+
+  /**
+   * @return string
+   */
+  public function getPharPath(): string {
+    if (!isset($this->pharPath)) {
+      $this->pharPath = Phar::running(TRUE);
+    }
+    return $this->pharPath;
+  }
+
+  /**
+   * @param string $pharPath
+   */
+  public function setPharPath(string $pharPath): void {
+    $this->pharPath = $pharPath;
   }
 
 }
