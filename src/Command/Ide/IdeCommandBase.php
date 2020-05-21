@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 
@@ -15,7 +16,7 @@ abstract class IdeCommandBase extends CommandBase {
    * @param string $question_text
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
-   * @return \AcquiaCloudApi\Response\IdeResponse|null
+   * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
@@ -24,7 +25,12 @@ abstract class IdeCommandBase extends CommandBase {
     $cloud_application_uuid
   ): ?IdeResponse {
     $ides = iterator_to_array($ides_resource->getAll($cloud_application_uuid));
-    return $this->promptChooseFromObjects($ides, 'uuid', 'label', $question_text);
+    if (empty($ides)) {
+      throw new AcquiaCliException('No IDEs exist for this application.');
+    }
+    /** @var IdeResponse $ide_response */
+    $ide_response = $this->promptChooseFromObjects($ides, 'uuid', 'label', $question_text);
+    return $ide_response;
   }
 
 }
