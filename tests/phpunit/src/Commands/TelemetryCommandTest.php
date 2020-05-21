@@ -37,11 +37,11 @@ class TelemetryCommandTest extends CommandTestBase {
     return [
       [
         // Would you like to share anonymous performance usage and data?
-        ['y'],
+        ['y', 'Awesome! Thank you for helping!'],
       ],
       [
         // Would you like to share anonymous performance usage and data?
-        ['n']
+        ['n', 'Ok, no data will be collected and shared with us.']
       ],
     ];
   }
@@ -51,19 +51,14 @@ class TelemetryCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestTelemetryPrompt
    */
-  public function testTelemetryPrompt(array $input): void {
+  public function testTelemetryPrompt(array $input, $message): void {
     $this->removeMockAcliConfigFile();
     $this->setCommand($this->createCommand());
     $this->executeCommand([], $input);
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);
-    if (in_array('y', $input)) {
-      $this->assertStringContainsString('Awesome! Thank you for helping!', $output);
-    }
-    else {
-      $this->assertStringContainsString('Ok, no data will be collected and shared with us.', $output);
-    }
+    $this->assertStringContainsString($message, $output);
   }
 
 }
