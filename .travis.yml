@@ -60,7 +60,6 @@ install:
   # Load composer dependencies.
   - composer validate --no-check-all --ansi
   - 'composer -n ${HIGHEST_LOWEST-install} --prefer-dist -o'
-  - ./bin/acli auth:login --key=notarealkeyatall --secret=thisisaplaceholder --no-interaction
 
 script:
   - composer test
