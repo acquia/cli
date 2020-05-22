@@ -64,4 +64,21 @@ class CommandBaseTest extends CommandTestBase {
     }
   }
 
+  public function testInvalidApiCreds(): void {
+    $this->setCommand($this->createCommand());
+    $cloud_client = $this->getMockClient();
+    $cloud_client->request('get', '/applications')
+      ->willReturn('invalid_client')
+      ->shouldBeCalled();
+    try {
+      $this->executeCommand();
+      $output = $this->getDisplay();
+    }
+    catch (\Exception $e) {
+      // what is it?
+      echo $e;
+    }
+    echo $output;
+  }
+
 }
