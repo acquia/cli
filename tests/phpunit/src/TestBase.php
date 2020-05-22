@@ -60,10 +60,21 @@ abstract class TestBase extends TestCase {
    */
   protected $input;
 
+  /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
   protected $amplitudeProphecy;
 
   /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected $clientProphecy;
+
+  /**
    * This method is called before each test.
+   *
+   * @param null $output
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp($output = NULL): void {
@@ -80,7 +91,13 @@ abstract class TestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
-    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $this->amplitudeProphecy->reveal(), 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    /** @var Amplitude $amplitude */
+    $amplitude = $this->amplitudeProphecy->reveal();
+    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $amplitude, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->clientProphecy = $this->prophet->prophesize(Client::class);
+    /** @var Client $client */
+    $client = $this->clientProphecy->reveal();
+    $this->application->setAcquiaCloudClient($client);
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -226,10 +243,10 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @return \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client
+   * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function getMockClient() {
-    return $this->prophet->prophesize(Client::class);
+    return $this->clientProphecy;
   }
 
   protected function createMockConfigFile(): void {
@@ -253,34 +270,28 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockApplicationsRequest($cloud_client) {
+  public function mockApplicationsRequest() {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $cloud_client->request('get', '/applications')
+    $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $applications_response;
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockApplicationRequest(
-    $cloud_client
-  ) {
+  protected function mockApplicationRequest() {
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
     $application_response = $applications_response->{'_embedded'}->items[0];
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
       ->willReturn($application_response)
       ->shouldBeCalled();
@@ -312,15 +323,13 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeListRequest($cloud_client) {
+  protected function mockIdeListRequest() {
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides',
       'get', '200');
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
@@ -329,15 +338,13 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockListSshKeysRequest($cloud_client) {
+  protected function mockListSshKeysRequest() {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
-    $cloud_client->request('get', '/account/ssh-keys')
+    $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $response;

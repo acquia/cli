@@ -24,7 +24,6 @@ abstract class SshCommandTestBase extends CommandTestBase {
       $applications_response);
     $cloud_client->clearQuery()->shouldBeCalled();
     $cloud_client->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
   }
 
   /**

@@ -29,10 +29,9 @@ class AliasesListCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
 
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
-    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($cloud_client, $applications_response);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

@@ -29,9 +29,9 @@ class IdeDeleteCommandTest extends CommandTestBase {
   public function testIdeDeleteCommand(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
-    $ide_list_response = $this->mockIdeListRequest($cloud_client);
+    $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockIdeListRequest();
 
     // Request to delete IDE.
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
@@ -52,7 +52,6 @@ class IdeDeleteCommandTest extends CommandTestBase {
       0,
     ];
 
-   $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], $inputs);
 
     // Assert.

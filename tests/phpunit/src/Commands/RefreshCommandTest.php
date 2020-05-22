@@ -65,10 +65,10 @@ class RefreshCommandTest extends CommandTestBase {
 
     // Client responses.
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
-    $databases_response = $this->mockDatabasesResponse($cloud_client, $environments_response);
+    $this->mockDatabasesResponse($cloud_client, $environments_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     if ($create_mock_git_config) {
@@ -126,7 +126,6 @@ class RefreshCommandTest extends CommandTestBase {
 
     // Set helpers.
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->application->setSshHelper($ssh_helper->reveal());
 
     $inputs = [

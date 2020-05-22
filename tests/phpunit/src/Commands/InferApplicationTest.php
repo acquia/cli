@@ -36,7 +36,7 @@ class InferApplicationTest extends CommandTestBase {
 
     $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $this->mockApplicationRequest();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
@@ -50,8 +50,6 @@ class InferApplicationTest extends CommandTestBase {
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response2])
       ->shouldBeCalled();
-
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -78,8 +76,8 @@ class InferApplicationTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
 
     $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
@@ -93,8 +91,6 @@ class InferApplicationTest extends CommandTestBase {
       "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response])
       ->shouldBeCalled();
-
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

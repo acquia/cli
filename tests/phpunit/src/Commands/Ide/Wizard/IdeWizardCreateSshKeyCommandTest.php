@@ -30,9 +30,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    */
   public function testCreate(): void {
     $cloud_client = $this->getMockClient();
-    $application_response = $this->mockApplicationRequest($cloud_client);
-    $ssh_key_list_response = $this->mockListSshKeysRequest($cloud_client);
-    $ide = $this->mockIdeRequest($cloud_client);
+    $this->mockApplicationRequest();
+    $this->mockListSshKeysRequest();
+    $this->mockIdeRequest();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
@@ -52,7 +52,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Set properties and execute.
     $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $this->executeCommand([], [
       // Would you like to link the project at ... ?
       'y',
@@ -67,9 +66,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   public function testSshKeyAlreadyUploaded(): void {
     $this->setCommand($this->createCommand());
     $cloud_client = $this->getMockClient();
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $this->mockApplicationRequest();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $ide = $this->mockIdeRequest($cloud_client);
+    $ide = $this->mockIdeRequest();
     $label = $this->command->getIdeSshKeyLabel($ide);
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
@@ -82,7 +81,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
     $base_filename = basename($temp_file_name);
     $this->application->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     try {
       $this->executeCommand([], []);
     }
@@ -101,14 +99,12 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   // @todo Test that this can only be run inside IDE.
 
   /**
-   * @param $cloud_client
-   *
    * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeRequest($cloud_client): \AcquiaCloudApi\Response\IdeResponse {
+  protected function mockIdeRequest(): \AcquiaCloudApi\Response\IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $cloud_client->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
     return $ide;
   }
