@@ -3,6 +3,7 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -18,11 +19,13 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webmozart\KeyValueStore\JsonFileStore;
-use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandBase.
@@ -137,6 +140,18 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
+
+    // Clean up exceptions thrown during commands.
+    $dispatcher = new EventDispatcher();
+    $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
+      $exitCode = $event->getExitCode();
+      $error = $event->getError();
+      // Make OAuth server errors more human-friendly.
+      if ($error instanceof IdentityProviderException && $error->getMessage() == 'invalid_client') {
+        $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', [], $exitCode));
+      }
+    });
+    $this->setDispatcher($dispatcher);
   }
 
   /**
