@@ -33,16 +33,4 @@ class ListCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString('api:', $output);
   }
 
-  /**
-   * Tests the execution of bin/acli via bash.
-   */
-  public function testBinExec() {
-    $acli_root = Path::canonicalize(dirname(dirname(dirname(dirname(__DIR__)))));
-    $acli_bin = Path::join($acli_root, 'bin', 'acli');
-    $process = new Process([$acli_bin, 'list']);
-    $process->mustRun();
-    $this->assertStringContainsString('api', $process->getOutput());
-    $this->assertStringNotContainsString('api:ssh-key:create', $process->getOutput());
-  }
-
 }
