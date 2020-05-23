@@ -4,6 +4,8 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\ApplicationTestBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -25,10 +27,11 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $cloud_client = $this->getMockClient();
     // Simulate the response from OAuth server due to invalid credentials.
     $cloud_client->request('get', '/applications')
-      ->willReturn('invalid_client')
+      ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => "The client credentials are invalid"]))
       ->shouldBeCalled();
-    $this->app->run(['link'], ['interactive' => FALSE]);
-    $output = $this->app->getDisplay();
+    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->applicationTester->run(['link'], ['interactive' => FALSE]);
+    $output = $this->applicationTester->getDisplay();
     $this->assertStringContainsString("Your Cloud API credentials are invalid. Run acli auth:login to reset them.", $output);
   }
 }
