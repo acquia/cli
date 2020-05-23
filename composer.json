@@ -21,6 +21,7 @@
     "react/event-loop": "^1.1",
     "symfony/cache": "^5.0",
     "symfony/console": "^5.0",
+    "symfony/event-dispatcher": "^5.0",
     "symfony/filesystem": "^5.1@dev",
     "symfony/finder": "^5.0",
     "symfony/process": "^5.0",
