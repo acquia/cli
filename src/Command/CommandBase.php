@@ -122,6 +122,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
+    // In fact some other commands such as `api:list` don't require auth, but it's easier and safer to assume they do.
     return $this->input->getFirstArgument() !== 'auth:login';
   }
 
