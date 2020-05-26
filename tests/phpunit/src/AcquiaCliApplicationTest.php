@@ -8,7 +8,7 @@ use Zumba\Amplitude\Amplitude;
 
 class AcquiaCliApplicationTest extends TestBase {
 
-  public function testRun(): void {
+  public function testAmplitude(): void {
     $this->amplitudeProphecy->queueEvent('Ran command', Argument::type('array'))->shouldBeCalled();
     $this->amplitudeProphecy->init('956516c74386447a3148c2cc36013ac3')->shouldBeCalled();
     $this->amplitudeProphecy->setDeviceId(Argument::type('string'))->shouldBeCalled();
@@ -20,5 +20,10 @@ class AcquiaCliApplicationTest extends TestBase {
     $exit_code = $this->application->run($this->input, $this->consoleOutput);
     $this->assertEquals(0, $exit_code);
     $this->prophet->checkPredictions();
+  }
+
+  public function testSetCloudClient(): void {
+    unset($this->application->acquiaCloudClient);
+    $this->assertIsObject($this->application->getAcquiaCloudClient());
   }
 }

@@ -53,7 +53,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   /**
    * @var \AcquiaCloudApi\Connector\Client
    */
-  private $acquiaCloudClient;
+  public $acquiaCloudClient;
 
   /**
    * @var \Zumba\Amplitude\Amplitude

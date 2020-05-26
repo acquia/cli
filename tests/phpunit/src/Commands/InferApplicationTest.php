@@ -34,9 +34,8 @@ class InferApplicationTest extends CommandTestBase {
   public function testInfer(): void {
     $this->setCommand($this->createCommand());
 
-    $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
@@ -46,12 +45,10 @@ class InferApplicationTest extends CommandTestBase {
     // for a match of the vcs url on the prod env. So, we mock a prod env.
     $environment_response2 = $environment_response;
     $environment_response2->flags->production = TRUE;
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response2])
       ->shouldBeCalled();
-
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -77,24 +74,21 @@ class InferApplicationTest extends CommandTestBase {
   public function testInferFailure(): void {
     $this->setCommand($this->createCommand());
 
-    $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response])
       ->shouldBeCalled();
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response])
       ->shouldBeCalled();
-
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
 
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

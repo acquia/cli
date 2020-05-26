@@ -48,11 +48,9 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
     $this->fs->remove($ssh_key_filepath);
 
-    $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $this->mockUploadSshKey($cloud_client, $mock_request_args);
-    $this->mockListSshKeyRequestWithUploadedKey($mock_request_args, $cloud_client);
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->mockUploadSshKey();
+    $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
 
     $inputs = [
       // Please enter a filename for your new local SSH key:
