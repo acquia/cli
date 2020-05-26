@@ -45,6 +45,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
 
     if ($this->userHasUploadedLocalKeyToCloud()) {
+      // @todo Don't throw an exception here. Exit successfully.
       throw new AcquiaCliException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");
     }
 
@@ -88,6 +89,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
+
+    // @todo Add the key to the local SSH agent.
 
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
