@@ -29,7 +29,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    $cloud_client = $this->getMockClient();
     $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();
     $this->mockIdeRequest();
@@ -37,10 +36,10 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $cloud_client->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
-    $this->mockUploadSshKey($cloud_client);
+    $this->mockUploadSshKey();
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
@@ -65,7 +64,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   public function testSshKeyAlreadyUploaded(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
     $this->mockApplicationRequest();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $ide = $this->mockIdeRequest();
@@ -74,7 +72,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       '200');
     // Make the uploaded key match the created one.
     $response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
-    $cloud_client->request('get', '/account/ssh-keys')
+    $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
 

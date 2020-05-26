@@ -28,14 +28,13 @@ class IdeDeleteCommandTest extends CommandTestBase {
    */
   public function testIdeDeleteCommand(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 
     // Request to delete IDE.
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
-    $cloud_client->request(
+    $this->clientProphecy->request(
           'delete',
           '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
       )->willReturn($response->{"De-provisioning IDE"}->value)

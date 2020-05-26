@@ -48,7 +48,6 @@ class CommandBaseTest extends CommandTestBase {
 
   public function testInvalidCloudAppUuidArg(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
     try {
       $this->executeCommand([
         '--cloud-app-uuid' => 'a47ac10b-i-do-not-feel-validated',

@@ -26,10 +26,9 @@ class ApiCommandTest extends CommandTestBase {
    * Tests the 'api:*' commands.
    */
   public function testApiCommandExecutionForHttpGet(): void {
-    $cloud_client = $this->getMockClient();
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $cloud_client->addQuery('limit', '1')->shouldBeCalled();
-    $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
+    $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
+    $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
     // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
     // client's query correctly.
@@ -56,13 +55,12 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testApiCommandExecutionForHttpPost(): void {
-    $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     foreach ($mock_request_args as $name => $value) {
-      $cloud_client->addOption('form_params', [$name => $value])->shouldBeCalled();
+      $this->clientProphecy->addOption('form_params', [$name => $value])->shouldBeCalled();
     }
-    $cloud_client->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
+    $this->clientProphecy->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
     $this->executeCommand($mock_request_args);
 

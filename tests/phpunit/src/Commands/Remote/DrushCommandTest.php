@@ -27,8 +27,7 @@ class DrushCommandTest extends SshCommandTestBase {
    */
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
-    $this->mockForGetEnvironmentFromAliasArg($cloud_client);
+    $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
 
     $ssh_command = [

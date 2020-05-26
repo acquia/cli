@@ -64,11 +64,10 @@ class RefreshCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
 
     // Client responses.
-    $cloud_client = $this->getMockClient();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($cloud_client, $applications_response);
-    $this->mockDatabasesResponse($cloud_client, $environments_response);
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->mockDatabasesResponse($environments_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     if ($create_mock_git_config) {
@@ -171,11 +170,10 @@ class RefreshCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockDatabasesResponse(
-    $cloud_client,
     $environments_response
   ) {
     $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/acsf_db_response.json')));
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/environments/{$environments_response->id}/databases")
       ->willReturn($databases_response)
       ->shouldBeCalled();
@@ -453,14 +451,12 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param $cloud_client
    * @param object $applications_response
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
-    $cloud_client,
     $applications_response
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
@@ -470,7 +466,7 @@ class RefreshCommandTest extends CommandTestBase {
     $acsf_env_response = $this->getAcsfEnvResponse();
     $response->sshUrl = $acsf_env_response->sshUrl;
     $response->domains = $acsf_env_response->domains;
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
       ->shouldBeCalled();

@@ -23,27 +23,25 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
    */
   public function testDelete(): void {
 
-    $cloud_client = $this->getMockClient();
-
     // Request for IDE data.
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $cloud_client->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
 
     // Request for list of SSH keys in Cloud.
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = $this->command->getIdeSshKeyLabel($ide);
-    $cloud_client->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
 
     // Request for specific SSH key in Cloud.
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = $this->command->getIdeSshKeyLabel($ide);
-    $cloud_client->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($mock_body->{'_embedded'}->items[0])->shouldBeCalled();
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($mock_body->{'_embedded'}->items[0])->shouldBeCalled();
 
     // Request ssh key deletion.
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
-    $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
+    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
 
     // Create the file so it can be deleted.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);

@@ -32,10 +32,9 @@ class SshKeyUploadCommandTest extends CommandTestBase
   public function testUpload(): void {
     $this->setCommand($this->createCommand());
 
-    $cloud_client = $this->getMockClient();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $this->mockUploadSshKey($cloud_client, $mock_request_args);
-    $this->mockListSshKeyRequestWithUploadedKey($mock_request_args, $cloud_client);
+    $this->mockUploadSshKey();
+    $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
 
     // Choose a local SSH key to upload to Acquia Cloud.
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);

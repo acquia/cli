@@ -242,13 +242,6 @@ abstract class TestBase extends TestCase {
     return $temp_file_name;
   }
 
-  /**
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function getMockClient() {
-    return $this->clientProphecy;
-  }
-
   protected function createMockConfigFile(): void {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->application->getCloudConfigFilepath();
@@ -300,21 +293,19 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
    * @param object $applications_response
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
-    $cloud_client,
     $applications_response
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
       ->shouldBeCalled();
@@ -354,10 +345,10 @@ abstract class TestBase extends TestCase {
    * @param $cloud_client
    * @param array $mock_request_args
    */
-  protected function mockUploadSshKey($cloud_client): void {
+  protected function mockUploadSshKey(): void {
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
-    $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
+    $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
       ->willReturn($response->reveal())
       ->shouldBeCalled();
   }
@@ -369,13 +360,12 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockListSshKeyRequestWithUploadedKey(
-    $mock_request_args,
-    $cloud_client
+    $mock_request_args
   ): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
     $mock_body->_embedded->items[3] = (object) $mock_request_args;
-    $cloud_client->request('get', '/account/ssh-keys')
+    $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
   }
