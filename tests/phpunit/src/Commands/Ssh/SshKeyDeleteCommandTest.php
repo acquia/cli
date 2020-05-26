@@ -29,15 +29,13 @@ class SshKeyDeleteCommandTest extends CommandTestBase
   public function testDelete(): void {
     $this->setCommand($this->createCommand());
 
-    $cloud_client = $this->getMockClient();
-    $ssh_key_list_response = $this->mockListSshKeysRequest($cloud_client);
+    $ssh_key_list_response = $this->mockListSshKeysRequest();
 
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
-    $mock_delete_body = $this->getMockResponseFromSpec('/account/ssh-keys/{sshKeyUuid}', 'delete', '202');
-    $cloud_client->makeRequest('delete', '/account/ssh-keys/' . $ssh_key_list_response->_embedded->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
+    $this->getMockResponseFromSpec('/account/ssh-keys/{sshKeyUuid}', 'delete', '202');
+    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $ssh_key_list_response->_embedded->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
 
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
     $inputs = [
       // Choose key.
       '0',

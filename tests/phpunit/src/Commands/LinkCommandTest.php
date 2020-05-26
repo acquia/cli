@@ -31,10 +31,8 @@ class LinkCommandTest extends CommandTestBase {
    */
   public function testLinkCommand(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
-    $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
