@@ -1,15 +1,15 @@
 <?php
 
-namespace Acquia\Cli\Command\Logs;
+namespace Acquia\Cli\Command\Log;
 
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class LogsTailCommand.
+ * Class LogTailCommand.
  */
-class LogsTailCommand extends CommandBase {
+class LogTailCommand extends CommandBase {
 
   /**
    * {inheritdoc}.

@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\Logs;
+namespace Acquia\Cli\Command\Log;
 
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
@@ -10,9 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class LogsTailCommand.
+ * Class LogTailCommand.
  */
-class LogsListCommand extends CommandBase {
+class LogListCommand extends CommandBase {
 
   /**
    * {inheritdoc}.
@@ -30,10 +30,10 @@ class LogsListCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
-    $environment_uuid = $this->determineCloudEnvironment($application_uuid);
+    $environment_id = $this->determineCloudEnvironment($application_uuid);
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $logs_resource = new Logs($acquia_cloud_client);
-    $logs = $logs_resource->getAll($environment_uuid);
+    $logs = $logs_resource->getAll($environment_id);
     $table = new Table($output);
     $table->setStyle('borderless');
     $table->setHeaders(['Type', 'Label', 'Available']);

@@ -332,6 +332,21 @@ abstract class TestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
+  protected function mockLogListRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logs',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/12-a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
+      ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   protected function mockListSshKeysRequest() {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');

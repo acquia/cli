@@ -15,8 +15,8 @@ use Acquia\Cli\Command\Ide\IdeOpenCommand;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Command\LinkCommand;
-use Acquia\Cli\Command\Logs\LogsTailCommand;
-use Acquia\Cli\Command\Logs\LogsListCommand;
+use Acquia\Cli\Command\Log\LogTailCommand;
+use Acquia\Cli\Command\Log\LogListCommand;
 use Acquia\Cli\Command\NewCommand;
 use Acquia\Cli\Command\RefreshCommand;
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
@@ -69,8 +69,8 @@ $application->addCommands([
   new IdeWizardCreateSshKeyCommand(),
   new IdeWizardDeleteSshKeyCommand(),
   new LinkCommand(),
-  new LogsTailCommand(),
-  new LogsListCommand(),
+  new LogTailCommand(),
+  new LogListCommand(),
   new NewCommand(),
   new RefreshCommand(),
   new SshCommand(),
