@@ -93,12 +93,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($ide_uuid);
     $ssh_key_label = $this->getIdeSshKeyLabel($ide);
-    $filepath = $this->getApplication()->getSshKeysDir() . '/' . $filename . '.pub';
+    $public_key_filepath = $this->getApplication()->getSshKeysDir() . '/' . $filename . '.pub';
     $command = $this->getApplication()->find('ssh-key:upload');
     $arguments = [
       'command' => $command->getName(),
       '--label'  => $ssh_key_label,
-      '--filepath' => $filepath,
+      '--filepath' => $public_key_filepath,
       '--no-wait' => '',
     ];
     $upload_input = new ArrayInput($arguments);
@@ -107,7 +107,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
-    $this->addSshKeyToAgent($filepath, $password);
+    $this->addSshKeyToAgent($public_key_filepath, $password);
 
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
@@ -124,14 +124,13 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function addSshKeyToAgent($filepath, $password): string {
     if (!$this->sshKeyIsAddedToKeychain()) {
       $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
+      //"SSH_PASS=698f1b5d6149e66bfda681be00da7deb DISPLAY=1 SSH_ASKPASS=/home/ide/project/cli/src/Command/Ide/Wizard/passphrase_prompt.sh ssh-add /home/ide/.ssh/id_rsa_acquia_ide_2c583d6f-3945-4f50-8bae-e35ea196c83b.pub < /dev/null"
       $process = $this->getApplication()->getLocalMachineHelper()->execute([
-        'ssh-add',
-        $filepath,
-        'SSH_PASS=${' . $password . '} DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $filepath . ' < /dev/null'
+        'SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $filepath . ' < /dev/null'
       ], NULL, NULL, FALSE);
     }
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException($process->getOutput());
+      throw new AcquiaCliException('Unable to add SSH key to local SSH agent.');
     }
 
     return $filepath;
