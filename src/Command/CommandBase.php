@@ -156,6 +156,28 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   *
+   * @param string $application_uuid
+   *
+   * @return mixed
+   */
+  protected function promptChooseEnvironment(
+    Client $acquia_cloud_client,
+    string $application_uuid
+  ) {
+    $environment_resource = new Environments($acquia_cloud_client);
+    $environments = $environment_resource->getAll($application_uuid);
+    $environment = $this->promptChooseFromObjects(
+      $environments,
+      'uuid',
+      'name',
+      'Please select an Acquia Cloud environment:'
+    );
+    return $environment;
+  }
+
+  /**
    * @param \stdClass[] $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
@@ -340,6 +362,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return NULL;
+  }
+
+  /**
+   * @param $application_uuid
+   *
+   * @return mixed
+   */
+  protected function determineCloudEnvironment($application_uuid) {
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
+    return $environment->uuid;
+
   }
 
   /**
