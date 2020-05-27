@@ -107,7 +107,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
-    $this->addSshKeyToAgent($filepath);
+    $this->addSshKeyToAgent($filepath, $password);
 
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
@@ -121,12 +121,13 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function addSshKeyToAgent($filepath): string {
+  protected function addSshKeyToAgent($filepath, $password): string {
     if (!$this->sshKeyIsAddedToKeychain()) {
+      $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
       $process = $this->getApplication()->getLocalMachineHelper()->execute([
         'ssh-add',
         $filepath,
-        // @todo Pass passphrase.
+        'SSH_PASS=${' . $password . '} DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $filepath . ' < /dev/null'
       ], NULL, NULL, FALSE);
     }
     if (!$process->isSuccessful()) {
