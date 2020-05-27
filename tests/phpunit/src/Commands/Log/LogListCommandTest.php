@@ -51,6 +51,8 @@ class LogListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
+    $this->assertStringContainsString('Apache access', $output);
+    $this->assertStringContainsString('Drupal request', $output);
   }
 
 }
