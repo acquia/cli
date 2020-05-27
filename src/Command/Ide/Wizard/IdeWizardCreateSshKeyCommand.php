@@ -12,7 +12,6 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,6 +19,24 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IdeWizardCreateSshKeyCommand.
  */
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
+
+  /** @var string */
+  protected $passphraseFilepath;
+
+  /**
+   * Initializes the command just after the input has been validated.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *   An InputInterface instance.
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *   An OutputInterface instance.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
+    $this->passphraseFilepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.passphrase');
+  }
 
   /**
    * {inheritdoc}.
@@ -55,6 +72,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Create SSH key.
     $filename = $this->getSshKeyFilename($ide_uuid);
     $password = md5(random_bytes(10));
+    $this->savePassPhraseToFile($password);
 
     $command = $this->getApplication()->find('ssh-key:create');
     $arguments = [
@@ -89,16 +107,69 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
-
-    // @todo Add the key to the local SSH agent.
+    $this->addSshKeyToAgent($filepath);
 
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
     // Wait for the key to register on Acquia Cloud.
     $this->pollAcquiaCloud($output, $dev_environment);
-    // @todo Add to local ssh key agent.
 
     return 0;
+  }
+
+  /**
+   * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function addSshKeyToAgent($filepath): string {
+    if (!$this->sshKeyIsAddedToKeychain()) {
+      $process = $this->getApplication()->getLocalMachineHelper()->execute([
+        'ssh-add',
+        $filepath,
+        // @todo Pass passphrase.
+      ], NULL, NULL, FALSE);
+    }
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException($process->getOutput());
+    }
+
+    return $filepath;
+  }
+
+  /**
+   * @return bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function sshKeyIsAddedToKeychain() {
+    $process = $this->getApplication()->getLocalMachineHelper()->execute([
+      'ssh-add',
+      '-L',
+    ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException($process->getOutput());
+    }
+
+    return $process->getOutput() == 'The agent has no identities';
+  }
+
+  /**
+   * @param string $passphrase
+   *
+   * @return bool|int
+   */
+  protected function savePassPhraseToFile($passphrase) {
+    return file_put_contents($this->passphraseFilepath, $passphrase);
+  }
+
+  /**
+   * @return false|string|null
+   */
+  protected function getPassPhraseFromFile() {
+    if (file_exists($this->passphraseFilepath)) {
+      return file_get_contents($this->passphraseFilepath);
+    }
+
+    return NULL;
   }
 
   /**
