@@ -29,8 +29,9 @@ class LogListCommandTest extends CommandTestBase {
   public function testLogListCommand(): void {
     $this->setCommand($this->createCommand());
 
-    $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applications_response);
     $this->mockLogListRequest();
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -39,6 +40,8 @@ class LogListCommandTest extends CommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'y',
+      // Select environment
+      0,
     ];
     $this->executeCommand([], $inputs);
 

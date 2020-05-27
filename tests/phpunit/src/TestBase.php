@@ -336,7 +336,7 @@ abstract class TestBase extends TestCase {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logs',
       'get', '200');
     $this->clientProphecy->request('get',
-      '/environments/12-a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logs')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
 
