@@ -1,21 +1,21 @@
 <?php
 
-namespace Acquia\Cli\Command\Logs;
+namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class LogsTailCommand.
+ * Class LogTailCommand.
  */
-class LogsTailCommand extends CommandBase {
+class LogTailCommand extends CommandBase {
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('logs:tail')->setDescription('Tail the logs from your environments');
+    $this->setName('log:tail')->setDescription('Tail the logs from your environments');
     // @todo Add option to accept environment uuid.
   }
 
@@ -26,7 +26,11 @@ class LogsTailCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->output->writeln('<comment>This is a command stub. The command logic has not been written yet.');
+    $application_uuid = $this->determineCloudApplication();
+    $environment_id = $this->determineCloudEnvironment($application_uuid);
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
+    // Now need to connect via websocket to logstream server and filter by chosen logs.
     return 0;
   }
 
