@@ -15,7 +15,7 @@ class IdeOpenCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:open')->setDescription('The application associated with the IDE');
+    $this->setName('ide:open')->setDescription('Open a Remote IDE in your browser');
     // @todo Add option to specify application uuid.
     // @todo Add option to accept an ide UUID.
   }

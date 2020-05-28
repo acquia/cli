@@ -43,7 +43,7 @@ class UpdateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('self-update')->setDescription('update to the latest version');
+    $this->setName('self-update')->setDescription('Update to the latest version of Acquia CLI');
   }
 
   /**
