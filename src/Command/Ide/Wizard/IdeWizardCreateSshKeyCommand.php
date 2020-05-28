@@ -109,13 +109,15 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *   The filepath of the private SSH key.
    * @param $password
    *
+   * @group skipWindows
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent($filepath, $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
     $private_key_filepath = str_replace('.pub', '', $filepath);
-    $process = $this->getApplication()->getLocalMachineHelper()->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath . ' < /dev/null', NULL, NULL, FALSE);
+    $process = $this->getApplication()->getLocalMachineHelper()->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
