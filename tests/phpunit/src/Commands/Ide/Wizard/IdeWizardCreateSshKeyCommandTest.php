@@ -88,7 +88,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Make the uploaded key match the created one.
     $ssh_keys_response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
     $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($ssh_keys_response->{'_embedded'}->items)      
+      ->willReturn($ssh_keys_response->{'_embedded'}->items)
       ->shouldBeCalled();
 
     $this->clientProphecy->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
