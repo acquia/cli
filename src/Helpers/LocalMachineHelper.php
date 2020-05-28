@@ -62,7 +62,7 @@ class LocalMachineHelper {
   }
 
   /**
-   * @param $cmd
+   * @param string $cmd
    * @param null $callback
    * @param null $cwd
    * @param bool $print_output

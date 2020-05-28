@@ -39,16 +39,20 @@ class SshHelper {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param array $command_args
    *
+   * @param null $output_callback
+   *
    * @return \Symfony\Component\Process\Process
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function executeCommand($environment, array $command_args): Process {
+  public function executeCommand($environment, array $command_args, $output_callback = NULL): Process {
     $command_summary = $this->getCommandSummary($command_args);
-
+    if ($output_callback === NULL) {
+      $output_callback = $this->getOutputCallback();
+    }
     // Remove site_env arg.
     unset($command_args['alias']);
-    $process = $this->sendCommandViaSsh($environment, $command_args);
+    $process = $this->sendCommandViaSsh($environment, $command_args, $output_callback);
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
@@ -72,15 +76,17 @@ class SshHelper {
    * @param array $command
    *   The command to be run on the platform.
    *
+   * @param callable $output_callback
+   *
    * @return \Symfony\Component\Process\Process
    */
-  protected function sendCommandViaSsh($environment, $command): Process {
+  protected function sendCommandViaSsh($environment, $command, $output_callback): Process {
     $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
     return $this->getApplication()
       ->getLocalMachineHelper()
-      ->execute($command, $this->getOutputCallback());
+      ->execute($command, $output_callback);
   }
 
   /**

@@ -61,9 +61,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $ide_uuid = CommandBase::getThisRemoteIdeUuid();
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
 
+    // @todo Delete and recreate in this instance.
     if ($this->userHasUploadedLocalKeyToCloud()) {
-      // @todo Don't throw an exception here. Exit successfully.
-      throw new AcquiaCliException("You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.");
+      $output->writeln("<info>You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.</info>");
+      return 0;
     }
 
     $checklist = new Checklist($output);
@@ -216,7 +217,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls']);
+      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], NULL);
       if ($process->isSuccessful()) {
         LoopHelper::finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");
