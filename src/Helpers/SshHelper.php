@@ -45,14 +45,12 @@ class SshHelper {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function executeCommand($environment, array $command_args, $output_callback = NULL): Process {
+  public function executeCommand($environment, array $command_args, $print_output = TRUE): Process {
     $command_summary = $this->getCommandSummary($command_args);
-    if ($output_callback === NULL) {
-      $output_callback = $this->getOutputCallback();
-    }
+
     // Remove site_env arg.
     unset($command_args['alias']);
-    $process = $this->sendCommandViaSsh($environment, $command_args, $output_callback);
+    $process = $this->sendCommandViaSsh($environment, $command_args, $print_output);
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
@@ -80,13 +78,13 @@ class SshHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function sendCommandViaSsh($environment, $command, $output_callback): Process {
+  protected function sendCommandViaSsh($environment, $command, $print_output): Process {
     $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
     return $this->getApplication()
       ->getLocalMachineHelper()
-      ->execute($command, $output_callback);
+      ->execute($command, $this->getOutputCallback(), NULL, $print_output);
   }
 
   /**

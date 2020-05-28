@@ -59,11 +59,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $this->requireRemoteIdeEnvironment();
 
     $ide_uuid = CommandBase::getThisRemoteIdeUuid();
-    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
 
     // @todo Delete and recreate in this instance.
     if ($this->userHasUploadedLocalKeyToCloud()) {
-      $output->writeln("<info>You have already uploaded a local key to Acquia Cloud. You don't need to create a new one.</info>");
+      $output->writeln("<info>You have already uploaded a local key to Acquia Cloud.</info>");
       return 0;
     }
 
@@ -113,10 +112,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $this->addSshKeyToAgent($public_key_filepath, $password);
     $checklist->completePreviousItem();
 
-    // Wait for SSH key to be available on a web.
-    $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
     // Wait for the key to register on Acquia Cloud.
-    $this->pollAcquiaCloud($output, $dev_environment);
+    $this->pollAcquiaCloud($output);
 
     return 0;
   }
@@ -208,24 +205,30 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    */
   protected function pollAcquiaCloud(
-    OutputInterface $output,
-    EnvironmentResponse $environment
+    OutputInterface $output
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers...', $output);
 
+    // Wait for SSH key to be available on a web.
+    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
+    $environment = $this->getDevEnvironment($cloud_app_uuid);
+
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $output_callback = static function ($type, $buffer) {};
-      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], $output_callback);
-      if ($process->isSuccessful()) {
-        LoopHelper::finishSpinner($spinner);
-        $output->writeln("\n<info>Your SSH key is ready for use.</info>");
-        $loop->stop();
+      try {
+        $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], FALSE);
+        if ($process->isSuccessful()) {
+          LoopHelper::finishSpinner($spinner);
+          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
+          $loop->stop();
+        }
+      }
+      catch (AcquiaCliException $exception) {
+        // Do nothing. Keep waiting and looping.
       }
     });
     LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
