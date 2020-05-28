@@ -57,7 +57,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $checklist->addItem('You have already created a local key for this IDE');
+      $checklist->addItem('Already created a local key');
       $checklist->completePreviousItem();
     }
 
@@ -72,7 +72,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $checklist->addItem('You have already uploaded a local key to Acquia Cloud');
+      $checklist->addItem('Already uploaded local key to Acquia Cloud');
       $checklist->completePreviousItem();
     }
 
@@ -83,7 +83,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $checklist->addItem('SSH key has already been added to the local keychain');
+      $checklist->addItem('Already added SSH key to local keychain');
       $checklist->completePreviousItem();
     }
 
