@@ -23,8 +23,6 @@ use Webmozart\PathUtil\Path;
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
-  protected $cloudClient;
-
   protected $ide;
 
   // Tests:
@@ -40,7 +38,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
-    $this->cloudClient = $this->getMockClient();
     $this->mockListSshKeysRequest();
     $this->ide = $this->mockIdeRequest();
   }
@@ -94,23 +91,23 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       ->willReturn($ssh_keys_response->{'_embedded'}->items)      
       ->shouldBeCalled();
 
-    $this->cloudClient->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
       ->willReturn($ssh_keys_response->{'_embedded'}->items[0])
       ->shouldBeCalled();
 
     $delete_response = $this->prophet->prophesize(ResponseInterface::class);
     $delete_response->getStatusCode()->willReturn(202);
-    $this->cloudClient->makeRequest('delete', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
+    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
       ->willReturn($delete_response->reveal())
       ->shouldBeCalled();
 
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->cloudClient->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
-    $this->mockUploadSshKey($this->cloudClient);
+    $this->mockUploadSshKey();
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
