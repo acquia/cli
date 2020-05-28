@@ -20,7 +20,7 @@ class DrushCommand extends SSHBaseCommand {
   protected function configure() {
     $this->setName('remote:drush')
       ->setAliases(['drush'])
-      ->setDescription('Runs a Drush command remotely on a application\'s environment.')
+      ->setDescription('Run a Drush command remotely on a application\'s environment')
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for site & environment in the format `app-name.env`')
       ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
       ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")

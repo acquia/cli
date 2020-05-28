@@ -76,14 +76,4 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 
 ## Development / contribution
 
-Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md).
-
-No special tools or dependencies are necessary to develop or contrib to Acquia CLI. Simply clone the Git repo and install Composer dependencies:
-```
-git clone git@github.com:acquia/cli.git
-cd cli
-composer install
-./bin/acli
-```
-
-Be sure to validate and test your code locally using the provided Composer test scripts (`composer test`) before opening a PR.
+Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md), which also has more detailed information on how to develop Acquia CLI.
