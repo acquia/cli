@@ -42,7 +42,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $checklist = new Checklist($output);
 
     // Create local SSH key.
-    if ($this->localIdeSshKeyExists()) {
+    if (!$this->localIdeSshKeyExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
       // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
