@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Helpers\DataStoreContract;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophet;
@@ -60,10 +61,21 @@ abstract class TestBase extends TestCase {
    */
   protected $input;
 
+  /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
   protected $amplitudeProphecy;
 
   /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected $clientProphecy;
+
+  /**
    * This method is called before each test.
+   *
+   * @param null $output
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp($output = NULL): void {
@@ -80,7 +92,15 @@ abstract class TestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $repo_root = $this->projectFixtureDir;
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
-    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $this->amplitudeProphecy->reveal(), 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    /** @var Amplitude $amplitude */
+    $amplitude = $this->amplitudeProphecy->reveal();
+    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $amplitude, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->clientProphecy = $this->prophet->prophesize(Client::class);
+    /** @var Client $client */
+    $client = $this->clientProphecy->reveal();
+    $this->application->setAcquiaCloudClient($client);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -228,13 +248,6 @@ abstract class TestBase extends TestCase {
     return $public_key_filepath;
   }
 
-  /**
-   * @return \Prophecy\Prophecy\ObjectProphecy|Client $cloud_client
-   */
-  protected function getMockClient() {
-    return $this->prophet->prophesize(Client::class);
-  }
-
   protected function createMockConfigFile(): void {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
     $filepath = $this->application->getCloudConfigFilepath();
@@ -256,34 +269,28 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockApplicationsRequest($cloud_client) {
+  public function mockApplicationsRequest() {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $cloud_client->request('get', '/applications')
+    $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $applications_response;
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockApplicationRequest(
-    $cloud_client
-  ) {
+  protected function mockApplicationRequest() {
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
     $application_response = $applications_response->{'_embedded'}->items[0];
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
       ->willReturn($application_response)
       ->shouldBeCalled();
@@ -292,21 +299,19 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
    * @param object $applications_response
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
-    $cloud_client,
     $applications_response
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
       ->shouldBeCalled();
@@ -315,15 +320,13 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeListRequest($cloud_client) {
+  protected function mockIdeListRequest() {
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides',
       'get', '200');
-    $cloud_client->request('get',
+    $this->clientProphecy->request('get',
       '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
@@ -332,15 +335,43 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockListSshKeysRequest($cloud_client) {
+  protected function mockLogListRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logs',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logs')
+      ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockLogStreamRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream')
+      ->willReturn($response)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockListSshKeysRequest() {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
-    $cloud_client->request('get', '/account/ssh-keys')
+    $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($response->{'_embedded'}->items)
       ->shouldBeCalled();
     return $response;
@@ -350,10 +381,10 @@ abstract class TestBase extends TestCase {
    * @param $cloud_client
    * @param array $mock_request_args
    */
-  protected function mockUploadSshKey($cloud_client): void {
+  protected function mockUploadSshKey(): void {
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
-    $cloud_client->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
+    $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
       ->willReturn($response->reveal())
       ->shouldBeCalled();
   }
@@ -365,13 +396,12 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockListSshKeyRequestWithUploadedKey(
-    $mock_request_args,
-    $cloud_client
+    $mock_request_args
   ): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
     $mock_body->_embedded->items[3] = (object) $mock_request_args;
-    $cloud_client->request('get', '/account/ssh-keys')
+    $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
   }

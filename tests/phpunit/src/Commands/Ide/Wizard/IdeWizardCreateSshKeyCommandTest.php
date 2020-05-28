@@ -39,11 +39,10 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   //
   public function setUp($output = NULL): void {
     parent::setUp($output);
-
+    $this->mockApplicationRequest();
     $this->cloudClient = $this->getMockClient();
-    $application_response = $this->mockApplicationRequest($this->cloudClient);
-    $ssh_key_list_response = $this->mockListSshKeysRequest($this->cloudClient);
-    $this->ide = $this->mockIdeRequest($this->cloudClient);
+    $this->mockListSshKeysRequest();
+    $this->ide = $this->mockIdeRequest();
   }
 
   /**
@@ -52,14 +51,13 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->cloudClient->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
-    $this->mockUploadSshKey($this->cloudClient);
+    $this->mockUploadSshKey();
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
@@ -71,7 +69,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Set properties and execute.
     $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($this->cloudClient->reveal());
     $this->executeCommand([], [
       // Would you like to link the project at ... ?
       'y',
@@ -87,16 +84,14 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testSshKeyAlreadyUploaded(): void {
+    $this->setCommand($this->createCommand());
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-
     $label = $this->command->getIdeSshKeyLabel($this->ide);
-    $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
-      '200');
+    $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     // Make the uploaded key match the created one.
     $ssh_keys_response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
-    $ssh_keys_response->_embedded->items[0]->label = $label;
-    $this->cloudClient->request('get', '/account/ssh-keys')
-      ->willReturn($ssh_keys_response->{'_embedded'}->items)
+    $this->clientProphecy->request('get', '/account/ssh-keys')
+      ->willReturn($ssh_keys_response->{'_embedded'}->items)      
       ->shouldBeCalled();
 
     $this->cloudClient->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
@@ -124,8 +119,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $public_key_file_path = $this->createLocalSshKey($mock_request_args['public_key']);
     $base_filename = basename($public_key_file_path);
     $this->application->setSshKeysDir(sys_get_temp_dir());
-    $this->application->setAcquiaCloudClient($this->cloudClient->reveal());
-
     try {
       $this->executeCommand([], []);
     }
@@ -144,14 +137,12 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   // @todo Test that this can only be run inside IDE.
 
   /**
-   * @param $cloud_client
-   *
    * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeRequest($cloud_client): \AcquiaCloudApi\Response\IdeResponse {
+  protected function mockIdeRequest(): \AcquiaCloudApi\Response\IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $cloud_client->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
     return $ide;
   }

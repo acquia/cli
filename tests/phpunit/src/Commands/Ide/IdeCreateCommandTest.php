@@ -22,13 +22,12 @@ class IdeCreateCommandTest extends CommandTestBase {
    */
   public function testCreate(): void {
     $this->setCommand($this->createCommand());
-    $cloud_client = $this->getMockClient();
-    $applications_response = $this->mockApplicationsRequest($cloud_client);
-    $application_response = $this->mockApplicationRequest($cloud_client);
+    $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
 
     // Request to create IDE.
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');
-    $cloud_client->request(
+    $this->clientProphecy->request(
           'post',
           // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
           '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides',
@@ -37,9 +36,7 @@ class IdeCreateCommandTest extends CommandTestBase {
 
     // Request for IDE data.
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $cloud_client->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
-
-   $this->application->setAcquiaCloudClient($cloud_client->reveal());
+    $this->clientProphecy->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
 
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
