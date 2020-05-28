@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;
@@ -37,6 +38,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->createSshKey($input, $output);
+    $output->writeln('<info>Created new SSH key.</info>');
 
     return 0;
   }
@@ -45,7 +47,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createSshKey($input, $output): string {
+  protected function createSshKey($input, OutputInterface $output): string {
     $filename = $this->determineFilename($input, $output);
     $password = $this->determinePassword($input, $output);
 
@@ -64,7 +66,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $password,
     ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException($process->getOutput());
+      throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
     }
 
     return $filepath;
@@ -120,7 +122,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   protected function determinePassword(InputInterface $input, OutputInterface $output): string {
     if ($input->getOption('password')) {
       $password = $input->getOption('password');
-      $this->validateFilename($password);
+      $this->validatePassword($password);
     }
     else {
       $question = new Question('<question>Enter a password for your SSH key:</question> ');
@@ -142,6 +144,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    */
   protected function validatePassword($password) {
     $violations = Validation::createValidator()->validate($password, [
+      new Length(['min' => 5]),
       new NotBlank(),
     ]);
     if (count($violations)) {

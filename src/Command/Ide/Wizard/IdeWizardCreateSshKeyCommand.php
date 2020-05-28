@@ -63,11 +63,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Upload SSH key to Acquia Cloud.
     if (!$this->userHasUploadedIdeKeyToCloud()) {
+      $checklist->addItem('Uploading local key to Acquia Cloud');
+
       // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
       $this->deleteIdeSshKeyFromCloud();
-
-      $checklist->addItem('Uploading local key to Acquia Cloud');
       $this->uploadSshKeyToCloud($this->ide, $this->publicSshKeyFilepath);
+
       $checklist->completePreviousItem();
     }
     else {
@@ -169,7 +170,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
         if (
           $cloud_key->label === $this->getIdeSshKeyLabel($this->ide)
           // Assert that a corresponding private key exists.
-          && file_exists($this->privateSshKeyFilename)
+          && file_exists($this->privateSshKeyFilepath)
           // Assert local public key contents match Cloud public key contents.
           && trim($cloud_key->public_key) === trim(file_get_contents($this->publicSshKeyFilepath))
         ) {
