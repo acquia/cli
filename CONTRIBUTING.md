@@ -41,8 +41,26 @@ Pull requests must also adhere to the following guidelines:
 
 ## Building and testing
 
-To update the Acquia Cloud API spec, run:
+No special tools or dependencies are necessary to develop or contrib to Acquia CLI. Simply clone the Git repo and install Composer dependencies:
+```
+git clone git@github.com:acquia/cli.git
+cd cli
+composer install
+./bin/acli
+```
+
+Be sure to validate and test your code locally using the provided Composer test scripts (`composer test`) before opening a PR.
+
+## Updating Acquia Cloud API spec
+
+Acquia CLI stores a local copy of the Acquia Cloud API spec in the `assets` directory. To update the Acquia Cloud API spec, run:
 
 ```
 composer update-cloud-api-spec
 ```
+
+## Style guide
+
+Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
+
+Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Remote IDE`). 
