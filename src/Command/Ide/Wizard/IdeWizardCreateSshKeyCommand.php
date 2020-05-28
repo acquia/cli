@@ -183,8 +183,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (
           $cloud_key->label === $this->getIdeSshKeyLabel($this->ide)
-          // Assert that a corresponding private key exists.
+          // Assert that a corresponding local key exists.
           && file_exists($this->privateSshKeyFilepath)
+          && file_exists($this->publicSshKeyFilepath)
           // Assert local public key contents match Cloud public key contents.
           && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
         ) {
