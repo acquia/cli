@@ -187,10 +187,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     // Save empty local project info.
     // @todo Abstract this.
-    if ($local_user_config !== NULL && $this->getApplication()->getRepoRoot() !== NULL) {
+    if ($local_user_config !== NULL && $this->getApplication()->getContainer()->getParameter('repo_root') !== NULL) {
       $this->logger->debug('Searching local datastore for matching project...');
       foreach ($local_user_config['localProjects'] as $project) {
-        if ($project['directory'] === $this->getApplication()->getRepoRoot()) {
+        if ($project['directory'] === $this->getApplication()->getContainer()->getParameter('repo_root')) {
           $this->logger->debug('Matching local project found.');
           $this->localProjectInfo = $project;
           return;
@@ -202,7 +202,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $local_user_config = [];
     }
 
-    if ($this->getApplication()->getRepoRoot()) {
+    if ($this->getApplication()->getContainer()->getParameter('repo_root')) {
       $this->creatLocalProjectStubInConfig($local_user_config);
     }
   }
@@ -213,7 +213,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array|null
    */
   protected function getGitConfig(AcquiaCliApplication $application): ?array {
-    $file_path = $application->getRepoRoot() . '/.git/config';
+    $file_path = $application->getContainer()->getParameter('repo_root') . '/.git/config';
     if (file_exists($file_path)) {
       return parse_ini_file($file_path, TRUE);
     }
@@ -317,8 +317,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     AcquiaCliApplication $application,
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
-    if ($application->getRepoRoot()) {
-      $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getRepoRoot()}/.git</comment>.");
+    if ($application->getContainer()->getParameter('repo_root')) {
+      $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getContainer()->getParameter('repo_root')}/.git</comment>.");
       $question = new ConfirmationQuestion('<question>Would you like Acquia CLI to search for a Cloud application that matches your local git config?</question> ');
       $helper = $this->getHelper('question');
       $answer = $helper->ask($this->input, $this->output, $question);
@@ -428,7 +428,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       ];
     }
     foreach ($local_user_config['localProjects'] as $key => $project) {
-      if ($project['directory'] === $this->getApplication()->getRepoRoot()) {
+      if ($project['directory'] === $this->getApplication()->getContainer()->getParameter('repo_root')) {
         $project['cloud_application_uuid'] = $application->uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
@@ -470,7 +470,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateCwdIsValidDrupalProject(): void {
-    if (!$this->getApplication()->getRepoRoot()) {
+    if (!$this->getApplication()->getContainer()->getParameter('repo_root')) {
       throw new AcquiaCliException('Could not find a local Drupal project. Looked for `docroot/index.php`. Please execute this command from within a Drupal project directory.');
     }
   }
@@ -503,8 +503,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     array $local_user_config
   ): void {
     $project = [];
-    $project['name'] = basename($this->getApplication()->getRepoRoot());
-    $project['directory'] = $this->getApplication()->getRepoRoot();
+    $project['name'] = basename($this->getApplication()->getContainer()->getParameter('repo_root'));
+    $project['directory'] = $this->getApplication()->getContainer()->getParameter('repo_root');
     $local_user_config['localProjects'][] = $project;
 
     $this->localProjectInfo = $local_user_config;

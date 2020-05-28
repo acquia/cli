@@ -83,7 +83,7 @@ class RefreshCommand extends CommandBase {
     }
 
     if (!$input->getOption('no-scripts')) {
-      if (file_exists($this->getApplication()->getRepoRoot() . '/composer.json') && $this->getApplication()
+      if (file_exists($this->getApplication()->getContainer()->getParameter('repo_root') . '/composer.json') && $this->getApplication()
         ->getLocalMachineHelper()
         ->commandExists('composer')) {
         $checklist->addItem('Installing Composer dependencies');
@@ -136,13 +136,13 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
-    $repo_root = $this->getApplication()->getRepoRoot();
+    $repo_root = $this->getApplication()->getContainer()->getParameter('repo_root');
     if (!file_exists($repo_root . '/.git')) {
       $command = [
         'git',
         'clone',
         $chosen_environment->vcs->url,
-        $this->getApplication()->getRepoRoot(),
+        $this->getApplication()->getContainer()->getParameter('repo_root'),
       ];
       $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback);
     }
@@ -416,7 +416,7 @@ class RefreshCommand extends CommandBase {
       'cache:rebuild',
       '--yes',
       '--no-interaction',
-    ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
+    ], $output_callback, $this->getApplication()->getContainer()->getParameter('repo_root'), FALSE);
   }
 
   /**
@@ -428,7 +428,7 @@ class RefreshCommand extends CommandBase {
       'sql:sanitize',
       '--yes',
       '--no-interaction',
-    ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
+    ], $output_callback, $this->getApplication()->getContainer()->getParameter('repo_root'), FALSE);
   }
 
   /**
@@ -439,7 +439,7 @@ class RefreshCommand extends CommandBase {
       'composer',
       'install',
       '--no-interaction',
-    ], $output_callback, $this->getApplication()->getRepoRoot(), FALSE);
+    ], $output_callback, $this->getApplication()->getContainer()->getParameter('repo_root'), FALSE);
   }
 
   /**
@@ -451,7 +451,7 @@ class RefreshCommand extends CommandBase {
       '-rve',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
-      $this->getApplication()->getRepoRoot() . '/docroot/sites/default',
+      $this->getApplication()->getContainer()->getParameter('repo_root') . '/docroot/sites/default',
     ];
     $this->getApplication()->getLocalMachineHelper()->execute($command, $output_callback, NULL, FALSE);
   }

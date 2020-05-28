@@ -24,6 +24,7 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Webmozart\KeyValueStore\JsonFileStore;
 
@@ -38,9 +39,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   use DataStoreAwareTrait;
   use CloudApiDatastoreAwareTrait;
 
-  /**
-   * @var null|string*/
-  private $repoRoot;
+  private $container;
 
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
@@ -97,10 +96,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   /**
    * Cli constructor.
    *
+   * @param \Symfony\Component\DependencyInjection\Container $container
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $repo_root
    *
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $version
@@ -110,18 +109,18 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function __construct(
-        LoggerInterface $logger,
-        InputInterface $input,
-        OutputInterface $output,
-        $repo_root,
-        $amplitude,
-        string $version = 'UNKNOWN',
-        $data_dir = NULL
-    ) {
+    Container $container,
+    LoggerInterface $logger,
+    InputInterface $input,
+    OutputInterface $output,
+    $amplitude,
+    string $version = 'UNKNOWN',
+    $data_dir = NULL
+  ) {
+    $this->container = $container;
     $this->setAutoExit(FALSE);
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
-    $this->setRepoRoot($repo_root);
     $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
@@ -152,13 +151,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       }
     });
     $this->setDispatcher($dispatcher);
-  }
-
-  /**
-   * @param string|null $repoRoot
-   */
-  public function setRepoRoot(?string $repoRoot): void {
-    $this->repoRoot = $repoRoot;
   }
 
   /**
@@ -217,6 +209,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       $this->amplitude->setOptOut(TRUE);
     }
     $this->amplitude->logQueuedEvents();
+  }
+
+  public function getContainer() {
+    return $this->container;
   }
 
   /**
@@ -286,13 +282,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     }
 
     return $user;
-  }
-
-  /**
-   * @return null|string
-   */
-  public function getRepoRoot(): ?string {
-    return $this->repoRoot;
   }
 
   /**

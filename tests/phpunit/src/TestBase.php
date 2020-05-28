@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -89,11 +90,12 @@ abstract class TestBase extends TestCase {
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
-    $repo_root = $this->projectFixtureDir;
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     /** @var Amplitude $amplitude */
     $amplitude = $this->amplitudeProphecy->reveal();
-    $this->application = new AcquiaCliApplication($logger, $this->input, $output, $repo_root, $amplitude, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $container = new ContainerBuilder();
+    $container->setParameter('repo_root', $this->projectFixtureDir);
+    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, $amplitude, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     /** @var Client $client */
     $client = $this->clientProphecy->reveal();

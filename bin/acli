@@ -49,13 +49,14 @@ else {
 $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
-$repo_root = find_repo_root();
 $amplitude = Amplitude::getInstance();
+$container = new Symfony\Component\DependencyInjection\ContainerBuilder();
+$container->setParameter('repo_root', find_repo_root());
 
 /**
  * Running Acquia CLI.
  */
-$application = new AcquiaCliApplication($logger, $input, $output, $repo_root, $amplitude, '@package_version@');
+$application = new AcquiaCliApplication($container, $logger, $input, $output, $amplitude, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),

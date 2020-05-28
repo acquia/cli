@@ -36,7 +36,7 @@ class UnlinkCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
 
-    $repo_root = $this->getApplication()->getRepoRoot();
+    $repo_root = $this->getApplication()->getContainer()->getParameter('repo_root');
     $local_user_config = $this->getDatastore()->get($this->getApplication()->getAcliConfigFilename());
     if (!$this->getAppUuidFromLocalProjectInfo()) {
       throw new AcquiaCliException('There is no Acquia Cloud application linked to {repo_root}', ['repo_root' => $repo_root]);

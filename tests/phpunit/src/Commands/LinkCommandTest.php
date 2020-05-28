@@ -61,7 +61,7 @@ class LinkCommandTest extends CommandTestBase {
    */
   public function testLinkCommandInvalidDir(): void {
     $this->setCommand($this->createCommand());
-    $this->application->setRepoRoot(NULL);
+    $this->application->getContainer()->setParameter('repo_root', NULL);
     try {
       $this->executeCommand([], [], dirname($this->projectFixtureDir));
     }
