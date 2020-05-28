@@ -35,6 +35,10 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    * @var string
    */
   protected $publicSshKeyFilepath;
+  /**
+   * @var \AcquiaCloudApi\Response\IdeResponse
+   */
+  protected $ide;
 
   /**
    * Initializes the command just after the input has been validated.
@@ -53,6 +57,10 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
     $this->privateSshKeyFilepath = $this->getApplication()->getSshKeysDir() . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
+
+    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $ides_resource = new Ides($acquia_cloud_client);
+    $this->ide = $ides_resource->get($this->ideUuid);
   }
 
   /**
