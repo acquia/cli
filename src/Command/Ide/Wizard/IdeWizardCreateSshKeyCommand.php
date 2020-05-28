@@ -126,7 +126,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     if (!$this->sshKeyIsAddedToKeychain()) {
       $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
       $private_key_filepath = str_replace('.pub', '', $filepath);
-      $process = $this->getApplication()->getLocalMachineHelper()-> executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath . ' < /dev/null' , NULL, NULL, FALSE);
+      $process = $this->getApplication()->getLocalMachineHelper()->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath . ' < /dev/null', NULL, NULL, FALSE);
     }
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
@@ -177,7 +177,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $local_keys = $this->findLocalSshKeys();
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
-        if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
+        if (
+          // Assert local public key contents match Cloud public key contents.
+          trim($local_file->getContents()) === trim($cloud_key->public_key)
+          // Assert that a corresponding private key exists.
+          && file_exists(str_replace('.pub', '', $local_file->getRealPath()))
+        ) {
           return TRUE;
         }
       }
@@ -189,7 +194,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @param string $cloud_app_uuid
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
