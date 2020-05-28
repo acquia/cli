@@ -134,7 +134,21 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       '-L',
     ], NULL, NULL, FALSE);
 
-    return strpos($process->getOutput(), trim(file_get_contents($this->publicSshKeyFilepath))) !== FALSE;
+    return strpos($process->getOutput(), $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))) !== FALSE;
+  }
+
+  /**
+   * Normalizes public SSH key by trimming and removing user and machine suffix.
+   *
+   * @param $public_key
+   *
+   * @return string
+   */
+  protected function normalizePublicSshKey($public_key): string {
+    $parts = explode('== ', $public_key);
+    $key = $parts[0];
+
+    return trim($key);
   }
 
   /**
@@ -172,7 +186,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
           // Assert that a corresponding private key exists.
           && file_exists($this->privateSshKeyFilepath)
           // Assert local public key contents match Cloud public key contents.
-          && trim($cloud_key->public_key) === trim(file_get_contents($this->publicSshKeyFilepath))
+          && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
         ) {
           return TRUE;
         }
