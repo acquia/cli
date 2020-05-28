@@ -46,7 +46,6 @@ class AliasesListCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Fetching aliases for 1 applications from Acquia Cloud...', $output);
     $this->assertStringContainsString('| Sample application 1 | devcloud2.dev | 24-a47ac10b-58cc-4372-a567-0e02b2c3d470 |', $output);
   }
 
