@@ -134,7 +134,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       '-L',
     ], NULL, NULL, FALSE);
 
-    return $process->getOutput() === 'The agent has no identities';
+    return strpos($process->getOutput(), trim(file_get_contents($this->publicSshKeyFilepath))) !== FALSE;
   }
 
   /**
