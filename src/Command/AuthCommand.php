@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -128,15 +129,15 @@ class AuthCommand extends CommandBase {
     ): void {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
-      $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>.");
+      $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
       $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
-      $question = new ConfirmationQuestion(
-            '<question>Do you want to open this page to generate a token now?</question>',
-            TRUE
-        );
-      if ($this->questionHelper->ask($input, $output, $question)) {
-        $this->getApplication()->getLocalMachineHelper()->startBrowser($token_url);
+      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
+          TRUE);
+        if ($this->questionHelper->ask($input, $output, $question)) {
+          $this->getApplication()->getLocalMachineHelper()->startBrowser($token_url);
+        }
       }
     }
   }

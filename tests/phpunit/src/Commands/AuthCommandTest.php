@@ -108,7 +108,7 @@ class AuthCommandTest extends CommandTestBase {
    * @param string $output
    */
   protected function assertInteractivePrompts(string $output): void {
-    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens.',
+    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens',
       $output);
     $this->assertStringContainsString('You should create a new token specifically for Developer Studio and enter the associated key and secret below.',
       $output);
