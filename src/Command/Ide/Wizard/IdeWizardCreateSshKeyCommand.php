@@ -273,7 +273,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       '--password' => $password,
     ];
     $create_input = new ArrayInput($arguments);
-    $return_code = $command->run($create_input, $this->output);
+    // We use a null output here so that nothing gets written to screen from the #endregion
+    // and our checklist doesn't get messed up.
+    $return_code = $command->run($create_input, new NullOutput);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
