@@ -46,9 +46,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
       // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
-      if ($cloud_key = $this->findIdeSshKeyOnCloud()) {
-        $this->deleteSshKeyFromCloud($cloud_key);
-      }
+      $this->deleteIdeSshKeyFromCloud();
 
       $checklist->addItem('Creating a local SSH key');
 
@@ -65,6 +63,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Upload SSH key to Acquia Cloud.
     if (!$this->userHasUploadedIdeKeyToCloud()) {
+      // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
+      $this->deleteIdeSshKeyFromCloud();
+
       $checklist->addItem('Uploading local key to Acquia Cloud');
       $this->uploadSshKeyToCloud($this->ide, $this->publicSshKeyFilepath);
       $checklist->completePreviousItem();
@@ -84,7 +85,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Wait for the key to register on Acquia Cloud.
-    if (!$this->userHasUploadedLocalKeyToCloud()) {
+    if (!$this->userHasUploadedAnyLocalKeyToCloud()) {
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
@@ -126,7 +127,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *
    * @return bool
    */
-  protected function sshKeyIsAddedToKeychain() {
+  protected function sshKeyIsAddedToKeychain(): bool {
     $process = $this->getApplication()->getLocalMachineHelper()->execute([
       'ssh-add',
       '-L',
@@ -165,7 +166,13 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $index => $cloud_key) {
-        if ($cloud_key->label === $this->getIdeSshKeyLabel($this->ide)) {
+        if (
+          $cloud_key->label === $this->getIdeSshKeyLabel($this->ide)
+          // Assert that a corresponding private key exists.
+          && file_exists($this->privateSshKeyFilename)
+          // Assert local public key contents match Cloud public key contents.
+          && trim($cloud_key->public_key) === trim(file_get_contents($this->publicSshKeyFilepath))
+        ) {
           return TRUE;
         }
     }
@@ -177,17 +184,17 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *
    * @return bool
    */
-  protected function userHasUploadedLocalKeyToCloud(): bool {
+  protected function userHasUploadedAnyLocalKeyToCloud(): bool {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (
-          // Assert local public key contents match Cloud public key contents.
-          trim($local_file->getContents()) === trim($cloud_key->public_key)
           // Assert that a corresponding private key exists.
-          && file_exists(str_replace('.pub', '', $local_file->getRealPath()))
+          file_exists($this->privateSshKeyFilename)
+          // Assert local public key contents match Cloud public key contents.
+          && trim($local_file->getContents()) === trim($cloud_key->public_key)
         ) {
           return TRUE;
         }
@@ -240,11 +247,13 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
           $output->writeln("\n<info>Your SSH key is ready for use.</info>");
           $loop->stop();
         }
-        // @todo ELSE Log process output for debugging.
+        else {
+          $this->logger->debug($process->getOutput() . $process->getErrorOutput());
+        }
       }
       catch (AcquiaCliException $exception) {
-        // Do nothing. Keep waiting and looping.
-        // @todo Log process output for debugging.
+        // Do nothing. Keep waiting and looping and logging.
+        $this->logger->debug($exception->getMessage());
       }
     });
     LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
@@ -293,6 +302,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $returnCode = $command->run($upload_input, new NullOutput());
     if ($returnCode !== 0) {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
+    }
+  }
+
+  protected function deleteIdeSshKeyFromCloud(): void {
+    if ($cloud_key = $this->findIdeSshKeyOnCloud()) {
+      $this->deleteSshKeyFromCloud($cloud_key);
     }
   }
 

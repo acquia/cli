@@ -39,7 +39,7 @@ class SshHelper {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param array $command_args
    *
-   * @param null $output_callback
+   * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
    *
