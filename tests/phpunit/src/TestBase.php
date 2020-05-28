@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Helpers\DataStoreContract;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophet;
@@ -98,6 +99,8 @@ abstract class TestBase extends TestCase {
     /** @var Client $client */
     $client = $this->clientProphecy->reveal();
     $this->application->setAcquiaCloudClient($client);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -338,6 +341,21 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request('get',
       '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logs')
       ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockLogStreamRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream')
+      ->willReturn($response)
       ->shouldBeCalled();
 
     return $response;

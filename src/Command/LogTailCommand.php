@@ -3,6 +3,8 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Endpoints\Logs;
+use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -30,7 +32,17 @@ class LogTailCommand extends CommandBase {
     $environment_id = $this->determineCloudEnvironment($application_uuid);
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
-    // Now need to connect via websocket to logstream server and filter by chosen logs.
+    $log_types = array_map(function ($log) {
+      return $log->type;
+    }, $logs);
+    $logs_resource = new Logs($acquia_cloud_client);
+    $stream = $logs_resource->stream($environment_id);
+    $logstream = $this->getApplication()->logStreamManager;
+    $logstream->setParams($stream->logstream->params);
+    $logstream->setColourise(TRUE);
+    $logstream->setLogTypeFilter($log_types);
+    $output->writeln("Streaming has started and new logs will appear below. Use Ctrl+C to exit.");
+    $logstream->stream();
     return 0;
   }
 

@@ -27,7 +27,8 @@
     "symfony/process": "^5.0",
     "symfony/validator": "^5.0",
     "symfony/yaml": "^5.1@dev",
-    "typhonius/acquia-php-sdk-v2": "dev-master",
+    "typhonius/acquia-logstream": "dev-symfony-console-5",
+    "typhonius/acquia-php-sdk-v2": "^2",
     "webmozart/json": "^1.2",
     "webmozart/key-value-store": "^1.0",
     "zumba/amplitude-php": "^1.0"
@@ -75,6 +76,12 @@
     "phpcodesniffer-search-depth": 4
   },
   "prefer-stable": true,
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:danepowell/acquia-logstream.git"
+    }
+  ],
   "scripts": {
     "update-cloud-api-spec": [
       "cd build",

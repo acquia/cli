@@ -33,6 +33,7 @@ class LogTailCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockLogListRequest();
+    $this->mockLogStreamRequest();
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
