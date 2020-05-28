@@ -39,6 +39,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireRemoteIdeEnvironment();
     $checklist = new Checklist($output);
+    $key_was_uploaded = FALSE;
 
     // Create local SSH key.
     if (!$this->localIdeSshKeyExists()) {
@@ -55,6 +56,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $this->createLocalSshKey($this->privateSshKeyFilename, $password);
 
       $checklist->completePreviousItem();
+      $key_was_uploaded = TRUE;
     }
     else {
       $checklist->addItem('Already created a local key');
@@ -70,6 +72,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $this->uploadSshKeyToCloud($this->ide, $this->publicSshKeyFilepath);
 
       $checklist->completePreviousItem();
+      $key_was_uploaded = TRUE;
     }
     else {
       $checklist->addItem('Already uploaded local key to Acquia Cloud');
@@ -88,7 +91,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Wait for the key to register on Acquia Cloud.
-    if (!$this->userHasUploadedIdeKeyToCloud()) {
+    if ($key_was_uploaded) {
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
