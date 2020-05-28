@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;

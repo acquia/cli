@@ -7,7 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -58,7 +57,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $output->writeln('<info>You have already created a local key for this IDE.</info>');
+      $checklist->addItem('You have already created a local key for this IDE');
+      $checklist->completePreviousItem();
     }
 
     // Upload SSH key to Acquia Cloud.
@@ -72,7 +72,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $output->writeln('<info>You have already uploaded a local key to Acquia Cloud.</info>');
+      $checklist->addItem('You have already uploaded a local key to Acquia Cloud');
+      $checklist->completePreviousItem();
     }
 
     // Add SSH key to local keychain.
@@ -82,7 +83,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
     else {
-      $output->writeln('<info>SSH key has already been added to the local keychain.</info>');
+      $checklist->addItem('SSH key has already been added to the local keychain');
+      $checklist->completePreviousItem();
     }
 
     // Wait for the key to register on Acquia Cloud.
@@ -104,7 +106,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     //
   }
 
-  protected function localIdeSshKeyExists() {
+  protected function localIdeSshKeyExists(): bool {
     return file_exists($this->publicSshKeyFilepath) && file_exists($this->privateSshKeyFilepath);
   }
 
@@ -273,9 +275,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       '--password' => $password,
     ];
     $create_input = new ArrayInput($arguments);
-    // We use a null output here so that nothing gets written to screen from the #endregion
-    // and our checklist doesn't get messed up.
-    $return_code = $command->run($create_input, new NullOutput);
+    $return_code = $command->run($create_input, $this->output);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
