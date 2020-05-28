@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-echo \$SSH_PASS
+echo $SSH_PASS

@@ -124,13 +124,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function addSshKeyToAgent($filepath, $password): string {
     if (!$this->sshKeyIsAddedToKeychain()) {
       $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
-      //"SSH_PASS=698f1b5d6149e66bfda681be00da7deb DISPLAY=1 SSH_ASKPASS=/home/ide/project/cli/src/Command/Ide/Wizard/passphrase_prompt.sh ssh-add /home/ide/.ssh/id_rsa_acquia_ide_2c583d6f-3945-4f50-8bae-e35ea196c83b.pub < /dev/null"
-      $process = $this->getApplication()->getLocalMachineHelper()->execute([
-        'SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $filepath . ' < /dev/null'
-      ], NULL, NULL, FALSE);
+      $private_key_filepath = str_replace('.pub', '', $filepath);
+      $process = $this->getApplication()->getLocalMachineHelper()-> executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath . ' < /dev/null' , NULL, NULL, FALSE);
     }
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to add SSH key to local SSH agent.');
+      throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
 
     return $filepath;
@@ -145,9 +143,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       'ssh-add',
       '-L',
     ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException($process->getOutput());
-    }
 
     return $process->getOutput() == 'The agent has no identities';
   }
