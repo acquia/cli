@@ -42,7 +42,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $checklist = new Checklist($output);
 
     // Create local SSH key.
-    if (!file_exists($this->privateSshKeyFilepath)) {
+    if ($this->localIdeSshKeyExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
       // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
@@ -102,6 +102,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Assert both keys exist.
     // Assert uploaded to cloud.
     //
+  }
+
+  protected function localIdeSshKeyExists() {
+    return file_exists($this->publicSshKeyFilepath) && file_exists($this->privateSshKeyFilepath);
   }
 
   /**
@@ -184,8 +188,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
         if (
           $cloud_key->label === $this->getIdeSshKeyLabel($this->ide)
           // Assert that a corresponding local key exists.
-          && file_exists($this->privateSshKeyFilepath)
-          && file_exists($this->publicSshKeyFilepath)
+          && $this->localIdeSshKeyExists()
           // Assert local public key contents match Cloud public key contents.
           && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
         ) {
