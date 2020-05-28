@@ -20,24 +20,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
-  /** @var string */
-  protected $passphraseFilepath;
-
-  /**
-   * Initializes the command just after the input has been validated.
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *   An InputInterface instance.
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *   An OutputInterface instance.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
-    parent::initialize($input, $output);
-    $this->passphraseFilepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.passphrase');
-  }
-
   /**
    * {inheritdoc}.
    */
@@ -58,15 +40,14 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireRemoteIdeEnvironment();
 
-    $ide_uuid = CommandBase::getThisRemoteIdeUuid();
-    $private_ssh_key_filename = $this->getSshKeyFilename($ide_uuid);
-    $private_ssh_key_filepath = $this->getApplication()->getSshKeysDir() . '/' . $private_ssh_key_filename;
-    $public_ssh_key_filepath = $private_ssh_key_filepath . '.pub';
-
     // Create local SSH key.
-    if (!file_exists($private_ssh_key_filepath)) {
-      // Just in case the public key exists and the private doesn't remove the public key.
-      $this->getApplication()->getLocalMachineHelper()->getFilesystem()->remove($public_ssh_key_filepath);
+    if (!file_exists($this->privateSshKeyFilepath)) {
+      // Just in case the public key exists and the private doesn't, remove the public key.
+      $this->deleteLocalIdeSshKey();
+      // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
+      if ($cloud_key = $this->findIdeSshKeyOnCloud()) {
+        $this->deleteSshKeyFromCloud($cloud_key);
+      }
 
       $checklist = new Checklist($output);
       $checklist->addItem('Creating a local SSH key');
@@ -74,7 +55,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Create SSH key.
       $password = md5(random_bytes(10));
       $this->savePassPhraseToFile($password);
-      $this->createLocalSshKey($output, $private_ssh_key_filename, $password);
+      $this->createLocalSshKey($this->privateSshKeyFilename, $password);
 
       $checklist->completePreviousItem();
     }
@@ -85,7 +66,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Upload SSH key to Acquia Cloud.
     if (!$this->userHasUploadedLocalKeyToCloud()) {
       $checklist->addItem('Uploading local key to Acquia Cloud');
-      $this->uploadSshKeyToCloud($ide_uuid, $public_ssh_key_filepath);
+      $this->uploadSshKeyToCloud($this->ideUuid, $this->publicSshKeyFilepath);
       $checklist->completePreviousItem();
     }
     else {
@@ -95,7 +76,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Add SSH key to local keychain.
     if (!$this->sshKeyIsAddedToKeychain()) {
       $checklist->addItem('Adding SSH key to local keychain');
-      $this->addSshKeyToAgent($public_ssh_key_filepath, $this->getPassPhraseFromFile());
+      $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
       $checklist->completePreviousItem();
     }
     else {
@@ -104,7 +85,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Wait for the key to register on Acquia Cloud.
     if (!$this->userHasUploadedLocalKeyToCloud()) {
-      $this->pollAcquiaCloud($output);
+      $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
     return 0;
@@ -122,23 +103,28 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
-   * @return string
+   * Adds a given password protected local SSH key to the local keychain.
+   *
+   * @param $filepath
+   *   The filepath of the private SSH key.
+   * @param $password
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function addSshKeyToAgent($filepath, $password): string {
+  protected function addSshKeyToAgent($filepath, $password): void {
+    // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
     $private_key_filepath = str_replace('.pub', '', $filepath);
     $process = $this->getApplication()->getLocalMachineHelper()->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath . ' < /dev/null', NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
-
-    return $filepath;
   }
 
   /**
+   * Asserts whether ANY SSH key has been added to the local keychain.
+   *
    * @return bool
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function sshKeyIsAddedToKeychain() {
     $process = $this->getApplication()->getLocalMachineHelper()->execute([
@@ -151,6 +137,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   /**
    * @param string $passphrase
+   *   The passphrase.
    *
    * @return bool|int
    */
@@ -170,6 +157,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
+   * Assert whether ANY local key exists that has a corresponding key on Acquia Cloud.
+   *
    * @return bool
    */
   protected function userHasUploadedLocalKeyToCloud(): bool {
@@ -192,6 +181,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
+   * Get the development environment for a given Cloud application.
+   *
    * @param string $cloud_app_uuid
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
@@ -209,9 +200,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
+   * Polls Acquia Cloud until a successful SSH request is made to the dev environment.
+   *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  protected function pollAcquiaCloud(
+  protected function pollAcquiaCloudUntilSshSuccess(
     OutputInterface $output
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
@@ -231,9 +224,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
           $output->writeln("\n<info>Your SSH key is ready for use.</info>");
           $loop->stop();
         }
+        // @todo ELSE Log process output for debugging.
       }
       catch (AcquiaCliException $exception) {
         // Do nothing. Keep waiting and looping.
+        // @todo Log process output for debugging.
       }
     });
     LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
@@ -241,23 +236,24 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param string $filename
+   * Create a local SSH key via the `ssh-key:create` command.
+   *
+   * @param string $private_ssh_key_filename
    * @param string $password
    *
    * @return int
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function createLocalSshKey(OutputInterface $output, string $filename, string $password): int {
+  protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
     $command = $this->getApplication()->find('ssh-key:create');
     $arguments = [
       'command' => $command->getName(),
-      '--filename' => $filename,
+      '--filename' => $private_ssh_key_filename,
       '--password' => $password,
     ];
     $create_input = new ArrayInput($arguments);
-    $return_code = $command->run($create_input, $output);
+    $return_code = $command->run($create_input, $this->output);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
