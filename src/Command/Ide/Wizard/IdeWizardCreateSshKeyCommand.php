@@ -93,17 +93,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     return 0;
-
-    // Tests:
-    // Delete from cloud.
-    // Delete private key.
-    // Delete public key.
-    // Delete from keychain.
-    // Delete local passphrase file.
-    // Assert added to keychain.
-    // Assert both keys exist.
-    // Assert uploaded to cloud.
-    //
   }
 
   protected function localIdeSshKeyExists(): bool {

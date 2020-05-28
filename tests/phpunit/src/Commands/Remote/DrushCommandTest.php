@@ -24,6 +24,7 @@ class DrushCommandTest extends SshCommandTestBase {
   /**
    * Tests the 'remote:drush' commands.
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testRemoteDrushCommand(): void {
     $this->setCommand($this->createCommand());
@@ -42,7 +43,7 @@ class DrushCommandTest extends SshCommandTestBase {
       'status',
     ];
     $local_machine_helper
-      ->execute($ssh_command, Argument::type('callable'))
+      ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     $this->application->setLocalMachineHelper($local_machine_helper->reveal());

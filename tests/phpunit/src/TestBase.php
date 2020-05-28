@@ -220,9 +220,12 @@ abstract class TestBase extends TestCase {
     $finder = new Finder();
     $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
     $this->fs->remove($finder->files());
-    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'acli') . '.pub';
-    $this->fs->dumpFile($temp_file_name, $contents);
-    return $temp_file_name;
+    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $this->fs->touch($private_key_filepath);
+    $public_key_filepath = $private_key_filepath . '.pub';
+    $this->fs->dumpFile($public_key_filepath, $contents);
+
+    return $public_key_filepath;
   }
 
   /**
