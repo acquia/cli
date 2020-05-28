@@ -6,7 +6,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -508,8 +507,7 @@ class RefreshCommand extends CommandBase {
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
     }
-
-    return NULL;
+    throw new AcquiaCliException("Could not get ACSF sites");
   }
 
 }
