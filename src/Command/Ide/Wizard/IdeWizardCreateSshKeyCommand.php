@@ -108,7 +108,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
     $checklist->completePreviousItem();
+
+    $checklist->addItem('Adding SSH key to local keychain');
     $this->addSshKeyToAgent($public_key_filepath, $password);
+    $checklist->completePreviousItem();
 
     // Wait for SSH key to be available on a web.
     $dev_environment = $this->getDevEnvironment($cloud_app_uuid);
@@ -217,7 +220,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], NULL);
+      $output_callback = static function ($type, $buffer) {};
+      $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], $output_callback);
       if ($process->isSuccessful()) {
         LoopHelper::finishSpinner($spinner);
         $output->writeln("\n<info>Your SSH key is ready for use.</info>");
