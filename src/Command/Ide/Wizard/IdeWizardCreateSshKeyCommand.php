@@ -86,7 +86,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Wait for the key to register on Acquia Cloud.
-    if (!$this->userHasUploadedAnyLocalKeyToCloud()) {
+    if (!$this->userHasUploadedIdeKeyToCloud()) {
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
@@ -176,30 +176,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
         ) {
           return TRUE;
         }
-    }
-    return FALSE;
-  }
-
-  /**
-   * Assert whether ANY local key exists that has a corresponding key on Acquia Cloud.
-   *
-   * @return bool
-   */
-  protected function userHasUploadedAnyLocalKeyToCloud(): bool {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $local_keys = $this->findLocalSshKeys();
-    foreach ($local_keys as $local_index => $local_file) {
-      foreach ($cloud_keys as $index => $cloud_key) {
-        if (
-          // Assert that a corresponding private key exists.
-          file_exists($this->privateSshKeyFilename)
-          // Assert local public key contents match Cloud public key contents.
-          && trim($local_file->getContents()) === trim($cloud_key->public_key)
-        ) {
-          return TRUE;
-        }
-      }
     }
     return FALSE;
   }
