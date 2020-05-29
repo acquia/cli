@@ -20,11 +20,6 @@ use Webmozart\PathUtil\Path;
  *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
  * @package Acquia\Cli\Tests\Ide
- *
- * The IdeWizardCreateSshKeyCommand command is designed to thrown an exception if it
- * is executed from a non Acquia Cloud IDE environment. Therefore we do not test Windows
- * compatibility. It should only ever be run in a Linux environment.
- * @group skipWindows
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
