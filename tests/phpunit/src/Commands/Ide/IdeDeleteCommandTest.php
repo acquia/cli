@@ -56,7 +56,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The remote IDE is being deleted.', $output);
+    $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
   }
 
 }
