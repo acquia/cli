@@ -238,7 +238,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
         $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
-          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
+          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
           $loop->stop();
         }
         else {
