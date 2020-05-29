@@ -43,7 +43,7 @@ jobs:
       deploy:
         provider: releases
         api_key:
-          secure: pptV1SxWRifZyFFJFfF1Y2qQRxQ+vhBEMzcY7knfVUJyDUk+zpc++vR0KfutrH9ZBQhrpTJdN6GQZzDgKh5rvq/RW9V26YXoNoFdzNjHWUIXKHqyRqdABSsg3R/P5lMq1zgTyJ6s4utf2COUU42MglptKF9h+Hk/Ux7vnboouvm5s6DeRYL97rrjzErwoySRluTAnesF4YmATmBSONfQJi0qIig7inqi79Gq2LWg5qxWejXrPtjNSD7XxcDHZVbMjiXfVuSpdozt+TXfjflJt6xjNamp/bjcC10GrSgMkerCKIM0DrmbzSuMf/OlvGcm6cqEq/M/IPG+xflvzK+GfRswnIxCf/03UTvRo/VnCtoDhMlxnuqpmkXWKgqggIP+rgXJqrCy6DoAmNB3zLjrMdggd5NgDc9Z78md1UcJToqQpeSIcHeCLtLLbVl0729SdTdDduFrqBSRwJDDHbSDzfpLAxjGdPFUtLouqSghzbYjMI6zqDIZ8HsMmTVSRA9zoi1EZ6UNhn067ddY28MGEZN14PNx/8r/vJ0VrTER0PRbDejK/ORPX2yPktkFIpPL/tHZ3Kw+pEdY9g9Ff0BYm+3uhRkQbW0TSAu3vEhZp7hnvRWMI6Pz50AOCa5tYjDR4bo/6mOqNmKYetA/6EVUvWiGdTYA1OHWTypXXF4g6qE=
+          secure: iKpG9x/P8xhJtlo/Dr43mg9sB0/5Gl7AuTwbRokV/OTYIo+BHRZNLQQeUbX/ZzemJC9Y9b2PFOkBOcq7y8uf0ZbXR0+MEbdYh+UZiMt1f+/cQqRU1WMlq/+1TMETWwxHFML9MB2aATK+qqt40RIF19Pog3s4b07oXdcpD1rzRnaovmDKsJA7bby+R8CXUqgdt2hYwk8S4J5p9rkOj8isYeJEnrxsfk2dcVey8NHBeHots3W3DPPOzav16+XeqnofbAOHOncsUcWbjxLFpFWJdvrd5M9paFo0jcn8PaFVqsfBaJqs3MFJ/tU/nLv5fEO7r3inmUIZnbOK+nybi355KD+kX/tHwttSRbssp0nrmC22NeUk0jAnyFgKuf4K2mGVCXtDqFz5jfjxZIMdajxIGexaX/zJyd78KuIIfe7vOygHgSzgVHJ98/JfgK/l29rBdvZhDeRKU1wE1l3mhBIuF4YCwmvpDcB9fL4GKbJMru4gL3wMj1c9f07Cb9sJq1l1PUO70RAIhxMKc+Ps5jOtjcxS3JiF1e0Evqcdzldxnev/erLRZRlnztqjdUVyVh+t3bUROUxCtGUZlsxFSRwxfkXtoNoeFc+JS5YqYQjgbsxB7vj8X7cRbiJT1y7eewP/KOAJMaqRWWevgabB1bozcTscB6AGQbwZLBKH+w+A26k=
         file: build/acli.phar
         skip_cleanup: true
         on:
