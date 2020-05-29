@@ -99,7 +99,7 @@
     ],
     "cs": "phpcs",
     "cbf": "phpcbf",
-    "unit": "phpunit tests/phpunit --exclude-group=$PHPUNIT_EXCLUDE_GROUP -vvv",
+    "unit": "phpunit tests/phpunit --exclude-group=${PHPUNIT_EXCLUDE_GROUP} -vvv",
     "lint": [
       "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
       "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
