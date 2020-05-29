@@ -20,8 +20,32 @@ use Webmozart\PathUtil\Path;
  *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
  * @package Acquia\Cli\Tests\Ide
+ *
+ * The IdeWizardCreateSshKeyCommand command is designed to thrown an exception if it
+ * is executed from a non Acquia Cloud IDE environment. Therefore we do not test Windows
+ * compatibility. It should only ever be run in a Linux environment.
+ * @group skipWindows
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
+
+  protected $ide;
+
+  // Tests:
+  // Delete from cloud.
+  // Delete private key.
+  // Delete public key.
+  // Delete from keychain.
+  // Delete local passphrase file.
+  // Assert added to keychain.
+  // Assert both keys exist.
+  // Assert uploaded to cloud.
+  //
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->mockApplicationRequest();
+    $this->mockListSshKeysRequest();
+    $this->ide = $this->mockIdeRequest();
+  }
 
   /**
    * Tests the 'ide:wizard:ssh-key:create' command.
@@ -29,10 +53,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    $this->mockApplicationRequest();
-    $this->mockListSshKeysRequest();
-    $this->mockIdeRequest();
-
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
@@ -62,22 +82,44 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . str_replace('.pub', '', $ssh_key_filename));
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testSshKeyAlreadyUploaded(): void {
     $this->setCommand($this->createCommand());
-    $this->mockApplicationRequest();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $ide = $this->mockIdeRequest();
-    $label = $this->command->getIdeSshKeyLabel($ide);
-    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
-      '200');
+    $label = $this->command->getIdeSshKeyLabel($this->ide);
+    $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     // Make the uploaded key match the created one.
-    $response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
+    $ssh_keys_response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
     $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($response->{'_embedded'}->items)
+      ->willReturn($ssh_keys_response->{'_embedded'}->items)
       ->shouldBeCalled();
 
-    $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $base_filename = basename($temp_file_name);
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
+      ->willReturn($ssh_keys_response->{'_embedded'}->items[0])
+      ->shouldBeCalled();
+
+    $delete_response = $this->prophet->prophesize(ResponseInterface::class);
+    $delete_response->getStatusCode()->willReturn(202);
+    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
+      ->willReturn($delete_response->reveal())
+      ->shouldBeCalled();
+
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209.
+    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+
+    // List uploaded keys.
+    $this->mockUploadSshKey();
+
+    // Poll Cloud.
+    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+    $this->application->setSshHelper($ssh_helper->reveal());
+
+    $public_key_file_path = $this->createLocalSshKey($mock_request_args['public_key']);
+    $base_filename = basename($public_key_file_path);
     $this->application->setSshKeysDir(sys_get_temp_dir());
     try {
       $this->executeCommand([], []);
@@ -117,7 +159,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'])
+    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;
