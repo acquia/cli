@@ -43,7 +43,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $key_was_uploaded = FALSE;
 
     // Create local SSH key.
-    if (!$this->localIdeSshKeyExists()) {
+    if (!$this->localIdeSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
       // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
@@ -101,6 +101,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     return 0;
+  }
+
+  protected function passPhraseFileExists() {
+    return file_exists($this->passphraseFilepath);
   }
 
   protected function localIdeSshKeyExists(): bool {
@@ -165,14 +169,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
-   * @return false|string|null
+   * @return string
    */
-  protected function getPassPhraseFromFile() {
-    if (file_exists($this->passphraseFilepath)) {
-      return file_get_contents($this->passphraseFilepath);
-    }
-
-    return NULL;
+  protected function getPassPhraseFromFile(): string {
+    return file_get_contents($this->passphraseFilepath);
   }
 
   /**
@@ -226,7 +226,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers...', $output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers', $output);
 
     // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
@@ -238,7 +238,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
         $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
-          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
+          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
           $loop->stop();
         }
         else {
