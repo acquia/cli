@@ -91,11 +91,10 @@ abstract class TestBase extends TestCase {
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
-    /** @var Amplitude $amplitude */
-    $amplitude = $this->amplitudeProphecy->reveal();
     $container = new ContainerBuilder();
     $container->setParameter('repo_root', $this->projectFixtureDir);
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, $amplitude, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $container->set('amplitude', $this->amplitudeProphecy->reveal());
+    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     /** @var Client $client */
     $client = $this->clientProphecy->reveal();

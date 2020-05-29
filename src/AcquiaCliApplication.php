@@ -55,11 +55,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   public $acquiaCloudClient;
 
   /**
-   * @var \Zumba\Amplitude\Amplitude
-   */
-  private $amplitude;
-
-  /**
    * @var string
    */
   protected $acliConfigFilename = 'acquia-cli.json';
@@ -101,7 +96,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
-   * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $version
    *
    * @param null $data_dir
@@ -113,7 +107,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     LoggerInterface $logger,
     InputInterface $input,
     OutputInterface $output,
-    $amplitude,
     string $version = 'UNKNOWN',
     $data_dir = NULL
   ) {
@@ -127,7 +120,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
-    $this->amplitude = $amplitude;
     $this->initializeAmplitude();
 
     // Add API commands.
@@ -186,7 +178,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
     ];
-    $this->amplitude->queueEvent('Ran command', $event_properties);
+    $amplitude = $this->getContainer()->get('amplitude');
+    $amplitude->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
   }
@@ -195,20 +188,21 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * Initializes Amplitude.
    */
   private function initializeAmplitude() {
-    $this->amplitude->init('956516c74386447a3148c2cc36013ac3');
+    $amplitude = $this->getContainer()->get('amplitude');
+    $amplitude->init('956516c74386447a3148c2cc36013ac3');
     // Method chaining breaks Prophecy?
     // @see https://github.com/phpspec/prophecy/issues/25
-    $this->amplitude->setDeviceId(OsInfo::uuid());
-    $this->amplitude->setUserProperties($this->getTelemetryUserData());
+    $amplitude->setDeviceId(OsInfo::uuid());
+    $amplitude->setUserProperties($this->getTelemetryUserData());
     try {
-      $this->amplitude->setUserId($this->getUserId());
+      $amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
     if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
-      $this->amplitude->setOptOut(TRUE);
+      $amplitude->setOptOut(TRUE);
     }
-    $this->amplitude->logQueuedEvents();
+    $amplitude->logQueuedEvents();
   }
 
   public function getContainer() {
