@@ -25,7 +25,7 @@ use Webmozart\PathUtil\Path;
  * is executed from a non Acquia Cloud IDE environment. Therefore we do not test Windows
  * compatibility. It should only ever be run in a Linux environment.
  *
- * @requires OSFAMILY != Windows
+ * @requires OSFAMILY <> Windows
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
