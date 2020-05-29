@@ -58,7 +58,6 @@ install:
   - 'composer -n ${HIGHEST_LOWEST-install} --prefer-dist -o'
 
 script:
-  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PHPUNIT_EXCLUDE_GROUP=skipWindows; fi
   - composer test
 
 after_success:

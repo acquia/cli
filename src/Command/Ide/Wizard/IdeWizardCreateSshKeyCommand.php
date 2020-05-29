@@ -8,6 +8,7 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use drupol\phposinfo\OsInfo;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -80,7 +81,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Add SSH key to local keychain.
-    if (!$this->sshKeyIsAddedToKeychain()) {
+    if (!$this->sshKeyIsAddedToKeychain() && !OsInfo::isWindows()) {
       $checklist->addItem('Adding SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
       $checklist->completePreviousItem();
