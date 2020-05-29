@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use AcquiaCloudApi\Connector\Client;
 use PHPUnit\Framework\TestCase;
@@ -94,11 +95,13 @@ abstract class TestBase extends TestCase {
     $container = new ContainerBuilder();
     $container->setParameter('repo_root', $this->projectFixtureDir);
     $container->set('amplitude', $this->amplitudeProphecy->reveal());
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     /** @var Client $client */
     $client = $this->clientProphecy->reveal();
-    $this->application->setAcquiaCloudClient($client);
+    $serviceProph = $this->prophet->prophesize(ClientService::class);
+    $serviceProph->getClient()->willReturn($client);
+    $container->set('cloud_api', $serviceProph->reveal());
+    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 

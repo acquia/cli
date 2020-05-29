@@ -4,6 +4,7 @@ namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -120,6 +121,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
+    $definition = $container->register('cloud_api', ClientService::class);
+    $definition->setArgument(0, $this->getCloudApiDatastore());
     $this->initializeAmplitude();
 
     // Add API commands.
@@ -265,7 +268,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $user = $datastore->get(DataStoreContract::USER);
 
     if (!$user && $this->isMachineAuthenticated()) {
-      $client = $this->getAcquiaCloudClient();
+      $client = $this->getContainer()->get('cloud_api')->getClient();
       $account = new Account($client);
       $user_account = $account->get();
       $user = [
@@ -318,25 +321,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function setAcquiaCloudClient(Client $client) {
     $this->acquiaCloudClient = $client;
-  }
-
-  /**
-   * @return \AcquiaCloudApi\Connector\Client
-   */
-  public function getAcquiaCloudClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
-    $cloud_api_conf = $this->getCloudApiDatastore();
-    $config = [
-      'key' => $cloud_api_conf->get('key'),
-      'secret' => $cloud_api_conf->get('secret'),
-    ];
-    $connector = new Connector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
-
-    return $this->acquiaCloudClient;
   }
 
   /**

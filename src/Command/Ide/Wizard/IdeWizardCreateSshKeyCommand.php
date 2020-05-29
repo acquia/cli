@@ -70,7 +70,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Upload SSH key.
     $checklist->addItem('Uploading local key to Acquia Cloud');
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($ide_uuid);
     $ssh_key_label = $this->getIdeSshKeyLabel($ide);
@@ -102,7 +102,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @return bool
    */
   protected function userHasUploadedLocalKeyToCloud(): bool {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
     foreach ($local_keys as $local_index => $local_file) {
@@ -122,7 +122,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
     foreach ($application_environments as $environment) {

@@ -350,7 +350,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudApplication($link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
-      $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+      $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
       $applications_resource = new Applications($acquia_cloud_client);
       $application = $applications_resource->get($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
@@ -367,7 +367,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function doDetermineCloudApplication() {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
     $cli_application = $this->getApplication();
 
