@@ -109,8 +109,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *   The filepath of the private SSH key.
    * @param $password
    *
-   * @group skipWindows
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent($filepath, $password): void {
