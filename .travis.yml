@@ -34,7 +34,6 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
-      script: export PHPUNIT_EXCLUDE_GROUP=skipWindows && composer test
       # Coveralls results get polluted by Windows builds, disable reporting.
       after_success: skip
     - stage: "Build packages for CLI"
@@ -59,6 +58,7 @@ install:
   - 'composer -n ${HIGHEST_LOWEST-install} --prefer-dist -o'
 
 script:
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then export PHPUNIT_EXCLUDE_GROUP=skipWindows; fi
   - composer test
 
 after_success:
