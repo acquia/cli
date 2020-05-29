@@ -81,6 +81,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Add SSH key to local keychain.
+    // The call to !OsInfo::isWindows() is to prevent this from being tested on
+    // a Windows CI build. This entire command should only ever be run by a user in an IDE.
+    // It would of course be better to skip the entire test on Windows, but Travis
+    // CI doesn't seem to want to comply with that notion.
     if (!$this->sshKeyIsAddedToKeychain() && !OsInfo::isWindows()) {
       $checklist->addItem('Adding SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
