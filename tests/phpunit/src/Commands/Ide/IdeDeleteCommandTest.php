@@ -37,7 +37,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $this->clientProphecy->request(
           'delete',
           '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
-      )->willReturn($response->{"De-provisioning IDE"}->value)
+      )->willReturn($response->{'De-provisioning IDE'}->value)
       ->shouldBeCalled();
 
     $inputs = [
@@ -56,7 +56,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The Cloud IDE is being deleted.', $output);
+    $this->assertStringContainsString($response->{'De-provisioning IDE'}->value->message, $output);
   }
 
 }
