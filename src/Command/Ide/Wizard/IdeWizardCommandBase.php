@@ -10,6 +10,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 use stdClass;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -93,7 +94,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
       '--cloud-key-uuid' => $cloud_key->uuid,
     ];
     $upload_input = new ArrayInput($arguments);
-    $returnCode = $command->run($upload_input, $this->output);
+    $returnCode = $command->run($upload_input, new NullOutput());
     if ($returnCode !== 0) {
       throw new AcquiaCliException('Unable to delete SSH key from Acquia Cloud');
     }
