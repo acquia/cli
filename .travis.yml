@@ -24,6 +24,7 @@ jobs:
   include:
     - os: windows
       language: shell
+      env: PHPUNIT_EXCLUDE_GROUP=skipWindows
       git:
         autocrlf: false
       before_install:
