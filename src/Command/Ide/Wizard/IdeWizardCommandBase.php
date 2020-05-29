@@ -125,7 +125,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    */
   public function requireCloudIdeEnvironment(): void {
     if (!CommandBase::isAcquiaCloudIde()) {
-      throw new AcquiaCliException('This command can only be run inside of an Acquia Remote IDE');
+      throw new AcquiaCliException('This command can only be run inside of an Acquia Cloud IDE');
     }
   }
 

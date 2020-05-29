@@ -34,7 +34,7 @@ class IdeCreateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create a Remote IDE for development')
+    $this->setDescription('Create a Cloud IDE for development')
       ->setName('ide:create');
     // @todo Add option to accept an IDE label.
     // @todo Add option to specify application uuid.
@@ -50,7 +50,7 @@ class IdeCreateCommand extends CommandBase {
     $cloud_application_uuid = $this->determineCloudApplication();
     $checklist = new Checklist($output);
 
-    $question = new Question('<question>Please enter a label for your Remote IDE:</question> ');
+    $question = new Question('<question>Please enter a label for your Cloud IDE:</question> ');
     $helper = $this->getHelper('question');
     $ide_label = $helper->ask($input, $output, $question);
 
@@ -58,7 +58,7 @@ class IdeCreateCommand extends CommandBase {
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.
-    $checklist->addItem('Creating your Remote IDE');
+    $checklist->addItem('Creating your Cloud IDE');
     $response = $ides_resource->create($cloud_application_uuid, $ide_label);
     $checklist->completePreviousItem();
 
