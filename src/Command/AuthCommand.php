@@ -46,7 +46,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->getApplication()->getCloudConfigFilepath()}</info>");
+    $output->writeln("<info>Saved credentials to {$this->getApplication()->getContainer()->getParameter('cloud_config.filepath')}</info>");
 
     return 0;
   }

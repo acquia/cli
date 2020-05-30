@@ -8,11 +8,8 @@ use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaLogstream\LogstreamManager;
 use drupol\phposinfo\OsInfo;
@@ -87,8 +84,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
-    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
+    $this->setDatastore(new JsonFileStore($this->getContainer()->getParameter('acli_config.filepath')));
+    $this->setCloudApiDatastore(new JsonFileStore($this->getContainer()->getParameter('cloud_config.filepath'), JsonFileStore::NO_SERIALIZE_STRINGS));
     $definition = $container->register('cloud_api', ClientService::class);
     $definition->setArgument(0, $this->getCloudApiDatastore());
     $this->logStreamManager = new LogstreamManager($input, $output);
@@ -121,7 +118,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   /**
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    */
-  public function setSshHelper(\Acquia\Cli\Helpers\SshHelper $sshHelper): void {
+  public function setSshHelper(SshHelper $sshHelper): void {
     $this->sshHelper = $sshHelper;
   }
 
@@ -275,14 +272,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     }
 
     return $this->sshKeysDir;
-  }
-
-  public function getCloudConfigFilepath(): string {
-    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getContainer()->getParameter('cloud_config.filename');
-  }
-
-  public function getAcliConfigFilepath(): string {
-    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getContainer()->getParameter('acli_config.filename');
   }
 
   /**

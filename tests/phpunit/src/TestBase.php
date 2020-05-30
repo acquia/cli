@@ -109,6 +109,8 @@ abstract class TestBase extends TestCase {
     $container->setParameter('data_dir', $this->fixtureDir . '/.acquia');
     $container->setParameter('cloud_config.filename', 'cloud_api.conf');
     $container->setParameter('acli_config.filename', 'acquia-cli.json');
+    $container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
+    $container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
@@ -261,10 +263,10 @@ abstract class TestBase extends TestCase {
 
   protected function createMockConfigFile(): void {
     $contents = json_encode(['key' => 'testkey', 'secret' => 'test']);
-    $filepath = $this->application->getCloudConfigFilepath();
+    $filepath = $this->application->getContainer()->getParameter('cloud_config.filepath');
     $this->fs->dumpFile($filepath, $contents);
     $contents = json_encode([DataStoreContract::SEND_TELEMETRY => FALSE]);
-    $filepath = $this->application->getAcliConfigFilepath();
+    $filepath = $this->application->getContainer()->getParameter('acli_config.filepath');
     $this->fs->dumpFile($filepath, $contents);
   }
 
@@ -418,12 +420,12 @@ abstract class TestBase extends TestCase {
   }
 
   protected function removeMockConfigFiles(): void {
-    $this->fs->remove($this->application->getCloudConfigFilepath());
+    $this->fs->remove($this->application->getContainer()->getParameter('cloud_config.filepath'));
     $this->removeMockAcliConfigFile();
   }
 
   protected function removeMockAcliConfigFile(): void {
-    $this->fs->remove($this->application->getAcliConfigFilepath());
+    $this->fs->remove($this->application->getContainer()->getParameter('acli_config.filepath'));
   }
 
 }

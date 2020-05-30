@@ -59,6 +59,8 @@ $container->register('local_machine_helper', LocalMachineHelper::class)
 $container->setParameter('data_dir',  $container->get('local_machine_helper')->getHomeDir() . '/.acquia');
 $container->setParameter('cloud_config.filename', 'cloud_api.conf');
 $container->setParameter('acli_config.filename', 'acquia-cli.json');
+$container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
+$container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
 
 
 
