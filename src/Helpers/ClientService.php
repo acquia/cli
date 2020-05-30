@@ -27,8 +27,7 @@ class ClientService {
       'key' => $this->cloud_api_conf->get('key'),
       'secret' => $this->cloud_api_conf->get('secret'),
     ];
-    $connector = new Connector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
+    $this->acquiaCloudClient = Client::factory(new Connector($config));
 
     return $this->acquiaCloudClient;
   }

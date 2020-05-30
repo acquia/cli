@@ -219,12 +219,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $user = $datastore->get(DataStoreContract::USER);
 
     if (!$user && $this->isMachineAuthenticated()) {
-      $client = $this->getContainer()->get('cloud_api')->getClient();
-      $account = new Account($client);
-      $user_account = $account->get();
+      $account = new Account($this->getContainer()->get('cloud_api')->getClient());
       $user = [
-        'uuid' => $user_account->uuid,
-        'is_acquian' => substr($user_account->mail, -10, 10) === 'acquia.com'
+        'uuid' => $account->get()->uuid,
+        'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
       ];
       $datastore->set(DataStoreContract::USER, $user);
     }
