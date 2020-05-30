@@ -15,7 +15,7 @@ abstract class SshKeyCommandBase extends CommandBase {
    * @return \Symfony\Component\Finder\SplFileInfo[]
    */
   protected function findLocalSshKeys(): array {
-    $finder = $this->getApplication()->getLocalMachineHelper()->getFinder();
+    $finder = $this->getApplication()->getContainer()->get('local_machine_helper')->getFinder();
     $finder->files()->in($this->getApplication()->getSshKeysDir())->name('*.pub')->ignoreUnreadableDirs();
     return iterator_to_array($finder);
   }

@@ -44,10 +44,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   private $container;
 
   /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
-  protected $localMachineHelper;
-  /**
    * @var string|null
    */
   private $sshKeysDir;
@@ -86,13 +82,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
-   * @return \Acquia\Cli\Helpers\LocalMachineHelper
-   */
-  public function getLocalMachineHelper(): LocalMachineHelper {
-    return $this->localMachineHelper;
-  }
-
-  /**
    * Cli constructor.
    *
    * @param \Symfony\Component\DependencyInjection\Container $container
@@ -118,10 +107,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->setAutoExit(FALSE);
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
-    $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
+    $this->dataDir = $data_dir ? $data_dir : $container->get('local_machine_helper')->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
     $definition = $container->register('cloud_api', ClientService::class);
@@ -158,15 +146,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function setSshHelper(\Acquia\Cli\Helpers\SshHelper $sshHelper): void {
     $this->sshHelper = $sshHelper;
-  }
-
-  /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
-  public function setLocalMachineHelper(
-    LocalMachineHelper $localMachineHelper
-  ): void {
-    $this->localMachineHelper = $localMachineHelper;
   }
 
   /**
@@ -315,7 +294,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getSshKeysDir(): string {
     if (!isset($this->sshKeysDir)) {
-      $this->sshKeysDir = $this->getLocalMachineHelper()->getLocalFilepath('~/.ssh');
+      $this->sshKeysDir = $this->getContainer()->get('local_machine_helper')->getLocalFilepath('~/.ssh');
     }
 
     return $this->sshKeysDir;

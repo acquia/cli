@@ -101,7 +101,7 @@ class AuthCommand extends CommandBase {
     }
     else {
       $question = new Question('<question>Please enter your API Secret:</question>');
-      $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
+      $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->questionHelper->ask($input, $output, $question);
@@ -136,7 +136,7 @@ class AuthCommand extends CommandBase {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
           TRUE);
         if ($this->questionHelper->ask($input, $output, $question)) {
-          $this->getApplication()->getLocalMachineHelper()->startBrowser($token_url);
+          $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($token_url);
         }
       }
     }

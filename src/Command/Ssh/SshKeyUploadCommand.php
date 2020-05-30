@@ -70,7 +70,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {
       $filepath = $this->getApplication()
-        ->getLocalMachineHelper()
+        ->getContainer()->get('local_machine_helper')
         ->getLocalFilepath($this->input->getOption('filepath'));
       if (!file_exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
@@ -78,7 +78,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       if (strpos($filepath, '.pub') === FALSE) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
-      $public_key = $this->getApplication()->getLocalMachineHelper()->readFile($filepath);
+      $public_key = $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
       $chosen_local_key = basename($filepath);
     } else {
       // Get local key and contents.
@@ -158,7 +158,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         break;
       }
     }
-    return $this->getApplication()->getLocalMachineHelper()->readFile($filepath);
+    return $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
   }
 
   /**

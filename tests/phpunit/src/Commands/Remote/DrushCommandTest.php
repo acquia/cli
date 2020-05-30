@@ -45,7 +45,7 @@ class DrushCommandTest extends SshCommandTestBase {
       ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->application->setLocalMachineHelper($local_machine_helper->reveal());
+    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
 
     $args = [
       'alias' => 'devcloud2.dev',

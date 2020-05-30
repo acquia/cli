@@ -102,6 +102,10 @@ abstract class TestBase extends TestCase {
     $serviceProph = $this->prophet->prophesize(ClientService::class);
     $serviceProph->getClient()->willReturn($client);
     $container->set('cloud_api', $serviceProph->reveal());
+    $container->register('local_machine_helper', \Acquia\Cli\Helpers\LocalMachineHelper::class)
+      ->addArgument($this->input)
+      ->addArgument($output)
+      ->addArgument($logger);
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();

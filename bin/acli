@@ -51,6 +51,10 @@ $logger = new ConsoleLogger($output);
 $container = new Symfony\Component\DependencyInjection\ContainerBuilder();
 $container->setParameter('repo_root', find_repo_root());
 $container->set('amplitude', Amplitude::getInstance());
+$container->register('local_machine_helper', \Acquia\Cli\Helpers\LocalMachineHelper::class)
+  ->addArgument($input)
+  ->addArgument($output)
+  ->addArgument($logger);
 
 /**
  * Running Acquia CLI.

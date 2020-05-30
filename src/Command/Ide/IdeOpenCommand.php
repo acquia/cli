@@ -38,7 +38,7 @@ class IdeOpenCommand extends IdeCommandBase {
     $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
     $this->output->writeln('Opening your IDE in browser...');
 
-    $this->getApplication()->getLocalMachineHelper()->startBrowser($ide->links->ide->href);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($ide->links->ide->href);
 
     return 0;
   }
