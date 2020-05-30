@@ -30,6 +30,7 @@ use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Command\TelemetryCommand;
 use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -51,11 +52,14 @@ $logger = new ConsoleLogger($output);
 $container = new Symfony\Component\DependencyInjection\ContainerBuilder();
 $container->setParameter('repo_root', find_repo_root());
 $container->set('amplitude', Amplitude::getInstance());
-$container->register('local_machine_helper', \Acquia\Cli\Helpers\LocalMachineHelper::class)
+$container->register('local_machine_helper', LocalMachineHelper::class)
   ->addArgument($input)
   ->addArgument($output)
   ->addArgument($logger);
 $container->setParameter('data_dir',  $container->get('local_machine_helper')->getHomeDir() . '/.acquia');
+$container->setParameter('cloud_config.filename', 'cloud_api.conf');
+$container->setParameter('acli_config.filename', 'acquia-cli.json');
+
 
 
 /**

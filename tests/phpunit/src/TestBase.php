@@ -107,6 +107,8 @@ abstract class TestBase extends TestCase {
       ->addArgument($output)
       ->addArgument($logger);
     $container->setParameter('data_dir', $this->fixtureDir . '/.acquia');
+    $container->setParameter('cloud_config.filename', 'cloud_api.conf');
+    $container->setParameter('acli_config.filename', 'acquia-cli.json');
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
@@ -267,7 +269,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->application->getDatastore()->set($this->application->getAcliConfigFilename(), [
+    $this->application->getDatastore()->set($this->application->getContainer()->getParameter('acli_config.filename'), [
       'localProjects' => [
         0 => [
           'directory' => $this->projectFixtureDir,

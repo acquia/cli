@@ -47,20 +47,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @var string|null
    */
   private $sshKeysDir;
-  /**
-   * @var \AcquiaCloudApi\Connector\Client
-   */
-  public $acquiaCloudClient;
-
-  /**
-   * @var string
-   */
-  protected $acliConfigFilename = 'acquia-cli.json';
-
-  /**
-   * @var string
-   */
-  protected $cloudConfigFilename = 'cloud_api.conf';
 
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
@@ -291,33 +277,12 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     return $this->sshKeysDir;
   }
 
-  /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   */
-  public function setAcquiaCloudClient(Client $client) {
-    $this->acquiaCloudClient = $client;
-  }
-
-  /**
-   * @return string
-   */
-  public function getCloudConfigFilename(): string {
-    return $this->cloudConfigFilename;
-  }
-
-  /**
-   * @return string
-   */
-  public function getAcliConfigFilename(): string {
-    return $this->acliConfigFilename;
-  }
-
   public function getCloudConfigFilepath(): string {
-    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getCloudConfigFilename();
+    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getContainer()->getParameter('cloud_config.filename');
   }
 
   public function getAcliConfigFilepath(): string {
-    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getAcliConfigFilename();
+    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getContainer()->getParameter('acli_config.filename');
   }
 
   /**
