@@ -115,8 +115,8 @@ class AuthCommand extends CommandBase {
    * @param $api_secret
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
-    $this->getCloudApiDatastore()->set('key', $api_key);
-    $this->getCloudApiDatastore()->set('secret', $api_secret);
+    $this->getApplication()->getContainer()->get('cloud_datastore')->set('key', $api_key);
+    $this->getApplication()->getContainer()->get('cloud_datastore')->set('secret', $api_secret);
   }
 
   /**

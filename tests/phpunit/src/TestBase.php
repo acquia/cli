@@ -22,6 +22,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\KeyValueStore\JsonFileStore;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -111,6 +112,11 @@ abstract class TestBase extends TestCase {
     $container->setParameter('acli_config.filename', 'acquia-cli.json');
     $container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
     $container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
+    $container->register('acli_datastore', JsonFileStore::class)
+      ->addArgument($container->getParameter('acli_config.filepath'));
+    $container->register('cloud_datastore', JsonFileStore::class)
+      ->addArgument($container->getParameter('cloud_config.filepath'))
+      ->addArgument(JsonFileStore::NO_SERIALIZE_STRINGS);
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
@@ -271,7 +277,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->application->getDatastore()->set($this->application->getContainer()->getParameter('acli_config.filename'), [
+    $this->application->getContainer()->get('acli_datastore')->set($this->application->getContainer()->getParameter('acli_config.filename'), [
       'localProjects' => [
         0 => [
           'directory' => $this->projectFixtureDir,

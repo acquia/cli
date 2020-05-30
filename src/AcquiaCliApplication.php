@@ -5,8 +5,6 @@ namespace Acquia\Cli;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
-use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
-use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -25,7 +23,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBase.
@@ -35,8 +32,6 @@ use Webmozart\KeyValueStore\JsonFileStore;
 class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
-  use DataStoreAwareTrait;
-  use CloudApiDatastoreAwareTrait;
 
   private $container;
 
@@ -84,10 +79,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->setDatastore(new JsonFileStore($this->getContainer()->getParameter('acli_config.filepath')));
-    $this->setCloudApiDatastore(new JsonFileStore($this->getContainer()->getParameter('cloud_config.filepath'), JsonFileStore::NO_SERIALIZE_STRINGS));
     $definition = $container->register('cloud_api', ClientService::class);
-    $definition->setArgument(0, $this->getCloudApiDatastore());
+    $definition->setArgument(0, $this->getContainer()->get('cloud_datastore'));
     $this->logStreamManager = new LogstreamManager($input, $output);
 
     $this->initializeAmplitude();
@@ -160,7 +153,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
-    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
+    if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
       $amplitude->setOptOut(TRUE);
     }
     $amplitude->logQueuedEvents();
@@ -222,7 +215,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *   User account data from Cloud.
    */
   public function getUserData() {
-    $datastore = $this->getDatastore();
+    $datastore = $this->getContainer()->get('acli_datastore');
     $user = $datastore->get(DataStoreContract::USER);
 
     if (!$user && $this->isMachineAuthenticated()) {
@@ -278,7 +271,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @return bool
    */
   public function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->getCloudApiDatastore();
+    $cloud_api_conf = $this->getContainer()->get('cloud_datastore');
     return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 

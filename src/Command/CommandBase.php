@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
-use Acquia\Cli\Helpers\DataStoreAwareTrait;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -34,8 +32,6 @@ use Symfony\Component\Validator\Validation;
  */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
 
-  use CloudApiDataStoreAwareTrait;
-  use DataStoreAwareTrait;
   use LoggerAwareTrait;
 
   /**
@@ -84,8 +80,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
-    $this->setDatastore($application->getDatastore());
-    $this->setCloudApiDatastore($application->getCloudApiDatastore());
 
     if ($this->commandRequiresAuthentication() && !$application->isMachineAuthenticated()) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
@@ -99,7 +93,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   protected function checkTelemetryPreference() {
-    $datastore = $this->getDatastore();
+    $datastore = $this->getApplication()->getContainer()->get('acli_datastore');
     $telemetry = $datastore->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
@@ -244,7 +238,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
-    $local_user_config = $this->getDatastore()->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
+    $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
     // Save empty local project info.
     // @todo Abstract this.
     if ($local_user_config !== NULL && $this->getApplication()->getContainer()->getParameter('repo_root') !== NULL) {
@@ -493,7 +487,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $application_uuid
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
-    $local_user_config = $this->getDatastore()->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
+    $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
     if (!$local_user_config) {
       $local_user_config = [
         'localProjects' => [],
@@ -504,7 +498,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $project['cloud_application_uuid'] = $application->uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
-        $this->getDatastore()->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
+        $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
         $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
         return;
       }
@@ -581,7 +575,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
-    $this->getDatastore()->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
+    $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
   }
 
 }

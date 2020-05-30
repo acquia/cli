@@ -6,7 +6,6 @@ use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class LinkCommandTest.
@@ -42,7 +41,7 @@ class LinkCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $acquia_cli_config = $this->command->getDatastore()->get($this->application->getContainer()->getParameter('acli_config.filename'));
+    $acquia_cli_config = $this->application->getContainer()->get('acli_datastore')->get($this->application->getContainer()->getParameter('acli_config.filename'));
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
