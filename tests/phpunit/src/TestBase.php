@@ -106,7 +106,8 @@ abstract class TestBase extends TestCase {
       ->addArgument($this->input)
       ->addArgument($output)
       ->addArgument($logger);
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $container->setParameter('data_dir', $this->fixtureDir . '/.acquia');
+    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
     $this->removeMockConfigFiles();

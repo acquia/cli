@@ -63,11 +63,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   protected $cloudConfigFilename = 'cloud_api.conf';
 
   /**
-   * @var string
-   */
-  protected $dataDir;
-
-  /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
   protected $sshHelper;
@@ -91,8 +86,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @param string $version
    *
-   * @param null $data_dir
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function __construct(
@@ -100,8 +93,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     LoggerInterface $logger,
     InputInterface $input,
     OutputInterface $output,
-    string $version = 'UNKNOWN',
-    $data_dir = NULL
+    string $version = 'UNKNOWN'
   ) {
     $this->container = $container;
     $this->setAutoExit(FALSE);
@@ -109,7 +101,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->dataDir = $data_dir ? $data_dir : $container->get('local_machine_helper')->getHomeDir() . '/.acquia';
     $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
     $definition = $container->register('cloud_api', ClientService::class);
@@ -322,11 +313,11 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   public function getCloudConfigFilepath(): string {
-    return $this->dataDir . '/' . $this->getCloudConfigFilename();
+    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getCloudConfigFilename();
   }
 
   public function getAcliConfigFilepath(): string {
-    return $this->dataDir . '/' . $this->getAcliConfigFilename();
+    return $this->getContainer()->getParameter('data_dir') . '/' . $this->getAcliConfigFilename();
   }
 
   /**

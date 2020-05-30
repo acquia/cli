@@ -55,6 +55,8 @@ $container->register('local_machine_helper', \Acquia\Cli\Helpers\LocalMachineHel
   ->addArgument($input)
   ->addArgument($output)
   ->addArgument($logger);
+$container->setParameter('data_dir',  $container->get('local_machine_helper')->getHomeDir() . '/.acquia');
+
 
 /**
  * Running Acquia CLI.
