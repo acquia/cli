@@ -507,8 +507,7 @@ class RefreshCommand extends CommandBase {
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
     }
-
-    return NULL;
+    throw new AcquiaCliException("Could not get ACSF sites");
   }
 
 }

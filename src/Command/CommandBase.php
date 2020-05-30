@@ -11,6 +11,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -156,27 +157,86 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   *
+   * @param string $application_uuid
+   *
+   * @return mixed
+   */
+  protected function promptChooseEnvironment(
+    Client $acquia_cloud_client,
+    string $application_uuid
+  ) {
+    $environment_resource = new Environments($acquia_cloud_client);
+    $environments = $environment_resource->getAll($application_uuid);
+    $environment = $this->promptChooseFromObjects(
+      $environments,
+      'uuid',
+      'name',
+      'Please select an Acquia Cloud environment:'
+    );
+    return $environment;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   *
+   * @param string $environment_id
+   *
+   * @return mixed
+   */
+  protected function promptChooseLogs(
+    Client $acquia_cloud_client,
+    string $environment_id
+  ) {
+    $logs_resource = new Logs($acquia_cloud_client);
+    $logs = $logs_resource->getAll($environment_id);
+    return $this->promptChooseFromObjects(
+      $logs,
+      'type',
+      'label',
+      'Please select one or more logs as a comma-separated list:',
+      TRUE
+    );
+  }
+
+  /**
    * @param \stdClass[] $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
    *
-   * @return null|object
+   * @return null|object|array
    */
-  public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text) {
+  public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
     $list = [];
     foreach ($items as $item) {
       $list[$item->$unique_property] = trim($item->$label_property);
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);
+    $question->setMultiselect($multiselect);
     $helper = $this->getHelper('question');
     $choice_id = $helper->ask($this->input, $this->output, $question);
-    $identifier = array_search($choice_id, $list, TRUE);
-    foreach ($items as $item) {
-      if ($item->$unique_property === $identifier) {
-        return $item;
+    if (!$multiselect) {
+      $identifier = array_search($choice_id, $list, TRUE);
+      foreach ($items as $item) {
+        if ($item->$unique_property === $identifier) {
+          return $item;
+        }
       }
+    }
+    else {
+      $chosen = [];
+      foreach ($choice_id as $choice) {
+        $identifier = array_search($choice, $list, TRUE);
+        foreach ($items as $item) {
+          if ($item->$unique_property === $identifier) {
+            $chosen[] = $item;
+          }
+        }
+      }
+      return $chosen;
     }
 
     return NULL;
@@ -340,6 +400,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return NULL;
+  }
+
+  /**
+   * @param $application_uuid
+   *
+   * @return mixed
+   */
+  protected function determineCloudEnvironment($application_uuid) {
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
+    return $environment->uuid;
+
   }
 
   /**

@@ -18,7 +18,7 @@ class IdeListCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:list')->setDescription('Please select the application to list the IDEs for.');
+    $this->setName('ide:list')->setDescription('List available Remote IDEs');
     // @todo Add option to specify application uuid.
   }
 

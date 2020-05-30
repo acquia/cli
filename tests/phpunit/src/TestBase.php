@@ -6,6 +6,7 @@ use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophet;
@@ -102,6 +103,8 @@ abstract class TestBase extends TestCase {
     $serviceProph->getClient()->willReturn($client);
     $container->set('cloud_api', $serviceProph->reveal());
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN', $this->fixtureDir . '/.acquia');
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -241,9 +244,12 @@ abstract class TestBase extends TestCase {
     $finder = new Finder();
     $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
     $this->fs->remove($finder->files());
-    $temp_file_name = $this->fs->tempnam(sys_get_temp_dir(), 'acli') . '.pub';
-    $this->fs->dumpFile($temp_file_name, $contents);
-    return $temp_file_name;
+    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $this->fs->touch($private_key_filepath);
+    $public_key_filepath = $private_key_filepath . '.pub';
+    $this->fs->dumpFile($public_key_filepath, $contents);
+
+    return $public_key_filepath;
   }
 
   protected function createMockConfigFile(): void {
@@ -327,6 +333,36 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request('get',
       '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
       ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockLogListRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logs',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logs')
+      ->willReturn($response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockLogStreamRequest() {
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logstream')
+      ->willReturn($response)
       ->shouldBeCalled();
 
     return $response;

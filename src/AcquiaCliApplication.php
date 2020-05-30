@@ -14,6 +14,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
+use AcquiaLogstream\LogstreamManager;
 use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
@@ -75,6 +76,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   protected $sshHelper;
 
+  public $logStreamManager;
+
   /**
    * @return \Acquia\Cli\Helpers\SshHelper
    */
@@ -123,6 +126,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
     $definition = $container->register('cloud_api', ClientService::class);
     $definition->setArgument(0, $this->getCloudApiDatastore());
+    $this->logStreamManager = new LogstreamManager($input, $output);
+
     $this->initializeAmplitude();
 
     // Add API commands.

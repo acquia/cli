@@ -2,13 +2,10 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -45,6 +42,7 @@ abstract class SshBaseCommand extends CommandBase {
    * @param $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
     $site_env_parts = explode('.', $alias);
@@ -58,6 +56,7 @@ abstract class SshBaseCommand extends CommandBase {
    * @param string $drush_env
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvFromAlias(
         $drush_site,
@@ -70,7 +69,6 @@ abstract class SshBaseCommand extends CommandBase {
       'get',
       '/applications'
     );
-    // @todo Throw exception if not found.
     $customer_application = $customer_applications[0];
     $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
@@ -90,7 +88,7 @@ abstract class SshBaseCommand extends CommandBase {
       }
     }
 
-    return NULL;
+    throw new AcquiaCliException("Environment not found matching alias {alias}", ['alias' => "$drush_site.$drush_env"]);
   }
 
 }
