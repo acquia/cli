@@ -1,0 +1,10 @@
+{"cloud":{"site":"profserv2","env":"01dev"},"memcache_inc":"profiles\/gardens\/modules\/acquia\/memcache\/memcache.inc",
+  "sites": {
+    "oracletest1.dev-profserv2.acsitefactory.com": {"name":"jxr5000596dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000596,"gardens_db_name":"jxr5000596dev","acsf_site_id":5000596,"acsf_db_name":"jxr5000596dev"}},
+    "oracletest3.dev-profserv2.acsitefactory.com": {"name":"jxr5000606dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000606,"gardens_db_name":"jxr5000606dev","acsf_site_id":5000606,"acsf_db_name":"jxr5000606dev"}},
+    "oracletest4.dev-profserv2.acsitefactory.com": {"name":"jxr5000611dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000611,"gardens_db_name":"jxr5000611dev","acsf_site_id":5000611,"acsf_db_name":"jxr5000611dev"}},
+    "jeff1.dev-profserv2.acsitefactory.com": {"name":"jxr5000616dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000616,"gardens_db_name":"jxr5000616dev","acsf_site_id":5000616,"acsf_db_name":"jxr5000616dev"}},
+    "stephen.dev-profserv2.acsitefactory.com": {"name":"jxr5000621dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000621,"gardens_db_name":"jxr5000621dev","acsf_site_id":5000621,"acsf_db_name":"jxr5000621dev"}},
+    "oracletest5.dev-profserv2.acsitefactory.com": {"name":"jxr5000626dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000626,"gardens_db_name":"jxr5000626dev","acsf_site_id":5000626,"acsf_db_name":"jxr5000626dev"}},
+    "oracletest2.dev-profserv2.acsitefactory.com": {"name":"jxr5000631dev","flags":{"preferred_domain":true},"conf":{"gardens_site_id":5000631,"gardens_db_name":"jxr5000631dev","acsf_site_id":5000631,"acsf_db_name":"jxr5000631dev"}}
+  }}
