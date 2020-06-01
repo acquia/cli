@@ -52,7 +52,7 @@ class IdeCreateCommandTest extends CommandTestBase {
       0,
       // Please select the application for which you'd like to create a new IDE
       0,
-      // Please enter a label for your Remote IDE:
+      // Please enter a label for your Cloud IDE:
       'Example IDE',
     ];
     $this->executeCommand([], $inputs);
@@ -63,7 +63,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
     $this->assertStringContainsString('  [0] Sample application 1', $output);
     $this->assertStringContainsString('  [1] Sample application 2', $output);
-    $this->assertStringContainsString('Please enter a label for your Remote IDE:', $output);
+    $this->assertStringContainsString('Please enter a label for your Cloud IDE:', $output);
     // $this->assertStringContainsString('Waiting for DNS to propagate...', $output);
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);

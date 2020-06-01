@@ -17,7 +17,7 @@ class IdeDeleteCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:delete')->setDescription('Delete a Remote IDE');
+    $this->setName('ide:delete')->setDescription('Delete a Cloud IDE');
     // @todo Add option to accept an ide UUID.
     // @todo Add option to specify application uuid.
   }
