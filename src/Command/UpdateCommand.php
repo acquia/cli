@@ -7,6 +7,7 @@ use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -21,7 +22,9 @@ class UpdateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('self-update')->setDescription('update to the latest version');
+    $this->setName('self-update')
+      ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded', FALSE)
+      ->setDescription('update to the latest version');
   }
 
   /**
@@ -42,7 +45,8 @@ class UpdateCommand extends CommandBase {
 
     $updater = new Updater($this->getPharPath(), FALSE);
     $updater->setStrategyObject(new GithubStrategy());
-    $updater->getStrategy()->setStability(GithubStrategy::STABLE);
+    $stability = $input->getOption('allow-unstable') ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
+    $updater->getStrategy()->setStability($stability);
     $updater->getStrategy()->setPackageName('acquia/cli');
     $updater->getStrategy()->setPharName('acli');
     $updater->getStrategy()->setCurrentLocalVersion($this->getApplication()->getVersion());

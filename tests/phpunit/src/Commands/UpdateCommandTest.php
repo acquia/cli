@@ -22,7 +22,8 @@ class UpdateCommandTest extends CommandTestBase {
     return new UpdateCommand();
   }
 
-  public function testNonPharException() {
+  public function testNonPharException(): void {
+    $this->setCommand($this->createCommand());
     try {
       $this->executeCommand([], []);
     }
@@ -37,6 +38,11 @@ class UpdateCommandTest extends CommandTestBase {
     $this->command->setPharPath($stub_phar);
 
     $this->executeCommand([], []);
+
+    $output = $this->getDisplay();
+    $this->assertEquals($this->getStatusCode(), 0);
+    $this->assertStringContainsString('Updated from UNKNOWN to', $output);
+
   }
 
 }

@@ -145,7 +145,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $amplitude = $this->getContainer()->get('amplitude');
     if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
       $amplitude->setOptOut(TRUE);
-      return FALSE;
+      return;
     }
     $amplitude->init('956516c74386447a3148c2cc36013ac3');
     // Method chaining breaks Prophecy?
