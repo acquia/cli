@@ -31,4 +31,5 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $output = $this->applicationTester->getDisplay();
     $this->assertStringContainsString("Your Cloud API credentials are invalid. Run acli auth:login to reset them.", $output);
   }
+
 }

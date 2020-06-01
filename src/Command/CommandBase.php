@@ -11,6 +11,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use ArrayObject;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
@@ -195,7 +196,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \stdClass[] $items An array of objects.
+   * @param object[]|ArrayObject $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text

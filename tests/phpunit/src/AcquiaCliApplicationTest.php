@@ -25,4 +25,5 @@ class AcquiaCliApplicationTest extends TestBase {
     unset($this->application->acquiaCloudClient);
     $this->assertIsObject($this->application->getAcquiaCloudClient());
   }
+
 }
