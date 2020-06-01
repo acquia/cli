@@ -21,9 +21,4 @@ class AcquiaCliApplicationTest extends TestBase {
     $this->prophet->checkPredictions();
   }
 
-  public function testSetCloudClient(): void {
-    unset($this->application->acquiaCloudClient);
-    $this->assertIsObject($this->application->getAcquiaCloudClient());
-  }
-
 }
