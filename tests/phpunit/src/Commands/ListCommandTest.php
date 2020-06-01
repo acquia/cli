@@ -5,8 +5,6 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Command\ListCommand;
-use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class ListCommandTest.

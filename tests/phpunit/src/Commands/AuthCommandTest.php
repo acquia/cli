@@ -6,7 +6,6 @@ use Acquia\Cli\Command\AuthCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class IdeDeleteCommandTest.

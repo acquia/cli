@@ -424,7 +424,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $this->saveLocalConfigCloudAppUuid($application);
         }
         else {
-          $this->promptLinkApplication($this->getApplication(), $application);
+          $this->promptLinkApplication($application);
         }
       }
     }
@@ -517,11 +517,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Cli\AcquiaCliApplication $cli_application
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    */
   protected function promptLinkApplication(
-    AcquiaCliApplication $cli_application,
     ?ApplicationResponse $cloud_application
     ): void {
     $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");

@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\ApplicationTestBase;
-use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 /**

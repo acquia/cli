@@ -2,17 +2,12 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\AcquiaCliApplication;
-use Exception;
 use Humbug\SelfUpdate\Strategy\GithubStrategy;
 use Humbug\SelfUpdate\Updater;
 use Phar;
-use PharException;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use UnexpectedValueException;
-use function error_reporting;
 
 /**
  * Class UpdateCommand.

@@ -10,7 +10,6 @@ use Acquia\Cli\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**

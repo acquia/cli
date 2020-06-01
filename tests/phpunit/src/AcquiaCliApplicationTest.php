@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Prophecy\Argument;
-use Zumba\Amplitude\Amplitude;
 
 class AcquiaCliApplicationTest extends TestBase {
 
@@ -22,4 +21,8 @@ class AcquiaCliApplicationTest extends TestBase {
     $this->prophet->checkPredictions();
   }
 
+  public function testSetCloudClient(): void {
+    unset($this->application->acquiaCloudClient);
+    $this->assertIsObject($this->application->getAcquiaCloudClient());
+  }
 }

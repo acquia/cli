@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\RefreshCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
