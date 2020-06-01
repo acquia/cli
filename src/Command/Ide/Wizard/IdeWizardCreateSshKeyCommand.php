@@ -8,6 +8,7 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\IdeResponse;
 use drupol\phposinfo\OsInfo;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -277,11 +278,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
+   * @param $ide
    * @param string $public_ssh_key_filepath
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function uploadSshKeyToCloud($ide, string $public_ssh_key_filepath): void {
+  protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
     $command = $this->getApplication()->find('ssh-key:upload');
     $arguments = [
       'command' => $command->getName(),

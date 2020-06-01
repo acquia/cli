@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\ApplicationTestBase;
-use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 /**
@@ -26,10 +25,11 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   public function testInvalidApiCreds(): void {
     // Simulate the response from OAuth server due to invalid credentials.
     $this->clientProphecy->request('get', '/applications')
-      ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => "The client credentials are invalid"]))
+      ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => 'The client credentials are invalid']))
       ->shouldBeCalled();
     $this->applicationTester->run(['link'], ['interactive' => FALSE]);
     $output = $this->applicationTester->getDisplay();
-    $this->assertStringContainsString("Your Cloud API credentials are invalid. Run acli auth:login to reset them.", $output);
+    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $output);
   }
+
 }

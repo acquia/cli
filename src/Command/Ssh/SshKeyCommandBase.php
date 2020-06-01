@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Command\CommandBase;
 
-use Symfony\Component\Finder\Finder;
-
 /**
  * Class SshKeyCommandBase.
  */

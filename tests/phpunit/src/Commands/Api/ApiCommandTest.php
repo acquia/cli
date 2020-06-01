@@ -74,6 +74,9 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinition
+   *
+   * @param $use_command_cache
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @group noCache
    */

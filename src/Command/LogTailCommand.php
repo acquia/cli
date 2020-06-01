@@ -2,9 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
-use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

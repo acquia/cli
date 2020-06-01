@@ -18,7 +18,7 @@ class ApiListCommandTest extends CommandTestBase {
   /**
    * Tests the 'api:list' command.
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testApiListCommand(): void {
     $this->executeCommand();

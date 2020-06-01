@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -64,7 +65,7 @@ class AuthCommand extends CommandBase {
     }
     else {
       $question = new Question('<question>Please enter your API Key:</question>');
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
       $api_key = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -103,7 +104,7 @@ class AuthCommand extends CommandBase {
       $question = new Question('<question>Please enter your API Secret:</question>');
       $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
       $question->setHiddenFallback(TRUE);
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -111,8 +112,8 @@ class AuthCommand extends CommandBase {
   }
 
   /**
-   * @param array $api_key
-   * @param $api_secret
+   * @param string $api_key
+   * @param string $api_secret
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
     $this->getApplication()->getContainer()->get('cloud_datastore')->set('key', $api_key);

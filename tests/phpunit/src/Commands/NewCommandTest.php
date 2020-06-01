@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\NewCommand;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
@@ -48,6 +49,10 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'refresh' command.
    *
    * @dataProvider provideTestRefreshCommand
+   *
+   * @param $project
+   *
+   * @throws \Exception
    */
   public function testRefreshCommand($project): void {
     $this->setCommand($this->createCommand());
@@ -103,12 +108,12 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    * @param string $project
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteComposerCreate(
     string $project_dir,
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
-    \Prophecy\Prophecy\ObjectProphecy $process,
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process,
     $project
   ) {
     $command = [
@@ -129,12 +134,12 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteComposerUpdate(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     string $project_dir,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ) {
     $command = [
       'composer',
@@ -151,12 +156,12 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteGitInit(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     string $project_dir,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ) {
     $command = [
       'git',
@@ -173,12 +178,12 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteGitAdd(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     string $project_dir,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ) {
     $command = [
       'git',
@@ -197,9 +202,9 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteGitCommit(
-    \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
+    ObjectProphecy $local_machine_helper,
     string $project_dir,
-    \Prophecy\Prophecy\ObjectProphecy $process
+    ObjectProphecy $process
   ): void {
     $command = [
       'git',

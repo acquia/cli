@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -43,6 +44,9 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   }
 
   /**
+   * @param $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -87,7 +91,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
-      $question->setValidator(\Closure::fromCallable([$this, 'validateFilename']));
+      $question->setValidator(Closure::fromCallable([$this, 'validateFilename']));
       $filename = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -129,7 +133,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
-      $question->setValidator(\Closure::fromCallable([$this, 'validatePassword']));
+      $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
       $password = $this->questionHelper->ask($input, $output, $question);
     }
 

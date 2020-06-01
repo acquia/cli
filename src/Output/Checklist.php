@@ -29,7 +29,7 @@ class Checklist {
   }
 
   /**
-   *
+   * @param $message
    */
   public function addItem($message): void {
     $item = ['message' => $message];
@@ -65,7 +65,7 @@ class Checklist {
   }
 
   /**
-   *
+   * @param $update_message
    */
   public function updateProgressBar($update_message): void {
     if ($this->useSpinner()) {

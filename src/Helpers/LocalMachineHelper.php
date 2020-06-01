@@ -25,7 +25,9 @@ class LocalMachineHelper {
   private $isTty = NULL;
 
   /**
-   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param $logger
    */
   public function __construct(InputInterface $input, OutputInterface $output, $logger) {
     $this->input = $input;
@@ -51,7 +53,7 @@ class LocalMachineHelper {
    *   The command to execute.
    * @param callable $callback
    *   A function to run while waiting for the process to complete.
-   * @param null $cwd
+   * @param string $cwd
    * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
@@ -63,8 +65,8 @@ class LocalMachineHelper {
 
   /**
    * @param string $cmd
-   * @param null $callback
-   * @param null $cwd
+   * @param callable $callback
+   * @param string $cwd
    * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
@@ -76,8 +78,8 @@ class LocalMachineHelper {
 
   /**
    * @param \Symfony\Component\Process\Process $process
-   * @param null $callback
-   * @param null $cwd
+   * @param callable $callback
+   * @param string $cwd
    * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
@@ -169,7 +171,7 @@ class LocalMachineHelper {
   }
 
   /**
-   * @param null $isTty
+   * @param bool $isTty
    */
   public function setIsTty($isTty): void {
     $this->isTty = $isTty;
@@ -229,7 +231,7 @@ class LocalMachineHelper {
       if (getenv('MSYSTEM') !== NULL) {
         $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
       }
-      if ($system != 'MING') {
+      if ($system !== 'MING') {
         $home = getenv('HOMEPATH');
       }
     }

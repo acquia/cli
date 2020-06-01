@@ -16,6 +16,8 @@ abstract class IdeCommandBase extends CommandBase {
    * @param string $question_text
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
+   * @param $cloud_application_uuid
+   *
    * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

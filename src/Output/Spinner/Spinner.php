@@ -172,7 +172,7 @@ class Spinner {
   }
 
   /**
-   *
+   * @param string $message
    */
   public function setMessage(string $message): void {
     if (!$this->spinnerIsSupported()) {

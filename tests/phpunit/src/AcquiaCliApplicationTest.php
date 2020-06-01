@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Prophecy\Argument;
-use Zumba\Amplitude\Amplitude;
 
 class AcquiaCliApplicationTest extends TestBase {
 

@@ -6,7 +6,6 @@ use Acquia\Cli\Command\AuthCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class IdeDeleteCommandTest.
@@ -53,6 +52,9 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLoginCommand
    *
+   * @param $inputs
+   * @param $args
+   *
    * @throws \Exception
    */
   public function testAuthLoginCommand($inputs, $args): void {
@@ -92,6 +94,8 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    *
+   * @param $inputs
+   * @param $args
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
