@@ -51,6 +51,8 @@ jobs:
 
 before_install:
   - composer selfupdate
+  # Tests for the SSH key commands rely on ssh-agent running.
+  - eval "$(ssh-agent -s)"
 
 install:
   # Load composer dependencies.
