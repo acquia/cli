@@ -48,6 +48,10 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'refresh' command.
    *
    * @dataProvider provideTestRefreshCommand
+   *
+   * @param $project
+   *
+   * @throws \Exception
    */
   public function testRefreshCommand($project): void {
     $this->setCommand($this->createCommand());
@@ -103,8 +107,8 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    * @param string $project
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteComposerCreate(
     string $project_dir,
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
@@ -129,8 +133,8 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteComposerUpdate(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -151,8 +155,8 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteGitInit(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -173,8 +177,8 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return array
-   */
+   * @return void
+*/
   protected function mockExecuteGitAdd(
     \Prophecy\Prophecy\ObjectProphecy $local_machine_helper,
     string $project_dir,

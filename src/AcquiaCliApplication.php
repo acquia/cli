@@ -101,7 +101,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       $exitCode = $event->getExitCode();
       $error = $event->getError();
       // Make OAuth server errors more human-friendly.
-      if ($error instanceof IdentityProviderException && $error->getMessage() == 'invalid_client') {
+      if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
         $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', [], $exitCode));
       }
     });

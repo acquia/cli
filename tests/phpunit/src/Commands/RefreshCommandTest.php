@@ -162,11 +162,9 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param $cloud_client
    * @param object $environments_response
    *
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockDatabasesResponse(
     $environments_response
@@ -181,6 +179,8 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
+   * @param bool $success
+   *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockProcess($success = TRUE): ObjectProphecy {
@@ -192,6 +192,7 @@ class RefreshCommandTest extends CommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $has_connection
    */
   protected function mockExecuteDrushStatus(
     ObjectProphecy $local_machine_helper,

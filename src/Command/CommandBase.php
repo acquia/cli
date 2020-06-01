@@ -201,6 +201,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $label_property
    * @param string $question_text
    *
+   * @param bool $multiselect
+   *
    * @return null|object|array
    */
   public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
@@ -485,7 +487,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $application_uuid
+   * @param \AcquiaCloudApi\Response\ApplicationResponse $application
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
     $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));

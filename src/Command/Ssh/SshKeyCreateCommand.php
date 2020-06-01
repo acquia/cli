@@ -43,6 +43,9 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   }
 
   /**
+   * @param $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

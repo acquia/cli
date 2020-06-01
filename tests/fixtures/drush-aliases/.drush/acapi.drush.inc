@@ -563,7 +563,8 @@ This command stores default email, key, and optionally endpoint values for futur
  *   The full path to update.
  * @param $content
  *   The content to write.
- * @return
+ *
+ * @return bool TRUE if the file is updated, FALSE otherwise.
  *   TRUE if the file is updated, FALSE otherwise.
  */
 function drush_acapi_update_file($path, $content) {
@@ -739,6 +740,9 @@ function acapi_get_option_file() {
 /**
  * List a site's tasks. See the command definition for why this function is
  * different.
+ * @param $db
+ * @param $backupid
+ * @return
  */
 function drush_acapi_ac_database_backup_download($db, $backupid) {
   $command = drush_get_context('command');
@@ -886,7 +890,7 @@ function acapi_common_options() {
  *
  * @param $name
  *   An ac-api option name.
- * @return
+ * @return mixed|void The option value, or NULL.
  *   The option value, or NULL.
  */
 function acapi_get_option($name) {
@@ -984,9 +988,9 @@ function drush_acapi_ac_generic_callback() {
  * Return the Acquia Cloud site information specified via the site
  * alias.
  *
- * @param $site_required (TRUE)
+ * @param bool $site_required (TRUE)
  *   Set an error if site alias options are not found.
- * @return
+ * @return array An array of three elements, site name, environment and realm unless the
  *   An array of three elements, site name, environment and realm unless the
  *   alias file pre-dates the addition of realm.
  */
@@ -1037,6 +1041,10 @@ function acapi_get_site_args($site_required = TRUE) {
  * @param $args = array()
  *   An array of argument values for the resource; e.g: array(':site' =>
  *   'mysite').
+ * @param array $params
+ * @param array $body
+ * @param array $options
+ * @return array|bool|void
  * @params $params = array()
  *   An array of query parameters to append to the URL.
  * @params $body = array()
@@ -1195,6 +1203,8 @@ function acapi_get_creds() {
 /**
  * Convert NULL, array and object values to appropriate string representations
  * so they are printed correctly.
+ * @param $arr
+ * @return array
  */
 function acapi_convert_values($arr) {
   foreach ($arr as $k => $v) {
@@ -1211,6 +1221,9 @@ function acapi_convert_values($arr) {
 /**
  * dt() wrapper that URL-encodes all substituted parameters that begin with
  * a colon (':').
+ * @param $string
+ * @param array $args
+ * @return
  */
 function acapi_dt($string, $args = []) {
   foreach ($args as $k => $v) {

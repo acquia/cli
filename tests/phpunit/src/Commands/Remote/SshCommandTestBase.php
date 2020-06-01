@@ -14,8 +14,6 @@ use Symfony\Component\Process\Process;
 abstract class SshCommandTestBase extends CommandTestBase {
 
   /**
-   * @param $cloud_client
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockForGetEnvironmentFromAliasArg(): void {

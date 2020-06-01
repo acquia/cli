@@ -298,14 +298,19 @@ class ApiCommandHelper {
   }
 
   /**
+   * @param $param_name
+   * @param $acquia_cloud_spec
    *
+   * @return mixed
    */
   protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec) {
     return $acquia_cloud_spec['components']['parameters'][$param_name];
   }
 
   /**
-   *
+   * @param $param_name
+   * @param $acquia_cloud_spec
+   * @return mixed
    */
   protected function getParameterSchemaFromSpec($param_name, $acquia_cloud_spec) {
     return $acquia_cloud_spec['components']['schemas'][$param_name];

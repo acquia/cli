@@ -74,7 +74,7 @@ class SshHelper {
    * @param array $command
    *   The command to be run on the platform.
    *
-   * @param callable $output_callback
+   * @param $print_output
    *
    * @return \Symfony\Component\Process\Process
    */
@@ -98,7 +98,7 @@ class SshHelper {
     $result = '';
     while (!empty($command_args)) {
       $first = array_shift($command_args);
-      if (strlen($first) && $first[0] == '-') {
+      if ($first != '' && $first[0] == '-') {
         return $result;
       }
       $result .= " $first";

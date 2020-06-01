@@ -25,7 +25,9 @@ class LocalMachineHelper {
   private $isTty = NULL;
 
   /**
-   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param $logger
    */
   public function __construct(InputInterface $input, OutputInterface $output, $logger) {
     $this->input = $input;
@@ -229,7 +231,7 @@ class LocalMachineHelper {
       if (getenv('MSYSTEM') !== NULL) {
         $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
       }
-      if ($system != 'MING') {
+      if ($system !== 'MING') {
         $home = getenv('HOMEPATH');
       }
     }

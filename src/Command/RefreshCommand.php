@@ -132,6 +132,8 @@ class RefreshCommand extends CommandBase {
   /**
    * @param $chosen_environment
    *
+   * @param null $output_callback
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
@@ -209,6 +211,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_host
    * @param string $db_name
    *
+   * @param null $output_callback
    * @return string|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -231,6 +234,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
+   * @param null $output_callback
    */
   protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -252,6 +256,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
+   * @param null $output_callback
    */
   protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -274,6 +279,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
+   * @param null $output_callback
    */
   protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
@@ -345,6 +351,7 @@ class RefreshCommand extends CommandBase {
    * @param $environment_databases
    *
    * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptChooseDatabase(
     $cloud_environment,
@@ -443,6 +450,7 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param $chosen_environment
+   * @param null $output_callback
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
     $command = [
@@ -479,6 +487,8 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param $cloud_environment
+   *
+   * @return bool
    */
   protected function isAcsfEnv($cloud_environment): bool {
     if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== FALSE) {

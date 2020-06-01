@@ -67,7 +67,7 @@ class AcquiaCliException extends Exception {
   /**
    * Replace the variables into the message string.
    *
-   * @param string $message
+   * @param string|array $message
    *   The raw, uninterpolated message string.
    * @param array $replacements
    *   The values to replace into the message.

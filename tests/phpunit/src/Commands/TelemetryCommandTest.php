@@ -52,6 +52,11 @@ class TelemetryCommandTest extends CommandTestBase {
    * Tests telemetry prompt.
    *
    * @dataProvider providerTestTelemetryPrompt
+   *
+   * @param array $input
+   * @param $message
+   *
+   * @throws \Exception
    */
   public function testTelemetryPrompt(array $input, $message): void {
     $this->removeMockAcliConfigFile();

@@ -25,7 +25,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'remote:aliases:download' commands.
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testRemoteAliasesDownloadCommand(): void {
     $this->setCommand($this->createCommand());

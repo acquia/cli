@@ -397,8 +397,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $cloud_client
-   * @param array $mock_request_args
    */
   protected function mockUploadSshKey(): void {
     $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -410,7 +408,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $mock_request_args
-   * @param $cloud_client
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
