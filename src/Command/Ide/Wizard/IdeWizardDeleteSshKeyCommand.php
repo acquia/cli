@@ -18,7 +18,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
   protected function configure() {
     $this->setName('ide:wizard:ssh-key:delete')
       ->setDescription('Wizard to delete SSH key for IDE from Cloud')
-      ->setHidden(!CommandBase::isAcquiaRemoteIde());
+      ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
   /**
@@ -30,7 +30,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->requireRemoteIdeEnvironment();
+    $this->requireCloudIdeEnvironment();
 
     $cloud_key = $this->findIdeSshKeyOnCloud();
     if (!$cloud_key) {
