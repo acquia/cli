@@ -4,14 +4,10 @@ namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\CloudApiDataStoreAwareTrait;
-use Acquia\Cli\Helpers\DataStoreAwareTrait;
+use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Account;
 use AcquiaLogstream\LogstreamManager;
 use drupol\phposinfo\OsInfo;
@@ -25,8 +21,8 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBase.
@@ -36,45 +32,13 @@ use Webmozart\KeyValueStore\JsonFileStore;
 class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
-  use DataStoreAwareTrait;
-  use CloudApiDatastoreAwareTrait;
 
-  /**
-   * @var null|string*/
-  private $repoRoot;
+  private $container;
 
-  /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
-  protected $localMachineHelper;
   /**
    * @var string|null
    */
   private $sshKeysDir;
-  /**
-   * @var \AcquiaCloudApi\Connector\Client
-   */
-  public $acquiaCloudClient;
-
-  /**
-   * @var \Zumba\Amplitude\Amplitude
-   */
-  private $amplitude;
-
-  /**
-   * @var string
-   */
-  protected $acliConfigFilename = 'acquia-cli.json';
-
-  /**
-   * @var string
-   */
-  protected $cloudConfigFilename = 'cloud_api.conf';
-
-  /**
-   * @var string
-   */
-  protected $dataDir;
 
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
@@ -91,47 +55,32 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
-   * @return \Acquia\Cli\Helpers\LocalMachineHelper
-   */
-  public function getLocalMachineHelper(): LocalMachineHelper {
-    return $this->localMachineHelper;
-  }
-
-  /**
    * Cli constructor.
    *
+   * @param \Symfony\Component\DependencyInjection\Container $container
    * @param \Psr\Log\LoggerInterface $logger
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $repo_root
    *
-   * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $version
-   *
-   * @param null $data_dir
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function __construct(
-        LoggerInterface $logger,
-        InputInterface $input,
-        OutputInterface $output,
-        $repo_root,
-        $amplitude,
-        string $version = 'UNKNOWN',
-        $data_dir = NULL
-    ) {
+    Container $container,
+    LoggerInterface $logger,
+    InputInterface $input,
+    OutputInterface $output,
+    string $version = 'UNKNOWN'
+  ) {
+    $this->container = $container;
     $this->setAutoExit(FALSE);
     $this->setLogger($logger);
     $this->warnIfXdebugLoaded();
-    $this->setRepoRoot($repo_root);
-    $this->setLocalMachineHelper(new LocalMachineHelper($input, $output, $logger));
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->dataDir = $data_dir ? $data_dir : $this->getLocalMachineHelper()->getHomeDir() . '/.acquia';
-    $this->setDatastore(new JsonFileStore($this->getAcliConfigFilepath()));
-    $this->setCloudApiDatastore(new JsonFileStore($this->getCloudConfigFilepath(), JsonFileStore::NO_SERIALIZE_STRINGS));
-    $this->amplitude = $amplitude;
+    $definition = $container->register('cloud_api', ClientService::class);
+    $definition->setArgument(0, $this->getContainer()->get('cloud_datastore'));
     $this->logStreamManager = new LogstreamManager($input, $output);
 
     $this->initializeAmplitude();
@@ -160,26 +109,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
-   * @param string|null $repoRoot
-   */
-  public function setRepoRoot(?string $repoRoot): void {
-    $this->repoRoot = $repoRoot;
-  }
-
-  /**
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    */
-  public function setSshHelper(\Acquia\Cli\Helpers\SshHelper $sshHelper): void {
+  public function setSshHelper(SshHelper $sshHelper): void {
     $this->sshHelper = $sshHelper;
-  }
-
-  /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
-  public function setLocalMachineHelper(
-    LocalMachineHelper $localMachineHelper
-  ): void {
-    $this->localMachineHelper = $localMachineHelper;
   }
 
   /**
@@ -199,7 +132,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
     ];
-    $this->amplitude->queueEvent('Ran command', $event_properties);
+    $amplitude = $this->getContainer()->get('amplitude');
+    $amplitude->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
   }
@@ -208,20 +142,25 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * Initializes Amplitude.
    */
   private function initializeAmplitude() {
-    $this->amplitude->init('956516c74386447a3148c2cc36013ac3');
+    $amplitude = $this->getContainer()->get('amplitude');
+    $amplitude->init('956516c74386447a3148c2cc36013ac3');
     // Method chaining breaks Prophecy?
     // @see https://github.com/phpspec/prophecy/issues/25
-    $this->amplitude->setDeviceId(OsInfo::uuid());
-    $this->amplitude->setUserProperties($this->getTelemetryUserData());
+    $amplitude->setDeviceId(OsInfo::uuid());
+    $amplitude->setUserProperties($this->getTelemetryUserData());
     try {
-      $this->amplitude->setUserId($this->getUserId());
+      $amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
-    if (!$this->getDatastore()->get(DataStoreContract::SEND_TELEMETRY)) {
-      $this->amplitude->setOptOut(TRUE);
+    if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
+      $amplitude->setOptOut(TRUE);
     }
-    $this->amplitude->logQueuedEvents();
+    $amplitude->logQueuedEvents();
+  }
+
+  public function getContainer() {
+    return $this->container;
   }
 
   /**
@@ -276,28 +215,19 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *   User account data from Cloud.
    */
   public function getUserData() {
-    $datastore = $this->getDatastore();
+    $datastore = $this->getContainer()->get('acli_datastore');
     $user = $datastore->get(DataStoreContract::USER);
 
     if (!$user && $this->isMachineAuthenticated()) {
-      $client = $this->getAcquiaCloudClient();
-      $account = new Account($client);
-      $user_account = $account->get();
+      $account = new Account($this->getContainer()->get('cloud_api')->getClient());
       $user = [
-        'uuid' => $user_account->uuid,
-        'is_acquian' => substr($user_account->mail, -10, 10) === 'acquia.com'
+        'uuid' => $account->get()->uuid,
+        'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
       ];
       $datastore->set(DataStoreContract::USER, $user);
     }
 
     return $user;
-  }
-
-  /**
-   * @return null|string
-   */
-  public function getRepoRoot(): ?string {
-    return $this->repoRoot;
   }
 
   /**
@@ -329,65 +259,17 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public function getSshKeysDir(): string {
     if (!isset($this->sshKeysDir)) {
-      $this->sshKeysDir = $this->getLocalMachineHelper()->getLocalFilepath('~/.ssh');
+      $this->sshKeysDir = $this->getContainer()->get('local_machine_helper')->getLocalFilepath('~/.ssh');
     }
 
     return $this->sshKeysDir;
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   */
-  public function setAcquiaCloudClient(Client $client) {
-    $this->acquiaCloudClient = $client;
-  }
-
-  /**
-   * @return \AcquiaCloudApi\Connector\Client
-   */
-  public function getAcquiaCloudClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
-    $cloud_api_conf = $this->getCloudApiDatastore();
-    $config = [
-      'key' => $cloud_api_conf->get('key'),
-      'secret' => $cloud_api_conf->get('secret'),
-    ];
-    $connector = new Connector($config);
-    $this->acquiaCloudClient = Client::factory($connector);
-
-    return $this->acquiaCloudClient;
-  }
-
-  /**
-   * @return string
-   */
-  public function getCloudConfigFilename(): string {
-    return $this->cloudConfigFilename;
-  }
-
-  /**
-   * @return string
-   */
-  public function getAcliConfigFilename(): string {
-    return $this->acliConfigFilename;
-  }
-
-  public function getCloudConfigFilepath(): string {
-    return $this->dataDir . '/' . $this->getCloudConfigFilename();
-  }
-
-  public function getAcliConfigFilepath(): string {
-    return $this->dataDir . '/' . $this->getAcliConfigFilename();
-  }
-
-  /**
    * @return bool
    */
   public function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->getCloudApiDatastore();
+    $cloud_api_conf = $this->getContainer()->get('cloud_datastore');
     return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
   }
 

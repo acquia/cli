@@ -29,7 +29,7 @@ class AliasListCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $applications_resource = new Applications($acquia_cloud_client);
     $cloud_application_uuid = $this->determineCloudApplication();
     $customer_application = $applications_resource->get($cloud_application_uuid);

@@ -30,9 +30,11 @@ use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Command\TelemetryCommand;
 use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
@@ -48,13 +50,28 @@ else {
 $input = new ArgvInput($_SERVER['argv']);
 $output = new ConsoleOutput();
 $logger = new ConsoleLogger($output);
-$repo_root = find_repo_root();
-$amplitude = Amplitude::getInstance();
+$container = new Symfony\Component\DependencyInjection\ContainerBuilder();
+$container->setParameter('repo_root', find_repo_root());
+$container->set('amplitude', Amplitude::getInstance());
+$container->register('local_machine_helper', LocalMachineHelper::class)
+  ->addArgument($input)
+  ->addArgument($output)
+  ->addArgument($logger);
+$container->setParameter('data_dir',  $container->get('local_machine_helper')->getHomeDir() . '/.acquia');
+$container->setParameter('cloud_config.filename', 'cloud_api.conf');
+$container->setParameter('acli_config.filename', 'acquia-cli.json');
+$container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
+$container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
+$container->register('acli_datastore', JsonFileStore::class)
+  ->addArgument($container->getParameter('acli_config.filepath'));
+$container->register('cloud_datastore', JsonFileStore::class)
+  ->addArgument($container->getParameter('cloud_config.filepath'))
+  ->addArgument(JsonFileStore::NO_SERIALIZE_STRINGS);
 
 /**
  * Running Acquia CLI.
  */
-$application = new AcquiaCliApplication($logger, $input, $output, $repo_root, $amplitude, '@package_version@');
+$application = new AcquiaCliApplication($container, $logger, $input, $output, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),

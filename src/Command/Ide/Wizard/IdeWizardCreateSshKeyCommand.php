@@ -120,7 +120,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
     $private_key_filepath = str_replace('.pub', '', $filepath);
-    $process = $this->getApplication()->getLocalMachineHelper()->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
@@ -131,8 +131,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *
    * @return bool
    */
+
   protected function sshKeyIsAddedToKeychain(): bool {
-    $process = $this->getApplication()->getLocalMachineHelper()->execute([
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
       'ssh-add',
       '-L',
     ], NULL, NULL, FALSE);
@@ -177,7 +178,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @return bool
    */
   protected function userHasUploadedIdeKeyToCloud(): bool {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $index => $cloud_key) {
         if (
@@ -201,7 +202,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
    */
   protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
     foreach ($application_environments as $environment) {
