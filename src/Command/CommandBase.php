@@ -11,6 +11,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use ArrayObject;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
@@ -195,10 +196,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \stdClass[] $items An array of objects.
+   * @param object[]|ArrayObject $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
+   *
+   * @param bool $multiselect
    *
    * @return null|object|array
    */
@@ -424,7 +427,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $this->saveLocalConfigCloudAppUuid($application);
         }
         else {
-          $this->promptLinkApplication($this->getApplication(), $application);
+          $this->promptLinkApplication($application);
         }
       }
     }
@@ -484,7 +487,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $application_uuid
+   * @param \AcquiaCloudApi\Response\ApplicationResponse $application
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
     $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
@@ -517,11 +520,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \Acquia\Cli\AcquiaCliApplication $cli_application
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    */
   protected function promptLinkApplication(
-    AcquiaCliApplication $cli_application,
     ?ApplicationResponse $cloud_application
     ): void {
     $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");

@@ -5,8 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Connector\Client;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 use Webmozart\PathUtil\Path;
 

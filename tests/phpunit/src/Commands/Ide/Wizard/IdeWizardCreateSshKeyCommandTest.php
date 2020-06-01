@@ -4,14 +4,12 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 

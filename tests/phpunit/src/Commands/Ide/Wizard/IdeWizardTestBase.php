@@ -24,6 +24,9 @@ abstract class IdeWizardTestBase extends CommandTestBase {
 
   /**
    * This method is called before each test.
+   *
+   * @param null $output
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function setUp($output = NULL): void {

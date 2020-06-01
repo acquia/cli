@@ -2,13 +2,9 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\Api\ApiListCommand;
-use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class InferApplicationTest.

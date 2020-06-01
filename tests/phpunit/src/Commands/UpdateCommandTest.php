@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;

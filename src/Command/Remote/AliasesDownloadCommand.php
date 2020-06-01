@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;

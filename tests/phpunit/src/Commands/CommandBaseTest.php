@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -26,7 +27,7 @@ class CommandBaseTest extends CommandTestBase {
     try {
       $this->executeCommand([], []);
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       $this->assertEquals('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`', $e->getMessage());
     }
   }
