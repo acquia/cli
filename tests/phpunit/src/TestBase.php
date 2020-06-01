@@ -117,9 +117,9 @@ abstract class TestBase extends TestCase {
     $container->register('cloud_datastore', JsonFileStore::class)
       ->addArgument($container->getParameter('cloud_config.filepath'))
       ->addArgument(JsonFileStore::NO_SERIALIZE_STRINGS);
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
+    $this->application = new AcquiaCliApplication($container, $logger, $output, 'UNKNOWN');
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
+    $container->set('logstream_manager', $this->logStreamManagerProphecy->reveal());
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
