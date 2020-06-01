@@ -53,7 +53,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
-    $this->passphraseFilepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.passphrase');
+    $this->passphraseFilepath = $this->getApplication()->getContainer()->get('local_machine_helper')->getLocalFilepath('~/.passphrase');
     $this->ideUuid = CommandBase::getThisCloudIdeUuid();
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
     $this->privateSshKeyFilepath = $this->getApplication()->getSshKeysDir() . '/' . $this->privateSshKeyFilename;
