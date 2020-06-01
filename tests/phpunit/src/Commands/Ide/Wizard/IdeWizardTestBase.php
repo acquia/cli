@@ -39,15 +39,15 @@ abstract class IdeWizardTestBase extends CommandTestBase {
 
     $this->remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';
     $this->application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $this->setRemoteIdeEnvVars();
+    $this->setCloudIdeEnvVars();
   }
 
   protected function tearDown(): void {
     parent::tearDown();
-    $this->unsetRemoteIdeEnvVars();
+    $this->unsetCloudIdeEnvVars();
   }
 
-  protected function getRemoteIdeEnvVars(): array {
+  protected function getCloudIdeEnvVars(): array {
     return [
       'REMOTEIDE_UUID' => $this->remote_ide_uuid,
       'ACQUIA_APPLICATION_UUID' => $this->application_uuid,
@@ -56,14 +56,14 @@ abstract class IdeWizardTestBase extends CommandTestBase {
     ];
   }
 
-  protected function setRemoteIdeEnvVars(): void {
-    foreach ($this->getRemoteIdeEnvVars() as $key => $value) {
+  protected function setCloudIdeEnvVars(): void {
+    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
       putenv($key . '=' . $value);
     }
   }
 
-  protected function unsetRemoteIdeEnvVars(): void {
-    foreach ($this->getRemoteIdeEnvVars() as $key => $value) {
+  protected function unsetCloudIdeEnvVars(): void {
+    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
       putenv($key);
     }
   }

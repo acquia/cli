@@ -54,7 +54,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
     $this->passphraseFilepath = $this->getApplication()->getLocalMachineHelper()->getLocalFilepath('~/.passphrase');
-    $this->ideUuid = CommandBase::getThisRemoteIdeUuid();
+    $this->ideUuid = CommandBase::getThisCloudIdeUuid();
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
     $this->privateSshKeyFilepath = $this->getApplication()->getSshKeysDir() . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
@@ -72,7 +72,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
     $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);
-    $ide = $ides_resource->get($this::getThisRemoteIdeUuid());
+    $ide = $ides_resource->get($this::getThisCloudIdeUuid());
     $ssh_key_label = $this->getIdeSshKeyLabel($ide);
     foreach ($cloud_keys as $cloud_key) {
       if ($cloud_key->label === $ssh_key_label) {
@@ -123,9 +123,9 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function requireRemoteIdeEnvironment(): void {
-    if (!CommandBase::isAcquiaRemoteIde()) {
-      throw new AcquiaCliException('This command can only be run inside of an Acquia Remote IDE');
+  public function requireCloudIdeEnvironment(): void {
+    if (!CommandBase::isAcquiaCloudIde()) {
+      throw new AcquiaCliException('This command can only be run inside of an Acquia Cloud IDE');
     }
   }
 

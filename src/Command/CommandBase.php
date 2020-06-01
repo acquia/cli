@@ -454,7 +454,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // If an IDE, get from env var.
-    if (self::isAcquiaRemoteIde() && $application_uuid = self::getThisRemoteIdeCloudAppUuid()) {
+    if (self::isAcquiaCloudIde() && $application_uuid = self::getThisCloudIdeCloudAppUuid()) {
       return $application_uuid;
     }
 
@@ -550,21 +550,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return bool
    */
-  public static function isAcquiaRemoteIde(): bool {
+  public static function isAcquiaCloudIde(): bool {
     return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
   }
 
   /**
    * @return array|false|string
    */
-  protected static function getThisRemoteIdeCloudAppUuid() {
+  protected static function getThisCloudIdeCloudAppUuid() {
     return getenv('ACQUIA_APPLICATION_UUID');
   }
 
   /**
    * @return false|string
    */
-  public static function getThisRemoteIdeUuid() {
+  public static function getThisCloudIdeUuid() {
     return getenv('REMOTEIDE_UUID');
   }
 
