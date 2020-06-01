@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use AcquiaCloudApi\Connector\Client;
+use Closure;
 use React\EventLoop\Factory;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
@@ -124,8 +125,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     }
     else {
       $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
-      $question->setNormalizer(\Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
-      $question->setValidator(\Closure::fromCallable([$this, 'validateSshKeyLabel']));
+      $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
+      $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
       $label = $this->questionHelper->ask($input, $output, $question);
     }
 

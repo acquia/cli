@@ -3,6 +3,8 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Exception;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -80,7 +82,7 @@ abstract class CommandTestBase extends TestBase {
     try {
       $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
     }
-    catch (\Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
+    catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
       }
       throw $e;
@@ -182,7 +184,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockLocalMachineHelper(): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
     return $local_machine_helper;

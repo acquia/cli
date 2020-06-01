@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
+use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -132,7 +133,7 @@ class RefreshCommand extends CommandBase {
   /**
    * @param $chosen_environment
    *
-   * @param null $output_callback
+   * @param callable $output_callback
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -211,7 +212,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_host
    * @param string $db_name
    *
-   * @param null $output_callback
+   * @param callable $output_callback
    * @return string|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -234,7 +235,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param null $output_callback
+   * @param callable $output_callback
    */
   protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -256,7 +257,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param null $output_callback
+   * @param callable $output_callback
    */
   protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -279,7 +280,7 @@ class RefreshCommand extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param null $output_callback
+   * @param callable $output_callback
    */
   protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
@@ -450,7 +451,7 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param $chosen_environment
-   * @param null $output_callback
+   * @param callable $output_callback
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
     $command = [
@@ -470,7 +471,7 @@ class RefreshCommand extends CommandBase {
    * @return object
    * @throws \Exception
    */
-  protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
+  protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): stdClass {
     $databases = $acquia_cloud_client->request(
           'get',
           '/environments/' . $chosen_environment->uuid . '/databases'

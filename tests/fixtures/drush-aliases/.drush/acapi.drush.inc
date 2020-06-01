@@ -667,6 +667,8 @@ function drush_acapi_ac_api_login() {
  *
  * @param $options
  *   Hash of options to save.
+ *
+ * @return
  */
 function acapi_save_options($options) {
   $file = acapi_get_option_file();
@@ -740,8 +742,10 @@ function acapi_get_option_file() {
 /**
  * List a site's tasks. See the command definition for why this function is
  * different.
+ *
  * @param $db
  * @param $backupid
+ *
  * @return
  */
 function drush_acapi_ac_database_backup_download($db, $backupid) {
@@ -1224,7 +1228,7 @@ function acapi_convert_values($arr) {
  * @param $string
  * @param array $args
  * @return
- */
+*/
 function acapi_dt($string, $args = []) {
   foreach ($args as $k => $v) {
     if ($k[0] == ':') {

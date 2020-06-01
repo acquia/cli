@@ -52,6 +52,9 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLoginCommand
    *
+   * @param $inputs
+   * @param $args
+   *
    * @throws \Exception
    */
   public function testAuthLoginCommand($inputs, $args): void {
@@ -91,6 +94,8 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    *
+   * @param $inputs
+   * @param $args
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
