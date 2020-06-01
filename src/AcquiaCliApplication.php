@@ -32,6 +32,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
+  /**
+   * @var \Symfony\Component\DependencyInjection\Container
+   */
   private $container;
 
   /**
@@ -56,17 +59,16 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @param \Symfony\Component\DependencyInjection\Container $container
    * @param \Psr\Log\LoggerInterface $logger
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @param string $version
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function __construct(
     Container $container,
     LoggerInterface $logger,
-    InputInterface $input,
     OutputInterface $output,
     string $version = 'UNKNOWN'
   ) {
@@ -136,6 +138,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * Initializes Amplitude.
+   *
+   * @throws \Exception
    */
   private function initializeAmplitude() {
     $amplitude = $this->getContainer()->get('amplitude');
@@ -193,6 +197,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @return string|null
    *   User UUID from Cloud.
+   * @throws \Exception
    */
   public function getUserId() {
     $user = $this->getUserData();
@@ -209,6 +214,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @return array|null
    *   User account data from Cloud.
+   * @throws \Exception
    */
   public function getUserData() {
     $datastore = $this->getContainer()->get('acli_datastore');
@@ -252,6 +258,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return string
+   * @throws \Exception
    */
   public function getSshKeysDir(): string {
     if (!isset($this->sshKeysDir)) {
@@ -263,6 +270,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return bool
+   * @throws \Exception
    */
   public function isMachineAuthenticated(): bool {
     $cloud_api_conf = $this->getContainer()->get('cloud_datastore');
