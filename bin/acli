@@ -75,7 +75,7 @@ $container->register('logstream_manager', LogstreamManager::class)
 /**
  * Running Acquia CLI.
  */
-$application = new AcquiaCliApplication($container, $logger, $input, $output, '@package_version@');
+$application = new AcquiaCliApplication($container, $logger, $output, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),
