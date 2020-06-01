@@ -63,4 +63,4 @@ composer update-cloud-api-spec
 
 Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
 
-Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Remote IDE`). 
+Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`). 

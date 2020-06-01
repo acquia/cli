@@ -26,7 +26,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function configure() {
     $this->setName('ide:wizard:ssh-key:create-upload')
       ->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setHidden(!CommandBase::isAcquiaRemoteIde());
+      ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
   /**
@@ -38,7 +38,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->requireRemoteIdeEnvironment();
+    $this->requireCloudIdeEnvironment();
     $checklist = new Checklist($output);
     $key_was_uploaded = FALSE;
 
@@ -46,7 +46,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     if (!$this->localIdeSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
-      // Just in case there's an orphaned key on Acquia Cloud for this Remote IDE.
+      // Just in case there's an orphaned key on Acquia Cloud for this Cloud IDE.
       $this->deleteIdeSshKeyFromCloud();
 
       $checklist->addItem('Creating a local SSH key');
