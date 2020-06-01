@@ -35,7 +35,7 @@ class LogTailCommand extends CommandBase {
     }, $logs);
     $logs_resource = new Logs($acquia_cloud_client);
     $stream = $logs_resource->stream($environment_id);
-    $logstream = $this->getApplication()->logStreamManager;
+    $logstream = $this->getApplication()->getContainer()->get('logstream_manager');
     $logstream->setParams($stream->logstream->params);
     $logstream->setColourise(TRUE);
     $logstream->setLogTypeFilter($log_types);
