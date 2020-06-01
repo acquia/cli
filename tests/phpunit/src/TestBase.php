@@ -74,6 +74,9 @@ abstract class TestBase extends TestCase {
    */
   protected $clientProphecy;
 
+  /** @var \Prophecy\Prophecy\ObjectProphecy */
+  protected $logStreamManagerProphecy;
+
   /**
    * This method is called before each test.
    *
