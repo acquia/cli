@@ -118,7 +118,7 @@ class AuthCommandTest extends CommandTestBase {
   }
 
   protected function assertKeySavedCorrectly(): void {
-    $creds_file = $this->application->getCloudConfigFilepath();
+    $creds_file = $this->application->getContainer()->getParameter('cloud_config.filepath');
     $this->assertFileExists($creds_file);
     $contents = file_get_contents($creds_file);
     $this->assertJson($contents);

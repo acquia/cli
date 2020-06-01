@@ -78,7 +78,7 @@ class NewCommandTest extends CommandTestBase {
         ->shouldBeCalled();
     }
 
-    $this->application->setLocalMachineHelper($local_machine_helper->reveal());
+    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
     $inputs = [
       // Which starting project would you like to use?
       $project,
