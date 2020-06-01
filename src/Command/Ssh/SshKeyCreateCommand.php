@@ -55,7 +55,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry.', ['filepath' => $filepath]);
     }
 
-    $process = $this->getApplication()->getLocalMachineHelper()->execute([
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
       'ssh-keygen',
       '-b',
       '4096',
@@ -125,7 +125,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     }
     else {
       $question = new Question('<question>Enter a password for your SSH key:</question> ');
-      $question->setHidden($this->getApplication()->getLocalMachineHelper()->useTty());
+      $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });

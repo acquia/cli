@@ -79,11 +79,11 @@ class SshHelper {
    * @return \Symfony\Component\Process\Process
    */
   protected function sendCommandViaSsh($environment, $command, $print_output): Process {
-    $this->getApplication()->getLocalMachineHelper()->setIsTty(TRUE);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
     return $this->getApplication()
-      ->getLocalMachineHelper()
+      ->getContainer()->get('local_machine_helper')
       ->execute($command, $this->getOutputCallback(), NULL, $print_output);
   }
 
@@ -111,7 +111,7 @@ class SshHelper {
    * @return \Closure
    */
   private function getOutputCallback(): callable {
-    if ($this->getApplication()->getLocalMachineHelper()->useTty() === FALSE) {
+    if ($this->getApplication()->getContainer()->get('local_machine_helper')->useTty() === FALSE) {
       $output = $this->output;
 
       return static function ($type, $buffer) use ($output) {

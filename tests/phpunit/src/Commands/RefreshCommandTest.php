@@ -124,7 +124,7 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     // Set helpers.
-    $this->application->setLocalMachineHelper($local_machine_helper->reveal());
+    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
     $this->application->setSshHelper($ssh_helper->reveal());
 
     $inputs = [

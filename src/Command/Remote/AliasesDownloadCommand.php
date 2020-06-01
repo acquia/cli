@@ -39,11 +39,11 @@ class AliasesDownloadCommand extends SshCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getAcquiaCloudClient();
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
     $drush_archive_filepath = $this->getDrushArchiveTempFilepath();
-    $this->getApplication()->getLocalMachineHelper()->writeFile($drush_archive_filepath, $aliases);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->writeFile($drush_archive_filepath, $aliases);
     $drush_aliases_dir = $this->getDrushAliasesDir();
 
     $this->output->writeln(sprintf(
@@ -51,8 +51,8 @@ class AliasesDownloadCommand extends SshCommand {
       $drush_archive_filepath
     ));
 
-    $this->getApplication()->getLocalMachineHelper()->getFilesystem()->mkdir($drush_aliases_dir);
-    $this->getApplication()->getLocalMachineHelper()->getFilesystem()->chmod($drush_aliases_dir, 0700);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->mkdir($drush_aliases_dir);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
     $archive = new PharData($drush_archive_filepath . '/.drush');
     $drushFiles = [];
@@ -95,7 +95,7 @@ class AliasesDownloadCommand extends SshCommand {
   protected function getDrushAliasesDir(): string {
     if (!isset($this->drushAliasesDir)) {
       $this->drushAliasesDir = $this->getApplication()
-          ->getLocalMachineHelper()
+          ->getContainer()->get('local_machine_helper')
           ->getLocalFilepath('~') . '/.drush';
     }
 
