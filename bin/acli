@@ -31,6 +31,7 @@ use Acquia\Cli\Command\TelemetryCommand;
 use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -67,6 +68,9 @@ $container->register('acli_datastore', JsonFileStore::class)
 $container->register('cloud_datastore', JsonFileStore::class)
   ->addArgument($container->getParameter('cloud_config.filepath'))
   ->addArgument(JsonFileStore::NO_SERIALIZE_STRINGS);
+$container->register('logstream_manager', LogstreamManager::class)
+  ->addArgument($input)
+  ->addArgument($output);
 
 /**
  * Running Acquia CLI.
