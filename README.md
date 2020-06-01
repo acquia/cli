@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.com/acquia/cli.svg?token=eFBAT6vQ9cqDh1Sed5Mw&branch=master)](https://travis-ci.com/acquia/cli) [![Coverage Status](https://coveralls.io/repos/github/acquia/cli/badge.svg?t=0iJBxN)](https://coveralls.io/github/acquia/cli)
 # Acquia CLI
 
-The official command-line tool for interacting with Acquia hosting and services. Acquia CLI helps you run [Drush](http://www.drush.org/) commands and tail logs from your Acquia-hosted applications, manage [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/), create and manage teams and applications via the [Acquia Cloud API](https://cloudapi-docs.acquia.com/), and much more!
+The official command-line tool for interacting with Acquia hosting and services. Acquia CLI helps you run [Drush](http://www.drush.org/) commands and tail logs from your Acquia-hosted applications, manage [Acquia Cloud IDEs](https://docs.acquia.com/dev-studio/ide/), create and manage teams and applications via the [Acquia Cloud API](https://cloudapi-docs.acquia.com/), and much more!
 
 Acquia CLI does not provide or manage local development environments. If you are looking for a packaged development environment, consider [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/). 
 
