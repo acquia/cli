@@ -143,6 +143,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   private function initializeAmplitude() {
     $amplitude = $this->getContainer()->get('amplitude');
+    if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
+      $amplitude->setOptOut(TRUE);
+      return FALSE;
+    }
     $amplitude->init('956516c74386447a3148c2cc36013ac3');
     // Method chaining breaks Prophecy?
     // @see https://github.com/phpspec/prophecy/issues/25
@@ -152,9 +156,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       $amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
-    }
-    if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
-      $amplitude->setOptOut(TRUE);
     }
     $amplitude->logQueuedEvents();
   }
@@ -213,6 +214,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @return array|null
    *   User account data from Cloud.
+   * @throws \Exception
    */
   public function getUserData() {
     $datastore = $this->getContainer()->get('acli_datastore');
