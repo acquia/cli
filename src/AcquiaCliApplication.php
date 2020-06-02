@@ -5,12 +5,10 @@ namespace Acquia\Cli;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
-use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Endpoints\Account;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaLogstream\LogstreamManager;
-use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -19,10 +17,15 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Webmozart\KeyValueStore\JsonFileStore;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandBase.
@@ -79,11 +82,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $definition = $container->register('cloud_api', ClientService::class);
-    $definition->setArgument(0, $this->getContainer()->get('cloud_datastore'));
     $this->logStreamManager = new LogstreamManager($input, $output);
-
-    $this->initializeAmplitude();
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -109,127 +108,53 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
+   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Psr\Log\LoggerInterface $logger
+   *
+   * @throws \Exception
+   */
+  public static function configureContainer(ContainerBuilder $container, InputInterface $input, OutputInterface $output, LoggerInterface $logger) {
+    $container->set('amplitude', Amplitude::getInstance());
+    $container->register('local_machine_helper', LocalMachineHelper::class)
+      ->addArgument($input)
+      ->addArgument($output)
+      ->addArgument($logger);
+
+    $container->setParameter('cloud_config.filename', 'cloud_api.conf');
+    $container->setParameter('acli_config.filename', 'acquia-cli.json');
+    $container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
+    $container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
+
+    $container->register('acli_datastore', JsonFileStore::class)
+      ->addArgument($container->getParameter('acli_config.filepath'));
+
+    $container->register('cloud_datastore', JsonFileStore::class)
+      ->addArgument($container->getParameter('cloud_config.filepath'))
+      ->addArgument(JsonFileStore::NO_SERIALIZE_STRINGS);
+
+    $container->register('cloud_api', ClientService::class)
+      ->addArgument(new Reference('cloud_datastore'));
+
+    $container->register('telemetry_helper', TelemetryHelper::class)
+      ->addArgument($input)
+      ->addArgument($output)
+      ->addArgument(new Reference('cloud_api'))
+      ->addArgument(new Reference('acli_datastore'))
+      ->addArgument(new Reference('cloud_datastore'))
+      ->addArgument(new QuestionHelper());
+  }
+
+  /**
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    */
   public function setSshHelper(SshHelper $sshHelper): void {
     $this->sshHelper = $sshHelper;
   }
 
-  /**
-   * Runs the current application.
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface|null $input
-   * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-   *
-   * @return int 0 if everything went fine, or an error code
-   *
-   * @throws \Exception When running fails. Bypass this when <a href='psi_element://setCatchExceptions()'>setCatchExceptions()</a>.
-   */
-  public function run(InputInterface $input = NULL, OutputInterface $output = NULL) {
-    $exit_code = parent::run($input, $output);
-    $event_properties = [
-      'exit_code' => $exit_code,
-      'arguments' => $input->getArguments(),
-      'options' => $input->getOptions(),
-    ];
-    $amplitude = $this->getContainer()->get('amplitude');
-    $amplitude->queueEvent('Ran command', $event_properties);
-
-    return $exit_code;
-  }
-
-  /**
-   * Initializes Amplitude.
-   */
-  private function initializeAmplitude() {
-    $amplitude = $this->getContainer()->get('amplitude');
-    if (!$this->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY)) {
-      $amplitude->setOptOut(TRUE);
-      return;
-    }
-    $amplitude->init('956516c74386447a3148c2cc36013ac3');
-    // Method chaining breaks Prophecy?
-    // @see https://github.com/phpspec/prophecy/issues/25
-    $amplitude->setDeviceId(OsInfo::uuid());
-    $amplitude->setUserProperties($this->getTelemetryUserData());
-    try {
-      $amplitude->setUserId($this->getUserId());
-    } catch (IdentityProviderException $e) {
-      // If something is wrong with the Cloud API client, don't bother users.
-    }
-    $amplitude->logQueuedEvents();
-  }
-
   public function getContainer() {
     return $this->container;
-  }
-
-  /**
-   * Get telemetry user data.
-   *
-   * @return array
-   *   Telemetry user data.
-   */
-  public function getTelemetryUserData() {
-    $data = [
-      'app_version' => $this->getVersion(),
-      // phpcs:ignore
-      'platform' => OsInfo::family(),
-      'os_name' => OsInfo::os(),
-      'os_version' => OsInfo::version(),
-      'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
-      'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
-      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
-    ];
-    try {
-      $user = $this->getUserData();
-      if (isset($user['is_acquian'])) {
-        $data['is_acquian'] = $user['is_acquian'];
-      }
-    }
-    catch (IdentityProviderException $e) {
-      // If something is wrong with the Cloud API client, don't bother users.
-    }
-    return $data;
-  }
-
-  /**
-   * Get user uuid.
-   *
-   * @return string|null
-   *   User UUID from Cloud.
-   */
-  public function getUserId() {
-    $user = $this->getUserData();
-    if ($user && isset($user['uuid'])) {
-      return $user['uuid'];
-    }
-    else {
-      return NULL;
-    }
-  }
-
-  /**
-   * Get user data.
-   *
-   * @return array|null
-   *   User account data from Cloud.
-   * @throws \Exception
-   */
-  public function getUserData() {
-    $datastore = $this->getContainer()->get('acli_datastore');
-    $user = $datastore->get(DataStoreContract::USER);
-
-    if (!$user && $this->isMachineAuthenticated()) {
-      $account = new Account($this->getContainer()->get('cloud_api')->getClient());
-      $user = [
-        'uuid' => $account->get()->uuid,
-        'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
-      ];
-      $datastore->set(DataStoreContract::USER, $user);
-    }
-
-    return $user;
   }
 
   /**
@@ -258,6 +183,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @return string
+   * @throws \Exception
    */
   public function getSshKeysDir(): string {
     if (!isset($this->sshKeysDir)) {
@@ -268,11 +194,12 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
   }
 
   /**
+   * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
+   *
    * @return bool
    */
-  public function isMachineAuthenticated(): bool {
-    $cloud_api_conf = $this->getContainer()->get('cloud_datastore');
-    return $cloud_api_conf !== NULL && $cloud_api_conf->get('key') && $cloud_api_conf->get('secret');
+  public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
+    return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
   }
 
 }

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -12,6 +13,8 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use ArrayObject;
+use drupol\phposinfo\OsInfo;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
@@ -71,47 +74,46 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *   An OutputInterface instance.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
+
+    /** @var TelemetryHelper $telemetry_helper */
+    $telemetry_helper = $this->getApplication()->getContainer()->get('telemetry_helper');
+    /** @var \Zumba\Amplitude\Amplitude $amplitude */
+    $amplitude = $this->getApplication()->getContainer()->get('amplitude');
+    $telemetry_helper->initializeAmplitude($amplitude, $this->getApplication()->getVersion());
     $this->questionHelper = $this->getHelper('question');
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
 
-    if ($this->commandRequiresAuthentication() && !$application->isMachineAuthenticated()) {
+    /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
+    $cloud_datastore = $this->getApplication()->getContainer()->get('cloud_datastore');
+    if ($this->commandRequiresAuthentication() && !$application::isMachineAuthenticated($cloud_datastore)) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
     }
 
     $this->loadLocalProjectInfo();
-    $this->checkTelemetryPreference();
+    $telemetry_helper->checkTelemetryPreference();
   }
 
-  /**
-   * Check if telemetry preference is set, prompt if not.
-   */
-  protected function checkTelemetryPreference() {
-    $datastore = $this->getApplication()->getContainer()->get('acli_datastore');
-    $telemetry = $datastore->get(DataStoreContract::SEND_TELEMETRY);
-    if (!isset($telemetry) && $this->input->isInteractive()) {
-      $this->output->writeln('We strive to give you the best tools for development.');
-      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
-      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
-      $helper = $this->getHelper('question');
-      $pref = $helper->ask($this->input, $this->output, $question);
-      $datastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
-      if ($pref) {
-        $this->output->writeln('Awesome! Thank you for helping!');
-      }
-      else {
-        $this->output->writeln('Ok, no data will be collected and shared with us.');
-        $this->output->writeln('We take privacy seriously.');
-        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
-      }
-    }
+  public function run(InputInterface $input, OutputInterface $output) {
+    $exit_code = parent::run($input, $output);
+    $event_properties = [
+      'exit_code' => $exit_code,
+      'arguments' => $input->getArguments(),
+      'options' => $input->getOptions(),
+    ];
+    /** @var \Zumba\Amplitude\Amplitude $amplitude */
+    $amplitude = $this->getApplication()->getContainer()->get('amplitude');
+    $amplitude->queueEvent('Ran command', $event_properties);
+
+    return $exit_code;
   }
 
   /**
@@ -403,6 +405,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param $application_uuid
    *
    * @return mixed
+   * @throws \Exception
    */
   protected function determineCloudEnvironment($application_uuid) {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
@@ -415,6 +418,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param bool $link_app
    *
    * @return string|null
+   * @throws \Exception
    */
   protected function determineCloudApplication($link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
