@@ -102,7 +102,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->loadLocalProjectInfo();
   }
 
-
   /**
    * Check if telemetry preference is set, prompt if not.
    */

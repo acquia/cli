@@ -31,6 +31,10 @@ class TelemetryCommandTest extends CommandTestBase {
    * Tests the 'telemetry' command.
    */
   public function testTelemetryCommand(): void {
+    $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
+    $this->clientProphecy->request('get', '/account')
+      ->willReturn($account);
+
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Telemetry has been enabled.', $output);
