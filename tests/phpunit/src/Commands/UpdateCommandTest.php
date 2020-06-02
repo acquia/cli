@@ -6,6 +6,7 @@ use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Process\Process;
 
 /**
  * Class UpdateCommandTest.
@@ -53,7 +54,8 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
 
     // Execute it.
-    $output = shell_exec($stub_phar);
+    $process = new Process([$stub_phar]);
+    $output = $process->mustRun()->getOutput();
     $this->assertStringContainsString('Available commands:', $output);
   }
 
