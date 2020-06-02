@@ -9,7 +9,6 @@ use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
-use drupol\phposinfo\OsInfo;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -131,6 +130,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * Asserts whether ANY SSH key has been added to the local keychain.
    *
    * @return bool
+   * @throws \Exception
    */
 
   protected function sshKeyIsAddedToKeychain(): bool {
@@ -177,6 +177,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * Assert whether ANY local key exists that has a corresponding key on Acquia Cloud.
    *
    * @return bool
+   * @throws \Exception
    */
   protected function userHasUploadedIdeKeyToCloud(): bool {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
@@ -201,6 +202,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @param string $cloud_app_uuid
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
+   * @throws \Exception
    */
   protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
@@ -218,6 +220,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * Polls Acquia Cloud until a successful SSH request is made to the dev environment.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
    */
   protected function pollAcquiaCloudUntilSshSuccess(
     OutputInterface $output

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
+use Exception;
 use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
@@ -60,7 +61,7 @@ class UpdateCommand extends CommandBase {
         $output->writeln('<comment>No update needed.</comment>');
       }
       return 0;
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
     }

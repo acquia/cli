@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 
@@ -41,7 +42,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
     $guzzle_response->getStatusCode()->willReturn(200);
-    $guzzle_client = $this->prophet->prophesize(\GuzzleHttp\Client::class);
+    $guzzle_client = $this->prophet->prophesize(Client::class);
     $guzzle_client->request('GET', '/health')->willReturn($guzzle_response->reveal())->shouldBeCalled();
     $this->command->setClient($guzzle_client->reveal());
 
