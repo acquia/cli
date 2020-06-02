@@ -67,8 +67,9 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   /**
    *
    * @return \stdClass|null
+   * @throws \Exception
    */
-  protected function findIdeSshKeyOnCloud(): ?\stdClass {
+  protected function findIdeSshKeyOnCloud(): ?stdClass {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);

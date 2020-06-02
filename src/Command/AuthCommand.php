@@ -94,6 +94,7 @@ class AuthCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
+   * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input, OutputInterface $output): string {
     if ($input->getOption('secret')) {
@@ -114,6 +115,8 @@ class AuthCommand extends CommandBase {
   /**
    * @param string $api_key
    * @param string $api_secret
+   *
+   * @throws \Exception
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
     $this->getApplication()->getContainer()->get('cloud_datastore')->set('key', $api_key);
@@ -123,6 +126,8 @@ class AuthCommand extends CommandBase {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
    */
   protected function promptOpenBrowserToCreateToken(
         InputInterface $input,

@@ -109,6 +109,7 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @return bool
+   * @throws \Exception
    */
   protected function drushHasActiveDatabaseConnection(): bool {
     if ($this->getApplication()->getContainer()->get('local_machine_helper')->commandExists('drush')) {
@@ -236,6 +237,8 @@ class RefreshCommand extends CommandBase {
    * @param string $db_name
    * @param string $db_password
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -258,6 +261,8 @@ class RefreshCommand extends CommandBase {
    * @param string $db_name
    * @param string $db_password
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = [
@@ -281,6 +286,8 @@ class RefreshCommand extends CommandBase {
    * @param string $db_name
    * @param string $db_password
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
@@ -308,6 +315,7 @@ class RefreshCommand extends CommandBase {
    * @param string|null $repo_root
    *
    * @return bool
+   * @throws \Exception
    */
   protected function isLocalGitRepoDirty(?string $repo_root): bool {
     $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
@@ -415,6 +423,8 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     // @todo Add support for Drush 8.
@@ -428,6 +438,8 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
     $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
@@ -440,6 +452,8 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function composerInstall($output_callback = NULL): void {
     $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
@@ -452,6 +466,8 @@ class RefreshCommand extends CommandBase {
   /**
    * @param $chosen_environment
    * @param callable $output_callback
+   *
+   * @throws \Exception
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
     $command = [

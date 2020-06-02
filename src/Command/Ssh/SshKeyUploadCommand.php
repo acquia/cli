@@ -151,6 +151,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @param string $chosen_local_key
    *
    * @return false|string
+   * @throws \Exception
    */
   protected function getLocalSshKeyContents($local_keys, string $chosen_local_key) {
     foreach ($local_keys as $local_key) {

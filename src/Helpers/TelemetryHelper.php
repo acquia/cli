@@ -93,6 +93,8 @@ class TelemetryHelper {
   /**
    * Get telemetry user data.
    *
+   * @param $app_version
+   *
    * @return array
    *   Telemetry user data.
    * @throws \Exception

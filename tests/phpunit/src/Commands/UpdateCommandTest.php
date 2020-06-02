@@ -2,10 +2,10 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use drupol\phposinfo\OsInfo;
+use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
@@ -29,7 +29,7 @@ class UpdateCommandTest extends CommandTestBase {
     try {
       $this->executeCommand([], []);
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       $this->assertStringContainsString('update only works when running the phar version of ', $e->getMessage());
     }
   }
