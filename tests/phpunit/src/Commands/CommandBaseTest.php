@@ -24,8 +24,12 @@ class CommandBaseTest extends CommandTestBase {
   public function testUnauthenticatedFailure(): void {
     $this->removeMockConfigFiles();
     $this->setCommand($this->createCommand());
+    $inputs = [
+      // Would you like to share anonymous performance usage and data?
+      'n',
+    ];
     try {
-      $this->executeCommand([], []);
+      $this->executeCommand([], $inputs);
     }
     catch (Exception $e) {
       $this->assertEquals('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`', $e->getMessage());
