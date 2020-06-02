@@ -35,6 +35,8 @@ class UpdateCommandTest extends CommandTestBase {
   public function testUpdate() {
     $this->setCommand($this->createCommand());
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
+    $this->fs->chmod($stub_phar, 0751);
+    $original_file_perms = fileperms($stub_phar);
     $this->command->setPharPath($stub_phar);
 
     $args = [
@@ -45,6 +47,14 @@ class UpdateCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertEquals($this->getStatusCode(), 0);
     $this->assertStringContainsString('Updated from UNKNOWN to', $output);
+    $this->assertFileExists($stub_phar);
+
+    // The file permissions on the new phar should be the same as on the old phar.
+    $this->assertEquals($original_file_perms, fileperms($stub_phar) );
+
+    // Execute it.
+    $output = shell_exec($stub_phar);
+    $this->assertStringContainsString('Available commands:', $output);
   }
 
 }

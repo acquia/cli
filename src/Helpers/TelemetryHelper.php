@@ -156,7 +156,7 @@ class TelemetryHelper {
   /**
    * This requires the machine to be authenticated.
    */
-  protected function setDefaultUserData(): array {
+  protected function setDefaultUserData(): void {
     $user = $this->getDefaultUserData();
     $this->acliDatastore->set(DataStoreContract::USER, $user);
   }
