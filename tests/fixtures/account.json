@@ -1,0 +1,70 @@
+{
+  "id": 1234567,
+  "uuid": "82cff7ec-2f09-11e9-b210-d663bd873d93",
+  "name": "jane.doe",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "last_login_at": "2017-03-28T13:07:54-0500",
+  "created_at": "2017-03-28T13:07:54-0500",
+  "mail": "jane.doe@example.com",
+  "phone": {
+    "office": null,
+    "mobile": "5555555555",
+    "tfa": "5555555555"
+  },
+  "job_title": null,
+  "job_function": "Digital Marketing",
+  "company": "Acquia, Inc.",
+  "country": "USA",
+  "state": "MA",
+  "timezone": "America/New_York",
+  "picture_url": "https://accounts.acquia.com/images/users/82cff7ec-2f09-11e9-b210-d663bd873d93/style/avatar",
+  "features": [
+    "freetier-bonus",
+    "uptime"
+  ],
+  "metadata": {
+    "applications": {
+      "recent": [
+        {
+          "uuid": "8b83a104-2f09-11e9-b210-d663bd873d93",
+          "recent_at": "2016-03-04T13:07:54-0500"
+        },
+        {
+          "uuid": "8b83a104-2f09-11e9-b210-d663bd873d93",
+          "recent_at": "2016-03-04T12:01:07-0500"
+        },
+        {
+          "uuid": "8b83a104-2f09-11e9-b210-d663bd873d93",
+          "recent_at": "2016-03-04T12:01:05-0500"
+        }
+      ],
+      "starred": [
+        "987c5c48-2f09-11e9-b210-d663bd873d93",
+        "9b684e30-2f09-11e9-b210-d663bd873d93"
+      ]
+    }
+  },
+  "flags": {
+    "active": true,
+    "tfa": true,
+    "support": false
+  },
+  "_links": {
+    "self": {
+      "href": "https://cloud.acquia.com/api/account"
+    },
+    "invites": {
+      "href": "https://cloud.acquia.com/api/account/invites"
+    },
+    "messages": {
+      "href": "https://cloud.acquia.com/api/account/messages"
+    },
+    "tokens": {
+      "href": "https://cloud.acquia.com/api/account/tokens"
+    },
+    "parent": {
+      "href": "https://cloud.acquia.com/api/"
+    }
+  }
+}

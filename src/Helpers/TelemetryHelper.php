@@ -33,11 +33,6 @@ class TelemetryHelper {
   private $cloudApi;
 
   /**
-   * @var \Symfony\Component\Console\Helper\QuestionHelper
-   */
-  private $questionHelper;
-
-  /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
   private $cloudDatastore;
@@ -47,15 +42,13 @@ class TelemetryHelper {
     OutputInterface $output,
     ClientService $cloud_api,
     JsonFileStore $acli_datastore,
-    JsonFileStore $cloud_datastore,
-    QuestionHelper $question_helper
+    JsonFileStore $cloud_datastore
   ) {
     $this->input = $input;
     $this->output = $output;
     $this->cloudApi = $cloud_api;
     $this->cloudDatastore = $cloud_datastore;
     $this->acliDatastore = $acli_datastore;
-    $this->questionHelper = $question_helper;
   }
 
   /**
@@ -68,42 +61,21 @@ class TelemetryHelper {
   public function initializeAmplitude(Amplitude $amplitude, $app_version): void {
     $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
     $amplitude->setOptOut(!$send_telemetry);
+
     if (!$send_telemetry) {
       return;
     }
-    $amplitude->init('956516c74386447a3148c2cc36013ac3');
-    // Method chaining breaks Prophecy?
-    // @see https://github.com/phpspec/prophecy/issues/25
-    $amplitude->setDeviceId(OsInfo::uuid());
-    $amplitude->setUserProperties($this->getTelemetryUserData($app_version));
     try {
+      $amplitude->init('956516c74386447a3148c2cc36013ac3');
+      // Method chaining breaks Prophecy?
+      // @see https://github.com/phpspec/prophecy/issues/25
+      $amplitude->setDeviceId(OsInfo::uuid());
+      $amplitude->setUserProperties($this->getTelemetryUserData($app_version));
       $amplitude->setUserId($this->getUserId());
     } catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
     $amplitude->logQueuedEvents();
-  }
-
-  /**
-   * Check if telemetry preference is set, prompt if not.
-   */
-  public function checkTelemetryPreference(): void {
-    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
-    if (!isset($send_telemetry) && $this->input->isInteractive()) {
-      $this->output->writeln('We strive to give you the best tools for development.');
-      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
-      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
-      $pref = $this->questionHelper->ask($this->input, $this->output, $question);
-      $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
-      if ($pref) {
-        $this->output->writeln('Awesome! Thank you for helping!');
-      }
-      else {
-        $this->output->writeln('Ok, no data will be collected and shared with us.');
-        $this->output->writeln('We take privacy seriously.');
-        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
-      }
-    }
   }
 
   /**

@@ -143,8 +143,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       ->addArgument($output)
       ->addArgument(new Reference('cloud_api'))
       ->addArgument(new Reference('acli_datastore'))
-      ->addArgument(new Reference('cloud_datastore'))
-      ->addArgument(new QuestionHelper());
+      ->addArgument(new Reference('cloud_datastore'));
   }
 
   /**

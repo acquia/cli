@@ -88,6 +88,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $amplitude = $this->getApplication()->getContainer()->get('amplitude');
     $telemetry_helper->initializeAmplitude($amplitude, $this->getApplication()->getVersion());
     $this->questionHelper = $this->getHelper('question');
+    $this->checkTelemetryPreference();
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
@@ -99,7 +100,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $this->loadLocalProjectInfo();
-    $telemetry_helper->checkTelemetryPreference();
+  }
+
+
+  /**
+   * Check if telemetry preference is set, prompt if not.
+   */
+  public function checkTelemetryPreference(): void {
+    $send_telemetry = $this->getApplication()->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY);
+    if (!isset($send_telemetry) && $this->input->isInteractive()) {
+      $this->output->writeln('We strive to give you the best tools for development.');
+      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
+      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
+      $pref = $this->questionHelper->ask($this->input, $this->output, $question);
+      $this->getApplication()->getContainer()->get('acli_datastore')->set(DataStoreContract::SEND_TELEMETRY, $pref);
+      if ($pref) {
+        $this->output->writeln('Awesome! Thank you for helping!');
+      }
+      else {
+        $this->output->writeln('Ok, no data will be collected and shared with us.');
+        $this->output->writeln('We take privacy seriously.');
+        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
+      }
+    }
   }
 
   public function run(InputInterface $input, OutputInterface $output) {

@@ -23,7 +23,7 @@ class UpdateCommand extends CommandBase {
    */
   protected function configure() {
     $this->setName('self-update')
-      ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded', FALSE)
+      ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded')
       ->setDescription('update to the latest version');
   }
 
