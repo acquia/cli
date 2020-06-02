@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\UnlinkCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use drupol\phposinfo\OsInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
@@ -33,7 +34,7 @@ class UpdateCommandTest extends CommandTestBase {
     }
   }
 
-  public function testUpdate() {
+  public function testDownloadUpdate(): void {
     $this->setCommand($this->createCommand());
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->fs->chmod($stub_phar, 0751);
@@ -54,9 +55,25 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
 
     // Execute it.
-    $process = new Process([$stub_phar]);
+    $command = [
+      $stub_phar
+    ];
+    if (OsInfo::isWindows()) {
+      array_unshift($command, 'start');
+    }
+    $process = new Process($command);
     $output = $process->mustRun()->getOutput();
     $this->assertStringContainsString('Available commands:', $output);
+  }
+
+  /**
+   * @return string
+   */
+  protected function createPharStub(): string {
+    $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
+    $this->fs->chmod($stub_phar, 0751);
+    $this->command->setPharPath($stub_phar);
+    return $stub_phar;
   }
 
 }
