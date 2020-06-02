@@ -9,6 +9,9 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaLogstream\LogstreamManager;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Endpoints\Account;
+use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -36,6 +39,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
+  /**
+   * @var \Symfony\Component\DependencyInjection\Container
+   */
   private $container;
 
   /**
@@ -47,8 +53,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @var \Acquia\Cli\Helpers\SshHelper
    */
   protected $sshHelper;
-
-  public $logStreamManager;
 
   /**
    * @return \Acquia\Cli\Helpers\SshHelper
@@ -62,17 +66,16 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    *
    * @param \Symfony\Component\DependencyInjection\Container $container
    * @param \Psr\Log\LoggerInterface $logger
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @param string $version
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function __construct(
     Container $container,
     LoggerInterface $logger,
-    InputInterface $input,
     OutputInterface $output,
     string $version = 'UNKNOWN'
   ) {
@@ -148,6 +151,9 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   /**
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
+   * Initializes Amplitude.
+   *
+   * @throws \Exception
    */
   public function setSshHelper(SshHelper $sshHelper): void {
     $this->sshHelper = $sshHelper;
@@ -197,6 +203,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
    *
    * @return bool
+   * @throws \Exception
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
     return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');

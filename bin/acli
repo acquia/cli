@@ -34,6 +34,7 @@ use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Symfony\Component\Console\Helper\QuestionHelper;
+use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -62,7 +63,7 @@ AcquiaCliApplication::configureContainer($container, $input, $output, $logger);
 /**
  * Running Acquia CLI.
  */
-$application = new AcquiaCliApplication($container, $logger, $input, $output, '@package_version@');
+$application = new AcquiaCliApplication($container, $logger, $output, '@package_version@');
 $application->addCommands([
   new AliasesDownloadCommand(),
   new AliasListCommand(),
