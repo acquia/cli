@@ -45,7 +45,7 @@ class UpdateCommand extends CommandBase {
 
     $updater = new Updater($this->getPharPath(), FALSE);
     $updater->setStrategyObject(new GithubStrategy());
-    $stability = $input->getOption('allow-unstable') ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
+    $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
     $updater->getStrategy()->setStability($stability);
     $updater->getStrategy()->setPackageName('acquia/cli');
     $updater->getStrategy()->setPharName('acli');

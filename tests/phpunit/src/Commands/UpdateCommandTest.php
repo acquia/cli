@@ -37,12 +37,14 @@ class UpdateCommandTest extends CommandTestBase {
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->command->setPharPath($stub_phar);
 
-    $this->executeCommand([], []);
+    $args = [
+      '--allow-unstable' => '',
+    ];
+    $this->executeCommand($args, []);
 
     $output = $this->getDisplay();
     $this->assertEquals($this->getStatusCode(), 0);
     $this->assertStringContainsString('Updated from UNKNOWN to', $output);
-
   }
 
 }
