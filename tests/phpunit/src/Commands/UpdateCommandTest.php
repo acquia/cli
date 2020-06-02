@@ -34,6 +34,9 @@ class UpdateCommandTest extends CommandTestBase {
     }
   }
 
+  /**
+   * @requires OS linux|darwin
+   */
   public function testDownloadUpdate(): void {
     $this->setCommand($this->createCommand());
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
@@ -55,13 +58,7 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
 
     // Execute it.
-    $command = [
-      $stub_phar
-    ];
-    if (OsInfo::isWindows()) {
-      array_unshift($command, 'start');
-    }
-    $process = new Process($command);
+    $process = new Process([$stub_phar]);
     $output = $process->mustRun()->getOutput();
     $this->assertStringContainsString('Available commands:', $output);
   }
