@@ -117,6 +117,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Awesome! Thank you for helping!');
       }
       else {
+        // @todo Completely anonymously send an event to indicate some user opted out.
         $this->output->writeln('Ok, no data will be collected and shared with us.');
         $this->output->writeln('We take privacy seriously.');
         $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
