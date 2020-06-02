@@ -24,10 +24,20 @@ abstract class CommandTestBase extends TestBase {
    * @var \Symfony\Component\Console\Tester\CommandTester
    */
   private $commandTester;
+
+  /**
+   * @var \Acquia\Cli\Command\CommandBase
+   */
   protected $command;
-  /** @var string */
+
+  /**
+   * @var string
+   */
   protected $targetGitConfigFixture;
-  /** @var string */
+
+  /**
+   * @var string
+   */
   protected $sourceGitConfigFixture;
 
   /**
@@ -154,7 +164,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
+   * Prints the name of the PHPUnit test to output.
    */
   protected function printTestName(): void {
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
@@ -164,7 +174,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
+   * Creates a mock .git/config.
    */
   protected function createMockGitConfigFile(): void {
     // Create mock git config file.
@@ -175,18 +185,21 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
+   * Remove mock .git/config.
    */
   protected function removeMockGitConfig(): void {
     $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
   }
 
   /**
+   * Create a mock LocalMachineHelper.
+   *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
+
     return $local_machine_helper;
   }
 

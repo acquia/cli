@@ -28,6 +28,7 @@ class NewCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $distros = [
@@ -82,6 +83,8 @@ class NewCommand extends CommandBase {
 
   /**
    * @param string $dir
+   *
+   * @throws \Exception
    */
   protected function requireDrush(string $dir): void {
     $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
@@ -95,6 +98,8 @@ class NewCommand extends CommandBase {
   /**
    * @param $project
    * @param string $dir
+   *
+   * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
     $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
@@ -109,6 +114,8 @@ class NewCommand extends CommandBase {
 
   /**
    * @param string $dir
+   *
+   * @throws \Exception
    */
   protected function initializeGitRepository(string $dir): void {
     $this->getApplication()->getContainer()->get('local_machine_helper')->execute([

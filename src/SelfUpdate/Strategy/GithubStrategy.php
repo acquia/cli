@@ -5,6 +5,7 @@
 
 namespace Acquia\Cli\SelfUpdate\Strategy;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Humbug\SelfUpdate\Exception\HttpRequestException;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
 use Humbug\SelfUpdate\Strategy\StrategyInterface;
@@ -29,7 +30,9 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
    * Retrieve the current version available remotely.
    *
    * @param Updater $updater
+   *
    * @return string|bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getCurrentRemoteVersion(Updater $updater) {
     /** Switch remote request errors to HttpRequestExceptions */
@@ -67,18 +70,26 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
     return $this->remoteVersion;
   }
 
-  protected function getApiUrl() {
+  /**
+   * @return string
+   */
+  protected function getApiUrl(): string {
     return sprintf(self::API_URL, $this->getPackageName());
   }
 
+  /**
+   * @param array $release
+   *
+   * @return mixed|string|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function getDownloadUrl(array $release) {
-    foreach ($release["assets"] as $key => $asset) {
-      if ($asset["name"] === "acli.phar") {
-        return $asset["browser_download_url"];
+    foreach ($release['assets'] as $key => $asset) {
+      if ($asset['name'] === 'acli.phar') {
+        return $asset['browser_download_url'];
       }
     }
-
-    return NULL;
+    throw new AcquiaCliException('There is no phar file attached to the @release', ['@release' => $release->name]);
   }
 
   /**
@@ -87,7 +98,7 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
    * @param Updater $updater
    * @return void
    */
-  public function download(Updater $updater) {
+  public function download(Updater $updater): void {
     /** Switch remote request errors to HttpRequestExceptions */
     set_error_handler([$updater, 'throwHttpRequestException']);
     $context = $this->getCurlContext();
@@ -102,6 +113,11 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
     file_put_contents($updater->getTempPharFile(), $result);
   }
 
+  /**
+   * GitHub requires a user agent to be set for all requests to their API.
+   *
+   * @return resource
+   */
   protected function getCurlContext() {
     $opts = [
       'http' => [
@@ -111,8 +127,8 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
         ]
       ]
     ];
-    $context = stream_context_create($opts);
-    return $context;
+
+    return stream_context_create($opts);
   }
 
 }
