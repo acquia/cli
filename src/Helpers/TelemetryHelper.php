@@ -7,19 +7,21 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\OsInfo;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
 
-  /** @var \Symfony\Component\Console\Output\OutputInterface */
+  /**
+   * @var \Symfony\Component\Console\Output\OutputInterface
+   */
   private $output;
 
-  /** @var \Symfony\Component\Console\Input\InputInterface */
+  /**
+   * @var \Symfony\Component\Console\Input\InputInterface
+   */
   private $input;
 
   /**
@@ -37,6 +39,15 @@ class TelemetryHelper {
    */
   private $cloudDatastore;
 
+  /**
+   * TelemetryHelper constructor.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Acquia\Cli\Helpers\ClientService $cloud_api
+   * @param \Webmozart\KeyValueStore\JsonFileStore $acli_datastore
+   * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
+   */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
@@ -55,6 +66,7 @@ class TelemetryHelper {
    * Initializes Amplitude.
    *
    * @param \Zumba\Amplitude\Amplitude $amplitude
+   * @param string $app_version
    *
    * @throws \Exception
    */
@@ -85,7 +97,7 @@ class TelemetryHelper {
    *   Telemetry user data.
    * @throws \Exception
    */
-  public function getTelemetryUserData($app_version): array {
+  protected function getTelemetryUserData($app_version): array {
     $data = [
       'app_version' => $app_version,
       // phpcs:ignore
@@ -131,26 +143,35 @@ class TelemetryHelper {
    *   User account data from Cloud.
    * @throws \Exception
    */
-  public function getUserData(): ?array {
+  protected function getUserData(): ?array {
     $user = $this->acliDatastore->get(DataStoreContract::USER);
-
     if (!$user && AcquiaCliApplication::isMachineAuthenticated($this->cloudDatastore)) {
-      $user = $this->setDefaultUserData();
+      $this->setDefaultUserData();
+      $user = $this->acliDatastore->get(DataStoreContract::USER);
     }
 
     return $user;
   }
 
   /**
-   * @return array
+   * This requires the machine to be authenticated.
    */
   protected function setDefaultUserData(): array {
+    $user = $this->getDefaultUserData();
+    $this->acliDatastore->set(DataStoreContract::USER, $user);
+  }
+
+  /**
+   * This requires the machine to be authenticated.
+   *
+   * @return array
+   */
+  protected function getDefaultUserData(): array {
     $account = new Account($this->cloudApi->getClient());
     $user = [
       'uuid' => $account->get()->uuid,
       'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
     ];
-    $this->acliDatastore->set(DataStoreContract::USER, $user);
     return $user;
   }
 
