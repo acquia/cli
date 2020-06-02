@@ -83,7 +83,6 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
     $this->warnIfXdebugLoaded();
     $this->setSshHelper(new SshHelper($this, $output));
     parent::__construct('acli', $version);
-    $this->logStreamManager = new LogstreamManager($input, $output);
 
     // Add API commands.
     $api_command_helper = new ApiCommandHelper();
@@ -144,6 +143,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       ->addArgument(new Reference('cloud_api'))
       ->addArgument(new Reference('acli_datastore'))
       ->addArgument(new Reference('cloud_datastore'));
+
+    $container->register('logstream_manager', LogstreamManager::class)
+      ->addArgument($input)
+      ->addArgument($output);
   }
 
   /**
