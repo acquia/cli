@@ -115,8 +115,6 @@ abstract class TestBase extends TestCase {
     $this->configureContainer($container);
 
     $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->application->logStreamManager = $this->logStreamManagerProphecy->reveal();
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
@@ -137,6 +135,10 @@ abstract class TestBase extends TestCase {
     $serviceProph = $this->prophet->prophesize(ClientService::class);
     $serviceProph->getClient()->willReturn($client);
     $container->set('cloud_api', $serviceProph->reveal());
+
+    // Logstream manager.
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $container->set('logstream_manager', $this->logStreamManagerProphecy->reveal());
   }
 
   protected function tearDown(): void {
