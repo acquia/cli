@@ -24,6 +24,7 @@ class LogTailCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
