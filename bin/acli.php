@@ -18,9 +18,6 @@ if (!file_exists(__DIR__ . '/../vendor/autoload.php')) {
 }
 require __DIR__ . '/../vendor/autoload.php';
 
-ini_set('memory_limit', -1);
-set_time_limit(0);
-
 $input = new ArgvInput();
 $env = $input->getParameterOption(['--env', '-e'], $_SERVER['APP_ENV'] ?? 'prod', TRUE);
 $debug = (bool) ($_SERVER['APP_DEBUG'] ?? ('prod' !== $env)) && !$input->hasParameterOption('--no-debug', TRUE);
