@@ -11,10 +11,25 @@ services:
       # Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
     public: true
 
-  Acquia\Cli\:
-    exclude: ../src/Kernel.php
-    public: false
-    resource: ../src
+  # Todo: something like the following instead of enumerating classes
+  # Acquia\Cli\:
+    # exclude: ../src/Kernel.php
+    # public: false
+    # resource: ../src
+
+  Acquia\Cli\Helpers\LocalMachineHelper: ~
+
+  Acquia\Cli\Command\AuthCommand:
+    parent: Acquia\Cli\Command\CommandBase
+
+  # Todo: something like the following instead of enumerating commands.
+  # Acquia\Cli\Command\:
+  #   resource: ../src/Command
+  #   parent: Acquia\Cli\Command\CommandBase
+  #   exclude: ../src/Command/CommandBase.php
+
+  Acquia\Cli\Command\CommandBase:
+    abstract: true
 
   AcquiaCloudApi\Connector\Client: ~
 
