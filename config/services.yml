@@ -1,0 +1,49 @@
+---
+services:
+
+  _defaults:
+    autoconfigure: true
+    autowire: true
+    bind:
+      $cloudConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
+      # $acliConfigFilepath: '/home/dane/.acquia/acquia-cli.json'
+      Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
+      # Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
+    public: true
+
+  Acquia\Cli\:
+    exclude: ../src/Kernel.php
+    public: false
+    resource: ../src
+
+  AcquiaCloudApi\Connector\Client: ~
+
+  AcquiaCloudApi\Connector\ConnectorInterface: ~
+
+  Psr\Log\LoggerInterface:
+    alias: Symfony\Component\Console\Logger\ConsoleLogger
+
+  Symfony\Component\Console\Application: ~
+
+  Symfony\Component\Console\Input\ArgvInput: ~
+
+  Symfony\Component\Console\Input\InputInterface:
+    alias: Symfony\Component\Console\Input\ArgvInput
+
+  Symfony\Component\Console\Logger\ConsoleLogger: ~
+
+  Symfony\Component\Console\Output\ConsoleOutput: ~
+
+  Symfony\Component\Console\Output\OutputInterface:
+    alias: Symfony\Component\Console\Output\ConsoleOutput
+
+  datastore.cloud:
+    class: Webmozart\KeyValueStore\JsonFileStore
+    arguments:
+      $path: $cloudConfigFilepath
+      $flags: 1
+
+  datastore.acli:
+    class: Webmozart\KeyValueStore\JsonFileStore
+    arguments:
+      $path: $acliConfigFilepath

@@ -2,8 +2,10 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -14,20 +16,54 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CreateProjectCommand.
- *
- * @package Grasmash\YamlCli\Command
  */
-class AuthCommand extends CommandBase {
+class AuthCommand extends Command {
+
+  /**
+   * The default command name.
+   *
+   * @var string
+   */
+  protected static $defaultName = 'auth:login';
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  /**
+   * @var LocalMachineHelper
+   */
+  protected $localMachineHelper;
+
+  /**
+   * @var JsonFileStore
+   */
+  protected $datastoreCloud;
+
+  /**
+   * AuthCommand constructor.
+   *
+   * @param string $cloudConfigFilepath
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   */
+  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
+    $this->localMachineHelper = $localMachineHelper;
+    $this->datastoreCloud = $datastoreCloud;
+    parent::__construct(self::$defaultName);
+  }
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('auth:login')
-      ->setDescription('Register your Cloud API key and secret to use API functionality')
+    $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
   }
@@ -47,7 +83,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->getApplication()->getContainer()->getParameter('cloud_config.filepath')}</info>");
+    $output->writeln("<info>Saved credentials to {$this->cloudConfigFilepath}</info>");
 
     return 0;
   }
@@ -66,7 +102,7 @@ class AuthCommand extends CommandBase {
     else {
       $question = new Question('<question>Please enter your API Key:</question>');
       $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
-      $api_key = $this->questionHelper->ask($input, $output, $question);
+      $api_key = $this->getHelper('question')->ask($input, $output, $question);
     }
 
     return $api_key;
@@ -103,10 +139,10 @@ class AuthCommand extends CommandBase {
     }
     else {
       $question = new Question('<question>Please enter your API Secret:</question>');
-      $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
+      $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
-      $api_secret = $this->questionHelper->ask($input, $output, $question);
+      $api_secret = $this->getHelper('question')->ask($input, $output, $question);
     }
 
     return $api_secret;
@@ -119,8 +155,8 @@ class AuthCommand extends CommandBase {
    * @throws \Exception
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
-    $this->getApplication()->getContainer()->get('cloud_datastore')->set('key', $api_key);
-    $this->getApplication()->getContainer()->get('cloud_datastore')->set('secret', $api_secret);
+    $this->datastoreCloud->set('key', $api_key);
+    $this->datastoreCloud->set('secret', $api_secret);
   }
 
   /**
@@ -135,14 +171,14 @@ class AuthCommand extends CommandBase {
     ): void {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
-      $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
-      $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
+      $output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
+      $output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
           TRUE);
-        if ($this->questionHelper->ask($input, $output, $question)) {
-          $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($token_url);
+        if ($this->getHelper('question')->ask($input, $output, $question)) {
+          $this->localMachineHelper->startBrowser($token_url);
         }
       }
     }
