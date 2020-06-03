@@ -226,9 +226,6 @@
             "phpcs.xml.dist"
         ]
     },
-    "stecman/symfony-console-completion": {
-        "version": "0.11.0"
-    },
     "symfony/cache": {
         "version": "v5.1.0"
     },

@@ -51,8 +51,6 @@ composer install
 
 Be sure to validate and test your code locally using the provided Composer test scripts (`composer test`) before opening a PR.
 
-Before building the PHAR file for distribution, you must warm the cache dir.
-
 ## Updating Acquia Cloud API spec
 
 Acquia CLI stores a local copy of the Acquia Cloud API spec in the `assets` directory. To update the Acquia Cloud API spec, run:
