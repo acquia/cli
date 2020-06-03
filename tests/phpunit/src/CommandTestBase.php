@@ -6,10 +6,11 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
-use Symfony\Component\Console\Tester\CommandTester;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -19,15 +20,19 @@ use Webmozart\PathUtil\Path;
 abstract class CommandTestBase extends TestBase {
 
   /**
-   * The command tester.
-   *
-   * @var \Symfony\Component\Console\Tester\CommandTester
+   * @var \Acquia\Cli\Tests\CommandTester
    */
   private $commandTester;
+
   protected $command;
-  /** @var string */
+  /**
+   * @var string
+   */
   protected $targetGitConfigFixture;
-  /** @var string */
+
+  /**
+   * @var string
+   */
   protected $sourceGitConfigFixture;
 
   /**
@@ -64,14 +69,16 @@ abstract class CommandTestBase extends TestBase {
    *   stream.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectFixtureDir;
     chdir($cwd);
-    $tester = $this->getCommandTester();
-    $tester->setInputs($inputs);
-    $command_name = $this->command->getName();
-    $args = array_merge(['command' => $command_name], $args);
+
+    $input = new ArrayInput($args);
+    $logger = new ConsoleLogger($this->applicationOutput);
+    $this->application = $this->createApplication($input, $this->applicationOutput, $logger);
+    $this->commandTester = $this->createCommandTester($this->application);
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln('');
@@ -80,7 +87,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+      $this->commandTester->execute($input, ['verbosity' => Output::VERBOSITY_VERBOSE]);
     }
     catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
@@ -89,7 +96,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
-      $this->consoleOutput->writeln($tester->getDisplay());
+      $this->consoleOutput->writeln($this->commandTester->getDisplay());
       $this->consoleOutput->writeln('<comment>------End command output---------</comment>');
       $this->consoleOutput->writeln('');
     }
@@ -98,23 +105,11 @@ abstract class CommandTestBase extends TestBase {
   /**
    * Gets the command tester.
    *
-   * @return \Symfony\Component\Console\Tester\CommandTester
+   * @return CommandTester
    *   A command tester.
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getCommandTester(): CommandTester {
-    if ($this->commandTester) {
-      return $this->commandTester;
-    }
-
-    if (!isset($this->command)) {
-      $this->command = $this->createCommand();
-    }
-
-    $this->application->add($this->command);
-    $found_command = $this->application->find($this->command->getName());
-    $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
-    $this->commandTester = new CommandTester($found_command);
-
     return $this->commandTester;
   }
 
@@ -188,6 +183,25 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
     return $local_machine_helper;
+  }
+
+  /**
+   * @param $args
+   *
+   * @param $application
+   *
+   * @return \Acquia\Cli\Tests\CommandTester
+   */
+  protected function createCommandTester($application): CommandTester {
+    if (!isset($this->command)) {
+      $this->command = $this->createCommand();
+    }
+
+    $application->add($this->command);
+    $found_command = $this->application->find($this->command->getName());
+    $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
+
+    return new CommandTester($found_command);
   }
 
 }

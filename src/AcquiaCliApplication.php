@@ -17,7 +17,6 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Container;
@@ -35,6 +34,9 @@ use Zumba\Amplitude\Amplitude;
 class AcquiaCliApplication extends Application implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
+
+  const CLOUD_CONF_FILENAME = 'cloud_api.conf';
+  const ACLI_CONF_FILENAME = 'acquia-cli.json';
 
   /**
    * @var \Symfony\Component\DependencyInjection\Container
@@ -122,10 +124,8 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
       ->addArgument($output)
       ->addArgument($logger);
 
-    $container->setParameter('cloud_config.filename', 'cloud_api.conf');
-    $container->setParameter('acli_config.filename', 'acquia-cli.json');
-    $container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('cloud_config.filename'));
-    $container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . $container->getParameter('acli_config.filename'));
+    $container->setParameter('cloud_config.filepath', $container->getParameter('data_dir') . '/' . self::CLOUD_CONF_FILENAME);
+    $container->setParameter('acli_config.filepath', $container->getParameter('data_dir') . '/' . self::ACLI_CONF_FILENAME);
 
     $container->register('acli_datastore', JsonFileStore::class)
       ->addArgument($container->getParameter('acli_config.filepath'));

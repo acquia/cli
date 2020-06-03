@@ -17,15 +17,18 @@ use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -62,10 +65,6 @@ abstract class TestBase extends TestCase {
    * @var AcquiaCliApplication
    */
   protected $application;
-  /**
-   * @var \Symfony\Component\Console\Input\ArrayInput
-   */
-  protected $input;
 
   /**
    * @var \Prophecy\Prophecy\ObjectProphecy|Amplitude
@@ -85,37 +84,50 @@ abstract class TestBase extends TestCase {
 
   /** @var array */
   protected $cloudConfig = [];
+  /**
+   * @var \Symfony\Component\Console\Output\BufferedOutput|null
+   */
+  protected $applicationOutput;
+
+  /**
+   * @var string
+   */
+  protected $dataDir;
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilepath;
 
   /**
    * This method is called before each test.
    *
    * @param null $output
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   protected function setUp($output = NULL): void {
     if (!$output) {
       $output = new BufferedOutput();
     }
+    $this->applicationOutput = $output;
 
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->input = new ArrayInput([]);
-    $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
+    $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
 
-    $container = new ContainerBuilder();
-    $container->setParameter('repo_root', $this->projectFixtureDir);
-    $container->setParameter('data_dir', $this->fixtureDir . '/.acquia');
-    AcquiaCliApplication::configureContainer($container, $this->input, $output, $logger);
-    $this->configureContainer($container);
-
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
-
+    $this->acliConfigFilepath = Path::join($this->dataDir, AcquiaCliApplication::ACLI_CONF_FILENAME);
+    $this->cloudConfigFilepath = Path::join($this->dataDir, AcquiaCliApplication::CLOUD_CONF_FILENAME);
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
@@ -287,13 +299,13 @@ abstract class TestBase extends TestCase {
     $default_values = ['key' => 'testkey', 'secret' => 'test'];
     $cloud_config = array_merge($default_values, $this->cloudConfig);
     $contents = json_encode($cloud_config);
-    $filepath = $this->application->getContainer()->getParameter('cloud_config.filepath');
+    $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
 
     $default_values = [DataStoreContract::SEND_TELEMETRY => FALSE];
     $acli_config = array_merge($default_values, $this->acliConfig);
     $contents = json_encode($acli_config);
-    $filepath = $this->application->getContainer()->getParameter('acli_config.filepath');
+    $filepath = $this->acliConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
@@ -444,12 +456,30 @@ abstract class TestBase extends TestCase {
   }
 
   protected function removeMockConfigFiles(): void {
-    $this->fs->remove($this->application->getContainer()->getParameter('cloud_config.filepath'));
+    $this->fs->remove($this->cloudConfigFilepath);
     $this->removeMockAcliConfigFile();
   }
 
   protected function removeMockAcliConfigFile(): void {
-    $this->fs->remove($this->application->getContainer()->getParameter('acli_config.filepath'));
+    $this->fs->remove($this->acliConfigFilepath);
+  }
+
+  /**
+   * @param $input
+   * @param $output
+   * @param \Symfony\Component\Console\Logger\ConsoleLogger $logger
+   *
+   * @return \Acquia\Cli\AcquiaCliApplication
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function createApplication(InputInterface $input, OutputInterface $output, ConsoleLogger $logger): AcquiaCliApplication {
+    $container = new ContainerBuilder();
+    $container->setParameter('repo_root', $this->projectFixtureDir);
+    $container->setParameter('data_dir', $this->dataDir);
+    AcquiaCliApplication::configureContainer($container, $input, $output, $logger);
+    $this->configureContainer($container);
+
+    return new AcquiaCliApplication($container, $logger, $input, $output, 'UNKNOWN');
   }
 
 }
