@@ -1,8 +1,17 @@
 {
     "php": {
-        "version": "7.3"
+        "version": "7.4"
+    },
+    "stecman/symfony-console-completion": {
+        "version": "0.11.0"
     },
     "symfony/dotenv": {
+        "version": "v5.1.0"
+    },
+    "symfony/error-handler": {
+        "version": "v5.1.0"
+    },
+    "symfony/expression-language": {
         "version": "v5.1.0"
     },
     "symfony/flex": {
@@ -16,5 +25,26 @@
         "files": [
             ".env"
         ]
+    },
+    "symfony/http-foundation": {
+        "version": "v5.1.0"
+    },
+    "symfony/http-kernel": {
+        "version": "v5.1.0"
+    },
+    "symfony/polyfill-intl-grapheme": {
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-intl-normalizer": {
+        "version": "v1.17.0"
+    },
+    "symfony/polyfill-php80": {
+        "version": "v1.17.0"
+    },
+    "symfony/string": {
+        "version": "v5.1.0"
+    },
+    "symfony/var-dumper": {
+        "version": "v5.1.0"
     }
 }

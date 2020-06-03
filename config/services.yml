@@ -27,6 +27,9 @@ services:
   Acquia\Cli\Command\AuthCommand:
     parent: Acquia\Cli\Command\CommandBase
 
+  Acquia\Cli\Command\LinkCommand:
+    parent: Acquia\Cli\Command\CommandBase
+
   # Todo: something like the following instead of enumerating commands.
   # Acquia\Cli\Command\:
   #   resource: ../src/Command

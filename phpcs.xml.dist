@@ -23,6 +23,11 @@
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
+<groups>
+    <exclude>
+        <group>ignore</group>
+   </exclude>
+</groups>
   <rule ref="AcquiaPHP"/>
 
 </ruleset>
