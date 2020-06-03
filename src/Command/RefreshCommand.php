@@ -192,7 +192,6 @@ class RefreshCommand extends CommandBase {
     $local_db_user = 'drupal';
     $local_db_name = 'drupal';
     $local_db_password = 'drupal';
-    // @todo See if this is successful!
     $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->importDatabaseDump(
@@ -219,7 +218,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
-    $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command]);
+    $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command], FALSE);
     if ($process->isSuccessful()) {
       $filepath = $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
@@ -252,7 +251,11 @@ class RefreshCommand extends CommandBase {
       '-e',
       'DROP DATABASE IF EXISTS ' . $db_name,
     ];
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    /** @var \Symfony\Component\Process\Process $process */
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to drop a local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -276,7 +279,11 @@ class RefreshCommand extends CommandBase {
       '-e',
       'create database ' . $db_name,
     ];
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    /** @var \Symfony\Component\Process\Process $process */
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to create a local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -308,7 +315,11 @@ class RefreshCommand extends CommandBase {
 
     $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->executeFromCmd($command, $output_callback, NULL, FALSE);
+    /** @var \Symfony\Component\Process\Process $process */
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->executeFromCmd($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**

@@ -487,9 +487,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudApplication($link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
-      $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
-      $applications_resource = new Applications($acquia_cloud_client);
-      $application = $applications_resource->get($application_uuid);
+      $application = $this->getCloudApplication($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
@@ -561,9 +559,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse $application
    *
+   * @return bool
    * @throws \Exception
    */
-  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
+  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
     $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
     if (!$local_user_config) {
       $local_user_config = [
@@ -577,9 +576,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->localProjectInfo = $local_user_config;
         $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
         $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
-        return;
+
+        return TRUE;
       }
     }
+    return FALSE;
   }
 
   /**
@@ -596,17 +597,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    *
+   * @return bool
    * @throws \Exception
    */
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
-    ): void {
+    ): bool {
     $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {
-      $this->saveLocalConfigCloudAppUuid($cloud_application);
+      return $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
+    return FALSE;
   }
 
   /**
@@ -666,6 +669,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
     $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
+  }
+
+  /**
+   * @param $application_uuid
+   *
+   * @return \AcquiaCloudApi\Response\ApplicationResponse
+   * @throws \Exception
+   */
+  protected function getCloudApplication($application_uuid): \AcquiaCloudApi\Response\ApplicationResponse {
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $applications_resource = new Applications($acquia_cloud_client);
+
+    return $applications_resource->get($application_uuid);
   }
 
 }

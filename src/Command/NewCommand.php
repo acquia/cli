@@ -43,6 +43,8 @@ class NewCommand extends CommandBase {
     $dir = Path::join(getcwd(), 'drupal');
     $filepath = Path::join($dir, 'composer.json');
 
+    // @todo Assert that we're not already inside of a Drupal project?
+    $output->writeln('<info>Creating project. This may take a few minutes</info>');
     $this->createProject($project, $dir);
 
     if (strpos($project, 'drupal/recommended-project') !== FALSE) {
