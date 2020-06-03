@@ -13,8 +13,6 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use ArrayObject;
-use drupol\phposinfo\OsInfo;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
@@ -42,6 +40,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \Symfony\Component\Console\Input\InputInterface
    */
   protected $input;
+
   /**
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
@@ -62,7 +61,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $localProjectInfo;
 
   /**
-   * @var \Symfony\Component\Console\Helper\QuestionHelper*/
+   * @var \Symfony\Component\Console\Helper\QuestionHelper
+   */
   protected $questionHelper;
 
   /**
@@ -117,6 +117,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Indicates whether the command requires the machine to be authenticated with Acquia Cloud.
+   *
    * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
@@ -127,6 +129,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Gets the application instance for this command.
    *
+   * This command exists in order to provide a return type annotation for AcquiaCliApplication.
+   *
    * @return \Acquia\Cli\AcquiaCliApplication|\Symfony\Component\Console\Application
    */
   public function getApplication() {
@@ -134,9 +138,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Prompts the user to choose from a list of available Acquia Cloud applications.
+   *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
-   * @return mixed
+   * @return null|object|array
    */
   protected function promptChooseApplication(
     Client $acquia_cloud_client
@@ -154,11 +160,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * Prompts the user to choose from a list of environments for a given Acquia Cloud application.
    *
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $application_uuid
    *
-   * @return mixed
+   * @return null|object|array
    */
   protected function promptChooseEnvironment(
     Client $acquia_cloud_client,
@@ -172,15 +179,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'name',
       'Please select an Acquia Cloud environment:'
     );
+
     return $environment;
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * Prompts the user to choose from a list of logs for a given Acquia Cloud environment.
    *
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $environment_id
    *
-   * @return mixed
+   * @return null|object|array
    */
   protected function promptChooseLogs(
     Client $acquia_cloud_client,
@@ -188,6 +197,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $logs_resource = new Logs($acquia_cloud_client);
     $logs = $logs_resource->getAll($environment_id);
+
     return $this->promptChooseFromObjects(
       $logs,
       'type',
@@ -198,6 +208,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Prompt a user to choose from a list.
+   *
+   * The list is generated from an array of objects. The objects much have at least one unique property and one
+   * property that can be used as a human readable label.
+   *
    * @param object[]|ArrayObject $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
@@ -241,6 +256,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return NULL;
   }
 
+  /**
+   * Load local project info from the ACLI datastore. If none exists, create default info and set it.
+   * @throws \Exception
+   */
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
     $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get(AcquiaCliApplication::ACLI_CONF_FILENAME);
@@ -257,16 +276,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     else {
-      $this->logger->debug("No matching local project found.");
+      $this->logger->debug('No matching local project found.');
       $local_user_config = [];
     }
 
     if ($this->getApplication()->getContainer()->getParameter('repo_root')) {
-      $this->creatLocalProjectStubInConfig($local_user_config);
+      $this->createLocalProjectStubInConfig($local_user_config);
     }
   }
 
   /**
+   * Load configuration from .git/config.
+   *
    * @param \Acquia\Cli\AcquiaCliApplication $application
    *
    * @return array|null
@@ -281,11 +302,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $git_config
+   * Gets an array of git remotes from a .git/config array.
+   *
+   * @param array $git_config
    *
    * @return array
+   *   A flat array of git remote urls.
    */
-  protected function getGitRemotes($git_config): array {
+  protected function getGitRemotes(array $git_config): array {
     $local_vcs_remotes = [];
     foreach ($git_config as $section_name => $section) {
       if ((strpos($section_name, 'remote ') !== FALSE) &&
@@ -367,6 +391,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Infer which Acquia Cloud application is associated with the current local git repository.
+   *
+   * If the local git repository has a remote with a URL that matches an Acquia Cloud application's VCS URL, assume
+   * that we have a match.
+   *
    * @param \Acquia\Cli\AcquiaCliApplication $application
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
@@ -402,7 +431,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $application_uuid
+   * Determine the Cloud environment.
+   *
+   * @param string $application_uuid
    *
    * @return mixed
    * @throws \Exception
@@ -410,11 +441,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudEnvironment($application_uuid) {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
+
     return $environment->uuid;
 
   }
 
   /**
+   * Determine the Cloud application.
+   *
    * @param bool $link_app
    *
    * @return string|null
@@ -439,6 +473,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $application_uuid;
   }
 
+  /**
+   * @return array|false|mixed|string|null
+   * @throws \Exception
+   */
   protected function doDetermineCloudApplication() {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     /** @var \Acquia\Cli\AcquiaCliApplication $cli_application */
@@ -474,7 +512,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $uuid
+   * @param string $uuid
    *
    * @return mixed
    */
@@ -492,6 +530,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse $application
+   *
+   * @throws \Exception
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
     $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get(AcquiaCliApplication::ACLI_CONF_FILENAME);
@@ -525,6 +565,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
+   *
+   * @throws \Exception
    */
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
@@ -547,13 +589,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Determines if Acquia CLI is being run from within a Cloud IDE.
+   *
    * @return bool
+   *   TRUE if Acquia CLI is being run from within a Cloud IDE.
    */
   public static function isAcquiaCloudIde(): bool {
     return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
   }
 
   /**
+   * Get the Cloud Application UUID from a Cloud IDE's environmental variable.
+   *
+   * This command assumes it is being run inside of a Cloud IDE.
+   *
    * @return array|false|string
    */
   protected static function getThisCloudIdeCloudAppUuid() {
@@ -561,6 +610,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Get the UUID from a Cloud IDE's environmental variable.
+   *
+   * This command assumes it is being run inside of a Cloud IDE.
+   *
    * @return false|string
    */
   public static function getThisCloudIdeUuid() {
@@ -569,8 +622,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param array $local_user_config
+   *
+   * @throws \Exception
    */
-  protected function creatLocalProjectStubInConfig(
+  protected function createLocalProjectStubInConfig(
     array $local_user_config
   ): void {
     $project = [];

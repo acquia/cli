@@ -33,6 +33,8 @@ class LocalMachineHelperTest extends TestBase {
    * @param $interactive
    * @param $is_tty
    * @param $print_output
+   *
+   * @throws \Exception
    */
   public function testExecuteFromCmd($interactive, $is_tty, $print_output): void {
     $local_machine_helper = $this->application->getContainer()->get('local_machine_helper');

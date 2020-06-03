@@ -121,6 +121,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
+   * @throws \Exception
    */
   protected function determinePassword(InputInterface $input, OutputInterface $output): string {
     if ($input->getOption('password')) {

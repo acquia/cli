@@ -7,7 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
-use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
@@ -141,7 +141,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockIdeRequest(): \AcquiaCloudApi\Response\IdeResponse {
+  protected function mockIdeRequest(): IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
@@ -153,7 +153,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockPollCloudViaSsh($environments_response): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockPollCloudViaSsh($environments_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);

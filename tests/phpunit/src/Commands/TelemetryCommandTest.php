@@ -63,7 +63,7 @@ class TelemetryCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestTelemetryPrompt
    *
-   * @param array $input
+   * @param array $inputs
    * @param $message
    *
    * @throws \Exception
