@@ -2,11 +2,11 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Kernel;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -28,6 +28,7 @@ use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandBase.
@@ -67,6 +68,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $questionHelper;
 
+  /**
+   * @var \Acquia\Cli\Helpers\TelemetryHelper
+   */
   protected $telemetryHelper;
 
   /**
@@ -80,15 +84,44 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $datastoreCloud;
 
   /**
+   * @var \Webmozart\KeyValueStore\JsonFileStore
+   */
+  protected $datastoreAcli;
+
+  /**
    * @var string
    */
   protected $cloudConfigFilepath;
 
-  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, TelemetryHelper $telemetryHelper) {
+  /**
+   * @var string
+   */
+  protected $acliConfigFilename;
+
+  /**
+   * @var \Zumba\Amplitude\Amplitude
+   */
+  protected $amplitude;
+
+  protected $repoRoot;
+
+  /**
+   * CommandBase constructor.
+   *
+   * @param string $cloudConfigFilepath
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
+   */
+  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, JsonFileStore $datastoreAcli, TelemetryHelper $telemetryHelper, Amplitude $amplitude, string $acliConfigFilename, string $repoRoot) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
+    $this->datastoreAcli = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
+    $this->amplitude = $amplitude;
+    $this->acliConfigFilename = $acliConfigFilename;
+    $this->repoRoot = $repoRoot;
     parent::__construct();
   }
 
@@ -109,18 +142,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
 
-    /** @var \Zumba\Amplitude\Amplitude $amplitude */
-    $amplitude = $this->getApplication()->getContainer()->get('amplitude');
-    $this->telemetryHelper->initializeAmplitude($amplitude, $this->getApplication()->getVersion());
+    $this->telemetryHelper->initializeAmplitude($this->amplitude, $this->getApplication()->getVersion());
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
     $application = $this->getApplication();
 
-    /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
-    $cloud_datastore = $this->getApplication()->getContainer()->get('cloud_datastore');
-    if ($this->commandRequiresAuthentication() && !$application::isMachineAuthenticated($cloud_datastore)) {
+    if ($this->commandRequiresAuthentication() && !$application::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
     }
 
@@ -131,13 +160,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   public function checkAndPromptTelemetryPreference(): void {
-    $send_telemetry = $this->getApplication()->getContainer()->get('acli_datastore')->get(DataStoreContract::SEND_TELEMETRY);
+    $send_telemetry = $this->datastoreAcli->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
       $pref = $this->questionHelper->ask($this->input, $this->output, $question);
-      $this->getApplication()->getContainer()->get('acli_datastore')->set(DataStoreContract::SEND_TELEMETRY, $pref);
+      $this->datastoreAcli->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
         $this->output->writeln('Awesome! Thank you for helping!');
       }
@@ -164,9 +193,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
     ];
-    /** @var \Zumba\Amplitude\Amplitude $amplitude */
-    $amplitude = $this->getApplication()->getContainer()->get('amplitude');
-    $amplitude->queueEvent('Ran command', $event_properties);
+    $this->amplitude->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
   }
@@ -317,13 +344,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
-    $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
+    $local_user_config = $this->datastoreAcli->get($this->acliConfigFilename);
     // Save empty local project info.
     // @todo Abstract this.
-    if ($local_user_config !== NULL && $this->getApplication()->getContainer()->getParameter('repo_root') !== NULL) {
+    if ($local_user_config !== NULL && $this->repoRoot !== NULL) {
       $this->logger->debug('Searching local datastore for matching project...');
       foreach ($local_user_config['localProjects'] as $project) {
-        if ($project['directory'] === $this->getApplication()->getContainer()->getParameter('repo_root')) {
+        if ($project['directory'] === $this->repoRoot) {
           $this->logger->debug('Matching local project found.');
           $this->localProjectInfo = $project;
           return;
@@ -335,7 +362,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $local_user_config = [];
     }
 
-    if ($this->getApplication()->getContainer()->getParameter('repo_root')) {
+    if ($this->repoRoot) {
       $this->createLocalProjectStubInConfig($local_user_config);
     }
   }
@@ -684,13 +711,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     array $local_user_config
   ): void {
     $project = [];
-    $project['name'] = basename($this->getApplication()->getContainer()->getParameter('repo_root'));
-    $project['directory'] = $this->getApplication()->getContainer()->getParameter('repo_root');
+    $project['name'] = basename($this->repoRoot);
+    $project['directory'] = $this->repoRoot;
     $local_user_config['localProjects'][] = $project;
 
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
-    $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
+    $this->datastoreAcli->set($this->acliConfigFilename, $local_user_config);
   }
 
 }

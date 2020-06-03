@@ -245,7 +245,7 @@ class LocalMachineHelper {
   }
 
   public static function getAcliConfigFilepath(): string {
-    return self::getHomeDir() . '/.acquia/acquia-cli.conf';
+    return self::getHomeDir() . '/.acquia/acquia-cli.json';
   }
 
   /**

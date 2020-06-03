@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,7 +14,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CreateProjectCommand.

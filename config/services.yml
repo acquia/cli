@@ -6,7 +6,9 @@ services:
     autowire: true
     bind:
       $cloudConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
-      $acliConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
+      #$acliConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
+      $acliConfigFilename: 'acquia-cli.json'
+      $repoRoot: "%kernel.project_dir%"
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
       Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
     public: true
@@ -55,6 +57,8 @@ services:
 
   Symfony\Component\Console\Output\OutputInterface:
     alias: Symfony\Component\Console\Output\ConsoleOutput
+
+  Zumba\Amplitude\Amplitude: ~
 
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
