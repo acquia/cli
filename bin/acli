@@ -3,8 +3,66 @@
 
 /**
  * @file
- * Acquia CLI command line executable.
+ * Acquia CLI command line front file.
  */
 
-require 'acli.php';
+namespace Acquia\Cli;
 
+use Stecman\Component\Symfony\Console\BashCompletion\CompletionCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\ErrorHandler\Debug;
+use Symfony\Component\Filesystem\Filesystem;
+
+if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
+  echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
+}
+
+set_time_limit(0);
+
+require dirname(__DIR__).'/vendor/autoload.php';
+
+$input = new ArgvInput();
+if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
+  putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
+}
+
+if ($input->hasParameterOption('--no-debug', true)) {
+  putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
+}
+
+(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
+
+if ($_SERVER['APP_DEBUG']) {
+  umask(0000);
+
+  if (class_exists(Debug::class)) {
+    Debug::enable();
+  }
+}
+
+$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+
+// Handle a cache:clear pseudo command. This isn't implemented as a true console
+// command because a stale or corrupted cache would render it unusable--
+// precisely when it is needed.
+if (in_array($input->getFirstArgument(), ['cache:clear', 'cc'])) {
+  $filesystem = new Filesystem();
+  $cache_dir = $kernel->getCacheDir();
+  $filesystem->remove($cache_dir);
+  $filesystem->mkdir($cache_dir);
+  $filesystem->touch("{$cache_dir}/.gitkeep");
+  exit;
+}
+
+$kernel->boot();
+$container = $kernel->getContainer();
+$application = $container->get(Application::class);
+$application->setName('Acquia CLI');
+$application->setVersion('@package_version@');
+
+// Add command autocompletion.
+$application->add(new CompletionCommand());
+
+$application->run();
