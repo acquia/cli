@@ -120,14 +120,19 @@ abstract class TestBase extends TestCase {
   protected $localMachineHelper;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
-   */
-  protected $clientService;
-
-  /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
    */
   protected $telemetryHelper;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilename;
+
+  /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected $clientServiceProphecy;
 
   /**
    * This method is called before each test.
@@ -150,15 +155,17 @@ abstract class TestBase extends TestCase {
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->dataDir = $this->fixtureDir . '/.acquia';
+    $this->acliConfigFilename = 'acquia-cli.json';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
-    $this->acliConfigFilepath = $this->dataDir . '/acquia-cli.json';
+    $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
     $this->acliDatastore = new JsonFileStore($this->acliConfigFilepath);
     $this->cloudDatastore = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
-    $this->clientService = new ClientService($this->cloudDatastore);
-    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientService, $this->acliDatastore, $this->cloudDatastore);
+    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
+    $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
+    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();

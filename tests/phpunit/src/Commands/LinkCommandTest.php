@@ -19,7 +19,7 @@ class LinkCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new LinkCommand();
+    return new LinkCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))), $this->clientServiceProphecy->reveal());
   }
 
   /**
@@ -41,7 +41,7 @@ class LinkCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $acquia_cli_config = $this->application->getContainer()->get('acli_datastore')->get($this->application->getContainer()->getParameter('acli_config.filename'));
+    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
@@ -51,22 +51,6 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
-  }
-
-  /**
-   * Tests the 'link' command.
-   *
-   * @throws \Exception
-   */
-  public function testLinkCommandInvalidDir(): void {
-    $this->setCommand($this->createCommand());
-    $this->application->getContainer()->setParameter('repo_root', NULL);
-    try {
-      $this->executeCommand([], [], dirname($this->projectFixtureDir));
-    }
-    catch (AcquiaCliException $e) {
-      $this->assertEquals('Could not find a local Drupal project. Looked for `docroot/index.php`. Please execute this command from within a Drupal project directory.', $e->getMessage());
-    }
   }
 
 }

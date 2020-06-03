@@ -3,13 +3,12 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\AuthCommand;
-use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeDeleteCommandTest.
+ * Class AuthCommandTest.
  *
  * @property AuthCommand $command
  * @package Acquia\Cli\Tests
@@ -20,7 +19,7 @@ class AuthCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AuthCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))));
+    return new AuthCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))), $this->clientServiceProphecy->reveal());
   }
 
   public function providerTestAuthLoginCommand(): array {
