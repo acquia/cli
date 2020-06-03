@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBase.
@@ -65,6 +67,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $questionHelper;
 
+  protected $telemetryHelper;
+
+  /**
+   * @var LocalMachineHelper
+   */
+  protected $localMachineHelper;
+
+  /**
+   * @var JsonFileStore
+   */
+  protected $datastoreCloud;
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, TelemetryHelper $telemetryHelper) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
+    $this->localMachineHelper = $localMachineHelper;
+    $this->datastoreCloud = $datastoreCloud;
+    $this->telemetryHelper = $telemetryHelper;
+    parent::__construct();
+  }
+
   /**
    * Initializes the command just after the input has been validated.
    *
@@ -82,11 +109,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
 
-    /** @var TelemetryHelper $telemetry_helper */
-    $telemetry_helper = $this->getApplication()->getContainer()->get('telemetry_helper');
     /** @var \Zumba\Amplitude\Amplitude $amplitude */
     $amplitude = $this->getApplication()->getContainer()->get('amplitude');
-    $telemetry_helper->initializeAmplitude($amplitude, $this->getApplication()->getVersion());
+    $this->telemetryHelper->initializeAmplitude($amplitude, $this->getApplication()->getVersion());
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
 

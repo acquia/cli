@@ -55,7 +55,7 @@ class Kernel extends BaseKernel {
           }
 
           // Without this, Symfony tries to instantiate our abstract base command. No bueno.
-          if (is_a($definition->getClass(), CommandBase::class, TRUE)) {
+          if ($definition->getClass() == CommandBase::class) {
             continue;
           }
 

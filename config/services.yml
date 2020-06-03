@@ -6,9 +6,9 @@ services:
     autowire: true
     bind:
       $cloudConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
-      # $acliConfigFilepath: '/home/dane/.acquia/acquia-cli.json'
+      $acliConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
-      # Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
+      Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
     public: true
 
   # Todo: something like the following instead of enumerating classes
@@ -17,7 +17,11 @@ services:
     # public: false
     # resource: ../src
 
+  Acquia\Cli\Helpers\ClientService: ~
+
   Acquia\Cli\Helpers\LocalMachineHelper: ~
+
+  Acquia\Cli\Helpers\TelemetryHelper: ~
 
   Acquia\Cli\Command\AuthCommand:
     parent: Acquia\Cli\Command\CommandBase

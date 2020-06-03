@@ -244,6 +244,10 @@ class LocalMachineHelper {
     return self::getHomeDir() . '/.acquia/cloud_api.conf';
   }
 
+  public static function getAcliConfigFilepath(): string {
+    return self::getHomeDir() . '/.acquia/acquia-cli.conf';
+  }
+
   /**
    * Starts a background browser/tab for the current site or a specified URL.
    *

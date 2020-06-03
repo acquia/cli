@@ -52,14 +52,14 @@ class TelemetryHelper {
     InputInterface $input,
     OutputInterface $output,
     ClientService $cloud_api,
-    JsonFileStore $acli_datastore,
-    JsonFileStore $cloud_datastore
+    JsonFileStore $datastoreAcli,
+    JsonFileStore $datastoreCloud
   ) {
     $this->input = $input;
     $this->output = $output;
     $this->cloudApi = $cloud_api;
-    $this->cloudDatastore = $cloud_datastore;
-    $this->acliDatastore = $acli_datastore;
+    $this->cloudDatastore = $datastoreCloud;
+    $this->acliDatastore = $datastoreAcli;
   }
 
   /**

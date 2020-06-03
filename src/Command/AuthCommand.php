@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,7 +20,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
 /**
  * Class CreateProjectCommand.
  */
-class AuthCommand extends Command {
+class AuthCommand extends CommandBase {
 
   /**
    * The default command name.
@@ -29,35 +28,6 @@ class AuthCommand extends Command {
    * @var string
    */
   protected static $defaultName = 'auth:login';
-
-  /**
-   * @var string
-   */
-  protected $cloudConfigFilepath;
-
-  /**
-   * @var LocalMachineHelper
-   */
-  protected $localMachineHelper;
-
-  /**
-   * @var JsonFileStore
-   */
-  protected $datastoreCloud;
-
-  /**
-   * AuthCommand constructor.
-   *
-   * @param string $cloudConfigFilepath
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
-   */
-  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud) {
-    $this->cloudConfigFilepath = $cloudConfigFilepath;
-    $this->localMachineHelper = $localMachineHelper;
-    $this->datastoreCloud = $datastoreCloud;
-    parent::__construct(self::$defaultName);
-  }
 
   /**
    * {inheritdoc}.
