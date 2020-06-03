@@ -6,7 +6,6 @@ services:
     autowire: true
     bind:
       $cloudConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
-      #$acliConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
       $acliConfigFilename: 'acquia-cli.json'
       $repoRoot: "%kernel.project_dir%"
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
@@ -69,4 +68,4 @@ services:
   datastore.acli:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
-      $path: $acliConfigFilepath
+      $path: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
