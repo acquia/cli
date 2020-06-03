@@ -1,5 +1,12 @@
-drupal
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/var/
 /vendor/
+###< symfony/framework-bundle ###
+
+drupal
 .idea
 .phpcs-cache
 build
@@ -7,4 +14,3 @@ build
 tests/fixtures/.acquia/acquia-cli.json
 tests/fixtures/.acquia/cloud_api.conf
 *.phar
-/var/*
