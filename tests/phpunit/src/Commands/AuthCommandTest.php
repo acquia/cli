@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\AuthCommand;
+use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -19,7 +20,7 @@ class AuthCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AuthCommand();
+    return new AuthCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))));
   }
 
   public function providerTestAuthLoginCommand(): array {
@@ -122,7 +123,7 @@ class AuthCommandTest extends CommandTestBase {
   }
 
   protected function assertKeySavedCorrectly(): void {
-    $creds_file = $this->application->getContainer()->getParameter('cloud_config.filepath');
+    $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
     $contents = file_get_contents($creds_file);
     $this->assertJson($contents);

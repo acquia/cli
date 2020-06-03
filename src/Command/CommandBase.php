@@ -111,7 +111,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
+   * @param \Zumba\Amplitude\Amplitude $amplitude
+   * @param string $acliConfigFilename
+   * @param string $repoRoot
    */
   public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, JsonFileStore $datastoreAcli, TelemetryHelper $telemetryHelper, Amplitude $amplitude, string $acliConfigFilename, string $repoRoot) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
@@ -146,14 +150,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
 
-    /** @var \Acquia\Cli\AcquiaCliApplication $application */
-    $application = $this->getApplication();
-
-    if ($this->commandRequiresAuthentication() && !$application::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication() && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
     }
 
     $this->loadLocalProjectInfo();
+  }
+
+  public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
+    return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
   }
 
   /**
