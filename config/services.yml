@@ -65,7 +65,7 @@ services:
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
-      $path: $cloudConfigFilepath
+      $path: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
       $flags: 1
 
   datastore.acli:
