@@ -70,7 +70,7 @@ class AuthCommand extends CommandBase {
     else {
       $question = new Question('<question>Please enter your API Key:</question>');
       $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
-      $api_key = $this->getHelper('question')->ask($input, $output, $question);
+      $api_key = $this->questionHelper->ask($input, $output, $question);
     }
 
     return $api_key;
@@ -110,7 +110,7 @@ class AuthCommand extends CommandBase {
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
-      $api_secret = $this->getHelper('question')->ask($input, $output, $question);
+      $api_secret = $this->questionHelper->ask($input, $output, $question);
     }
 
     return $api_secret;
@@ -139,13 +139,13 @@ class AuthCommand extends CommandBase {
     ): void {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
-      $output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
-      $output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
+      $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
+      $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
           TRUE);
-        if ($this->getHelper('question')->ask($input, $output, $question)) {
+        if ($this->questionHelper->ask($input, $output, $question)) {
           $this->localMachineHelper->startBrowser($token_url);
         }
       }
