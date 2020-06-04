@@ -27,7 +27,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeDeleteCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();

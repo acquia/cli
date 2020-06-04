@@ -28,7 +28,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUpload(): void {
-    $this->setCommand($this->createCommand());
 
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();

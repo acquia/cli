@@ -26,7 +26,6 @@ class AliasesListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesListCommand(): void {
-    $this->setCommand($this->createCommand());
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

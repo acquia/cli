@@ -28,7 +28,7 @@ class LinkCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testLinkCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 

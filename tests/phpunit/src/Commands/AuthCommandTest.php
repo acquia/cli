@@ -58,7 +58,6 @@ class AuthCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginCommand($inputs, $args): void {
-    $this->setCommand($this->createCommand());
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
@@ -99,7 +98,7 @@ class AuthCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->setCommand($this->createCommand());
+
     try {
       $this->executeCommand($args, $inputs);
     }

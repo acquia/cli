@@ -23,7 +23,7 @@ class CommandBaseTest extends CommandTestBase {
 
   public function testUnauthenticatedFailure(): void {
     $this->removeMockConfigFiles();
-    $this->setCommand($this->createCommand());
+
     $inputs = [
       // Would you like to share anonymous performance usage and data?
       'n',
@@ -38,13 +38,13 @@ class CommandBaseTest extends CommandTestBase {
 
   public function testCloudAppFromLocalConfig(): void {
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationRequest();
     $this->executeCommand([], []);
   }
 
   public function testCloudAppUuidArg(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationRequest();
     $this->executeCommand([
       '--cloud-app-uuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
@@ -52,7 +52,7 @@ class CommandBaseTest extends CommandTestBase {
   }
 
   public function testInvalidCloudAppUuidArg(): void {
-    $this->setCommand($this->createCommand());
+
     try {
       $this->executeCommand([
         '--cloud-app-uuid' => 'a47ac10b-i-do-not-feel-validated',

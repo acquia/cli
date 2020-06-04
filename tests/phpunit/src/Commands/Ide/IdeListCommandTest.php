@@ -27,7 +27,6 @@ class IdeListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListCommand(): void {
-    $this->setCommand($this->createCommand());
 
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

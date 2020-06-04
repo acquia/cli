@@ -20,7 +20,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
   public function setUp($output = NULL): void {
     parent::setUp();
-    $this->setCommand($this->createCommand());
+
     $this->getCommandTester();
     $this->application->addCommands([
       $this->injectCommand(SshKeyCreateCommand::class),

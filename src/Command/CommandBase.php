@@ -78,7 +78,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var LocalMachineHelper
    */
-  protected $localMachineHelper;
+  public $localMachineHelper;
 
   /**
    * @var JsonFileStore

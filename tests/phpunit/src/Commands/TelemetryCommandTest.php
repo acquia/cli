@@ -70,7 +70,7 @@ class TelemetryCommandTest extends CommandTestBase {
    */
   public function testTelemetryPrompt(array $inputs, $message): void {
     $this->removeMockAcliConfigFile();
-    $this->setCommand($this->createCommand());
+
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
 

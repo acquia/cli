@@ -22,7 +22,7 @@ class IdeCreateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 

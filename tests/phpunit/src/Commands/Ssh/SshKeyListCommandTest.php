@@ -26,7 +26,6 @@ class SshKeyListCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUpload(): void {
-    $this->setCommand($this->createCommand());
 
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();

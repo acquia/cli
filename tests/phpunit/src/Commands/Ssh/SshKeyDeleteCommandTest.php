@@ -27,7 +27,6 @@ class SshKeyDeleteCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testDelete(): void {
-    $this->setCommand($this->createCommand());
 
     $ssh_key_list_response = $this->mockListSshKeysRequest();
 

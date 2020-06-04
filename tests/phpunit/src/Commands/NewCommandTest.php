@@ -38,7 +38,7 @@ class NewCommandTest extends CommandTestBase {
     return $this->injectCommand(NewCommand::class);
   }
 
-  public function provideTestRefreshCommand() {
+  public function provideTestNewCommand() {
     return [
       ['acquia/blt-project'],
       ['drupal/recommended-project'],
@@ -46,15 +46,15 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'refresh' command.
+   * Tests the 'new' command.
    *
-   * @dataProvider provideTestRefreshCommand
+   * @dataProvider provideTestNewCommand
    *
    * @param $project
    *
    * @throws \Exception
    */
-  public function testRefreshCommand($project): void {
+  public function testNewCommand($project): void {
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -82,7 +82,7 @@ class NewCommandTest extends CommandTestBase {
         ->shouldBeCalled();
     }
 
-    $this->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     $inputs = [
       // Which starting project would you like to use?
       $project,

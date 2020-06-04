@@ -28,7 +28,6 @@ class InferApplicationTest extends CommandTestBase {
    *
    */
   public function testInfer(): void {
-    $this->setCommand($this->createCommand());
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -68,7 +67,6 @@ class InferApplicationTest extends CommandTestBase {
    *
    */
   public function testInferFailure(): void {
-    $this->setCommand($this->createCommand());
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

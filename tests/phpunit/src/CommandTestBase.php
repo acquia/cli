@@ -57,6 +57,9 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function setUp($output = NULL): void {
     parent::setUp();
+    if (!isset($this->command)) {
+      $this->command = $this->createCommand();
+    }
     $this->printTestName();
   }
 
@@ -143,10 +146,6 @@ abstract class CommandTestBase extends TestBase {
   protected function getCommandTester(): CommandTester {
     if ($this->commandTester) {
       return $this->commandTester;
-    }
-
-    if (!isset($this->command)) {
-      $this->command = $this->createCommand();
     }
 
     $this->application->add($this->command);

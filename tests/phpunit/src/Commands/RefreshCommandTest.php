@@ -60,8 +60,6 @@ class RefreshCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRefreshCommand($create_mock_git_config, $is_dirty, $drush_connection_exists, $mysql_dump_successful): void {
-    $this->setCommand($this->createCommand());
-
     // Client responses.
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -123,7 +121,7 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     // Set helpers.
-    $this->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
 
     $inputs = [

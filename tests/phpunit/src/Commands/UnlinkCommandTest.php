@@ -28,7 +28,7 @@ class UnlinkCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testUnlinkCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $application_uuid = 'testuuid';
     $this->createMockAcliConfigFile($application_uuid);
 
@@ -52,7 +52,7 @@ class UnlinkCommandTest extends CommandTestBase {
   }
 
   public function testUnlinkCommandInvalidDir(): void {
-    $this->setCommand($this->createCommand());
+
     try {
       $this->executeCommand([], []);
     }
