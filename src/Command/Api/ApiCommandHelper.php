@@ -36,11 +36,16 @@ class ApiCommandHelper {
     $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
     $api_commands = [];
     foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
-      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
+      // Skip internal endpoints. These shouldn't actually be in the spec.
+      if ((array_key_exists('x-internal', $endpoint) && $endpoint['x-internal'])
+        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
+        // application/gzip content.
+         || $endpoint['x-cli-name'] === 'accounts:drush-aliases') {
         continue;
       }
 
       foreach ($endpoint as $method => $schema) {
+
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($command_name);
         $command->setName($command_name);
