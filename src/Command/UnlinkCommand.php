@@ -47,8 +47,8 @@ class UnlinkCommand extends CommandBase {
         unset($local_user_config['localProjects'][$key]);
         $this->localProjectInfo = NULL;
         $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
-
-        $output->writeln("<info>Unlinked $repo_root from Cloud application {$project['cloud_application_uuid']}</info>");
+        $application = $this->getCloudApplication($project['cloud_application_uuid']);
+        $output->writeln("<info>Unlinked <comment>$repo_root</comment> from Cloud application <comment>{$application->name}</comment></info>");
         return 0;
       }
     }

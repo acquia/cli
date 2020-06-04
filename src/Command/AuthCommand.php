@@ -37,12 +37,21 @@ class AuthCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // @todo Check if user is already authenticated.
-    if (!$input->getOption('key') && !$input->getOption('secret'))
-    $this->promptOpenBrowserToCreateToken($input, $output);
+    /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
+    $cloud_datastore = $this->getApplication()->getContainer()->get('cloud_datastore');
+    if ($this->getApplication()::isMachineAuthenticated($cloud_datastore)) {
+      $question = new ConfirmationQuestion('<question>Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question>',
+        TRUE);
+      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      if (!$answer) {
+        return 0;
+      }
+    }
 
+    $this->promptOpenBrowserToCreateToken($input, $output);
     $api_key = $this->determineApiKey($input, $output);
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);

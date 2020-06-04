@@ -15,7 +15,8 @@ class TelemetryCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('telemetry')->setDescription('Toggle anonymous sharing of usage and performance data');
+    $this->setName('telemetry')
+      ->setDescription('Toggle anonymous sharing of usage and performance data');
   }
 
   /**
@@ -29,11 +30,11 @@ class TelemetryCommand extends CommandBase {
     $datastore = $this->getApplication()->getContainer()->get('acli_datastore');
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-      $this->output->writeln('Telemetry has been disabled.');
+      $this->output->writeln('<info>Telemetry has been disabled.</info>');
     }
     else {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
-      $this->output->writeln('Telemetry has been enabled.');
+      $this->output->writeln('<info>Telemetry has been enabled.</info>');
     }
 
     return 0;
