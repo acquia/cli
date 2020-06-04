@@ -2003,6 +2003,17 @@ components:
         region:
           type: string
           description: The region the environment resides in.
+        balancer:
+          type: string
+          description: |
+            The balancer type.
+            - balancers: The environment is behind a Legacy balancer.
+            - elb: The environment is behind an ELB balancer.
+            - cluster: The environment is behind an Edge Cluster balancer.
+          enum:
+            - balancers
+            - elb
+            - cluster
         status:
           type: string
           description: The status of this environment.
@@ -2516,25 +2527,28 @@ components:
       properties:
         country:
           type: string
-          description: The country for CSR generation.
+          description: The ISO-3166 country code for CSR generation.
         state:
           type: string
           description: The state/province for CSR generation.
         locality:
           type: string
-          description: The locality (city) for CSR generation.
+          description: The locality (city/town/township) for CSR generation.
         organization:
           type: string
-          description: The organization for CSR generation.
+          description: The organization name for CSR generation.
         organizational_unit:
           type: integer
-          description: The organizational unit for CSR generation.
+          description: The organizational unit (department) for CSR generation.
         common_name:
           type: string
           description: The common name (domain) for CSR generation.
         alternate_names:
-          type: string
-          description: The subject alternative names for CSR generation.
+          description: The Subject Alternate Names (SNI only) for CSR generation.
+          type: array
+          items:
+            type: string
+            format: uri
     PutCron:
       type: object
       properties:
@@ -7786,7 +7800,7 @@ paths:
                   features:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/features'
                   ides:
-                    href: 'https://cloud.acquia.dev/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/ides'
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/ides'
                   insight:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/insight'
                   permissions:
@@ -11236,6 +11250,7 @@ paths:
                       ips:
                         - 10.0.1.5
                       region: us-east-1
+                      balancer: balancers
                       status: normal
                       type: drupal
                       size: null
@@ -11272,6 +11287,7 @@ paths:
                         cde: false
                         hsd: false
                         livedev: false
+                        multicert: false
                         multi_region: false
                         production: false
                         production_mode: false
@@ -11763,6 +11779,7 @@ paths:
                 ips:
                   - 10.0.1.5
                 region: us-east-1
+                balancer: balancers
                 status: normal
                 type: drupal
                 size: null
@@ -11800,6 +11817,7 @@ paths:
                   cde: false
                   hsd: false
                   livedev: false
+                  multicert: false
                   multi_region: false
                   production: false
                   production_mode: false
@@ -12689,9 +12707,9 @@ paths:
                     message: Creating a new cron.
                     _links:
                       self:
-                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons'
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons/936a55fd-29eb-4317-bb6e-ad2a94b24589'
                       parent:
-                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1'
+                        href: 'https://cloud.acquia.com/api/environments/286-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/crons'
                       notification:
                         href: 'https://cloud.acquia.com/api/notifications/01fde3bb-b65f-4629-b761-9072a35e8e50'
         '400':
@@ -18393,7 +18411,7 @@ paths:
     post:
       tags:
         - Environments
-      summary: Generates a CSR for one or more domains.
+      summary: Generates a certificate signing request (CSR) for one or more domains.
       description: Generates a CSR for one or more domains.
       operationId: postCertificateSigningRequest
       x-cli-name: 'environments:csr-create'
@@ -18429,10 +18447,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-              examples:
-                Adding environment:
-                  value:
-                    message: A CSR is being generated for the selected domain.
+              example:
+                message: A CSR is being generated for the selected domain.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-4ba86d4a-e193-4282-8963-d9d24746f444/ssl/csrs'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-4ba86d4a-e193-4282-8963-d9d24746f444/ssl'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/8fdacf25-38e4-4621-b5de-e78638fe2ceb'
         '403':
           description: Forbidden
           content:
@@ -18630,6 +18653,13 @@ paths:
                 $ref: '#/components/schemas/Message'
               example:
                 message: Deleting the certificate signing request.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/5-aeb8e8a6-0eef-4a1e-8d8d-545e025b12a5/ssl/csrs/7'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/5-aeb8e8a6-0eef-4a1e-8d8d-545e025b12a5/ssl/csrs'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/87c0f979-2f84-4b88-bc5e-8c1670fd2f01'
         '400':
           description: Bad Request
           content:
@@ -19065,7 +19095,6 @@ paths:
                   minLength: 0
                   maxLength: 255
             example:
-              name: APP_KEY
               value: aaaabbbbccccddddeee
           application/x-www-form-urlencoded:
             schema:
@@ -19117,7 +19146,7 @@ paths:
                   value:
                     error: validation_failed
                     message:
-                      value: 'The environment variable value is invalid: it must be less than 256 characters long.'
+                      value: 'The environment variable value is invalid: it must be less than 5000 characters long.'
                 Variable name already exists:
                   value:
                     error: validation_failed
@@ -23946,7 +23975,7 @@ paths:
                   entitlements:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/entitlements'
                   ides:
-                    href: 'https://cloud.acquia.dev/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/ides'
+                    href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/ides'
                   shield-acl:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/shield-acl'
                   parent:
