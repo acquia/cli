@@ -19,7 +19,7 @@ class UnlinkCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new UnlinkCommand();
+    return $this->injectCommand(UnlinkCommand::class);
   }
 
   /**
@@ -33,7 +33,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->createMockAcliConfigFile($application_uuid);
 
     // Assert we set it correctly.
-    $acquia_cli_config = $this->application->getContainer()->get('acli_datastore')->get($this->application->getContainer()->getParameter('acli_config.filename'));
+    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
@@ -44,7 +44,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
 
     // Assert it's been unset.
-    $acquia_cli_config = $this->application->getContainer()->get('acli_datastore')->get($this->application->getContainer()->getParameter('acli_config.filename'));
+    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayNotHasKey(0, $acquia_cli_config['localProjects']);
@@ -56,7 +56,7 @@ class UnlinkCommandTest extends CommandTestBase {
     try {
       $this->executeCommand([], []);
     }
-    catch (AcquiaCliException $exception) {
+    catch (\Exception $exception) {
       $this->assertStringContainsString('There is no Acquia Cloud application linked to', $exception->getMessage());
     }
   }

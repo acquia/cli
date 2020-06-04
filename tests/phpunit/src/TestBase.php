@@ -349,7 +349,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->acliDatastore->set('acquia-cli.json', [
+    $this->acliDatastore->set($this->acliConfigFilename, [
       'localProjects' => [
         0 => [
           'directory' => $this->projectFixtureDir,

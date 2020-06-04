@@ -12,11 +12,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 class UnlinkCommand extends CommandBase {
 
   /**
+   * The default command name.
+   *
+   * @var string
+   */
+  protected static $defaultName = 'unlink';
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('unlink')
-      ->setDescription('Remove local association between your project and an Acquia Cloud application');
+    $this->setDescription('Remove local association between your project and an Acquia Cloud application');
   }
 
   /**
@@ -36,8 +42,8 @@ class UnlinkCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
 
-    $repo_root = $this->getApplication()->getContainer()->getParameter('repo_root');
-    $local_user_config = $this->getApplication()->getContainer()->get('acli_datastore')->get($this->getApplication()->getContainer()->getParameter('acli_config.filename'));
+    $repo_root = $this->repoRoot;
+    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
     if (!$this->getAppUuidFromLocalProjectInfo()) {
       throw new AcquiaCliException('There is no Acquia Cloud application linked to {repo_root}', ['repo_root' => $repo_root]);
     }
@@ -46,7 +52,7 @@ class UnlinkCommand extends CommandBase {
         // @todo Add confirmation.
         unset($local_user_config['localProjects'][$key]);
         $this->localProjectInfo = NULL;
-        $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
+        $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
 
         $output->writeln("<info>Unlinked $repo_root from Cloud application {$project['cloud_application_uuid']}</info>");
         return 0;

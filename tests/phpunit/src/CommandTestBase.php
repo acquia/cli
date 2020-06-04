@@ -65,6 +65,22 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * Build and return a command with common dependencies.
+   *
+   * All commands inherit from a common base and use the same constructor with a
+   * bunch of dependencies injected. It would be tedious for every command test
+   * to inject every dependency as part of createCommand(). They can use this
+   * instead.
+   *
+   * @param string $commandName
+   *
+   * @return \Symfony\Component\Console\Command\Command
+   */
+  protected function injectCommand(string $commandName): Command {
+    return new $commandName($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', $this->projectFixtureDir, $this->clientServiceProphecy->reveal());
+  }
+
+  /**
    * Executes a given command with the command tester.
    *
    * @param array $args

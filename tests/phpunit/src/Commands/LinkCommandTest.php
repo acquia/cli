@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\LinkCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -19,7 +18,7 @@ class LinkCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new LinkCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))), $this->clientServiceProphecy->reveal());
+    return $this->injectCommand(LinkCommand::class);
   }
 
   /**

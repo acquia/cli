@@ -87,7 +87,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  protected $datastoreAcli;
+  protected $acliDatastore;
 
   /**
    * @var string
@@ -127,7 +127,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
-    $this->datastoreAcli = $datastoreAcli;
+    $this->acliDatastore = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
     $this->amplitude = $amplitude;
     $this->acliConfigFilename = $acliConfigFilename;
@@ -172,13 +172,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   public function checkAndPromptTelemetryPreference(): void {
-    $send_telemetry = $this->datastoreAcli->get(DataStoreContract::SEND_TELEMETRY);
+    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
       $pref = $this->questionHelper->ask($this->input, $this->output, $question);
-      $this->datastoreAcli->set(DataStoreContract::SEND_TELEMETRY, $pref);
+      $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
         $this->output->writeln('Awesome! Thank you for helping!');
       }
@@ -356,7 +356,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
-    $local_user_config = $this->datastoreAcli->get($this->acliConfigFilename);
+    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
     // Save empty local project info.
     // @todo Abstract this.
     if ($local_user_config !== NULL && $this->repoRoot !== NULL) {
@@ -623,7 +623,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
-    $local_user_config = $this->datastoreAcli->get($this->acliConfigFilename);
+    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
     if (!$local_user_config) {
       $local_user_config = [
         'localProjects' => [],
@@ -634,7 +634,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $project['cloud_application_uuid'] = $application->uuid;
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
-        $this->datastoreAcli->set($this->acliConfigFilename, $local_user_config);
+        $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
         $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
         return;
       }
@@ -724,7 +724,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
-    $this->datastoreAcli->set($this->acliConfigFilename, $local_user_config);
+    $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
   }
 
 }
