@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
