@@ -23,3 +23,5 @@ tests/fixtures/.acquia/cloud_api.conf
 /phpunit.xml
 .phpunit.result.cache
 ###< phpunit/phpunit ###
+
+cx-api-spec
