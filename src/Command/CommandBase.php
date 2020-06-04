@@ -121,7 +121,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         // @todo Completely anonymously send an event to indicate some user opted out.
         $this->output->writeln('Ok, no data will be collected and shared with us.');
         $this->output->writeln('We take privacy seriously.');
-        $this->output->writeln('If you change your mind, run <code>acli telemetry</code>.');
+        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
       }
     }
   }
@@ -373,12 +373,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $count = count($customer_applications);
     $progressBar = new ProgressBar($this->output, $count);
     $progressBar->setFormat('message');
-    $progressBar->setMessage("Searching <code>$count applications</code> on Acquia Cloud...");
+    $progressBar->setMessage("Searching <comment>$count applications</comment> on Acquia Cloud...");
     $progressBar->start();
 
     // Search Cloud applications.
     foreach ($customer_applications as $application) {
-      $progressBar->setMessage("Searching <code>{$application->name}</code> for matching git URLs");
+      $progressBar->setMessage("Searching <comment>{$application->name}</comment> for matching git URLs");
       $application_environments = $environments_resource->getAll($application->uuid);
       if ($application = $this->searchApplicationEnvironmentsForGitUrl(
             $application,
@@ -437,7 +437,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
     if ($application->getContainer()->getParameter('repo_root')) {
-      $this->output->writeln("There is no Acquia Cloud application linked to <code>{$application->getContainer()->getParameter('repo_root')}/.git</code>.");
+      $this->output->writeln("There is no Acquia Cloud application linked to <comment>{$application->getContainer()->getParameter('repo_root')}/.git</comment>.");
       $question = new ConfirmationQuestion('<question>Would you like Acquia CLI to search for a Cloud application that matches your local git config?</question> ');
       $helper = $this->getHelper('question');
       $answer = $helper->ask($this->input, $this->output, $question);
@@ -576,7 +576,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
         $this->getApplication()->getContainer()->get('acli_datastore')->set($this->getApplication()->getContainer()->getParameter('acli_config.filename'), $local_user_config);
-        $this->output->writeln("<info>The Cloud application <code>{$application->name}</code> has been linked to this repository</info>");
+        $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
 
         return TRUE;
       }
@@ -604,7 +604,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
     ): bool {
-    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application <code>{$cloud_application->name}</code> to this repository</question>? ");
+    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application <comment>{$cloud_application->name}</comment> to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {

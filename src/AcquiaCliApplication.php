@@ -94,10 +94,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
-
-    // Create custom <code> output format.
-    $outputStyle = new OutputFormatterStyle('cyan', NULL);
-    $output->getFormatter()->setStyle('code', $outputStyle);
+    self::setOutputFormatters($output);
 
     // Clean up exceptions thrown during commands.
     $dispatcher = new EventDispatcher();
@@ -212,6 +209,15 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
     return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public static function setOutputFormatters(OutputInterface $output): void {
+    // Create custom <code> output format.
+    $outputStyle = new OutputFormatterStyle('cyan', NULL);
+    $output->getFormatter()->setStyle('code', $outputStyle);
   }
 
 }

@@ -40,7 +40,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
     $this->deleteSshKeyFromCloud($cloud_key);
     $this->deleteLocalIdeSshKey();
 
-    $this->output->writeln("<info>Deleted local files <code>{$this->publicSshKeyFilepath}</code> and <code>{$this->privateSshKeyFilepath}</code>");
+    $this->output->writeln("<info>Deleted local files <comment>{$this->publicSshKeyFilepath}</comment> and <comment>{$this->privateSshKeyFilepath}</comment>");
 
     return 0;
   }

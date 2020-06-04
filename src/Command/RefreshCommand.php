@@ -56,7 +56,7 @@ class RefreshCommand extends CommandBase {
     else {
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $output->writeln('Using Cloud Application <code>' . $cloud_application->name . '</code>');
+      $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
 
@@ -558,7 +558,7 @@ class RefreshCommand extends CommandBase {
   protected function determineCloneProject(OutputInterface $output): bool {
     $clone = FALSE;
     if (!$this->getApplication()->getContainer()->getParameter('repo_root')) {
-      $output->writeln('Could not find a local Drupal project. Looked for <code>docroot/index.php</code> in current and parent directories.');
+      $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories.');
       $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
