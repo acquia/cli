@@ -44,7 +44,7 @@ class ApiCommandHelper {
       foreach ($endpoint as $method => $schema) {
         // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
         // application/gzip content.
-        if ($endpoint['x-cli-name'] === 'accounts:drush-aliases') {
+        if ($schema['x-cli-name'] === 'accounts:drush-aliases') {
           continue;
         }
 
