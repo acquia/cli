@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshKeyListCommand extends SshKeyCommandBase {
 
+  protected static $defaultName = 'ssh-key:list';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:list')->setDescription('List your local and remote SSH keys');
+    $this->setDescription('List your local and remote SSH keys');
   }
 
   /**
@@ -26,7 +28,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
 

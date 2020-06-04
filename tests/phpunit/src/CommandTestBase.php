@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -57,6 +58,9 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function setUp($output = NULL): void {
     parent::setUp();
+    if (!isset($this->command)) {
+      $this->command = $this->createCommand();
+    }
     $this->printTestName();
   }
 
@@ -114,10 +118,6 @@ abstract class CommandTestBase extends TestBase {
   protected function getCommandTester(): CommandTester {
     if ($this->commandTester) {
       return $this->commandTester;
-    }
-
-    if (!isset($this->command)) {
-      $this->command = $this->createCommand();
     }
 
     $this->application->add($this->command);

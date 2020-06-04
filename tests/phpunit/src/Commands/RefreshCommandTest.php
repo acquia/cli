@@ -25,7 +25,7 @@ class RefreshCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new RefreshCommand();
+    return $this->injectCommand(RefreshCommand::class);
   }
 
   public function setUp($output = NULL): void {
@@ -60,8 +60,6 @@ class RefreshCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRefreshCommand($create_mock_git_config, $is_dirty, $drush_connection_exists, $mysql_dump_successful): void {
-    $this->setCommand($this->createCommand());
-
     // Client responses.
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -123,8 +121,8 @@ class RefreshCommandTest extends CommandTestBase {
       ->shouldBeCalled();
 
     // Set helpers.
-    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
-    $this->application->setSshHelper($ssh_helper->reveal());
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->sshHelper = $ssh_helper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

@@ -19,7 +19,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   public function setUp($output = NULL): void {
     parent::setUp($output);
     // We need to call any command accessing the API, doesn't matter which.
-    $this->application->addCommands([new LinkCommand()]);
+    $this->application->add($this->injectCommand(LinkCommand::class));
   }
 
   public function testInvalidApiCreds(): void {
@@ -29,7 +29,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
       ->shouldBeCalled();
     $this->applicationTester->run(['link'], ['interactive' => FALSE]);
     $output = $this->applicationTester->getDisplay();
-    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $output);
-  }
+    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $output);  }
 
 }

@@ -19,12 +19,13 @@ class UpdateCommand extends CommandBase {
   /** @var string */
   protected $pharPath;
 
+  protected static $defaultName = 'self-update';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('self-update')
-      ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded')
+    $this->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded')
       ->setDescription('update to the latest version');
   }
 

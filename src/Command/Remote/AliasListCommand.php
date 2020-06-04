@@ -15,12 +15,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AliasListCommand extends CommandBase {
 
+  protected static $defaultName = 'remote:aliases:list';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:aliases:list')
-      ->setDescription('List all aliases for Acquia Cloud environments')
+    $this->setDescription('List all aliases for Acquia Cloud environments')
       ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
   }
 
@@ -28,7 +29,7 @@ class AliasListCommand extends CommandBase {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $applications_resource = new Applications($acquia_cloud_client);
     $cloud_application_uuid = $this->determineCloudApplication();
     $customer_application = $applications_resource->get($cloud_application_uuid);

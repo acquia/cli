@@ -53,13 +53,13 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
-    $this->passphraseFilepath = $this->getApplication()->getContainer()->get('local_machine_helper')->getLocalFilepath('~/.passphrase');
+    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
     $this->ideUuid = CommandBase::getThisCloudIdeUuid();
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
-    $this->privateSshKeyFilepath = $this->getApplication()->getSshKeysDir() . '/' . $this->privateSshKeyFilename;
+    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
 
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $this->ide = $ides_resource->get($this->ideUuid);
   }
@@ -70,7 +70,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function findIdeSshKeyOnCloud(): ?stdClass {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($this::getThisCloudIdeUuid());
@@ -105,7 +105,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    *
    */
   protected function deleteLocalIdeSshKey(): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->remove([
+    $this->localMachineHelper->getFilesystem()->remove([
       $this->publicSshKeyFilepath,
       $this->privateSshKeyFilepath,
     ]);

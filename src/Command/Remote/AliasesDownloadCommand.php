@@ -24,12 +24,13 @@ class AliasesDownloadCommand extends SshCommand {
   /** @var string */
   private $drushAliasesDir;
 
+  protected static $defaultName = 'remote:aliases:download';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:aliases:download')
-      ->setDescription('Download drush aliases for Acquia Cloud environments');
+    $this->setDescription('Download drush aliases for Acquia Cloud environments');
   }
 
   /**
@@ -38,11 +39,11 @@ class AliasesDownloadCommand extends SshCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
     $drush_archive_filepath = $this->getDrushArchiveTempFilepath();
-    $this->getApplication()->getContainer()->get('local_machine_helper')->writeFile($drush_archive_filepath, $aliases);
+    $this->localMachineHelper->writeFile($drush_archive_filepath, $aliases);
     $drush_aliases_dir = $this->getDrushAliasesDir();
 
     $this->output->writeln(sprintf(
@@ -50,8 +51,8 @@ class AliasesDownloadCommand extends SshCommand {
       $drush_archive_filepath
     ));
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->mkdir($drush_aliases_dir);
-    $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->chmod($drush_aliases_dir, 0700);
+    $this->localMachineHelper->getFilesystem()->mkdir($drush_aliases_dir);
+    $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
     $archive = new PharData($drush_archive_filepath . '/.drush');
     $drushFiles = [];
@@ -94,8 +95,7 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function getDrushAliasesDir(): string {
     if (!isset($this->drushAliasesDir)) {
-      $this->drushAliasesDir = $this->getApplication()
-          ->getContainer()->get('local_machine_helper')
+      $this->drushAliasesDir = $this->localMachineHelper
           ->getLocalFilepath('~') . '/.drush';
     }
 

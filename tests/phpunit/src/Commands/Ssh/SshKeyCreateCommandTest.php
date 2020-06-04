@@ -18,16 +18,15 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyCreateCommand();
+    return $this->injectCommand(SshKeyCreateCommand::class);
   }
 
   /**
    * Tests the 'ssh-key:create' command.
    */
   public function testCreate(): void {
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = Path::join($this->application->getSshKeysDir(), '/' . $ssh_key_filename);
+    $ssh_key_filepath = Path::join($this->sshDir, '/' . $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
 
     $inputs = [

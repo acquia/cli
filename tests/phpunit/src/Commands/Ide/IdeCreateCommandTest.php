@@ -22,7 +22,7 @@ class IdeCreateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
@@ -75,7 +75,7 @@ class IdeCreateCommandTest extends CommandTestBase {
    * @return \Acquia\Cli\Command\Ide\IdeCreateCommand
    */
   protected function createCommand(): Command {
-    return new IdeCreateCommand();
+    return $this->injectCommand(IdeCreateCommand::class);
   }
 
 }

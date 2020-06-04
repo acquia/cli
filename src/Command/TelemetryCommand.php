@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TelemetryCommand extends CommandBase {
 
+  protected static $defaultName = 'telemetry';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('telemetry')->setDescription('Toggle anonymous sharing of usage and performance data');
+    $this->setDescription('Toggle anonymous sharing of usage and performance data');
   }
 
   /**
@@ -26,7 +28,7 @@ class TelemetryCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $datastore = $this->getApplication()->getContainer()->get('acli_datastore');
+    $datastore = $this->acliDatastore;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
       $this->output->writeln('Telemetry has been disabled.');

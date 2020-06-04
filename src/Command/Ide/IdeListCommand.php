@@ -14,11 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeListCommand extends CommandBase {
 
+  protected static $defaultName = 'ide:list';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:list')->setDescription('List available Cloud IDEs');
+    $this->setDescription('List available Cloud IDEs');
     // @todo Add option to specify application uuid.
   }
 
@@ -32,7 +34,7 @@ class IdeListCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $application_ides = $ides_resource->getAll($application_uuid);
 

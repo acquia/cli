@@ -8,7 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeDeleteCommandTest.
+ * Class AuthCommandTest.
  *
  * @property AuthCommand $command
  * @package Acquia\Cli\Tests
@@ -19,7 +19,7 @@ class AuthCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AuthCommand();
+    return $this->injectCommand(AuthCommand::class);
   }
 
   public function providerTestAuthLoginCommand(): array {
@@ -58,7 +58,6 @@ class AuthCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginCommand($inputs, $args): void {
-    $this->setCommand($this->createCommand());
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
@@ -99,7 +98,7 @@ class AuthCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->setCommand($this->createCommand());
+
     try {
       $this->executeCommand($args, $inputs);
     }
@@ -122,7 +121,7 @@ class AuthCommandTest extends CommandTestBase {
   }
 
   protected function assertKeySavedCorrectly(): void {
-    $creds_file = $this->application->getContainer()->getParameter('cloud_config.filepath');
+    $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
     $contents = file_get_contents($creds_file);
     $this->assertJson($contents);
