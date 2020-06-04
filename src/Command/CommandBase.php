@@ -7,7 +7,6 @@ use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Kernel;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -243,14 +242,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
-    $application = $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjects(
       $customer_applications,
       'uuid',
       'name',
       'Please select an Acquia Cloud application:'
     );
-
-    return $application;
   }
 
   /**
@@ -267,14 +264,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $environment_resource = new Environments($acquia_cloud_client);
     $environments = $environment_resource->getAll($application_uuid);
-    $environment = $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjects(
       $environments,
       'uuid',
       'name',
       'Please select an Acquia Cloud environment:'
     );
-
-    return $environment;
   }
 
   /**
@@ -488,7 +483,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * If the local git repository has a remote with a URL that matches an Acquia Cloud application's VCS URL, assume
    * that we have a match.
    *
-   * @param \Acquia\Cli\AcquiaCliApplication $application
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
    * @return \AcquiaCloudApi\Response\ApplicationResponse|null
@@ -530,7 +524,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineCloudEnvironment($application_uuid) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
     return $environment->uuid;

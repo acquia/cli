@@ -7,7 +7,6 @@ use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Kernel;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
@@ -18,13 +17,11 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -138,8 +135,6 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    *
    * @param null $output
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp($output = NULL): void {
     if (!$output) {
@@ -183,9 +178,10 @@ abstract class TestBase extends TestCase {
     // Cloud API service.
     /** @var Client $client */
     $client = $this->clientProphecy->reveal();
-    $serviceProph = $this->prophet->prophesize(ClientService::class);
-    $serviceProph->getClient()->willReturn($client);
-    $container->set('cloud_api', $serviceProph->reveal());
+    /** @var \Prophecy\Prophecy\ObjectProphecy|ClientService $serviceProphecy */
+    $serviceProphecy = $this->prophet->prophesize(ClientService::class);
+    $serviceProphecy->getClient()->willReturn($client);
+    $container->set('cloud_api', $serviceProphecy->reveal());
 
     // Logstream manager.
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
@@ -471,6 +467,7 @@ abstract class TestBase extends TestCase {
   /**
    */
   protected function mockUploadSshKey(): void {
+    /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
