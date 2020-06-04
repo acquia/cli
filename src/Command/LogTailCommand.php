@@ -40,7 +40,7 @@ class LogTailCommand extends CommandBase {
     $logstream->setParams($stream->logstream->params);
     $logstream->setColourise(TRUE);
     $logstream->setLogTypeFilter($log_types);
-    $output->writeln("Streaming has started and new logs will appear below. Use Ctrl+C to exit.");
+    $output->writeln('<info>Streaming has started and new logs will appear below. Use Ctrl+C to exit.</info>');
     $logstream->stream();
     return 0;
   }

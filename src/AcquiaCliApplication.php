@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -68,6 +69,7 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
    * @param string $version
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function __construct(
     Container $container,
@@ -92,6 +94,10 @@ class AcquiaCliApplication extends Application implements LoggerAwareInterface {
           'message',
           "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%\n"
       );
+
+    // Create custom <code> output format.
+    $outputStyle = new OutputFormatterStyle('cyan', NULL);
+    $output->getFormatter()->setStyle('code', $outputStyle);
 
     // Clean up exceptions thrown during commands.
     $dispatcher = new EventDispatcher();

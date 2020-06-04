@@ -51,7 +51,7 @@ class RefreshCommand extends CommandBase {
     // Choose remote environment.
     $cloud_application_uuid = $this->determineCloudApplication();
     $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-    $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
+    $output->writeln('Using Cloud Application <code>' . $cloud_application->name . '</code>');
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     $checklist = new Checklist($output);
@@ -62,8 +62,7 @@ class RefreshCommand extends CommandBase {
     if (!$input->getOption('no-code')) {
       if ($clone) {
         $checklist->addItem('Cloning git repository from Acquia Cloud');
-        // @todo Git clone if no local repo found.
-        $this->pullCodeFromCloud($chosen_environment, $output_callback);
+        $this->cloneFromCloud($chosen_environment, $output_callback);
         $checklist->completePreviousItem();
       }
       else {
@@ -143,34 +142,24 @@ class RefreshCommand extends CommandBase {
    * @param callable $output_callback
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $repo_root = $this->getApplication()->getContainer()->getParameter('repo_root');
-    if (!file_exists($repo_root . '/.git')) {
-      $command = [
-        'git',
-        'clone',
-        $chosen_environment->vcs->url,
-        $this->getApplication()->getContainer()->getParameter('repo_root'),
-      ];
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback);
+    $is_dirty = $this->isLocalGitRepoDirty($repo_root);
+    if ($is_dirty) {
+      throw new AcquiaCliException('Local git is dirty!');
     }
-    else {
-      $is_dirty = $this->isLocalGitRepoDirty($repo_root);
-      if ($is_dirty) {
-        throw new AcquiaCliException('Local git is dirty!');
-      }
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
-        'git',
-        'fetch',
-        '--all',
-      ], $output_callback, $repo_root, FALSE);
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
-        'git',
-        'checkout',
-        $chosen_environment->vcs->path,
-      ], $output_callback, $repo_root, FALSE);
-    }
+    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+      'git',
+      'fetch',
+      '--all',
+    ], $output_callback, $repo_root, FALSE);
+    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+      'git',
+      'checkout',
+      $chosen_environment->vcs->path,
+    ], $output_callback, $repo_root, FALSE);
   }
 
   /**
@@ -575,6 +564,26 @@ class RefreshCommand extends CommandBase {
       }
     }
     return $clone;
+  }
+
+  /**
+   * @param $chosen_environment
+   * @param \Closure $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function cloneFromCloud($chosen_environment, \Closure $output_callback): void {
+    $command = [
+      'git',
+      'clone',
+      $chosen_environment->vcs->url,
+      $this->getApplication()->getContainer()->getParameter('repo_root'),
+    ];
+    /** @var \Symfony\Component\Process\Process $process */
+    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
 }
