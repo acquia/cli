@@ -44,9 +44,8 @@ class ApiCommandBase extends CommandBase {
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     if ($this->queryParams) {
       foreach ($this->queryParams as $key) {
-        $value = $input->getOption($key);
-        if ($value !== NULL) {
-          $acquia_cloud_client->addQuery($key, $value);
+        if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getOption($key));
         }
       }
     }
