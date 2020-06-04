@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
