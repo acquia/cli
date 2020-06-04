@@ -13,6 +13,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -111,6 +112,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $clientService;
 
   /**
+   * @var \AcquiaLogstream\LogstreamManager
+   */
+  protected $logstreamManager;
+
+  /**
    * CommandBase constructor.
    *
    * @param string $cloudConfigFilepath
@@ -122,7 +128,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $acliConfigFilename
    * @param string $repoRoot
    */
-  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, JsonFileStore $datastoreAcli, TelemetryHelper $telemetryHelper, Amplitude $amplitude, string $acliConfigFilename, string $repoRoot, ClientService $clientService) {
+  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, JsonFileStore $datastoreAcli, TelemetryHelper $telemetryHelper, Amplitude $amplitude, string $acliConfigFilename, string $repoRoot, ClientService $clientService, LogstreamManager $logstreamManager) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
@@ -132,6 +138,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->acliConfigFilename = $acliConfigFilename;
     $this->repoRoot = $repoRoot;
     $this->clientService = $clientService;
+    $this->logstreamManager = $logstreamManager;
     parent::__construct();
   }
 

@@ -55,7 +55,7 @@ class IdeCreateCommand extends CommandBase {
     $helper = $this->getHelper('question');
     $ide_label = $helper->ask($input, $output, $question);
 
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.

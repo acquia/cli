@@ -38,7 +38,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
 
@@ -79,7 +79,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       if (strpos($filepath, '.pub') === FALSE) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
-      $public_key = $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
+      $public_key = $this->localMachineHelper->readFile($filepath);
       $chosen_local_key = basename($filepath);
     } else {
       // Get local key and contents.
@@ -160,7 +160,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         break;
       }
     }
-    return $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
+    return $this->localMachineHelper->readFile($filepath);
   }
 
   /**

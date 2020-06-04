@@ -51,7 +51,7 @@ class RefreshCommand extends CommandBase {
     // Choose remote environment.
     $cloud_application_uuid = $this->determineCloudApplication();
     // @todo Write name of Cloud application to screen.
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist) {
@@ -112,8 +112,8 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushHasActiveDatabaseConnection(): bool {
-    if ($this->getApplication()->getContainer()->get('local_machine_helper')->commandExists('drush')) {
-      $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    if ($this->localMachineHelper->commandExists('drush')) {
+      $process = $this->localMachineHelper->execute([
         'drush',
         'status',
         '--fields=db-status,drush-version',
@@ -147,19 +147,19 @@ class RefreshCommand extends CommandBase {
         $chosen_environment->vcs->url,
         $this->repoRoot,
       ];
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback);
+      $this->localMachineHelper->execute($command, $output_callback);
     }
     else {
       $is_dirty = $this->isLocalGitRepoDirty($repo_root);
       if ($is_dirty) {
         throw new AcquiaCliException('Local git is dirty!');
       }
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+      $this->localMachineHelper->execute([
         'git',
         'fetch',
         '--all',
       ], $output_callback, $repo_root, FALSE);
-      $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+      $this->localMachineHelper->execute([
         'git',
         'checkout',
         $chosen_environment->vcs->path,
@@ -221,9 +221,9 @@ class RefreshCommand extends CommandBase {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
     $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command]);
     if ($process->isSuccessful()) {
-      $filepath = $this->getApplication()->getContainer()->get('local_machine_helper')->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
+      $filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
-      $this->getApplication()->getContainer()->get('local_machine_helper')->writeFile($filepath, $process->getOutput());
+      $this->localMachineHelper->writeFile($filepath, $process->getOutput());
 
       return $filepath;
     }
@@ -252,7 +252,7 @@ class RefreshCommand extends CommandBase {
       '-e',
       'DROP DATABASE IF EXISTS ' . $db_name,
     ];
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -276,7 +276,7 @@ class RefreshCommand extends CommandBase {
       '-e',
       'create database ' . $db_name,
     ];
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -293,7 +293,7 @@ class RefreshCommand extends CommandBase {
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
     // @see https://github.com/symfony/symfony/issues/10025.
     $command = '';
-    if ($this->getApplication()->getContainer()->get('local_machine_helper')->commandExists('pv')) {
+    if ($this->localMachineHelper->commandExists('pv')) {
       $command .= 'pv ';
     }
     else {
@@ -308,7 +308,7 @@ class RefreshCommand extends CommandBase {
 
     $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->executeFromCmd($command, $output_callback, NULL, FALSE);
+    $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
   }
 
   /**
@@ -318,7 +318,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function isLocalGitRepoDirty(?string $repo_root): bool {
-    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $process = $this->localMachineHelper->execute([
       'git',
       'diff',
       '--stat',
@@ -428,7 +428,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     // @todo Add support for Drush 8.
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'drush',
       'cache:rebuild',
       '--yes',
@@ -442,7 +442,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'drush',
       'sql:sanitize',
       '--yes',
@@ -456,7 +456,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function composerInstall($output_callback = NULL): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'install',
       '--no-interaction',
@@ -477,7 +477,7 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
       $this->repoRoot . '/docroot/sites/default',
     ];
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute($command, $output_callback, NULL, FALSE);
+    $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
   }
 
   /**

@@ -80,7 +80,7 @@ class SshHelper {
    * @throws \Exception
    */
   protected function sendCommandViaSsh($environment, $command, $print_output): Process {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->setIsTty(TRUE);
+    $this->localMachineHelper->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
     return $this->getApplication()
@@ -113,7 +113,7 @@ class SshHelper {
    * @throws \Exception
    */
   private function getOutputCallback(): callable {
-    if ($this->getApplication()->getContainer()->get('local_machine_helper')->useTty() === FALSE) {
+    if ($this->localMachineHelper->useTty() === FALSE) {
       $output = $this->output;
 
       return static function ($type, $buffer) use ($output) {

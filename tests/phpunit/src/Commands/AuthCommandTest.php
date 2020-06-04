@@ -19,7 +19,7 @@ class AuthCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AuthCommand($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', dirname(dirname(dirname(dirname(__DIR__)))), $this->clientServiceProphecy->reveal());
+    return $this->injectCommand(AuthCommand::class);
   }
 
   public function providerTestAuthLoginCommand(): array {

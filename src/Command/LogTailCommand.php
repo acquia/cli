@@ -29,19 +29,18 @@ class LogTailCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
     $environment_id = $this->determineCloudEnvironment($application_uuid);
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
     $log_types = array_map(function ($log) {
       return $log->type;
     }, $logs);
     $logs_resource = new Logs($acquia_cloud_client);
     $stream = $logs_resource->stream($environment_id);
-    $logstream = $this->getApplication()->getContainer()->get('logstream_manager');
-    $logstream->setParams($stream->logstream->params);
-    $logstream->setColourise(TRUE);
-    $logstream->setLogTypeFilter($log_types);
+    $this->logstreamManager->setParams($stream->logstream->params);
+    $this->logstreamManager->setColourise(TRUE);
+    $this->logstreamManager->setLogTypeFilter($log_types);
     $output->writeln("Streaming has started and new logs will appear below. Use Ctrl+C to exit.");
-    $logstream->stream();
+    $this->logstreamManager->stream();
     return 0;
   }
 

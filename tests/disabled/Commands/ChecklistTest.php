@@ -30,7 +30,7 @@ class ChecklistTest extends TestBase {
     $output_callback = static function ($type, $buffer) use ($checklist) {
       $checklist->updateProgressBar($buffer);
     };
-    $this->application->getContainer()->get('local_machine_helper')->execute(['echo', 'hello world'], $output_callback, NULL, FALSE);
+    $this->localMachineHelper->execute(['echo', 'hello world'], $output_callback, NULL, FALSE);
 
     // Complete the item.
     $checklist->completePreviousItem();

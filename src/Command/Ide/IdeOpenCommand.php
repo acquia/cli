@@ -28,7 +28,7 @@ class IdeOpenCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->clientService->getClient();
     $cloud_application_uuid = $this->determineCloudApplication();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
@@ -38,7 +38,7 @@ class IdeOpenCommand extends IdeCommandBase {
     $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
     $this->output->writeln('Opening your IDE in browser...');
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($ide->links->ide->href);
+    $this->localMachineHelper->startBrowser($ide->links->ide->href);
 
     return 0;
   }

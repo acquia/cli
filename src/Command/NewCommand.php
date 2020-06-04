@@ -51,7 +51,7 @@ class NewCommand extends CommandBase {
     }
 
     // We've deferred all installation until now.
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'update',
     ], NULL, $dir);
@@ -87,7 +87,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function requireDrush(string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'require',
       'drush/drush',
@@ -102,7 +102,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'create-project',
       '--no-install',
@@ -118,18 +118,18 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function initializeGitRepository(string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'init',
     ], NULL, $dir);
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'add',
       '-A',
     ], NULL, $dir);
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'commit',
       '--message',

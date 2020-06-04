@@ -161,31 +161,12 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
     parent::setUp();
-  }
-
-  /**
-   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-   */
-  protected function configureContainer(ContainerBuilder $container): void {
-    // Amplitude service.
-    $container->set('amplitude', $this->amplitudeProphecy->reveal());
-
-    // Cloud API service.
-    /** @var Client $client */
-    $client = $this->clientProphecy->reveal();
-    /** @var \Prophecy\Prophecy\ObjectProphecy|ClientService $serviceProphecy */
-    $serviceProphecy = $this->prophet->prophesize(ClientService::class);
-    $serviceProphecy->getClient()->willReturn($client);
-    $container->set('cloud_api', $serviceProphecy->reveal());
-
-    // Logstream manager.
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $container->set('logstream_manager', $this->logStreamManagerProphecy->reveal());
   }
 
   protected function tearDown(): void {

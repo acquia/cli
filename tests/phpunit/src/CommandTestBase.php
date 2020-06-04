@@ -77,7 +77,17 @@ abstract class CommandTestBase extends TestBase {
    * @return \Symfony\Component\Console\Command\Command
    */
   protected function injectCommand(string $commandName): Command {
-    return new $commandName($this->cloudConfigFilepath, $this->localMachineHelper, $this->cloudDatastore, $this->acliDatastore, $this->telemetryHelper, $this->amplitudeProphecy->reveal(), 'acquia-cli.json', $this->projectFixtureDir, $this->clientServiceProphecy->reveal());
+    return new $commandName(
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->cloudDatastore,
+      $this->acliDatastore,
+      $this->telemetryHelper,
+      $this->amplitudeProphecy->reveal(),
+      $this->acliConfigFilename,
+      $this->projectFixtureDir,
+      $this->clientServiceProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal());
   }
 
   /**
