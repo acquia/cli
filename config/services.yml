@@ -20,63 +20,48 @@ services:
       Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
     public: true
 
-  # Todo: something like the following instead of enumerating classes
-  # Acquia\Cli\:
-    # exclude: ../src/Kernel.php
-    # public: false
-    # resource: ../src
+  # Register nearly all Acquia CLI classes as services.
+  Acquia\Cli\:
+    exclude: [../src/Kernel.php, ../src/Command/Api/ApiCommandBase.php]
+    public: false
+    resource: ../src
 
-  Acquia\Cli\Helpers\ClientService: ~
-
-  Acquia\Cli\Helpers\LocalMachineHelper: ~
-
-  Acquia\Cli\Helpers\TelemetryHelper: ~
-
-  Acquia\Cli\Command\AuthCommand:
+  # All commands inherit from a common base and use the same DI parameters.
+  Acquia\Cli\Command\:
+    resource: ../src/Command
     parent: Acquia\Cli\Command\CommandBase
-
-  Acquia\Cli\Command\LinkCommand:
-    parent: Acquia\Cli\Command\CommandBase
-
-  # Todo: something like the following instead of enumerating commands.
-  # Acquia\Cli\Command\:
-  #   resource: ../src/Command
-  #   parent: Acquia\Cli\Command\CommandBase
-  #   exclude: ../src/Command/CommandBase.php
-
+    exclude: [../src/Command/CommandBase.php, ../src/Command/Api/ApiCommandBase.php]
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
-  AcquiaCloudApi\Connector\Client: ~
-
-  AcquiaCloudApi\Connector\ConnectorInterface: ~
-
-  Psr\Log\LoggerInterface:
-    alias: Symfony\Component\Console\Logger\ConsoleLogger
-
-  Symfony\Component\Console\Application: ~
-
-  Symfony\Component\Console\Input\ArgvInput: ~
-
-  Symfony\Component\Console\Input\InputInterface:
-    alias: Symfony\Component\Console\Input\ArgvInput
-
-  Symfony\Component\Console\Logger\ConsoleLogger: ~
-
-  Symfony\Component\Console\Output\ConsoleOutput: ~
-
-  Symfony\Component\Console\Output\OutputInterface:
-    alias: Symfony\Component\Console\Output\ConsoleOutput
-
-  Zumba\Amplitude\Amplitude: ~
-
+  # We have multiple datastores using the same class, just different arguments.
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
       $path: '%app.cloud_config_filepath%'
       $flags: !php/const Webmozart\KeyValueStore\JsonFileStore::NO_SERIALIZE_STRINGS
-
   datastore.acli:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
       $path: '%app.acli_config_filepath%'
+
+  # AcquiaCloudApi services.
+  AcquiaCloudApi\Connector\Client: ~
+  AcquiaCloudApi\Connector\ConnectorInterface: ~
+
+  # Psr services.
+  Psr\Log\LoggerInterface:
+    alias: Symfony\Component\Console\Logger\ConsoleLogger
+
+  # Symfony services.
+  Symfony\Component\Console\Application: ~
+  Symfony\Component\Console\Input\ArgvInput: ~
+  Symfony\Component\Console\Input\InputInterface:
+    alias: Symfony\Component\Console\Input\ArgvInput
+  Symfony\Component\Console\Logger\ConsoleLogger: ~
+  Symfony\Component\Console\Output\ConsoleOutput: ~
+  Symfony\Component\Console\Output\OutputInterface:
+    alias: Symfony\Component\Console\Output\ConsoleOutput
+
+  # Amplitude service.
+  Zumba\Amplitude\Amplitude: ~
