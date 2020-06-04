@@ -37,7 +37,7 @@ class ApiCommandHelper {
     $api_commands = [];
     foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
-      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal'])
+      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
         continue;
       }
 
