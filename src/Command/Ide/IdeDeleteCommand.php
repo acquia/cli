@@ -13,11 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeDeleteCommand extends IdeCommandBase {
 
+  protected static $defaultName = 'ide:delete';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:delete')->setDescription('Delete a Cloud IDE');
+    $this->setDescription('Delete a Cloud IDE');
     // @todo Add option to accept an ide UUID.
     // @todo Add option to specify application uuid.
   }

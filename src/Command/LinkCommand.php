@@ -11,11 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class LinkCommand extends CommandBase {
 
-  /**
-   * The default command name.
-   *
-   * @var string
-   */
   protected static $defaultName = 'link';
 
   /**

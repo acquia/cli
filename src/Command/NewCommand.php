@@ -13,12 +13,13 @@ use Webmozart\PathUtil\Path;
  */
 class NewCommand extends CommandBase {
 
+  protected static $defaultName = 'new';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('new')
-      ->setDescription('Create a new Drupal project')
+    $this->setDescription('Create a new Drupal project')
       ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, '');
     // @todo Add argument to set destination directory.
   }

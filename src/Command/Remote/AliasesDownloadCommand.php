@@ -24,12 +24,13 @@ class AliasesDownloadCommand extends SshCommand {
   /** @var string */
   private $drushAliasesDir;
 
+  protected static $defaultName = 'remote:aliases:download';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:aliases:download')
-      ->setDescription('Download drush aliases for Acquia Cloud environments');
+    $this->setDescription('Download drush aliases for Acquia Cloud environments');
   }
 
   /**

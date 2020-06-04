@@ -14,12 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DrushCommand extends SSHBaseCommand {
 
+  protected static $defaultName = 'remote:drush';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:drush')
-      ->setAliases(['drush'])
+    $this->setAliases(['drush'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for site & environment in the format `app-name.env`')
       ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')

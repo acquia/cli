@@ -12,12 +12,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
+  protected static $defaultName = 'ssh-key:create-upload';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:create-upload')
-      ->setDescription('Create an SSH key on your local machine and upload it to Acquia Cloud')
+    $this->setDescription('Create an SSH key on your local machine and upload it to Acquia Cloud')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
     ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");

@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeOpenCommand extends IdeCommandBase {
 
+  protected static $defaultName = 'ide:open';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:open')->setDescription('Open a Cloud IDE in your browser');
+    $this->setDescription('Open a Cloud IDE in your browser');
     // @todo Add option to specify application uuid.
     // @todo Add option to accept an ide UUID.
   }

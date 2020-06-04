@@ -48,6 +48,7 @@ services:
   # AcquiaCloudApi services.
   AcquiaCloudApi\Connector\Client: ~
   AcquiaCloudApi\Connector\ConnectorInterface: ~
+  AcquiaLogstream\LogstreamManager: ~
 
   # Psr services.
   Psr\Log\LoggerInterface:

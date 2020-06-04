@@ -19,12 +19,13 @@ use Symfony\Component\Console\Question\Question;
  */
 class SshKeyUploadCommand extends SshKeyCommandBase {
 
+  protected static $defaultName = 'ssh-key:upload';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:upload')
-      ->setDescription('Upload a local SSH key to Acquia Cloud')
+    $this->setDescription('Upload a local SSH key to Acquia Cloud')
       ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
       ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used in Acquia Cloud')
       ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");

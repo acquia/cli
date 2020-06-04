@@ -17,6 +17,8 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
  */
 class RefreshCommand extends CommandBase {
 
+  protected static $defaultName = 'refresh';
+
   /**
    * {inheritdoc}.
    */

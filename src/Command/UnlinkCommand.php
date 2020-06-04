@@ -11,11 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class UnlinkCommand extends CommandBase {
 
-  /**
-   * The default command name.
-   *
-   * @var string
-   */
   protected static $defaultName = 'unlink';
 
   /**

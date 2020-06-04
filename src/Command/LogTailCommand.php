@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class LogTailCommand extends CommandBase {
 
+  protected static $defaultName = 'log:tail';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('log:tail')->setDescription('Tail the logs from your environments');
+    $this->setDescription('Tail the logs from your environments');
     // @todo Add option to accept environment uuid.
   }
 

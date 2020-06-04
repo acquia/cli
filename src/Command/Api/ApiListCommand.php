@@ -12,12 +12,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ApiListCommand extends CommandBase {
 
+  protected static $defaultName = 'api:list';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('api:list')
-      ->setDescription('List all commands in the api namespace')
+    $this->setDescription('List all commands in the api namespace')
       ->setAliases(['api']);
   }
 

@@ -20,11 +20,6 @@ use Symfony\Component\Validator\Validation;
  */
 class AuthCommand extends CommandBase {
 
-  /**
-   * The default command name.
-   *
-   * @var string
-   */
   protected static $defaultName = 'auth:login';
 
   /**

@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshKeyListCommand extends SshKeyCommandBase {
 
+  protected static $defaultName = 'ssh-key:list';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:list')->setDescription('List your local and remote SSH keys');
+    $this->setDescription('List your local and remote SSH keys');
   }
 
   /**
