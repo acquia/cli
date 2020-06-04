@@ -22,7 +22,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AliasesDownloadCommand();
+    return $this->injectCommand(AliasesDownloadCommand::class);
   }
 
   /**

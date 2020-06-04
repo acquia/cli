@@ -18,7 +18,7 @@ class IdeListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new IdeListCommand();
+    return $this->injectCommand(IdeListCommand::class);
   }
 
   /**

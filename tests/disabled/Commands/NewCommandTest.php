@@ -35,7 +35,7 @@ class NewCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new NewCommand();
+    return $this->injectCommand(NewCommand::class);
   }
 
   public function provideTestRefreshCommand() {

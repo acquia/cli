@@ -18,7 +18,7 @@ class AliasesListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AliasListCommand();
+    return $this->injectCommand(AliasListCommand::class);
   }
 
   /**

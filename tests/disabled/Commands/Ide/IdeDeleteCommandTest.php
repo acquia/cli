@@ -18,7 +18,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new IdeDeleteCommand();
+    return $this->injectCommand(IdeDeleteCommand::class);
   }
 
   /**

@@ -18,7 +18,7 @@ class LogTailCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new LogTailCommand();
+    return $this->injectCommand(LogTailCommand::class);
   }
 
   /**

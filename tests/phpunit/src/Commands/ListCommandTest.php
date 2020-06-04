@@ -17,7 +17,7 @@ class ListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new ListCommand();
+    return $this->injectCommand(ListCommand::class);
   }
 
   /**

@@ -18,7 +18,7 @@ class IdeOpenCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new IdeOpenCommand();
+    return $this->injectCommand(IdeOpenCommand::class);
   }
 
   public function setUp($output = NULL): void {

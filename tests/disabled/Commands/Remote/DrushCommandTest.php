@@ -18,7 +18,7 @@ class DrushCommandTest extends SshCommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new DrushCommand();
+    return $this->injectCommand(DrushCommand::class);
   }
 
   /**

@@ -59,7 +59,7 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
    * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
   protected function createCommand(): Command {
-    return new IdeWizardDeleteSshKeyCommand();
+    return $this->injectCommand(IdeWizardDeleteSshKeyCommand::class);
   }
 
   // Test can only be run inside IDE.

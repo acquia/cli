@@ -132,7 +132,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
   protected function createCommand(): Command {
-    return new IdeWizardCreateSshKeyCommand();
+    return $this->injectCommand(IdeWizardCreateSshKeyCommand::class);
   }
 
   // @todo Test that this can only be run inside IDE.

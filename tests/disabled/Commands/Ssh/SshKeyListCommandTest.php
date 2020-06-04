@@ -18,7 +18,7 @@ class SshKeyListCommandTest extends CommandTestBase
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyListCommand();
+    return $this->injectCommand(SshKeyListCommand::class);
   }
 
   /**

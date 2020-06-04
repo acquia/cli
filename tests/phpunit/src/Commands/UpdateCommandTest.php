@@ -21,7 +21,7 @@ class UpdateCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new UpdateCommand();
+    return $this->injectCommand(UpdateCommand::class);
   }
 
   public function testNonPharException(): void {

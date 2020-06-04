@@ -19,7 +19,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyDeleteCommand();
+    return $this->injectCommand(SshKeyDeleteCommand::class);
   }
 
   /**

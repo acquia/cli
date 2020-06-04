@@ -75,7 +75,7 @@ class IdeCreateCommandTest extends CommandTestBase {
    * @return \Acquia\Cli\Command\Ide\IdeCreateCommand
    */
   protected function createCommand(): Command {
-    return new IdeCreateCommand();
+    return $this->injectCommand(IdeCreateCommand::class);
   }
 
 }

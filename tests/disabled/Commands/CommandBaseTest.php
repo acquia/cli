@@ -18,7 +18,7 @@ class CommandBaseTest extends CommandTestBase {
    * @return \Acquia\Cli\Command\LinkCommand
    */
   protected function createCommand(): Command {
-    return new LinkCommand();
+    return $this->injectCommand(LinkCommand::class);
   }
 
   public function testUnauthenticatedFailure(): void {

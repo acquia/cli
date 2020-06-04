@@ -19,7 +19,7 @@ class ApiCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new ApiCommandBase();
+    return $this->injectCommand(ApiCommandBase::class);
   }
 
   /**

@@ -20,7 +20,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyUploadCommand();
+    return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
   /**
