@@ -426,7 +426,9 @@ class RefreshCommandTest extends CommandTestBase {
     $process->getOutput()->willReturn('dbdumpcontents');
     $ssh_helper->executeCommand(
         new EnvironmentResponse($environments_response),
-        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9'])
+        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9'],
+        FALSE
+      )
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
