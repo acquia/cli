@@ -87,7 +87,10 @@ abstract class CommandTestBase extends TestBase {
       $this->acliConfigFilename,
       $this->projectFixtureDir,
       $this->clientServiceProphecy->reveal(),
-      $this->logStreamManagerProphecy->reveal());
+      $this->logStreamManagerProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir
+    );
   }
 
   /**

@@ -36,7 +36,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
     // Choose a local SSH key to upload to Acquia Cloud.
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $inputs = [
       // Choose key.
       '0',

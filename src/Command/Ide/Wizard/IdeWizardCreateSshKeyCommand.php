@@ -238,7 +238,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
       try {
-        $process = $this->getApplication()->getSshHelper()->executeCommand($environment, ['ls'], FALSE);
+        $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
           $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");

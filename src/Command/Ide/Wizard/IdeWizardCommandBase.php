@@ -56,7 +56,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
     $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
     $this->ideUuid = CommandBase::getThisCloudIdeUuid();
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
-    $this->privateSshKeyFilepath = $this->getApplication()->getSshKeysDir() . '/' . $this->privateSshKeyFilename;
+    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
 
     $acquia_cloud_client = $this->clientService->getClient();

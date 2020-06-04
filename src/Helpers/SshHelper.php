@@ -2,35 +2,29 @@
 
 namespace Acquia\Cli\Helpers;
 
-use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
 class SshHelper {
 
-  /** @var \Acquia\Cli\AcquiaCliApplication */
-  protected $application;
-
   /** @var \Symfony\Component\Console\Output\OutputInterface */
   private $output;
 
   /**
-   * SshHelper constructor.
-   *
-   * @param \Acquia\Cli\AcquiaCliApplication $application
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
-  public function __construct($application, OutputInterface $output) {
-    $this->application = $application;
-    $this->output = $output;
-  }
+  private $localMachineHelper;
 
   /**
-   * @return \Acquia\Cli\AcquiaCliApplication
+   * SshHelper constructor.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  public function getApplication(): AcquiaCliApplication {
-    return $this->application;
+  public function __construct(OutputInterface $output, LocalMachineHelper $localMachineHelper) {
+    $this->output = $output;
+    $this->localMachineHelper = $localMachineHelper;
   }
 
   /**
@@ -53,8 +47,8 @@ class SshHelper {
     $process = $this->sendCommandViaSsh($environment, $command_args, $print_output);
 
     /** @var \Acquia\Cli\AcquiaCliApplication $application */
-    $application = $this->getApplication();
-    $application->getLogger()->notice('Command: {command} [Exit: {exit}]', [
+    $logger = new ConsoleLogger($this->output);
+    $logger->notice('Command: {command} [Exit: {exit}]', [
       'env' => $environment->name,
       'command' => $command_summary,
       'exit' => $process->getExitCode(),
@@ -83,9 +77,7 @@ class SshHelper {
     $this->localMachineHelper->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
-    return $this->getApplication()
-      ->getContainer()->get('local_machine_helper')
-      ->execute($command, $this->getOutputCallback(), NULL, $print_output);
+    return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output);
   }
 
   /**

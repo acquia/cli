@@ -124,7 +124,7 @@ class RefreshCommandTest extends CommandTestBase {
 
     // Set helpers.
     $this->localMachineHelper = $local_machine_helper->reveal();
-    $this->application->setSshHelper($ssh_helper->reveal());
+    $this->command->sshHelper = $ssh_helper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
@@ -117,6 +118,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $logstreamManager;
 
   /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  public $sshHelper;
+
+  /**
+   * @var string
+   */
+  protected $sshDir;
+
+  /**
    * CommandBase constructor.
    *
    * @param string $cloudConfigFilepath
@@ -128,7 +139,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $acliConfigFilename
    * @param string $repoRoot
    */
-  public function __construct(string $cloudConfigFilepath, LocalMachineHelper $localMachineHelper, JsonFileStore $datastoreCloud, JsonFileStore $datastoreAcli, TelemetryHelper $telemetryHelper, Amplitude $amplitude, string $acliConfigFilename, string $repoRoot, ClientService $clientService, LogstreamManager $logstreamManager) {
+  public function __construct(
+    string $cloudConfigFilepath,
+    LocalMachineHelper $localMachineHelper,
+    JsonFileStore $datastoreCloud,
+    JsonFileStore $datastoreAcli,
+    TelemetryHelper $telemetryHelper,
+    Amplitude $amplitude,
+    string $acliConfigFilename,
+    string $repoRoot,
+    ClientService $clientService,
+    LogstreamManager $logstreamManager,
+    SshHelper $sshHelper,
+    string $sshDir
+  ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
@@ -139,6 +163,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->repoRoot = $repoRoot;
     $this->clientService = $clientService;
     $this->logstreamManager = $logstreamManager;
+    $this->sshHelper = $sshHelper;
+    $this->sshDir = $sshDir;
     parent::__construct();
   }
 

@@ -41,9 +41,8 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreateUpload(): void {
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
+    $ssh_key_filepath = $this->sshDir . '/' . $ssh_key_filename;
     $this->fs->remove($ssh_key_filepath);
 
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');

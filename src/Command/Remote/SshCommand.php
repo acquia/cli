@@ -36,7 +36,7 @@ class SshCommand extends SshBaseCommand {
     $arguments = $input->getArguments();
     array_shift($arguments);
 
-    return $this->getApplication()->getSshHelper()->executeCommand($environment, $arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $arguments)->getExitCode();
   }
 
 }

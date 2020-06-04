@@ -95,8 +95,7 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function getDrushAliasesDir(): string {
     if (!isset($this->drushAliasesDir)) {
-      $this->drushAliasesDir = $this->getApplication()
-          ->getContainer()->get('local_machine_helper')
+      $this->drushAliasesDir = $this->localMachineHelper
           ->getLocalFilepath('~') . '/.drush';
     }
 

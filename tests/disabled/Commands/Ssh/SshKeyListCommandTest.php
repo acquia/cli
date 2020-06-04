@@ -32,7 +32,6 @@ class SshKeyListCommandTest extends CommandTestBase
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $base_filename = basename($temp_file_name);
     $this->executeCommand();
 

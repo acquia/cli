@@ -15,7 +15,7 @@ abstract class SshKeyCommandBase extends CommandBase {
    */
   protected function findLocalSshKeys(): array {
     $finder = $this->localMachineHelper->getFinder();
-    $finder->files()->in($this->getApplication()->getSshKeysDir())->name('*.pub')->ignoreUnreadableDirs();
+    $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
     return iterator_to_array($finder);
   }
 

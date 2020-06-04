@@ -71,8 +71,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    */
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {
-      $filepath = $this->getApplication()
-        ->getContainer()->get('local_machine_helper')
+      $filepath = $this->localMachineHelper
         ->getLocalFilepath($this->input->getOption('filepath'));
       if (!file_exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);

@@ -6,6 +6,7 @@ use Acquia\Cli\AcquiaCliApplication;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaLogstream\LogstreamManager;
@@ -21,7 +22,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -59,7 +59,7 @@ abstract class TestBase extends TestCase {
   protected $fixtureDir;
 
   /**
-   * @var AcquiaCliApplication
+   * @var Application
    */
   protected $application;
   /**
@@ -132,6 +132,16 @@ abstract class TestBase extends TestCase {
   protected $clientServiceProphecy;
 
   /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  protected $sshHelper;
+
+  /**
+   * @var string
+   */
+  protected $sshDir;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -150,6 +160,7 @@ abstract class TestBase extends TestCase {
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->dataDir = $this->fixtureDir . '/.acquia';
+    $this->sshDir = sys_get_temp_dir();
     $this->acliConfigFilename = 'acquia-cli.json';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
@@ -162,6 +173,7 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();

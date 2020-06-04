@@ -85,8 +85,7 @@ class RefreshCommand extends CommandBase {
     }
 
     if (!$input->getOption('no-scripts')) {
-      if (file_exists($this->repoRoot . '/composer.json') && $this->getApplication()
-        ->getContainer()->get('local_machine_helper')
+      if (file_exists($this->repoRoot . '/composer.json') && $this->localMachineHelper
         ->commandExists('composer')) {
         $checklist->addItem('Installing Composer dependencies');
         $this->composerInstall($output_callback);
@@ -221,7 +220,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
-    $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command]);
+    $process = $this->sshHelper->executeCommand($environment, [$command]);
     if ($process->isSuccessful()) {
       $filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
@@ -532,7 +531,7 @@ class RefreshCommand extends CommandBase {
     $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
     $sitegroup = reset($ssh_url_parts);
     $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
-    $process = $this->getApplication()->getSshHelper()->executeCommand($cloud_environment, $command);
+    $process = $this->sshHelper->executeCommand($cloud_environment, $command);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
     }

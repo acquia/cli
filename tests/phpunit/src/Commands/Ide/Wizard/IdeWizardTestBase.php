@@ -35,9 +35,9 @@ abstract class IdeWizardTestBase extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $this->getCommandTester();
     $this->application->addCommands([
-      new SshKeyCreateCommand(),
-      new SshKeyDeleteCommand(),
-      new SshKeyUploadCommand(),
+      $this->injectCommand(SshKeyCreateCommand::class),
+      $this->injectCommand(SshKeyDeleteCommand::class),
+      $this->injectCommand(SshKeyUploadCommand::class),
     ]);
 
     $this->remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';

@@ -43,7 +43,7 @@ class DrushCommand extends SSHBaseCommand {
     // Add command to array.
     array_unshift($arguments, "cd /var/www/html/{$alias}/docroot; ", 'drush');
 
-    return $this->getApplication()->getSshHelper()->executeCommand($environment, $arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $arguments)->getExitCode();
   }
 
 }
