@@ -55,7 +55,6 @@ class NewCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testRefreshCommand($project): void {
-    $this->setCommand($this->createCommand());
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
