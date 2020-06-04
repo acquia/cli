@@ -444,8 +444,12 @@ abstract class TestBase extends TestCase {
   }
 
   protected function removeMockConfigFiles(): void {
-    $this->fs->remove($this->application->getContainer()->getParameter('cloud_config.filepath'));
+    $this->removeMockCloudConfigFile();
     $this->removeMockAcliConfigFile();
+  }
+
+  protected function removeMockCloudConfigFile(): void {
+    $this->fs->remove($this->application->getContainer()->getParameter('cloud_config.filepath'));
   }
 
   protected function removeMockAcliConfigFile(): void {

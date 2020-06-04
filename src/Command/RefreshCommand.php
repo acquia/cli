@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class RefreshCommand.
@@ -45,12 +46,12 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // @todo Identify a valid target, throw exception if not found.
-    $this->validateCwdIsValidDrupalProject();
+    $clone = $this->determineCloneProject($output);
 
     // Choose remote environment.
     $cloud_application_uuid = $this->determineCloudApplication();
-    // @todo Write name of Cloud application to screen.
+    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+    $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     $checklist = new Checklist($output);
@@ -58,20 +59,25 @@ class RefreshCommand extends CommandBase {
       $checklist->updateProgressBar($buffer);
     };
 
+    if (!$input->getOption('no-code')) {
+      if ($clone) {
+        $checklist->addItem('Cloning git repository from Acquia Cloud');
+        // @todo Git clone if no local repo found.
+        $this->pullCodeFromCloud($chosen_environment, $output_callback);
+        $checklist->completePreviousItem();
+      }
+      else {
+        $checklist->addItem('Pulling code from Acquia Cloud');
+        $this->pullCodeFromCloud($chosen_environment, $output_callback);
+        $checklist->completePreviousItem();
+      }
+    }
+
     // Copy databases.
     if (!$input->getOption('no-databases')) {
       $database = $this->determineSourceDatabase($acquia_cloud_client, $chosen_environment);
       $checklist->addItem('Importing Drupal database copy from Acquia Cloud');
       $this->importRemoteDatabase($chosen_environment, $database, $output_callback);
-      $checklist->completePreviousItem();
-    }
-
-    // Git clone if no local repo found.
-    // @todo This won't actually execute if repo is missing because of $this->validateCwdIsValidDrupalProject();
-    // This is a bug!
-    if (!$input->getOption('no-code')) {
-      $checklist->addItem('Pulling code from Acquia Cloud');
-      $this->pullCodeFromCloud($chosen_environment, $output_callback);
       $checklist->completePreviousItem();
     }
 
@@ -546,6 +552,29 @@ class RefreshCommand extends CommandBase {
       return json_decode($process->getOutput(), TRUE);
     }
     throw new AcquiaCliException("Could not get ACSF sites");
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function determineCloneProject(OutputInterface $output): bool {
+    $clone = FALSE;
+    if (!$this->getApplication()->getContainer()->getParameter('repo_root')) {
+      $output->writeln('Could not find a local Drupal project. Looked for `docroot/index.php`.');
+      $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
+        TRUE);
+      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      if ($answer) {
+        $clone = TRUE;
+      }
+      else {
+        throw new AcquiaCliException('Please execute this command from within a Drupal project directory');
+      }
+    }
+    return $clone;
   }
 
 }

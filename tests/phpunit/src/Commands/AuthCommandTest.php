@@ -27,18 +27,35 @@ class AuthCommandTest extends CommandTestBase {
     $secret = 'testsecret123123';
     return [
       [
+        FALSE,
         [
-        // Do you want to open this page to generate a token now?
-        'no',
-        // Please enter your API Key:
-        $key,
-        // Please enter your API Secret:
-        $secret,
+          // Do you want to open this page to generate a token now?
+          'no',
+          // Please enter your API Key:
+          $key,
+          // Please enter your API Secret:
+          $secret,
         ],
         // No arguments, all interactive.
         []
       ],
       [
+        TRUE,
+        [
+          // Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
+          'yes',
+          // Do you want to open this page to generate a token now?
+          'no',
+          // Please enter your API Key:
+          $key,
+          // Please enter your API Secret:
+          $secret,
+        ],
+        // No arguments, all interactive.
+        []
+      ],
+      [
+        FALSE,
         // No interaction
         [],
         // Args.
@@ -54,11 +71,16 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @param $inputs
    * @param $args
+   * @param $machine_is_authenticated
    *
    * @throws \Exception
    */
-  public function testAuthLoginCommand($inputs, $args): void {
+  public function testAuthLoginCommand($machine_is_authenticated, $inputs, $args): void {
     $this->setCommand($this->createCommand());
+
+    if (!$machine_is_authenticated) {
+      $this->removeMockCloudConfigFile();
+    }
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
@@ -100,6 +122,7 @@ class AuthCommandTest extends CommandTestBase {
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
     $this->setCommand($this->createCommand());
+    $this->removeMockCloudConfigFile();
     try {
       $this->executeCommand($args, $inputs);
     }
