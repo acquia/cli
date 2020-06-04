@@ -2,55 +2,50 @@
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
-use Acquia\Cli\Command\Remote\DrushCommand;
+use Acquia\Cli\Command\Remote\SshCommand;
+use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DrushCommandTest.
+ * Class SshCommandTest.
  *
- * @property DrushCommand $command
+ * @property SshCommand $command
  * @package Acquia\Cli\Tests\Remote
  */
-class DrushCommandTest extends SshCommandTestBase {
+class SshCommandTest extends SshCommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(DrushCommand::class);
+    return $this->injectCommand(SshCommand::class);
   }
 
   /**
-   * Tests the 'remote:drush' commands.
+   * Tests the 'remote:ssh' commands.
    * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
-  public function testRemoteDrushCommand(): void {
+  public function testRemoteAliasesDownloadCommand(): void {
 
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
-
     $ssh_command = [
       'ssh',
       'site.dev@server-123.hosted.hosting.acquia.com',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
       '-o LogLevel=ERROR',
-      'cd /var/www/html/devcloud2.dev/docroot; ',
-      'drush',
-      'status',
     ];
     $local_machine_helper
       ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
 
     $args = [
       'alias' => 'devcloud2.dev',
-      'drush_command' => 'status',
-      '-vvv' => '',
     ];
     $this->executeCommand($args);
 

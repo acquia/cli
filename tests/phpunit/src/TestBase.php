@@ -67,6 +67,8 @@ abstract class TestBase extends TestCase {
    */
   protected $input;
 
+  protected $output;
+
   /**
    * @var \Prophecy\Prophecy\ObjectProphecy|Amplitude
    */
@@ -156,6 +158,7 @@ abstract class TestBase extends TestCase {
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
     $this->input = new ArrayInput([]);
+    $this->output = $output;
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
