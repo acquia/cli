@@ -1,12 +1,20 @@
 ---
+parameters:
+  env(ACLI_DATA_DIR): "%env(HOME)%"
+  app.data_dir: "%env(HOME)%/.acquia"
+  app.acli_config_filename: 'acquia-cli.json'
+  app.cloud_config_filename: 'cloud_api.conf'
+  app.acli_config_filepath: "%app.data_dir%/%app.acli_config_filename%"
+  app.cloud_config_filepath: "%app.data_dir%/%app.cloud_config_filename%"
+
 services:
 
   _defaults:
     autoconfigure: true
     autowire: true
     bind:
-      $cloudConfigFilepath: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
-      $acliConfigFilename: 'acquia-cli.json'
+      $cloudConfigFilepath: '%app.cloud_config_filepath%'
+      $acliConfigFilename: '%app.acli_config_filename%'
       $repoRoot: "%kernel.project_dir%"
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
       Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
@@ -65,10 +73,10 @@ services:
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
-      $path: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getCloudConfigFilepath()'
-      $flags: 1
+      $path: '%app.cloud_config_filepath%'
+      $flags: !php/const Webmozart\KeyValueStore\JsonFileStore::NO_SERIALIZE_STRINGS
 
   datastore.acli:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
-      $path: '@=service("Acquia\\Cli\\Helpers\\LocalMachineHelper").getAcliConfigFilepath()'
+      $path: '%app.acli_config_filepath%'

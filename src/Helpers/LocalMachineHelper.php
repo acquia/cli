@@ -7,8 +7,6 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 
 /**
@@ -65,19 +63,6 @@ class LocalMachineHelper {
   }
 
   /**
-   * @param string $cmd
-   * @param callable $callback
-   * @param string $cwd
-   * @param bool $print_output
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
-    $process = Process::fromShellCommandline($cmd);
-    return $this->executeProcess($process, $callback, $cwd, $print_output);
-  }
-
-  /**
    * @param \Symfony\Component\Process\Process $process
    * @param callable $callback
    * @param string $cwd
@@ -107,45 +92,6 @@ class LocalMachineHelper {
   }
 
   /**
-   * Returns a set-up filesystem object.
-   *
-   * @return \Symfony\Component\Filesystem\Filesystem
-   */
-  public function getFilesystem(): Filesystem {
-    return new Filesystem();
-  }
-
-  /**
-   * Returns a finder object.
-   *
-   * @return \Symfony\Component\Finder\Finder
-   */
-  public function getFinder(): Finder {
-    return new Finder();
-  }
-
-  /**
-   * Reads to a file from the local system.
-   *
-   * @param string $filename
-   *   Name of the file to read.
-   *
-   * @return string Content read from that file
-   */
-  public function readFile($filename): string {
-    return file_get_contents($this->getLocalFilepath($filename));
-  }
-
-  /**
-   * @param $filepath
-   *
-   * @return string
-   */
-  public function getLocalFilepath($filepath): string {
-    return $this->fixFilename($filepath);
-  }
-
-  /**
    * Determine whether the use of a tty is appropriate.
    *
    * @return bool
@@ -172,36 +118,6 @@ class LocalMachineHelper {
   }
 
   /**
-   * @param bool $isTty
-   */
-  public function setIsTty($isTty): void {
-    $this->isTty = $isTty;
-  }
-
-  /**
-   * Writes to a file on the local system.
-   *
-   * @param string $filename
-   *   Name of the file to write to.
-   * @param string $content
-   *   Content to write to the file.
-   */
-  public function writeFile($filename, $content): void {
-    $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
-  }
-
-  /**
-   * Accepts a filename/full path and localizes it to the user's system.
-   *
-   * @param string $filename
-   *
-   * @return string
-   */
-  private function fixFilename($filename): string {
-    return str_replace('~', self::getHomeDir(), $filename);
-  }
-
-  /**
    * Returns a set-up process object.
    *
    * @param array $cmd
@@ -214,38 +130,6 @@ class LocalMachineHelper {
     $process->setTimeout(600);
 
     return $process;
-  }
-
-  /**
-   * Returns the appropriate home directory.
-   *
-   * Adapted from Ads Package Manager by Ed Reel.
-   *
-   * @return string
-   * @author Ed Reel <@uberhacker>
-   * @url https://github.com/uberhacker/tpm
-   */
-  public static function getHomeDir(): string {
-    $home = getenv('HOME');
-    if (!$home) {
-      $system = '';
-      if (getenv('MSYSTEM') !== NULL) {
-        $system = strtoupper(substr(getenv('MSYSTEM'), 0, 4));
-      }
-      if ($system !== 'MING') {
-        $home = getenv('HOMEPATH');
-      }
-    }
-
-    return $home;
-  }
-
-  public static function getCloudConfigFilepath(): string {
-    return self::getHomeDir() . '/.acquia/cloud_api.conf';
-  }
-
-  public static function getAcliConfigFilepath(): string {
-    return self::getHomeDir() . '/.acquia/acquia-cli.json';
   }
 
   /**
