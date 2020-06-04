@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\OsInfo;
@@ -147,7 +148,7 @@ class TelemetryHelper {
    */
   protected function getUserData(): ?array {
     $user = $this->acliDatastore->get(DataStoreContract::USER);
-    if (!$user && AcquiaCliApplication::isMachineAuthenticated($this->cloudDatastore)) {
+    if (!$user && CommandBase::isMachineAuthenticated($this->cloudDatastore)) {
       $this->setDefaultUserData();
       $user = $this->acliDatastore->get(DataStoreContract::USER);
     }
