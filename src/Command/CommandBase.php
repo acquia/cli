@@ -12,6 +12,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use ArrayObject;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -683,6 +684,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $applications_resource = new Applications($acquia_cloud_client);
 
     return $applications_resource->get($application_uuid);
+  }
+
+  /**
+   * @param $environment_id
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Exception
+   */
+  protected function getCloudEnvironment($environment_id): EnvironmentResponse {
+    /** @var Client $acquia_cloud_client */
+    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $environment_resource = new Environments($acquia_cloud_client);
+
+    return $environment_resource->get($environment_id);
   }
 
 }

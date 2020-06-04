@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -24,7 +25,7 @@ class RefreshCommand extends CommandBase {
   protected function configure() {
     $this->setName('refresh')
       ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
-      ->addOption('from', NULL, InputOption::VALUE_NONE, 'The source environment')
+      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
       ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')
@@ -35,7 +36,6 @@ class RefreshCommand extends CommandBase {
             'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
         )
       ->addOption('scripts', NULL, InputOption::VALUE_NONE, 'Only execute additional scripts');
-    // @todo Add option to allow specifying source environment uuid.
   }
 
   /**
@@ -47,13 +47,19 @@ class RefreshCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $clone = $this->determineCloneProject($output);
-
-    // Choose remote environment.
-    $cloud_application_uuid = $this->determineCloudApplication();
-    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-    $output->writeln('Using Cloud Application <code>' . $cloud_application->name . '</code>');
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
-    $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
+
+    if ($input->getOption('cloud-env-uuid')) {
+      $environment_id = $input->getOption('cloud-env-uuid');
+      $chosen_environment = $this->getCloudEnvironment($environment_id);
+    }
+    else {
+      $cloud_application_uuid = $this->determineCloudApplication();
+      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+      $output->writeln('Using Cloud Application <code>' . $cloud_application->name . '</code>');
+      $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
+    }
+
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist) {
       $checklist->updateProgressBar($buffer);
@@ -552,7 +558,7 @@ class RefreshCommand extends CommandBase {
   protected function determineCloneProject(OutputInterface $output): bool {
     $clone = FALSE;
     if (!$this->getApplication()->getContainer()->getParameter('repo_root')) {
-      $output->writeln('Could not find a local Drupal project. Looked for `docroot/index.php`.');
+      $output->writeln('Could not find a local Drupal project. Looked for <code>docroot/index.php</code> in current and parent directories.');
       $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);

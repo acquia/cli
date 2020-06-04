@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command;
 
 use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -15,8 +16,9 @@ class LogTailCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('log:tail')->setDescription('Tail the logs from your environments');
-    // @todo Add option to accept environment uuid.
+    $this->setName('log:tail')
+      ->setDescription('Tail the logs from your environments')
+      ->addOption('cloud-env-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud environment');
   }
 
   /**
@@ -27,8 +29,13 @@ class LogTailCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $application_uuid = $this->determineCloudApplication();
-    $environment_id = $this->determineCloudEnvironment($application_uuid);
+    if ($input->getOption('cloud-env-uuid')) {
+      $environment_id = $input->getOption('cloud-env-uuid');
+    }
+    else {
+      $application_uuid = $this->determineCloudApplication();
+      $environment_id = $this->determineCloudEnvironment($application_uuid);
+    }
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
     $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
     $log_types = array_map(function ($log) {
