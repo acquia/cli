@@ -23,8 +23,8 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $this->setCommand($this->createCommand());
     $this->getCommandTester();
     $this->application->addCommands([
-      new SshKeyCreateCommand(),
-      new SshKeyUploadCommand(),
+      $this->injectCommand(SshKeyCreateCommand::class),
+      $this->injectCommand(SshKeyUploadCommand::class),
     ]);
   }
 
