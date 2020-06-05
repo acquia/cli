@@ -1,6 +1,6 @@
 ---
 parameters:
-  env(ACLI_DATA_DIR): "%env(HOME)%"
+  env(ACLI_REPO_ROOT): "%kernel.project_dir%"
   app.data_dir: "%env(HOME)%/.acquia"
   app.repo_root: "%env(ACLI_REPO_ROOT)%"
   app.ssh_dir: "%env(HOME)%/.ssh"
