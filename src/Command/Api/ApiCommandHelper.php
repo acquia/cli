@@ -262,24 +262,28 @@ class ApiCommandHelper {
    */
   protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
     $input_definition = [];
+    $usage = '';
     // Parameters to be used in the request query and path.
     if (array_key_exists('parameters', $schema)) {
-      [$query_input_definition, $usage] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
+      [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($query_input_definition as $parameter_definition) {
+        // @todo Add path parameters to a different array.
         $command->addQueryParameter($parameter_definition->getName());
       }
-      array_merge($input_definition, $query_input_definition);
+      $usage .= $query_param_usage_suffix;
+      $input_definition += $query_input_definition;
     }
 
     // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
-      [$body_input_definition, $usage] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
+      [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
         $command->addPostParameter($parameter_definition->getName());
       }
-      array_merge($input_definition, $body_input_definition);
+      $usage .= $request_body_param_usage_suffix;
+      $input_definition += $body_input_definition;
     }
 
     if (isset($input_definition)) {
