@@ -14,6 +14,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Psr\Log\LoggerAwareInterface;
@@ -564,9 +565,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudApplication($link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
-      $acquia_cloud_client = $this->cloudApiClientService->getClient();
-      $applications_resource = new Applications($acquia_cloud_client);
-      $application = $applications_resource->get($application_uuid);
+      $application = $this->getCloudApplication($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
@@ -746,6 +745,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localProjectInfo = $local_user_config;
     $this->logger->debug('Saving local project information.');
     $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
+  }
+
+  /**
+   * @param $application_uuid
+   *
+   * @return \AcquiaCloudApi\Response\ApplicationResponse
+   * @throws \Exception
+   */
+  protected function getCloudApplication($application_uuid): ApplicationResponse {
+    $applications_resource = new Applications($this->cloudApiClientService->getClient());
+
+    return $applications_resource->get($application_uuid);
+  }
+
+  /**
+   * @param $environment_id
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Exception
+   */
+  protected function getCloudEnvironment($environment_id): EnvironmentResponse {
+    $environment_resource = new Environments($this->cloudApiClientService->getClient());
+
+    return $environment_resource->get($environment_id);
   }
 
 }
