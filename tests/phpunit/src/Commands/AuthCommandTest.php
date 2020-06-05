@@ -27,18 +27,35 @@ class AuthCommandTest extends CommandTestBase {
     $secret = 'testsecret123123';
     return [
       [
+        FALSE,
         [
-        // Do you want to open this page to generate a token now?
-        'no',
-        // Please enter your API Key:
-        $key,
-        // Please enter your API Secret:
-        $secret,
+          // Do you want to open this page to generate a token now?
+          'no',
+          // Please enter your API Key:
+          $key,
+          // Please enter your API Secret:
+          $secret,
         ],
         // No arguments, all interactive.
         []
       ],
       [
+        TRUE,
+        [
+          // Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
+          'yes',
+          // Do you want to open this page to generate a token now?
+          'no',
+          // Please enter your API Key:
+          $key,
+          // Please enter your API Secret:
+          $secret,
+        ],
+        // No arguments, all interactive.
+        []
+      ],
+      [
+        FALSE,
         // No interaction
         [],
         // Args.
