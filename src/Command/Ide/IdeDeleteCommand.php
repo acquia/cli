@@ -13,11 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeDeleteCommand extends IdeCommandBase {
 
+  protected static $defaultName = 'ide:delete';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:delete')->setDescription('Delete a Cloud IDE');
+    $this->setDescription('Delete a Cloud IDE');
     // @todo Add option to accept an ide UUID.
     // @todo Add option to specify application uuid.
   }
@@ -30,7 +32,7 @@ class IdeDeleteCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     $cloud_application_uuid = $this->determineCloudApplication();

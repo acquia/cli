@@ -20,6 +20,8 @@ use Symfony\Component\Console\Question\Question;
  */
 class IdeCreateCommand extends CommandBase {
 
+  protected static $defaultName = 'ide:create';
+
   /**
    * @var \AcquiaCloudApi\Response\IdeResponse
    */
@@ -34,8 +36,7 @@ class IdeCreateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create a Cloud IDE for development')
-      ->setName('ide:create');
+    $this->setDescription('Create a Cloud IDE for development');
     // @todo Add option to accept an IDE label.
     // @todo Add option to specify application uuid.
   }
@@ -55,7 +56,7 @@ class IdeCreateCommand extends CommandBase {
     $helper = $this->getHelper('question');
     $ide_label = $helper->ask($input, $output, $question);
 
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.

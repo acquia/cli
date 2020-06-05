@@ -62,14 +62,13 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-    $this->application->setSshHelper($ssh_helper->reveal());
+    $this->command->sshHelper = $ssh_helper->reveal();
 
     // Remove SSH key if it exists.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
     $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
 
     // Set properties and execute.
-    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
     $this->executeCommand([], [
       // Would you like to link the project at ... ?
       'y',
@@ -77,17 +76,16 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Assertions.
     $this->prophet->checkPredictions();
-    $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename);
-    $this->assertFileExists($this->command->getApplication()->getSshKeysDir() . '/' . str_replace('.pub', '', $ssh_key_filename));
+    $this->assertFileExists($this->sshDir . '/' . $ssh_key_filename);
+    $this->assertFileExists($this->sshDir . '/' . str_replace('.pub', '', $ssh_key_filename));
   }
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testSshKeyAlreadyUploaded(): void {
-    $this->setCommand($this->createCommand());
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $label = $this->command->getIdeSshKeyLabel($this->ide);
+    $this->command->getIdeSshKeyLabel($this->ide);
     $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     // Make the uploaded key match the created one.
     $ssh_keys_response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
@@ -115,11 +113,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-    $this->application->setSshHelper($ssh_helper->reveal());
+    $this->command->sshHelper = $ssh_helper->reveal();
 
-    $public_key_file_path = $this->createLocalSshKey($mock_request_args['public_key']);
-    $base_filename = basename($public_key_file_path);
-    $this->application->setSshKeysDir(sys_get_temp_dir());
+    $this->createLocalSshKey($mock_request_args['public_key']);
     try {
       $this->executeCommand([], []);
     }
@@ -132,7 +128,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
   protected function createCommand(): Command {
-    return new IdeWizardCreateSshKeyCommand();
+    return $this->injectCommand(IdeWizardCreateSshKeyCommand::class);
   }
 
   // @todo Test that this can only be run inside IDE.

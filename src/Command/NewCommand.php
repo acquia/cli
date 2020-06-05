@@ -13,12 +13,13 @@ use Webmozart\PathUtil\Path;
  */
 class NewCommand extends CommandBase {
 
+  protected static $defaultName = 'new';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('new')
-      ->setDescription('Create a new Drupal project')
+    $this->setDescription('Create a new Drupal project')
       ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, '');
     // @todo Add argument to set destination directory.
   }
@@ -51,7 +52,7 @@ class NewCommand extends CommandBase {
     }
 
     // We've deferred all installation until now.
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'update',
     ], NULL, $dir);
@@ -87,7 +88,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function requireDrush(string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'require',
       'drush/drush',
@@ -102,7 +103,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'composer',
       'create-project',
       '--no-install',
@@ -118,18 +119,18 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function initializeGitRepository(string $dir): void {
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'init',
     ], NULL, $dir);
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'add',
       '-A',
     ], NULL, $dir);
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $this->localMachineHelper->execute([
       'git',
       'commit',
       '--message',

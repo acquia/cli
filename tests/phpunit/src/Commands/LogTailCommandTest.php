@@ -18,7 +18,7 @@ class LogTailCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new LogTailCommand();
+    return $this->injectCommand(LogTailCommand::class);
   }
 
   /**
@@ -27,7 +27,6 @@ class LogTailCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLogTailCommand(): void {
-    $this->setCommand($this->createCommand());
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

@@ -21,11 +21,11 @@ class UpdateCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new UpdateCommand();
+    return $this->injectCommand(UpdateCommand::class);
   }
 
   public function testNonPharException(): void {
-    $this->setCommand($this->createCommand());
+
     try {
       $this->executeCommand([], []);
     }
@@ -38,7 +38,7 @@ class UpdateCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    */
   public function testDownloadUpdate(): void {
-    $this->setCommand($this->createCommand());
+
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->fs->chmod($stub_phar, 0751);
     $original_file_perms = fileperms($stub_phar);

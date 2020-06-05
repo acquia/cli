@@ -13,12 +13,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshKeyDeleteCommand extends CommandBase {
 
+  protected static $defaultName = 'ssh-key:delete';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:delete')
-      ->setDescription('Delete an SSH key')
+    $this->setDescription('Delete an SSH key')
       ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
   }
 
@@ -32,7 +33,7 @@ class SshKeyDeleteCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_key = $this->determineCloudKey($acquia_cloud_client);
 
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);

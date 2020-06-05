@@ -39,6 +39,8 @@ jobs:
     - stage: "Build packages for CLI"
       if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
+      # Warm the symfony cache so it gets bundled with phar.
+      before_script: ./bin/acli
       script: composer box-compile
       deploy:
         provider: releases

@@ -19,7 +19,7 @@ class ApiCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new ApiCommandBase();
+    return $this->injectCommand(ApiCommandBase::class);
   }
 
   /**
@@ -125,7 +125,20 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommandByName($name): ?ApiCommandBase {
-    $api_command_helper = new ApiCommandHelper();
+    $api_command_helper = new ApiCommandHelper(
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->cloudDatastore,
+      $this->acliDatastore,
+      $this->telemetryHelper,
+      $this->amplitudeProphecy->reveal(),
+      $this->acliConfigFilename,
+      $this->projectFixtureDir,
+      $this->clientServiceProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir
+    );
     $api_commands = $api_command_helper->getApiCommands();
     foreach ($api_commands as $api_command) {
       if ($api_command->getName() === $name) {

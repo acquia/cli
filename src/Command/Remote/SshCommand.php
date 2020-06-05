@@ -14,12 +14,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshCommand extends SshBaseCommand {
 
+  protected static $defaultName = 'remote:ssh';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('remote:ssh')
-      ->setDescription('Open a new SSH connection to an Acquia Cloud environment')
+    $this->setDescription('Open a new SSH connection to an Acquia Cloud environment')
       ->addArgument('alias', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
       ->addUsage(" <app>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
   }
@@ -35,7 +36,7 @@ class SshCommand extends SshBaseCommand {
     $arguments = $input->getArguments();
     array_shift($arguments);
 
-    return $this->getApplication()->getSshHelper()->executeCommand($environment, $arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $arguments)->getExitCode();
   }
 
 }

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\SshCommand;
+use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
@@ -18,7 +19,7 @@ class SshCommandTest extends SshCommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshCommand();
+    return $this->injectCommand(SshCommand::class);
   }
 
   /**
@@ -26,7 +27,7 @@ class SshCommandTest extends SshCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesDownloadCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
     $ssh_command = [
@@ -40,7 +41,8 @@ class SshCommandTest extends SshCommandTestBase {
       ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
 
     $args = [
       'alias' => 'devcloud2.dev',

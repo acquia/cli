@@ -19,12 +19,13 @@ use Symfony\Component\Console\Question\Question;
  */
 class SshKeyUploadCommand extends SshKeyCommandBase {
 
+  protected static $defaultName = 'ssh-key:upload';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:upload')
-      ->setDescription('Upload a local SSH key to Acquia Cloud')
+    $this->setDescription('Upload a local SSH key to Acquia Cloud')
       ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
       ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used in Acquia Cloud')
       ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");
@@ -38,7 +39,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
 
@@ -70,8 +71,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    */
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {
-      $filepath = $this->getApplication()
-        ->getContainer()->get('local_machine_helper')
+      $filepath = $this->localMachineHelper
         ->getLocalFilepath($this->input->getOption('filepath'));
       if (!file_exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
@@ -79,7 +79,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       if (strpos($filepath, '.pub') === FALSE) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
-      $public_key = $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
+      $public_key = $this->localMachineHelper->readFile($filepath);
       $chosen_local_key = basename($filepath);
     } else {
       // Get local key and contents.
@@ -160,7 +160,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         break;
       }
     }
-    return $this->getApplication()->getContainer()->get('local_machine_helper')->readFile($filepath);
+    return $this->localMachineHelper->readFile($filepath);
   }
 
   /**

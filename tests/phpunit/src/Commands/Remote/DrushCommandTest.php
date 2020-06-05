@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\DrushCommand;
+use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
@@ -18,7 +19,7 @@ class DrushCommandTest extends SshCommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new DrushCommand();
+    return $this->injectCommand(DrushCommand::class);
   }
 
   /**
@@ -27,7 +28,7 @@ class DrushCommandTest extends SshCommandTestBase {
    * @throws \Exception
    */
   public function testRemoteDrushCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
 
@@ -45,7 +46,8 @@ class DrushCommandTest extends SshCommandTestBase {
       ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
 
     $args = [
       'alias' => 'devcloud2.dev',
@@ -56,7 +58,7 @@ class DrushCommandTest extends SshCommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
   }
 
 }

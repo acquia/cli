@@ -2,17 +2,135 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\Helpers\ClientService;
+use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Helpers\TelemetryHelper;
+use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Yaml\Yaml;
+use Webmozart\KeyValueStore\JsonFileStore;
+use Zumba\Amplitude\Amplitude;
 
 /**
  *
  */
 class ApiCommandHelper {
+
+  /**
+   * @var \Symfony\Component\Console\Input\InputInterface
+   */
+  protected $input;
+
+  /**
+   * @var \Symfony\Component\Console\Output\OutputInterface
+   */
+  protected $output;
+
+  /**
+   * @var \Symfony\Component\Console\Helper\FormatterHelper*/
+  protected $formatter;
+
+  /**
+   * @var \Acquia\Cli\Helpers\TelemetryHelper
+   */
+  protected $telemetryHelper;
+
+  /**
+   * @var LocalMachineHelper
+   */
+  public $localMachineHelper;
+
+  /**
+   * @var JsonFileStore
+   */
+  protected $datastoreCloud;
+
+  /**
+   * @var \Webmozart\KeyValueStore\JsonFileStore
+   */
+  protected $acliDatastore;
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilename;
+
+  /**
+   * @var \Zumba\Amplitude\Amplitude
+   */
+  protected $amplitude;
+
+  protected $repoRoot;
+
+  /**
+   * @var \Acquia\Cli\Helpers\ClientService
+   */
+  protected $cloudApiClientService;
+
+  /**
+   * @var \AcquiaLogstream\LogstreamManager
+   */
+  protected $logstreamManager;
+
+  /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  public $sshHelper;
+
+  /**
+   * @var string
+   */
+  protected $sshDir;
+
+  /**
+   * CommandBase constructor.
+   *
+   * @param string $cloudConfigFilepath
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
+   * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
+   * @param \Zumba\Amplitude\Amplitude $amplitude
+   * @param string $acliConfigFilename
+   * @param string $repoRoot
+   */
+  public function __construct(
+    string $cloudConfigFilepath,
+    LocalMachineHelper $localMachineHelper,
+    JsonFileStore $datastoreCloud,
+    JsonFileStore $datastoreAcli,
+    TelemetryHelper $telemetryHelper,
+    Amplitude $amplitude,
+    string $acliConfigFilename,
+    string $repoRoot,
+    ClientService $cloudApiClientService,
+    LogstreamManager $logstreamManager,
+    SshHelper $sshHelper,
+    string $sshDir
+  ) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
+    $this->localMachineHelper = $localMachineHelper;
+    $this->datastoreCloud = $datastoreCloud;
+    $this->acliDatastore = $datastoreAcli;
+    $this->telemetryHelper = $telemetryHelper;
+    $this->amplitude = $amplitude;
+    $this->acliConfigFilename = $acliConfigFilename;
+    $this->repoRoot = $repoRoot;
+    $this->cloudApiClientService = $cloudApiClientService;
+    $this->logstreamManager = $logstreamManager;
+    $this->sshHelper = $sshHelper;
+    $this->sshDir = $sshDir;
+  }
 
   /**
    * @return ApiCommandBase[]
@@ -49,7 +167,19 @@ class ApiCommandHelper {
         }
 
         $command_name = 'api:' . $schema['x-cli-name'];
-        $command = new ApiCommandBase($command_name);
+        $command = new ApiCommandBase(
+          $this->cloudConfigFilepath,
+     $this->localMachineHelper,
+     $this->datastoreCloud,
+     $this->acliDatastore,
+     $this->telemetryHelper,
+     $this->amplitude,
+     $this->acliConfigFilename,
+     $this->repoRoot,
+     $this->cloudApiClientService,
+     $this->logstreamManager,
+     $this->sshHelper,
+     $this->sshDir);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
         $command->setMethod($method);

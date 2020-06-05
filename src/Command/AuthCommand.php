@@ -17,17 +17,16 @@ use Symfony\Component\Validator\Validation;
 
 /**
  * Class CreateProjectCommand.
- *
- * @package Grasmash\YamlCli\Command
  */
 class AuthCommand extends CommandBase {
+
+  protected static $defaultName = 'auth:login';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('auth:login')
-      ->setDescription('Register your Cloud API key and secret to use API functionality')
+    $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
   }
@@ -47,7 +46,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->getApplication()->getContainer()->getParameter('cloud_config.filepath')}</info>");
+    $output->writeln("<info>Saved credentials to {$this->cloudConfigFilepath}</info>");
 
     return 0;
   }
@@ -103,7 +102,7 @@ class AuthCommand extends CommandBase {
     }
     else {
       $question = new Question('<question>Please enter your API Secret:</question>');
-      $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
+      $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->questionHelper->ask($input, $output, $question);
@@ -119,8 +118,8 @@ class AuthCommand extends CommandBase {
    * @throws \Exception
    */
   protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
-    $this->getApplication()->getContainer()->get('cloud_datastore')->set('key', $api_key);
-    $this->getApplication()->getContainer()->get('cloud_datastore')->set('secret', $api_secret);
+    $this->datastoreCloud->set('key', $api_key);
+    $this->datastoreCloud->set('secret', $api_secret);
   }
 
   /**
@@ -142,7 +141,7 @@ class AuthCommand extends CommandBase {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
           TRUE);
         if ($this->questionHelper->ask($input, $output, $question)) {
-          $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($token_url);
+          $this->localMachineHelper->startBrowser($token_url);
         }
       }
     }

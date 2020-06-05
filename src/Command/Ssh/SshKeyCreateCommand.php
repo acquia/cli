@@ -19,12 +19,13 @@ use Symfony\Component\Validator\Validation;
  */
 class SshKeyCreateCommand extends SshKeyCommandBase {
 
+  protected static $defaultName = 'ssh-key:create';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ssh-key:create')
-      ->setDescription('Create an SSH key on your local machine')
+    $this->setDescription('Create an SSH key on your local machine')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
   }
@@ -54,12 +55,12 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     $filename = $this->determineFilename($input, $output);
     $password = $this->determinePassword($input, $output);
 
-    $filepath = $this->getApplication()->getSshKeysDir() . '/' . $filename;
+    $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
       throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry.', ['filepath' => $filepath]);
     }
 
-    $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
+    $process = $this->localMachineHelper->execute([
       'ssh-keygen',
       '-b',
       '4096',
@@ -130,7 +131,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     }
     else {
       $question = new Question('<question>Enter a password for your SSH key:</question> ');
-      $question->setHidden($this->getApplication()->getContainer()->get('local_machine_helper')->useTty());
+      $question->setHidden($this->localMachineHelper->useTty());
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });

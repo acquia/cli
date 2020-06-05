@@ -41,7 +41,7 @@ class ApiCommandBase extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     // Build query from non-null options.
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if ($this->queryParams) {
       foreach ($this->queryParams as $key) {
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {

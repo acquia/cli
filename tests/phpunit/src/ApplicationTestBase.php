@@ -9,6 +9,8 @@ class ApplicationTestBase extends TestBase {
 
   protected function setUp($output = NULL): void {
     parent::setUp($output);
+
+    $this->application->setAutoExit(FALSE);
     $this->applicationTester = new ApplicationTester($this->application);
   }
 

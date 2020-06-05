@@ -44,22 +44,21 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 
     // Create the file so it can be deleted.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
-    $this->command->getApplication()->setSshKeysDir(sys_get_temp_dir());
-    $this->fs->touch($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename);
-    $this->fs->dumpFile($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename . '.pub', $mock_body->{'_embedded'}->items[0]->public_key);
+    $this->fs->touch($this->sshDir . '/' . $ssh_key_filename);
+    $this->fs->dumpFile($this->sshDir . '/' . $ssh_key_filename . '.pub', $mock_body->{'_embedded'}->items[0]->public_key);
 
     // Run it!
     $this->executeCommand([]);
 
     $this->prophet->checkPredictions();
-    $this->assertFileDoesNotExist($this->command->getApplication()->getSshKeysDir() . '/' . $ssh_key_filename);
+    $this->assertFileDoesNotExist($this->sshDir . '/' . $ssh_key_filename);
   }
 
   /**
    * @return \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand
    */
   protected function createCommand(): Command {
-    return new IdeWizardDeleteSshKeyCommand();
+    return $this->injectCommand(IdeWizardDeleteSshKeyCommand::class);
   }
 
   // Test can only be run inside IDE.

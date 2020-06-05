@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class LinkCommand extends CommandBase {
 
+  protected static $defaultName = 'link';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('link')->setDescription('Associate your project with an Acquia Cloud application')
+    $this->setDescription('Associate your project with an Acquia Cloud application')
     ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
   }
 

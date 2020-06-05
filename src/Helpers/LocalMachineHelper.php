@@ -4,6 +4,7 @@ namespace Acquia\Cli\Helpers;
 
 use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -29,7 +30,7 @@ class LocalMachineHelper {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param $logger
    */
-  public function __construct(InputInterface $input, OutputInterface $output, $logger) {
+  public function __construct(InputInterface $input, OutputInterface $output, LoggerInterface $logger) {
     $this->input = $input;
     $this->output = $output;
     $this->setLogger($logger);
