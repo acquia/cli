@@ -258,22 +258,29 @@ class ApiCommandHelper {
    * @param \Acquia\Cli\Command\Api\ApiCommandBase $command
    */
   protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
-    // Parameters are only set for GET endpoints.
+    $input_definition = [];
+    $usage = '';
+    // Parameters to be used in the request query and path.
     if (array_key_exists('parameters', $schema)) {
-      [$input_definition, $usage] = $this->addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec);
+      [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
-      foreach ($input_definition as $parameter_definition) {
+      foreach ($query_input_definition as $parameter_definition) {
+        // @todo Add path parameters to a different array.
         $command->addQueryParameter($parameter_definition->getName());
       }
+      $usage .= $query_param_usage_suffix;
+      $input_definition += $query_input_definition;
     }
 
-    // Parameters for POST endpoints.
+    // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
-      [$input_definition, $usage] = $this->addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec);
+      [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
-      foreach ($input_definition as $parameter_definition) {
+      foreach ($body_input_definition as $parameter_definition) {
         $command->addPostParameter($parameter_definition->getName());
       }
+      $usage .= $request_body_param_usage_suffix;
+      $input_definition += $body_input_definition;
     }
 
     if (isset($input_definition)) {
@@ -288,7 +295,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  protected function addApiCommandParametersForPostEndpoint($schema, $acquia_cloud_spec): array {
+  protected function addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
     if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
@@ -404,7 +411,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  protected function addApiCommandParametersForGetEndpoint($schema, $acquia_cloud_spec): array {
+  protected function addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
     foreach ($schema['parameters'] as $parameter) {

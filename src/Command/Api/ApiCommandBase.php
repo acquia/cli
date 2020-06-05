@@ -44,6 +44,7 @@ class ApiCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if ($this->queryParams) {
       foreach ($this->queryParams as $key) {
+        // We may have a queryParam that is used in the path rather than the query string.
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
           $acquia_cloud_client->addQuery($key, $input->getOption($key));
         }
@@ -51,7 +52,13 @@ class ApiCommandBase extends CommandBase {
     }
     if ($this->postParams) {
       foreach ($this->postParams as $param_name) {
-        $acquia_cloud_client->addOption('form_params', [$param_name => $input->getArgument($param_name)]);
+        if ($input->hasArgument($param_name)) {
+          $param = $input->getArgument($param_name);
+        }
+        else {
+          $param = $input->getOption($param_name);
+        }
+        $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
     }
 
