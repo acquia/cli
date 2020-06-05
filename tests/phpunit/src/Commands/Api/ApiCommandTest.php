@@ -74,9 +74,9 @@ class ApiCommandTest extends CommandTestBase {
   public function providerTestApiCommandDefinitionParameters(): array {
     $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
     return [
-      // The first dataset should always disable the cache so that commands are correctly injected with mock services.
-      ['0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
-      ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
+      ['0', '0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
+      ['1', '0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
+      ['1', '1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
     ];
   }
@@ -85,6 +85,7 @@ class ApiCommandTest extends CommandTestBase {
    * @dataProvider providerTestApiCommandDefinitionParameters
    *
    * @param $use_command_cache
+   * @param $use_spec_cache
    * @param $command_name
    * @param $method
    * @param $usage
@@ -92,8 +93,9 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    * @group noCache
    */
-  public function testApiCommandDefinitionParameters($use_command_cache, $command_name, $method, $usage): void {
-    //putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
+  public function testApiCommandDefinitionParameters($use_spec_cache, $use_command_cache, $command_name, $method, $usage): void {
+    putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $use_spec_cache);
+    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
     $this->command = $this->getApiCommandByName($command_name);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
@@ -113,9 +115,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }
 
-  /**
-   *
-   */
   public function providerTestApiCommandDefinitionRequestBody(): array {
     return [
       ['1', 'api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com" '],
