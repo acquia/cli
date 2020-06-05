@@ -29,7 +29,6 @@ class LinkCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testLinkCommand(): void {
-
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
@@ -59,7 +58,7 @@ class LinkCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testLinkCommandInvalidDir(): void {
-    $this->setCommand($this->createCommand());
+    $applications_response = $this->mockApplicationsRequest();
     try {
       $this->executeCommand([], []);
     }
