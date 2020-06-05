@@ -55,7 +55,7 @@ class RefreshCommand extends CommandBase {
       $checklist->updateProgressBar($buffer);
     };
 
-    if (!$input->getOption('no-code')) {
+    if ($input->getOption('no-code') !== '') {
       if ($clone) {
         $checklist->addItem('Cloning git repository from Acquia Cloud');
         $this->cloneFromCloud($chosen_environment, $output_callback);
@@ -69,7 +69,7 @@ class RefreshCommand extends CommandBase {
     }
 
     // Copy databases.
-    if (!$input->getOption('no-databases')) {
+    if ($input->getOption('no-databases') !== '') {
       $database = $this->determineSourceDatabase($acquia_cloud_client, $chosen_environment);
       $checklist->addItem('Importing Drupal database copy from Acquia Cloud');
       $this->importRemoteDatabase($chosen_environment, $database, $output_callback);
@@ -77,13 +77,13 @@ class RefreshCommand extends CommandBase {
     }
 
     // Copy files.
-    if (!$input->getOption('no-files')) {
+    if ($input->getOption('no-files') !== '') {
       $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
       $this->rsyncFilesFromCloud($chosen_environment, $output_callback);
       $checklist->completePreviousItem();
     }
 
-    if (!$input->getOption('no-scripts')) {
+    if ($input->getOption('no-scripts') !== '') {
       if (file_exists($this->repoRoot . '/composer.json') && $this->localMachineHelper
         ->commandExists('composer')) {
         $checklist->addItem('Installing Composer dependencies');
@@ -208,7 +208,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
-    $process = $this->getApplication()->getSshHelper()->executeCommand($environment, [$command], FALSE);
+    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE);
     if ($process->isSuccessful()) {
       $filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
