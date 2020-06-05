@@ -31,11 +31,11 @@ class TelemetryCommand extends CommandBase {
     $datastore = $this->acliDatastore;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-      $this->output->writeln('Telemetry has been disabled.');
+      $this->output->writeln('<info>Telemetry has been disabled.</info>');
     }
     else {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
-      $this->output->writeln('Telemetry has been enabled.');
+      $this->output->writeln('<info>Telemetry has been enabled.</info>');
     }
 
     return 0;
