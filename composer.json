@@ -64,6 +64,9 @@
     "bin/acli"
   ],
   "config": {
+    "platform": {
+      "php": "7.3"
+    },
     "process-timeout": 3600,
     "optimize-autoloader": true,
     "preferred-install": "dist",
