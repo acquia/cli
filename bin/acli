@@ -22,6 +22,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
@@ -74,6 +75,11 @@ if (in_array($input->getFirstArgument(), ['cache:clear', 'cc'])) {
 $kernel->boot();
 $container = $kernel->getContainer();
 putenv("ACLI_REPO_ROOT=" . find_repo_root());
+// Register custom progress bar format.
+ProgressBar::setFormatDefinition(
+  'message',
+  "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
+);
 /** @var Application $application */
 $application = $container->get(Application::class);
 $application->setName('Acquia CLI');
