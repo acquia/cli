@@ -188,7 +188,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->telemetryHelper->initializeAmplitude($this->amplitude, $this->getApplication()->getVersion());
     $this->questionHelper = $this->getHelper('question');
-    $this->checkAndPromptTelemetryPreference();
+    $this->telemetryHelper->checkAndPromptTelemetryPreference();
 
     if ($this->commandRequiresAuthentication() && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');

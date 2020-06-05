@@ -185,7 +185,7 @@ class TelemetryHelper {
    *
    * @param $question_helper
    */
-  public function checkTelemetryPreference(QuestionHelper $question_helper): void {
+  public function checkAndPromptTelemetryPreference(QuestionHelper $question_helper): void {
     $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
