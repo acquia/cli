@@ -202,29 +202,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Check if telemetry preference is set, prompt if not.
-   */
-  public function checkAndPromptTelemetryPreference(): void {
-    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
-    if (!isset($send_telemetry) && $this->input->isInteractive()) {
-      $this->output->writeln('We strive to give you the best tools for development.');
-      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
-      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
-      $pref = $this->questionHelper->ask($this->input, $this->output, $question);
-      $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
-      if ($pref) {
-        $this->output->writeln('Awesome! Thank you for helping!');
-      }
-      else {
-        // @todo Completely anonymously send an event to indicate some user opted out.
-        $this->output->writeln('Ok, no data will be collected and shared with us.');
-        $this->output->writeln('We take privacy seriously.');
-        $this->output->writeln('If you change your mind, run <comment>acli telemetry</comment>.');
-      }
-    }
-  }
-
-  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
