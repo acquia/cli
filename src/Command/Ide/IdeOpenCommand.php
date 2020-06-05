@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -17,8 +18,8 @@ class IdeOpenCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Open a Cloud IDE in your browser');
-    // @todo Add option to specify application uuid.
+    $this->setDescription('Open a Cloud IDE in your browser')
+    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
     // @todo Add option to accept an ide UUID.
   }
 
