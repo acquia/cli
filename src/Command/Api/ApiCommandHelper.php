@@ -165,9 +165,6 @@ class ApiCommandHelper {
         if ($schema['x-cli-name'] === 'accounts:drush-aliases') {
           continue;
         }
-        if ($schema['x-cli-name'] === 'environments:domains-clear-varnish') {
-          $true = TRUE;
-        }
 
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase(
