@@ -26,6 +26,7 @@ class ApiCommandTest extends CommandTestBase {
    * Tests the 'api:*' commands.
    */
   public function testApiCommandExecutionForHttpGet(): void {
+    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=0');
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
@@ -65,32 +66,31 @@ class ApiCommandTest extends CommandTestBase {
   /**
    *
    */
-  public function providerTestApiCommandDefinition(): array {
+  public function providerTestApiCommandDefinitionParameters(): array {
     $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
     return [
       // The first dataset should always disable the cache so that commands are correctly injected with mock services.
-      ['0', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
-      ['1', 'api:environments:domains-clear-varnish', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
-      ['1', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
+      ['0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
+      ['1', 'api:accounts:ssh-keys-list', 'post', $api_accounts_ssh_keys_list_usage],
+      ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
     ];
   }
 
   /**
-   * @dataProvider providerTestApiCommandDefinition
+   * @dataProvider providerTestApiCommandDefinitionParameters
    *
    * @param $use_command_cache
-   *
    * @param $command_name
    * @param $usage
    *
    * @throws \Psr\Cache\InvalidArgumentException
    * @group noCache
    */
-  public function testApiCommandDefinitionForGetEndpoint($use_command_cache, $command_name, $usage): void {
+  public function testApiCommandDefinitionParameters($use_command_cache, $command_name, $method, $usage): void {
     putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
     $this->command = $this->getApiCommandByName($command_name);
-    $resource = $this->getResourceFromSpec($this->command->getPath(), 'get');
+    $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     $this->assertEquals($resource['summary'], $this->command->getDescription());
 
     $expected_command_name = 'api:' . $resource['x-cli-name'];
@@ -108,16 +108,27 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @dataProvider providerTestApiCommandDefinition
+   *
+   */
+  public function providerTestApiCommandDefinitionRequestBody(): array {
+    return [
+      ['1', 'api:accounts:ssh-keys-list', 'post'],
+      ['1', 'api:environments:domains-clear-varnish', 'post'],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestApiCommandDefinitionRequestBody
    *
    * @param $use_command_cache
    * @param $command_name
+   * @param $method
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testApiCommandDefinitionForPostEndpoint($use_command_cache, $command_name): void {
+  public function testApiCommandDefinitionRequestBody($use_command_cache, $command_name, $method): void {
     $this->command = $this->getApiCommandByName($command_name);
-    $resource = $this->getResourceFromSpec('/account/ssh-keys', 'post');
+    $resource = $this->getResourceFromSpec('/account/ssh-keys', $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
       $this->assertTrue(
             $this->command->getDefinition()->hasArgument($key) ||

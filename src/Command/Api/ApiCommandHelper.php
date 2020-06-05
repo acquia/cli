@@ -209,10 +209,7 @@ class ApiCommandHelper {
    *
    */
   public function useCommandCache(): bool {
-    if (getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0') {
-      return FALSE;
-    }
-    return TRUE;
+    return !(getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0');
   }
 
   /**
