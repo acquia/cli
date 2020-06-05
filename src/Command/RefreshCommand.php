@@ -25,7 +25,7 @@ class RefreshCommand extends CommandBase {
   protected function configure() {
     $this->setName('refresh')
       ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
-      ->addOption('from', NULL, InputOption::VALUE_NONE, 'The source environment')
+      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
       ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')

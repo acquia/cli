@@ -636,9 +636,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse $application
    *
+   * @return bool
    * @throws \Exception
    */
-  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): void {
+  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
     $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
     if (!$local_user_config) {
       $local_user_config = [
@@ -652,9 +653,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->localProjectInfo = $local_user_config;
         $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
         $this->output->writeln("<info>The Cloud application <comment>{$application->name}</comment> has been linked to this repository</info>");
-        return;
+
+        return TRUE;
       }
     }
+    return FALSE;
   }
 
   /**
@@ -671,17 +674,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \AcquiaCloudApi\Response\ApplicationResponse|null $cloud_application
    *
+   * @return bool
    * @throws \Exception
    */
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
-    ): void {
+    ): bool {
     $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application {$cloud_application->name} to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {
-      $this->saveLocalConfigCloudAppUuid($cloud_application);
+      return $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
+    return FALSE;
   }
 
   /**
@@ -689,7 +694,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function validateCwdIsValidDrupalProject(): void {
     if (!$this->repoRoot) {
-      throw new AcquiaCliException('Could not find a local Drupal project. Looked for `docroot/index.php`. Please execute this command from within a Drupal project directory.');
+      throw new AcquiaCliException('Could not find a local Drupal project. Looked for `docroot/index.php` in current and parent directories. Please execute this command from within a Drupal project directory.');
     }
   }
 

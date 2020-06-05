@@ -44,6 +44,7 @@ class NewCommand extends CommandBase {
     $dir = Path::join(getcwd(), 'drupal');
     $filepath = Path::join($dir, 'composer.json');
 
+    $output->writeln('<info>Creating project. This may take a few minutes</info>');
     $this->createProject($project, $dir);
 
     if (strpos($project, 'drupal/recommended-project') !== FALSE) {
