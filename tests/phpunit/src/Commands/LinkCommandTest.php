@@ -65,7 +65,7 @@ class LinkCommandTest extends CommandTestBase {
       $this->executeCommand([], [], dirname($this->projectFixtureDir));
     }
     catch (AcquiaCliException $e) {
-      $this->assertEquals('Could not find a local Drupal project. Looked for `docroot/index.php`. Please execute this command from within a Drupal project directory.', $e->getMessage());
+      $this->assertEquals('Could not find a local Drupal project.', $e->getMessage());
     }
   }
 

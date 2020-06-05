@@ -41,6 +41,7 @@ class RefreshCommandTest extends CommandTestBase {
   public function providerTestRefreshCommand(): array {
     return [
       [FALSE, FALSE, FALSE, TRUE],
+      [FALSE, FALSE, TRUE],
       [FALSE, FALSE, TRUE, TRUE],
       [TRUE, TRUE, TRUE, TRUE],
       [TRUE, FALSE, TRUE, TRUE],
@@ -69,14 +70,12 @@ class RefreshCommandTest extends CommandTestBase {
     $this->mockDatabasesResponse($environments_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
 
-    if ($create_mock_git_config) {
-      $this->createMockGitConfigFile();
-      $dirty_process = $this->mockProcess();
-      if (!$is_dirty) {
-        $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
-      }
-      $this->mockExecuteGitDiffStat($is_dirty, $dirty_process, $local_machine_helper);
+    $this->createMockGitConfigFile();
+    $dirty_process = $this->mockProcess();
+    if (!$is_dirty) {
+      $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
     }
+    $this->mockExecuteGitDiffStat($is_dirty, $dirty_process, $local_machine_helper);
 
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process->getOutput()
@@ -99,7 +98,6 @@ class RefreshCommandTest extends CommandTestBase {
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
     $this->mockExecutePvExists($local_machine_helper);
     $this->mockExecuteMySqlImport($local_machine_helper, $process);
-    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
 
     // Files.
     $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
@@ -143,22 +141,66 @@ class RefreshCommandTest extends CommandTestBase {
       try {
         $this->executeCommand([], $inputs);
       } catch (AcquiaCliException $e) {
-        $this->assertEquals('Local git is dirty!', $e->getMessage());
+        if ($is_dirty) {
+          $this->assertEquals('Local git is dirty!', $e->getMessage());
+        }
       }
     }
     else {
       $this->executeCommand([], $inputs);
-      $this->prophet->checkPredictions();
-      $output = $this->getDisplay();
-
-      $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
-      $this->assertStringContainsString('[0] Sample application 1', $output);
-      $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
-      $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
-      $this->assertStringContainsString('Choose a database to copy:', $output);
-      $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-      $this->assertStringContainsString('profserv2 (default)', $output);
     }
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database to copy:', $output);
+    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
+  public function testMissingLocalRepo(): void {
+    $this->setCommand($this->createCommand());
+    // Unset repo root. Mimics failing to find local git repo.
+    $this->application->getContainer()->setParameter('repo_root', NULL);
+      try {
+        $inputs = [
+          // Would you like to clone a project into the current directory?
+          'n',
+        ];
+        $this->executeCommand([], $inputs);
+      }
+      catch (AcquiaCliException $e) {
+        $this->assertEquals('Please execute this command from within a Drupal project directory', $e->getMessage());
+      }
+  }
+
+  public function testCloneRepo(): void {
+    $this->setCommand($this->createCommand());
+
+    // Client responses.
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->mockDatabasesResponse($environments_response);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->application->getContainer()->set('local_machine_helper', $local_machine_helper->reveal());
+    $process = $this->mockProcess();
+
+    // Unset repo root. Mimics failing to find local git repo.
+    $this->application->getContainer()->setParameter('repo_root', NULL);
+    $inputs = [
+      // Would you like to clone a project into the current directory?
+      'y',
+    ];
+    $this->executeCommand([
+      '--no-databases',
+      '--no-files',
+      '--no-scripts',
+    ], $inputs);
+    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
   }
 
   /**

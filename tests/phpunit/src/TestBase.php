@@ -97,7 +97,6 @@ abstract class TestBase extends TestCase {
     if (!$output) {
       $output = new BufferedOutput();
     }
-
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();

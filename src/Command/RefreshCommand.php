@@ -48,17 +48,7 @@ class RefreshCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $clone = $this->determineCloneProject($output);
     $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
-
-    if ($input->getOption('cloud-env-uuid')) {
-      $environment_id = $input->getOption('cloud-env-uuid');
-      $chosen_environment = $this->getCloudEnvironment($environment_id);
-    }
-    else {
-      $cloud_application_uuid = $this->determineCloudApplication();
-      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
-      $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
-    }
+    $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
 
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist) {
@@ -330,6 +320,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function isLocalGitRepoDirty(?string $repo_root): bool {
+    /** @var \Symfony\Component\Process\Process $process */
     $process = $this->getApplication()->getContainer()->get('local_machine_helper')->execute([
       'git',
       'diff',
@@ -590,6 +581,29 @@ class RefreshCommand extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param $acquia_cloud_client
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
+   * @throws \Exception
+   */
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, $acquia_cloud_client) {
+    if ($input->getOption('cloud-env-uuid')) {
+      $environment_id = $input->getOption('cloud-env-uuid');
+      $chosen_environment = $this->getCloudEnvironment($environment_id);
+      // @todo Write "Using Cloud Application ...".
+    }
+    else {
+      $cloud_application_uuid = $this->determineCloudApplication();
+      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+      $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
+      $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
+    }
+    return $chosen_environment;
   }
 
 }
