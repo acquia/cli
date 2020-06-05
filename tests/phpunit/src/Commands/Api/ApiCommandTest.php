@@ -44,16 +44,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('uuid', $contents[0]);
   }
 
-  /**
-   *
-   */
-  public function providerTestApiCommandDefinition(): array {
-    return [
-          ['0'],
-          ['1'],
-    ];
-  }
-
   public function testApiCommandExecutionForHttpPost(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
@@ -73,18 +63,33 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
+   *
+   */
+  public function providerTestApiCommandDefinition(): array {
+    $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
+    return [
+      ['1', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
+      ['1', 'api:environments:domains-clear-varnish', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
+      //['0', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
+    ];
+  }
+
+  /**
    * @dataProvider providerTestApiCommandDefinition
    *
    * @param $use_command_cache
    *
+   * @param $command_name
+   * @param $usage
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @group noCache
    */
-  public function testApiCommandDefinitionForGetEndpoint($use_command_cache): void {
+  public function testApiCommandDefinitionForGetEndpoint($use_command_cache, $command_name, $usage): void {
     putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
-    $this->command = $this->getApiCommandByName('api:accounts:ssh-keys-list');
-    $resource = $this->getResourceFromSpec('/account/ssh-keys', 'get');
+    $this->command = $this->getApiCommandByName($command_name);
+    $resource = $this->getResourceFromSpec($this->command->getPath(), 'get');
     $this->assertEquals($resource['summary'], $this->command->getDescription());
 
     $expected_command_name = 'api:' . $resource['x-cli-name'];
@@ -98,15 +103,19 @@ class ApiCommandTest extends CommandTestBase {
             "Command $expected_command_name does not have expected argument or option $param_name"
         );
     }
-    $this->assertStringContainsString('api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ', $this->command->getUsages()[0]);
+    $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }
 
   /**
    * @dataProvider providerTestApiCommandDefinition
+   *
+   * @param $use_command_cache
+   * @param $command_name
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testApiCommandDefinitionForPostEndpoint(): void {
-    $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
+  public function testApiCommandDefinitionForPostEndpoint($use_command_cache, $command_name): void {
+    $this->command = $this->getApiCommandByName($command_name);
     $resource = $this->getResourceFromSpec('/account/ssh-keys', 'post');
     foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
       $this->assertTrue(

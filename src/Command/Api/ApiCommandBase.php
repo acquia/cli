@@ -11,26 +11,37 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ApiCommandBase extends CommandBase {
   /**
-   * @var string*/
+   * @var string
+   */
   protected $method;
 
   /**
-   * @var array*/
+   * @var array
+   */
   protected $responses;
 
   /**
-   * @var array*/
+   * @var array
+   */
   protected $servers;
 
   /**
-   * @var string*/
+   * @var string
+   */
   protected $path;
+
   /**
-   * @var array*/
+   * @var array
+   */
   private $queryParams = [];
+
   /**
-   * @var array*/
+   * @var array
+   */
   private $postParams = [];
+
+  /** @var array  */
+  private $pathParams = [];
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -44,7 +55,6 @@ class ApiCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if ($this->queryParams) {
       foreach ($this->queryParams as $key) {
-        // We may have a queryParam that is used in the path rather than the query string.
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
           $acquia_cloud_client->addQuery($key, $input->getOption($key));
         }
@@ -52,12 +62,7 @@ class ApiCommandBase extends CommandBase {
     }
     if ($this->postParams) {
       foreach ($this->postParams as $param_name) {
-        if ($input->hasArgument($param_name)) {
-          $param = $input->getArgument($param_name);
-        }
-        else {
-          $param = $input->getOption($param_name);
-        }
+        $param = $this->getParamFromInput($input, $param_name);
         $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
     }
@@ -129,8 +134,38 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param $param_name
    */
-  public function addQueryParameter($param_name) {
+  public function addQueryParameter($param_name): void {
     $this->queryParams[] = $param_name;
+  }
+
+  /**
+   * @return string
+   */
+  public function getPath(): string {
+    return $this->path;
+  }
+
+  /**
+   * @param $param_name
+   */
+  public function addPathParameter($param_name): void {
+    $this->pathParams[] = $param_name;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param $param_name
+   *
+   * @return bool|string|string[]|null
+   */
+  protected function getParamFromInput(InputInterface $input, $param_name) {
+    if ($input->hasArgument($param_name)) {
+      $param = $input->getArgument($param_name);
+    }
+    else {
+      $param = $input->getOption($param_name);
+    }
+    return $param;
   }
 
 }
