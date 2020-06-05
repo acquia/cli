@@ -57,7 +57,10 @@ class AuthCommandTest extends CommandTestBase {
    *
    * @throws \Exception
    */
-  public function testAuthLoginCommand($inputs, $args): void {
+  public function testAuthLoginCommand($machine_is_authenticated, $inputs, $args): void {
+    if (!$machine_is_authenticated) {
+      $this->removeMockCloudConfigFile();
+    }
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
@@ -98,7 +101,7 @@ class AuthCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
-
+    $this->removeMockCloudConfigFile();
     try {
       $this->executeCommand($args, $inputs);
     }
