@@ -71,7 +71,7 @@ class TelemetryCommandTest extends CommandTestBase {
   public function testTelemetryPrompt(array $inputs, $message): void {
     $this->removeMockAcliConfigFile();
 
-    $this->executeCommand([], $inputs);
+    $this->executeCommand(['--quiet' => ''], $inputs);
     $output = $this->getDisplay();
 
     $this->assertStringContainsString('Would you like to share anonymous performance usage and data?', $output);

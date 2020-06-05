@@ -5,8 +5,10 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Exception;
+use PhpCoveralls\Component\Log\ConsoleLogger;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
@@ -82,10 +84,9 @@ abstract class CommandTestBase extends TestBase {
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectFixtureDir;
     chdir($cwd);
-    $tester = $this->getCommandTester();
-    $tester->setInputs($inputs);
-    $command_name = $this->command->getName();
-    $args = array_merge(['command' => $command_name], $args);
+
+    $this->commandTester = $this->createCommandTester();
+    $this->commandTester->setInputs($inputs);
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln('');
@@ -94,16 +95,16 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+      $this->commandTester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
     }
     catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
-        print $this->getDisplay();
+      $this->consoleOutput->writeln($this->commandTester->getDisplay());
       }
       throw $e;
     }
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
-      $this->consoleOutput->writeln($tester->getDisplay());
+      $this->consoleOutput->writeln($this->commandTester->getDisplay());
       $this->consoleOutput->writeln('<comment>------End command output---------</comment>');
       $this->consoleOutput->writeln('');
     }
@@ -116,16 +117,26 @@ abstract class CommandTestBase extends TestBase {
    *   A command tester.
    */
   protected function getCommandTester(): CommandTester {
-    if ($this->commandTester) {
-      return $this->commandTester;
+    return $this->commandTester;
+  }
+
+  /**
+   * @param $args
+   *
+   * @param $application
+   *
+   * @return \Symfony\Component\Console\Tester\CommandTester
+   */
+  protected function createCommandTester(): CommandTester {
+    if (!isset($this->command)) {
+      $this->command = $this->createCommand();
     }
 
     $this->application->add($this->command);
     $found_command = $this->application->find($this->command->getName());
     $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
-    $this->commandTester = new CommandTester($found_command);
 
-    return $this->commandTester;
+    return new CommandTester($found_command);
   }
 
   /**

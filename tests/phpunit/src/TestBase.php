@@ -22,7 +22,6 @@ use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\ConsoleEvents;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -67,12 +66,8 @@ abstract class TestBase extends TestCase {
    * @var Application
    */
   protected $application;
-  /**
-   * @var \Symfony\Component\Console\Input\ArrayInput
-   */
-  protected $input;
 
-  protected $output;
+  protected $applicationOutput;
 
   /**
    * @var \Prophecy\Prophecy\ObjectProphecy|Amplitude
@@ -162,8 +157,7 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->input = new ArrayInput([]);
-    $this->output = $output;
+    $this->applicationOutput = $output;
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';

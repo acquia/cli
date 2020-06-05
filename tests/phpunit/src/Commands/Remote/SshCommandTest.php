@@ -42,7 +42,7 @@ class SshCommandTest extends SshCommandTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
+    $this->command->sshHelper = new SshHelper($this->applicationOutput, $local_machine_helper->reveal());
 
     $args = [
       'alias' => 'devcloud2.dev',
