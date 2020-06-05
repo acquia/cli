@@ -30,8 +30,11 @@ class LinkCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
-    // @todo Indicate if the current local repo is already associated with a cloud
-    // application. Confirm to overwrite.
+    if ($cloud_application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
+      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+      $output->writeln('This repository is already linked to Cloud application <comment>' . $cloud_application->name . '</comment>. Run <comment>acli unlink</comment> to unlink it.');
+      return 1;
+    }
     $cloud_application_uuid = $this->determineCloudApplication(TRUE);
 
     return 0;
