@@ -133,6 +133,14 @@ class ApiCommandHelper {
   }
 
   /**
+   * @return \Symfony\Component\Cache\Adapter\PhpArrayAdapter
+   */
+  protected static function getCommandCache(): PhpArrayAdapter {
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiCommands.cache', new FilesystemAdapter());
+    return $cache;
+  }
+
+  /**
    * @return ApiCommandBase[]
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -141,59 +149,18 @@ class ApiCommandHelper {
     // by running `composer update-cloud-api-spec`.
     $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
     $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
-
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiCommands.cache', new FilesystemAdapter());
+    $cache = self::getCommandCache();
 
     // Check to see if the API spec has changed since we cached commands.
-    $is_command_cache_valid = $this->useCommandCache() && $this->isCommandCacheValid($cache, $acquia_cloud_spec_file_checksum);
     $api_commands_cache_item = $cache->getItem('commands.api');
-    if ($is_command_cache_valid && $api_commands_cache_item->isHit()) {
+    if ($this->useCommandCache()
+      && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)
+      && $api_commands_cache_item->isHit()) {
       return $api_commands_cache_item->get();
     }
 
-    $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
-    $api_commands = [];
-    foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
-      // Skip internal endpoints. These shouldn't actually be in the spec.
-      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
-        continue;
-      }
-
-      foreach ($endpoint as $method => $schema) {
-        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
-        // application/gzip content.
-        if ($schema['x-cli-name'] === 'accounts:drush-aliases') {
-          continue;
-        }
-
-        $command_name = 'api:' . $schema['x-cli-name'];
-        $command = new ApiCommandBase(
-          $this->cloudConfigFilepath,
-     $this->localMachineHelper,
-     $this->datastoreCloud,
-     $this->acliDatastore,
-     $this->telemetryHelper,
-     $this->amplitude,
-     $this->acliConfigFilename,
-     $this->repoRoot,
-     $this->cloudApiClientService,
-     $this->logstreamManager,
-     $this->sshHelper,
-     $this->sshDir);
-        $command->setName($command_name);
-        $command->setDescription($schema['summary']);
-        $command->setMethod($method);
-        $command->setResponses($schema['responses']);
-        $command->setServers($acquia_cloud_spec['servers']);
-        $command->setPath($path);
-        // This is unhidden when `acli api:list` is run.
-        // @todo This breaks console's ability to help with "did you mean?" for command typos!
-        // Consider hiding ONLY when the `list` command is being executed.
-        $command->setHidden(TRUE);
-        $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
-        $api_commands[] = $command;
-      }
-    }
+    $acquia_cloud_spec = $this->getCloudApiSpec($cache, $acquia_cloud_spec_file, $acquia_cloud_spec_file_checksum);
+    $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec);
 
     // Save the API spec file checksum and api commands to the cache.
     $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
@@ -208,11 +175,15 @@ class ApiCommandHelper {
   /**
    *
    */
+  public function useCloudApiSpecCache(): bool {
+    return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
+  }
+
+  /**
+   *
+   */
   public function useCommandCache(): bool {
-    if (getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0') {
-      return FALSE;
-    }
-    return TRUE;
+    return !(getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0');
   }
 
   /**
@@ -265,8 +236,13 @@ class ApiCommandHelper {
       [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($query_input_definition as $parameter_definition) {
-        // @todo Add path parameters to a different array.
-        $command->addQueryParameter($parameter_definition->getName());
+        $token = '{' . $parameter_definition->getName() . '}';
+        if (strpos($command->getPath(), $token) !== FALSE) {
+           $command->addPathParameter(strtolower($parameter_definition->getName()));
+        }
+        else {
+          $command->addQueryParameter(strtolower($parameter_definition->getName()));
+        }
       }
       $usage .= $query_param_usage_suffix;
       $input_definition += $query_input_definition;
@@ -277,7 +253,7 @@ class ApiCommandHelper {
       [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
-        $command->addPostParameter($parameter_definition->getName());
+        $command->addPostParameter(strtolower($parameter_definition->getName()));
       }
       $usage .= $request_body_param_usage_suffix;
       $input_definition += $body_input_definition;
@@ -316,23 +292,24 @@ class ApiCommandHelper {
       return [];
     }
     foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
-      $is_required = array_key_exists('required', $request_body_schema) && in_array($param_name, $request_body_schema['required'], TRUE);
+      $key = strtolower($param_name);
+      $is_required = array_key_exists('required', $request_body_schema) && in_array($key, $request_body_schema['required'], TRUE);
       if ($is_required) {
         $input_definition[] = new InputArgument(
-              $param_name,
+          $key,
               $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $param_definition['description']
           );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'argument', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'argument', $usage);
       }
       else {
         $input_definition[] = new InputOption(
-              $param_name,
+          $key,
               NULL,
               $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
               $param_definition['description']
                 );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'option', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
       }
     }
@@ -421,7 +398,7 @@ class ApiCommandHelper {
       $required = array_key_exists('required', $param_definition) && $param_definition['required'];
       if ($required) {
         $input_definition[] = new InputArgument(
-              $param_definition['name'],
+              strtolower($param_definition['name']),
               InputArgument::REQUIRED,
               $param_definition['description']
           );
@@ -429,7 +406,7 @@ class ApiCommandHelper {
       }
       else {
         $input_definition[] = new InputOption(
-              $param_definition['name'],
+              strtolower($param_definition['name']),
               NULL,
               InputOption::VALUE_REQUIRED,
               $param_definition['description']
@@ -468,7 +445,7 @@ class ApiCommandHelper {
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function isCommandCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
+  protected function isApiSpecChecksumCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
     $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
     // If there's an invalid entry OR there's no entry, return false.
     if (!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit() && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum)) {
@@ -476,6 +453,76 @@ class ApiCommandHelper {
     }
 
     return TRUE;
+  }
+
+  /**
+   * @param \Symfony\Component\Cache\Adapter\PhpArrayAdapter $cache
+   * @param string $acquia_cloud_spec_file
+   *
+   * @param $acquia_cloud_spec_file_checksum
+   *
+   * @return mixed
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getCloudApiSpec(PhpArrayAdapter $cache, string $acquia_cloud_spec_file, $acquia_cloud_spec_file_checksum): array {
+    if ($this->useCloudApiSpecCache() && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)) {
+      $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
+      if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
+        return $acquia_cloud_spec_yaml_item->get();
+      }
+    }
+
+    // Parse file.
+    $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
+
+    // Save value to cache.
+    $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
+    $acquia_cloud_spec_yaml_item->set($acquia_cloud_spec);
+    $cache->save($acquia_cloud_spec_yaml_item);
+
+    return $acquia_cloud_spec;
+  }
+
+  /**
+   * @param array $acquia_cloud_spec
+   *
+   * @return array
+   */
+  protected function generateApiCommandsFromSpec(array $acquia_cloud_spec): array {
+    $api_commands = [];
+    foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
+      // Skip internal endpoints. These shouldn't actually be in the spec.
+      if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
+        continue;
+      }
+
+      foreach ($endpoint as $method => $schema) {
+        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
+        // application/gzip content.
+        if ($schema['x-cli-name'] === 'accounts:drush-aliases') {
+          continue;
+        }
+
+        $command_name = 'api:' . $schema['x-cli-name'];
+        $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
+          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
+          $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
+        $command->setName($command_name);
+        $command->setDescription($schema['summary']);
+        $command->setMethod($method);
+        $command->setResponses($schema['responses']);
+        $command->setServers($acquia_cloud_spec['servers']);
+        $command->setPath($path);
+        // This is unhidden when `acli api:list` is run.
+        // @todo This breaks console's ability to help with "did you mean?" for command typos!
+        // Consider hiding ONLY when the `list` command is being executed.
+        $command->setHidden(TRUE);
+        $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
+        $api_commands[] = $command;
+      }
+    }
+
+    return $api_commands;
   }
 
 }
