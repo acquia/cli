@@ -53,7 +53,7 @@ class RefreshCommand extends CommandBase {
     // Choose remote environment.
     $cloud_application_uuid = $this->determineCloudApplication();
     // @todo Write name of Cloud application to screen.
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist) {

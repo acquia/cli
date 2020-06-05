@@ -39,7 +39,7 @@ class AliasesDownloadCommand extends SshCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
     $drush_archive_filepath = $this->getDrushArchiveTempFilepath();

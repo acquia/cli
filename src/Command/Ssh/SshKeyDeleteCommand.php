@@ -33,7 +33,7 @@ class SshKeyDeleteCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_key = $this->determineCloudKey($acquia_cloud_client);
 
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);

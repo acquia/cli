@@ -39,7 +39,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
 

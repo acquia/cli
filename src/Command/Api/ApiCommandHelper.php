@@ -75,7 +75,7 @@ class ApiCommandHelper {
   /**
    * @var \Acquia\Cli\Helpers\ClientService
    */
-  protected $clientService;
+  protected $cloudApiClientService;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
@@ -113,7 +113,7 @@ class ApiCommandHelper {
     Amplitude $amplitude,
     string $acliConfigFilename,
     string $repoRoot,
-    ClientService $clientService,
+    ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir
@@ -126,7 +126,7 @@ class ApiCommandHelper {
     $this->amplitude = $amplitude;
     $this->acliConfigFilename = $acliConfigFilename;
     $this->repoRoot = $repoRoot;
-    $this->clientService = $clientService;
+    $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
@@ -169,7 +169,7 @@ class ApiCommandHelper {
      $this->amplitude,
      $this->acliConfigFilename,
      $this->repoRoot,
-     $this->clientService,
+     $this->cloudApiClientService,
      $this->logstreamManager,
      $this->sshHelper,
      $this->sshDir);

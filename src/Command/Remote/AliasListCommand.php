@@ -29,7 +29,7 @@ class AliasListCommand extends CommandBase {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $applications_resource = new Applications($acquia_cloud_client);
     $cloud_application_uuid = $this->determineCloudApplication();
     $customer_application = $applications_resource->get($cloud_application_uuid);

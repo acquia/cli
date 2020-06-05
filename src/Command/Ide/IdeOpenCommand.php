@@ -30,7 +30,7 @@ class IdeOpenCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_application_uuid = $this->determineCloudApplication();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);

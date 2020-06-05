@@ -32,7 +32,7 @@ class IdeDeleteCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
     $cloud_application_uuid = $this->determineCloudApplication();

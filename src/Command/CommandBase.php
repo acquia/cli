@@ -110,7 +110,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Acquia\Cli\Helpers\ClientService
    */
-  protected $clientService;
+  protected $cloudApiClientService;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
@@ -148,7 +148,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     Amplitude $amplitude,
     string $acliConfigFilename,
     string $repoRoot,
-    ClientService $clientService,
+    ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir
@@ -161,7 +161,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->amplitude = $amplitude;
     $this->acliConfigFilename = $acliConfigFilename;
     $this->repoRoot = $repoRoot;
-    $this->clientService = $clientService;
+    $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
@@ -250,17 +250,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function commandRequiresAuthentication(): bool {
     // In fact some other commands such as `api:list` don't require auth, but it's easier and safer to assume they do.
     return $this->input->getFirstArgument() !== 'auth:login';
-  }
-
-  /**
-   * Gets the application instance for this command.
-   *
-   * This command exists in order to provide a return type annotation for AcquiaCliApplication.
-   *
-   * @return \Acquia\Cli\AcquiaCliApplication|\Symfony\Component\Console\Application
-   */
-  public function getApplication() {
-    return parent::getApplication();
   }
 
   /**
@@ -557,7 +546,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineCloudEnvironment($application_uuid) {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
     return $environment->uuid;
@@ -575,7 +564,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudApplication($link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
-      $acquia_cloud_client = $this->clientService->getClient();
+      $acquia_cloud_client = $this->cloudApiClientService->getClient();
       $applications_resource = new Applications($acquia_cloud_client);
       $application = $applications_resource->get($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
@@ -596,7 +585,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function doDetermineCloudApplication() {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
 
     if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
       $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');

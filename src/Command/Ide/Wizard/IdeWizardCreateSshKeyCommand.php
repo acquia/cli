@@ -181,7 +181,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Exception
    */
   protected function userHasUploadedIdeKeyToCloud(): bool {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $index => $cloud_key) {
         if (
@@ -206,7 +206,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Exception
    */
   protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
-    $acquia_cloud_client = $this->clientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
     foreach ($application_environments as $environment) {
