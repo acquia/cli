@@ -68,9 +68,10 @@ class ApiCommandTest extends CommandTestBase {
   public function providerTestApiCommandDefinition(): array {
     $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
     return [
-      ['1', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
+      // The first dataset should always disable the cache so that commands are correctly injected with mock services.
+      ['0', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
-      //['0', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
+      ['1', 'api:accounts:ssh-keys-list', $api_accounts_ssh_keys_list_usage],
     ];
   }
 
