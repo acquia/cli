@@ -27,6 +27,7 @@ use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\PathUtil\Path;
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
   echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
@@ -62,10 +63,11 @@ $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 // precisely when it is needed.
 if (in_array($input->getFirstArgument(), ['cache:clear', 'cc'])) {
   $filesystem = new Filesystem();
-  $cache_dir = $kernel->getCacheDir();
-  $filesystem->remove($cache_dir);
-  $filesystem->mkdir($cache_dir);
-  $filesystem->touch("{$cache_dir}/.gitkeep");
+  $kernel_cache_dir = $kernel->getCacheDir();
+  $system_cache_dir = Path::join(sys_get_temp_dir(), 'symphony-cache');
+  $filesystem->remove([$kernel_cache_dir, $system_cache_dir]);
+  $filesystem->mkdir($kernel_cache_dir);
+  $filesystem->touch("{$kernel_cache_dir}/.gitkeep");
   exit;
 }
 
