@@ -26,11 +26,16 @@ class UnlinkCommandTest extends CommandTestBase {
    * Tests the 'unlink' command.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUnlinkCommand(): void {
 
-    $application_uuid = 'testuuid';
-    $this->createMockAcliConfigFile($application_uuid);
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $cloud_application = $applications_response->{'_embedded'}->items[0];
+    $cloud_application_uuid = $cloud_application->uuid;
+    $this->createMockAcliConfigFile($cloud_application_uuid);
+    $this->mockApplicationRequest();
 
     // Assert we set it correctly.
     $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
@@ -38,7 +43,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
     $this->assertArrayHasKey('cloud_application_uuid', $acquia_cli_config['localProjects'][0]);
-    $this->assertEquals($application_uuid, $acquia_cli_config['localProjects'][0]['cloud_application_uuid']);
+    $this->assertEquals($cloud_application_uuid, $acquia_cli_config['localProjects'][0]['cloud_application_uuid']);
 
     $this->executeCommand([], []);
     $output = $this->getDisplay();
@@ -48,7 +53,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayNotHasKey(0, $acquia_cli_config['localProjects']);
-    $this->assertStringContainsString("Unlinked {$this->projectFixtureDir} from Cloud application $application_uuid", $output);
+    $this->assertStringContainsString("Unlinked {$this->projectFixtureDir} from Cloud application " . $cloud_application->name, $output);
   }
 
   public function testUnlinkCommandInvalidDir(): void {
