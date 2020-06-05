@@ -15,6 +15,12 @@ use Symfony\Component\Console\Command\Command;
  */
 class ApiCommandTest extends CommandTestBase {
 
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=0');
+    putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
+  }
+
   /**
    * {@inheritdoc}
    */
@@ -26,7 +32,6 @@ class ApiCommandTest extends CommandTestBase {
    * Tests the 'api:*' commands.
    */
   public function testApiCommandExecutionForHttpGet(): void {
-    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=0');
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
@@ -71,7 +76,7 @@ class ApiCommandTest extends CommandTestBase {
     return [
       // The first dataset should always disable the cache so that commands are correctly injected with mock services.
       ['0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
-      ['1', 'api:accounts:ssh-keys-list', 'post', $api_accounts_ssh_keys_list_usage],
+      ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com"'],
     ];
   }
@@ -81,13 +86,14 @@ class ApiCommandTest extends CommandTestBase {
    *
    * @param $use_command_cache
    * @param $command_name
+   * @param $method
    * @param $usage
    *
    * @throws \Psr\Cache\InvalidArgumentException
    * @group noCache
    */
   public function testApiCommandDefinitionParameters($use_command_cache, $command_name, $method, $usage): void {
-    putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
+    //putenv('ACQUIA_CLI_USE_COMMAND_CACHE=' . $use_command_cache);
 
     $this->command = $this->getApiCommandByName($command_name);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
@@ -112,8 +118,8 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function providerTestApiCommandDefinitionRequestBody(): array {
     return [
-      ['1', 'api:accounts:ssh-keys-list', 'post'],
-      ['1', 'api:environments:domains-clear-varnish', 'post'],
+      ['1', 'api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com" '],
+      ['1', 'api:environments:domains-clear-varnish', 'post', 'api:environments:domains-clear-varnish 12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com,domain2.example.com" '],
     ];
   }
 
@@ -126,17 +132,16 @@ class ApiCommandTest extends CommandTestBase {
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testApiCommandDefinitionRequestBody($use_command_cache, $command_name, $method): void {
+  public function testApiCommandDefinitionRequestBody($use_command_cache, $command_name, $method, $usage): void {
     $this->command = $this->getApiCommandByName($command_name);
-    $resource = $this->getResourceFromSpec('/account/ssh-keys', $method);
+    $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
-      $this->assertTrue(
-            $this->command->getDefinition()->hasArgument($key) ||
-            $this->command->getDefinition()->hasOption($key),
-            "Command {$this->command->getName()} does not have expected argument or option $key"
-        );
+      $param_name = strtolower($key);
+      $this->assertTrue($this->command->getDefinition()->hasArgument($param_name) || $this->command->getDefinition()
+          ->hasOption($param_name),
+        "Command {$this->command->getName()} does not have expected argument or option $param_name");
     }
-    $this->assertStringContainsString('api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com" ', $this->command->getUsages()[0]);
+    $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }
 
   /**
