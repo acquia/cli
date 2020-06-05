@@ -11,11 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeOpenCommand extends IdeCommandBase {
 
+  protected static $defaultName = 'ide:open';
+
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setName('ide:open')->setDescription('Open a Cloud IDE in your browser');
+    $this->setDescription('Open a Cloud IDE in your browser');
     // @todo Add option to specify application uuid.
     // @todo Add option to accept an ide UUID.
   }
@@ -28,7 +30,7 @@ class IdeOpenCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_application_uuid = $this->determineCloudApplication();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
@@ -38,7 +40,7 @@ class IdeOpenCommand extends IdeCommandBase {
     $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
     $this->output->writeln('Opening your IDE in browser...');
 
-    $this->getApplication()->getContainer()->get('local_machine_helper')->startBrowser($ide->links->ide->href);
+    $this->localMachineHelper->startBrowser($ide->links->ide->href);
 
     return 0;
   }

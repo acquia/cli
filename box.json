@@ -1,5 +1,15 @@
 {
     "files": ["assets/acquia-spec.yaml"],
+    "files-bin":[
+        ".env.local.php"
+    ],
+    "directories":[
+        "config",
+        "var"
+    ],
     "output": "build/acli.phar",
-    "git-version": "package_version"
+    "git-version": "package_version",
+    "exclude-composer-files": false,
+    "force-autodiscovery": true,
+    "check-requirements": false
 }

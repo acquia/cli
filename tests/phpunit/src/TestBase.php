@@ -2,12 +2,15 @@
 
 namespace Acquia\Cli\Tests;
 
-use Acquia\Cli\AcquiaCliApplication;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaLogstream\LogstreamManager;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophet;
@@ -15,13 +18,15 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
-use Symfony\Component\Console\Helper\QuestionHelper;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\ConsoleEvents;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -59,13 +64,15 @@ abstract class TestBase extends TestCase {
   protected $fixtureDir;
 
   /**
-   * @var AcquiaCliApplication
+   * @var Application
    */
   protected $application;
   /**
    * @var \Symfony\Component\Console\Input\ArrayInput
    */
   protected $input;
+
+  protected $output;
 
   /**
    * @var \Prophecy\Prophecy\ObjectProphecy|Amplitude
@@ -87,58 +94,111 @@ abstract class TestBase extends TestCase {
   protected $cloudConfig = [];
 
   /**
+   * @var string
+   */
+  protected $dataDir;
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilepath;
+
+  /**
+   * @var \Webmozart\KeyValueStore\JsonFileStore
+   */
+  protected $acliDatastore;
+
+  /**
+   * @var \Webmozart\KeyValueStore\JsonFileStore
+   */
+  protected $cloudDatastore;
+
+  /**
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
+   */
+  protected $localMachineHelper;
+
+  /**
+   * @var \Acquia\Cli\Helpers\TelemetryHelper
+   */
+  protected $telemetryHelper;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilename;
+
+  /**
+   * @var \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected $clientServiceProphecy;
+
+  /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  protected $sshHelper;
+
+  /**
+   * @var string
+   */
+  protected $sshDir;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp($output = NULL): void {
     if (!$output) {
       $output = new BufferedOutput();
     }
 
+    $this->application = new Application();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
     $this->input = new ArrayInput([]);
+    $this->output = $output;
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
+    $this->dataDir = $this->fixtureDir . '/.acquia';
+    $this->sshDir = sys_get_temp_dir();
+    $this->acliConfigFilename = 'acquia-cli.json';
+    $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
+    $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
+    $this->acliDatastore = new JsonFileStore($this->acliConfigFilepath);
+    $this->cloudDatastore = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
+    $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
+    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
+    $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
+    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
 
-    $container = new ContainerBuilder();
-    $container->setParameter('repo_root', $this->projectFixtureDir);
-    $container->setParameter('data_dir', $this->fixtureDir . '/.acquia');
-    AcquiaCliApplication::configureContainer($container, $this->input, $output, $logger);
-    $this->configureContainer($container);
-
-    $this->application = new AcquiaCliApplication($container, $logger, $this->input, $output, 'UNKNOWN');
+    // Clean up exceptions thrown during commands.
+    $dispatcher = new EventDispatcher();
+    $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
+      $exitCode = $event->getExitCode();
+      $error = $event->getError();
+      // Make OAuth server errors more human-friendly.
+      if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
+        $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', [], $exitCode));
+      }
+    });
+    $this->application->setDispatcher($dispatcher);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
 
     parent::setUp();
-  }
-
-  /**
-   * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
-   */
-  protected function configureContainer(ContainerBuilder $container): void {
-    // Amplitude service.
-    $container->set('amplitude', $this->amplitudeProphecy->reveal());
-
-    // Cloud API service.
-    /** @var Client $client */
-    $client = $this->clientProphecy->reveal();
-    $serviceProph = $this->prophet->prophesize(ClientService::class);
-    $serviceProph->getClient()->willReturn($client);
-    $container->set('cloud_api', $serviceProph->reveal());
-
-    // Logstream manager.
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $container->set('logstream_manager', $this->logStreamManagerProphecy->reveal());
   }
 
   protected function tearDown(): void {
@@ -193,6 +253,35 @@ abstract class TestBase extends TestCase {
     }
 
     return json_decode($response_body);
+  }
+
+  /**
+   * Build and return a command with common dependencies.
+   *
+   * All commands inherit from a common base and use the same constructor with a
+   * bunch of dependencies injected. It would be tedious for every command test
+   * to inject every dependency as part of createCommand(). They can use this
+   * instead.
+   *
+   * @param string $commandName
+   *
+   * @return \Symfony\Component\Console\Command\Command
+   */
+  protected function injectCommand(string $commandName): Command {
+    return new $commandName(
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->cloudDatastore,
+      $this->acliDatastore,
+      $this->telemetryHelper,
+      $this->amplitudeProphecy->reveal(),
+      $this->acliConfigFilename,
+      $this->projectFixtureDir,
+      $this->clientServiceProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir
+    );
   }
 
   /**
@@ -287,18 +376,18 @@ abstract class TestBase extends TestCase {
     $default_values = ['key' => 'testkey', 'secret' => 'test'];
     $cloud_config = array_merge($default_values, $this->cloudConfig);
     $contents = json_encode($cloud_config);
-    $filepath = $this->application->getContainer()->getParameter('cloud_config.filepath');
+    $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
 
     $default_values = [DataStoreContract::SEND_TELEMETRY => FALSE];
     $acli_config = array_merge($default_values, $this->acliConfig);
     $contents = json_encode($acli_config);
-    $filepath = $this->application->getContainer()->getParameter('acli_config.filepath');
+    $filepath = $this->acliConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->application->getContainer()->get('acli_datastore')->set($this->application->getContainer()->getParameter('acli_config.filename'), [
+    $this->acliDatastore->set($this->acliConfigFilename, [
       'localProjects' => [
         0 => [
           'directory' => $this->projectFixtureDir,
@@ -420,6 +509,7 @@ abstract class TestBase extends TestCase {
   /**
    */
   protected function mockUploadSshKey(): void {
+    /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
@@ -444,12 +534,12 @@ abstract class TestBase extends TestCase {
   }
 
   protected function removeMockConfigFiles(): void {
-    $this->fs->remove($this->application->getContainer()->getParameter('cloud_config.filepath'));
+    $this->fs->remove($this->cloudConfigFilepath);
     $this->removeMockAcliConfigFile();
   }
 
   protected function removeMockAcliConfigFile(): void {
-    $this->fs->remove($this->application->getContainer()->getParameter('acli_config.filepath'));
+    $this->fs->remove($this->acliConfigFilepath);
   }
 
 }

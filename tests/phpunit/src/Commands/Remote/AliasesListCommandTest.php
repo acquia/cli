@@ -18,7 +18,7 @@ class AliasesListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new AliasListCommand();
+    return $this->injectCommand(AliasListCommand::class);
   }
 
   /**
@@ -26,7 +26,6 @@ class AliasesListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesListCommand(): void {
-    $this->setCommand($this->createCommand());
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

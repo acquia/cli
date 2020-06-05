@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\ListCommand;
  * Class ListCommandTest.
  *
  * @property ListCommand $command
- * @package Acquia\Cli\Tests\Api
  */
 class ListCommandTest extends CommandTestBase {
 
@@ -18,12 +17,13 @@ class ListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new ListCommand();
+    return $this->injectCommand(ListCommand::class);
   }
 
   /**
    * Tests the 'list' command.
    *
+   * @throws \Exception
    */
   public function testListCommand(): void {
     $this->executeCommand();

@@ -18,7 +18,7 @@ class IdeListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new IdeListCommand();
+    return $this->injectCommand(IdeListCommand::class);
   }
 
   /**
@@ -27,7 +27,6 @@ class IdeListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListCommand(): void {
-    $this->setCommand($this->createCommand());
 
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

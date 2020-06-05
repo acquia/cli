@@ -18,7 +18,7 @@ class SshKeyListCommandTest extends CommandTestBase
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyListCommand();
+    return $this->injectCommand(SshKeyListCommand::class);
   }
 
   /**
@@ -26,13 +26,11 @@ class SshKeyListCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUpload(): void {
-    $this->setCommand($this->createCommand());
 
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $base_filename = basename($temp_file_name);
     $this->executeCommand();
 

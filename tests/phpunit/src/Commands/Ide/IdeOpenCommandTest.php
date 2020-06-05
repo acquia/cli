@@ -18,7 +18,7 @@ class IdeOpenCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new IdeOpenCommand();
+    return $this->injectCommand(IdeOpenCommand::class);
   }
 
   public function setUp($output = NULL): void {
@@ -37,7 +37,7 @@ class IdeOpenCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeOpenCommand(): void {
-    $this->setCommand($this->createCommand());
+
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();

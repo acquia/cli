@@ -63,7 +63,7 @@ abstract class SshBaseCommand extends CommandBase {
         $drush_env
     ): EnvironmentResponse {
     $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
-    $acquia_cloud_client = $this->getApplication()->getContainer()->get('cloud_api')->getClient();
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $drush_site);
     $customer_applications = $acquia_cloud_client->request(
       'get',

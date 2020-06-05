@@ -19,7 +19,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyDeleteCommand();
+    return $this->injectCommand(SshKeyDeleteCommand::class);
   }
 
   /**
@@ -27,7 +27,6 @@ class SshKeyDeleteCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testDelete(): void {
-    $this->setCommand($this->createCommand());
 
     $ssh_key_list_response = $this->mockListSshKeysRequest();
 

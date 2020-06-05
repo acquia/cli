@@ -20,11 +20,11 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
   public function setUp($output = NULL): void {
     parent::setUp();
-    $this->setCommand($this->createCommand());
+
     $this->getCommandTester();
     $this->application->addCommands([
-      new SshKeyCreateCommand(),
-      new SshKeyUploadCommand(),
+      $this->injectCommand(SshKeyCreateCommand::class),
+      $this->injectCommand(SshKeyUploadCommand::class),
     ]);
   }
 
@@ -32,7 +32,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return new SshKeyCreateUploadCommand();
+    return $this->injectCommand(SshKeyCreateUploadCommand::class);
   }
 
   /**
@@ -41,9 +41,8 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreateUpload(): void {
-    $this->application->setSshKeysDir(sys_get_temp_dir());
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = $this->application->getSshKeysDir() . '/' . $ssh_key_filename;
+    $ssh_key_filepath = $this->sshDir . '/' . $ssh_key_filename;
     $this->fs->remove($ssh_key_filepath);
 
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
