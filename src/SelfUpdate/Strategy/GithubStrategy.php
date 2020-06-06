@@ -64,9 +64,8 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
      */
     if (!empty($this->remoteVersion)) {
       $release_key = array_search($this->remoteVersion, $versions);
-      $has_phar = $this->getReleasePharAttachment($releases[$release_key]);
-      if ($has_phar) {
-        $this->remoteUrl = $this->getDownloadUrl($releases[$release_key]);
+      if ($phar_asset = $this->getReleasePharAsset($releases[$release_key])) {
+        $this->remoteUrl = $this->getDownloadUrl($phar_asset);
       }
     }
 
@@ -81,26 +80,21 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
   }
 
   /**
-   * @param array $release
+   * @param array $asset
    *
-   * @return mixed|string|null
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @return string
    */
-  protected function getDownloadUrl(array $release) {
-    foreach ($release['assets'] as $key => $asset) {
-      if ($asset['name'] === 'acli.phar') {
-        return $asset['browser_download_url'];
-      }
-    }
+  protected function getDownloadUrl(array $asset): string {
+    return $asset['browser_download_url'];
   }
 
-  protected function getReleasePharAttachment(array $release) {
+  protected function getReleasePharAsset(array $release) {
     foreach ($release['assets'] as $key => $asset) {
       if ($asset['name'] === 'acli.phar') {
-        return TRUE;
+        return $asset;
       }
     }
-    return FALSE;
+    return NULL;
   }
 
   /**
