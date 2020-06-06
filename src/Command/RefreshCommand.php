@@ -569,7 +569,7 @@ class RefreshCommand extends CommandBase {
       'git',
       'clone',
       $chosen_environment->vcs->url,
-      $this->repoRoot,
+      '.',
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback);
     if (!$process->isSuccessful()) {

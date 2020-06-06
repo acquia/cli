@@ -225,9 +225,10 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   public function testMissingLocalRepo(): void {
-    $this->setCommand($this->createCommand());
-    // Unset repo root. Mimics failing to find local git repo.
-    $this->application->getContainer()->setParameter('repo_root', NULL);
+    // Unset repo root. Mimics failing to find local git repo. Command must be re-created
+    // to re-inject the parameter into the command.
+    $this->acliRepoRoot = '';
+    $this->command = $this->createCommand();
     try {
       $inputs = [
         // Would you like to clone a project into the current directory?
@@ -241,28 +242,36 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   public function testCloneRepo(): void {
-    $this->setCommand($this->createCommand());
+    // Unset repo root. Mimics failing to find local git repo. Command must be re-created
+    // to re-inject the parameter into the command.
+    $this->acliRepoRoot = '';
+    $this->command = $this->createCommand();
 
     // Client responses.
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $this->mockDatabasesResponse($environments_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
+    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    // Unset repo root. Mimics failing to find local git repo.
-    $this->application->getContainer()->setParameter('repo_root', NULL);
     $inputs = [
       // Would you like to clone a project into the current directory?
       'y',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
     ];
     $this->executeCommand([
-      '--no-databases',
-      '--no-files',
-      '--no-scripts',
+      '--no-databases' => '',
+      '--no-files' => '',
+      '--no-scripts' => ''
     ], $inputs);
-    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
+    $this->prophet->checkPredictions();
   }
 
   /**
@@ -407,12 +416,12 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
-      ->execute([
+    $local_machine_helper->execute([
         'git',
         'clone',
+        // site@svn-3.hosted.acquia-sites.com:site.git
         $environments_response->vcs->url,
-        $this->projectFixtureDir,
+        '.',
       ], Argument::type('callable'))
       ->willReturn($process->reveal())
       ->shouldBeCalled();
