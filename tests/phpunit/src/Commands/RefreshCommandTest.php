@@ -38,44 +38,50 @@ class RefreshCommandTest extends CommandTestBase {
     $this->removeMockGitConfig();
   }
 
-  public function providerTestRefreshCommand(): array {
-    return [
-      [FALSE, FALSE, FALSE, TRUE],
-      [FALSE, FALSE, TRUE, TRUE],
-      [TRUE, TRUE, TRUE, TRUE],
-      [TRUE, FALSE, TRUE, TRUE],
-    ];
-  }
-
-  /**
-   * Tests the 'refresh' command.
-   *
-   * @dataProvider providerTestRefreshCommand
-   *
-   * @param bool $create_mock_git_config
-   * @param bool $is_dirty
-   * @param bool $drush_connection_exists
-   * @param bool $mysql_dump_successful
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function testRefreshCommand($create_mock_git_config, $is_dirty, $drush_connection_exists, $mysql_dump_successful): void {
-    // Client responses.
+  public function testRefreshCode(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $this->mockDatabasesResponse($environments_response);
+    $this->createMockGitConfigFile();
+
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    if ($create_mock_git_config) {
-      $this->createMockGitConfigFile();
-      $dirty_process = $this->mockProcess();
-      if (!$is_dirty) {
-        $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
-      }
-      $this->mockExecuteGitDiffStat($is_dirty, $dirty_process, $local_machine_helper);
-    }
+    $dirty_process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
+    $this->mockExecuteGitDiffStat(FALSE, $dirty_process, $local_machine_helper);
 
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+
+    $this->executeCommand([
+      '--no-files' => '',
+      '--no-databases' => '',
+      '--no-scripts' => ''
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+  }
+
+  public function testRefreshDatabases(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->createMockGitConfigFile();
+    $this->mockDatabasesResponse($environments_response);
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process->getOutput()
       ->willReturn(
@@ -87,40 +93,24 @@ class RefreshCommandTest extends CommandTestBase {
     $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'])
       ->willReturn($acsf_multisite_fetch_process->reveal())
       ->shouldBeCalled();
-
     $process = $this->mockProcess();
 
-    // Database.
-    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response, $mysql_dump_successful);
-    $this->mockWriteMySqlDump($local_machine_helper);
-    $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
-    $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
-    $this->mockExecutePvExists($local_machine_helper);
-    $this->mockExecuteMySqlImport($local_machine_helper, $process);
-    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
-
-    // Files.
-    $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
-
-    // Composer.
-    $this->mockExecuteComposerExists($local_machine_helper);
-    $this->mockExecuteComposerInstall($local_machine_helper, $process);
-
-    // Drush.
-    $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, $drush_connection_exists);
-    if ($drush_connection_exists) {
-      $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
-      $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
-    }
-
+    $local_machine_helper = $this->mockLocalMachineHelper();
     // Set up file system.
     $local_machine_helper
       ->getFilesystem()
       ->willReturn($this->fs)
       ->shouldBeCalled();
 
-    // Set helpers.
+    // Database.
+    $mysql_dump_successful = TRUE;
+    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response, $mysql_dump_successful);
+    $this->mockWriteMySqlDump($local_machine_helper);
+    $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
+    $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
+    $this->mockExecutePvExists($local_machine_helper);
+    $this->mockExecuteMySqlImport($local_machine_helper, $process);
+
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
 
@@ -133,30 +123,155 @@ class RefreshCommandTest extends CommandTestBase {
       'n',
       // Please choose an Acquia environment:
       0,
-      // Choose a database to copy:
+    ];
+
+    $this->executeCommand([
+      '--no-files' => '',
+      '--no-code' => '',
+      '--no-scripts' => ''
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database to copy:', $output);
+    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
+  public function testRefreshFiles(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $process = $this->mockProcess();
+    $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
       0,
     ];
 
-    if ($create_mock_git_config) {
-      try {
-        $this->executeCommand([], $inputs);
-      } catch (AcquiaCliException $e) {
-        $this->assertEquals('Local git is dirty!', $e->getMessage());
-      }
-    }
-    else {
-      $this->executeCommand([], $inputs);
-      $this->prophet->checkPredictions();
-      $output = $this->getDisplay();
+    $this->executeCommand([
+      '--no-databases' => '',
+      '--no-code' => '',
+      '--no-scripts' => ''
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
 
-      $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
-      $this->assertStringContainsString('[0] Sample application 1', $output);
-      $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
-      $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
-      $this->assertStringContainsString('Choose a database to copy:', $output);
-      $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-      $this->assertStringContainsString('profserv2 (default)', $output);
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+  }
+
+  public function testRefreshScripts() {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $process = $this->mockProcess();
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    // Composer.
+    $this->mockExecuteComposerExists($local_machine_helper);
+    $this->mockExecuteComposerInstall($local_machine_helper, $process);
+
+    // Drush.
+    $drush_connection_exists = TRUE;
+    $this->mockExecuteDrushExists($local_machine_helper);
+    $this->mockExecuteDrushStatus($local_machine_helper, $drush_connection_exists);
+    if ($drush_connection_exists) {
+      $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
+      $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
     }
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+
+    $this->executeCommand([
+      '--no-databases' => '',
+      '--no-code' => '',
+      '--no-files' => ''
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+  }
+
+  public function testMissingLocalRepo(): void {
+    // Unset repo root. Mimics failing to find local git repo. Command must be re-created
+    // to re-inject the parameter into the command.
+    $this->acliRepoRoot = '';
+    $this->command = $this->createCommand();
+    try {
+      $inputs = [
+        // Would you like to clone a project into the current directory?
+        'n',
+      ];
+      $this->executeCommand([], $inputs);
+    }
+    catch (AcquiaCliException $e) {
+      $this->assertEquals('Please execute this command from within a Drupal project directory', $e->getMessage());
+    }
+  }
+
+  public function testCloneRepo(): void {
+    // Unset repo root. Mimics failing to find local git repo. Command must be re-created
+    // to re-inject the parameter into the command.
+    $this->acliRepoRoot = '';
+    $this->command = $this->createCommand();
+
+    // Client responses.
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $process = $this->mockProcess();
+    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $inputs = [
+      // Would you like to clone a project into the current directory?
+      'y',
+      // Please select an Acquia Cloud application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+    $this->executeCommand([
+      '--no-databases' => '',
+      '--no-files' => '',
+      '--no-scripts' => ''
+    ], $inputs);
+    $this->prophet->checkPredictions();
   }
 
   /**
@@ -301,12 +416,12 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
-      ->execute([
+    $local_machine_helper->execute([
         'git',
         'clone',
+        // site@svn-3.hosted.acquia-sites.com:site.git
         $environments_response->vcs->url,
-        $this->projectFixtureDir,
+        '.',
       ], Argument::type('callable'))
       ->willReturn($process->reveal())
       ->shouldBeCalled();
@@ -411,9 +526,11 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
    * @param object $environments_response
    * @param bool $success
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteSshMySqlDump(
     ObjectProphecy $ssh_helper,
@@ -424,7 +541,9 @@ class RefreshCommandTest extends CommandTestBase {
     $process->getOutput()->willReturn('dbdumpcontents');
     $ssh_helper->executeCommand(
         new EnvironmentResponse($environments_response),
-        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390 | gzip -9'])
+        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | gzip -9'],
+        FALSE
+      )
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

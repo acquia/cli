@@ -149,6 +149,11 @@ abstract class TestBase extends TestCase {
   protected $sshDir;
 
   /**
+   * @var string|\Symfony\Component\Console\Command\Command
+   */
+  protected $acliRepoRoot;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -167,6 +172,7 @@ abstract class TestBase extends TestCase {
     $logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
+    $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->sshDir = sys_get_temp_dir();
     $this->acliConfigFilename = 'acquia-cli.json';
@@ -276,7 +282,7 @@ abstract class TestBase extends TestCase {
       $this->telemetryHelper,
       $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
-      $this->projectFixtureDir,
+      $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
