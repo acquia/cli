@@ -64,7 +64,10 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
      */
     if (!empty($this->remoteVersion)) {
       $release_key = array_search($this->remoteVersion, $versions);
-      $this->remoteUrl = $this->getDownloadUrl($releases[$release_key]);
+      $has_phar = $this->getReleasePharAttachment($releases[$release_key]);
+      if ($has_phar) {
+        $this->remoteUrl = $this->getDownloadUrl($releases[$release_key]);
+      }
     }
 
     return $this->remoteVersion;
@@ -89,7 +92,15 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
         return $asset['browser_download_url'];
       }
     }
-    throw new AcquiaCliException('There is no phar file attached to the @release', ['@release' => $release->name]);
+  }
+
+  protected function getReleasePharAttachment(array $release) {
+    foreach ($release['assets'] as $key => $asset) {
+      if ($asset['name'] === 'acli.phar') {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
   /**
