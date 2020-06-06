@@ -10,7 +10,6 @@ parameters:
   app.cloud_config_filepath: "%app.data_dir%/%app.cloud_config_filename%"
 
 services:
-
   _defaults:
     autoconfigure: true
     autowire: true
