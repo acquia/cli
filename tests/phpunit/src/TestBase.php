@@ -305,7 +305,7 @@ abstract class TestBase extends TestCase {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  private function getCloudApiSpec() {
+  protected function getCloudApiSpec() {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
     $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
