@@ -166,7 +166,6 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testGetApplicationUuidFromBltYml(): void {
     $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/applications')->willReturn([$mock_body])->shouldBeCalled();
     $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $blt_config_file_path = Path::join($this->projectFixtureDir, 'blt', 'blt.yml');

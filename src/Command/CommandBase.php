@@ -615,7 +615,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try to guess based on local git url config.
     if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
-
       return $cloud_application->uuid;
     }
 
