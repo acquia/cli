@@ -603,6 +603,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (file_exists($blt_yaml_file_path)) {
       $contents = Yaml::parseFile($blt_yaml_file_path);
       if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
+        $this->logger->debug('Using Cloud application UUID ' . $contents['cloud']['appId'] . ' from blt/blt.yml');
         return $contents['cloud']['appId'];
       }
     }

@@ -6,6 +6,8 @@ use Acquia\Cli\Command\Api\ApiCommandBase;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Yaml\Yaml;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class ApiCommandTest.
@@ -160,6 +162,19 @@ class ApiCommandTest extends CommandTestBase {
         "Command {$this->command->getName()} does not have expected argument or option $prop_key");
     }
     $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
+  }
+
+  public function testGetApplicationUuidFromBltYml(): void {
+    $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
+    $this->clientProphecy->request('get', '/applications')->willReturn([$mock_body])->shouldBeCalled();
+    $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $blt_config_file_path = Path::join($this->projectFixtureDir, 'blt', 'blt.yml');
+    $this->fs->dumpFile($blt_config_file_path, Yaml::dump(['cloud' => ['appId' => $mock_body->uuid]]));
+    $this->executeCommand();
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->fs->remove($blt_config_file_path);
   }
 
   /**
