@@ -132,10 +132,10 @@ class ApiCommandTest extends CommandTestBase {
   public function testApiCommandDefinitionRequestBody($command_name, $method, $usage): void {
     $this->command = $this->getApiCommandByName($command_name);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
-    foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
-      $this->assertTrue($this->command->getDefinition()->hasArgument($key) || $this->command->getDefinition()
-          ->hasOption($key),
-        "Command {$this->command->getName()} does not have expected argument or option $key");
+    foreach ($resource['requestBody']['content']['application/json']['example'] as $prop_key => $value) {
+      $this->assertTrue($this->command->getDefinition()->hasArgument($prop_key) || $this->command->getDefinition()
+          ->hasOption($prop_key),
+        "Command {$this->command->getName()} does not have expected argument or option $prop_key");
     }
     $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }

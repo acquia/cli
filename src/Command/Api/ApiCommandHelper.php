@@ -296,14 +296,14 @@ class ApiCommandHelper {
 
   /**
    * @param $request_body
-   * @param $param_key
+   * @param $prop_key
    * @param $param_definition
    * @param $type
    * @param $usage
    *
    * @return string
    */
-  protected function addPostArgumentUsageToExample($request_body, $param_key, $param_definition, $type, $usage): string {
+  protected function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     if (!array_key_exists('application/json', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
     }
@@ -313,23 +313,23 @@ class ApiCommandHelper {
 
     if (array_key_exists('example', $request_body_schema)) {
       $example = $request_body['content']['application/json']['example'];
-      $prefix = $type === 'argument' ? '' : "--{$param_definition['name']}=";
-      if (array_key_exists($param_key, $example)) {
+      $prefix = $type === 'argument' ? '' : "--{$prop_key}=";
+      if (array_key_exists($prop_key, $example)) {
         switch ($param_definition['type']) {
           case 'object':
-            $usage .= $prefix . '"' . json_encode($example[$param_key]) . '"" ';
+            $usage .= $prefix . '"' . json_encode($example[$prop_key]) . '"" ';
             break;
 
           case 'array':
-            $is_multidimensional = count($example[$param_key]) !== count($example[$param_key], COUNT_RECURSIVE);
+            $is_multidimensional = count($example[$prop_key]) !== count($example[$prop_key], COUNT_RECURSIVE);
             if (!$is_multidimensional) {
-              $value = implode(',', $example[$param_key]);
+              $value = implode(',', $example[$prop_key]);
             }
             else {
               // @todo Pretty sure prevents the user from using the arguments.
               // Probably a bug. How can we allow users to specify a multidimensional array as an
               // argument?
-              $value = json_encode($example[$param_key]);
+              $value = json_encode($example[$prop_key]);
             }
             $usage .= $prefix . "\"$value\" ";
             break;
@@ -337,11 +337,11 @@ class ApiCommandHelper {
           case 'string':
           case 'boolean':
           case 'integer':
-            if (is_array($example[$param_key])) {
-              $value = reset($example[$param_key]);
+            if (is_array($example[$prop_key])) {
+              $value = reset($example[$prop_key]);
             }
             else {
-              $value = $example[$param_key];
+              $value = $example[$prop_key];
             }
             $usage .= $prefix . "\"{$value}\" ";
             break;
