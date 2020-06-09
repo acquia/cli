@@ -51,7 +51,7 @@ class DrushCommandTest extends SshCommandTestBase {
 
     $args = [
       'alias' => 'devcloud2.dev',
-      'drush_command' => 'status',
+      'drush_command' => 'status --fields=db-status',
       '-vvv' => '',
     ];
     $this->executeCommand($args);
