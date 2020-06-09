@@ -30,7 +30,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -596,6 +598,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $application_uuid;
     }
 
+    // Try blt.yml.
+    $blt_yaml_file_path = Path::join($this->repoRoot, 'blt', 'blt.yml');
+    if (file_exists($blt_yaml_file_path)) {
+      $contents = Yaml::parseFile($blt_yaml_file_path);
+      if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
+        $this->logger->debug('Using Cloud application UUID ' . $contents['cloud']['appId'] . ' from blt/blt.yml');
+        return $contents['cloud']['appId'];
+      }
+    }
+
     // If an IDE, get from env var.
     if (self::isAcquiaCloudIde() && $application_uuid = self::getThisCloudIdeCloudAppUuid()) {
       return $application_uuid;
@@ -603,7 +615,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try to guess based on local git url config.
     if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
-
       return $cloud_application->uuid;
     }
 
