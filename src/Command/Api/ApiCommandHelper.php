@@ -136,7 +136,7 @@ class ApiCommandHelper {
    * @return \Symfony\Component\Cache\Adapter\PhpArrayAdapter
    */
   protected static function getCommandCache(): PhpArrayAdapter {
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiCommands.cache', new FilesystemAdapter());
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/ApiCommands.cache', new FilesystemAdapter());
     return $cache;
   }
 
@@ -155,13 +155,6 @@ class ApiCommandHelper {
    */
   public function useCloudApiSpecCache(): bool {
     return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
-  }
-
-  /**
-   *
-   */
-  public function useCommandCache(): bool {
-    return !(getenv('ACQUIA_CLI_USE_COMMAND_CACHE') === '0');
   }
 
   /**
@@ -457,15 +450,10 @@ class ApiCommandHelper {
     // Parse file.
     $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
 
-    // Save value to cache.
-    $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
-    $acquia_cloud_spec_yaml_item->set($acquia_cloud_spec);
-    $cache->save($acquia_cloud_spec_yaml_item);
-
-    // Save the API spec file checksum to the cache.
-    $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
-    $api_spec_checksum_item->set($acquia_cloud_spec_file_checksum);
-    $cache->save($api_spec_checksum_item);
+    $cache->warmUp([
+      'api_spec.yaml' => $acquia_cloud_spec,
+      'api_spec.checksum' => $acquia_cloud_spec_file_checksum
+    ]);
 
     return $acquia_cloud_spec;
   }
