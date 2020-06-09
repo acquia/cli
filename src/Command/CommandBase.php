@@ -30,7 +30,9 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -594,6 +596,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
       return $application_uuid;
+    }
+
+    // Try blt.yml.
+    $blt_yaml_file_path = Path::join($this->repoRoot, 'blt', 'blt.yml');
+    if (file_exists($blt_yaml_file_path)) {
+      $contents = Yaml::parseFile($blt_yaml_file_path);
+      if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
+        return $contents['cloud']['appId'];
+      }
     }
 
     // If an IDE, get from env var.
