@@ -1,7 +1,7 @@
 {
     "files": [
         "assets/acquia-spec.yaml",
-        "src/Command/Ide/Wizard/passphrase_prompt.sh",
+        "src/Command/Ide/Wizard/passphrase_prompt.sh"
     ],
     "files-bin":[
         ".env.local.php"
