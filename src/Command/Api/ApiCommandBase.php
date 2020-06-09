@@ -47,6 +47,22 @@ class ApiCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
+
+    if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
+      $output->writeln('Inferring Cloud Application UUID for this command since none was provided...');
+      $application_uuid = $this->determineCloudApplication();
+      $input->setArgument('applicationUuid', $application_uuid);
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
