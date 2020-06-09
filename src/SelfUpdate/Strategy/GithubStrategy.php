@@ -66,10 +66,11 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
       $release_key = array_search($this->remoteVersion, $versions);
       if ($phar_asset = $this->getReleasePharAsset($releases[$release_key])) {
         $this->remoteUrl = $this->getDownloadUrl($phar_asset);
+        return $this->remoteVersion;
       }
     }
 
-    return $this->remoteVersion;
+    return NULL;
   }
 
   /**
