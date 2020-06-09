@@ -10,6 +10,10 @@
         "config",
         "var"
     ],
+    "compactors": [
+        "KevinGH\\Box\\Compactor\\Php",
+        "KevinGH\\Box\\Compactor\\Json"
+    ],
     "output": "build/acli.phar",
     "git-version": "package_version",
     "exclude-composer-files": false,
