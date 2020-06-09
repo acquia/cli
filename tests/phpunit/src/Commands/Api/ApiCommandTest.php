@@ -49,6 +49,28 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('uuid', $contents[0]);
   }
 
+  public function testInferApplicationUuidArgument() {
+    $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
+    $this->clientProphecy->request('get', '/applications')->willReturn([$mock_body])->shouldBeCalled();
+    $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $this->executeCommand([], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Inferring Cloud Application UUID for this command since none was provided...', $output);
+    $this->assertStringContainsString('Set application uuid to ' . $mock_body->uuid, $output);
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
   public function testApiCommandExecutionForHttpPost(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
@@ -123,9 +145,9 @@ class ApiCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestApiCommandDefinitionRequestBody
    *
-   * @param $use_command_cache
    * @param $command_name
    * @param $method
+   * @param $usage
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
