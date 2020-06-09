@@ -105,7 +105,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals($expected_command_name, $this->command->getName());
 
     foreach ($resource['parameters'] as $parameter) {
-      $param_name = strtolower(str_replace('#/components/parameters/', '', $parameter['$ref']));
+      $param_name = str_replace('#/components/parameters/', '', $parameter['$ref']);
       $this->assertTrue(
             $this->command->getDefinition()->hasOption($param_name) ||
             $this->command->getDefinition()->hasArgument($param_name),
@@ -135,10 +135,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->command = $this->getApiCommandByName($command_name);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $key => $value) {
-      $param_name = strtolower($key);
-      $this->assertTrue($this->command->getDefinition()->hasArgument($param_name) || $this->command->getDefinition()
-          ->hasOption($param_name),
-        "Command {$this->command->getName()} does not have expected argument or option $param_name");
+      $this->assertTrue($this->command->getDefinition()->hasArgument($key) || $this->command->getDefinition()
+          ->hasOption($key),
+        "Command {$this->command->getName()} does not have expected argument or option $key");
     }
     $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }

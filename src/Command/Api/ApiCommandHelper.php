@@ -188,7 +188,7 @@ class ApiCommandHelper {
    */
   protected function addOptionExampleToUsageForGetEndpoint($param_definition, $param_name, string $usage): string {
     if (array_key_exists('example', $param_definition)) {
-      $usage .= '--' . strtolower($param_name) . '="' . $param_definition['example'] . '" ';
+      $usage .= '--' . $param_name . '="' . $param_definition['example'] . '" ';
     }
 
     return $usage;
@@ -209,10 +209,10 @@ class ApiCommandHelper {
       foreach ($query_input_definition as $parameter_definition) {
         $token = '{' . $parameter_definition->getName() . '}';
         if (strpos($command->getPath(), $token) !== FALSE) {
-           $command->addPathParameter(strtolower($parameter_definition->getName()));
+           $command->addPathParameter($parameter_definition->getName());
         }
         else {
-          $command->addQueryParameter(strtolower($parameter_definition->getName()));
+          $command->addQueryParameter($parameter_definition->getName());
         }
       }
       $usage .= $query_param_usage_suffix;
@@ -224,7 +224,7 @@ class ApiCommandHelper {
       [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
-        $command->addPostParameter(strtolower($parameter_definition->getName()));
+        $command->addPostParameter($parameter_definition->getName());
       }
       $usage .= $request_body_param_usage_suffix;
       $input_definition += $body_input_definition;
@@ -263,24 +263,23 @@ class ApiCommandHelper {
       return [];
     }
     foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
-      $key = strtolower($param_name);
-      $is_required = array_key_exists('required', $request_body_schema) && in_array($key, $request_body_schema['required'], TRUE);
+      $is_required = array_key_exists('required', $request_body_schema) && in_array($param_name, $request_body_schema['required'], TRUE);
       if ($is_required) {
         $input_definition[] = new InputArgument(
-          $key,
+          $param_name,
               $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $param_definition['description']
           );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'argument', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'argument', $usage);
       }
       else {
         $input_definition[] = new InputOption(
-          $key,
+          $param_name,
               NULL,
               $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
               $param_definition['description']
                 );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'option', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_name, $param_definition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
       }
     }
@@ -315,7 +314,7 @@ class ApiCommandHelper {
 
     if (array_key_exists('example', $request_body_schema)) {
       $example = $request_body['content']['application/json']['example'];
-      $prefix = $type === 'argument' ? '' : strtolower("--{$param_name}=");
+      $prefix = $type === 'argument' ? '' : "--{$param_name}=";
       if (array_key_exists($param_name, $example)) {
         switch ($param_definition['type']) {
           case 'object':
@@ -369,7 +368,7 @@ class ApiCommandHelper {
       $required = array_key_exists('required', $param_definition) && $param_definition['required'];
       if ($required) {
         $input_definition[] = new InputArgument(
-              strtolower($param_definition['name']),
+              $param_definition['name'],
               InputArgument::REQUIRED,
               $param_definition['description']
           );
@@ -377,7 +376,7 @@ class ApiCommandHelper {
       }
       else {
         $input_definition[] = new InputOption(
-              strtolower($param_definition['name']),
+              $param_definition['name'],
               NULL,
               InputOption::VALUE_REQUIRED,
               $param_definition['description']
