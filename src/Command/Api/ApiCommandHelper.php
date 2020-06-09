@@ -181,14 +181,13 @@ class ApiCommandHelper {
 
   /**
    * @param $param_definition
-   * @param $param_name
    * @param string $usage
    *
    * @return string
    */
-  protected function addOptionExampleToUsageForGetEndpoint($param_definition, $param_name, string $usage): string {
+  protected function addOptionExampleToUsageForGetEndpoint($param_definition, string $usage): string {
     if (array_key_exists('example', $param_definition)) {
-      $usage .= '--' . strtolower($param_name) . '="' . $param_definition['example'] . '" ';
+      $usage .= '--' . $param_definition['name'] . '="' . $param_definition['example'] . '" ';
     }
 
     return $usage;
@@ -209,10 +208,10 @@ class ApiCommandHelper {
       foreach ($query_input_definition as $parameter_definition) {
         $token = '{' . $parameter_definition->getName() . '}';
         if (strpos($command->getPath(), $token) !== FALSE) {
-           $command->addPathParameter(strtolower($parameter_definition->getName()));
+           $command->addPathParameter($parameter_definition->getName());
         }
         else {
-          $command->addQueryParameter(strtolower($parameter_definition->getName()));
+          $command->addQueryParameter($parameter_definition->getName());
         }
       }
       $usage .= $query_param_usage_suffix;
@@ -224,7 +223,7 @@ class ApiCommandHelper {
       [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
-        $command->addPostParameter(strtolower($parameter_definition->getName()));
+        $command->addPostParameter($parameter_definition->getName());
       }
       $usage .= $request_body_param_usage_suffix;
       $input_definition += $body_input_definition;
@@ -255,32 +254,31 @@ class ApiCommandHelper {
     // If this is a reference to the top level schema, go grab the referenced component.
     if (array_key_exists('$ref', $request_body_schema)) {
       $parts = explode('/', $request_body_schema['$ref']);
-      $param_name = end($parts);
-      $request_body_schema = $this->getParameterSchemaFromSpec($param_name, $acquia_cloud_spec);
+      $param_key = end($parts);
+      $request_body_schema = $this->getParameterSchemaFromSpec($param_key, $acquia_cloud_spec);
     }
 
     if (!array_key_exists('properties', $request_body_schema)) {
       return [];
     }
-    foreach ($request_body_schema['properties'] as $param_name => $param_definition) {
-      $key = strtolower($param_name);
-      $is_required = array_key_exists('required', $request_body_schema) && in_array($key, $request_body_schema['required'], TRUE);
+    foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
+      $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
       if ($is_required) {
         $input_definition[] = new InputArgument(
-          $key,
+          $prop_key,
               $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $param_definition['description']
           );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'argument', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $prop_key, $param_definition, 'argument', $usage);
       }
       else {
         $input_definition[] = new InputOption(
-          $key,
+          $prop_key,
               NULL,
               $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
               $param_definition['description']
                 );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $key, $param_definition, 'option', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $prop_key, $param_definition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
       }
     }
@@ -298,14 +296,14 @@ class ApiCommandHelper {
 
   /**
    * @param $request_body
-   * @param $param_name
+   * @param $prop_key
    * @param $param_definition
    * @param $type
    * @param $usage
    *
    * @return string
    */
-  protected function addPostArgumentUsageToExample($request_body, $param_name, $param_definition, $type, $usage): string {
+  protected function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     if (!array_key_exists('application/json', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
     }
@@ -315,23 +313,23 @@ class ApiCommandHelper {
 
     if (array_key_exists('example', $request_body_schema)) {
       $example = $request_body['content']['application/json']['example'];
-      $prefix = $type === 'argument' ? '' : strtolower("--{$param_name}=");
-      if (array_key_exists($param_name, $example)) {
+      $prefix = $type === 'argument' ? '' : "--{$prop_key}=";
+      if (array_key_exists($prop_key, $example)) {
         switch ($param_definition['type']) {
           case 'object':
-            $usage .= $prefix . '"' . json_encode($example[$param_name]) . '"" ';
+            $usage .= $prefix . '"' . json_encode($example[$prop_key]) . '"" ';
             break;
 
           case 'array':
-            $is_multidimensional = count($example[$param_name]) !== count($example[$param_name], COUNT_RECURSIVE);
+            $is_multidimensional = count($example[$prop_key]) !== count($example[$prop_key], COUNT_RECURSIVE);
             if (!$is_multidimensional) {
-              $value = implode(',', $example[$param_name]);
+              $value = implode(',', $example[$prop_key]);
             }
             else {
               // @todo Pretty sure prevents the user from using the arguments.
               // Probably a bug. How can we allow users to specify a multidimensional array as an
               // argument?
-              $value = json_encode($example[$param_name]);
+              $value = json_encode($example[$prop_key]);
             }
             $usage .= $prefix . "\"$value\" ";
             break;
@@ -339,11 +337,11 @@ class ApiCommandHelper {
           case 'string':
           case 'boolean':
           case 'integer':
-            if (is_array($example[$param_name])) {
-              $value = reset($example[$param_name]);
+            if (is_array($example[$prop_key])) {
+              $value = reset($example[$prop_key]);
             }
             else {
-              $value = $example[$param_name];
+              $value = $example[$prop_key];
             }
             $usage .= $prefix . "\"{$value}\" ";
             break;
@@ -364,12 +362,12 @@ class ApiCommandHelper {
     $input_definition = [];
     foreach ($schema['parameters'] as $parameter) {
       $parts = explode('/', $parameter['$ref']);
-      $param_name = end($parts);
-      $param_definition = $this->getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec);
+      $param_key = end($parts);
+      $param_definition = $this->getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec);
       $required = array_key_exists('required', $param_definition) && $param_definition['required'];
       if ($required) {
         $input_definition[] = new InputArgument(
-              strtolower($param_definition['name']),
+              $param_definition['name'],
               InputArgument::REQUIRED,
               $param_definition['description']
           );
@@ -377,12 +375,12 @@ class ApiCommandHelper {
       }
       else {
         $input_definition[] = new InputOption(
-              strtolower($param_definition['name']),
+              $param_definition['name'],
               NULL,
               InputOption::VALUE_REQUIRED,
               $param_definition['description']
                 );
-        $usage = $this->addOptionExampleToUsageForGetEndpoint($param_definition, $param_name, $usage);
+        $usage = $this->addOptionExampleToUsageForGetEndpoint($param_definition, $usage);
       }
     }
 
@@ -390,22 +388,23 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $param_name
+   * @param $param_key
    * @param $acquia_cloud_spec
    *
    * @return mixed
    */
-  protected function getParameterDefinitionFromSpec($param_name, $acquia_cloud_spec) {
-    return $acquia_cloud_spec['components']['parameters'][$param_name];
+  protected function getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec) {
+    return $acquia_cloud_spec['components']['parameters'][$param_key];
   }
 
   /**
-   * @param $param_name
+   * @param $param_key
    * @param $acquia_cloud_spec
+   *
    * @return mixed
    */
-  protected function getParameterSchemaFromSpec($param_name, $acquia_cloud_spec) {
-    return $acquia_cloud_spec['components']['schemas'][$param_name];
+  protected function getParameterSchemaFromSpec($param_key, $acquia_cloud_spec) {
+    return $acquia_cloud_spec['components']['schemas'][$param_key];
   }
 
   /**
