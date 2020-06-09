@@ -261,24 +261,24 @@ class ApiCommandHelper {
     if (!array_key_exists('properties', $request_body_schema)) {
       return [];
     }
-    foreach ($request_body_schema['properties'] as $param_key => $param_definition) {
-      $is_required = array_key_exists('required', $request_body_schema) && in_array($param_key, $request_body_schema['required'], TRUE);
+    foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
+      $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
       if ($is_required) {
         $input_definition[] = new InputArgument(
-          $param_definition['name'],
+          $prop_key,
               $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $param_definition['description']
           );
-        $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $param_key, $param_definition, 'argument', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $prop_key, $param_definition, 'argument', $usage);
       }
       else {
         $input_definition[] = new InputOption(
-          $param_key,
+          $prop_key,
               NULL,
               $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
               $param_definition['description']
                 );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $param_key, $param_definition, 'option', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $prop_key, $param_definition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
       }
     }
