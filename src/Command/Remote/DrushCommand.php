@@ -23,9 +23,14 @@ class DrushCommand extends SSHBaseCommand {
     $this->setAliases(['drush'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for site & environment in the format `app-name.env`')
-      ->addArgument('drush_command', InputArgument::REQUIRED, 'Drush command')
-      ->addUsage(" <site>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> Cloud environment.")
-      ->addUsage('@usage <site>.<env> --progress -- <command> Runs a Drush command with a progress bar');
+      ->addArgument('drush_command', InputArgument::IS_ARRAY, 'Drush command')
+      ->addUsage('<site>.<env> -- <command>')
+      ->addUsage('mysite.dev -- uli 1')
+      ->addUsage('mysite.dev -- status --fields=db-status');
+  }
+
+  protected function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
   }
 
   /**
@@ -37,13 +42,14 @@ class DrushCommand extends SSHBaseCommand {
     $alias = $this->validateAlias($input->getArgument('alias'));
     $environment = $this->getEnvironmentFromAliasArg($alias);
 
-    $arguments = $input->getArguments();
-    // Remove 'remote:drush' command from array.
-    array_shift($arguments);
-    // Add command to array.
-    array_unshift($arguments, "cd /var/www/html/{$alias}/docroot; ", 'drush');
+    $acli_arguments = $input->getArguments();
+    $drush_command_arguments = [
+      "cd /var/www/html/{$alias}/docroot; ",
+      'drush',
+      implode(' ', $acli_arguments['drush_command']),
+    ];
 
-    return $this->sshHelper->executeCommand($environment, $arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $drush_command_arguments)->getExitCode();
   }
 
 }
