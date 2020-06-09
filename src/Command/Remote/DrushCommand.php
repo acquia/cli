@@ -43,7 +43,7 @@ class DrushCommand extends SSHBaseCommand {
     $drush_command_arguments = [
       "cd /var/www/html/{$alias}/docroot; ",
       'drush',
-      implode(' ', $acli_arguments['drush_command']),
+      implode(' ', (array) $acli_arguments['drush_command']),
     ];
 
     return $this->sshHelper->executeCommand($environment, $drush_command_arguments)->getExitCode();
