@@ -11,7 +11,7 @@ Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/m
 
 Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, place it somewhere globally accessible on your machine, make it executable, and optionally rename it to `acli`. Or run the following simple script in the directory where you'd like to install Acquia CLI:
 ```bash
-curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-beta2/acli.phar
+curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-beta3/acli.phar
 mv acli.phar acli
 chmod +x acli
 ```
