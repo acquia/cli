@@ -122,9 +122,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
     $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
-      #!/usr/bin/env bash
-      echo $SSH_PASS
-      EOT
+#!/usr/bin/env bash
+echo $SSH_PASS
+EOT
     );
 
     $private_key_filepath = str_replace('.pub', '', $filepath);
