@@ -323,15 +323,17 @@ class ApiCommandHelper {
           case 'array':
             $is_multidimensional = count($example[$prop_key]) !== count($example[$prop_key], COUNT_RECURSIVE);
             if (!$is_multidimensional) {
-              $value = implode(',', $example[$prop_key]);
+              foreach ($example[$prop_key] as $value) {
+                $usage .= $prefix . "\"$value\" ";
+              }
             }
             else {
               // @todo Pretty sure prevents the user from using the arguments.
               // Probably a bug. How can we allow users to specify a multidimensional array as an
               // argument?
               $value = json_encode($example[$prop_key]);
+              $usage .= $prefix . "\"$value\" ";
             }
-            $usage .= $prefix . "\"$value\" ";
             break;
 
           case 'string':

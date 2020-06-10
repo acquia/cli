@@ -42,6 +42,7 @@ class UpdateCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDownloadUpdate
    * @requires OS linux|darwin
+   * @throws \Exception
    */
   public function testDownloadUpdate($releases): void {
 
