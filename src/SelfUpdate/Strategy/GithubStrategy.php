@@ -49,6 +49,13 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
       );
     }
 
+    // Remove any version that does not have an attached phar file.
+    foreach ($releases as $key => $release) {
+      if (!$this->getReleasePharAsset($release)) {
+        unset($release[$key]);
+      }
+    }
+
     $versions = array_column($releases, 'tag_name');
     $versionParser = new VersionParser($versions);
     if ($this->getStability() === self::STABLE) {
@@ -59,14 +66,10 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implemen
       $this->remoteVersion = $versionParser->getMostRecentAll();
     }
 
-    /**
-     * Setup remote URL if there's an actual version to download
-     */
     if (!empty($this->remoteVersion)) {
-      $release_key = array_search($this->remoteVersion, $versions);
-      if ($phar_asset = $this->getReleasePharAsset($releases[$release_key])) {
-        $this->remoteUrl = $this->getDownloadUrl($phar_asset);
-      }
+      $release_key = array_search($this->remoteVersion, $versions, TRUE);
+      $phar_asset = $this->getReleasePharAsset($releases[$release_key]);
+      $this->remoteUrl = $this->getDownloadUrl($phar_asset);
     }
 
     return $this->remoteVersion;
