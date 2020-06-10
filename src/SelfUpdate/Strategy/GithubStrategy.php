@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\SelfUpdate\Strategy;
 
+use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Exception\HttpRequestException;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
 use Humbug\SelfUpdate\Updater;
@@ -21,20 +22,26 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
   private $remoteUrl;
 
   /**
+   * @var Client
+   */
+  private $client;
+
+  /**
    * Retrieve the current version available remotely.
    *
    * @param Updater $updater
    *
    * @return string|bool
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function getCurrentRemoteVersion(Updater $updater) {
-    /** Switch remote request errors to HttpRequestExceptions */
-    set_error_handler([$updater, 'throwHttpRequestException']);
     $packageUrl = $this->getApiUrl();
-    $context = $this->getCurlContext();
-    $releases = json_decode(humbug_get_contents($packageUrl, FALSE, $context), TRUE);
-    restore_error_handler();
+    $client = $this->getClient();
+    $response = $client->request('GET', $packageUrl, [
+      'headers' => ['User-Agent' => $this->getPackageName()]
+    ]);
+    $contents = $response->getBody()->getContents();
+    $releases = json_decode($contents, TRUE);
 
     if (NULL === $releases || json_last_error() !== JSON_ERROR_NONE) {
       throw new JsonParsingException(
@@ -46,9 +53,11 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
     // Remove any version that does not have an attached phar file.
     foreach ($releases as $key => $release) {
       if (!$this->getReleasePharAsset($release)) {
-        unset($release[$key]);
+        unset($releases[$key]);
       }
     }
+    // Re-key the array.
+    $releases = array_values($releases);
 
     $versions = array_column($releases, 'tag_name');
     $versionParser = new VersionParser($versions);
@@ -67,6 +76,20 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
     }
 
     return $this->remoteVersion;
+  }
+
+  /**
+   * @param Client $client
+   */
+  public function setClient($client): void {
+    $this->client = $client;
+  }
+
+  /**
+   * @return Client
+   */
+  public function getClient(): Client {
+    return $this->client;
   }
 
   /**
@@ -98,39 +121,16 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    * Download the remote Phar file.
    *
    * @param Updater $updater
+   *
    * @return void
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function download(Updater $updater): void {
-    /** Switch remote request errors to HttpRequestExceptions */
-    set_error_handler([$updater, 'throwHttpRequestException']);
-    $context = $this->getCurlContext();
-    $result = humbug_get_contents($this->remoteUrl, FALSE, $context);
-    restore_error_handler();
-    if (FALSE === $result) {
-      throw new HttpRequestException(sprintf(
-        'Request to URL failed: %s', $this->remoteUrl
-      ));
-    }
-
-    file_put_contents($updater->getTempPharFile(), $result);
-  }
-
-  /**
-   * GitHub requires a user agent to be set for all requests to their API.
-   *
-   * @return resource
-   */
-  protected function getCurlContext() {
-    $opts = [
-      'http' => [
-        'method' => 'GET',
-        'header' => [
-          'User-Agent: ' . $this->getPackageName()
-        ]
-      ]
-    ];
-
-    return stream_context_create($opts);
+    $response = $this->getClient()->request('GET', $this->remoteUrl, [
+      'headers' => ['User-Agent' => $this->getPackageName()]
+    ]);
+    $response_contents = $response->getBody()->getContents();
+    file_put_contents($updater->getTempPharFile(), $response_contents);
   }
 
 }
