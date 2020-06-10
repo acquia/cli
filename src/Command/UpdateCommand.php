@@ -47,7 +47,7 @@ class UpdateCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     if (!$this->getPharPath()) {
-      //throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
+      throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
