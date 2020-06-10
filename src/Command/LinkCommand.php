@@ -32,7 +32,7 @@ class LinkCommand extends CommandBase {
     $this->validateCwdIsValidDrupalProject();
     if ($cloud_application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $output->writeln('This repository is already linked to Cloud application <comment>' . $cloud_application->name . '</comment>. Run <comment>acli unlink</comment> to unlink it.');
+      $output->writeln('This repository is already linked to Cloud application <options=bold>' . $cloud_application->name . '</>. Run <options=bold>acli unlink</> to unlink it.');
       return 1;
     }
     $cloud_application_uuid = $this->determineCloudApplication(TRUE);

@@ -47,7 +47,7 @@ class AliasesDownloadCommand extends SshCommand {
     $drush_aliases_dir = $this->getDrushAliasesDir();
 
     $this->output->writeln(sprintf(
-      'Acquia Cloud Drush Aliases archive downloaded to <comment>%s</comment>',
+      'Acquia Cloud Drush Aliases archive downloaded to <options=bold>%s</>',
       $drush_archive_filepath
     ));
 
@@ -62,7 +62,7 @@ class AliasesDownloadCommand extends SshCommand {
 
     $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
     $this->output->writeln(sprintf(
-      'Acquia Cloud Drush aliases installed into <comment>%s</comment>',
+      'Acquia Cloud Drush aliases installed into <options=bold>%s</>',
       $drush_aliases_dir
     ));
     unlink($drush_archive_filepath);

@@ -55,7 +55,7 @@ class ApiCommandBase extends CommandBase {
     if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
       $output->writeln('Inferring Cloud Application UUID for this command since none was provided...');
       if ($application_uuid = $this->determineCloudApplication()) {
-        $output->writeln("Set application uuid to <comment>$application_uuid</comment>");
+        $output->writeln("Set application uuid to <options=bold>$application_uuid</>");
         $input->setArgument('applicationUuid', $application_uuid);
       }
     }
