@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Exception;
+use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
@@ -17,10 +18,15 @@ use Webmozart\PathUtil\Path;
  */
 class UpdateCommand extends CommandBase {
 
+  protected static $defaultName = 'self-update';
+
   /** @var string */
   protected $pharPath;
 
-  protected static $defaultName = 'self-update';
+  /**
+   * @var \GuzzleHttp\Client
+   */
+  protected $client;
 
   /**
    * {inheritdoc}.
@@ -46,7 +52,9 @@ class UpdateCommand extends CommandBase {
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
-    $updater->setStrategyObject(new GithubStrategy());
+    $strategy = new GithubStrategy();
+    $updater->setStrategyObject($strategy);
+    $updater->getStrategy()->setClient($this->getClient());
     $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
     $updater->getStrategy()->setStability($stability);
     $updater->getStrategy()->setPackageName('acquia/cli');
@@ -66,6 +74,23 @@ class UpdateCommand extends CommandBase {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
     }
+  }
+
+  /**
+   * @param \GuzzleHttp\Client $client
+   */
+  public function setClient($client): void {
+    $this->client = $client;
+  }
+
+  /**
+   * @return \GuzzleHttp\Client
+   */
+  public function getClient(): Client {
+    if (!isset($this->client)) {
+      $this->setClient(new Client());
+    }
+    return $this->client;
   }
 
   /**
