@@ -42,8 +42,7 @@ class UpdateCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     if (!$this->getPharPath()) {
-      throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()
-          ->getName() . '.');
+      throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
@@ -74,7 +73,7 @@ class UpdateCommand extends CommandBase {
    */
   public function getPharPath(): string {
     if (!isset($this->pharPath)) {
-      $this->setPharPath(Phar::running(TRUE));
+      $this->setPharPath(Phar::running());
     }
     return $this->pharPath;
   }
@@ -84,6 +83,7 @@ class UpdateCommand extends CommandBase {
    */
   public function setPharPath(string $pharPath): void {
     $this->pharPath = Path::canonicalize($pharPath);
+    $this->logger->debug('Set phar filepath to ' . $this->pharPath);
   }
 
 }
