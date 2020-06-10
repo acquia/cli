@@ -1,20 +1,14 @@
 <?php
-/**
- * This class is partially patterned after Composer's self-update.
- */
 
 namespace Acquia\Cli\SelfUpdate\Strategy;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Humbug\SelfUpdate\Exception\HttpRequestException;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
-use Humbug\SelfUpdate\Strategy\StrategyInterface;
 use Humbug\SelfUpdate\Updater;
 use Humbug\SelfUpdate\VersionParser;
 
-class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy implements StrategyInterface
-{
-  const API_URL = 'https://api.github.com/repos/%s/releases';
+class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
+  public const API_URL = 'https://api.github.com/repos/%s/releases';
 
   /**
    * @var string

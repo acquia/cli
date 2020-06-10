@@ -36,6 +36,7 @@ class UpdateCommandTest extends CommandTestBase {
 
   /**
    * @requires OS linux|darwin
+   * @throws \Exception
    */
   public function testDownloadUpdate(): void {
 
