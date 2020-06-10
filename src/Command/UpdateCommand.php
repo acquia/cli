@@ -10,6 +10,7 @@ use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class UpdateCommand.
@@ -41,8 +42,7 @@ class UpdateCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     if (!$this->getPharPath()) {
-      throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()
-          ->getName() . '.');
+      throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
@@ -73,7 +73,7 @@ class UpdateCommand extends CommandBase {
    */
   public function getPharPath(): string {
     if (!isset($this->pharPath)) {
-      $this->pharPath = Phar::running(TRUE);
+      $this->setPharPath(Phar::running(FALSE));
     }
     return $this->pharPath;
   }
@@ -82,7 +82,7 @@ class UpdateCommand extends CommandBase {
    * @param string $pharPath
    */
   public function setPharPath(string $pharPath): void {
-    $this->pharPath = $pharPath;
+    $this->pharPath = Path::canonicalize($pharPath);
   }
 
 }
