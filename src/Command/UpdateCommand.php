@@ -73,7 +73,7 @@ class UpdateCommand extends CommandBase {
    */
   public function getPharPath(): string {
     if (!isset($this->pharPath)) {
-      $this->setPharPath(Phar::running());
+      $this->setPharPath(Phar::running(FALSE));
     }
     return $this->pharPath;
   }
@@ -83,7 +83,6 @@ class UpdateCommand extends CommandBase {
    */
   public function setPharPath(string $pharPath): void {
     $this->pharPath = Path::canonicalize($pharPath);
-    $this->logger->debug('Set phar filepath to ' . $this->pharPath);
   }
 
 }
