@@ -126,6 +126,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 echo $SSH_PASS
 EOT
     );
+    $this->localMachineHelper->getFilesystem()->chmod($temp_filepath, 0755);
 
     $private_key_filepath = str_replace('.pub', '', $filepath);
     $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $temp_filepath . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
