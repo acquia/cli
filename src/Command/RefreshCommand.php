@@ -579,12 +579,13 @@ class RefreshCommand extends CommandBase {
       'git',
       'clone',
       $chosen_environment->vcs->url,
-      '.',
+      getcwd(),
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
     }
+    $this->repoRoot = getcwd();
   }
 
   /**
