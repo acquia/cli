@@ -58,7 +58,7 @@ before_install:
 install:
   # Load composer dependencies.
   - composer validate --no-check-all --ansi
-  - 'composer -n update --prefer-dist -o'
+  - composer install --prefer-dist --no-interaction --optimize-autoloader
 
 script:
   - composer test
