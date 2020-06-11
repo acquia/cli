@@ -67,11 +67,10 @@ class TelemetryHelper {
    * Initializes Amplitude.
    *
    * @param \Zumba\Amplitude\Amplitude $amplitude
-   * @param string $app_version
    *
    * @throws \Exception
    */
-  public function initializeAmplitude(Amplitude $amplitude, $app_version): void {
+  public function initializeAmplitude(Amplitude $amplitude): void {
     $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
     $amplitude->setOptOut(!$send_telemetry);
 
@@ -83,7 +82,7 @@ class TelemetryHelper {
       // Method chaining breaks Prophecy?
       // @see https://github.com/phpspec/prophecy/issues/25
       $amplitude->setDeviceId(OsInfo::uuid());
-      $amplitude->setUserProperties($this->getTelemetryUserData($app_version));
+      $amplitude->setUserProperties($this->getTelemetryUserData());
       $amplitude->setUserId($this->getUserId());
       $amplitude->logQueuedEvents();
     } catch (IdentityProviderException $e) {
@@ -94,19 +93,12 @@ class TelemetryHelper {
   /**
    * Get telemetry user data.
    *
-   * @param $app_version
-   *
    * @return array
    *   Telemetry user data.
    * @throws \Exception
    */
-  protected function getTelemetryUserData($app_version): array {
+  protected function getTelemetryUserData(): array {
     $data = [
-      'app_version' => $app_version,
-      // phpcs:ignore
-      'platform' => OsInfo::family(),
-      'os_name' => OsInfo::os(),
-      'os_version' => OsInfo::version(),
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
       'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
