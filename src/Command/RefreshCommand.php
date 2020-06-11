@@ -581,7 +581,8 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->vcs->url,
       getcwd(),
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback);
+    $command = implode(' ', $command);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
     }
