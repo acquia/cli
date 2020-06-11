@@ -237,7 +237,7 @@ class RefreshCommandTest extends CommandTestBase {
       $this->executeCommand([], $inputs);
     }
     catch (AcquiaCliException $e) {
-      $this->assertEquals('Please execute this command from within a Drupal project directory', $e->getMessage());
+      $this->assertEquals('Please execute this command from within a Drupal project directory or an empty directory', $e->getMessage());
     }
   }
 
