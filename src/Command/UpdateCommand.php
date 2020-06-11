@@ -32,8 +32,9 @@ class UpdateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded')
-      ->setDescription('update to the latest version');
+    $this->setDescription('update to the latest version')
+      ->setAliases(['update'])
+      ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded');
   }
 
   /**
