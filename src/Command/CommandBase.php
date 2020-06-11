@@ -17,6 +17,7 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
+use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
@@ -188,7 +189,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
 
-    $this->telemetryHelper->initializeAmplitude($this->amplitude, $this->getApplication()->getVersion());
+    $this->telemetryHelper->initializeAmplitude($this->amplitude);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
 
@@ -239,6 +240,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'exit_code' => $exit_code,
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
+      'app_version' => $this->getApplication()->getVersion(),
+      // phpcs:ignore
+      'platform' => OsInfo::family(),
+      'os_name' => OsInfo::os(),
+      'os_version' => OsInfo::version(),
     ];
     $this->amplitude->queueEvent('Ran command', $event_properties);
 
