@@ -19,6 +19,7 @@ class LogTailCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Tail the logs from your environments')
+      ->setAliases(['tail'])
       ->addOption('cloud-env-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud environment');
   }
 
