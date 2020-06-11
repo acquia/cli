@@ -548,23 +548,28 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineCloneProject(OutputInterface $output): bool {
-    $clone = FALSE;
-    if (!$this->repoRoot) {
-      $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories.');
-      if (file_exists(Path::join(getcwd(), '.git'))) {
-        return FALSE;
-      }
+    if ($this->repoRoot) {
+      return FALSE;
+    }
+    $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories');
+
+    if (file_exists(Path::join(getcwd(), '.git'))) {
+      return FALSE;
+    }
+    $output->writeln('Could not find a git repository in the current directory');
+
+    $dir_has_files = $this->localMachineHelper->getFinder()->files()->in(getcwd())->ignoreDotFiles(FALSE)->hasResults();
+    if (!$dir_has_files) {
       $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
         TRUE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
-      if ($answer) {
-        $clone = TRUE;
-      }
-      else {
-        throw new AcquiaCliException('Please execute this command from within a Drupal project directory');
+      if ($this->questionHelper->ask($this->input, $this->output, $question)) {
+        return TRUE;
       }
     }
-    return $clone;
+
+    $output->writeln('Could not clone into the current directory because it is not empty');
+
+    throw new AcquiaCliException('Please execute this command from within a Drupal project directory or an empty directory');
   }
 
   /**
@@ -582,7 +587,7 @@ class RefreshCommand extends CommandBase {
       getcwd(),
     ];
     $command = implode(' ', $command);
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
     }
