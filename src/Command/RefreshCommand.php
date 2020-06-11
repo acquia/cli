@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
 use stdClass;
@@ -48,6 +49,10 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && getcwd() !== '/home/ide/project') {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
+    }
+
     $clone = $this->determineCloneProject($output);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
