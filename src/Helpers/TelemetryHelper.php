@@ -101,6 +101,9 @@ class TelemetryHelper {
     $data = [
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
+      'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
+      'ah_realm' => getenv('AH_REALM'),
+      'ah_non_production' => getenv('AH_NON_PRODUCTION'),
       'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     try {
