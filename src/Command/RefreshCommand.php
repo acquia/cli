@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class RefreshCommand.
@@ -545,6 +546,9 @@ class RefreshCommand extends CommandBase {
     $clone = FALSE;
     if (!$this->repoRoot) {
       $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories.');
+      if (file_exists(Path::join(getcwd(), '.git'))) {
+        return FALSE;
+      }
       $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
@@ -566,6 +570,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function cloneFromCloud($chosen_environment, \Closure $output_callback): void {
     $command = [
+      'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
       'git',
       'clone',
       $chosen_environment->vcs->url,
