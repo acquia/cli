@@ -193,6 +193,8 @@ class RefreshCommand extends CommandBase {
           $output_callback
       );
 
+    $this->localMachineHelper->getFilesystem()->remove($mysql_dump_filepath);
+
     return TRUE;
   }
 
