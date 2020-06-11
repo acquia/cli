@@ -119,9 +119,18 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function addSshKeyToAgent($filepath, $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
-    $passphrase_prompt_script = __DIR__ . '/passphrase_prompt.sh';
+    // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
+    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+    $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
+#!/usr/bin/env bash
+echo $SSH_PASS
+EOT
+    );
+    $this->localMachineHelper->getFilesystem()->chmod($temp_filepath, 0755);
+
     $private_key_filepath = str_replace('.pub', '', $filepath);
-    $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $passphrase_prompt_script . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
+    $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $temp_filepath . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
+    $this->localMachineHelper->getFilesystem()->remove($temp_filepath);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
