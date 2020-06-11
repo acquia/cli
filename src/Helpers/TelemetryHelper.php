@@ -78,7 +78,7 @@ class TelemetryHelper {
       return;
     }
     try {
-      $amplitude->init('956516c74386447a3148c2cc36013ac3');
+      $amplitude->init('0bdb9aae813d628e1388b22bc2cf79f2');
       // Method chaining breaks Prophecy?
       // @see https://github.com/phpspec/prophecy/issues/25
       $amplitude->setDeviceId(OsInfo::uuid());
