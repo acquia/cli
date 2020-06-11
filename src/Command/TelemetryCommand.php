@@ -37,6 +37,7 @@ class TelemetryCommand extends CommandBase {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
       $this->output->writeln('<info>Telemetry has been enabled.</info>');
     }
+    $this->output->writeln('<info>Run this command again to undo the change.</info>');
 
     return 0;
   }
