@@ -241,6 +241,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'arguments' => $input->getArguments(),
       'options' => $input->getOptions(),
       'app_version' => $this->getApplication()->getVersion(),
+      // phpcs:ignore
       'platform' => OsInfo::family(),
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
