@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -36,9 +37,9 @@ class IdeCreateCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create a Cloud IDE for development');
-    // @todo Add option to accept an IDE label.
-    // @todo Add option to specify application uuid.
+    $this->setDescription('Create a Cloud IDE for development')
+    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
+    // @todo Add option to accept an ide UUID.
   }
 
   /**

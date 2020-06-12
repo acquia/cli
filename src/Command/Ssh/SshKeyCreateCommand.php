@@ -38,8 +38,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->createSshKey($input, $output);
-    $output->writeln('<info>Created new SSH key.</info>');
+    $key_file_path = $this->createSshKey($input, $output);
+    $output->writeln('<info>Created new SSH key.</info> ' . $key_file_path);
 
     return 0;
   }

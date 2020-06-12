@@ -10,6 +10,7 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -237,7 +238,7 @@ class RefreshCommandTest extends CommandTestBase {
       $this->executeCommand([], $inputs);
     }
     catch (AcquiaCliException $e) {
-      $this->assertEquals('Please execute this command from within a Drupal project directory', $e->getMessage());
+      $this->assertEquals('Please execute this command from within a Drupal project directory or an empty directory', $e->getMessage());
     }
   }
 
@@ -246,14 +247,17 @@ class RefreshCommandTest extends CommandTestBase {
     // to re-inject the parameter into the command.
     $this->acliRepoRoot = '';
     $this->command = $this->createCommand();
-
     // Client responses.
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process);
+    $dir = Path::join($this->fixtureDir, 'empty-dir');
+    $this->fs->mkdir([$dir]);
+    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process, $dir);
+    $local_machine_helper->getFinder()->willReturn(new Finder());
+
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $inputs = [
@@ -269,7 +273,8 @@ class RefreshCommandTest extends CommandTestBase {
     $this->executeCommand([
       '--no-databases' => '',
       '--no-files' => '',
-      '--no-scripts' => ''
+      '--no-scripts' => '',
+      'dir' => $dir,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
@@ -410,19 +415,23 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param object $environments_response
    * @param \Prophecy\Prophecy\ObjectProphecy $process
+   * @param $dir
    */
   protected function mockExecuteGitClone(
     ObjectProphecy $local_machine_helper,
     $environments_response,
-    ObjectProphecy $process
+    ObjectProphecy $process,
+    $dir
   ): void {
-    $local_machine_helper->execute([
-        'git',
-        'clone',
-        // site@svn-3.hosted.acquia-sites.com:site.git
-        $environments_response->vcs->url,
-        '.',
-      ], Argument::type('callable'))
+    $command = [
+      'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
+      'git',
+      'clone',
+      $environments_response->vcs->url,
+      $dir,
+    ];
+    $command = implode(' ', $command);
+    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
