@@ -26,7 +26,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    */
   public function testCreate(): void {
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = Path::join($this->sshDir, '/' . $ssh_key_filename);
+    $ssh_key_filepath = Path::join($this->sshDir, $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
 
     $inputs = [

@@ -22,8 +22,7 @@ class ApiListCommandTest extends CommandTestBase {
       $this->projectFixtureDir,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
-      $this->sshHelper,
-      $this->sshDir
+      $this->sshHelper
     );
     $this->application->addCommands($api_command_helper->getApiCommands());
   }

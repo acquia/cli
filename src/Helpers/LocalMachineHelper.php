@@ -24,6 +24,8 @@ class LocalMachineHelper {
   private $output;
   private $input;
   private $isTty = NULL;
+  private $homeDir;
+  private $sshDir;
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -34,6 +36,8 @@ class LocalMachineHelper {
     $this->input = $input;
     $this->output = $output;
     $this->setLogger($logger);
+    $this->homeDir = $this->doGetHomeDir();
+    $this->sshDir = $this->doGetSshDir();
   }
 
   /**
@@ -198,7 +202,7 @@ class LocalMachineHelper {
    * @return string
    */
   private function fixFilename($filename): string {
-    return str_replace('~', self::getHomeDir(), $filename);
+    return str_replace('~', $this->getHomeDir(), $filename);
   }
 
   /**
@@ -216,6 +220,22 @@ class LocalMachineHelper {
     return $process;
   }
 
+  public function getHomeDir(): string {
+    return $this->homeDir;
+  }
+
+  public function setHomeDir(string $homeDir): void {
+    $this->homeDir = $homeDir;
+  }
+
+  public function setSshDir(string $sshDir): void {
+    $this->sshDir = $sshDir;
+  }
+
+  public function getSshDir(): string {
+    return $this->sshDir;
+  }
+
   /**
    * Returns the appropriate home directory.
    *
@@ -225,7 +245,7 @@ class LocalMachineHelper {
    * @author Ed Reel <@uberhacker>
    * @url https://github.com/uberhacker/tpm
    */
-  public static function getHomeDir(): string {
+  private function doGetHomeDir(): string {
     $home = getenv('HOME');
     if (!$home) {
       $system = '';
@@ -238,6 +258,10 @@ class LocalMachineHelper {
     }
 
     return $home;
+  }
+
+  private function doGetSshDir(): string {
+    return $this->getHomeDir() . '/.ssh';
   }
 
   /**

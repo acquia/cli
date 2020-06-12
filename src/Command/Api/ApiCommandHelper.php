@@ -115,8 +115,7 @@ class ApiCommandHelper {
     string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
-    SshHelper $sshHelper,
-    string $sshDir
+    SshHelper $sshHelper
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
@@ -129,7 +128,7 @@ class ApiCommandHelper {
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
-    $this->sshDir = $sshDir;
+    $this->sshDir = $localMachineHelper->getSshDir();
   }
 
   /**
@@ -482,7 +481,7 @@ class ApiCommandHelper {
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
           $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
-          $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
+          $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
         $command->setMethod($method);

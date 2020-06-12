@@ -154,8 +154,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
-    SshHelper $sshHelper,
-    string $sshDir
+    SshHelper $sshHelper
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
@@ -168,7 +167,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
-    $this->sshDir = $sshDir;
+    $this->sshDir = $localMachineHelper->getSshDir();
     parent::__construct();
   }
 

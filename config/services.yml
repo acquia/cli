@@ -3,7 +3,6 @@ parameters:
   env(ACLI_REPO_ROOT): "%kernel.project_dir%"
   app.data_dir: "%env(HOME)%/.acquia"
   app.repo_root: "%env(ACLI_REPO_ROOT)%"
-  app.ssh_dir: "%env(HOME)%/.ssh"
   app.acli_config_filename: 'acquia-cli.json'
   app.cloud_config_filename: 'cloud_api.conf'
   app.acli_config_filepath: "%app.data_dir%/%app.acli_config_filename%"
@@ -18,7 +17,6 @@ services:
       $acliConfigFilename: '%app.acli_config_filename%'
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
       $repoRoot: "%app.repo_root%"
-      $sshDir: "%app.ssh_dir%"
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
       Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
     public: true
