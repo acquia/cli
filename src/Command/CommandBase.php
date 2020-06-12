@@ -579,6 +579,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $this->saveLocalConfigCloudAppUuid($application);
         }
         else {
+          // @todo Don't prompt if the user already has this linked in blt.yml.
           $this->promptLinkApplication($application);
         }
       }
