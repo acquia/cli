@@ -254,6 +254,7 @@ class RefreshCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
     $dir = Path::join($this->fixtureDir, 'empty-dir');
+    $this->fs->mkdir([$dir]);
     $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process, $dir);
     $local_machine_helper->getFinder()->willReturn(new Finder());
 
