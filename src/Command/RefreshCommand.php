@@ -56,13 +56,18 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && getcwd() !== '/home/ide/project') {
-      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
-    }
-
-    $this->dir  = getcwd();
     if ($dir = $input->getArgument('dir')) {
       $this->dir = $dir;
+    }
+    elseif(isset($this->repoRoot)) {
+      $this->dir = $this->repoRoot;
+    }
+    else {
+      $this->dir = getcwd();
+    }
+
+    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
     }
 
     $clone = $this->determineCloneProject($output);
@@ -157,7 +162,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
-    $is_dirty = $this->isLocalGitRepoDirty($this->dir);
+    $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
       throw new AcquiaCliException('Local git is dirty!');
     }
@@ -327,17 +332,14 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param string|null $repo_root
-   *
    * @return bool
-   * @throws \Exception
    */
-  protected function isLocalGitRepoDirty(?string $repo_root): bool {
+  protected function isLocalGitRepoDirty(): bool {
     $process = $this->localMachineHelper->execute([
       'git',
       'diff',
       '--stat',
-    ], NULL, $repo_root, FALSE);
+    ], NULL, $this->dir, FALSE);
 
     return !$process->isSuccessful();
   }
