@@ -27,6 +27,7 @@ class AuthCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
+      ->setAliases(['login'])
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
   }

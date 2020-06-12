@@ -4,14 +4,17 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
 use stdClass;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class RefreshCommand.
@@ -21,11 +24,17 @@ class RefreshCommand extends CommandBase {
   protected static $defaultName = 'refresh';
 
   /**
+   * @var string
+   */
+  protected $dir;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
     $this->setName('refresh')
       ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
+      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
@@ -47,6 +56,11 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->determineDir($input);
+    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
+    }
+
     $clone = $this->determineCloneProject($output);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
@@ -84,7 +98,7 @@ class RefreshCommand extends CommandBase {
     }
 
     if ($input->getOption('no-scripts') !== '') {
-      if (file_exists($this->repoRoot . '/composer.json') && $this->localMachineHelper
+      if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper
         ->commandExists('composer')) {
         $checklist->addItem('Installing Composer dependencies');
         $this->composerInstall($output_callback);
@@ -139,8 +153,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
-    $repo_root = $this->repoRoot;
-    $is_dirty = $this->isLocalGitRepoDirty($repo_root);
+    $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
       throw new AcquiaCliException('Local git is dirty!');
     }
@@ -148,12 +161,12 @@ class RefreshCommand extends CommandBase {
       'git',
       'fetch',
       '--all',
-    ], $output_callback, $repo_root, FALSE);
+    ], $output_callback, $this->dir, FALSE);
     $this->localMachineHelper->execute([
       'git',
       'checkout',
       $chosen_environment->vcs->path,
-    ], $output_callback, $repo_root, FALSE);
+    ], $output_callback, $this->dir, FALSE);
   }
 
   /**
@@ -192,6 +205,8 @@ class RefreshCommand extends CommandBase {
           $local_db_password,
           $output_callback
       );
+
+    $this->localMachineHelper->getFilesystem()->remove($mysql_dump_filepath);
 
     return TRUE;
   }
@@ -310,17 +325,14 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param string|null $repo_root
-   *
    * @return bool
-   * @throws \Exception
    */
-  protected function isLocalGitRepoDirty(?string $repo_root): bool {
+  protected function isLocalGitRepoDirty(): bool {
     $process = $this->localMachineHelper->execute([
       'git',
       'diff',
       '--stat',
-    ], NULL, $repo_root, FALSE);
+    ], NULL, $this->dir, FALSE);
 
     return !$process->isSuccessful();
   }
@@ -431,7 +443,7 @@ class RefreshCommand extends CommandBase {
       'cache:rebuild',
       '--yes',
       '--no-interaction',
-    ], $output_callback, $this->repoRoot, FALSE);
+    ], $output_callback, $this->dir, FALSE);
   }
 
   /**
@@ -445,7 +457,7 @@ class RefreshCommand extends CommandBase {
       'sql:sanitize',
       '--yes',
       '--no-interaction',
-    ], $output_callback, $this->repoRoot, FALSE);
+    ], $output_callback, $this->dir, FALSE);
   }
 
   /**
@@ -458,7 +470,7 @@ class RefreshCommand extends CommandBase {
       'composer',
       'install',
       '--no-interaction',
-    ], $output_callback, $this->repoRoot, FALSE);
+    ], $output_callback, $this->dir, FALSE);
   }
 
   /**
@@ -473,7 +485,7 @@ class RefreshCommand extends CommandBase {
       '-rve',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
-      $this->repoRoot . '/docroot/sites/default',
+      $this->dir . '/docroot/sites/default',
     ];
     $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
   }
@@ -542,20 +554,29 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineCloneProject(OutputInterface $output): bool {
-    $clone = FALSE;
-    if (!$this->repoRoot) {
-      $output->writeln('Could not find a local Drupal project. Looked for <options=bold>docroot/index.php</> in current and parent directories.');
+    if ($this->repoRoot) {
+      return FALSE;
+    }
+    // @todo Don't show this message when a the 'dir' argument is specified.
+    $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories');
+
+    if (file_exists(Path::join($this->dir, '.git'))) {
+      return FALSE;
+    }
+    $output->writeln('Could not find a git repository in the current directory');
+
+    $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
+    if (!$finder->hasResults()) {
       $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
         TRUE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
-      if ($answer) {
-        $clone = TRUE;
-      }
-      else {
-        throw new AcquiaCliException('Please execute this command from within a Drupal project directory');
+      if ($this->questionHelper->ask($this->input, $this->output, $question)) {
+        return TRUE;
       }
     }
-    return $clone;
+
+    $output->writeln('Could not clone into the current directory because it is not empty');
+
+    throw new AcquiaCliException('Please execute this command from within a Drupal project directory or an empty directory');
   }
 
   /**
@@ -566,15 +587,18 @@ class RefreshCommand extends CommandBase {
    */
   protected function cloneFromCloud($chosen_environment, \Closure $output_callback): void {
     $command = [
+      'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
       'git',
       'clone',
       $chosen_environment->vcs->url,
-      '.',
+      $this->dir,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback);
+    $command = implode(' ', $command);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
     }
+    $this->repoRoot = $this->dir;
   }
 
   /**
@@ -598,6 +622,21 @@ class RefreshCommand extends CommandBase {
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     return $chosen_environment;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   */
+  protected function determineDir(InputInterface $input): void {
+    if ($dir = $input->getArgument('dir')) {
+      $this->dir = $dir;
+    }
+    elseif ($this->repoRoot) {
+      $this->dir = $this->repoRoot;
+    }
+    else {
+      $this->dir = getcwd();
+    }
   }
 
 }

@@ -48,6 +48,7 @@ class ApiCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
@@ -87,6 +88,8 @@ class ApiCommandBase extends CommandBase {
     }
 
     $path = $this->getRequestPath($input);
+    $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
+    $acquia_cloud_client->addOption('headers', ['User-Agent' => $user_agent]);
     $response = $acquia_cloud_client->request($this->method, $path);
     // @todo Add syntax highlighting to json output.
     $contents = json_encode($response, JSON_PRETTY_PRINT);
