@@ -38,7 +38,7 @@ class SshKeyDeleteCommand extends CommandBase {
 
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);
     if ($response->getStatusCode() === 202) {
-      $output->writeln("<info>Successfully deleted SSH key <options=bold>{$cloud_key->label}</> from Acquia Cloud.</info>");
+      $output->writeln("<info>Successfully deleted SSH key <bg=green; options=bold>{$cloud_key->label}</> from Acquia Cloud.</info>");
       return 0;
     }
 

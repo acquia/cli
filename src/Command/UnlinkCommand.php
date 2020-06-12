@@ -33,6 +33,7 @@ class UnlinkCommand extends CommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
@@ -50,7 +51,7 @@ class UnlinkCommand extends CommandBase {
         $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
 
         $application = $this->getCloudApplication($project['cloud_application_uuid']);
-        $output->writeln("<info>Unlinked <options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
+        $output->writeln("<info>Unlinked <bg=green; options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
         return 0;
       }
     }
