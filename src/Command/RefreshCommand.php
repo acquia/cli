@@ -56,16 +56,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if ($dir = $input->getArgument('dir')) {
-      $this->dir = $dir;
-    }
-    elseif(isset($this->repoRoot)) {
-      $this->dir = $this->repoRoot;
-    }
-    else {
-      $this->dir = getcwd();
-    }
-
+    $this->determineDir($input);
     if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
     }
@@ -629,6 +620,21 @@ class RefreshCommand extends CommandBase {
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     return $chosen_environment;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   */
+  protected function determineDir(InputInterface $input): void {
+    if ($dir = $input->getArgument('dir')) {
+      $this->dir = $dir;
+    }
+    elseif (isset($this->repoRoot)) {
+      $this->dir = $this->repoRoot;
+    }
+    else {
+      $this->dir = getcwd();
+    }
   }
 
 }
