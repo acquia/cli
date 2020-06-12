@@ -629,7 +629,7 @@ class RefreshCommand extends CommandBase {
     if ($dir = $input->getArgument('dir')) {
       $this->dir = $dir;
     }
-    elseif (isset($this->repoRoot)) {
+    elseif ($this->repoRoot) {
       $this->dir = $this->repoRoot;
     }
     else {
