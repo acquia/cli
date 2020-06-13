@@ -42,7 +42,7 @@ class AuthCommandTest extends CommandTestBase {
       [
         TRUE,
         [
-          // Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
+          // Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
           'yes',
           // Do you want to open this page to generate a token now?
           'no',
