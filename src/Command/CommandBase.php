@@ -697,7 +697,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
     ): bool {
-    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application <bg=cyan; options=bold>{$cloud_application->name}</> to this repository</question>? ");
+    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository</question>? ");
     $helper = $this->getHelper('question');
     $answer = $helper->ask($this->input, $this->output, $question);
     if ($answer) {
