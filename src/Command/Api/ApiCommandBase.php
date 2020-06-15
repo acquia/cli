@@ -90,7 +90,13 @@ class ApiCommandBase extends CommandBase {
     $path = $this->getRequestPath($input);
     $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
     $acquia_cloud_client->addOption('headers', ['User-Agent' => $user_agent]);
-    $response = $acquia_cloud_client->request($this->method, $path);
+
+    try {
+      $response = $acquia_cloud_client->request($this->method, $path);
+    }
+    catch (\Exception $exception) {
+      $response = $exception->getBody();
+    }
     // @todo Add syntax highlighting to json output.
     $contents = json_encode($response, JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
