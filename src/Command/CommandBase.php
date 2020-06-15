@@ -669,7 +669,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $local_user_config['localProjects'][$key] = $project;
         $this->localProjectInfo = $local_user_config;
         $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
-        $this->output->writeln("<info>The Cloud application <bg=green; options=bold>{$application->name}</> has been linked to this repository</info>");
+        $this->output->writeln("<info>The Cloud application <bg=green;options=bold>{$application->name}</> has been linked to this repository</info>");
 
         return TRUE;
       }
