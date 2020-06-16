@@ -301,18 +301,15 @@ EOT
    * @param string $public_ssh_key_filepath
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
-    $command = $this->getApplication()->find('ssh-key:upload');
-    $arguments = [
-      'command' => $command->getName(),
+    $return_code = $this->executeAcliCommand('ssh-key:upload', [
       '--label' => $this->getIdeSshKeyLabel($ide),
       '--filepath' => $public_ssh_key_filepath,
       '--no-wait' => '',
-    ];
-    $upload_input = new ArrayInput($arguments);
-    $returnCode = $command->run($upload_input, new NullOutput());
-    if ($returnCode !== 0) {
+    ]);
+    if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
     }
   }

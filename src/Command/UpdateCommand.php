@@ -38,9 +38,11 @@ class UpdateCommand extends CommandBase {
   }
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
    * @return bool
    */
-  protected function commandRequiresAuthentication(): bool {
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
   }
 
