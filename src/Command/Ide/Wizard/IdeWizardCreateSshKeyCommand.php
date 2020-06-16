@@ -90,7 +90,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Upload SSH key to Acquia Cloud.
     if (!$this->userHasUploadedIdeKeyToCloud()) {
-      $checklist->addItem('Uploading local key to Acquia Cloud');
+      $checklist->addItem('Uploading the local key to Acquia Cloud');
 
       // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
       $this->deleteIdeSshKeyFromCloud();
@@ -100,18 +100,18 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $key_was_uploaded = TRUE;
     }
     else {
-      $checklist->addItem('Already uploaded local key to Acquia Cloud');
+      $checklist->addItem('Already uploaded the local key to Acquia Cloud');
       $checklist->completePreviousItem();
     }
 
     // Add SSH key to local keychain.
     if (!$this->sshKeyIsAddedToKeychain()) {
-      $checklist->addItem('Adding SSH key to local keychain');
+      $checklist->addItem('Adding the SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
       $checklist->completePreviousItem();
     }
     else {
-      $checklist->addItem('Already added SSH key to local keychain');
+      $checklist->addItem('Already added the SSH key to local keychain');
       $checklist->completePreviousItem();
     }
 
@@ -155,7 +155,7 @@ EOT
     $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $temp_filepath . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
     $this->localMachineHelper->getFilesystem()->remove($temp_filepath);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to add SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
+      throw new AcquiaCliException('Unable to add the SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
   }
 
@@ -261,7 +261,7 @@ EOT
   ): void {
     // Create a loop to periodically poll Acquia Cloud.
     $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for key to become available on Acquia Cloud web servers', $output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on Acquia Cloud web servers', $output);
 
     // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
@@ -324,7 +324,7 @@ EOT
       '--no-wait' => '',
     ]);
     if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to upload SSH key to Acquia Cloud');
+      throw new AcquiaCliException('Unable to upload the SSH key to Acquia Cloud');
     }
   }
 
