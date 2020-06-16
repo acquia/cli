@@ -25,7 +25,6 @@ class LocalMachineHelper {
   private $input;
   private $isTty = NULL;
   private $homeDir;
-  private $sshDir;
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -37,7 +36,6 @@ class LocalMachineHelper {
     $this->output = $output;
     $this->setLogger($logger);
     $this->homeDir = $this->doGetHomeDir();
-    $this->sshDir = $this->doGetSshDir();
   }
 
   /**
@@ -230,14 +228,6 @@ class LocalMachineHelper {
     $this->homeDir = $homeDir;
   }
 
-  public function setSshDir(string $sshDir): void {
-    $this->sshDir = $sshDir;
-  }
-
-  public function getSshDir(): string {
-    return $this->sshDir;
-  }
-
   /**
    * Returns the appropriate home directory.
    *
@@ -262,7 +252,7 @@ class LocalMachineHelper {
     return $home;
   }
 
-  private function doGetSshDir(): string {
+  public function getSshDir(): string {
     return $this->getHomeDir() . '/.ssh';
   }
 

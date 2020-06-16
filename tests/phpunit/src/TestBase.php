@@ -174,7 +174,7 @@ abstract class TestBase extends TestCase {
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->sshDir = sys_get_temp_dir();
+    $this->sshDir = $this->fixtureDir . '/.ssh';
     $this->acliConfigFilename = 'acquia-cli.json';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
@@ -185,7 +185,6 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
     $this->localMachineHelper->setHomeDir($this->fixtureDir);
-    $this->localMachineHelper->setSshDir($this->sshDir);
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
@@ -370,9 +369,9 @@ abstract class TestBase extends TestCase {
    */
   protected function createLocalSshKey($contents): string {
     $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
+    $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
     $this->fs->remove($finder->files());
-    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($private_key_filepath);
     $public_key_filepath = $private_key_filepath . '.pub';
     $this->fs->dumpFile($public_key_filepath, $contents);
