@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -65,8 +66,10 @@ class RefreshCommand extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
     $checklist = new Checklist($output);
-    $output_callback = static function ($type, $buffer) use ($checklist) {
+    $output_callback = static function ($type, $buffer) use ($checklist, $output) {
       $checklist->updateProgressBar($buffer);
+      $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
+      $output->writeln($output_style, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
 
     if ($input->getOption('no-code') !== '') {
@@ -438,12 +441,15 @@ class RefreshCommand extends CommandBase {
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     // @todo Add support for Drush 8.
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'drush',
       'cache:rebuild',
       '--yes',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -452,12 +458,15 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'drush',
       'sql:sanitize',
       '--yes',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -466,11 +475,14 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function composerInstall($output_callback = NULL): void {
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'composer',
       'install',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -487,7 +499,10 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default',
     ];
-    $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
