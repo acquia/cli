@@ -619,8 +619,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
 
-    // If an IDE, get from env var.
-    if (self::isAcquiaCloudIde() && $application_uuid = self::getThisCloudIdeCloudAppUuid()) {
+    // Get from Acquia Cloud env var.
+    if ($application_uuid = self::getThisCloudIdeCloudAppUuid()) {
       return $application_uuid;
     }
 

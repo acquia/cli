@@ -73,7 +73,7 @@ class AuthLoginCommand extends CommandBase {
     }
     else {
       $question = new Question('<question>Please enter your API Key:</question>');
-      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_key = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -113,7 +113,7 @@ class AuthLoginCommand extends CommandBase {
       $question = new Question('<question>Please enter your API Secret:</question>');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
-      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->questionHelper->ask($input, $output, $question);
     }
 

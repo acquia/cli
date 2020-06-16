@@ -60,7 +60,7 @@ class AuthLogoutCommand extends CommandBase {
     $this->datastoreCloud->set('key', NULL);
     $this->datastoreCloud->set('secret', NULL);
 
-    $output->writeln("<>Removed Cloud API credentials from credentials <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("Removed Cloud API credentials from credentials <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }

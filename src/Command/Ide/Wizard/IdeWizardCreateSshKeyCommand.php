@@ -33,7 +33,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected function initialize(InputInterface $input, OutputInterface $output) {
     if ($this->commandRequiresAuthentication($input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
-      $this->executeAcliCommand('auth:login');
+      $command_name = 'auth:login';
+      $command = $this->getApplication()->find($command_name);
+      $arguments = ['command' => $command_name];
+      $create_input = new ArrayInput($arguments);
+
+      return $command->run($create_input, $output);
     }
 
     parent::initialize($input, $output);
