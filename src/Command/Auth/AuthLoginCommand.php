@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\Auth;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,9 +16,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 /**
- * Class CreateProjectCommand.
+ * Class AuthLoginCommand.
  */
-class AuthCommand extends CommandBase {
+class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 
@@ -55,7 +55,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->cloudConfigFilepath}</info>");
+    $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\Auth;
 
-use Acquia\Cli\Command\AuthCommand;
+use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -10,16 +10,16 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 /**
  * Class AuthCommandTest.
  *
- * @property AuthCommand $command
+ * @property AuthLoginCommand $command
  * @package Acquia\Cli\Tests
  */
-class AuthCommandTest extends CommandTestBase {
+class AuthLoginCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(AuthCommand::class);
+    return $this->injectCommand(AuthLoginCommand::class);
   }
 
   public function providerTestAuthLoginCommand(): array {
@@ -109,7 +109,7 @@ class AuthCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
+   * Tests the 'auth:login' command with invalid input.
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    *
