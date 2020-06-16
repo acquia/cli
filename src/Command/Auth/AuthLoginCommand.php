@@ -144,7 +144,7 @@ class AuthLoginCommand extends CommandBase {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
       $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
-      $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
+      $this->output->writeln('You should create a new token specifically for Acquia CLI and enter the associated key and secret below.');
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question> ',
