@@ -7,6 +7,7 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use stdClass;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -67,12 +68,13 @@ class RefreshCommand extends CommandBase {
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist, $output) {
-      $checklist->updateProgressBar($buffer);
-      $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
-      $output->writeln($output_style, OutputInterface::VERBOSITY_VERY_VERBOSE);
+      if (!$output->isVerbose()) {
+        $checklist->updateProgressBar($buffer);
+      }
+      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
 
-    if ($input->getOption('no-code') !== '') {
+    if (!$input->getOption('no-code')) {
       if ($clone) {
         $checklist->addItem('Cloning git repository from Acquia Cloud');
         $this->cloneFromCloud($chosen_environment, $output_callback);
@@ -86,7 +88,7 @@ class RefreshCommand extends CommandBase {
     }
 
     // Copy databases.
-    if ($input->getOption('no-databases') !== '') {
+    if (!$input->getOption('no-databases')) {
       $database = $this->determineSourceDatabase($acquia_cloud_client, $chosen_environment);
       $checklist->addItem('Importing Drupal database copy from Acquia Cloud');
       $this->importRemoteDatabase($chosen_environment, $database, $output_callback);
@@ -94,13 +96,13 @@ class RefreshCommand extends CommandBase {
     }
 
     // Copy files.
-    if ($input->getOption('no-files') !== '') {
+    if (!$input->getOption('no-files')) {
       $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
       $this->rsyncFilesFromCloud($chosen_environment, $output_callback);
       $checklist->completePreviousItem();
     }
 
-    if ($input->getOption('no-scripts') !== '') {
+    if (!$input->getOption('no-scripts')) {
       if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper
         ->commandExists('composer')) {
         $checklist->addItem('Installing Composer dependencies');
@@ -108,7 +110,7 @@ class RefreshCommand extends CommandBase {
         $checklist->completePreviousItem();
       }
 
-      if ($this->drushHasActiveDatabaseConnection()) {
+      if ($this->drushHasActiveDatabaseConnection($output_callback)) {
         // Drush rebuild caches.
         $checklist->addItem('Clearing Drupal caches via Drush');
         $this->drushRebuildCaches($output_callback);
@@ -128,7 +130,7 @@ class RefreshCommand extends CommandBase {
    * @return bool
    * @throws \Exception
    */
-  protected function drushHasActiveDatabaseConnection(): bool {
+  protected function drushHasActiveDatabaseConnection($output_callback = NULL): bool {
     if ($this->localMachineHelper->commandExists('drush')) {
       $process = $this->localMachineHelper->execute([
         'drush',
@@ -136,7 +138,7 @@ class RefreshCommand extends CommandBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], NULL, NULL, FALSE);
+      ], $output_callback, $this->dir, FALSE);
       if ($process->isSuccessful()) {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
@@ -158,7 +160,7 @@ class RefreshCommand extends CommandBase {
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
-      throw new AcquiaCliException('Local git is dirty!');
+      throw new AcquiaCliException('Pulling code from your Acquia Cloud environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
     }
     $this->localMachineHelper->execute([
       'git',
@@ -329,15 +331,20 @@ class RefreshCommand extends CommandBase {
 
   /**
    * @return bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function isLocalGitRepoDirty(): bool {
     $process = $this->localMachineHelper->execute([
       'git',
-      'diff',
-      '--stat',
+      'status',
+      '--short',
     ], NULL, $this->dir, FALSE);
 
-    return !$process->isSuccessful();
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to determine if local git repository is dirty.");
+    }
+
+    return (bool) $process->getOutput();
   }
 
   /**
@@ -350,12 +357,17 @@ class RefreshCommand extends CommandBase {
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
     $choices = [];
-    foreach ($application_environments as $environment) {
+    foreach ($application_environments as $key => $environment) {
       // Don't allow a refresh from prod.
-      if (!$environment->flags->production) {
-        $choices[] = "{$environment->label} (vcs: {$environment->vcs->path})";
+      if ($environment->flags->production) {
+        unset($application_environments[$key]);
+        continue;
       }
+
+      $choices[] = "{$environment->label} (vcs: {$environment->vcs->path})";
     }
+    // Re-key the array since we removed production.
+    $application_environments = array_values($application_environments);
     $question = new ChoiceQuestion(
           '<question>Choose an Acquia Cloud environment to copy from</question>:',
           $choices
@@ -492,11 +504,12 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
+    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
     $command = [
       'rsync',
       '-rve',
       'ssh -o StrictHostKeyChecking=no',
-      $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
+      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default',
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
@@ -552,8 +565,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getAcsfSites($cloud_environment): array {
-    $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
-    $sitegroup = reset($ssh_url_parts);
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
     $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command);
     if ($process->isSuccessful()) {
@@ -652,6 +664,18 @@ class RefreshCommand extends CommandBase {
     else {
       $this->dir = getcwd();
     }
+  }
+
+  /**
+   * @param $cloud_environment
+   *
+   * @return string
+   */
+  public static function getSiteGroupFromSshUrl($cloud_environment): string {
+    $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
+    $sitegroup = reset($ssh_url_parts);
+
+    return $sitegroup;
   }
 
 }
