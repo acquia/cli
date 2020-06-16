@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\Auth;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,9 +16,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 /**
- * Class CreateProjectCommand.
+ * Class AuthLoginCommand.
  */
-class AuthCommand extends CommandBase {
+class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 
@@ -42,7 +42,7 @@ class AuthCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question>',
+      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question> ',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if (!$answer) {
@@ -55,7 +55,7 @@ class AuthCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
 
-    $output->writeln("<info>Saved credentials to {$this->cloudConfigFilepath}</info>");
+    $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }
@@ -72,8 +72,8 @@ class AuthCommand extends CommandBase {
       $this->validateApiKey($api_key);
     }
     else {
-      $question = new Question('<question>Please enter your API Key:</question>');
-      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
+      $question = new Question('<question>Please enter your API Key:</question> ');
+      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_key = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -110,10 +110,10 @@ class AuthCommand extends CommandBase {
       $this->validateApiKey($api_secret);
     }
     else {
-      $question = new Question('<question>Please enter your API Secret:</question>');
+      $question = new Question('<question>Please enter your API Secret:</question> ');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
-      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->questionHelper->ask($input, $output, $question);
     }
 
@@ -144,10 +144,9 @@ class AuthCommand extends CommandBase {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
       $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
-      $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
+        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question> ',
           TRUE);
         if ($this->questionHelper->ask($input, $output, $question)) {
           $this->localMachineHelper->startBrowser($token_url);
