@@ -182,7 +182,7 @@ abstract class TestBase extends TestCase {
     $this->cloudDatastore = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
-    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN'])->willReturn();
+    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
     $this->localMachineHelper->setHomeDir($this->fixtureDir);
     $this->localMachineHelper->setSshDir($this->sshDir);

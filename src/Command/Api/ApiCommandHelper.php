@@ -472,9 +472,7 @@ class ApiCommandHelper {
       }
 
       foreach ($endpoint as $method => $schema) {
-        // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
-        // application/gzip content.
-        if ($schema['x-cli-name'] === 'accounts:drush-aliases') {
+        if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), TRUE)) {
           continue;
         }
 
@@ -498,6 +496,27 @@ class ApiCommandHelper {
     }
 
     return $api_commands;
+  }
+
+  /**
+   * @return array
+   */
+  protected function getSkippedApiCommands(): array {
+    return [
+      // Skip accounts:drush-aliases since we have remote:aliases:download instead and it actually returns
+      // application/gzip content.
+      'accounts:drush-aliases',
+      // Skip any command that has a duplicative corresponding ACLI command.
+      'ide:create',
+      'ide:delete',
+      'ide:list',
+      'log:tail',
+      'ssh-key:create',
+      'ssh-key:create-upload',
+      'ssh-key:delete',
+      'ssh-key:list',
+      'ssh-key:upload',
+    ];
   }
 
 }

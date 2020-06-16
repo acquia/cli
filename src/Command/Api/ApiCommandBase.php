@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -56,7 +57,7 @@ class ApiCommandBase extends CommandBase {
     if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
       $output->writeln('Inferring Cloud Application UUID for this command since none was provided...');
       if ($application_uuid = $this->determineCloudApplication()) {
-        $output->writeln("Set application uuid to <comment>$application_uuid</comment>");
+        $output->writeln("Set application uuid to <options=bold>$application_uuid</>");
         $input->setArgument('applicationUuid', $application_uuid);
       }
     }
@@ -90,12 +91,20 @@ class ApiCommandBase extends CommandBase {
     $path = $this->getRequestPath($input);
     $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
     $acquia_cloud_client->addOption('headers', ['User-Agent' => $user_agent]);
-    $response = $acquia_cloud_client->request($this->method, $path);
+
+    try {
+      $response = $acquia_cloud_client->request($this->method, $path);
+      $exit_code = 0;
+    }
+    catch (ApiErrorException $exception) {
+      $response = $exception->getResponseBody();
+      $exit_code = 1;
+    }
     // @todo Add syntax highlighting to json output.
     $contents = json_encode($response, JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
 
-    return 0;
+    return $exit_code;
   }
 
   /**
@@ -144,6 +153,13 @@ class ApiCommandBase extends CommandBase {
     }
 
     return $path;
+  }
+
+  /**
+   * @return string
+   */
+  public function getMethod(): string {
+    return $this->method;
   }
 
   /**

@@ -21,9 +21,11 @@ class UnlinkCommand extends CommandBase {
   }
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
    * @return bool
    */
-  protected function commandRequiresAuthentication(): bool {
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
   }
 
@@ -33,6 +35,7 @@ class UnlinkCommand extends CommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
@@ -50,7 +53,7 @@ class UnlinkCommand extends CommandBase {
         $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
 
         $application = $this->getCloudApplication($project['cloud_application_uuid']);
-        $output->writeln("<info>Unlinked <comment>$repo_root</comment> from Cloud application <comment>{$application->name}</comment></info>");
+        $output->writeln("<info>Unlinked <options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
         return 0;
       }
     }

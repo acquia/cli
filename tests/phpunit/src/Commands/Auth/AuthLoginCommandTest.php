@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\Auth;
 
-use Acquia\Cli\Command\AuthCommand;
+use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -10,16 +10,16 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 /**
  * Class AuthCommandTest.
  *
- * @property AuthCommand $command
+ * @property AuthLoginCommand $command
  * @package Acquia\Cli\Tests
  */
-class AuthCommandTest extends CommandTestBase {
+class AuthLoginCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(AuthCommand::class);
+    return $this->injectCommand(AuthLoginCommand::class);
   }
 
   public function providerTestAuthLoginCommand(): array {
@@ -42,7 +42,7 @@ class AuthCommandTest extends CommandTestBase {
       [
         TRUE,
         [
-          // Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
+          // Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
           'yes',
           // Do you want to open this page to generate a token now?
           'no',
@@ -109,7 +109,7 @@ class AuthCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
+   * Tests the 'auth:login' command with invalid input.
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    *
@@ -131,10 +131,7 @@ class AuthCommandTest extends CommandTestBase {
    * @param string $output
    */
   protected function assertInteractivePrompts(string $output): void {
-    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens',
-      $output);
-    $this->assertStringContainsString('You should create a new token specifically for Developer Studio and enter the associated key and secret below.',
-      $output);
+    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
     $this->assertStringContainsString('Please enter your API Key:', $output);
     $this->assertStringContainsString('Please enter your API Secret:', $output);

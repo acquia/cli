@@ -99,6 +99,8 @@ class LocalMachineHelper {
     if ($print_output) {
       $process->setTty($this->useTty());
     }
+    // 10 minute timeout.
+    $process->setTimeout(60 * 10);
     $process->start(NULL);
     $process->wait($callback);
 

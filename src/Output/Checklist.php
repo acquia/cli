@@ -79,10 +79,6 @@ class Checklist {
       if ($this->useSpinner()) {
         $spinner->advance();
       }
-      // @todo Replace this with logger.
-      if ($this->output->isVeryVerbose()) {
-        $this->output->writeln($line);
-      }
     }
   }
 

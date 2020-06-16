@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Api;
 use Acquia\Cli\Command\Api\ApiCommandBase;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\PathUtil\Path;
@@ -29,9 +30,28 @@ class ApiCommandTest extends CommandTestBase {
     return $this->injectCommand(ApiCommandBase::class);
   }
 
-  /**
-   * Tests the 'api:*' commands.
-   */
+  public function testApiCommandErrorResponse(): void {
+    $uuid = 'invaliduuid';
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $mock_body = $this->getMockResponseFromSpec($this->command->getPath(), $this->command->getMethod(), '404');
+    $this->clientProphecy->request('get', '/applications/' . $uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
+    $this->executeCommand(['applicationUuid' => $uuid], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertJson($output);
+    $this->assertStringContainsString($mock_body->message, $output);
+    $this->assertEquals(1, $this->getStatusCode());
+  }
+
   public function testApiCommandExecutionForHttpGet(): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
