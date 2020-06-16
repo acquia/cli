@@ -93,15 +93,17 @@ class ApiCommandBase extends CommandBase {
 
     try {
       $response = $acquia_cloud_client->request($this->method, $path);
+      $exit_code = 0;
     }
     catch (\Exception $exception) {
-      $response = $exception->getBody();
+      $response = $exception->getResponseBody();
+      $exit_code = 1;
     }
     // @todo Add syntax highlighting to json output.
     $contents = json_encode($response, JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
 
-    return 0;
+    return $exit_code;
   }
 
   /**
@@ -150,6 +152,13 @@ class ApiCommandBase extends CommandBase {
     }
 
     return $path;
+  }
+
+  /**
+   * @return string
+   */
+  public function getMethod(): string {
+    return $this->method;
   }
 
   /**
