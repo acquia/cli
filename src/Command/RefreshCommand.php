@@ -71,7 +71,6 @@ class RefreshCommand extends CommandBase {
       if (!$output->isVerbose()) {
         $checklist->updateProgressBar($buffer);
       }
-      // $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
       $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
 
@@ -111,7 +110,7 @@ class RefreshCommand extends CommandBase {
         $checklist->completePreviousItem();
       }
 
-      if ($this->drushHasActiveDatabaseConnection()) {
+      if ($this->drushHasActiveDatabaseConnection($output_callback)) {
         // Drush rebuild caches.
         $checklist->addItem('Clearing Drupal caches via Drush');
         $this->drushRebuildCaches($output_callback);
@@ -131,7 +130,7 @@ class RefreshCommand extends CommandBase {
    * @return bool
    * @throws \Exception
    */
-  protected function drushHasActiveDatabaseConnection(): bool {
+  protected function drushHasActiveDatabaseConnection($output_callback = NULL): bool {
     if ($this->localMachineHelper->commandExists('drush')) {
       $process = $this->localMachineHelper->execute([
         'drush',
@@ -139,7 +138,7 @@ class RefreshCommand extends CommandBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], NULL, NULL, FALSE);
+      ], $output_callback, $this->dir, FALSE);
       if ($process->isSuccessful()) {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
