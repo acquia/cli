@@ -50,7 +50,7 @@ class RefreshCommandTest extends CommandTestBase {
 
     $dirty_process = $this->mockProcess();
     $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $environments_response);
-    $this->mockExecuteGitDiffStat(FALSE, $dirty_process, $local_machine_helper);
+    $this->mockExecuteGitStatus(FALSE, $dirty_process, $local_machine_helper);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -64,9 +64,9 @@ class RefreshCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([
-      '--no-files' => '',
-      '--no-databases' => '',
-      '--no-scripts' => ''
+      '--no-files' => TRUE,
+      '--no-databases' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -80,7 +80,7 @@ class RefreshCommandTest extends CommandTestBase {
   public function testRefreshDatabases(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
     $acsf_multisite_fetch_process = $this->mockProcess();
@@ -127,9 +127,9 @@ class RefreshCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([
-      '--no-files' => '',
-      '--no-code' => '',
-      '--no-scripts' => ''
+      '--no-files' => TRUE,
+      '--no-code' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -165,9 +165,9 @@ class RefreshCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([
-      '--no-databases' => '',
-      '--no-code' => '',
-      '--no-scripts' => ''
+      '--no-databases' => TRUE,
+      '--no-code' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -212,9 +212,9 @@ class RefreshCommandTest extends CommandTestBase {
     ];
 
     $this->executeCommand([
-      '--no-databases' => '',
-      '--no-code' => '',
-      '--no-files' => ''
+      '--no-databases' => TRUE,
+      '--no-code' => TRUE,
+      '--no-files' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -271,9 +271,9 @@ class RefreshCommandTest extends CommandTestBase {
       0,
     ];
     $this->executeCommand([
-      '--no-databases' => '',
-      '--no-files' => '',
-      '--no-scripts' => '',
+      '--no-databases' => TRUE,
+      '--no-files' => TRUE,
+      '--no-scripts' => TRUE,
       'dir' => $dir,
     ], $inputs);
     $this->prophet->checkPredictions();
@@ -328,7 +328,7 @@ class RefreshCommandTest extends CommandTestBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], NULL, NULL, FALSE)
+      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
       ->willReturn($drush_status_process->reveal())
       ->shouldBeCalled();
   }
@@ -399,14 +399,14 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
-      ->execute([
+      $command = [
         'rsync',
         '-rve',
         'ssh -o StrictHostKeyChecking=no',
-        $environments_response->ssh_url . ':/' . $environments_response->name . '/sites/default/files',
+        $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
         $this->projectFixtureDir . '/docroot/sites/default',
-      ], Argument::type('callable'), NULL, FALSE)
+      ];
+      $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -582,7 +582,7 @@ class RefreshCommandTest extends CommandTestBase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockEnvironmentsRequest(
+  public function mockAcsfEnvironmentsRequest(
     $applications_response
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
@@ -592,6 +592,28 @@ class RefreshCommandTest extends CommandTestBase {
     $acsf_env_response = $this->getAcsfEnvResponse();
     $response->sshUrl = $acsf_env_response->sshUrl;
     $response->domains = $acsf_env_response->domains;
+    $this->clientProphecy->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$response])
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @param object $applications_response
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function mockEnvironmentsRequest(
+    $applications_response
+  ) {
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209.
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      'get', '200');
+    $response->sshUrl = $response->ssh_url;
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
@@ -631,16 +653,17 @@ class RefreshCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
-  protected function mockExecuteGitDiffStat(
+  protected function mockExecuteGitStatus(
     $is_dirty,
     ObjectProphecy $dirty_process,
     ObjectProphecy $local_machine_helper
   ): void {
     $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
+    $dirty_process->getOutput()->willReturn('')->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
-      'diff',
-      '--stat',
+      'status',
+      '--short',
     ], NULL, $this->projectFixtureDir, FALSE)->willReturn($dirty_process->reveal())->shouldBeCalled();
   }
 
