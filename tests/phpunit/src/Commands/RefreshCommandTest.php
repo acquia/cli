@@ -659,6 +659,7 @@ class RefreshCommandTest extends CommandTestBase {
     ObjectProphecy $local_machine_helper
   ): void {
     $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
+    $dirty_process->getOutput()->willReturn('')->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
       'status',

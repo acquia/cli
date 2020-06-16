@@ -508,8 +508,6 @@ class RefreshCommand extends CommandBase {
       'rsync',
       '-rve',
       'ssh -o StrictHostKeyChecking=no',
-      // site.dev@server-123.hosted.hosting.acquia.com:/home/site/dev/sites/default/files
-      // site.dev@server-123.hosted.hosting.acquia.com:/home/profserv2/dev/sites/default/files
       $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default',
     ];
