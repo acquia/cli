@@ -68,9 +68,11 @@ class RefreshCommand extends CommandBase {
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
     $checklist = new Checklist($output);
     $output_callback = static function ($type, $buffer) use ($checklist, $output) {
-      $checklist->updateProgressBar($buffer);
-      $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
-      $output->writeln($output_style, OutputInterface::VERBOSITY_VERY_VERBOSE);
+      if (!$output->isVerbose()) {
+        $checklist->updateProgressBar($buffer);
+      }
+      // $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
+      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
 
     if (!$input->getOption('no-code')) {
