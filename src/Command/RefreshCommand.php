@@ -458,7 +458,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     $drush_major_version = $this->getDrushMajorVersion($output_callback);
-    if ($drush_major_version === '8') {
+    if ($drush_major_version >= '8') {
       $command = [
         'drush',
         'cache:rebuild',
@@ -513,7 +513,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
     $drush_major_version = $this->getDrushMajorVersion($output_callback);
-    if ($drush_major_version === '8') {
+    if ($drush_major_version >= '8') {
       $command = [
         'drush',
         'sql:sanitize',
