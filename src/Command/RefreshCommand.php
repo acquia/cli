@@ -28,6 +28,11 @@ class RefreshCommand extends CommandBase {
   /**
    * @var string
    */
+  protected $drushMajorVersion;
+
+  /**
+   * @var string
+   */
   protected $dir;
 
   /**
@@ -452,15 +457,52 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
-    // @todo Add support for Drush 8.
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'cache:rebuild',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
+    $drush_major_version = $this->getDrushMajorVersion($output_callback);
+    if ($drush_major_version === '8') {
+      $command = [
+        'drush',
+        'cache:rebuild',
+        '--yes',
+        '--no-interaction',
+      ];
+    }
+    else {
+      // Drush 7.
+      $command = [
+        'drush',
+        'cache-clear',
+        'all',
+        '--yes',
+      ];
+    }
+    $process = $this->localMachineHelper->execute($command, $output_callback, $this->dir, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+    }
+  }
+
+  /**
+   * @param callable $output_callback
+   *
+   * @return string
+   * @throws \Exception
+   */
+  protected function getDrushMajorVersion($output_callback = NULL): string {
+    if (isset($this->drushMajorVersion)) {
+      return $this->drushMajorVersion;
+    }
+    $process = $this->localMachineHelper->execute([
+      'drush',
+      'version',
+      '--format=json',
+      '--no-interaction',
+    ], $output_callback, $this->dir, FALSE);
+    if ($process->isSuccessful()) {
+      $drush_status_return_output = json_decode($process->getOutput(), TRUE);
+      if (is_array($drush_status_return_output) && array_key_exists('drush-version', $drush_status_return_output)) {
+        $this->drushMajorVersion = substr($drush_status_return_output['drush-version'], 0, 1);
+        return $this->drushMajorVersion;
+      }
     }
   }
 
@@ -470,12 +512,24 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'sql:sanitize',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
+    $drush_major_version = $this->getDrushMajorVersion($output_callback);
+    if ($drush_major_version === '8') {
+      $command = [
+        'drush',
+        'sql:sanitize',
+        '--yes',
+        '--no-interaction',
+      ];
+    }
+    else {
+      // Drush 7.
+      $command = [
+        'drush',
+        'sql-sanitize',
+        '--yes',
+      ];
+    }
+    $process = $this->localMachineHelper->execute($command, $output_callback, $this->dir, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
     }
