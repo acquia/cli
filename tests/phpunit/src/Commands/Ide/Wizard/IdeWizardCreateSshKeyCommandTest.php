@@ -29,16 +29,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   protected $ide;
 
-  // Tests:
-  // Delete from cloud.
-  // Delete private key.
-  // Delete public key.
-  // Delete from keychain.
-  // Delete local passphrase file.
-  // Assert added to keychain.
-  // Assert both keys exist.
-  // Assert uploaded to cloud.
-  //
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
