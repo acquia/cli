@@ -42,7 +42,7 @@ class AuthCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Your machine already has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question>',
+      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question>',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if (!$answer) {
