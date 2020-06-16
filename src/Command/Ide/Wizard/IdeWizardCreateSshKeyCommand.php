@@ -27,7 +27,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function configure() {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setAliases(['wizard'])
+      ->setAliases(['ide:wizard'])
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
@@ -45,7 +45,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $arguments = ['command' => $command_name];
       $create_input = new ArrayInput($arguments);
       $exit_code = $command->run($create_input, $output);
-      if ($exit_code) {
+      if ($exit_code !== 0) {
         throw new AcquiaCliException("Unable to authenticate with Acquia Cloud.");
       }
     }
