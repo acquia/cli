@@ -109,6 +109,8 @@ class RefreshCommand extends CommandBase {
       }
 
       if ($this->drushHasActiveDatabaseConnection()) {
+
+
         // Drush rebuild caches.
         $checklist->addItem('Clearing Drupal caches via Drush');
         $this->drushRebuildCaches($output_callback);
@@ -441,12 +443,15 @@ class RefreshCommand extends CommandBase {
    */
   protected function drushRebuildCaches($output_callback = NULL): void {
     // @todo Add support for Drush 8.
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'drush',
       'cache:rebuild',
       '--yes',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -455,12 +460,15 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function drushSqlSanitize($output_callback = NULL): void {
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'drush',
       'sql:sanitize',
       '--yes',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -469,11 +477,14 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function composerInstall($output_callback = NULL): void {
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'composer',
       'install',
       '--no-interaction',
     ], $output_callback, $this->dir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -490,7 +501,10 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->sshUrl . ':/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default',
     ];
-    $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
