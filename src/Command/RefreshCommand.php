@@ -558,7 +558,7 @@ class RefreshCommand extends CommandBase {
       return FALSE;
     }
     // @todo Don't show this message when a the 'dir' argument is specified.
-    $output->writeln('Could not find a local Drupal project. Looked for <comment>docroot/index.php</comment> in current and parent directories');
+    $output->writeln('Could not find a local Drupal project. Looked for <options=bold>docroot/index.php</> in current and parent directories');
 
     if (file_exists(Path::join($this->dir, '.git'))) {
       return FALSE;
@@ -618,7 +618,7 @@ class RefreshCommand extends CommandBase {
     else {
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $output->writeln('Using Cloud Application <comment>' . $cloud_application->name . '</comment>');
+      $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     return $chosen_environment;
