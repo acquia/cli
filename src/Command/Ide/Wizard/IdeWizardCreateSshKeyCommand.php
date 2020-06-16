@@ -27,7 +27,16 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function configure() {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
+      ->setAliases(['wizard'])
       ->setHidden(!CommandBase::isAcquiaCloudIde());
+  }
+
+  protected function initialize(InputInterface $input, OutputInterface $output) {
+    if ($this->commandRequiresAuthentication() && !self::isMachineAuthenticated($this->datastoreCloud)) {
+      $this->executeAcliCommand('auth:login');
+    }
+
+    parent::initialize($input, $output);
   }
 
   /**
@@ -277,18 +286,29 @@ EOT
    * @throws \Exception
    */
   protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
-    $command = $this->getApplication()->find('ssh-key:create');
-    $arguments = [
-      'command' => $command->getName(),
-      '--filename' => $private_ssh_key_filename,
-      '--password' => $password,
-    ];
-    $create_input = new ArrayInput($arguments);
-    $return_code = $command->run($create_input, new NullOutput());
+     $return_code = $this->executeAcliCommand('ssh-key:create', [
+       '--filename' => $private_ssh_key_filename,
+       '--password' => $password,
+     ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
     return $return_code;
+  }
+
+  /**
+   * @param string $command_name
+   * @param array $arguments
+   *
+   * @return int
+   * @throws \Exception
+   */
+  protected function executeAcliCommand($command_name, $arguments = []): int {
+    $command = $this->getApplication()->find($command_name);
+    array_unshift($arguments, ['command' => $command_name]);
+    $create_input = new ArrayInput($arguments);
+
+    return $command->run($create_input, new NullOutput());
   }
 
   /**
