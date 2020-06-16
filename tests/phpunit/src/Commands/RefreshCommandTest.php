@@ -328,7 +328,7 @@ class RefreshCommandTest extends CommandTestBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], NULL, NULL, FALSE)
+      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
       ->willReturn($drush_status_process->reveal())
       ->shouldBeCalled();
   }
