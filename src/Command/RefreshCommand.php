@@ -109,8 +109,6 @@ class RefreshCommand extends CommandBase {
       }
 
       if ($this->drushHasActiveDatabaseConnection()) {
-
-
         // Drush rebuild caches.
         $checklist->addItem('Clearing Drupal caches via Drush');
         $this->drushRebuildCaches($output_callback);
