@@ -14,6 +14,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -65,8 +66,10 @@ class RefreshCommand extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $chosen_environment = $this->determineEnvironment($input, $output, $acquia_cloud_client);
     $checklist = new Checklist($output);
-    $output_callback = static function ($type, $buffer) use ($checklist) {
+    $output_callback = static function ($type, $buffer) use ($checklist, $output) {
       $checklist->updateProgressBar($buffer);
+      $output_style = $type === Process::ERR ? "<error>$buffer</error>" : $buffer;
+      $output->writeln($output_style, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
 
     if ($input->getOption('no-code') !== '') {
