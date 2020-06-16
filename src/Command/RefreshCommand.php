@@ -594,7 +594,7 @@ class RefreshCommand extends CommandBase {
 
     $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
     if (!$finder->hasResults()) {
-      $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question>',
+      $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question> ',
         TRUE);
       if ($this->questionHelper->ask($this->input, $this->output, $question)) {
         return TRUE;

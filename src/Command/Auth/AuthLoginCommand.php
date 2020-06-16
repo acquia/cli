@@ -42,7 +42,7 @@ class AuthLoginCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question>',
+      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question> ',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if (!$answer) {
@@ -72,7 +72,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_key);
     }
     else {
-      $question = new Question('<question>Please enter your API Key:</question>');
+      $question = new Question('<question>Please enter your API Key:</question>' );
       $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
       $api_key = $this->questionHelper->ask($input, $output, $question);
     }
@@ -110,7 +110,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_secret);
     }
     else {
-      $question = new Question('<question>Please enter your API Secret:</question>');
+      $question = new Question('<question>Please enter your API Secret:</question> ');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
@@ -147,7 +147,7 @@ class AuthLoginCommand extends CommandBase {
       $this->output->writeln('You should create a new token specifically for Developer Studio and enter the associated key and secret below.');
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question>',
+        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question> ',
           TRUE);
         if ($this->questionHelper->ask($input, $output, $question)) {
           $this->localMachineHelper->startBrowser($token_url);

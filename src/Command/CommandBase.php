@@ -214,7 +214,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
-      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question>', TRUE);
+      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question> ', TRUE);
       $pref = $this->questionHelper->ask($this->input, $this->output, $question);
       $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
