@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -95,7 +96,7 @@ class ApiCommandBase extends CommandBase {
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;
     }
-    catch (\Exception $exception) {
+    catch (ApiErrorException $exception) {
       $response = $exception->getResponseBody();
       $exit_code = 1;
     }
