@@ -31,14 +31,23 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return int|void
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     if ($this->commandRequiresAuthentication($input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];
       $create_input = new ArrayInput($arguments);
-
-      return $command->run($create_input, $output);
+      $exit_code = $command->run($create_input, $output);
+      if ($exit_code) {
+        throw new AcquiaCliException("Unable to authenticate with Acquia Cloud.");
+      }
     }
 
     parent::initialize($input, $output);
