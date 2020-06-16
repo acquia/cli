@@ -47,6 +47,7 @@ class ApiCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
+    $this->assertJson($output);
     $this->assertStringContainsString($mock_body->message, $output);
     $this->assertEquals(1, $this->getStatusCode());
   }
