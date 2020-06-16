@@ -32,7 +32,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication() && !self::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication($input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       $this->executeAcliCommand('auth:login');
     }
 
@@ -294,21 +294,6 @@ EOT
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
     return $return_code;
-  }
-
-  /**
-   * @param string $command_name
-   * @param array $arguments
-   *
-   * @return int
-   * @throws \Exception
-   */
-  protected function executeAcliCommand($command_name, $arguments = []): int {
-    $command = $this->getApplication()->find($command_name);
-    array_unshift($arguments, ['command' => $command_name]);
-    $create_input = new ArrayInput($arguments);
-
-    return $command->run($create_input, new NullOutput());
   }
 
   /**

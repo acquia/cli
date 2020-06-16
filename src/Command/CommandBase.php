@@ -22,8 +22,10 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -193,7 +195,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
 
-    if ($this->commandRequiresAuthentication() && !self::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
     }
 
@@ -254,11 +256,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Indicates whether the command requires the machine to be authenticated with Acquia Cloud.
    *
+   * @param $input
+   *
    * @return bool
    */
-  protected function commandRequiresAuthentication(): bool {
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
     // In fact some other commands such as `api:list` don't require auth, but it's easier and safer to assume they do.
-    return $this->input->getFirstArgument() !== 'auth:login';
+    return $input->getFirstArgument() !== 'auth:login';
   }
 
   /**
@@ -787,6 +791,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environment_resource = new Environments($this->cloudApiClientService->getClient());
 
     return $environment_resource->get($environment_id);
+  }
+
+  /**
+   * @param string $command_name
+   * @param array $arguments
+   *
+   * @return int
+   * @throws \Exception
+   */
+  protected function executeAcliCommand($command_name, $arguments = []): int {
+    $command = $this->getApplication()->find($command_name);
+    array_unshift($arguments, ['command' => $command_name]);
+    $create_input = new ArrayInput($arguments);
+
+    return $command->run($create_input, new NullOutput());
   }
 
 }
