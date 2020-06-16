@@ -578,7 +578,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
         }
-        else {
+        elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
           // @todo Don't prompt if the user already has this linked in blt.yml.
           $this->promptLinkApplication($application);
         }
