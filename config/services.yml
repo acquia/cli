@@ -29,6 +29,10 @@ services:
     public: false
     resource: ../src
 
+  Acquia\Cli\EventListener\:
+    resource: ../src/EventListener/*
+    tags: [kernel.event_listener]
+
   # All commands inherit from a common base and use the same DI parameters.
   Acquia\Cli\Command\:
     resource: ../src/Command
