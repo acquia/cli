@@ -507,10 +507,10 @@ class RefreshCommand extends CommandBase {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
     $command = [
       'rsync',
-      '-rve',
+      '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
-      $this->dir . '/docroot/sites/default',
+      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files/',
+      $this->dir . '/docroot/sites/default/',
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
     if (!$process->isSuccessful()) {
