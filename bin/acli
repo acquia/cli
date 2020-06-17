@@ -87,12 +87,7 @@ $application->setVersion('@package_version@');
 /** @var \Acquia\Cli\Command\Api\ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
-// Clean up exceptions thrown during commands.
-$dispatcher = new EventDispatcher();
-if (!in_array('update', $_SERVER['argv'], TRUE)) {
-  addInvalidCredentialsErrorListener($dispatcher);
-}
-$application->setDispatcher($dispatcher);
+$application->setDispatcher(new EventDispatcher());
 $application->run();
 
 /**
@@ -170,19 +165,4 @@ function files_exist($dir, array $files) {
   }
 
   return FALSE;
-}
-
-/**
- * @param \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher
- */
-function addInvalidCredentialsErrorListener(EventDispatcher $dispatcher): void {
-  $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
-    $exitCode = $event->getExitCode();
-    $error = $event->getError();
-    // Make OAuth server errors more human-friendly.
-    if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-      $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.',
-        [], $exitCode));
-    }
-  });
 }
