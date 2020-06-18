@@ -37,6 +37,10 @@ services:
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
+  Acquia\Cli\EventListener\ExceptionListener:
+    tags:
+      - { name: kernel.event_listener, event: console.error, method: onConsoleError}
+
   # We have multiple datastores using the same class, just different arguments.
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
@@ -66,6 +70,7 @@ services:
   Symfony\Component\Console\Output\ConsoleOutput: ~
   Symfony\Component\Console\Output\OutputInterface:
     alias: Symfony\Component\Console\Output\ConsoleOutput
+  Symfony\Component\EventDispatcher\EventDispatcher: ~
 
   # Amplitude service.
   Zumba\Amplitude\Amplitude: ~

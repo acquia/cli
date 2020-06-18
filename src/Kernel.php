@@ -2,12 +2,15 @@
 
 namespace Acquia\Cli;
 
+use Acquia\Cli\EventListener\ExceptionListener;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
@@ -47,8 +50,22 @@ class Kernel extends BaseKernel {
        */
       public function process(ContainerBuilder $container_builder) {
         $app_definition = $container_builder->findDefinition(Application::class);
+        $dispatcher_definition = $container_builder->findDefinition(EventDispatcher::class);
 
         foreach ($container_builder->getDefinitions() as $definition) {
+          // Handle event listeners.
+          if ($definition->hasTag('kernel.event_listener')) {
+            $tag = $definition->getTag('kernel.event_listener');
+            $dispatcher_definition->addMethodCall('addListener', [
+              $tag[0]['event'],
+              [
+                new ServiceClosureArgument(new Reference($definition->getClass())),
+                $tag[0]['method']
+              ],
+            ]);
+          }
+
+          // Handle commands.
           if (!is_a($definition->getClass(), Command::class, TRUE)) {
             continue;
           }
@@ -62,6 +79,10 @@ class Kernel extends BaseKernel {
             new Reference($definition->getClass()),
           ]);
         }
+
+        $app_definition->addMethodCall('setDispatcher', [
+          $dispatcher_definition,
+        ]);
       }
 
     };
