@@ -77,7 +77,7 @@ class SshHelper {
     $this->localMachineHelper->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
-    return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output);
+    return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output, NULL);
   }
 
   /**
