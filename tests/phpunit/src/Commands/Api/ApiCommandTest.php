@@ -60,10 +60,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(1, $this->getStatusCode());
   }
 
-  public function testApiCommandConvertAliasToUuid() {
-
-  }
-
   public function testApiCommandExecutionForHttpGet(): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
