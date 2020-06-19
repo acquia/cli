@@ -101,6 +101,35 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  public function testConvertEnvironmentAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->clearQuery()->shouldBeCalled();
+    //$this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applications_response);
+
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $this->clientProphecy->request('get', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($response)->shouldBeCalled();
+
+
+    $this->command = $this->getApiCommandByName('api:environments:find');
+    $alias = 'devcloud2.dev';
+
+    $this->executeCommand(['environmentId' => $alias], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
   public function testApiCommandExecutionForHttpPost(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
