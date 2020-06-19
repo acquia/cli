@@ -43,7 +43,7 @@ class DrushCommandTest extends SshCommandTestBase {
       'status --fields=db-status',
     ];
     $local_machine_helper
-      ->execute($ssh_command, Argument::type('callable'), NULL, TRUE)
+      ->execute($ssh_command, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();

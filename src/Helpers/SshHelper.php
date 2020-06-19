@@ -32,11 +32,9 @@ class SshHelper {
    *
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param array $command_args
-   *
    * @param bool $print_output
    *
    * @return \Symfony\Component\Process\Process
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function executeCommand($environment, array $command_args, $print_output = TRUE): Process {
@@ -67,7 +65,6 @@ class SshHelper {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param array $command
    *   The command to be run on the platform.
-   *
    * @param $print_output
    *
    * @return \Symfony\Component\Process\Process
