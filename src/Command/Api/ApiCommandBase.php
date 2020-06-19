@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -217,9 +218,9 @@ class ApiCommandBase extends CommandBase {
    */
   protected function fillMissingApplicationUuid(InputInterface $input, OutputInterface $output): void {
     if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
-      $output->writeln('Inferring Cloud Application UUID for this command since none was provided...');
+      $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
       if ($application_uuid = $this->determineCloudApplication()) {
-        $output->writeln("Set application uuid to <options=bold>$application_uuid</>");
+        $output->writeln("Set application uuid to <options=bold>$application_uuid</>", OutputInterface::VERBOSITY_VERBOSE);
         $input->setArgument('applicationUuid', $application_uuid);
       }
     }
@@ -240,8 +241,9 @@ class ApiCommandBase extends CommandBase {
         try {
           $customer_application = $this->getApplicationFromAlias($application_uuid_argument);
           $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (ValidatorException $exception) {
+        } catch (AcquiaCliException $exception) {
           // Let Cloud API handle throwing an exception from here.
+          $this->logger->debug($exception->getMessage());
         }
       }
     }
@@ -263,8 +265,9 @@ class ApiCommandBase extends CommandBase {
           $this->validateEnvironmentAlias($env_uuid_argument);
           $environment = $this->getEnvironmentFromAliasArg($env_uuid_argument);
           $input->setArgument('environmentId', $environment->uuid);
-        } catch (ValidatorException $exception) {
+        } catch (AcquiaCliException $exception) {
           // Let Cloud API handle throwing an exception from here.
+          $this->logger->debug($exception->getMessage());
         }
       }
     }

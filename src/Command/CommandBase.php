@@ -884,10 +884,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $drush_site);
     $customer_applications = $acquia_cloud_client->request('get', '/applications');
-    $customer_application = $customer_applications[0];
-    $site_id = $customer_application->hosting->id;
-    $parts = explode(':', $site_id);
-    $site_prefix = $parts[1];
+    $site_prefix = '';
+    if ($customer_applications) {
+      $customer_application = $customer_applications[0];
+      $site_id = $customer_application->hosting->id;
+      $parts = explode(':', $site_id);
+      $site_prefix = $parts[1];
+    }
+
     if ($site_prefix !== $drush_site) {
       throw new AcquiaCliException("Application not found matching alias {alias}", ['alias' => $drush_site]);
     }
