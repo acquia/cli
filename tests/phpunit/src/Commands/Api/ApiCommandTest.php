@@ -34,7 +34,7 @@ class ApiCommandTest extends CommandTestBase {
    * Tests invalid UUID.
    */
   public function testApiCommandErrorResponse(): void {
-    $invalid_uuid = 'invaliduuid';
+    $invalid_uuid = '257a5440-22c3-49d1-894d-29497a1cf3b9';
     $this->command = $this->getApiCommandByName('api:applications:find');
     $mock_body = $this->getMockResponseFromSpec($this->command->getPath(), $this->command->getMethod(), '404');
     $this->clientProphecy->request('get', '/applications/' . $invalid_uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
