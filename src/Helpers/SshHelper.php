@@ -54,8 +54,8 @@ class SshHelper {
       'exit' => $process->getExitCode(),
     ]);
 
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException($process->getOutput());
+    if (!$process->isSuccessful() && $process->getExitCode() === 255) {
+      throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
     }
 
     return $process;
