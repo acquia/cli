@@ -40,8 +40,8 @@ class ApiCommandTest extends CommandTestBase {
     $this->clientProphecy->request('get', '/applications/' . $invalid_uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
 
     // ApiCommandBase::convertApplicationAliastoUuid() will try to convert the invalid string to a uuid:
-    $this->clientProphecy->request('get', '/applications/')->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
     $this->clientProphecy->addQuery('filter', 'hosting=@*' . $invalid_uuid);
+    $this->clientProphecy->request('get', '/applications')->willReturn([]);
 
     $this->executeCommand(['applicationUuid' => $invalid_uuid], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
