@@ -126,7 +126,6 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function download(Updater $updater): void {
-    $this->output->writeln('Downloading new version...');
     $response = $this->getClient()->request('GET', $this->remoteUrl, [
       'headers' => ['User-Agent' => $this->getPackageName()]
     ]);
