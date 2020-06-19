@@ -148,7 +148,7 @@ class ApiCommandBase extends CommandBase {
     foreach ($arguments as $key => $value) {
       $token = '{' . $key . '}';
       if (strpos($path, $token) !== FALSE) {
-        $path = str_replace($token, $value, $this->path);
+        $path = str_replace($token, $value, $path);
       }
     }
 
