@@ -55,7 +55,7 @@ class UpdateCommand extends CommandBase {
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
-    $strategy = new GithubStrategy();
+    $strategy = new GithubStrategy($output);
     $updater->setStrategyObject($strategy);
     $updater->getStrategy()->setClient($this->getClient());
     $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
@@ -91,7 +91,8 @@ class UpdateCommand extends CommandBase {
    */
   public function getClient(): Client {
     if (!isset($this->client)) {
-      $this->setClient(new Client());
+      $client = $this->createDefaultClient();
+      $this->setClient($client);
     }
     return $this->client;
   }
@@ -111,6 +112,32 @@ class UpdateCommand extends CommandBase {
    */
   public function setPharPath(string $pharPath): void {
     $this->pharPath = Path::canonicalize($pharPath);
+  }
+
+  /**
+   * @return \GuzzleHttp\Client
+   */
+  protected function createDefaultClient(): Client {
+    $progress = NULL;
+    $options = [
+      'progress' => function ($total_bytes, $downloaded_bytes) use ($progress) {
+        if ($total_bytes > 0 && is_null($progress)) {
+          /** @var \Symfony\Component\Console\Helper\ProgressBar $progress */
+          $progress = $this->output->createProgressBar($total_bytes);
+          $progress->start();
+        }
+
+        if (!is_null($progress)) {
+          if ($total_bytes === $downloaded_bytes) {
+            $progress->finish();
+            return;
+          }
+          $progress->setProgress($downloaded_bytes);
+        }
+      },
+    ];
+
+    return new Client($options);
   }
 
 }
