@@ -228,20 +228,21 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function convertApplicationAliastoUuid(InputInterface $input) {
+  protected function convertApplicationAliastoUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
       try {
         $this->validateUuid($application_uuid_argument);
-      } catch (ValidatorException $exception) {
+      } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
           $customer_application = $this->getApplicationFromAlias($application_uuid_argument);
           $input->setArgument('applicationUuid', $customer_application->uuid);
         } catch (AcquiaCliException $exception) {
-          // Let Cloud API handle throwing an exception from here.
-          $this->logger->debug($exception->getMessage());
+          throw new AcquiaCliException("The {applicationUuid} must be a valid UUID or site alias.");
         }
       }
     }
@@ -249,21 +250,22 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function convertEnvironmentAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
       $env_uuid_argument = $input->getArgument('environmentId');
       try {
         $this->validateUuid($env_uuid_argument);
-      } catch (ValidatorException $exception) {
+      } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
           $this->validateEnvironmentAlias($env_uuid_argument);
           $environment = $this->getEnvironmentFromAliasArg($env_uuid_argument);
           $input->setArgument('environmentId', $environment->uuid);
         } catch (AcquiaCliException $exception) {
-          // Let Cloud API handle throwing an exception from here.
-          $this->logger->debug($exception->getMessage());
+          throw new AcquiaCliException("The {environmentId} must be a valid UUID or site alias.");
         }
       }
     }
