@@ -111,7 +111,6 @@ class ApiCommandTest extends CommandTestBase {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
     $this->clientProphecy->request('get', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($response)->shouldBeCalled();
 
-
     $this->command = $this->getApiCommandByName('api:environments:find');
     $alias = 'devcloud2.dev';
 
