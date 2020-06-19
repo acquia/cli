@@ -36,7 +36,7 @@ class DrushCommand extends SSHBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $alias = $this->validateAlias($input->getArgument('alias'));
+    $alias = $this->validateEnvironmentAlias($input->getArgument('alias'));
     $environment = $this->getEnvironmentFromAliasArg($alias);
 
     $acli_arguments = $input->getArguments();

@@ -32,7 +32,7 @@ class SshCommand extends SshBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $alias = $this->validateAlias($input->getArgument('alias'));
+    $alias = $this->validateEnvironmentAlias($input->getArgument('alias'));
     $environment = $this->getEnvironmentFromAliasArg($alias);
     $arguments = $input->getArguments();
     array_shift($arguments);
