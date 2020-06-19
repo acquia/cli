@@ -819,7 +819,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
-      new Regex(['pattern' => '/.+\..+/', 'message' => 'Alias must match pattern `[app-name].[env]']),
+      new Regex(['pattern' => '/.+\..+/', 'message' => 'Environment alias must match the pattern [app-name].[env]']),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
@@ -871,7 +871,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
 
-    throw new AcquiaCliException("Environment not found matching alias {alias}", ['alias' => "$drush_site.$drush_env"]);
+    throw new AcquiaCliException("Environment not found matching the alias {alias}", ['alias' => "$drush_site.$drush_env"]);
   }
 
   /**
@@ -893,7 +893,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     if ($site_prefix !== $drush_site) {
-      throw new AcquiaCliException("Application not found matching alias {alias}", ['alias' => $drush_site]);
+      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $drush_site]);
     }
 
     $this->logger->debug("Found application matching $drush_site. Searching environments...");
