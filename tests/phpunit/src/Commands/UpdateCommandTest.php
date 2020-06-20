@@ -73,9 +73,13 @@ class UpdateCommandTest extends CommandTestBase {
     $progress = NULL;
     $this->command::displayDownloadProgress(100, 0, $progress, $output);
     $this->assertStringContainsString('0/100 [>---------------------------]   0%', $output->fetch());
+
+    // Need to sleep to prevent the default redraw frequency from skipping display.
+    sleep(1);
     $this->command::displayDownloadProgress(100, 50, $progress, $output);
     $this->assertStringContainsString('50/100 [==============>-------------]  50%', $output->fetch());
-    $this->command::displayDownloadProgress(100, 100, $progress, $output);
+
+    $this->command::displayDownloadProgress(100,  100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
