@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiCommandBase;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
@@ -123,6 +124,20 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  public function testConvertInvalidApplicationAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*invalidalias')->shouldBeCalled();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'invalidalias';
+    try {
+      $this->executeCommand(['applicationUuid' => $alias], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('The {applicationUuid} must be a valid UUID or site alias.', $exception->getMessage());
+    }
+    $this->prophet->checkPredictions();
+  }
+
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
@@ -149,6 +164,22 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
+  }
+
+  public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->clearQuery()->shouldBeCalled();
+    $this->mockEnvironmentsRequest($applications_response);
+    $this->command = $this->getApiCommandByName('api:environments:find');
+    $alias = 'devcloud2.invalid';
+    try {
+      $this->executeCommand(['environmentId' => $alias], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('The {environmentId} must be a valid UUID or site alias.', $exception->getMessage());
+    }
+    $this->prophet->checkPredictions();
   }
 
   public function testApiCommandExecutionForHttpPost(): void {
