@@ -79,7 +79,7 @@ class UpdateCommandTest extends CommandTestBase {
     $this->command::displayDownloadProgress(100, 50, $progress, $output);
     $this->assertStringContainsString('50/100 [==============>-------------]  50%', $output->fetch());
 
-    $this->command::displayDownloadProgress(100,  100, $progress, $output);
+    $this->command::displayDownloadProgress(100, 100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
