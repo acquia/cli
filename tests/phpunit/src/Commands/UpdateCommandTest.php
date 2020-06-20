@@ -68,6 +68,11 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
   }
 
+  public function testDefaultClient() {
+    $client = $this->command->getClient();
+    $this->assertInstanceOf(\Closure::class, $client->getConfig('progress'));
+  }
+
   public function testDownloadProgressDisplay() {
     $output = new BufferedOutput();
     $progress = NULL;
