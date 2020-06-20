@@ -101,6 +101,28 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  public function testConvertApplicationAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->mockApplicationRequest();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'devcloud2';
+
+    $this->executeCommand(['applicationUuid' => $alias], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
