@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -119,25 +120,35 @@ class UpdateCommand extends CommandBase {
    */
   protected function createDefaultClient(): Client {
     $progress = NULL;
+    $output = $this->output;
     $options = [
-      'progress' => function ($total_bytes, $downloaded_bytes) use ($progress) {
-        if ($total_bytes > 0 && is_null($progress)) {
-          /** @var \Symfony\Component\Console\Helper\ProgressBar $progress */
-          $progress = $this->output->createProgressBar($total_bytes);
-          $progress->start();
-        }
-
-        if (!is_null($progress)) {
-          if ($total_bytes === $downloaded_bytes) {
-            $progress->finish();
-            return;
-          }
-          $progress->setProgress($downloaded_bytes);
-        }
+      'progress' => function ($total_bytes, $downloaded_bytes) use ($progress, $output) {
+        $this->displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
 
     return new Client($options);
+  }
+
+  /**
+   * @param $total_bytes
+   * @param $downloaded_bytes
+   * @param $progress
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, OutputInterface $output): void {
+    if ($total_bytes > 0 && is_null($progress)) {
+      $progress = new ProgressBar($output, $total_bytes);
+      $progress->start();
+    }
+
+    if (!is_null($progress)) {
+      if ($total_bytes === $downloaded_bytes) {
+        $progress->finish();
+        return;
+      }
+      $progress->setProgress($downloaded_bytes);
+    }
   }
 
 }
