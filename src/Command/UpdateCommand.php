@@ -139,6 +139,7 @@ class UpdateCommand extends CommandBase {
   public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, OutputInterface $output): void {
     if ($total_bytes > 0 && is_null($progress)) {
       $progress = new ProgressBar($output, $total_bytes);
+      $progress->setProgressCharacter('💧');
       $progress->start();
     }
 
