@@ -123,7 +123,7 @@ class UpdateCommand extends CommandBase {
     $output = $this->output;
     $options = [
       'progress' => function ($total_bytes, $downloaded_bytes) use ($progress, $output) {
-        $this->displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
+        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
 
