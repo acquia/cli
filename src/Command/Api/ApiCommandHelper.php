@@ -547,7 +547,7 @@ class ApiCommandHelper {
   /**
    * @param $param_definition
    */
-  protected function addAliasParameterDescriptions($param_definition): void {
+  protected function addAliasParameterDescriptions(&$param_definition): void {
     if ($param_definition['name'] === 'applicationUuid') {
       $param_definition['description'] .= ' You may also use an application alias.';
     }
