@@ -23,11 +23,11 @@ class DrushCommand extends SSHBaseCommand {
     $this->setAliases(['drush', 'dr'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
       ->setHelp('Pleases pay close attention to the argument syntax! Note the usage of <options=bold>--</> to separate the drush command arguments and options.')
-      ->addArgument('alias', InputArgument::REQUIRED, 'Alias for site & environment in the format `app-name.env`')
+      ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addArgument('drush_command', InputArgument::IS_ARRAY, 'Drush command')
       ->addUsage('<site>.<env> -- <command>')
-      ->addUsage('mysite.dev -- uli 1')
-      ->addUsage('mysite.dev -- status --fields=db-status');
+      ->addUsage('myapp.dev -- uli 1')
+      ->addUsage('myapp.dev -- status --fields=db-status');
   }
 
   /**
