@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiCommandBase;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
@@ -30,12 +31,20 @@ class ApiCommandTest extends CommandTestBase {
     return $this->injectCommand(ApiCommandBase::class);
   }
 
+  /**
+   * Tests invalid UUID.
+   */
   public function testApiCommandErrorResponse(): void {
-    $uuid = 'invaliduuid';
+    $invalid_uuid = '257a5440-22c3-49d1-894d-29497a1cf3b9';
     $this->command = $this->getApiCommandByName('api:applications:find');
     $mock_body = $this->getMockResponseFromSpec($this->command->getPath(), $this->command->getMethod(), '404');
-    $this->clientProphecy->request('get', '/applications/' . $uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
-    $this->executeCommand(['applicationUuid' => $uuid], [
+    $this->clientProphecy->request('get', '/applications/' . $invalid_uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
+
+    // ApiCommandBase::convertApplicationAliastoUuid() will try to convert the invalid string to a uuid:
+    $this->clientProphecy->addQuery('filter', 'hosting=@*' . $invalid_uuid);
+    $this->clientProphecy->request('get', '/applications')->willReturn([]);
+
+    $this->executeCommand(['applicationUuid' => $invalid_uuid], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
       // Please select an Acquia Cloud application:
@@ -93,6 +102,86 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  public function testConvertApplicationAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->mockApplicationRequest();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'devcloud2';
+
+    $this->executeCommand(['applicationUuid' => $alias], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
+  public function testConvertInvalidApplicationAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*invalidalias')->shouldBeCalled();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'invalidalias';
+    try {
+      $this->executeCommand(['applicationUuid' => $alias], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('The {applicationUuid} must be a valid UUID or site alias.', $exception->getMessage());
+    }
+    $this->prophet->checkPredictions();
+  }
+
+  public function testConvertEnvironmentAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->clearQuery()->shouldBeCalled();
+    //$this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applications_response);
+
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $this->clientProphecy->request('get', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($response)->shouldBeCalled();
+
+    $this->command = $this->getApiCommandByName('api:environments:find');
+    $alias = 'devcloud2.dev';
+
+    $this->executeCommand(['environmentId' => $alias], [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select an Acquia Cloud application:
+      '0',
+      // Would you like to link the Cloud application Sample application to this repository?
+      'n'
+    ]);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
+  public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->clearQuery()->shouldBeCalled();
+    $this->mockEnvironmentsRequest($applications_response);
+    $this->command = $this->getApiCommandByName('api:environments:find');
+    $alias = 'devcloud2.invalid';
+    try {
+      $this->executeCommand(['environmentId' => $alias], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('The {environmentId} must be a valid UUID or site alias.', $exception->getMessage());
+    }
+    $this->prophet->checkPredictions();
+  }
+
   public function testApiCommandExecutionForHttpPost(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
@@ -115,12 +204,15 @@ class ApiCommandTest extends CommandTestBase {
    *
    */
   public function providerTestApiCommandDefinitionParameters(): array {
-    $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
+    $api_accounts_ssh_keys_list_usage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [
       ['0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com" --domains="domain2.example.com"'],
+      ['1', 'api:environments:domains-clear-varnish', 'post', 'myapp.dev --domains="domain1.example.com" --domains="domain2.example.com"'],
+      ['1', 'api:applications:find', 'get', 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7'],
+      ['1', 'api:applications:find', 'get', 'myapp'],
     ];
   }
 
@@ -154,13 +246,23 @@ class ApiCommandTest extends CommandTestBase {
             "Command $expected_command_name does not have expected argument or option {$param['name']}"
         );
     }
-    $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
+
+    $usages = $this->command->getUsages();
+    $this->assertContains($command_name . ' ' . $usage, $usages);
+  }
+
+  public function testModifiedParameterDescriptions(): void {
+    $this->command = $this->getApiCommandByName('api:environments:domains-clear-varnish');
+    $this->assertStringContainsString('You may also use an environment alias', $this->command->getDefinition()->getArgument('environmentId')->getDescription());
+
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $this->assertStringContainsString('You may also use an application alias or omit the argument', $this->command->getDefinition()->getArgument('applicationUuid')->getDescription());
   }
 
   public function providerTestApiCommandDefinitionRequestBody(): array {
     return [
-      ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com" '],
-      ['api:environments:domains-clear-varnish', 'post', 'api:environments:domains-clear-varnish 12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com" --domains="domain2.example.com" '],
+      ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com"'],
+      ['api:environments:domains-clear-varnish', 'post', 'api:environments:domains-clear-varnish 12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com" --domains="domain2.example.com"'],
     ];
   }
 

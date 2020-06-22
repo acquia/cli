@@ -7,10 +7,13 @@ use Acquia\Cli\Tests\CommandTestBase;
 use drupol\phposinfo\OsInfo;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -30,7 +33,6 @@ class UpdateCommandTest extends CommandTestBase {
   }
 
   public function testNonPharException(): void {
-
     try {
       $this->executeCommand([], []);
     }
@@ -42,10 +44,11 @@ class UpdateCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDownloadUpdate
    * @requires OS linux|darwin
+   * @param array $releases
+   *
    * @throws \Exception
    */
   public function testDownloadUpdate($releases): void {
-
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->fs->chmod($stub_phar, 0751);
     $original_file_perms = fileperms($stub_phar);
@@ -66,8 +69,28 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
   }
 
+  public function testDefaultClient(): void {
+    $client = $this->command->getClient();
+    $this->assertInstanceOf(\Closure::class, $client->getConfig('progress'));
+  }
+
+  public function testDownloadProgressDisplay(): void {
+    $output = new BufferedOutput();
+    $progress = NULL;
+    $this->command::displayDownloadProgress(100, 0, $progress, $output);
+    $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
+
+    // Need to sleep to prevent the default redraw frequency from skipping display.
+    sleep(1);
+    $this->command::displayDownloadProgress(100, 50, $progress, $output);
+    $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
+
+    $this->command::displayDownloadProgress(100, 100, $progress, $output);
+    $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
+  }
+
   /**
-   * @param $releases
+   * @param array $releases
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
