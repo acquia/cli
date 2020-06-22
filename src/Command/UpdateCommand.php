@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -55,7 +56,7 @@ class UpdateCommand extends CommandBase {
     }
 
     $updater = new Updater($this->getPharPath(), FALSE);
-    $strategy = new GithubStrategy();
+    $strategy = new GithubStrategy($output);
     $updater->setStrategyObject($strategy);
     $updater->getStrategy()->setClient($this->getClient());
     $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
@@ -91,7 +92,8 @@ class UpdateCommand extends CommandBase {
    */
   public function getClient(): Client {
     if (!isset($this->client)) {
-      $this->setClient(new Client());
+      $client = $this->createDefaultClient();
+      $this->setClient($client);
     }
     return $this->client;
   }
@@ -111,6 +113,43 @@ class UpdateCommand extends CommandBase {
    */
   public function setPharPath(string $pharPath): void {
     $this->pharPath = Path::canonicalize($pharPath);
+  }
+
+  /**
+   * @return \GuzzleHttp\Client
+   */
+  protected function createDefaultClient(): Client {
+    $progress = NULL;
+    $output = $this->output;
+    $options = [
+      'progress' => function ($total_bytes, $downloaded_bytes) use ($progress, $output) {
+        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
+      },
+    ];
+
+    return new Client($options);
+  }
+
+  /**
+   * @param $total_bytes
+   * @param $downloaded_bytes
+   * @param $progress
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, OutputInterface $output): void {
+    if ($total_bytes > 0 && is_null($progress)) {
+      $progress = new ProgressBar($output, $total_bytes);
+      $progress->setProgressCharacter('💧');
+      $progress->start();
+    }
+
+    if (!is_null($progress)) {
+      if ($total_bytes === $downloaded_bytes) {
+        $progress->finish();
+        return;
+      }
+      $progress->setProgress($downloaded_bytes);
+    }
   }
 
 }
