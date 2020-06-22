@@ -531,13 +531,13 @@ class ApiCommandHelper {
     foreach ($input_definition as $key => $parameter) {
       if ($parameter->getName() === 'applicationUuid') {
         $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "mysite";
+        $usage_parts[$key] = "myapp";
         $usage = implode(' ', $usage_parts);
         $command->addUsage($usage);
       }
       if ($parameter->getName() === 'environmentId') {
         $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "mysite.dev";
+        $usage_parts[$key] = "myapp.dev";
         $usage = implode(' ', $usage_parts);
         $command->addUsage($usage);
       }

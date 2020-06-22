@@ -210,9 +210,9 @@ class ApiCommandTest extends CommandTestBase {
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com" --domains="domain2.example.com"'],
-      ['1', 'api:environments:domains-clear-varnish', 'post', 'mysite.dev --domains="domain1.example.com" --domains="domain2.example.com"'],
+      ['1', 'api:environments:domains-clear-varnish', 'post', 'myapp.dev --domains="domain1.example.com" --domains="domain2.example.com"'],
       ['1', 'api:applications:find', 'get', 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7'],
-      ['1', 'api:applications:find', 'get', 'mysite'],
+      ['1', 'api:applications:find', 'get', 'myapp'],
     ];
   }
 
