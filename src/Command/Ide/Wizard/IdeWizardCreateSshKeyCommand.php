@@ -285,7 +285,7 @@ EOT
         $this->logger->debug($exception->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
+    LoopHelper::addTimeoutToLoop($loop, 15, $spinner, $output);
     $loop->run();
   }
 
