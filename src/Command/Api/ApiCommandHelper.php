@@ -231,8 +231,8 @@ class ApiCommandHelper {
 
     if (isset($input_definition)) {
       $command->setDefinition(new InputDefinition($input_definition));
-      $command->addUsage($usage);
-      $this->addAliasUsageExamples($command, $input_definition, $usage);
+      $command->addUsage(rtrim($usage));
+      $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
     }
   }
 
@@ -531,13 +531,13 @@ class ApiCommandHelper {
     foreach ($input_definition as $key => $parameter) {
       if ($parameter->getName() === 'applicationUuid') {
         $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "site";
+        $usage_parts[$key] = "mysite";
         $usage = implode(' ', $usage_parts);
         $command->addUsage($usage);
       }
       if ($parameter->getName() === 'environmentId') {
         $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "site.dev";
+        $usage_parts[$key] = "mysite.dev";
         $usage = implode(' ', $usage_parts);
         $command->addUsage($usage);
       }
@@ -549,7 +549,7 @@ class ApiCommandHelper {
    */
   protected function addAliasParameterDescriptions(&$param_definition): void {
     if ($param_definition['name'] === 'applicationUuid') {
-      $param_definition['description'] .= ' You may also use an application alias.';
+      $param_definition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
     }
     if ($param_definition['name'] === 'environmentId') {
       $param_definition['description'] .= " You may also use an environment alias or UUID.";

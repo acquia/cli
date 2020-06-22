@@ -204,12 +204,15 @@ class ApiCommandTest extends CommandTestBase {
    *
    */
   public function providerTestApiCommandDefinitionParameters(): array {
-    $api_accounts_ssh_keys_list_usage = 'api:accounts:ssh-keys-list --from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10" ';
+    $api_accounts_ssh_keys_list_usage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [
       ['0', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:accounts:ssh-keys-list', 'get', $api_accounts_ssh_keys_list_usage],
       ['1', 'api:environments:domains-clear-varnish', 'post', '12-d314739e-296f-11e9-b210-d663bd873d93 --domains="domain1.example.com" --domains="domain2.example.com"'],
+      ['1', 'api:environments:domains-clear-varnish', 'post', 'mysite.dev --domains="domain1.example.com" --domains="domain2.example.com"'],
+      ['1', 'api:applications:find', 'get', 'da1c0a8e-ff69-45db-88fc-acd6d2affbb7'],
+      ['1', 'api:applications:find', 'get', 'mysite'],
     ];
   }
 
@@ -243,7 +246,17 @@ class ApiCommandTest extends CommandTestBase {
             "Command $expected_command_name does not have expected argument or option {$param['name']}"
         );
     }
-    $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
+
+    $usages = $this->command->getUsages();
+    $this->assertContains($command_name . ' ' . $usage, $usages);
+  }
+
+  public function testModifiedParameterDescriptions(): void {
+    $this->command = $this->getApiCommandByName('api:environments:domains-clear-varnish');
+    $this->assertStringContainsString('You may also use an environment alias', $this->command->getDefinition()->getArgument('environmentId')->getDescription());
+
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $this->assertStringContainsString('You may also use an application alias or omit the argument', $this->command->getDefinition()->getArgument('applicationUuid')->getDescription());
   }
 
   public function providerTestApiCommandDefinitionRequestBody(): array {
