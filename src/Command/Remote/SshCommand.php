@@ -22,7 +22,7 @@ class SshCommand extends SshBaseCommand {
   protected function configure() {
     $this->setDescription('Open a new SSH connection to an Acquia Cloud environment')
       ->setAliases(['ssh'])
-      ->addArgument('alias', InputArgument::REQUIRED, 'Site & environment in the format `site-name.env`')
+      ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addUsage(" <app>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
   }
 
@@ -32,7 +32,7 @@ class SshCommand extends SshBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $alias = $this->validateAlias($input->getArgument('alias'));
+    $alias = $this->validateEnvironmentAlias($input->getArgument('alias'));
     $environment = $this->getEnvironmentFromAliasArg($alias);
     $arguments = $input->getArguments();
     array_shift($arguments);
