@@ -29,6 +29,7 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Terminal;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -470,8 +471,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $progressBar->start();
 
     // Search Cloud applications.
+    $terminal_width = (new Terminal())->getWidth();
     foreach ($customer_applications as $application) {
-      $progressBar->setMessage("Searching <options=bold>{$application->name}</> for matching git URLs");
+      // Ensure that the message takes up the full terminal width to prevent display artifacts.
+      $message = "Searching <options=bold>{$application->name}</> for matching git URLs";
+      $suffix_length = $terminal_width - strlen($message) - 17;
+      $suffix = $suffix_length > 0 ? str_repeat(' ', $suffix_length) : '';
+      $progressBar->setMessage($message . $suffix);
       $application_environments = $environments_resource->getAll($application->uuid);
       if ($application = $this->searchApplicationEnvironmentsForGitUrl(
             $application,
