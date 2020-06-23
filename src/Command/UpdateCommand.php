@@ -71,9 +71,10 @@ class UpdateCommand extends CommandBase {
         $new = $updater->getNewVersion();
         $old = $updater->getOldVersion();
         $output->writeln("<info>Updated from $old to $new</info>");
-        // This is a bit of a hack. But, we exit prematurely to avoid any type of error based on post replace
+        // This is a bit of a hack. But, we suppress errors to avoid any type of error based on post replace
         // code execution. @see https://github.com/acquia/cli/issues/169
-        exit(0);
+        error_reporting(0);
+        return 0;
       }
 
       $output->writeln('<comment>No update needed.</comment>');
