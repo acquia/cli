@@ -8,6 +8,7 @@ use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
 use Phar;
 use RuntimeException;
+use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -70,10 +71,14 @@ class UpdateCommand extends CommandBase {
         $new = $updater->getNewVersion();
         $old = $updater->getOldVersion();
         $output->writeln("<info>Updated from $old to $new</info>");
-      } else {
-        $output->writeln('<comment>No update needed.</comment>');
+        // This is a bit of a hack. But, we suppress errors to avoid any type of error based on post replace
+        // code execution. @see https://github.com/acquia/cli/issues/169
+        // phpcs:ignore
+        error_reporting(0);
+        return 0;
       }
-      return 0;
+
+      $output->writeln('<comment>No update needed.</comment>');
     } catch (Exception $e) {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
