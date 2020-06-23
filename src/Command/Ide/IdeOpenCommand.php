@@ -37,8 +37,8 @@ class IdeOpenCommand extends IdeCommandBase {
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
 
     $this->output->writeln('');
-    $this->output->writeln('<comment>Your IDE URL:</comment> ' . $ide->links->ide->href);
-    $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $ide->links->web->href);
+    $this->output->writeln("<comment>Your IDE URL:</comment> <href={$ide->links->ide->href}>{$ide->links->ide->href}</>");
+    $this->output->writeln("<comment>Your Drupal Site URL:</comment> <href={$ide->links->web->href}>{$ide->links->web->href}</>");
     $this->output->writeln('Opening your IDE in browser...');
 
     $this->localMachineHelper->startBrowser($ide->links->ide->href);
