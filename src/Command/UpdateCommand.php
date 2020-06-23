@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Exception;
 use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
@@ -36,6 +37,7 @@ class UpdateCommand extends CommandBase {
   protected function configure() {
     $this->setDescription('update to the latest version')
       ->setAliases(['update'])
+      ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv())
       ->addOption('allow-unstable', NULL, InputOption::VALUE_NONE, 'Allow unstable (e.g., alpha, beta, etc.) releases to be downloaded');
   }
 
