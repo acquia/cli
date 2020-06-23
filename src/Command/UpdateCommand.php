@@ -73,6 +73,7 @@ class UpdateCommand extends CommandBase {
         $output->writeln("<info>Updated from $old to $new</info>");
         // This is a bit of a hack. But, we suppress errors to avoid any type of error based on post replace
         // code execution. @see https://github.com/acquia/cli/issues/169
+        // phpcs:ignore
         error_reporting(0);
         return 0;
       }
