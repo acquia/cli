@@ -39,18 +39,23 @@ class IdeListCommand extends CommandBase {
     $ides_resource = new Ides($acquia_cloud_client);
     $application_ides = $ides_resource->getAll($application_uuid);
 
-    $table = new Table($output);
-    $table->setStyle('borderless');
-    $table->setHeaders(['IDEs']);
-    foreach ($application_ides as $ide) {
-      $table->addRows([
+    if ($application_ides) {
+      $table = new Table($output);
+      $table->setStyle('borderless');
+      $table->setHeaders(['IDEs']);
+      foreach ($application_ides as $ide) {
+        $table->addRows([
           ['<comment>' . $ide->label . ':</comment>'],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
           ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
-        new TableSeparator(),
-      ]);
+          new TableSeparator(),
+        ]);
+      }
+      $table->render();
     }
-    $table->render();
+    else {
+      $output->writeln('No IDE exists for this application.');
+    }
 
     return 0;
   }
