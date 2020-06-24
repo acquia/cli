@@ -39,7 +39,7 @@ class IdeListCommand extends CommandBase {
     $ides_resource = new Ides($acquia_cloud_client);
     $application_ides = $ides_resource->getAll($application_uuid);
 
-    if ($application_ides) {
+    if ($application_ides->count()) {
       $table = new Table($output);
       $table->setStyle('borderless');
       $table->setHeaders(['IDEs']);
