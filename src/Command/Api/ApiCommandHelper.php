@@ -231,7 +231,8 @@ class ApiCommandHelper {
 
     if (isset($input_definition)) {
       $command->setDefinition(new InputDefinition($input_definition));
-      $command->addUsage($usage);
+      $command->addUsage(rtrim($usage));
+      $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
     }
   }
 
@@ -367,6 +368,7 @@ class ApiCommandHelper {
       $param_key = end($parts);
       $param_definition = $this->getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec);
       $required = array_key_exists('required', $param_definition) && $param_definition['required'];
+      $this->addAliasParameterDescriptions($param_definition);
       if ($required) {
         $input_definition[] = new InputArgument(
               $param_definition['name'],
@@ -487,10 +489,6 @@ class ApiCommandHelper {
         $command->setResponses($schema['responses']);
         $command->setServers($acquia_cloud_spec['servers']);
         $command->setPath($path);
-        // This is unhidden when `acli api:list` is run.
-        // @todo This breaks console's ability to help with "did you mean?" for command typos!
-        // Consider hiding ONLY when the `list` command is being executed.
-        $command->setHidden(TRUE);
         $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
         $api_commands[] = $command;
       }
@@ -518,6 +516,40 @@ class ApiCommandHelper {
       'ssh-key:list',
       'ssh-key:upload',
     ];
+  }
+
+  /**
+   * @param \Acquia\Cli\Command\Api\ApiCommandBase $command
+   * @param array $input_definition
+   * @param string $usage
+   */
+  protected function addAliasUsageExamples(ApiCommandBase $command, array $input_definition, string $usage): void {
+    foreach ($input_definition as $key => $parameter) {
+      if ($parameter->getName() === 'applicationUuid') {
+        $usage_parts = explode(' ', $usage);
+        $usage_parts[$key] = "myapp";
+        $usage = implode(' ', $usage_parts);
+        $command->addUsage($usage);
+      }
+      if ($parameter->getName() === 'environmentId') {
+        $usage_parts = explode(' ', $usage);
+        $usage_parts[$key] = "myapp.dev";
+        $usage = implode(' ', $usage_parts);
+        $command->addUsage($usage);
+      }
+    }
+  }
+
+  /**
+   * @param $param_definition
+   */
+  protected function addAliasParameterDescriptions(&$param_definition): void {
+    if ($param_definition['name'] === 'applicationUuid') {
+      $param_definition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
+    }
+    if ($param_definition['name'] === 'environmentId') {
+      $param_definition['description'] .= " You may also use an environment alias or UUID.";
+    }
   }
 
 }

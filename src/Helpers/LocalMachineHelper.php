@@ -43,8 +43,8 @@ class LocalMachineHelper {
    */
   public function commandExists($command): bool {
     $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
-        // phpcs:ignore
-        return $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
+    // phpcs:ignore
+    return $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
   }
 
   /**
@@ -57,11 +57,14 @@ class LocalMachineHelper {
    * @param string $cwd
    * @param bool $print_output
    *
+   * @param int $timeout
+   *
    * @return \Symfony\Component\Process\Process
    */
-  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
-    $process = $this->getProcess($cmd);
-    return $this->executeProcess($process, $callback, $cwd, $print_output);
+  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
+    $process = new Process($cmd);
+    $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
+    return $this->executeProcess($process, $callback, $cwd, $print_output, $timeout);
   }
 
   /**
@@ -74,18 +77,20 @@ class LocalMachineHelper {
    */
   public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
     $process = Process::fromShellCommandline($cmd);
+    $process = $this->configureProcess($process, $cwd, $print_output);
+
     return $this->executeProcess($process, $callback, $cwd, $print_output);
   }
 
   /**
    * @param \Symfony\Component\Process\Process $process
-   * @param callable $callback
-   * @param string $cwd
+   * @param string|null $cwd
    * @param bool $print_output
+   * @param int $timeout
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
+  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = 600) {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
@@ -95,8 +100,18 @@ class LocalMachineHelper {
     if ($print_output) {
       $process->setTty($this->useTty());
     }
-    // 10 minute timeout.
-    $process->setTimeout(60 * 10);
+    $process->setTimeout($timeout);
+
+    return $process;
+  }
+
+  /**
+   * @param \Symfony\Component\Process\Process $process
+   * @param callable $callback
+  *
+   * @return \Symfony\Component\Process\Process
+   */
+  protected function executeProcess(Process $process, $callback = NULL): Process {
     $process->start(NULL);
     $process->wait($callback);
 
@@ -201,21 +216,6 @@ class LocalMachineHelper {
    */
   private function fixFilename($filename): string {
     return str_replace('~', self::getHomeDir(), $filename);
-  }
-
-  /**
-   * Returns a set-up process object.
-   *
-   * @param array $cmd
-   *   The command to execute.
-   *
-   * @return \Symfony\Component\Process\Process
-   */
-  private function getProcess($cmd): Process {
-    $process = new Process($cmd);
-    $process->setTimeout(600);
-
-    return $process;
   }
 
   /**

@@ -29,7 +29,10 @@ use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Terminal;
+use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
@@ -468,8 +471,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $progressBar->start();
 
     // Search Cloud applications.
+    $terminal_width = (new Terminal())->getWidth();
     foreach ($customer_applications as $application) {
-      $progressBar->setMessage("Searching <options=bold>{$application->name}</> for matching git URLs");
+      // Ensure that the message takes up the full terminal width to prevent display artifacts.
+      $message = "Searching <options=bold>{$application->name}</> for matching git URLs";
+      $suffix_length = $terminal_width - strlen($message) - 17;
+      $suffix = $suffix_length > 0 ? str_repeat(' ', $suffix_length) : '';
+      $progressBar->setMessage($message . $suffix);
       $application_environments = $environments_resource->getAll($application->uuid);
       if ($application = $this->searchApplicationEnvironmentsForGitUrl(
             $application,
@@ -806,6 +814,97 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $create_input = new ArrayInput($arguments);
 
     return $command->run($create_input, new NullOutput());
+  }
+
+  /**
+   * @param string $alias
+   *
+   * @return string
+   */
+  protected function validateEnvironmentAlias($alias): string {
+    $violations = Validation::createValidator()->validate($alias, [
+      new Length(['min' => 5]),
+      new NotBlank(),
+      new Regex(['pattern' => '/.+\..+/', 'message' => 'Environment alias must match the pattern [app-name].[env]']),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+
+    return $alias;
+}
+
+  /**
+   * @param $alias
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
+    $site_env_parts = explode('.', $alias);
+    [$drush_site, $drush_env] = $site_env_parts;
+
+    return $this->getEnvFromAlias($drush_site, $drush_env);
+  }
+
+  /**
+   * @param string $drush_site
+   * @param string $drush_env
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getEnvFromAlias(
+    $drush_site,
+    $drush_env
+  ): EnvironmentResponse {
+    $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
+
+    // Get application.
+    $customer_application = $this->getApplicationFromAlias($drush_site);
+
+    // Get environments.
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client->clearQuery();
+    $environments_resource = new Environments($acquia_cloud_client);
+    $environments = $environments_resource->getAll($customer_application->uuid);
+    foreach ($environments as $environment) {
+      if ($environment->name === $drush_env) {
+        // @todo Create a cache entry for this alias.
+        $this->logger->debug("Found environment matching $drush_env.");
+
+        return $environment;
+      }
+    }
+
+    throw new AcquiaCliException("Environment not found matching the alias {alias}", ['alias' => "$drush_site.$drush_env"]);
+  }
+
+  /**
+   * @param string $drush_site
+   *
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getApplicationFromAlias($drush_site) {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $drush_site);
+    $customer_applications = $acquia_cloud_client->request('get', '/applications');
+    $site_prefix = '';
+    if ($customer_applications) {
+      $customer_application = $customer_applications[0];
+      $site_id = $customer_application->hosting->id;
+      $parts = explode(':', $site_id);
+      $site_prefix = $parts[1];
+    }
+
+    if ($site_prefix !== $drush_site) {
+      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $drush_site]);
+    }
+
+    $this->logger->debug("Found application matching $drush_site. Searching environments...");
+
+    return $customer_application;
   }
 
 }

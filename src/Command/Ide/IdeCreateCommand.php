@@ -97,8 +97,8 @@ class IdeCreateCommand extends CommandBase {
           $this->output->writeln('');
           $this->output->writeln('<info>Your IDE is ready!</info>');
           $this->output->writeln('');
-          $this->output->writeln('<comment>Your IDE URL:</comment> ' . $this->ide->links->ide->href);
-          $this->output->writeln('<comment>Your Drupal Site URL:</comment> ' . $this->ide->links->web->href);
+          $this->output->writeln("<comment>Your IDE URL:</comment> <href={$this->ide->links->ide->href}>{$this->ide->links->ide->href}</>");
+          $this->output->writeln("<comment>Your Drupal Site URL:</comment> <href={$this->ide->links->web->href}>{$this->ide->links->web->href}</>");
           // @todo Prompt to open browser.
         }
       }

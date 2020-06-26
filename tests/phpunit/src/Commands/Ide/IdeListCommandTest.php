@@ -55,4 +55,37 @@ class IdeListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
   }
 
+  /**
+   * Tests the 'ide:list' commands.
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testIdeListEmptyCommand(): void {
+
+    $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->clientProphecy->request('get',
+      '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')
+      ->willReturn([])
+      ->shouldBeCalled();
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select the application.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+    ];
+    $this->executeCommand([], $inputs);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('[1] Sample application 2', $output);
+    $this->assertStringContainsString('No IDE exists for this application.', $output);
+  }
+
 }

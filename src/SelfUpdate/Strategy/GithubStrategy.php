@@ -7,6 +7,7 @@ use Humbug\SelfUpdate\Exception\HttpRequestException;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
 use Humbug\SelfUpdate\Updater;
 use Humbug\SelfUpdate\VersionParser;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
   public const API_URL = 'https://api.github.com/repos/%s/releases';
@@ -25,6 +26,15 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    * @var Client
    */
   private $client;
+
+  /**
+   * @var \Symfony\Component\Console\Output\OutputInterface
+   */
+  private $output;
+
+  public function __construct(OutputInterface $output) {
+    $this->output = $output;
+  }
 
   /**
    * Retrieve the current version available remotely.
@@ -126,6 +136,7 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function download(Updater $updater): void {
+    $this->output->writeln('Downloading Acquia CLI ' . $this->remoteVersion);
     $response = $this->getClient()->request('GET', $this->remoteUrl, [
       'headers' => ['User-Agent' => $this->getPackageName()]
     ]);
