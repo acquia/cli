@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -10,7 +9,6 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaLogstream\LogstreamManager;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophet;
@@ -20,13 +18,10 @@ use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
@@ -189,18 +184,6 @@ abstract class TestBase extends TestCase {
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
-
-    // Clean up exceptions thrown during commands.
-    $dispatcher = new EventDispatcher();
-    $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
-      $exitCode = $event->getExitCode();
-      $error = $event->getError();
-      // Make OAuth server errors more human-friendly.
-      if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-        $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', [], $exitCode));
-      }
-    });
-    $this->application->setDispatcher($dispatcher);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();

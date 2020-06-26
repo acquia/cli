@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli;
 
-use Acquia\Cli\EventListener\ExceptionListener;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
