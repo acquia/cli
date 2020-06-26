@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Application;
 
+use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Client;
@@ -31,11 +32,12 @@ class ExceptionApplicationTest extends TestBase {
     $kernel = new Kernel('dev', 0);
     $kernel->boot();
     // Simulate the response from OAuth server due to invalid credentials.
-    $this->clientProphecy->request('get', '/applications')
-      ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => 'The client credentials are invalid']))
-      ->shouldBeCalled();
+   // $this->clientProphecy->request('get', '/applications')
+     // ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => 'The client credentials are invalid']))
+      //->shouldBeCalled();
     $container = $kernel->getContainer();
-    $container->set(Client::class, $this->clientProphecy->reveal());
+    //$container->set(Client::class, $this->clientProphecy->reveal());
+    $container->set('datastore.cloud', $this->cloudDatastore);
     $application = $container->get(Application::class);
     $application->setAutoExit(FALSE);
     $input = new ArrayInput(['link']);
