@@ -103,7 +103,6 @@ class ApiCommandBase extends CommandBase {
     catch (ApiErrorException $exception) {
       $response = $exception->getResponseBody();
       $exit_code = 1;
-      $this->output->writeln('The following error was returned directly from Cloud API:');
     }
     // @todo Add syntax highlighting to json output.
     $contents = json_encode($response, JSON_PRETTY_PRINT);
