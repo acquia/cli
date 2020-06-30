@@ -18,7 +18,7 @@ class ApiListCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('List all commands in the api namespace')
+    $this->setDescription("<fg=cyan>There are more hidden API commands! Run api:list to see them all.</>")
       ->setAliases(['api']);
   }
 
@@ -28,7 +28,7 @@ class ApiListCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // Unhide api:* commands.
+    // Un-hide api:* commands.
     $api_commands = $this->getApplication()->all('api');
     foreach ($api_commands as $api_command) {
       $api_command->setHidden(FALSE);

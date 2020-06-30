@@ -396,17 +396,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $this->logger->debug('Searching local datastore for matching project...');
       foreach ($local_user_config['localProjects'] as $project) {
         if ($project['directory'] === $this->repoRoot) {
-          $this->logger->debug('Matching local project found.');
+          $this->logger->debug('Matching local project found: ' . $project['cloud_application_uuid']);
           $this->localProjectInfo = $project;
           return;
         }
       }
     }
-    else {
-      $this->logger->debug('No matching local project found.');
-      $local_user_config = [];
-    }
-
+    $this->logger->debug('No matching local project found.');
+    $local_user_config = [];
     if ($this->repoRoot) {
       $this->createLocalProjectStubInConfig($local_user_config);
     }
