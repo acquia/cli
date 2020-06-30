@@ -19,7 +19,9 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
       $all_commands = $this->getApplication()->all();
       foreach ($all_commands as $command) {
         if (strpos($command->getName(), 'api:') !== FALSE && $command->getName() !== 'api:list') {
-          $command->setHidden(TRUE);
+          if (!in_array($command->getName(), $this->getUnhiddenApiCommands(), TRUE)) {
+            $command->setHidden(TRUE);
+          }
         }
       }
     }
@@ -32,6 +34,20 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
     ]);
 
     return 0;
+  }
+
+  /**
+   * Show a few of the api commands! Give people a sense of what's there.
+   *
+   * @return array
+   */
+  protected function getUnhiddenApiCommands(): array {
+    return [
+      'api:accounts:find',
+      'api:environments:code-deploy',
+      'api:environments:database-backup-create',
+      'api:environments:domain-clear-varnish',
+    ];
   }
 
 }
