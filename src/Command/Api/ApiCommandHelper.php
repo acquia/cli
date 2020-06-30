@@ -215,7 +215,7 @@ class ApiCommandHelper {
         }
       }
       $usage .= $query_param_usage_suffix;
-      $input_definition += $query_input_definition;
+      $input_definition = array_merge($input_definition, $query_input_definition);
     }
 
     // Parameters to be used in the request body.
