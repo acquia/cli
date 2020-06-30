@@ -226,7 +226,7 @@ class ApiCommandHelper {
         $command->addPostParameter($parameter_definition->getName());
       }
       $usage .= $request_body_param_usage_suffix;
-      $input_definition += $body_input_definition;
+      $input_definition = array_merge($input_definition, $body_input_definition);
     }
 
     if (isset($input_definition)) {
