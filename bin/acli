@@ -17,17 +17,12 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\ConsoleEvents;
-use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
 
@@ -93,12 +88,6 @@ $application->setVersion('@package_version@');
 /** @var \Acquia\Cli\Command\Api\ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
-// Clean up exceptions thrown during commands.
-$dispatcher = new EventDispatcher();
-if (!in_array('update', $_SERVER['argv'], TRUE)) {
-  addInvalidCredentialsErrorListener($dispatcher);
-}
-$application->setDispatcher($dispatcher);
 $application->run();
 
 /**
@@ -176,19 +165,4 @@ function files_exist($dir, array $files) {
   }
 
   return FALSE;
-}
-
-/**
- * @param \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher
- */
-function addInvalidCredentialsErrorListener(EventDispatcher $dispatcher): void {
-  $dispatcher->addListener(ConsoleEvents::ERROR, function (ConsoleErrorEvent $event) {
-    $exitCode = $event->getExitCode();
-    $error = $event->getError();
-    // Make OAuth server errors more human-friendly.
-    if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-      $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.',
-        [], $exitCode));
-    }
-  });
 }

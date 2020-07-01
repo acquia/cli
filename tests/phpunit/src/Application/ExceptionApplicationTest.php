@@ -2,9 +2,11 @@
 
 namespace Acquia\Cli\Tests\Application;
 
-use Acquia\Cli\Command\LinkCommand;
-use Acquia\Cli\Tests\ApplicationTestBase;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Acquia\Cli\Kernel;
+use Acquia\Cli\Tests\TestBase;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -14,21 +16,27 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
  *
  * @package Acquia\Cli\Tests\Application
  */
-class ExceptionApplicationTest extends ApplicationTestBase {
+class ExceptionApplicationTest extends TestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp($output = NULL):void {
     parent::setUp($output);
-    // We need to call any command accessing the API, doesn't matter which.
-    $this->application->add($this->injectCommand(LinkCommand::class));
+    // If kernel is cached from a previous run, it doesn't get detected in code
+    // coverage reports.
+    $this->fs->remove('var/cache');
   }
 
   public function testInvalidApiCreds(): void {
-    // Simulate the response from OAuth server due to invalid credentials.
-    $this->clientProphecy->request('get', '/applications')
-      ->willThrow(new IdentityProviderException('invalid_client', 0, ['error' => 'invalid_client', 'error_description' => 'The client credentials are invalid']))
-      ->shouldBeCalled();
-    $this->applicationTester->run(['link'], ['interactive' => FALSE]);
-    $output = $this->applicationTester->getDisplay();
-    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $output);  }
+    $kernel = new Kernel('dev', 0);
+    $kernel->boot();
+    $container = $kernel->getContainer();
+    $container->set('datastore.cloud', $this->cloudDatastore);
+    $application = $container->get(Application::class);
+    $application->setAutoExit(FALSE);
+    $input = new ArrayInput(['link']);
+    $input->setInteractive(FALSE);
+    $output = new BufferedOutput();
+    $application->run($input, $output);
+    $buffer = $output->fetch();
+    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $buffer);  }
 
 }
