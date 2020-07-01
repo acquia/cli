@@ -21,7 +21,7 @@ class ExceptionApplicationTest extends TestBase {
   public function setUp($output = NULL):void {
     // If kernel is cached from a previous run, it doesn't get detected in code
     // coverage reports.
-    shell_exec('rm -rf var/cache');
+    $this->fs->remove('var/cache');
     parent::setUp($output);
   }
 
