@@ -99,17 +99,10 @@ class UpdateCommand extends CommandBase {
    */
   public function getClient(): Client {
     if (!isset($this->client)) {
-      $client = self::createDefaultClient();
+      $client = new Client();
       $this->setClient($client);
     }
     return $this->client;
-  }
-
-  /**
-   * @return \GuzzleHttp\Client
-   */
-  public static function createDefaultClient(): Client {
-    return new Client();
   }
 
   /**
