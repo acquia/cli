@@ -19,10 +19,10 @@ use Symfony\Component\Console\Output\BufferedOutput;
 class ExceptionApplicationTest extends TestBase {
 
   public function setUp($output = NULL):void {
+    parent::setUp($output);
     // If kernel is cached from a previous run, it doesn't get detected in code
     // coverage reports.
     $this->fs->remove('var/cache');
-    parent::setUp($output);
   }
 
   public function testInvalidApiCreds(): void {
