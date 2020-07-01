@@ -77,10 +77,11 @@ class UpdateCommand extends CommandBase {
         // code execution. @see https://github.com/acquia/cli/issues/169
         // phpcs:ignore
         error_reporting(0);
-        return 0;
       }
-
-      $output->writeln('<comment>No update needed.</comment>');
+      else {
+        $output->writeln('<comment>No update needed.</comment>');
+      }
+      return 0;
     } catch (Exception $e) {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
