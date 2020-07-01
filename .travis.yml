@@ -26,6 +26,9 @@ jobs:
         - choco install php
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
+        # Fix curl errors in coveralls.
+        - curl -o /c/tools/php74/extras/ssl/cacert.pem https://curl.haxx.se/ca/cacert.pem
+        - echo 'curl.cainfo = "C:\tools\php74\extras\ssl\cacert.pem"' >> /c/tools/php74/php.ini
         # Refresh env to pick up new paths added by Choco installs.
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
