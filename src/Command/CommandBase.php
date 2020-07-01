@@ -384,29 +384,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Load local project info from the ACLI datastore. If none exists, create default info and set it.
+   * Load local project info from the datastore. If none exists, create default info and set it.
    * @throws \Exception
    */
   protected function loadLocalProjectInfo() {
     $this->logger->debug('Loading local project information...');
     $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
-    // Save empty local project info.
-    // @todo Abstract this.
     if ($local_user_config !== NULL && $this->repoRoot !== NULL) {
       $this->logger->debug('Searching local datastore for matching project...');
       foreach ($local_user_config['localProjects'] as $project) {
         if ($project['directory'] === $this->repoRoot) {
           $this->logger->debug('Matching local project found.');
+          if (array_key_exists('cloud_application_uuid', $project)) {
+            $this->logger->debug('Cloud application UUID: ' . $project['cloud_application_uuid']);
+          }
           $this->localProjectInfo = $project;
           return;
         }
       }
     }
-    else {
-      $this->logger->debug('No matching local project found.');
-      $local_user_config = [];
-    }
 
+    // Save empty local project info.
+    // @todo Abstract this.
+    $this->logger->debug('No matching local project found.');
+    $local_user_config = [];
     if ($this->repoRoot) {
       $this->createLocalProjectStubInConfig($local_user_config);
     }
