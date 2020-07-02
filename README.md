@@ -81,6 +81,6 @@ Contributions to Acquia CLI are welcome subject to the [contributions policy](CO
 
 ## Support
 
-Until it reaches GA, support for Acquia CLI is limited to basic diagnostics only. Please refer to our
+Until Acquia CLI has a stable 1.0.0 release support for it is limited to basic diagnostics only. Please refer to our
 [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on product and services
 we officially support.
