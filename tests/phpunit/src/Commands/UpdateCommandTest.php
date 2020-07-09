@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\UpdateCommand;
+use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\Cli\Tests\CommandTestBase;
 use drupol\phposinfo\OsInfo;
 use Exception;
@@ -69,23 +70,18 @@ class UpdateCommandTest extends CommandTestBase {
     $this->assertEquals($original_file_perms, fileperms($stub_phar) );
   }
 
-  public function testDefaultClient(): void {
-    $client = $this->command->getClient();
-    $this->assertInstanceOf(\Closure::class, $client->getConfig('progress'));
-  }
-
   public function testDownloadProgressDisplay(): void {
     $output = new BufferedOutput();
     $progress = NULL;
-    $this->command::displayDownloadProgress(100, 0, $progress, $output);
+    GithubStrategy::displayDownloadProgress(100, 0, $progress, $output);
     $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
 
     // Need to sleep to prevent the default redraw frequency from skipping display.
     sleep(1);
-    $this->command::displayDownloadProgress(100, 50, $progress, $output);
+    GithubStrategy::displayDownloadProgress(100, 50, $progress, $output);
     $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
 
-    $this->command::displayDownloadProgress(100, 100, $progress, $output);
+    GithubStrategy::displayDownloadProgress(100, 100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 

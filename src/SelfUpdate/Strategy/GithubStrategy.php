@@ -2,11 +2,12 @@
 
 namespace Acquia\Cli\SelfUpdate\Strategy;
 
+use Acquia\Cli\Command\UpdateCommand;
 use GuzzleHttp\Client;
-use Humbug\SelfUpdate\Exception\HttpRequestException;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
 use Humbug\SelfUpdate\Updater;
 use Humbug\SelfUpdate\VersionParser;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
@@ -31,6 +32,11 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
   private $output;
+
+  /**
+   * @var array
+   */
+  private $asset;
 
   public function __construct(OutputInterface $output) {
     $this->output = $output;
@@ -83,23 +89,24 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
       $release_key = array_search($this->remoteVersion, $versions, TRUE);
       $phar_asset = $this->getReleasePharAsset($releases[$release_key]);
       $this->remoteUrl = $this->getDownloadUrl($phar_asset);
+      $this->asset = $phar_asset;
     }
 
     return $this->remoteVersion;
   }
 
   /**
-   * @param Client $client
+   * @return \GuzzleHttp\Client
    */
-  public function setClient($client): void {
-    $this->client = $client;
+  public function getClient(): \GuzzleHttp\Client {
+    return $this->client;
   }
 
   /**
-   * @return Client
+   * @param \GuzzleHttp\Client $client
    */
-  public function getClient(): Client {
-    return $this->client;
+  public function setClient(\GuzzleHttp\Client $client): void {
+    $this->client = $client;
   }
 
   /**
@@ -137,11 +144,41 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
    */
   public function download(Updater $updater): void {
     $this->output->writeln('Downloading Acquia CLI ' . $this->remoteVersion);
-    $response = $this->getClient()->request('GET', $this->remoteUrl, [
-      'headers' => ['User-Agent' => $this->getPackageName()]
+    $progress = NULL;
+    $client = $this->getClient();
+    $output = $this->output;
+    $asset_size = $this->asset['size'];
+    $response = $client->request('GET', $this->remoteUrl, [
+      'headers' => ['User-Agent' => $this->getPackageName()],
+      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output, $asset_size) {
+        self::displayDownloadProgress($asset_size, $downloaded_bytes, $progress, $output);
+      },
     ]);
     $response_contents = $response->getBody()->getContents();
     file_put_contents($updater->getTempPharFile(), $response_contents);
+  }
+
+  /**
+   * @param $total_bytes
+   * @param $downloaded_bytes
+   * @param $progress
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, OutputInterface $output): void {
+    if ($total_bytes > 0 && is_null($progress)) {
+      $progress = new ProgressBar($output, $total_bytes);
+      $progress->setProgressCharacter('💧');
+      $progress->setOverwrite(TRUE);
+      $progress->start();
+    }
+
+    if (!is_null($progress)) {
+      if ($total_bytes === $downloaded_bytes) {
+        $progress->finish();
+        return;
+      }
+      $progress->setProgress($downloaded_bytes);
+    }
   }
 
 }
