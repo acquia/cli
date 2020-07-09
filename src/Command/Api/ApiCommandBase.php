@@ -257,10 +257,15 @@ class ApiCommandBase extends CommandBase {
     if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
       $env_uuid_argument = $input->getArgument('environmentId');
       try {
-        $this->validateUuid($env_uuid_argument);
+        // Environment IDs take the form of [env-num]-[app-uuid].
+        $uuid_parts = explode('-', $env_uuid_argument);
+        $env_id = $uuid_parts[0];
+        unset($uuid_parts[0]);
+        $application_uuid = implode('-', $uuid_parts);
+        $this->validateUuid($application_uuid);
       } catch (ValidatorException $validator_exception) {
-        // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
+          // Since this isn't a valid environment ID, let's see if it's a valid alias.
           $this->validateEnvironmentAlias($env_uuid_argument);
           $environment = $this->getEnvironmentFromAliasArg($env_uuid_argument);
           $input->setArgument('environmentId', $environment->uuid);
