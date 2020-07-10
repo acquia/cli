@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,8 +21,8 @@ class NewCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Create a new Drupal project')
-      ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, '');
-    // @todo Add argument to set destination directory.
+      ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, 'The composer package name of the Drupal distribution to download')
+      ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
   }
 
   /**
@@ -42,7 +43,13 @@ class NewCommand extends CommandBase {
     $helper = $this->getHelper('question');
     $project = $helper->ask($this->input, $this->output, $question);
 
-    $dir = Path::join(getcwd(), 'drupal');
+    if ($input->hasArgument('directory') && $input->getArgument('directory')) {
+      $dir = Path::canonicalize($input->getArgument('directory'));
+      $dir = Path::makeAbsolute($dir, getcwd());
+    }
+    else {
+      $dir = Path::makeAbsolute('drupal', getcwd());
+    }
 
     $output->writeln('<info>Creating project. This may take a few minutes</info>');
     $this->createProject($project, $dir);
@@ -87,6 +94,7 @@ class NewCommand extends CommandBase {
       'drush/drush',
       '--no-update',
     ], NULL, $dir);
+    // @todo Check that this was successful!
   }
 
   /**
@@ -130,6 +138,7 @@ class NewCommand extends CommandBase {
       'Initial commit.',
       '--quiet',
     ], NULL, $dir);
+    // @todo Check that this was successful!
   }
 
 }
