@@ -70,7 +70,7 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
 
-    if ($project === 'drupal/recommended-project') {
+    if ($project === 'acquia/drupal-minimal-project') {
       $local_machine_helper
         ->execute([
           'composer',
@@ -94,11 +94,6 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString($project, $output);
     $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
 
-    if ($project === 'drupal/recommended-project') {
-      $composer_json = file_get_contents(Path::join($this->newProjectDir, 'composer.json'));
-      $this->assertStringNotContainsString('web/', $composer_json);
-      $this->assertStringContainsString('docroot/', $composer_json);
-    }
   }
 
   /**
