@@ -20,17 +20,6 @@ class NewCommandTest extends CommandTestBase {
 
   protected $newProjectDir;
 
-  public function setUp($output = NULL): void {
-    parent::setUp($output);
-    $this->newProjectDir =  Path::join($this->projectFixtureDir, 'drupal');
-    $this->fs->remove($this->newProjectDir);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->fs->remove($this->newProjectDir);
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -40,8 +29,9 @@ class NewCommandTest extends CommandTestBase {
 
   public function provideTestNewCommand() {
     return [
-      ['acquia/blt-project'],
-      ['drupal/recommended-project'],
+      ['acquia/blt-project', NULL],
+      ['drupal/recommended-project', NULL],
+      ['drupal/recommended-project', 'test-dir'],
     ];
   }
 
@@ -50,11 +40,14 @@ class NewCommandTest extends CommandTestBase {
    *
    * @dataProvider provideTestNewCommand
    *
-   * @param $project
+   * @param string $project
+   * @param string $directory
    *
    * @throws \Exception
    */
-  public function testNewCommand($project): void {
+  public function testNewCommand($project, $directory = 'drupal'): void {
+    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $this->fs->remove($this->newProjectDir);
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -87,7 +80,9 @@ class NewCommandTest extends CommandTestBase {
       // Which starting project would you like to use?
       $project,
     ];
-    $this->executeCommand([], $inputs);
+    $this->executeCommand([
+      'directory' => $directory,
+    ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Which starting project would you like to use?', $output);
@@ -99,6 +94,8 @@ class NewCommandTest extends CommandTestBase {
       $this->assertStringNotContainsString('web/', $composer_json);
       $this->assertStringContainsString('docroot/', $composer_json);
     }
+
+    $this->fs->remove($this->newProjectDir);
   }
 
   /**
@@ -108,13 +105,13 @@ class NewCommandTest extends CommandTestBase {
    * @param string $project
    *
    * @return void
-*/
+  */
   protected function mockExecuteComposerCreate(
     string $project_dir,
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
     $project
-  ) {
+  ): void {
     $command = [
       'composer',
       'create-project',
@@ -134,7 +131,7 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
    * @return void
-*/
+  */
   protected function mockExecuteComposerUpdate(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -156,7 +153,7 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
    * @return void
-*/
+  */
   protected function mockExecuteGitInit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -178,7 +175,7 @@ class NewCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
    * @return void
-*/
+  */
   protected function mockExecuteGitAdd(
     ObjectProphecy $local_machine_helper,
     string $project_dir,

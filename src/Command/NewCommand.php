@@ -44,9 +44,10 @@ class NewCommand extends CommandBase {
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));
+      $dir = Path::makeAbsolute($dir, getcwd());
     }
     else {
-      $dir = Path::join(getcwd(), 'drupal');
+      $dir = Path::makeAbsolute('drupal', getcwd());
     }
 
     $filepath = Path::join($dir, 'composer.json');
@@ -104,6 +105,7 @@ class NewCommand extends CommandBase {
       'drush/drush',
       '--no-update',
     ], NULL, $dir);
+    // @todo Check that this was successful!
   }
 
   /**
@@ -147,6 +149,7 @@ class NewCommand extends CommandBase {
       'Initial commit.',
       '--quiet',
     ], NULL, $dir);
+    // @todo Check that this was successful!
   }
 
 }
