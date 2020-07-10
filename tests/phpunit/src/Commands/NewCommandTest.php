@@ -29,8 +29,8 @@ class NewCommandTest extends CommandTestBase {
 
   public function provideTestNewCommand() {
     return [
-      ['acquia/blt-project', NULL],
-      ['drupal/recommended-project', NULL],
+      ['acquia/blt-project'],
+      ['drupal/recommended-project'],
       ['drupal/recommended-project', 'test-dir'],
     ];
   }
