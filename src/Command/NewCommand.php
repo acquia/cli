@@ -32,8 +32,8 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->output->writeln('Acquia recommends most customers use <comment>acquia/drupal-recommended-project</comment>, which includes useful utilities such as Acquia Connector.');
-    $this->output->writeln('<comment>acquia/drupal-minimal-project</comment> is the most minimal application that will run on Acquia Cloud.');
+    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</>, which includes useful utilities such as Acquia Connector.');
+    $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal application that will run on Acquia Cloud.');
     $distros = [
       'acquia/drupal-recommended-project',
       'acquia/drupal-minimal-project',
