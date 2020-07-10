@@ -40,8 +40,8 @@ class NewCommandTest extends CommandTestBase {
 
   public function provideTestNewCommand() {
     return [
-      ['acquia/blt-project'],
-      ['drupal/recommended-project'],
+      ['acquia/drupal-recommended-project'],
+      ['acquia/drupal-minimal-project'],
     ];
   }
 
