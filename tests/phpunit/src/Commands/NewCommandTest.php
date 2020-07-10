@@ -94,6 +94,10 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString($project, $output);
     $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
 
+    $composer_json = file_get_contents(Path::join($this->newProjectDir, 'composer.json'));
+    $this->assertStringNotContainsString('web/', $composer_json);
+    $this->assertStringContainsString('docroot/', $composer_json);
+
   }
 
   /**
