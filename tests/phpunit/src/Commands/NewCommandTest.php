@@ -29,9 +29,9 @@ class NewCommandTest extends CommandTestBase {
 
   public function provideTestNewCommand() {
     return [
-      ['acquia/blt-project'],
-      ['drupal/recommended-project'],
-      ['drupal/recommended-project', 'test-dir'],
+      ['acquia/drupal-recommended-project'],
+      ['acquia/drupal-minimal-project'],
+      ['acquia/drupal-minimal-project', 'test-dir'],
     ];
   }
 
@@ -47,7 +47,6 @@ class NewCommandTest extends CommandTestBase {
    */
   public function testNewCommand($project, $directory = 'drupal'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
-    $this->fs->remove($this->newProjectDir);
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -57,13 +56,12 @@ class NewCommandTest extends CommandTestBase {
     $local_machine_helper->useTty()->willReturn(FALSE);
 
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
-    $this->fs->copy(Path::join($this->projectFixtureDir, 'composer.json'), Path::join($this->newProjectDir, 'composer.json'));
     $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
 
-    if ($project === 'drupal/recommended-project') {
+    if ($project === 'acquia/drupal-minimal-project') {
       $local_machine_helper
         ->execute([
           'composer',
@@ -89,13 +87,6 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString($project, $output);
     $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
 
-    if ($project === 'drupal/recommended-project') {
-      $composer_json = file_get_contents(Path::join($this->newProjectDir, 'composer.json'));
-      $this->assertStringNotContainsString('web/', $composer_json);
-      $this->assertStringContainsString('docroot/', $composer_json);
-    }
-
-    $this->fs->remove($this->newProjectDir);
   }
 
   /**
