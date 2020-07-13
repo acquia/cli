@@ -33,10 +33,11 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</>, which includes useful utilities such as Acquia Connector.');
+    $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal application that will run on Acquia Cloud.');
     $distros = [
-      'acquia/blt-project',
-      'acquia/lightning-project',
-      'drupal/recommended-project',
+      'acquia/drupal-recommended-project',
+      'acquia/drupal-minimal-project',
     ];
     $question = new ChoiceQuestion('<question>Which starting project would you like to use?</question>', $distros);
     $helper = $this->getHelper('question');
@@ -50,13 +51,10 @@ class NewCommand extends CommandBase {
       $dir = Path::makeAbsolute('drupal', getcwd());
     }
 
-    $filepath = Path::join($dir, 'composer.json');
-
     $output->writeln('<info>Creating project. This may take a few minutes</info>');
     $this->createProject($project, $dir);
 
-    if (strpos($project, 'drupal/recommended-project') !== FALSE) {
-      $this->replaceWebRoot($filepath);
+    if (strpos($project, 'acquia/drupal-minimal-project') !== FALSE) {
       $this->requireDrush($dir);
     }
 
@@ -82,15 +80,6 @@ class NewCommand extends CommandBase {
    */
   protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
-  }
-
-  /**
-   * @param string $filepath
-   */
-  protected function replaceWebRoot(string $filepath): void {
-    $contents = file_get_contents($filepath);
-    $contents = str_replace('web/', 'docroot/', $contents);
-    file_put_contents($filepath, $contents);
   }
 
   /**
