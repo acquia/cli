@@ -9,12 +9,17 @@ Acquia CLI does not provide or manage local development environments. If you are
 
 Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled. It fully supports Windows, Linux, and macOS, and will probably work on any other platform running PHP. 
 
-Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, place it somewhere globally accessible on your machine, make it executable, and optionally rename it to `acli`. Or run the following simple script in the directory where you'd like to install Acquia CLI:
+Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, make it executable, and optionally rename it to `acli`. Or run the following simple script in the directory where you'd like to install Acquia CLI:
 ```bash
-curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc1/acli.phar
+curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc3/acli.phar
 mv acli.phar acli
 chmod +x acli
 ./acli
+```
+
+Next, place it somewhere globally accessible on your machine. For instance:
+```
+mv acli /usr/local/bin/
 ```
 
 Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to avoid dependency conflicts.
