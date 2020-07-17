@@ -61,14 +61,14 @@ class IdeXdebugCommand extends IdeCommandBase {
       'supervisorctl',
       'restart',
       'php-fpm',
-    ]);
+    ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to restart PHP in the IDE.');
     }
     $this->logger->info('Restarting bash...');
     $process = $this->localMachineHelper->execute([
       'bash',
-    ]);
+    ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to restart bash in the IDE.');
     }
