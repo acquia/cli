@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -22,6 +23,7 @@ class IdeXdebugCommand extends IdeCommandBase {
    */
   protected function configure() {
     $this->setDescription('Toggle xDebug on or off in the current IDE')
+      ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
@@ -48,30 +50,6 @@ class IdeXdebugCommand extends IdeCommandBase {
     }
 
     return 0;
-  }
-
-  /**
-   * Restart PHP.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function restartPhp(): void {
-    $this->logger->info('Restarting PHP...');
-    $process = $this->localMachineHelper->execute([
-      'supervisorctl',
-      'restart',
-      'php-fpm',
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart PHP in the IDE.');
-    }
-    $this->logger->info('Restarting bash...');
-    $process = $this->localMachineHelper->execute([
-      'bash',
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart bash in the IDE.');
-    }
   }
 
   /**

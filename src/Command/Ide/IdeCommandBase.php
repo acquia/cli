@@ -35,4 +35,21 @@ abstract class IdeCommandBase extends CommandBase {
     return $ide_response;
   }
 
+  /**
+   * Restart PHP inside IDE.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function restartPhp(): void {
+    $this->logger->notice('Restarting PHP...');
+    $process = $this->localMachineHelper->execute([
+      'supervisorctl',
+      'restart',
+      'php-fpm',
+    ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to restart PHP in the IDE.');
+    }
+  }
+
 }

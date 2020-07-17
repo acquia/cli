@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,33 +29,23 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $version = $input->getArgument('version');
     // @todo Validate version.
     $this->localMachineHelper->getFilesystem()->dumpFile('/home/ide/configs/php/.version', $version);
     $this->restartPhp();
+    $this->restartBash();
 
     return 0;
   }
 
   /**
-   * Restart PHP.
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function restartPhp(): void
-  {
-    $this->logger->info('Restarting PHP...');
-    $process = $this->localMachineHelper->execute([
-      'supervisorctl',
-      'restart',
-      'php-fpm',
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart PHP in the IDE.');
-    }
-    $this->logger->info('Restarting bash...');
+  protected function restartBash() {
+    $this->logger->notice('Restarting bash...');
     $process = $this->localMachineHelper->execute([
       'bash',
     ], NULL, NULL, FALSE);
@@ -62,6 +53,5 @@ class IdePhpVersionCommand extends IdeCommandBase {
       throw new AcquiaCliException('Unable to restart bash in the IDE.');
     }
   }
-
 
 }
