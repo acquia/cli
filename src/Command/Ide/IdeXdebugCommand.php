@@ -106,7 +106,7 @@ class IdeXdebugCommand extends IdeCommandBase {
    */
   protected function enableXDebug($destination_file, $contents): void {
     $this->logger->notice("Enabling xdebug in $destination_file...");
-    $new_contents = preg_replace('|(;)+(zend_extension=".+\/xdebug.so")|', '$2', $contents);
+    $new_contents = preg_replace('|(;)+(zend_extension=xdebug\.so)|', '$2', $contents);
     $this->localMachineHelper->writeFile($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug enabled.</info>");
   }
@@ -119,7 +119,7 @@ class IdeXdebugCommand extends IdeCommandBase {
    */
   protected function disableXDebug($destination_file, $contents) {
     $this->logger->notice("Disabling xdebug in $destination_file...");
-    $new_contents = preg_replace('|(;)*(zend_extension=".+\/xdebug.so")|', ';$2', $contents);
+    $new_contents = preg_replace('|(;)*(zend_extension=xdebug\.so)|', ';$2', $contents);
     $this->localMachineHelper->writeFile($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug disabled.</info>");
   }
