@@ -56,6 +56,7 @@ class IdeXdebugCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function restartPhp(): void {
+    $this->logger->info('Restarting PHP...');
     $process = $this->localMachineHelper->execute([
       'supervisorctl',
       'restart',
@@ -64,6 +65,7 @@ class IdeXdebugCommand extends IdeCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to restart PHP in the IDE.');
     }
+    $this->logger->info('Restarting bash...');
     $process = $this->localMachineHelper->execute([
       'bash',
     ]);
@@ -79,9 +81,9 @@ class IdeXdebugCommand extends IdeCommandBase {
    *   The contents of php.ini.
    */
   protected function setXDebugStatus($contents): void {
-    if (preg_match('|;zend_extension=".+\/xdebug.so"|', $contents)) {
+    if (strpos($contents, ';zend_extension=xdebug.so') !== FALSE) {
       $this->xDebugEnabled = FALSE;
-    } elseif (preg_match('|zend_extension=".+\/xdebug.so"|', $contents)) {
+    } elseif (strpos($contents, 'zend_extension=xdebug.so') !== FALSE) {
       $this->xDebugEnabled = TRUE;
     } else {
       $this->xDebugEnabled = NULL;
