@@ -40,7 +40,7 @@ class IdeXdebugCommand extends IdeCommandBase {
     if ($this->getXDebugStatus() === FALSE) {
       $this->enableXDebug($ini_file, $contents);
       $this->restartPhp();
-    } elseif ($this->$this->getXDebugStatus() === TRUE) {
+    } elseif ($this->getXDebugStatus() === TRUE) {
       $this->disableXDebug($ini_file, $contents);
       $this->restartPhp();
     } else {
