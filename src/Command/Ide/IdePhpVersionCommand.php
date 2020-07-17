@@ -46,12 +46,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    */
   protected function restartBash() {
     $this->logger->notice('Restarting bash...');
-    $process = $this->localMachineHelper->execute([
-      'bash',
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart bash in the IDE.');
-    }
+    passthru('exec bash -l');
   }
 
 }
