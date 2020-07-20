@@ -15,8 +15,15 @@ class IdeXdebugCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:xdebug';
 
-  /** @var boolean|null */
+  /**
+   * @var boolean|null
+   */
   private $xDebugEnabled;
+
+  /**
+   * @var string
+   */
+  private $xdebugIniFilepath;
 
   /**
    * {inheritdoc}.
@@ -35,7 +42,8 @@ class IdeXdebugCommand extends IdeCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $ini_file = '/home/ide/configs/php/xdebug.ini';
+    $this->requireCloudIdeEnvironment();
+    $ini_file = $this->getXdebugIniFilePath();
     $contents = $this->localMachineHelper->readFile($ini_file);
     $this->setXDebugStatus($contents);
 
@@ -50,6 +58,23 @@ class IdeXdebugCommand extends IdeCommandBase {
     }
 
     return 0;
+  }
+
+  /**
+   * @param string $file_path
+   */
+  public function setXdebugIniFilepath($file_path) {
+    $this->xdebugIniFilepath = $file_path;
+  }
+
+  /**
+   * @return string
+   */
+  public function getXdebugIniFilePath() {
+    if (!isset($this->xdebugIniFilepath)) {
+      $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
+    }
+    return $this->xdebugIniFilepath;
   }
 
   /**
@@ -81,12 +106,13 @@ class IdeXdebugCommand extends IdeCommandBase {
   /**
    * Enables xDebug.
    *
+   * @param string $destination_file
    * @param string $contents
    *   The contents of php.ini.
    */
   protected function enableXDebug($destination_file, $contents): void {
     $this->logger->notice("Enabling xdebug in $destination_file...");
-    $new_contents = preg_replace('|(;)+(zend_extension=xdebug\.so)|', '$2', $contents);
+    $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
     $this->localMachineHelper->writeFile($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug enabled.</info>");
   }
@@ -94,12 +120,13 @@ class IdeXdebugCommand extends IdeCommandBase {
   /**
    * Disables xDebug.
    *
+   * @param string $destination_file
    * @param string $contents
    *   The contents of php.ini.
    */
   protected function disableXDebug($destination_file, $contents) {
     $this->logger->notice("Disabling xdebug in $destination_file...");
-    $new_contents = preg_replace('|(;)*(zend_extension=xdebug\.so)|', ';$2', $contents);
+    $new_contents = preg_replace('/(;)*(zend_extension=xdebug\.so)/', ';$2', $contents);
     $this->localMachineHelper->writeFile($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug disabled.</info>");
   }
