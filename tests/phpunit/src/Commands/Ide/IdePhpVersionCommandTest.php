@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -42,11 +43,17 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
    * @throws \Exception
    */
   public function testIdePhpVersionCommand($version): void {
-    $this->executeCommand([$version], []);
+    $php_finder = new PhpExecutableFinder();
+    $actual_php_path = dirname($php_finder->find());
+    $this->command->setPhpBinPath($actual_php_path);
+    $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
+    $this->executeCommand([
+      'version' => $version,
+    ], []);
     $this->assertEquals($version, getenv('PHP_VERSION'));
-    $this->assertEquals('PATH="/usr/local/php' . $version . '/bin:${PATH}"', getenv('PATH'));
-    $this->assertFileExists('/home/ide/configs/php/.version');
-    $this->assertEquals($version, file_get_contents('/home/ide/configs/php/.version'));
+    $this->assertEquals('PATH="' . $actual_php_path . ':${PATH}"', getenv('PATH'));
+    $this->assertFileExists($this->command->getPhpVersionFilePath());
+    $this->assertEquals($version, file_get_contents($this->command->getPhpVersionFilePath()));
   }
 
   /**

@@ -21,6 +21,16 @@ class IdePhpVersionCommand extends IdeCommandBase {
   protected static $defaultName = 'ide:php-version';
 
   /**
+   * @var string
+   */
+  private $phpBinPath;
+
+  /**
+   * @var string
+   */
+  private $phpVersionFilePath;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -40,12 +50,45 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->requireCloudIdeEnvironment();
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
-    $this->localMachineHelper->getFilesystem()->dumpFile('/home/ide/configs/php/.version', $version);
+    $this->localMachineHelper->getFilesystem()->dumpFile($this->getPhpVersionFilePath(), $version);
     putenv('PHP_VERSION=' . $version);
-    putenv('PATH="/usr/local/php' . $version . '/bin:${PATH}"');
+    putenv('PATH="' . $this->getPhpBinPath($version) . ':${PATH}"');
     $this->restartPhp();
 
     return 0;
+  }
+
+  /**
+   * @return string
+   */
+  public function getPhpVersionFilePath(): string {
+    if (!isset($this->phpVersionFilePath)) {
+      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
+    }
+    return $this->phpVersionFilePath;
+  }
+
+  /**
+   * @param string $path
+   */
+  public function setPhpVersionFilePath($path): void {
+    $this->phpVersionFilePath = $path;
+  }
+
+  /**
+   * @param $version
+   */
+  public function getPhpBinPath($version): void {
+    if (!isset($this->phpBinPath)) {
+      $this->phpBinPath = '/usr/local/php' . $version . '/bin';
+    }
+  }
+
+  /**
+   * @param string $path
+   */
+  public function setPhpBinPath($path): void {
+    $this->phpBinPath = $path;
   }
 
   /**
@@ -64,7 +107,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
-    if (!$this->localMachineHelper->getFilesystem()->exists('/usr/local/php' . $version)) {
+    if (!$this->localMachineHelper->getFilesystem()->exists($this->getPhpVersionFilePath())) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 
