@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeXdebugCommand;
-use Acquia\Cli\Tests\Commands\Ide\Wizard\IdeRequiredTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -28,8 +27,8 @@ class IdeXdebugCommandTest extends IdeRequiredTestBase {
    */
   public function setUp($output = NULL): void {
     parent::setUp();
-    // @todo Copy fixture to a temp path where it can be messed with.
-    $this->xdebugFilePath = $this->fixtureDir . '/xdebug.ini';
+    $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
+    $this->fs->copy($this->fixtureDir . '/xdebug.ini', $this->xdebugFilePath);
     $this->command->setXdebugIniFilepath($this->xdebugFilePath);
   }
 
@@ -44,12 +43,23 @@ class IdeXdebugCommandTest extends IdeRequiredTestBase {
    * Tests the 'ide:xdebug' command.
    * @throws \Exception
    */
-  public function testXdebugCommand(): void {
+  public function testXdebugCommandEnable(): void {
     $this->executeCommand([], []);
-    $ini_file = '/home/ide/configs/php/xdebug.ini';
-    $this->assertFileExists($ini_file);
-    $this->assertStringContainsString('zend_extension=xdebug.so', file_get_contents($ini_file));
-    $this->assertStringContainsString("Enabling xdebug in {$ini_file}...", $this->getDisplay());
+    $this->assertFileExists($this->xdebugFilePath);
+    $this->assertStringContainsString('zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
+    $this->assertStringNotContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
+    $this->assertStringContainsString("Enabling xdebug in {$this->xdebugFilePath}...", $this->getDisplay());
+  }
+
+  /**
+   * Tests the 'ide:xdebug' command.
+   * @throws \Exception
+   */
+  public function testXdebugCommandDisable(): void {
+    $this->executeCommand([], []);
+    $this->assertFileExists($this->xdebugFilePath);
+    $this->assertStringContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
+    $this->assertStringContainsString("Disabling xdebug in {$this->xdebugFilePath}...", $this->getDisplay());
   }
 
 }

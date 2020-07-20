@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Commands\Ide\Wizard\IdeRequiredTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -71,7 +70,9 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
    */
   public function testIdePhpVersionCommandFailure($version, $exception_class): void {
     try {
-      $this->executeCommand([$version], []);
+      $this->executeCommand([
+        'version' => $version,
+      ], []);
     }
     catch (\Exception $exception) {
       $this->assertEquals($exception_class, get_class($exception));

@@ -5,7 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 
 /**
  * Class IdeWizardTestBase.
@@ -30,14 +30,13 @@ abstract class IdeWizardTestBase extends IdeRequiredTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function setUp($output = NULL): void {
+    parent::setUp();
     $this->getCommandTester();
     $this->application->addCommands([
       $this->injectCommand(SshKeyCreateCommand::class),
       $this->injectCommand(SshKeyDeleteCommand::class),
       $this->injectCommand(SshKeyUploadCommand::class),
     ]);
-
-    parent::setUp();
   }
 
 }

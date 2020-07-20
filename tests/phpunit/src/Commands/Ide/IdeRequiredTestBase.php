@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
+namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Tests\CommandTestBase;
 
