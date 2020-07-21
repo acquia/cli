@@ -2,18 +2,16 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IdeXdebugCommand.
  */
-class IdeXdebugCommand extends IdeCommandBase {
+class IdeXdebugToggleCommand extends IdeCommandBase {
 
-  protected static $defaultName = 'ide:xdebug';
+  protected static $defaultName = 'ide:xdebug-toggle';
 
   /**
    * @var boolean|null
@@ -30,7 +28,7 @@ class IdeXdebugCommand extends IdeCommandBase {
    */
   protected function configure() {
     $this->setDescription('Toggle xDebug on or off in the current IDE')
-      ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
+      ->setAliases(['xdebug'])
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
@@ -44,7 +42,7 @@ class IdeXdebugCommand extends IdeCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireCloudIdeEnvironment();
     $ini_file = $this->getXdebugIniFilePath();
-    $contents = $this->localMachineHelper->readFile($ini_file);
+    $contents = file_get_contents($ini_file);
     $this->setXDebugStatus($contents);
 
     if ($this->getXDebugStatus() === FALSE) {
@@ -63,14 +61,14 @@ class IdeXdebugCommand extends IdeCommandBase {
   /**
    * @param string $file_path
    */
-  public function setXdebugIniFilepath($file_path) {
+  public function setXdebugIniFilepath($file_path): void {
     $this->xdebugIniFilepath = $file_path;
   }
 
   /**
    * @return string
    */
-  public function getXdebugIniFilePath() {
+  public function getXdebugIniFilePath(): string {
     if (!isset($this->xdebugIniFilepath)) {
       $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
     }
@@ -112,8 +110,9 @@ class IdeXdebugCommand extends IdeCommandBase {
    */
   protected function enableXDebug($destination_file, $contents): void {
     $this->logger->notice("Enabling xdebug in $destination_file...");
+    // Note that this replaces 1 or more ";" characters.
     $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
-    $this->localMachineHelper->writeFile($destination_file, $new_contents);
+    file_put_contents($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug enabled.</info>");
   }
 
@@ -127,7 +126,7 @@ class IdeXdebugCommand extends IdeCommandBase {
   protected function disableXDebug($destination_file, $contents) {
     $this->logger->notice("Disabling xdebug in $destination_file...");
     $new_contents = preg_replace('/(;)*(zend_extension=xdebug\.so)/', ';$2', $contents);
-    $this->localMachineHelper->writeFile($destination_file, $new_contents);
+    file_put_contents($destination_file, $new_contents);
     $this->output->writeln("<info>xDebug disabled.</info>");
   }
 

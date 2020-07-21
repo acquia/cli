@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -52,7 +53,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getPhpVersionFilePath(), $version);
     putenv('PHP_VERSION=' . $version);
-    putenv('PATH="' . $this->getPhpBinPath($version) . ':${PATH}"');
+    $path = $this->getPhpBinPath($version) . ':' . getenv('PATH');
+    putenv("PATH=\"{$path}\"");
     $this->restartPhp();
 
     return 0;
@@ -76,12 +78,15 @@ class IdePhpVersionCommand extends IdeCommandBase {
   }
 
   /**
-   * @param $version
+   * @param string $version
+   *
+   * @return string
    */
-  public function getPhpBinPath($version): void {
+  public function getPhpBinPath($version): string {
     if (!isset($this->phpBinPath)) {
       $this->phpBinPath = '/usr/local/php' . $version . '/bin';
     }
+    return $this->phpBinPath;
   }
 
   /**

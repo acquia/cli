@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
@@ -43,6 +44,27 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
    * @throws \Exception
    */
   public function testIdePhpVersionCommand($version): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper
+      ->execute([
+        'supervisorctl',
+        'restart',
+        'php-fpm',
+      ], NULL, NULL, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+
+    // Set up file system.
+    $local_machine_helper
+      ->getFilesystem()
+      ->willReturn($this->fs)
+      ->shouldBeCalled();
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
     $php_finder = new PhpExecutableFinder();
     $actual_php_path = dirname($php_finder->find());
     $this->command->setPhpBinPath($actual_php_path);
@@ -51,7 +73,7 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
       'version' => $version,
     ], []);
     $this->assertEquals($version, getenv('PHP_VERSION'));
-    $this->assertEquals('PATH="' . $actual_php_path . ':${PATH}"', getenv('PATH'));
+    $this->assertStringContainsString($actual_php_path, getenv('PATH'));
     $this->assertFileExists($this->command->getPhpVersionFilePath());
     $this->assertEquals($version, file_get_contents($this->command->getPhpVersionFilePath()));
   }
@@ -61,7 +83,8 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
    */
   public function providerTestIdePhpVersionCommandFailure(): array {
     return [
-      ['6', AcquiaCliException::class],
+      ['6.3', AcquiaCliException::class],
+      ['6', ValidatorException::class],
       ['7', ValidatorException::class],
       ['7.', ValidatorException::class],
     ];

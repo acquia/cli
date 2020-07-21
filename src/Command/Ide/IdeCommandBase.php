@@ -48,7 +48,7 @@ abstract class IdeCommandBase extends CommandBase {
       'php-fpm',
     ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart PHP in the IDE.');
+      throw new AcquiaCliException('Unable to restart PHP in the IDE: {error}', ['error' => $process->getErrorOutput()]);
     }
   }
 
