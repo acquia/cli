@@ -29,7 +29,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   protected function configure() {
     $this->setDescription('Toggle xDebug on or off in the current IDE')
       ->setAliases(['xdebug'])
-      ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
   /**

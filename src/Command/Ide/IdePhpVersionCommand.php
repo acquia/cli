@@ -6,9 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -38,7 +36,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   protected function configure() {
     $this->setDescription('Change the PHP version in the current IDE')
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
-      ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
   /**
