@@ -58,11 +58,7 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
       ->shouldBeCalled();
 
     $local_machine_helper
-      ->execute([
-        'exec',
-        'bash',
-        '-l',
-      ], NULL, NULL, FALSE)
+      ->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
 
