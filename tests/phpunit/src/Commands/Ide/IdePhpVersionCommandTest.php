@@ -57,6 +57,15 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
 
+    $local_machine_helper
+      ->execute([
+        'exec',
+        'bash',
+        '-l',
+      ], NULL, NULL, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+
     // Set up file system.
     $local_machine_helper
       ->getFilesystem()
@@ -72,8 +81,6 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
     $this->executeCommand([
       'version' => $version,
     ], []);
-    $this->assertEquals($version, getenv('PHP_VERSION'));
-    $this->assertStringContainsString($actual_php_path, getenv('PATH'));
     $this->assertFileExists($this->command->getPhpVersionFilePath());
     $this->assertEquals($version, file_get_contents($this->command->getPhpVersionFilePath()));
   }
