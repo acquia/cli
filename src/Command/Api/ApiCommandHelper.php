@@ -515,6 +515,8 @@ class ApiCommandHelper {
       'ssh-key:delete',
       'ssh-key:list',
       'ssh-key:upload',
+      // Skip buggy or unsupported endpoints.
+      'environments:stack-metrics-data-metric',
     ];
   }
 
