@@ -69,10 +69,6 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
       ->shouldBeCalled();
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-
-    $php_finder = new PhpExecutableFinder();
-    $actual_php_path = dirname($php_finder->find());
-    $this->command->setPhpBinPath($actual_php_path);
     $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
     $this->executeCommand([
       'version' => $version,

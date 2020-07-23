@@ -77,25 +77,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @param string $version
    *
-   * @return string
-   */
-  public function getPhpBinPath($version): string {
-    if (!isset($this->phpBinPath)) {
-      $this->phpBinPath = '/usr/local/php' . $version . '/bin';
-    }
-    return $this->phpBinPath;
-  }
-
-  /**
-   * @param string $path
-   */
-  public function setPhpBinPath($path): void {
-    $this->phpBinPath = $path;
-  }
-
-  /**
-   * @param string $version
-   *
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
