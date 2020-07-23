@@ -83,6 +83,9 @@ class ApiCommandBase extends CommandBase {
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
           $acquia_cloud_client->addQuery($key, $input->getOption($key));
         }
+        elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
+        }
       }
     }
     if ($this->postParams) {
