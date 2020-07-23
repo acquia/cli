@@ -97,8 +97,8 @@
       "npm install",
       "make install",
       "make spec",
-      "cp dist/spec/acquia-spec.yaml ../assets/",
-      "cd ..",
+      "cp dist/spec/acquia-spec.yaml ../../assets/",
+      "cd ../..",
       "rm -rf cx-api-spec"
     ],
     "box-install": [

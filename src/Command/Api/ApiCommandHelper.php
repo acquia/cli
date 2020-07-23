@@ -206,12 +206,13 @@ class ApiCommandHelper {
       [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($query_input_definition as $parameter_definition) {
-        $token = '{' . $parameter_definition->getName() . '}';
-        if (strpos($command->getPath(), $token) !== FALSE) {
-           $command->addPathParameter($parameter_definition->getName());
-        }
-        else {
+        // @todo Remove ucfirst() and use actual key.
+        $parameter_specification = $this->getParameterDefinitionFromSpec(ucfirst($parameter_definition->getName()), $acquia_cloud_spec);
+        if ($parameter_specification['in'] === 'query') {
           $command->addQueryParameter($parameter_definition->getName());
+        }
+        elseif($parameter_specification['in'] === 'path') {
+          $command->addPathParameter($parameter_definition->getName());
         }
       }
       $usage .= $query_param_usage_suffix;
