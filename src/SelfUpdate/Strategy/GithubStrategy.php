@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\SelfUpdate\Strategy;
 
-use Acquia\Cli\Command\UpdateCommand;
 use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Exception\JsonParsingException;
 use Humbug\SelfUpdate\Updater;
@@ -175,6 +174,7 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
     if (!is_null($progress)) {
       if ($total_bytes === $downloaded_bytes) {
         $progress->finish();
+        $output->writeln('');
         return;
       }
       $progress->setProgress($downloaded_bytes);
