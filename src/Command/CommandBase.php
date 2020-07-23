@@ -735,7 +735,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *   TRUE if Acquia CLI is being run from within a Cloud IDE.
    */
   public static function isAcquiaCloudIde(): bool {
-    return AcquiaDrupalEnvironmentDetector::getAhEnv() === 'IDE';
+    return AcquiaDrupalEnvironmentDetector::isAhIdeEnv();
   }
 
   /**
@@ -906,6 +906,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->logger->debug("Found application matching $drush_site. Searching environments...");
 
     return $customer_application;
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  public function requireCloudIdeEnvironment(): void {
+    if (!self::isAcquiaCloudIde()) {
+      throw new AcquiaCliException('This command can only be run inside of an Acquia Cloud IDE');
+    }
   }
 
 }
