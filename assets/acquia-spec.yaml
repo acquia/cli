@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Acquia Cloud API Documentation
   x-logo:
-    url: assets/logo-cloud.svg
+    url: assets/cloud-platform.svg
     backgroundColor: '#FFFFFF'
     altText: Acquia Cloud
   description: |
@@ -2153,6 +2153,12 @@ components:
           livedev:
             type: boolean
             description: Determines if the environment has live development enabled.
+          migration:
+            type: boolean
+            description: Determines if the environment is an Acquia Migrate Accelerator environment.
+          multicert:
+            type: boolean
+            description: Determines if the environment has multicert enabled.
           multi_region:
             type: boolean
             description: Whether or not the environment is multi-regioned.
@@ -2523,6 +2529,7 @@ components:
         - state
         - locality
         - organization
+        - organizational_unit
         - common_name
       properties:
         country:
@@ -11287,6 +11294,7 @@ paths:
                         cde: false
                         hsd: false
                         livedev: false
+                        migration: false
                         multicert: false
                         multi_region: false
                         production: false
@@ -11341,6 +11349,8 @@ paths:
                         cde: false
                         hsd: false
                         livedev: false
+                        migration: false
+                        multicert: false
                         multi_region: false
                         production: true
                         production_mode: true
@@ -11381,6 +11391,8 @@ paths:
                         cde: false
                         hsd: false
                         livedev: false
+                        migration: false
+                        multicert: false
                         multi_region: false
                         production: false
                         production_mode: false
@@ -11817,6 +11829,7 @@ paths:
                   cde: false
                   hsd: false
                   livedev: false
+                  migration: false
                   multicert: false
                   multi_region: false
                   production: false
@@ -13851,17 +13864,32 @@ paths:
             application/octet-stream:
               schema:
                 $ref: '#/components/schemas/File'
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FileDownload'
-              examples:
-                File download:
-                  value:
-                    url: 'http://sitedatabaseenv.hosting.test-site.com/AH_DOWNLOAD?t=1571509&d490=/mnt/gfs/csitedatabase.env/backups/env-sitedatabase-sitedatabaseenv-2018-11-23.sql.gz&env=d157=fecac803549db007378f0f'
-                    expires_at: '2019-11-30T23:21:02+00:00'
             application/hal+json:
               schema:
                 $ref: '#/components/schemas/FileDownload'
+              example:
+                url: 'http://example.com/backup.gz'
+                expires_at: '2020-06-16T15:15:05+00:00'
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions/download'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/8a1c8503-0dae-4b08-a917-d2f01f4971ca'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileDownload'
+              example:
+                url: 'http://example.com/backup.gz'
+                expires_at: '2020-06-16T15:15:05+00:00'
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions/download'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/12-482e4650-1b74-44db-8d4e-e86a3b1ed908/databases/sitedatabase/backups/4423492/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/8a1c8503-0dae-4b08-a917-d2f01f4971ca'
             text/html:
               schema:
                 $ref: '#/components/schemas/FileDownload'
@@ -15038,13 +15066,20 @@ paths:
         '201':
           description: Created
           content:
-            application/json:
+            application/hal+json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               examples:
                 Is being created:
                   value:
                     message: The log file is being created.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/logs/apache-access'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/logs'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/8b790313-8830-4810-baef-3b41b3786e9d'
         '403':
           description: Forbidden
           content:
@@ -15797,11 +15832,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Log Forwarding destination has been updated:
-                  value:
-                    message: Log forwarding destination has been updated.
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Log forwarding destination has been updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations/cf4c5328-8d2e-353d-9edf-e412647349b1'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/log-forwarding-destinations'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/340bf831-5377-49b9-7b26-87014b653346'
         '400':
           description: Bad Request
           content:
