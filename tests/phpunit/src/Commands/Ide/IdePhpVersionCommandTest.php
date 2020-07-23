@@ -112,4 +112,19 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
     }
   }
 
+  /**
+   * Tests the 'ide:php-version' command outside of IDE environment.
+   */
+  public function testIdePhpVersionCommandOutsideIde(): void {
+    $this->unsetCloudIdeEnvVars();
+    try {
+      $this->executeCommand([
+        'version' => '7.3',
+      ], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('This command can only be run inside of an Acquia Cloud IDE', $exception->getMessage());
+    }
+  }
+
 }
