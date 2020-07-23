@@ -5,12 +5,12 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 
 /**
  * Class IdeWizardTestBase.
  */
-abstract class IdeWizardTestBase extends CommandTestBase {
+abstract class IdeWizardTestBase extends IdeRequiredTestBase {
 
   /**
    * @var string
@@ -31,43 +31,12 @@ abstract class IdeWizardTestBase extends CommandTestBase {
    */
   public function setUp($output = NULL): void {
     parent::setUp();
-
     $this->getCommandTester();
     $this->application->addCommands([
       $this->injectCommand(SshKeyCreateCommand::class),
       $this->injectCommand(SshKeyDeleteCommand::class),
       $this->injectCommand(SshKeyUploadCommand::class),
     ]);
-
-    $this->remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';
-    $this->application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $this->setCloudIdeEnvVars();
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-    $this->unsetCloudIdeEnvVars();
-  }
-
-  protected function getCloudIdeEnvVars(): array {
-    return [
-      'REMOTEIDE_UUID' => $this->remote_ide_uuid,
-      'ACQUIA_APPLICATION_UUID' => $this->application_uuid,
-      'ACQUIA_USER_UUID' => '4acf8956-45df-3cf4-5106-065b62cf1ac8',
-      'AH_SITE_ENVIRONMENT' => 'IDE',
-    ];
-  }
-
-  protected function setCloudIdeEnvVars(): void {
-    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
-      putenv($key . '=' . $value);
-    }
-  }
-
-  protected function unsetCloudIdeEnvVars(): void {
-    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
-      putenv($key);
-    }
   }
 
 }
