@@ -154,6 +154,7 @@ class UpdateCommand extends CommandBase {
     if (!is_null($progress)) {
       if ($total_bytes === $downloaded_bytes) {
         $progress->finish();
+        $output->writeln('');
         return;
       }
       $progress->setProgress($downloaded_bytes);
