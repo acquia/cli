@@ -12,6 +12,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -914,6 +915,41 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function requireCloudIdeEnvironment(): void {
     if (!self::isAcquiaCloudIde()) {
       throw new AcquiaCliException('This command can only be run inside of an Acquia Cloud IDE');
+    }
+  }
+
+
+  /**
+   * @param string $ide_uuid
+   *
+   * @return \stdClass|null
+   */
+  protected function findIdeSshKeyOnCloud($ide_uuid): ?\stdClass {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
+    $ides_resource = new Ides($acquia_cloud_client);
+    $ide = $ides_resource->get($ide_uuid);
+    $ssh_key_label = $this->getIdeSshKeyLabel($ide);
+    foreach ($cloud_keys as $cloud_key) {
+      if ($cloud_key->label === $ssh_key_label) {
+        return $cloud_key;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * @param \stdClass|null $cloud_key
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function deleteSshKeyFromCloud(\stdClass $cloud_key): void {
+    $return_code = $this->executeAcliCommand('ssh-key:delete', [
+      '--cloud-key-uuid' => $cloud_key->uuid,
+    ]);
+    if ($return_code !== 0) {
+      throw new AcquiaCliException('Unable to delete SSH key from Acquia Cloud');
     }
   }
 

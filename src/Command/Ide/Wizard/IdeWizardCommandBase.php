@@ -66,39 +66,6 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
 
   /**
    *
-   * @return \stdClass|null
-   * @throws \Exception
-   */
-  protected function findIdeSshKeyOnCloud(): ?stdClass {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $ides_resource = new Ides($acquia_cloud_client);
-    $ide = $ides_resource->get($this::getThisCloudIdeUuid());
-    $ssh_key_label = $this->getIdeSshKeyLabel($ide);
-    foreach ($cloud_keys as $cloud_key) {
-      if ($cloud_key->label === $ssh_key_label) {
-        return $cloud_key;
-      }
-    }
-    return NULL;
-  }
-
-  /**
-   * @param \stdClass|null $cloud_key
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function deleteSshKeyFromCloud(stdClass $cloud_key): void {
-    $return_code = $this->executeAcliCommand('ssh-key:delete', [
-      '--cloud-key-uuid' => $cloud_key->uuid,
-    ]);
-    if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to delete SSH key from Acquia Cloud');
-    }
-  }
-
-  /**
-   *
    */
   protected function deleteLocalIdeSshKey(): void {
     $this->localMachineHelper->getFilesystem()->remove([

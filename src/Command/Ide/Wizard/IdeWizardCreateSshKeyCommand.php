@@ -329,7 +329,7 @@ EOT
   }
 
   protected function deleteIdeSshKeyFromCloud(): void {
-    if ($cloud_key = $this->findIdeSshKeyOnCloud()) {
+    if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($cloud_key);
     }
   }
