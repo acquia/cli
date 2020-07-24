@@ -23,11 +23,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @var string
    */
-  private $phpBinPath;
-
-  /**
-   * @var string
-   */
   private $phpVersionFilePath;
 
   /**
@@ -50,7 +45,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->requireCloudIdeEnvironment();
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
-    $this->localMachineHelper->getFilesystem()->dumpFile($this->getPhpVersionFilePath(), $version);
+    $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
     $this->restartPhp();
     $this->restartBash();
 
@@ -60,7 +55,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @return string
    */
-  public function getPhpVersionFilePath(): string {
+  public function getIdePhpVersionFilePath(): string {
     if (!isset($this->phpVersionFilePath)) {
       $this->phpVersionFilePath = '/home/ide/configs/php/.version';
     }
@@ -90,7 +85,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
-    if (!$this->localMachineHelper->getFilesystem()->exists($this->getPhpVersionFilePath())) {
+    if (!$this->localMachineHelper->getFilesystem()->exists($this->getIdePhpVersionFilePath())) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 

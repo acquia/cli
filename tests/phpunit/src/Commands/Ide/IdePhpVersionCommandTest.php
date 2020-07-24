@@ -73,8 +73,8 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
     $this->executeCommand([
       'version' => $version,
     ], []);
-    $this->assertFileExists($this->command->getPhpVersionFilePath());
-    $this->assertEquals($version, file_get_contents($this->command->getPhpVersionFilePath()));
+    $this->assertFileExists($this->command->getIdePhpVersionFilePath());
+    $this->assertEquals($version, file_get_contents($this->command->getIdePhpVersionFilePath()));
   }
 
   /**
