@@ -918,7 +918,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-
   /**
    * @param string $ide_uuid
    *
