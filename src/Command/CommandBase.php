@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -928,7 +929,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($ide_uuid);
-    $ssh_key_label = $this->getIdeSshKeyLabel($ide);
+    $ssh_key_label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
     foreach ($cloud_keys as $cloud_key) {
       if ($cloud_key->label === $ssh_key_label) {
         return $cloud_key;

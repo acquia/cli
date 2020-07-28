@@ -54,7 +54,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
     $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
-    $this->ideUuid = CommandBase::getThisCloudIdeUuid();
+    $this->ideUuid = SshKeyCommandBase::getThisCloudIdeUuid();
     $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
@@ -72,16 +72,6 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
       $this->publicSshKeyFilepath,
       $this->privateSshKeyFilepath,
     ]);
-  }
-
-  /**
-   *
-   * @param \AcquiaCloudApi\Response\IdeResponse $ide
-   *
-   * @return string
-   */
-  public function getIdeSshKeyLabel(IdeResponse $ide): string {
-    return SshKeyCommandBase::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
 
   /**

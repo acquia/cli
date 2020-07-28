@@ -3,7 +3,11 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeDeleteCommand;
+use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Response\IdeResponse;
+use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -13,6 +17,21 @@ use Symfony\Component\Console\Command\Command;
  * @package Acquia\Cli\Tests\Ide
  */
 class IdeDeleteCommandTest extends CommandTestBase {
+
+  /**
+   * This method is called before each test.
+   *
+   * @param null $output
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp();
+    $this->getCommandTester();
+    $this->application->addCommands([
+      $this->injectCommand(SshKeyDeleteCommand::class),
+    ]);
+  }
 
   /**
    * {@inheritdoc}
@@ -32,13 +51,20 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 
-    // Request to delete IDE.
-    $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
-    $this->clientProphecy->request(
-          'delete',
-          '/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
-      )->willReturn($response->{'De-provisioning IDE'}->value)
-      ->shouldBeCalled();
+    $ide_uuid = '9a83c081-ef78-4dbd-8852-11cc3eb248f7';
+    $ide_delete_response = $this->mockIdeDeleteRequest($ide_uuid);
+
+    // Request for IDE data.
+    $ide_response = $this->mockGetIdeRequest($ide_uuid);
+    $ide = new IdeResponse((object) $ide_response);
+    $ssh_key_get_response = $this->mockListSshKeysRequestWithIdeKey($ide);
+
+    // Request for IDE data.
+    $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
+    $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+
+    $this->mockGetSshKeyRequest($ide);
+    $this->mockDeleteSshKeyRequest($ssh_key_get_response->{'_embedded'}->items[0]->uuid);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -49,6 +75,8 @@ class IdeDeleteCommandTest extends CommandTestBase {
       'y',
       // Please select the IDE you'd like to delete:
       0,
+      // Would you like to delete the SSH key associated with this IDE from your Acquia Cloud account?
+      'y',
     ];
 
     $this->executeCommand([], $inputs);
@@ -56,7 +84,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString($response->{'De-provisioning IDE'}->value->message, $output);
+    $this->assertStringContainsString($ide_delete_response->{'De-provisioning IDE'}->value->message, $output);
   }
 
 }

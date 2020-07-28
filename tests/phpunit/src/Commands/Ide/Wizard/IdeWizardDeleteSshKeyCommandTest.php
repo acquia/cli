@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
+use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use AcquiaCloudApi\Response\IdeResponse;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
@@ -21,26 +22,12 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testDelete(): void {
-
-    // Request for IDE data.
-    $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $ide_response = $this->mockGetIdeRequest($this->remote_ide_uuid);
     $ide = new IdeResponse((object) $ide_response);
+    $mock_body = $this->mockListSshKeysRequestWithIdeKey($ide);
 
-    // Request for list of SSH keys in Cloud.
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mock_body->{'_embedded'}->items[0]->label = $this->command->getIdeSshKeyLabel($ide);
-    $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
-
-    // Request for specific SSH key in Cloud.
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mock_body->{'_embedded'}->items[0]->label = $this->command->getIdeSshKeyLabel($ide);
-    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($mock_body->{'_embedded'}->items[0])->shouldBeCalled();
-
-    // Request ssh key deletion.
-    $response = $this->prophet->prophesize(ResponseInterface::class);
-    $response->getStatusCode()->willReturn(202);
-    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)->willReturn($response->reveal())->shouldBeCalled();
+    $this->mockGetSshKeyRequest($ide);
+    $this->mockDeleteSshKeyRequest($mock_body->{'_embedded'}->items[0]->uuid);
 
     // Create the file so it can be deleted.
     $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
@@ -61,5 +48,4 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
     return $this->injectCommand(IdeWizardDeleteSshKeyCommand::class);
   }
 
-  // Test can only be run inside IDE.
 }
