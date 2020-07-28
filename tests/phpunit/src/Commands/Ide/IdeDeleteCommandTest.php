@@ -53,17 +53,11 @@ class IdeDeleteCommandTest extends CommandTestBase {
 
     $ide_uuid = '9a83c081-ef78-4dbd-8852-11cc3eb248f7';
     $ide_delete_response = $this->mockIdeDeleteRequest($ide_uuid);
-
-    // Request for IDE data.
-    $ide_response = $this->mockGetIdeRequest($ide_uuid);
-    $ide = new IdeResponse((object) $ide_response);
+    $ide_get_response = $this->mockGetIdeRequest($ide_uuid);
+    $ide = new IdeResponse((object) $ide_get_response);
     $ssh_key_get_response = $this->mockListSshKeysRequestWithIdeKey($ide);
 
-    // Request for IDE data.
-    $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
-
-    $this->mockGetSshKeyRequest($ide);
+    $this->mockGetIdeSshKeyRequest($ide);
     $this->mockDeleteSshKeyRequest($ssh_key_get_response->{'_embedded'}->items[0]->uuid);
 
     $inputs = [

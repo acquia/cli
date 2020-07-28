@@ -555,7 +555,7 @@ abstract class TestBase extends TestCase {
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockGetSshKeyRequest(IdeResponse $ide): void {
+  protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
     $this->clientProphecy->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)
