@@ -39,7 +39,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication($input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication($input) && !$this::isMachineAuthenticated($this->datastoreCloud)) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];
@@ -217,7 +217,7 @@ EOT
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
       foreach ($cloud_keys as $index => $cloud_key) {
         if (
-          $cloud_key->label === $this->getIdeSshKeyLabel($this->ide)
+          $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
           // Assert that a corresponding local key exists.
           && $this->localIdeSshKeyExists()
           // Assert local public key contents match Cloud public key contents.
@@ -319,7 +319,7 @@ EOT
    */
   protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
     $return_code = $this->executeAcliCommand('ssh-key:upload', [
-      '--label' => $this->getIdeSshKeyLabel($ide),
+      '--label' => $this::getIdeSshKeyLabel($ide),
       '--filepath' => $public_ssh_key_filepath,
       '--no-wait' => '',
     ]);
@@ -329,7 +329,7 @@ EOT
   }
 
   protected function deleteIdeSshKeyFromCloud(): void {
-    if ($cloud_key = $this->findIdeSshKeyOnCloud()) {
+    if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($cloud_key);
     }
   }
