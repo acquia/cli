@@ -45,7 +45,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
@@ -96,7 +96,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
