@@ -2,12 +2,14 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
@@ -456,6 +458,32 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * @param string $ide_uuid
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockGetIdeRequest(string $ide_uuid) {
+    $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
+    $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    return $ide_response;
+  }
+
+  /**
+   * @param string $ide_uuid
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockIdeDeleteRequest(string $ide_uuid) {
+    $ide_delete_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
+    $this->clientProphecy->request('delete', '/ides/' . $ide_uuid)
+      ->willReturn($ide_delete_response->{'De-provisioning IDE'}->value)
+      ->shouldBeCalled();
+    return $ide_delete_response;
+  }
+
+  /**
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -499,6 +527,21 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide) {
+    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $this->clientProphecy->request('get', '/account/ssh-keys')
+      ->willReturn($mock_body->{'_embedded'}->items)
+      ->shouldBeCalled();
+    return $mock_body;
+  }
+
+  /**
    */
   protected function mockUploadSshKey(): void {
     /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
@@ -506,6 +549,32 @@ abstract class TestBase extends TestCase {
     $response->getStatusCode()->willReturn(202);
     $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
       ->willReturn($response->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
+    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)
+      ->willReturn($mock_body->{'_embedded'}->items[0])
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param string $key_uuid
+   */
+  protected function mockDeleteSshKeyRequest($key_uuid): void {
+    // Request ssh key deletion.
+    $ssh_key_delete_response = $this->prophet->prophesize(ResponseInterface::class);
+    $ssh_key_delete_response->getStatusCode()->willReturn(202);
+    $this->clientProphecy->makeRequest('delete',
+      '/account/ssh-keys/' . $key_uuid)
+      ->willReturn($ssh_key_delete_response->reveal())
       ->shouldBeCalled();
   }
 
