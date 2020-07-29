@@ -180,7 +180,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
-  public function testRefreshScripts() {
+  public function testRefreshScripts(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -287,17 +287,13 @@ class RefreshCommandTest extends CommandTestBase {
       $this->injectCommand(IdePhpVersionCommand::class),
     ]);
     $this->command = $this->createCommand();
-    $application_response = $this->mockApplicationRequest();
-
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
     $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
     $environment_response->configuration->php->version = '7.1';
     $environment_response->sshUrl = $environment_response->ssh_url;
     $this->clientProphecy->request('get',
-      "/applications/{$application_response->uuid}/environments")
-      ->willReturn([$environment_response])
+      "/environments/" . $environment_response->id)
+      ->willReturn($environment_response)
       ->shouldBeCalled();
 
     $this->executeCommand([
@@ -305,6 +301,7 @@ class RefreshCommandTest extends CommandTestBase {
       '--no-databases' => TRUE,
       '--no-files' => TRUE,
       '--no-scripts' => TRUE,
+      '--cloud-env-uuid' => $environment_response->id,
       'dir' => '/home/ide/project',
     ], [
       // Please choose an Acquia environment:
