@@ -47,10 +47,10 @@ class IdeListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
-    $this->assertStringContainsString('IDE Label 1', $output);
+    $this->assertStringContainsString('IDE Label 1 (user.name@example.com)', $output);
     $this->assertStringContainsString('Web URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
     $this->assertStringContainsString('IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com', $output);
-    $this->assertStringContainsString('IDE Label 2', $output);
+    $this->assertStringContainsString('IDE Label 2 (user.name@example.com)', $output);
     $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
     $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
   }

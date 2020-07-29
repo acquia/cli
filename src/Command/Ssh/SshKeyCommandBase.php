@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Response\IdeResponse;
 
 /**
  * Class SshKeyCommandBase.
@@ -17,6 +18,16 @@ abstract class SshKeyCommandBase extends CommandBase {
     $finder = $this->localMachineHelper->getFinder();
     $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
     return iterator_to_array($finder);
+  }
+
+  /**
+   *
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
+   *
+   * @return string
+   */
+  public static function getIdeSshKeyLabel(IdeResponse $ide): string {
+    return self::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
 
   /**
