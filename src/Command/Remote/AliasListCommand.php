@@ -37,7 +37,7 @@ class AliasListCommand extends CommandBase {
     $environments_resource = new Environments($acquia_cloud_client);
 
     $table = new Table($this->output);
-    $table->setHeaders(['Environment Alias', 'Application', 'Environment UUID']);
+    $table->setHeaders(['Application', 'Environment Alias', 'Environment UUID']);
 
     $site_id = $customer_application->hosting->id;
     $parts = explode(':', $site_id);
