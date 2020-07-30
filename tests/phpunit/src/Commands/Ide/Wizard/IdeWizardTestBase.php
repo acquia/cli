@@ -13,16 +13,6 @@ use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 abstract class IdeWizardTestBase extends IdeRequiredTestBase {
 
   /**
-   * @var string
-   */
-  protected $remote_ide_uuid;
-
-  /**
-   * @var string
-   */
-  protected $application_uuid;
-
-  /**
    * This method is called before each test.
    *
    * @param null $output

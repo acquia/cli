@@ -2,9 +2,11 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\RefreshCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
@@ -178,7 +180,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
-  public function testRefreshScripts() {
+  public function testRefreshScripts(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -277,6 +279,39 @@ class RefreshCommandTest extends CommandTestBase {
       'dir' => $dir,
     ], $inputs);
     $this->prophet->checkPredictions();
+  }
+
+  public function testMatchPhpVersion(): void {
+    IdeRequiredTestBase::setCloudIdeEnvVars();
+    $this->application->addCommands([
+      $this->injectCommand(IdePhpVersionCommand::class),
+    ]);
+    $this->command = $this->createCommand();
+    $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      'get', '200');
+    $environment_response->configuration->php->version = '7.1';
+    $environment_response->sshUrl = $environment_response->ssh_url;
+    $this->clientProphecy->request('get',
+      "/environments/" . $environment_response->id)
+      ->willReturn($environment_response)
+      ->shouldBeCalled();
+
+    $this->executeCommand([
+      '--no-code' => TRUE,
+      '--no-databases' => TRUE,
+      '--no-files' => TRUE,
+      '--no-scripts' => TRUE,
+      '--cloud-env-uuid' => $environment_response->id,
+      'dir' => '/home/ide/project',
+    ], [
+      // Please choose an Acquia environment:
+      0,
+      // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
+      'n',
+    ]);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString("Would you like to change the PHP version on this IDE to match the PHP version on {$environment_response->name} ({$environment_response->configuration->php->version})?", $output);
   }
 
   /**

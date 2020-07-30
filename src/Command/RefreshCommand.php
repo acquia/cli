@@ -8,7 +8,9 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use stdClass;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -122,6 +124,9 @@ class RefreshCommand extends CommandBase {
         $checklist->completePreviousItem();
       }
     }
+
+    // Match IDE PHP version to source environment PHP version.
+    $this->matchIdePhpVersion($output, $chosen_environment);
 
     return 0;
   }
@@ -676,6 +681,29 @@ class RefreshCommand extends CommandBase {
     $sitegroup = reset($ssh_url_parts);
 
     return $sitegroup;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
+   *
+   * @throws \Exception
+   */
+  protected function matchIdePhpVersion(
+    OutputInterface $output,
+    EnvironmentResponse $chosen_environment
+  ): void {
+    $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $question = new ConfirmationQuestion("<question>Would you like to change the PHP version on this IDE to match the PHP version on <options=bold>{$chosen_environment->name} ({$chosen_environment->configuration->php->version})</>?</question> ",
+        FALSE);
+      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      if ($answer) {
+        $command = $this->getApplication()->find('ide:php-version');
+        $exit_code = $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
+          $output);
+      }
+    }
   }
 
 }
