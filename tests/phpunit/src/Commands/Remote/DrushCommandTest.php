@@ -22,18 +22,22 @@ class DrushCommandTest extends SshCommandTestBase {
     return $this->injectCommand(DrushCommand::class);
   }
 
-  public function providerTestRemoteDrushCommand() {
+  public function providerTestRemoteDrushCommand(): array {
     return [
       [
-        'alias' => 'devcloud2.dev',
-        'drush_command' => 'status --fields=db-status',
-        '-vvv' => '',
-      ]
-      ,      [
-        'alias' => '@devcloud2.dev',
-        'drush_command' => 'status --fields=db-status',
-        '-vvv' => '',
-      ]
+        [
+          'alias' => 'devcloud2.dev',
+          'drush_command' => 'status --fields=db-status',
+          '-vvv' => '',
+        ],
+      ],
+      [
+        [
+          'alias' => '@devcloud2.dev',
+          'drush_command' => 'status --fields=db-status',
+          '-vvv' => '',
+        ],
+      ],
     ];
   }
 
