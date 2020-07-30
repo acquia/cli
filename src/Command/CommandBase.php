@@ -838,7 +838,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 }
 
   /**
-   * @param $alias
+   * @param string $alias
+   *
+   * @return string
+   */
+  protected function normalizeAlias($alias) {
+    return str_replace('@', '', $alias);
+  }
+
+  /**
+   * @param string $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
