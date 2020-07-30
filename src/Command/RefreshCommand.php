@@ -514,7 +514,7 @@ class RefreshCommand extends CommandBase {
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files/',
+      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default/',
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
