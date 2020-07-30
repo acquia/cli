@@ -438,7 +438,7 @@ class RefreshCommandTest extends CommandTestBase {
         'rsync',
         '-rltDvPhe',
         'ssh -o StrictHostKeyChecking=no',
-        $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files/',
+        $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
         $this->projectFixtureDir . '/docroot/sites/default/',
       ];
       $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE)
