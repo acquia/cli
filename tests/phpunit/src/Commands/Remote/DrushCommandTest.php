@@ -22,12 +22,33 @@ class DrushCommandTest extends SshCommandTestBase {
     return $this->injectCommand(DrushCommand::class);
   }
 
+  public function providerTestRemoteDrushCommand(): array {
+    return [
+      [
+        [
+          'alias' => 'devcloud2.dev',
+          'drush_command' => 'status --fields=db-status',
+          '-vvv' => '',
+        ],
+      ],
+      [
+        [
+          'alias' => '@devcloud2.dev',
+          'drush_command' => 'status --fields=db-status',
+          '-vvv' => '',
+        ],
+      ],
+    ];
+  }
+
   /**
    * Tests the 'remote:drush' commands.
+   *
+   * @dataProvider providerTestRemoteDrushCommand
+   * @param array $args
    * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
-  public function testRemoteDrushCommand(): void {
+  public function testRemoteDrushCommand($args): void {
 
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
@@ -48,12 +69,6 @@ class DrushCommandTest extends SshCommandTestBase {
       ->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
-
-    $args = [
-      'alias' => 'devcloud2.dev',
-      'drush_command' => 'status --fields=db-status',
-      '-vvv' => '',
-    ];
     $this->executeCommand($args);
 
     // Assert.
