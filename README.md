@@ -13,7 +13,7 @@ Download the latest `acli.phar` file from the [releases](https://github.com/acqu
 
 For example, you can run following simple script:
 ```bash
-curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc4/acli.phar
+curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc5/acli.phar
 chmod +x acli.phar
 ```
 
