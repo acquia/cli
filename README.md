@@ -13,14 +13,13 @@ Download the latest `acli.phar` file from the [releases](https://github.com/acqu
 
 For example, you can run following simple script:
 ```bash
-curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc3/acli.phar
-mv acli.phar acli
-chmod +x acli
+curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc4/acli.phar
+chmod +x acli.phar
 ```
 
 Next, place it somewhere globally accessible on your machine. For instance:
 ```
-mv acli /usr/local/bin/
+mv acli.phar /usr/local/bin/acli
 ```
 
 Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to avoid dependency conflicts.
