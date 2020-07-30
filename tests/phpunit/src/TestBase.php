@@ -13,6 +13,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -26,6 +27,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Zumba\Amplitude\Amplitude;
@@ -590,6 +592,42 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockRestartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->execute([
+      'supervisorctl',
+      'restart',
+      'php-fpm',
+    ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+    return $process;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockRestartBash(ObjectProphecy $local_machine_helper): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
+    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
   }
 
   protected function removeMockConfigFiles(): void {

@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
@@ -44,37 +45,17 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
    * @throws \Exception
    */
   public function testIdePhpVersionCommand($version): void {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper
-      ->execute([
-        'supervisorctl',
-        'restart',
-        'php-fpm',
-      ], NULL, NULL, FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    $local_machine_helper
-      ->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-
-    // Set up file system.
-    $local_machine_helper
-      ->getFilesystem()
-      ->willReturn($this->fs)
-      ->shouldBeCalled();
-
+    $this->mockRestartPhp($local_machine_helper);
+    $this->mockRestartBash($local_machine_helper);
+    $this->mockGetFilesystem($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
     $this->executeCommand([
       'version' => $version,
     ], []);
-    $this->assertFileExists($this->command->getPhpVersionFilePath());
-    $this->assertEquals($version, file_get_contents($this->command->getPhpVersionFilePath()));
+    $this->assertFileExists($this->command->getIdePhpVersionFilePath());
+    $this->assertEquals($version, file_get_contents($this->command->getIdePhpVersionFilePath()));
   }
 
   /**
@@ -121,6 +102,42 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
     catch (AcquiaCliException $exception) {
       $this->assertEquals('This command can only be run inside of an Acquia Cloud IDE', $exception->getMessage());
     }
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockRestartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->execute([
+        'supervisorctl',
+        'restart',
+        'php-fpm',
+      ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+    return $process;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockRestartBash(ObjectProphecy $local_machine_helper): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
+    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
   }
 
 }

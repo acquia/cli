@@ -45,7 +45,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
@@ -55,7 +55,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $this->command->sshHelper = $ssh_helper->reveal();
 
     // Remove SSH key if it exists.
-    $ssh_key_filename = $this->command->getSshKeyFilename($this->remote_ide_uuid);
+    $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
     $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
 
     // Set properties and execute.
@@ -96,7 +96,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
-    $this->clientProphecy->request('get', "/applications/{$this->application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
@@ -129,7 +129,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    */
   protected function mockIdeRequest(): IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $this->remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/ides/' . $this::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     $ide = new IdeResponse((object) $ide_response);
     return $ide;
   }

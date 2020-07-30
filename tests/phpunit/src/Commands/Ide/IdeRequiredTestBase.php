@@ -12,12 +12,12 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
   /**
    * @var string
    */
-  protected $remote_ide_uuid;
+  public static $remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';
 
   /**
    * @var string
    */
-  protected $application_uuid;
+  public static $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   /**
    * This method is called before each test.
@@ -28,9 +28,7 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
    */
   public function setUp($output = NULL): void {
     parent::setUp();
-    $this->remote_ide_uuid = '4ba6c569-5084-4b6d-9467-019ccb5dc847';
-    $this->application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $this->setCloudIdeEnvVars();
+    self::setCloudIdeEnvVars();
   }
 
   protected function tearDown(): void {
@@ -38,23 +36,23 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
     $this->unsetCloudIdeEnvVars();
   }
 
-  protected function getCloudIdeEnvVars(): array {
+  protected static function getCloudIdeEnvVars(): array {
     return [
-      'REMOTEIDE_UUID' => $this->remote_ide_uuid,
-      'ACQUIA_APPLICATION_UUID' => $this->application_uuid,
+      'REMOTEIDE_UUID' => self::$remote_ide_uuid,
+      'ACQUIA_APPLICATION_UUID' => self::$application_uuid,
       'ACQUIA_USER_UUID' => '4acf8956-45df-3cf4-5106-065b62cf1ac8',
       'AH_SITE_ENVIRONMENT' => 'IDE',
     ];
   }
 
-  protected function setCloudIdeEnvVars(): void {
-    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
+  public static function setCloudIdeEnvVars(): void {
+    foreach (self::getCloudIdeEnvVars() as $key => $value) {
       putenv($key . '=' . $value);
     }
   }
 
   protected function unsetCloudIdeEnvVars(): void {
-    foreach ($this->getCloudIdeEnvVars() as $key => $value) {
+    foreach (self::getCloudIdeEnvVars() as $key => $value) {
       putenv($key);
     }
   }
