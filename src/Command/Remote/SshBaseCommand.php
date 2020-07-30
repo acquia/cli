@@ -20,5 +20,4 @@ use Symfony\Component\Validator\Validation;
  */
 abstract class SshBaseCommand extends CommandBase {
 
-
 }
