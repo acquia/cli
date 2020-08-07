@@ -7,7 +7,7 @@ Acquia CLI does not provide or manage local development environments. If you are
 
 ## Installation
 
-Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled. It fully supports Windows, Linux, and macOS, and will probably work on any other platform running PHP. 
+Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled. It fully supports Windows (Powershell / CMD / Git Bash), Linux, and macOS, and will probably work on any other platform running PHP. 
 
 Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, make it executable, and optionally rename it to `acli`. 
 
