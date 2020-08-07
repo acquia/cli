@@ -51,6 +51,16 @@ composer install
 
 Be sure to validate and test your code locally using the provided Composer test scripts (`composer test`) before opening a PR.
 
+### Testing the `update` command
+
+Any changes to the `acli update` command should be manually tested using the following steps:
+
+1. Replace `@package_version@` on this line with `v1.0.0-rc4` or any older version string: https://github.com/acquia/cli/blob/v1.0.0-rc5/bin/acli#L87
+2. Clear and rebuild your Symfony cache: `./bin/acli cache:clear && ./bin/acli`
+4. Install Box if you haven't already: `composer box-install && composer dump-env prod`
+5. Compile phar: `composer box-compile`
+6. Now test: `./build/acli.phar update --allow-unstable`
+
 ## Updating Acquia Cloud API spec
 
 Acquia CLI stores a local copy of the Acquia Cloud API spec in the `assets` directory. To update the Acquia Cloud API spec, run:
