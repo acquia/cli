@@ -16,6 +16,5 @@
     "output": "build/acli.phar",
     "git-version": "package_version",
     "exclude-composer-files": false,
-    "force-autodiscovery": true,
-    "check-requirements": false
+    "force-autodiscovery": true
 }
