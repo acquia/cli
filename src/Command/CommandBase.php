@@ -206,7 +206,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->checkAndPromptTelemetryPreference();
 
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
-      throw new AcquiaCliException('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`');
+      throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
     $this->loadLocalProjectInfo();
@@ -269,7 +269,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Indicates whether the command requires the machine to be authenticated with Acquia Cloud.
+   * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
    *
    * @param $input
    *
@@ -281,7 +281,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Prompts the user to choose from a list of available Acquia Cloud applications.
+   * Prompts the user to choose from a list of available Cloud Platform applications.
    *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
@@ -296,12 +296,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $customer_applications,
       'uuid',
       'name',
-      'Please select an Acquia Cloud application:'
+      'Please select a Cloud Platform application:'
     );
   }
 
   /**
-   * Prompts the user to choose from a list of environments for a given Acquia Cloud application.
+   * Prompts the user to choose from a list of environments for a given Cloud Platform application.
    *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $application_uuid
@@ -318,12 +318,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $environments,
       'uuid',
       'name',
-      'Please select an Acquia Cloud environment:'
+      'Please select a Cloud Platform environment:'
     );
   }
 
   /**
-   * Prompts the user to choose from a list of logs for a given Acquia Cloud environment.
+   * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
    *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $environment_id
@@ -480,7 +480,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $count = count($customer_applications);
     $progressBar = new ProgressBar($this->output, $count);
     $progressBar->setFormat('message');
-    $progressBar->setMessage("Searching <options=bold>$count applications</> on Acquia Cloud...");
+    $progressBar->setMessage("Searching <options=bold>$count applications</> on the Cloud Platform...");
     $progressBar->start();
 
     // Search Cloud applications.
@@ -534,9 +534,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Infer which Acquia Cloud application is associated with the current local git repository.
+   * Infer which Cloud Platform application is associated with the current local git repository.
    *
-   * If the local git repository has a remote with a URL that matches an Acquia Cloud application's VCS URL, assume
+   * If the local git repository has a remote with a URL that matches a Cloud Platform application's VCS URL, assume
    * that we have a match.
    *
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
@@ -547,7 +547,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
     if ($this->repoRoot) {
-      $this->output->writeln("There is no Acquia Cloud application linked to <options=bold>{$this->repoRoot}/.git</>.");
+      $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
       $question = new ConfirmationQuestion('<question>Would you like Acquia CLI to search for a Cloud application that matches your local git config?</question> ');
       $helper = $this->getHelper('question');
       $answer = $helper->ask($this->input, $this->output, $question);
@@ -640,7 +640,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
 
-    // Get from Acquia Cloud env var.
+    // Get from the Cloud Platform env var.
     if ($application_uuid = self::getThisCloudIdeCloudAppUuid()) {
       return $application_uuid;
     }
@@ -968,7 +968,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       '--cloud-key-uuid' => $cloud_key->uuid,
     ]);
     if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to delete SSH key from Acquia Cloud');
+      throw new AcquiaCliException('Unable to delete SSH key from the Cloud Platform');
     }
   }
 

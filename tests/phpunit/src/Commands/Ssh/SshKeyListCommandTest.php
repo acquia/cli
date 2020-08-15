@@ -38,7 +38,7 @@ class SshKeyListCommandTest extends CommandTestBase
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Local Key Filename', $output);
-    $this->assertStringContainsString('Acquia Cloud Key Label', $output);
+    $this->assertStringContainsString('Cloud Platform Key Label', $output);
     $this->assertStringContainsString($base_filename, $output);
     $this->assertStringContainsString($mock_body->_embedded->items[0]->label, $output);
     $this->assertStringContainsString($mock_body->_embedded->items[1]->label, $output);

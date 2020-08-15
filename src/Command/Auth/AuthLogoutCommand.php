@@ -50,7 +50,7 @@ class AuthLogoutCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Are you sure you\'d like to remove your Acquia Cloud API login credentials from this machine?</question> ',
+      $question = new ConfirmationQuestion('<question>Are you sure you\'d like to remove your Cloud Platform API login credentials from this machine?</question> ',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if (!$answer) {

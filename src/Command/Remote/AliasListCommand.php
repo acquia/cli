@@ -21,9 +21,9 @@ class AliasListCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('List all aliases for Acquia Cloud environments')
+    $this->setDescription('List all aliases for the Cloud Platform environments')
       ->setAliases(['aliases', 'sa'])
-      ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
+      ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
   }
 
   /**

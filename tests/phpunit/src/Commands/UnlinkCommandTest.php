@@ -62,7 +62,7 @@ class UnlinkCommandTest extends CommandTestBase {
       $this->executeCommand([], []);
     }
     catch (\Exception $exception) {
-      $this->assertStringContainsString('There is no Acquia Cloud application linked to', $exception->getMessage());
+      $this->assertStringContainsString('There is no Cloud Platform application linked to', $exception->getMessage());
     }
   }
 

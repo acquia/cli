@@ -33,7 +33,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
 
-    // Choose a local SSH key to upload to Acquia Cloud.
+    // Choose a local SSH key to upload to the Cloud Platform.
     $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
     $inputs = [
       // Choose key.
@@ -46,11 +46,11 @@ class SshKeyUploadCommandTest extends CommandTestBase
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Choose a local SSH key to upload to Acquia Cloud:', $output);
-    $this->assertStringContainsString('Please enter a Acquia Cloud label for this SSH key:', $output);
+    $this->assertStringContainsString('Choose a local SSH key to upload to the Cloud Platform:', $output);
+    $this->assertStringContainsString('Please enter a Cloud Platform label for this SSH key:', $output);
     $base_filename = basename($temp_file_name);
-    $this->assertStringContainsString("Uploaded $base_filename to Acquia Cloud with label " . $mock_request_args['label'], $output);
-    $this->assertStringContainsString('Waiting for new key to be provisioned on Acquia Cloud servers...', $output);
+    $this->assertStringContainsString("Uploaded $base_filename to the Cloud Platform with label " . $mock_request_args['label'], $output);
+    $this->assertStringContainsString('Waiting for new key to be provisioned on the Cloud Platform...', $output);
     $this->assertStringContainsString('Your SSH key is ready for use.', $output);
   }
 

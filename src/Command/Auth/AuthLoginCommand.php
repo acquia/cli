@@ -42,7 +42,7 @@ class AuthLoginCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?</question> ',
+      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?</question> ',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if (!$answer) {
@@ -143,7 +143,7 @@ class AuthLoginCommand extends CommandBase {
     ): void {
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
-      $this->output->writeln("You will need an Acquia Cloud API token from <href=$token_url>$token_url</>");
+      $this->output->writeln("You will need a Cloud Platform API token from <href=$token_url>$token_url</>");
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
         $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question> ',
