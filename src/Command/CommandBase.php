@@ -116,7 +116,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $amplitude;
 
-  protected $repoRoot;
+  public $repoRoot;
 
   /**
    * @var \Acquia\Cli\Helpers\ClientService
@@ -148,7 +148,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilename
-   * @param string $repoRoot
    */
   public function __construct(
     string $cloudConfigFilepath,
@@ -158,7 +157,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     TelemetryHelper $telemetryHelper,
     Amplitude $amplitude,
     string $acliConfigFilename,
-    string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
@@ -171,7 +169,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->telemetryHelper = $telemetryHelper;
     $this->amplitude = $amplitude;
     $this->acliConfigFilename = $acliConfigFilename;
-    $this->repoRoot = $repoRoot;
+    $this->repoRoot = LocalMachineHelper::getProjectRoot();
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;

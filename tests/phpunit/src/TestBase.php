@@ -262,7 +262,7 @@ abstract class TestBase extends TestCase {
    * @return \Symfony\Component\Console\Command\Command
    */
   protected function injectCommand(string $commandName): Command {
-    return new $commandName(
+    $command = new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->cloudDatastore,
@@ -270,12 +270,13 @@ abstract class TestBase extends TestCase {
       $this->telemetryHelper,
       $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
-      $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir
     );
+    $command->repoRoot = $this->acliRepoRoot;
+    return $command;
   }
 
   /**
