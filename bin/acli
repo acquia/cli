@@ -76,11 +76,6 @@ if (in_array($input->getFirstArgument(), ['cache:clear', 'cc'])) {
 $kernel->boot();
 $container = $kernel->getContainer();
 putenv("ACLI_REPO_ROOT=" . find_repo_root());
-// Register custom progress bar format.
-ProgressBar::setFormatDefinition(
-  'message',
-  "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
-);
 /** @var Application $application */
 $application = $container->get(Application::class);
 $application->setName('Acquia CLI');
