@@ -11,8 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
-use function Acquia\Cli\files_exist;
-use function Acquia\Cli\find_directory_containing_files;
 
 /**
  * Class LocalMachineHelper.

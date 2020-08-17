@@ -102,6 +102,7 @@ class ApiCommandHelper {
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilename
+   * @param string $repoRoot
    */
   public function __construct(
     string $cloudConfigFilepath,
@@ -111,6 +112,7 @@ class ApiCommandHelper {
     TelemetryHelper $telemetryHelper,
     Amplitude $amplitude,
     string $acliConfigFilename,
+    string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
@@ -123,7 +125,7 @@ class ApiCommandHelper {
     $this->telemetryHelper = $telemetryHelper;
     $this->amplitude = $amplitude;
     $this->acliConfigFilename = $acliConfigFilename;
-    $this->repoRoot = LocalMachineHelper::getProjectRoot();
+    $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
@@ -480,7 +482,7 @@ class ApiCommandHelper {
 
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
-          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename,
+          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
           $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
