@@ -24,6 +24,8 @@ mv acli.phar /usr/local/bin/acli
 
 Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to avoid dependency conflicts.
 
+Note: on certain systems or PHP builds where the `php-phar` extension is not installed, you will not be able to run `acli`. Make sure to install/compile with the extension if PHP returns `Class 'Phar' not found`.
+
 ## Usage
 
 You probably want to start by linking Acquia CLI to your Acquia Cloud account using `acli auth:login`:
