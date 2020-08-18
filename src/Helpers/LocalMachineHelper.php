@@ -10,6 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class LocalMachineHelper.
@@ -240,6 +241,87 @@ class LocalMachineHelper {
     }
 
     return $home;
+  }
+
+  /**
+   * Get the project root directory for the working directory.
+   *
+   * This method assumes you are running `acli` in a directory containing a
+   * Drupal docroot either as a sibling or parent(N) of the working directory.
+   *
+   * Typically the root directory would also be a Git repository root, though it
+   * doesn't have to be (such as for brand-new projects that haven't initialized
+   * Git yet).
+   *
+   * @return null|string
+   *   Root.
+   */
+  public static function getProjectRoot() {
+    $possible_project_roots = [
+      getcwd(),
+    ];
+    // Check for PWD - some local environments will not have this key.
+    if (isset($_SERVER['PWD']) && !in_array($_SERVER['PWD'], $possible_project_roots, TRUE)) {
+      array_unshift($possible_project_roots, $_SERVER['PWD']);
+    }
+    foreach ($possible_project_roots as $possible_project_root) {
+      if ($project_root = self::find_directory_containing_files($possible_project_root, ['docroot/index.php'])) {
+        return realpath($project_root);
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Traverses file system upwards in search of a given file.
+   *
+   * Begins searching for $file in $working_directory and climbs up directories
+   * $max_height times, repeating search.
+   *
+   * @param string $working_directory
+   *   Working directory.
+   * @param array $files
+   *   Files.
+   * @param int $max_height
+   *   Max Height.
+   *
+   * @return bool|string
+   *   FALSE if file was not found. Otherwise, the directory path containing the
+   *   file.
+   */
+  private static function find_directory_containing_files($working_directory, array $files, $max_height = 10) {
+    $file_path = $working_directory;
+    for ($i = 0; $i <= $max_height; $i++) {
+      if (self::files_exist($file_path, $files)) {
+        return $file_path;
+      }
+
+      $file_path = dirname($file_path) . '';
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Determines if an array of files exist in a particular directory.
+   *
+   * @param string $dir
+   *   Dir.
+   * @param array $files
+   *   Files.
+   *
+   * @return bool
+   *   Exists.
+   */
+  private static function files_exist($dir, array $files) {
+    foreach ($files as $file) {
+      if (file_exists(Path::join($dir, $file))) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
   }
 
   /**
