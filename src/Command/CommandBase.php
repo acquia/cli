@@ -193,6 +193,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
+    // Register custom progress bar format.
+    ProgressBar::setFormatDefinition(
+      'message',
+      "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
+    );
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
 
