@@ -32,6 +32,8 @@ if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
 set_time_limit(0);
 
 $loader = require dirname(__DIR__).'/vendor/autoload.php';
+// We must pre-load this class to prevent self-update command from breaking.
+// @see https://github.com/acquia/cli/issues/234
 $loader->loadClass('Symfony\Component\Console\Event\ConsoleTerminateEvent');
 
 $input = new ArgvInput();
