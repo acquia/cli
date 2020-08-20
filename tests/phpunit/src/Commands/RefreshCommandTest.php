@@ -93,7 +93,7 @@ class RefreshCommandTest extends CommandTestBase {
         ))
       ->shouldBeCalled();
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'])
+    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'], FALSE)
       ->willReturn($acsf_multisite_fetch_process->reveal())
       ->shouldBeCalled();
     $process = $this->mockProcess();
