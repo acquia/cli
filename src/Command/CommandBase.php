@@ -248,6 +248,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function run(InputInterface $input, OutputInterface $output) {
     $exit_code = parent::run($input, $output);
+    if ($exit_code === 0 && in_array($input->getFirstArgument(), ['self-update', 'update'])) {
+      // Exit immediately to avoid loading additional classes breaking updates.
+      // @see https://github.com/acquia/cli/issues/218
+      return $exit_code;
+    }
     $event_properties = [
       'exit_code' => $exit_code,
       'arguments' => $input->getArguments(),

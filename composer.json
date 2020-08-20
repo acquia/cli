@@ -118,6 +118,9 @@
       "@lint",
       "@cs",
       "@unit"
+    ],
+    "coveralls": [
+      "php-coveralls -vvv"
     ]
   }
 }
