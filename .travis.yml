@@ -33,8 +33,6 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
-      # Coveralls results get polluted by Windows builds, disable reporting.
-      after_success: skip
     - stage: "Build packages for CLI"
       if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
@@ -65,6 +63,6 @@ install:
 
 script:
   - composer test
-
-after_success:
-  - ./vendor/bin/php-coveralls -vvv
+  # Run coveralls here instead of after_success because it should break the build if it fails to report.
+  # Disable Coveralls reporting on Windows, which pollutes results.
+  - if [ $TRAVIS_TEST_RESULT -eq 0 ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then composer coveralls; fi
