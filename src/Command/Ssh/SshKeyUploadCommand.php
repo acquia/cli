@@ -58,7 +58,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
     // Wait for the key to register on the Cloud Platform.
     if ($input->getOption('no-wait') === FALSE) {
-      $this->output->write('Waiting for new key to be provisioned on the Cloud Platform servers...');
+      $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
       $this->pollAcquiaCloud($output, $acquia_cloud_client, $public_key);
     }
 
@@ -102,7 +102,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $labels[] = $local_key->getFilename();
     }
     $question = new ChoiceQuestion(
-      '<question>Choose a local SSH key to upload to the Cloud Platform</question>:',
+      '<question>Choose a local SSH key to upload to the Cloud Platform:</question>',
       $labels
     );
     $helper = $this->getHelper('question');
