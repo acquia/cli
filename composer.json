@@ -13,7 +13,7 @@
   "require": {
     "php": "^7.3",
     "ext-json": "*",
-    "acquia/drupal-environment-detector": "^1.1.1",
+    "acquia/drupal-environment-detector": "^1.2.0",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
     "padraic/phar-updater": "^1.0",
