@@ -22,7 +22,7 @@ class IdeListCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('List available Cloud IDEs')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
+    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
   }
 
   /**

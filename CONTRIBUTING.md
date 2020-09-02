@@ -61,9 +61,9 @@ Any changes to the `acli update` command should be manually tested using the fol
 5. Compile phar: `composer box-compile`
 6. Now test: `./build/acli.phar update --allow-unstable`
 
-## Updating Acquia Cloud API spec
+## Updating Cloud Platform API spec
 
-Acquia CLI stores a local copy of the Acquia Cloud API spec in the `assets` directory. To update the Acquia Cloud API spec, run:
+Acquia CLI stores a local copy of the Cloud Platform API spec in the `assets` directory. To update the Cloud Platform API spec, run:
 
 ```
 composer update-cloud-api-spec

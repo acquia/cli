@@ -33,7 +33,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $local_keys = $this->findLocalSshKeys();
 
     $table = new Table($output);
-    $table->setHeaders(['Local Key Filename', 'Acquia Cloud Key Label']);
+    $table->setHeaders(['Local Key Filename', 'Cloud Platform Key Label']);
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {

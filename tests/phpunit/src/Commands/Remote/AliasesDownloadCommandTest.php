@@ -52,8 +52,8 @@ class AliasesDownloadCommandTest extends CommandTestBase {
 
     $this->assertFileDoesNotExist($drush_archive_filepath);
     $this->assertFileExists($drush_aliases_dir);
-    $this->assertStringContainsString("Acquia Cloud Drush Aliases archive downloaded to $drush_archive_filepath", $output);
-    $this->assertStringContainsString('Acquia Cloud Drush aliases installed into ' . $drush_aliases_dir, $output);
+    $this->assertStringContainsString("Cloud Platform Drush Aliases archive downloaded to $drush_archive_filepath", $output);
+    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $drush_aliases_dir, $output);
 
   }
 

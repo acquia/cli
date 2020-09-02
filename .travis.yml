@@ -64,5 +64,5 @@ install:
 script:
   - composer test
   # Run coveralls here instead of after_success because it should break the build if it fails to report.
-  # Disable Coveralls reporting on Windows, which pollutes results.
-  - if [ $TRAVIS_TEST_RESULT -eq 0 ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then composer coveralls; fi
+  # Only run once per build so Coveralls doesn't get confused.
+  - if [ $TRAVIS_TEST_RESULT -eq 0 ] && [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$TRAVIS_PHP_VERSION" = "7.4" ]; then composer coveralls; fi

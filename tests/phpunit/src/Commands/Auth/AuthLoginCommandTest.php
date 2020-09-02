@@ -42,7 +42,7 @@ class AuthLoginCommandTest extends CommandTestBase {
       [
         TRUE,
         [
-          // Your machine has already been authenticated with Acquia Cloud API, would you like to re-authenticate?
+          // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
           'yes',
           // Do you want to open this page to generate a token now?
           'no',
@@ -131,7 +131,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param string $output
    */
   protected function assertInteractivePrompts(string $output): void {
-    $this->assertStringContainsString('You will need an Acquia Cloud API token from https://cloud.acquia.com/a/profile/tokens', $output);
+    $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
     $this->assertStringContainsString('Please enter your API Key:', $output);
     $this->assertStringContainsString('Please enter your API Secret:', $output);

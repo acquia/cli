@@ -37,9 +37,9 @@ class RefreshCommand extends CommandBase {
    */
   protected function configure() {
     $this->setName('refresh')
-      ->setDescription('Copy code, database, and files from an Acquia Cloud environment')
+      ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud source environment')
+      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
       ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')
@@ -78,12 +78,12 @@ class RefreshCommand extends CommandBase {
 
     if (!$input->getOption('no-code')) {
       if ($clone) {
-        $checklist->addItem('Cloning git repository from Acquia Cloud');
+        $checklist->addItem('Cloning git repository from the Cloud Platform');
         $this->cloneFromCloud($chosen_environment, $output_callback);
         $checklist->completePreviousItem();
       }
       else {
-        $checklist->addItem('Pulling code from Acquia Cloud');
+        $checklist->addItem('Pulling code from the Cloud Platform');
         $this->pullCodeFromCloud($chosen_environment, $output_callback);
         $checklist->completePreviousItem();
       }
@@ -92,14 +92,14 @@ class RefreshCommand extends CommandBase {
     // Copy databases.
     if (!$input->getOption('no-databases')) {
       $database = $this->determineSourceDatabase($acquia_cloud_client, $chosen_environment);
-      $checklist->addItem('Importing Drupal database copy from Acquia Cloud');
+      $checklist->addItem('Importing Drupal database copy from the Cloud Platform');
       $this->importRemoteDatabase($chosen_environment, $database, $output_callback);
       $checklist->completePreviousItem();
     }
 
     // Copy files.
     if (!$input->getOption('no-files')) {
-      $checklist->addItem('Copying Drupal\'s public files from Acquia Cloud');
+      $checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
       $this->rsyncFilesFromCloud($chosen_environment, $output_callback);
       $checklist->completePreviousItem();
     }
@@ -165,7 +165,7 @@ class RefreshCommand extends CommandBase {
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pulling code from your Acquia Cloud environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
+      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
     }
     $this->localMachineHelper->execute([
       'git',
@@ -374,7 +374,7 @@ class RefreshCommand extends CommandBase {
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);
     $question = new ChoiceQuestion(
-          '<question>Choose an Acquia Cloud environment to copy from</question>:',
+          '<question>Choose a Cloud Platform environment to copy from</question>:',
           $choices
       );
     $helper = $this->getHelper('question');
@@ -628,7 +628,7 @@ class RefreshCommand extends CommandBase {
     $command = implode(' ', $command);
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Failed to clone repository from Acquia Cloud: {message}', ['message' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
     $this->repoRoot = $this->dir;
   }

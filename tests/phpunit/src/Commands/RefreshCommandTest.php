@@ -57,7 +57,7 @@ class RefreshCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -73,9 +73,9 @@ class RefreshCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment to copy from:', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
@@ -120,7 +120,7 @@ class RefreshCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -136,9 +136,9 @@ class RefreshCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment to copy from:', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
     $this->assertStringContainsString('Choose a database to copy:', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
@@ -158,7 +158,7 @@ class RefreshCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -174,9 +174,9 @@ class RefreshCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment to copy from:', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
@@ -205,7 +205,7 @@ class RefreshCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -221,9 +221,9 @@ class RefreshCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose an Acquia Cloud environment to copy from:', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment to copy from:', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
@@ -265,7 +265,7 @@ class RefreshCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like to clone a project into the current directory?
       'y',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',

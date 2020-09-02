@@ -25,10 +25,10 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Upload a local SSH key to Acquia Cloud')
+    $this->setDescription('Upload a local SSH key to the Cloud Platform')
       ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
-      ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used in Acquia Cloud')
-      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to Acquia Cloud");
+      ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used with the Cloud Platform')
+      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
   }
 
   /**
@@ -54,11 +54,11 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       throw new AcquiaCliException($response->getBody()->getContents());
     }
 
-    $this->output->writeln("<info>Uploaded $chosen_local_key to Acquia Cloud with label $label</info>");
+    $this->output->writeln("<info>Uploaded $chosen_local_key to the Cloud Platform with label $label</info>");
 
-    // Wait for the key to register on Acquia Cloud.
+    // Wait for the key to register on the Cloud Platform.
     if ($input->getOption('no-wait') === FALSE) {
-      $this->output->write('Waiting for new key to be provisioned on Acquia Cloud servers...');
+      $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
       $this->pollAcquiaCloud($output, $acquia_cloud_client, $public_key);
     }
 
@@ -102,7 +102,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $labels[] = $local_key->getFilename();
     }
     $question = new ChoiceQuestion(
-      '<question>Choose a local SSH key to upload to Acquia Cloud</question>:',
+      '<question>Choose a local SSH key to upload to the Cloud Platform:</question>',
       $labels
     );
     $helper = $this->getHelper('question');
@@ -124,7 +124,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $label = $this->validateSshKeyLabel($label);
     }
     else {
-      $question = new Question('<question>Please enter a Acquia Cloud label for this SSH key:</question> ');
+      $question = new Question('<question>Please enter a Cloud Platform label for this SSH key:</question> ');
       $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
       $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
       $label = $this->questionHelper->ask($input, $output, $question);
@@ -173,9 +173,9 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     Client $acquia_cloud_client,
     string $public_key
   ): void {
-    // Create a loop to periodically poll Acquia Cloud.
+    // Create a loop to periodically poll the Cloud Platform.
     $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for SSH key to become available on Acquia Cloud...', $output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for SSH key to become available on the Cloud Platform...', $output);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $acquia_cloud_client, $public_key, $spinner) {

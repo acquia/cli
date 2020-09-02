@@ -55,7 +55,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
+    $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Found a matching application!', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
@@ -85,7 +85,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'y',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ...
       'y',
@@ -94,7 +94,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('There is no Acquia Cloud application linked to', $output);
+    $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Could not find a matching Cloud application.', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
