@@ -1,14 +1,14 @@
 <?php
 
 /**
- * @file Acquia Cloud API commands
+ * @file Cloud Platform API commands
  */
 
 /**
  * Implementation of hook_drush_command().
  */
 function acapi_drush_command() {
-  // All Acquia Cloud API commands accept a common set of options which are
+  // All Cloud Platform API commands accept a common set of options which are
   // centrally defined. Retrieve them with acapi_get_option().
   $options = acapi_common_options();
 
@@ -16,7 +16,7 @@ function acapi_drush_command() {
   // Acquia Update
   //////////////////////////////////////////////////////////////////////
   $items['acquia-update'] = [
-    'description' => 'Retrieve Drush aliases for all accessible Acquia Cloud sites.',
+    'description' => 'Retrieve Drush aliases for all accessible Cloud Platform sites.',
     'arguments' => [],
     'options' => $options,
   ];
@@ -29,7 +29,7 @@ function acapi_drush_command() {
   // Login
   //////////////////////////////////////////////////////////////////////
   $items['ac-api-login'] = [
-    'description' => 'Store Acquia Cloud API credentials and configuration information.',
+    'description' => 'Store Cloud Platform API credentials and configuration information.',
     'arguments' => [],
     'options' => $options + [
       'reset' => [
@@ -546,12 +546,12 @@ function acapi_drush_help($section) {
     case 'meta:acapi:title':
       return dt('Acquia commands');
     case 'meta:acapi:summary':
-      return dt('Acquia Cloud commands.');
+      return dt('Cloud Platform commands.');
     case 'drush:ac-api-login':
       $file = '$HOME/.acquia/cloudapi.conf';
-      return dt("Store Acquia Cloud API credentials and endpoint information.
+      return dt("Store Cloud Platform API credentials and endpoint information.
 
-This command stores default email, key, and optionally endpoint values for future Acquia Cloud API commands in @file. File location can be altered with the ac-config option on all Acquia Cloud commands.", ['@file' => $file]);
+This command stores default email, key, and optionally endpoint values for future Cloud Platform API commands in @file. File location can be altered with the ac-config option on all Cloud Platform commands.", ['@file' => $file]);
   }
 }
 
@@ -674,7 +674,7 @@ function acapi_save_options($options) {
   $verbose = drush_get_option('verbose', FALSE);
   $simulate = drush_get_option('simulate', FALSE);
   if ($verbose || $simulate) {
-    drush_log(dt('Storing Acquia Cloud API defaults in @file.', $dt_args), 'ok');
+    drush_log(dt('Storing Cloud Platform API defaults in @file.', $dt_args), 'ok');
   }
   if ($verbose) {
     drush_print($output);
@@ -683,11 +683,11 @@ function acapi_save_options($options) {
     $output = json_encode($options) . "\n";
     if (!is_dir($dir)) {
       if (@mkdir($dir) === FALSE) {
-        return drush_set_error('ACAPI_CANNOT_WRITE_LOGIN', dt('Cannot create Acquia Cloud API defaults directory @dir.', $dt_args));
+        return drush_set_error('ACAPI_CANNOT_WRITE_LOGIN', dt('Cannot create Cloud Platform API defaults directory @dir.', $dt_args));
       }
     }
     if (file_put_contents($file, $output) === FALSE) {
-      return drush_set_error('ACAPI_CANNOT_WRITE_LOGIN', dt('Cannot write to Acquia Cloud API defaults file @file.', $dt_args));
+      return drush_set_error('ACAPI_CANNOT_WRITE_LOGIN', dt('Cannot write to Cloud Platform API defaults file @file.', $dt_args));
     }
   }
 }
@@ -716,7 +716,7 @@ function acapi_load_options() {
         $ret = $data;
       }
       else {
-        drush_set_error('ACAPI_INVALID_CONF', dt('Acquia Cloud API config file @file is invalid. Run drush ac-api-login.', ['@file' => $file]));
+        drush_set_error('ACAPI_INVALID_CONF', dt('Cloud Platform API config file @file is invalid. Run drush ac-api-login.', ['@file' => $file]));
       }
     }
   }
@@ -830,7 +830,7 @@ function drush_acapi_ac_task_list() {
 //////////////////////////////////////////////////////////////////////
 
 /**
- * Define common options for Acquia Cloud API commands, and their defaults.
+ * Define common options for Cloud Platform API commands, and their defaults.
  */
 function acapi_common_options() {
   $options = [
@@ -847,17 +847,17 @@ function acapi_common_options() {
       'example-value' => 'apikey',
     ],
     'acapi-conf-path' => [
-      'description' => 'Acquia Cloud API config files location. If not specified config will be loaded from $HOME/.drush',
+      'description' => 'Cloud Platform API config files location. If not specified config will be loaded from $HOME/.drush',
       'default_value' => '',
       'example-value' => '/home/user/acapi-site-configs',
     ],
     'ac-config' => [
-      'description' => 'Acquia Cloud API user config file location. If not specified config will be loaded from $HOME',
+      'description' => 'Cloud Platform API user config file location. If not specified config will be loaded from $HOME',
       'default_value' => drush_server_home() . '/.acquia/cloudapi.conf',
       'example-value' => drush_server_home() . '/.acquia/cloudapi-site-specific.conf',
     ],
     'endpoint' => [
-      'description' => 'Acquia Cloud API endpoint URL.',
+      'description' => 'Cloud Platform API endpoint URL.',
       'default_value' => 'https://cloudapi.acquia.com/v1',
       'prompt' => ['Endpoint URL', NULL, TRUE, FALSE],
       'example-value' => 'https://cloudapi.acquia.com/v1',
@@ -877,7 +877,7 @@ function acapi_common_options() {
 }
 
 /**
- * Retrieve an Acquia Cloud API option, in priority order:
+ * Retrieve a Cloud Platform API option, in priority order:
  *
  * - command line
  * - ac-config file ($HOME/.acquia/cloudapi.conf by default)
@@ -981,7 +981,7 @@ function drush_acapi_ac_generic_callback() {
 }
 
 /**
- * Return the Acquia Cloud site information specified via the site
+ * Return the Cloud Platform site information specified via the site
  * alias.
  *
  * @param $site_required (TRUE)
@@ -995,7 +995,7 @@ function acapi_get_site($site_required = TRUE) {
 }
 
 /**
- * Get arguments aboud the Acquia Cloud site ready to be used for replacement
+ * Get arguments about the Cloud Platform site ready to be used for replacement
  * in a URI.
  *
  * @param $site_required (TRUE)
@@ -1016,7 +1016,7 @@ function acapi_get_site_args($site_required = TRUE) {
     if ($site_required) {
       $missing = str_replace(':', 'ac-', implode(', ', array_keys($missing)));
       $error = dt(
-        'Alias file is missing Acquia Cloud information: !missing. Be sure to specify a complete Acquia Cloud alias name, such as @mysite.dev.',
+        'Alias file is missing Cloud Platform information: !missing. Be sure to specify a complete Cloud Platform alias name, such as @mysite.dev.',
         ['!missing' => $missing]
       );
       drush_set_error('ACAPI_SITE_REQUIRED', $error);
@@ -1028,7 +1028,7 @@ function acapi_get_site_args($site_required = TRUE) {
 }
 
 /**
- * Call an Acquia Cloud API resource.
+ * Call a Cloud Platform API resource.
  *
  * @param $method
  *   The HTTP method; e.g. GET.
@@ -1180,7 +1180,7 @@ function acapi_call($method, $resource, $args, $params = [], $body = [], $option
 }
 
 /**
- * Return Acquia Cloud API credentials as username:password, or log an error
+ * Return Cloud Platform API credentials as username:password, or log an error
  * if they are unavailable.
  */
 function acapi_get_creds() {

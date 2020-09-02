@@ -46,7 +46,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $create_input = new ArrayInput($arguments);
       $exit_code = $command->run($create_input, $output);
       if ($exit_code !== 0) {
-        throw new AcquiaCliException("Unable to authenticate with Acquia Cloud.");
+        throw new AcquiaCliException("Unable to authenticate with the Cloud Platform.");
       }
     }
 
@@ -70,7 +70,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     if (!$this->localIdeSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
-      // Just in case there's an orphaned key on Acquia Cloud for this Cloud IDE.
+      // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
       $this->deleteIdeSshKeyFromCloud();
 
       $checklist->addItem('Creating a local SSH key');
@@ -88,9 +88,9 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
 
-    // Upload SSH key to Acquia Cloud.
+    // Upload SSH key to the Cloud Platform.
     if (!$this->userHasUploadedIdeKeyToCloud()) {
-      $checklist->addItem('Uploading the local key to Acquia Cloud');
+      $checklist->addItem('Uploading the local key to the Cloud Platform');
 
       // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
       $this->deleteIdeSshKeyFromCloud();
@@ -100,7 +100,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $key_was_uploaded = TRUE;
     }
     else {
-      $checklist->addItem('Already uploaded the local key to Acquia Cloud');
+      $checklist->addItem('Already uploaded the local key to the Cloud Platform');
       $checklist->completePreviousItem();
     }
 
@@ -115,7 +115,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $checklist->completePreviousItem();
     }
 
-    // Wait for the key to register on Acquia Cloud.
+    // Wait for the key to register on the Cloud Platform.
     if ($key_was_uploaded) {
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
@@ -207,7 +207,7 @@ EOT
   }
 
   /**
-   * Assert whether ANY local key exists that has a corresponding key on Acquia Cloud.
+   * Assert whether ANY local key exists that has a corresponding key on the Cloud Platform.
    *
    * @return bool
    * @throws \Exception
@@ -250,7 +250,7 @@ EOT
   }
 
   /**
-   * Polls Acquia Cloud until a successful SSH request is made to the dev environment.
+   * Polls the Cloud Platform until a successful SSH request is made to the dev environment.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -259,9 +259,9 @@ EOT
   protected function pollAcquiaCloudUntilSshSuccess(
     OutputInterface $output
   ): void {
-    // Create a loop to periodically poll Acquia Cloud.
+    // Create a loop to periodically poll the Cloud Platform.
     $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on Acquia Cloud web servers', $output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
@@ -324,7 +324,7 @@ EOT
       '--no-wait' => '',
     ]);
     if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to upload the SSH key to Acquia Cloud');
+      throw new AcquiaCliException('Unable to upload the SSH key to the Cloud Platform');
     }
   }
 

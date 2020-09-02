@@ -47,7 +47,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['applicationUuid' => $invalid_uuid], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -88,7 +88,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -112,7 +112,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['applicationUuid' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -154,7 +154,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['environmentId' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application:
+      // Please select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'

@@ -20,7 +20,7 @@ use Webmozart\PathUtil\Path;
  * @package Acquia\Cli\Tests\Ide
  *
  * The IdeWizardCreateSshKeyCommand command is designed to thrown an exception if it
- * is executed from a non Acquia Cloud IDE environment. Therefore we do not test Windows
+ * is executed from a non Cloud Platform IDE environment. Therefore we do not test Windows
  * compatibility. It should only ever be run in a Linux environment.
  *
  * @requires OS linux|darwin
@@ -110,7 +110,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       $this->executeCommand([], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals('You have already uploaded a local key to Acquia Cloud. You don\'t need to create a new one.', $exception->getMessage());
+      $this->assertEquals('You have already uploaded a local key to the Cloud Platform. You don\'t need to create a new one.', $exception->getMessage());
     }
   }
 

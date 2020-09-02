@@ -32,7 +32,7 @@ class CommandBaseTest extends CommandTestBase {
       $this->executeCommand([], $inputs);
     }
     catch (Exception $e) {
-      $this->assertEquals('This machine is not yet authenticated with Acquia Cloud. Please run `acli auth:login`', $e->getMessage());
+      $this->assertEquals('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`', $e->getMessage());
     }
   }
 

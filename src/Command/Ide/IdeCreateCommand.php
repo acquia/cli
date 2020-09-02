@@ -38,7 +38,7 @@ class IdeCreateCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Create a Cloud IDE for development')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
+    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
     // @todo Add option to accept an ide UUID.
   }
 

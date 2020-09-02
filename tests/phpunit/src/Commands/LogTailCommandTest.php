@@ -50,7 +50,7 @@ class LogTailCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Please select an Acquia Cloud application:', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
     $this->assertStringContainsString('Apache access', $output);

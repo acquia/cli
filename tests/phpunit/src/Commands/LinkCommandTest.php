@@ -35,7 +35,7 @@ class LinkCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select an Acquia Cloud application.
+      // Please select a Cloud Platform application.
       0
     ];
     $this->executeCommand([], $inputs);
@@ -46,7 +46,7 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
     $this->assertArrayHasKey('cloud_application_uuid', $acquia_cli_config['localProjects'][0]);
     $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $acquia_cli_config['localProjects'][0]['cloud_application_uuid']);
-    $this->assertStringContainsString('Please select an Acquia Cloud application', $output);
+    $this->assertStringContainsString('Please select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);

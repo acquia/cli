@@ -22,7 +22,7 @@ class IdeDeleteCommand extends IdeCommandBase {
    */
   protected function configure() {
     $this->setDescription('Delete a Cloud IDE')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Acquia Cloud Application');
+    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
     // @todo Add option to accept an ide UUID.
   }
 
@@ -45,7 +45,7 @@ class IdeDeleteCommand extends IdeCommandBase {
     // Check to see if an SSH key for this IDE exists on Cloud.
     $cloud_key = $this->findIdeSshKeyOnCloud($ide->uuid);
     if ($cloud_key) {
-      $question = new ConfirmationQuestion('<question>Would you like to delete the SSH key associated with this IDE from your Acquia Cloud account?</question> ',
+      $question = new ConfirmationQuestion('<question>Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?</question> ',
         TRUE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if ($answer) {

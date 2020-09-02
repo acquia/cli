@@ -69,7 +69,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
       'y',
       // Please select the IDE you'd like to delete:
       0,
-      // Would you like to delete the SSH key associated with this IDE from your Acquia Cloud account?
+      // Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?
       'y',
     ];
 

@@ -17,7 +17,7 @@ class UnlinkCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Remove local association between your project and an Acquia Cloud application');
+    $this->setDescription('Remove local association between your project and a Cloud Platform application');
   }
 
   /**
@@ -43,7 +43,7 @@ class UnlinkCommand extends CommandBase {
     $repo_root = $this->repoRoot;
     $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
     if (!$this->getAppUuidFromLocalProjectInfo()) {
-      throw new AcquiaCliException('There is no Acquia Cloud application linked to {repo_root}', ['repo_root' => $repo_root]);
+      throw new AcquiaCliException('There is no Cloud Platform application linked to {repo_root}', ['repo_root' => $repo_root]);
     }
     foreach ($local_user_config['localProjects'] as $key => $project) {
       if ($project['directory'] === $repo_root) {
