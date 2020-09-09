@@ -224,10 +224,6 @@ class ApiCommandHelper {
       [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $index => $parameter_definition) {
-        // Remove API parameters that conflict with CLI parameters.
-        if ($parameter_definition->getName() == 'version') {
-          unset($body_input_definition[$index]);
-        }
         $command->addPostParameter($parameter_definition->getName());
       }
       $usage .= $request_body_param_usage_suffix;
@@ -269,6 +265,9 @@ class ApiCommandHelper {
     }
     foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
       $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
+      if ($prop_key == 'version') {
+        $prop_key = 'lang_version';
+      }
       if ($is_required) {
         $input_definition[] = new InputArgument(
           $prop_key,
