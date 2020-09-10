@@ -265,6 +265,9 @@ class ApiCommandHelper {
     }
     foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
       $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
+      if ($prop_key == 'version') {
+        $prop_key = 'lang_version';
+      }
       if ($is_required) {
         $input_definition[] = new InputArgument(
           $prop_key,

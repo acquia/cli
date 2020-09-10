@@ -7,14 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Component\Validator\Constraints\Uuid;
-use Symfony\Component\Validator\Constraints\UuidValidator;
-use Symfony\Component\Validator\Constraints\Valid;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Class ApiCommandBase.
@@ -91,6 +84,9 @@ class ApiCommandBase extends CommandBase {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name) {
         $param = $this->getParamFromInput($input, $param_name);
+        if ($param_name == 'lang_version') {
+          $param_name = 'version';
+        }
         $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
     }
