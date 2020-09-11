@@ -5,4 +5,3 @@
 3. Publish the release
 4. Ensure that Travis CI builds and attaches acli.phar as a release asset.
 5. Update RELEASE.md and README.md with new version numbers.
-6. Create a corresponding fix version in JIRA, assign to any tickets in “Ready to Release”, close tickets.
