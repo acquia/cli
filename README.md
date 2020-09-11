@@ -31,9 +31,11 @@ Note: on certain systems or PHP builds where the `php-phar` extension is not ins
 You probably want to start by linking Acquia CLI to your Cloud Platform account using `acli auth:login`:
 ```console
 $ acli auth:login
-You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens.
-You should create a new token specifically for Developer Studio and enter the associated key and secret below.
-Do you want to open this page to generate a token now?
+You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens
+Do you want to open this page to generate a token now? y
+Please enter your API Key: <YOUR_API_KEY_HERE>
+Please enter your API Secret: <YOUR_API_SECRET_HERE>
+Saved credentials to /home/<USERNAME>/.acquia/cloud_api.conf
 ```
 
 Note that if you use other Acquia tools such as ADS CLI, BLT, or Pipelines CLI, your computer may already be linked and you can skip this step.
