@@ -26,6 +26,15 @@ class IdePhpVersionCommand extends IdeCommandBase {
   private $phpVersionFilePath;
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    return FALSE;
+  }
+  
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
