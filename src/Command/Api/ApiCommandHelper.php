@@ -226,7 +226,8 @@ class ApiCommandHelper {
       $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
-        $parameter_specification = $request_body_schema['properties'][$parameter_definition->getName()];
+        $parameter_specification = $this->getPropertySpecFromRequestBodyParam($request_body_schema,
+          $parameter_definition);
         $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
       }
       $usage .= $request_body_param_usage_suffix;
@@ -571,6 +572,20 @@ class ApiCommandHelper {
     }
 
     return $request_body_schema;
+  }
+
+  /**
+   * @param array $request_body_schema
+   * @param $parameter_definition
+   *
+   * @return mixed
+   */
+  protected function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
+    if (array_key_exists($parameter_definition->getName())) {
+     return $request_body_schema['properties'][$parameter_definition->getName()];
+    }
+
+    return NULL;
   }
 
 }

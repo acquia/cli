@@ -154,7 +154,6 @@ class ApiCommandBase extends CommandBase {
     foreach ($arguments as $key => $value) {
       $token = '{' . $key . '}';
       if (strpos($path, $token) !== FALSE) {
-        $value = $this->castParamType($this->pathParams[$key], $value);
         $path = str_replace($token, $value, $path);
       }
     }
@@ -286,6 +285,7 @@ class ApiCommandBase extends CommandBase {
    * @return mixed
    */
   protected function castParamType($param_spec, $value) {
+    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
     if (array_key_exists('type', $param_spec)) {
       $type = $param_spec['type'];
     }
