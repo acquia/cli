@@ -92,7 +92,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
+  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = 600) {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }

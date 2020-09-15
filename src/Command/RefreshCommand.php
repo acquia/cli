@@ -517,7 +517,7 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default/',
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, 60 * 60);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }
