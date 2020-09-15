@@ -577,7 +577,7 @@ class ApiCommandHelper {
    */
   public static function renameParameter($prop_key) {
     $parameter_rename_map = self::getParameterRenameMap();
-    if (in_array($prop_key, $parameter_rename_map, TRUE)) {
+    if (array_key_exists($prop_key, $parameter_rename_map)) {
       $prop_key = $parameter_rename_map[$prop_key];
     }
     return $prop_key;
@@ -590,7 +590,7 @@ class ApiCommandHelper {
    */
   public static function restoreRenamedParameter($prop_key) {
     $parameter_rename_map = array_flip(self::getParameterRenameMap());
-    if (in_array($prop_key, $parameter_rename_map, TRUE)) {
+    if (array_key_exists($prop_key, $parameter_rename_map)) {
       $prop_key = $parameter_rename_map[$prop_key];
     }
     return $prop_key;
