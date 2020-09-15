@@ -202,6 +202,7 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testApiCommandExecutionForHttpPut(): void {
     $mock_request_options = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
+    $mock_request_options['varnish_over_ssl'] = TRUE;
     $mock_response_body = $this->getMockResponseFromSpec('/environments/{environmentId}', 'put', '202');
 
     // @see CXAPI-7713
