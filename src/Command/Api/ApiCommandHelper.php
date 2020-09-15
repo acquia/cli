@@ -265,9 +265,8 @@ class ApiCommandHelper {
     }
     foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
       $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
-      if ($prop_key == 'version') {
-        $prop_key = 'lang_version';
-      }
+      $prop_key = $this->renameParameter($prop_key);
+
       if ($is_required) {
         $input_definition[] = new InputArgument(
           $prop_key,
@@ -556,6 +555,45 @@ class ApiCommandHelper {
     if ($param_definition['name'] === 'environmentId') {
       $param_definition['description'] .= " You may also use an environment alias or UUID.";
     }
+  }
+
+  /**
+   * @return array
+   */
+  protected static function getParameterRenameMap(): array {
+    // Format should be ['original => new'].
+    return [
+      // @see api:environments:update.
+      'version' => 'lang_version',
+      // @see api:environments:cron-create
+      'command' => 'cron_command',
+    ];
+  }
+
+  /**
+   * @param $prop_key
+   *
+   * @return mixed
+   */
+  public static function renameParameter($prop_key) {
+    $parameter_rename_map = self::getParameterRenameMap();
+    if (in_array($prop_key, $parameter_rename_map, TRUE)) {
+      $prop_key = $parameter_rename_map[$prop_key];
+    }
+    return $prop_key;
+  }
+
+  /**
+   * @param $prop_key
+   *
+   * @return mixed
+   */
+  public static function restoreRenamedParameter($prop_key) {
+    $parameter_rename_map = array_flip(self::getParameterRenameMap());
+    if (in_array($prop_key, $parameter_rename_map, TRUE)) {
+      $prop_key = $parameter_rename_map[$prop_key];
+    }
+    return $prop_key;
   }
 
 }
