@@ -9,6 +9,7 @@
 drupal
 .idea
 build
+*.bak
 .DS_STORE
 tests/fixtures/.acquia/acquia-cli.json
 tests/fixtures/.acquia/cloud_api.conf

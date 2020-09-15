@@ -64,4 +64,22 @@ class IdeShareCommandTest extends IdeRequiredTestBase {
     $this->assertStringContainsString($this->shareCode, $output);
   }
 
+  /**
+   * Tests the 'ide:share' command.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testIdeShareRegenerateCommand(): void {
+    $ide_get_response = $this->mockGetIdeRequest(self::$remote_ide_uuid);
+    $ide = new IdeResponse((object) $ide_get_response);
+    $this->executeCommand(['--regenerate' => TRUE], []);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Your IDE Share URL: ', $output);
+    $this->assertStringNotContainsString($this->shareCode, $output);
+  }
+
 }

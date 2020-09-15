@@ -76,7 +76,10 @@ class IdeShareCommand extends CommandBase {
    * @throws \Exception
    */
   public function regenerateShareCode(): void {
-    $this->localMachineHelper->writeFile($this->getShareCodeFilepath(), md5(random_bytes(10)));
+    $new_share_code = md5(random_bytes(10));
+    $this->localMachineHelper->writeFile($this->getShareCodeFilepath(), $new_share_code);
+
+    return $new_share_code;
   }
 
 }
