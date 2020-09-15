@@ -84,9 +84,7 @@ class ApiCommandBase extends CommandBase {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name) {
         $param = $this->getParamFromInput($input, $param_name);
-        if ($param_name == 'lang_version') {
-          $param_name = 'version';
-        }
+        $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
         $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
     }
