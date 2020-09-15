@@ -91,6 +91,7 @@ class ApiCommandBase extends CommandBase {
             $param = $this->castParamType($param_spec, $param);
           }
           $acquia_cloud_client->addOption('json', [$param_name => $param]);
+        }
       }
     }
 
