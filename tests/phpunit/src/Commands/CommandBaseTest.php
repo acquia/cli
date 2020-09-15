@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
@@ -43,23 +44,48 @@ class CommandBaseTest extends CommandTestBase {
     $this->executeCommand([], []);
   }
 
-  public function testCloudAppUuidArg(): void {
-
-    $this->mockApplicationRequest();
-    $this->executeCommand([
-      '--cloud-app-uuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-    ], []);
+  public function providerTestCloudAppUuidArg(): array {
+    return [
+      ['a47ac10b-58cc-4372-a567-0e02b2c3d470'],
+      ['165c887b-7633-4f64-799d-a5d4669c768e'],
+    ];
   }
 
-  public function testInvalidCloudAppUuidArg(): void {
+  /**
+   * @dataProvider providerTestCloudAppUuidArg
+   *
+   * @param string $uuid
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testCloudAppUuidArg($uuid): void {
+    $this->mockApplicationRequest();
+    $this->assertEquals($uuid, CommandBase::validateUuid($uuid));
+  }
 
+  public function providerTestInvalidCloudAppUuidArg(): array {
+    return [
+      ['a47ac10b-58cc-4372-a567-0e02b2c3d4', 'This value should have exactly 36 characters.'],
+      ['a47ac10b-58cc-4372-a567-0e02b2c3d47z', 'This is not a valid UUID.'],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestInvalidCloudAppUuidArg
+   *
+   * @param string $uuid
+   * @param string $message
+   *
+   * @throws \Exception
+   */
+  public function testInvalidCloudAppUuidArg($uuid, $message): void {
     try {
       $this->executeCommand([
-        '--cloud-app-uuid' => 'a47ac10b-i-do-not-feel-validated',
+        '--cloud-app-uuid' => $uuid,
       ], []);
     }
     catch (ValidatorException $e) {
-      $this->assertEquals('This is not a valid UUID.', $e->getMessage());
+      $this->assertEquals($message, $e->getMessage());
     }
   }
 
