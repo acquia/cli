@@ -145,6 +145,13 @@ class ApiCommandBase extends CommandBase {
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;
+
+    // Remove errant 'api/' prefix if is present.
+    // @see https://github.com/acquia/cli/issues/240
+    if (strpos($path, 'api/') === 0) {
+      $path = str_replace('api/', '', $path);
+    }
+
     $arguments = $input->getArguments();
     // The command itself is the first argument. Remove it.
     array_shift($arguments);
