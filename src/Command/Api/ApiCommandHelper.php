@@ -483,6 +483,12 @@ class ApiCommandHelper {
           continue;
         }
 
+        // Remove errant '/api' prefix if is present.
+        // @see https://github.com/acquia/cli/issues/240
+        if (strpos($path, '/api') === 0) {
+          $path = str_replace('/api', '', $path);
+        }
+
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
           $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
