@@ -256,6 +256,8 @@ class ApiCommandHelper {
     }
     foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
       $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
+      // Replace 'version' argument with 'lang_version.
+      // @see https://github.com/acquia/cli/issues/247
       if ($prop_key == 'version') {
         $prop_key = 'lang_version';
       }

@@ -186,7 +186,7 @@ class ApiCommandTest extends CommandTestBase {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
     foreach ($mock_request_args as $name => $value) {
-      $this->clientProphecy->addOption('form_params', [$name => $value])->shouldBeCalled();
+      $this->clientProphecy->addOption('json', [$name => $value])->shouldBeCalled();
     }
     $this->clientProphecy->request('post', '/account/ssh-keys')->willReturn($mock_response_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:accounts:ssh-key-create');
@@ -198,6 +198,36 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertNotNull($output);
     $this->assertJson($output);
     $this->assertStringContainsString('Adding SSH key.', $output);
+  }
+
+  public function testApiCommandExecutionForHttpPut(): void {
+    $mock_request_options = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
+    $mock_response_body = $this->getMockResponseFromSpec('/environments/{environmentId}', 'put', '202');
+
+    // @see CXAPI-7713
+    unset($mock_request_options['apcu']);
+
+    foreach ($mock_request_options as $name => $value) {
+      $this->clientProphecy->addOption('json', [$name => $value])->shouldBeCalled();
+    }
+    $this->clientProphecy->request('put', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($mock_response_body)->shouldBeCalled();
+    $this->command = $this->getApiCommandByName('api:environments:update');
+
+    $options = [];
+    foreach ($mock_request_options as $key => $value) {
+      $options['--' . $key] = $value;
+    }
+    $options['--lang_version'] = $options['--version'];
+    unset($options['--version']);
+    $args = ['environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'] + $options;
+    $this->executeCommand($args);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertNotNull($output);
+    $this->assertJson($output);
+    $this->assertStringContainsString('The environment configuration is being updated.', $output);
   }
 
   /**
