@@ -51,6 +51,10 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
     $this->mockGetFilesystem($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
+    $php_filepath_prefix = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_stub_');
+    $php_stub_filepath = $php_filepath_prefix . $version;
+    $this->fs->touch($php_stub_filepath);
+    $this->command->setIdePhpFilePathPrefix($php_filepath_prefix);
     $this->executeCommand([
       'version' => $version,
     ], []);

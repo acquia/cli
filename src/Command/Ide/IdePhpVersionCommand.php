@@ -26,6 +26,11 @@ class IdePhpVersionCommand extends IdeCommandBase {
   private $phpVersionFilePath;
 
   /**
+   * @var string
+   */
+  private $idePhpFilePathPrefix;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -50,6 +55,23 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->restartBash();
 
     return 0;
+  }
+
+  /**
+   * @return string
+   */
+  public function getIdePhpFilePathPrefix(): string {
+    if (!isset($this->idePhpFilePathPrefix)) {
+      $this->idePhpFilePathPrefix = '/usr/local/php/';
+    }
+    return $this->idePhpFilePathPrefix;
+  }
+
+  /**
+   * @param string $path
+   */
+  public function setIdePhpFilePathPrefix($path): void {
+    $this->idePhpFilePathPrefix = $path;
   }
 
   /**
@@ -85,7 +107,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
-    if (!$this->localMachineHelper->getFilesystem()->exists( '/usr/local/php' . $version)) {
+    $php_filepath = $this->getIdePhpFilePathPrefix() . $version;
+    if (!$this->localMachineHelper->getFilesystem()->exists($php_filepath)) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 
