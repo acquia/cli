@@ -622,7 +622,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
       $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');
-      return $this->validateUuid($cloud_application_uuid);
+      return self::validateUuid($cloud_application_uuid);
     }
 
     // Try local project info.
@@ -663,7 +663,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return mixed
    */
-  protected function validateUuid($uuid) {
+  public static function validateUuid($uuid) {
     $violations = Validation::createValidator()->validate($uuid, [
       new Length([
         'value' => 36,

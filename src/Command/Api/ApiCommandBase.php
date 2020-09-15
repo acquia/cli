@@ -234,7 +234,7 @@ class ApiCommandBase extends CommandBase {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
       try {
-        $this->validateUuid($application_uuid_argument);
+        self::validateUuid($application_uuid_argument);
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
@@ -261,7 +261,7 @@ class ApiCommandBase extends CommandBase {
         $env_id = $uuid_parts[0];
         unset($uuid_parts[0]);
         $application_uuid = implode('-', $uuid_parts);
-        $this->validateUuid($application_uuid);
+        self::validateUuid($application_uuid);
       } catch (ValidatorException $validator_exception) {
         try {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
