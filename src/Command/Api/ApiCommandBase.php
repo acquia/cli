@@ -71,7 +71,7 @@ class ApiCommandBase extends CommandBase {
     // Build query from non-null options.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if ($this->queryParams) {
-      foreach ($this->queryParams as $key) {
+      foreach ($this->queryParams as $key => $param_spec) {
         // We may have a queryParam that is used in the path rather than the query string.
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
           $acquia_cloud_client->addQuery($key, $input->getOption($key));
@@ -82,10 +82,13 @@ class ApiCommandBase extends CommandBase {
       }
     }
     if ($this->postParams) {
-      foreach ($this->postParams as $param_name) {
+      foreach ($this->postParams as $param_name => $param_spec) {
         $param = $this->getParamFromInput($input, $param_name);
         if ($param_name == 'lang_version') {
           $param_name = 'version';
+        }
+        if ($param_spec && !is_null($param)) {
+          $param = $this->castParamType($param_spec, $param);
         }
         $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
@@ -151,6 +154,7 @@ class ApiCommandBase extends CommandBase {
     foreach ($arguments as $key => $value) {
       $token = '{' . $key . '}';
       if (strpos($path, $token) !== FALSE) {
+        $value = $this->castParamType($this->pathParams[$key], $value);
         $path = str_replace($token, $value, $path);
       }
     }
@@ -168,15 +172,15 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param $param_name
    */
-  public function addPostParameter($param_name): void {
-    $this->postParams[] = $param_name;
+  public function addPostParameter($param_name, $value): void {
+    $this->postParams[$param_name] = $value;
   }
 
   /**
    * @param $param_name
    */
-  public function addQueryParameter($param_name): void {
-    $this->queryParams[] = $param_name;
+  public function addQueryParameter($param_name, $value): void {
+    $this->queryParams[$param_name] = $value;
   }
 
   /**
@@ -189,8 +193,8 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param $param_name
    */
-  public function addPathParameter($param_name): void {
-    $this->pathParams[] = $param_name;
+  public function addPathParameter($param_name, $value): void {
+    $this->pathParams[$param_name] = $value;
   }
 
   /**
@@ -273,6 +277,33 @@ class ApiCommandBase extends CommandBase {
         }
       }
     }
+  }
+
+  /**
+   * @param $param_spec
+   * @param $value
+   *
+   * @return mixed
+   */
+  protected function castParamType($param_spec, $value) {
+    if (array_key_exists('type', $param_spec)) {
+      $type = $param_spec['type'];
+    }
+    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
+      $type = $param_spec['schema']['type'];
+    }
+    else {
+      return $value;
+    }
+
+    switch ($type) {
+      case 'int':
+      case 'integer':
+        $value = (int) $value;
+        break;
+    }
+
+    return $value;
   }
 
 }
