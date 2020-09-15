@@ -33,7 +33,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
   }
-  
+
   /**
    * {inheritdoc}.
    */
