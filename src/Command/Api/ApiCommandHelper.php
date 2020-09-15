@@ -581,7 +581,7 @@ class ApiCommandHelper {
    * @return mixed
    */
   protected function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
-    if (array_key_exists($parameter_definition->getName())) {
+    if (array_key_exists($parameter_definition->getName(), $request_body_schema['properties'])) {
      return $request_body_schema['properties'][$parameter_definition->getName()];
     }
 
