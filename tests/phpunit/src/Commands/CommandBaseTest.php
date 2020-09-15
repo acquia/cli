@@ -51,15 +51,29 @@ class CommandBaseTest extends CommandTestBase {
     ], []);
   }
 
-  public function testInvalidCloudAppUuidArg(): void {
+  public function providerTestInvalidCloudAppUuidArg() {
+    return [
+      ['a47ac10b-58cc-4372-a567-0e02b2c3d4', 'This value should have exactly 36 characters.'],
+      ['a47ac10b-58cc-4372-a567-0e02b2c3d47z', 'This is not a valid UUID.'],
+    ];
+  }
 
+  /**
+   * @dataProvider providerTestInvalidCloudAppUuidArg
+   *
+   * @param string $uuid
+   * @param string $message
+   *
+   * @throws \Exception
+   */
+  public function testInvalidCloudAppUuidArg($uuid, $message): void {
     try {
       $this->executeCommand([
-        '--cloud-app-uuid' => 'a47ac10b-i-do-not-feel-validated',
+        '--cloud-app-uuid' => $uuid,
       ], []);
     }
     catch (ValidatorException $e) {
-      $this->assertEquals('This is not a valid UUID.', $e->getMessage());
+      $this->assertEquals($message, $e->getMessage());
     }
   }
 

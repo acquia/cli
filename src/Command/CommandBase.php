@@ -665,8 +665,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function validateUuid($uuid) {
     $violations = Validation::createValidator()->validate($uuid, [
-      new Length(['value' => 36]),
-      new Regex(['pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i']),
+      new Length([
+        'value' => 36,
+      ]),
+      new Regex([
+        'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
+        'message' => 'This is not a valid UUID.',
+      ]),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
