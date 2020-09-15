@@ -233,7 +233,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
-    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE);
+    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE, 60 * 60);
     if ($process->isSuccessful()) {
       $filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
       $filepath .= '.sql.gz';
@@ -328,7 +328,7 @@ class RefreshCommand extends CommandBase {
 
     $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
 
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -496,7 +496,7 @@ class RefreshCommand extends CommandBase {
       'composer',
       'install',
       '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
+    ], $output_callback, $this->dir, FALSE, 30 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -517,7 +517,7 @@ class RefreshCommand extends CommandBase {
       $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
       $this->dir . '/docroot/sites/default/',
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -626,7 +626,7 @@ class RefreshCommand extends CommandBase {
       $this->dir,
     ];
     $command = implode(' ', $command);
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 30 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
