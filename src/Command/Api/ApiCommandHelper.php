@@ -256,11 +256,8 @@ class ApiCommandHelper {
     }
     foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
       $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
-      // Replace 'version' argument with 'lang_version.
-      // @see https://github.com/acquia/cli/issues/247
-      if ($prop_key == 'version') {
-        $prop_key = 'lang_version';
-      }
+      $prop_key = self::renameParameter($prop_key);
+
       if ($is_required) {
         $input_definition[] = new InputArgument(
           $prop_key,
@@ -476,6 +473,12 @@ class ApiCommandHelper {
           continue;
         }
 
+        // Remove errant '/api' prefix if is present.
+        // @see https://github.com/acquia/cli/issues/240
+        if (strpos($path, '/api') === 0) {
+          $path = str_replace('/api', '', $path);
+        }
+
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
           $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
@@ -587,6 +590,45 @@ class ApiCommandHelper {
     }
 
     return NULL;
+  }
+
+  /*
+   * @return array
+   */
+  protected static function getParameterRenameMap(): array {
+    // Format should be ['original => new'].
+    return [
+      // @see api:environments:update.
+      'version' => 'lang_version',
+      // @see api:environments:cron-create
+      'command' => 'cron_command',
+    ];
+  }
+
+  /**
+   * @param $prop_key
+   *
+   * @return mixed
+   */
+  public static function renameParameter($prop_key) {
+    $parameter_rename_map = self::getParameterRenameMap();
+    if (array_key_exists($prop_key, $parameter_rename_map)) {
+      $prop_key = $parameter_rename_map[$prop_key];
+    }
+    return $prop_key;
+  }
+
+  /**
+   * @param $prop_key
+   *
+   * @return mixed
+   */
+  public static function restoreRenamedParameter($prop_key) {
+    $parameter_rename_map = array_flip(self::getParameterRenameMap());
+    if (array_key_exists($prop_key, $parameter_rename_map)) {
+      $prop_key = $parameter_rename_map[$prop_key];
+    }
+    return $prop_key;
   }
 
 }

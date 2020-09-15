@@ -47,7 +47,7 @@ class SshKeyDeleteCommand extends CommandBase {
 
   protected function determineCloudKey($acquia_cloud_client) {
     if ($this->input->getOption('cloud-key-uuid')) {
-      $cloud_key_uuid = $this->validateUuid($this->input->getOption('cloud-key-uuid'));
+      $cloud_key_uuid = self::validateUuid($this->input->getOption('cloud-key-uuid'));
       $cloud_key = $acquia_cloud_client->request('get', '/account/ssh-keys/' . $cloud_key_uuid);
       return $cloud_key;
     }

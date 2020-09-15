@@ -85,21 +85,21 @@ class ApiCommandBase extends CommandBase {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name => $param_spec) {
         $param = $this->getParamFromInput($input, $param_name);
-        if ($param_name === 'lang_version') {
-          $param_name = 'version';
-        }
         if (!is_null($param)) {
+          $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
           if ($param_spec) {
             $param = $this->castParamType($param_spec, $param);
           }
           $acquia_cloud_client->addOption('json', [$param_name => $param]);
-        }
       }
     }
 
     $path = $this->getRequestPath($input);
     $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
-    $acquia_cloud_client->addOption('headers', ['User-Agent' => $user_agent]);
+    $acquia_cloud_client->addOption('headers', [
+      'User-Agent' => $user_agent,
+      'Accept'     => 'application/json',
+    ]);
 
     try {
       $response = $acquia_cloud_client->request($this->method, $path);
@@ -151,6 +151,7 @@ class ApiCommandBase extends CommandBase {
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;
+
     $arguments = $input->getArguments();
     // The command itself is the first argument. Remove it.
     array_shift($arguments);
@@ -240,7 +241,7 @@ class ApiCommandBase extends CommandBase {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
       try {
-        $this->validateUuid($application_uuid_argument);
+        self::validateUuid($application_uuid_argument);
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
@@ -267,7 +268,7 @@ class ApiCommandBase extends CommandBase {
         $env_id = $uuid_parts[0];
         unset($uuid_parts[0]);
         $application_uuid = implode('-', $uuid_parts);
-        $this->validateUuid($application_uuid);
+        self::validateUuid($application_uuid);
       } catch (ValidatorException $validator_exception) {
         try {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
