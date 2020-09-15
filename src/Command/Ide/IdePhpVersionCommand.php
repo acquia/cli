@@ -85,7 +85,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
-    if (!$this->localMachineHelper->getFilesystem()->exists($this->getIdePhpVersionFilePath())) {
+    if (!$this->localMachineHelper->getFilesystem()->exists( '/usr/local/php' . $version)) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 
