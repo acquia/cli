@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -84,13 +85,15 @@ class ApiCommandBase extends CommandBase {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name => $param_spec) {
         $param = $this->getParamFromInput($input, $param_name);
-        if ($param_name == 'lang_version') {
+        if ($param_name === 'lang_version') {
           $param_name = 'version';
         }
-        if ($param_spec && !is_null($param)) {
-          $param = $this->castParamType($param_spec, $param);
+        if (!is_null($param)) {
+          if ($param_spec) {
+            $param = $this->castParamType($param_spec, $param);
+          }
+          $acquia_cloud_client->addOption('json', [$param_name => $param]);
         }
-        $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
       }
     }
 
@@ -300,6 +303,11 @@ class ApiCommandBase extends CommandBase {
       case 'int':
       case 'integer':
         $value = (int) $value;
+        break;
+
+      case 'bool':
+      case 'boolean':
+        $value = (bool) $value;
         break;
     }
 
