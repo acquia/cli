@@ -146,6 +146,7 @@ class ApiCommandBase extends CommandBase {
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;
+
     $arguments = $input->getArguments();
     // The command itself is the first argument. Remove it.
     array_shift($arguments);
