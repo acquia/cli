@@ -4256,12 +4256,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "972997e4f42a67a883bb99783b5010e00ee0c80b"
+                "reference": "4451a51f99c4f6057e4d7653f31bf95e56661729"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/972997e4f42a67a883bb99783b5010e00ee0c80b",
-                "reference": "972997e4f42a67a883bb99783b5010e00ee0c80b",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/4451a51f99c4f6057e4d7653f31bf95e56661729",
+                "reference": "4451a51f99c4f6057e4d7653f31bf95e56661729",
                 "shasum": ""
             },
             "require": {
@@ -4302,7 +4302,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-07-24T21:55:24+00:00"
+            "time": "2020-09-14T13:32:47+00:00"
         },
         {
             "name": "webmozart/assert",

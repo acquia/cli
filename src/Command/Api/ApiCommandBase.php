@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -71,7 +72,7 @@ class ApiCommandBase extends CommandBase {
     // Build query from non-null options.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if ($this->queryParams) {
-      foreach ($this->queryParams as $key) {
+      foreach ($this->queryParams as $key => $param_spec) {
         // We may have a queryParam that is used in the path rather than the query string.
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
           $acquia_cloud_client->addQuery($key, $input->getOption($key));
@@ -82,10 +83,15 @@ class ApiCommandBase extends CommandBase {
       }
     }
     if ($this->postParams) {
-      foreach ($this->postParams as $param_name) {
+      foreach ($this->postParams as $param_name => $param_spec) {
         $param = $this->getParamFromInput($input, $param_name);
-        $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
-        $acquia_cloud_client->addOption('form_params', [$param_name => $param]);
+        if (!is_null($param)) {
+          $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
+          if ($param_spec) {
+            $param = $this->castParamType($param_spec, $param);
+          }
+          $acquia_cloud_client->addOption('json', [$param_name => $param]);
+        }
       }
     }
 
@@ -170,15 +176,15 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param $param_name
    */
-  public function addPostParameter($param_name): void {
-    $this->postParams[] = $param_name;
+  public function addPostParameter($param_name, $value): void {
+    $this->postParams[$param_name] = $value;
   }
 
   /**
    * @param $param_name
    */
-  public function addQueryParameter($param_name): void {
-    $this->queryParams[] = $param_name;
+  public function addQueryParameter($param_name, $value): void {
+    $this->queryParams[$param_name] = $value;
   }
 
   /**
@@ -191,8 +197,8 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param $param_name
    */
-  public function addPathParameter($param_name): void {
-    $this->pathParams[] = $param_name;
+  public function addPathParameter($param_name, $value): void {
+    $this->pathParams[$param_name] = $value;
   }
 
   /**
@@ -275,6 +281,39 @@ class ApiCommandBase extends CommandBase {
         }
       }
     }
+  }
+
+  /**
+   * @param $param_spec
+   * @param $value
+   *
+   * @return mixed
+   */
+  protected function castParamType($param_spec, $value) {
+    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
+    if (array_key_exists('type', $param_spec)) {
+      $type = $param_spec['type'];
+    }
+    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
+      $type = $param_spec['schema']['type'];
+    }
+    else {
+      return $value;
+    }
+
+    switch ($type) {
+      case 'int':
+      case 'integer':
+        $value = (int) $value;
+        break;
+
+      case 'bool':
+      case 'boolean':
+        $value = (bool) $value;
+        break;
+    }
+
+    return $value;
   }
 
 }

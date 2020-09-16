@@ -281,11 +281,13 @@ abstract class TestBase extends TestCase {
   /**
    * @param $path
    *
+   * @param string $method
+   *
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function getMockRequestBodyFromSpec($path) {
-    $endpoint = $this->getResourceFromSpec($path, 'post');
+  public function getMockRequestBodyFromSpec($path, $method = 'post') {
+    $endpoint = $this->getResourceFromSpec($path, $method);
     return $endpoint['requestBody']['content']['application/json']['example'];
   }
 

@@ -201,6 +201,7 @@ class ApiCommandHelper {
   protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
     $input_definition = [];
     $usage = '';
+
     // Parameters to be used in the request query and path.
     if (array_key_exists('parameters', $schema)) {
       [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
@@ -209,10 +210,10 @@ class ApiCommandHelper {
         // @todo Remove ucfirst() and use actual key.
         $parameter_specification = $this->getParameterDefinitionFromSpec(ucfirst($parameter_definition->getName()), $acquia_cloud_spec);
         if ($parameter_specification['in'] === 'query') {
-          $command->addQueryParameter($parameter_definition->getName());
+          $command->addQueryParameter($parameter_definition->getName(), $parameter_specification);
         }
         elseif($parameter_specification['in'] === 'path') {
-          $command->addPathParameter($parameter_definition->getName());
+          $command->addPathParameter($parameter_definition->getName(), $parameter_specification);
         }
       }
       $usage .= $query_param_usage_suffix;
@@ -222,9 +223,11 @@ class ApiCommandHelper {
     // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
       [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
+      $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
-        $command->addPostParameter($parameter_definition->getName());
+        $parameter_specification = $this->getPropertySpecFromRequestBodyParam($request_body_schema, $parameter_definition);
+        $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
       }
       $usage .= $request_body_param_usage_suffix;
       $input_definition = array_merge($input_definition, $body_input_definition);
@@ -246,19 +249,7 @@ class ApiCommandHelper {
   protected function addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
-    if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/x-www-form-urlencoded']['schema'];
-    }
-    else {
-      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
-    }
-
-    // If this is a reference to the top level schema, go grab the referenced component.
-    if (array_key_exists('$ref', $request_body_schema)) {
-      $parts = explode('/', $request_body_schema['$ref']);
-      $param_key = end($parts);
-      $request_body_schema = $this->getParameterSchemaFromSpec($param_key, $acquia_cloud_spec);
-    }
+    $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
 
     if (!array_key_exists('properties', $request_body_schema)) {
       return [];
@@ -564,6 +555,44 @@ class ApiCommandHelper {
   }
 
   /**
+   * @param $schema
+   * @param $acquia_cloud_spec
+   *
+   * @return array
+   */
+  protected function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
+    if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
+      $request_body_schema = $schema['requestBody']['content']['application/x-www-form-urlencoded']['schema'];
+    }
+    else {
+      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
+    }
+
+    // If this is a reference to the top level schema, go grab the referenced component.
+    if (array_key_exists('$ref', $request_body_schema)) {
+      $parts = explode('/', $request_body_schema['$ref']);
+      $param_key = end($parts);
+      $request_body_schema = $this->getParameterSchemaFromSpec($param_key, $acquia_cloud_spec);
+    }
+
+    return $request_body_schema;
+  }
+
+  /**
+   * @param array $request_body_schema
+   * @param $parameter_definition
+   *
+   * @return mixed
+   */
+  protected function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
+    if (array_key_exists($parameter_definition->getName(), $request_body_schema['properties'])) {
+     return $request_body_schema['properties'][$parameter_definition->getName()];
+    }
+
+    return NULL;
+  }
+
+  /*
    * @return array
    */
   protected static function getParameterRenameMap(): array {
