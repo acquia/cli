@@ -419,7 +419,7 @@ class RefreshCommandTest extends CommandTestBase {
         'composer',
         'install',
         '--no-interaction',
-      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ], Argument::type('callable'), $this->projectFixtureDir, FALSE, 30 * 60)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -441,7 +441,7 @@ class RefreshCommandTest extends CommandTestBase {
         $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
         $this->projectFixtureDir . '/docroot/sites/default/',
       ];
-      $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE)
+      $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -466,7 +466,7 @@ class RefreshCommandTest extends CommandTestBase {
       $dir,
     ];
     $command = implode(' ', $command);
-    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, FALSE)
+    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, FALSE, 30 * 60)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -528,7 +528,7 @@ class RefreshCommandTest extends CommandTestBase {
 // MySQL import command.
     $local_machine_helper
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
-        NULL, FALSE)
+        NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -586,7 +586,7 @@ class RefreshCommandTest extends CommandTestBase {
     $ssh_helper->executeCommand(
         new EnvironmentResponse($environments_response),
         ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | gzip -9'],
-        FALSE
+        FALSE, 60 * 60
       )
       ->willReturn($process->reveal())
       ->shouldBeCalled();
