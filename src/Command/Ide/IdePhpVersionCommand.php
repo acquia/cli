@@ -29,7 +29,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @var string
    */
   private $idePhpFilePathPrefix;
-  
+
   /*
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
