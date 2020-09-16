@@ -50,7 +50,7 @@ class IdeShareCommand extends CommandBase {
     $ide = $ides_resource->get($this::getThisCloudIdeUuid());
 
     $this->output->writeln('');
-    $this->output->writeln("<comment>Your IDE Share URL:</comment> <href={$ide->links->ide->href}>{$ide->links->ide->href}?share=$share_uuid</>");
+    $this->output->writeln("<comment>Your IDE Share URL:</comment> <href={$ide->links->web->href}>{$ide->links->web->href}?share=$share_uuid</>");
 
     return 0;
   }
