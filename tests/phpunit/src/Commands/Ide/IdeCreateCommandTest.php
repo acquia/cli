@@ -32,7 +32,7 @@ class IdeCreateCommandTest extends CommandTestBase {
           'post',
           // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
           '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides',
-          ['form_params' => ['label' => 'Example IDE']]
+          ['json' => ['label' => 'Example IDE']]
       )->willReturn($response->{'IDE created'}->value);
 
     // Request for IDE data.
