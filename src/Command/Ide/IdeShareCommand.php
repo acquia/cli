@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ide;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -75,11 +76,9 @@ class IdeShareCommand extends CommandBase {
   /**
    * @throws \Exception
    */
-  public function regenerateShareCode() {
-    $new_share_code = md5(random_bytes(10));
+  public function regenerateShareCode(): void {
+    $new_share_code = Uuid::uuid4();
     $this->localMachineHelper->writeFile($this->getShareCodeFilepath(), $new_share_code);
-
-    return $new_share_code;
   }
 
 }
