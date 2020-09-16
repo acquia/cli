@@ -167,6 +167,7 @@ class RefreshCommand extends CommandBase {
     if ($is_dirty) {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
     }
+    // @todo Validate that an Acquia remote is configured for this repository.
     $this->localMachineHelper->execute([
       'git',
       'fetch',
@@ -507,13 +508,15 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
+    $destination = $this->dir . '/docroot/sites/default/';
+    $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
     $command = [
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
-      $this->dir . '/docroot/sites/default/',
+      $destination,
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {

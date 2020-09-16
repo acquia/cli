@@ -150,6 +150,10 @@ class RefreshCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper
+      ->getFilesystem()
+      ->willReturn($this->fs)
+      ->shouldBeCalled();
     $process = $this->mockProcess();
     $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
 
