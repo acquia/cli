@@ -65,7 +65,7 @@ class LocalMachineHelper {
   public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
     $process = new Process($cmd);
     $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
-    return $this->executeProcess($process, $callback, $cwd, $print_output, $timeout);
+    return $this->executeProcess($process, $callback);
   }
 
   /**
@@ -73,14 +73,15 @@ class LocalMachineHelper {
    * @param callable $callback
    * @param string $cwd
    * @param bool $print_output
+   * @param int $timeout
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE): Process {
+  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
     $process = Process::fromShellCommandline($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output);
+    $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
 
-    return $this->executeProcess($process, $callback, $cwd, $print_output);
+    return $this->executeProcess($process, $callback);
   }
 
   /**
@@ -109,10 +110,12 @@ class LocalMachineHelper {
   /**
    * @param \Symfony\Component\Process\Process $process
    * @param callable $callback
-  *
+   * @param int $timeout
+   *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, $callback = NULL): Process {
+  protected function executeProcess(Process $process, $callback = NULL, $timeout = 600): Process {
+    $process->setTimeout($timeout);
     $process->start(NULL);
     $process->wait($callback);
 
