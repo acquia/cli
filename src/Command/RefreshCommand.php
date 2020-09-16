@@ -447,7 +447,9 @@ class RefreshCommand extends CommandBase {
     ): bool {
     $db_url_parts = explode('/', $database->url);
     $db_name = end($db_url_parts);
-    return $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $database->db_host, $db_name, $output_callback);
+    // Workaround until db_host is fixed (CXAPI-7018).
+    $db_host = $database->db_host ?: "db-${$db_name}.cdb.database.services.acquia.io";
+    return $this->createAndImportRemoteDatabaseDump($chosen_environment, $database, $db_host, $db_name, $output_callback);
   }
 
   /**
