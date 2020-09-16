@@ -18,6 +18,7 @@
     "drupol/phposinfo": "^1.6.5",
     "padraic/phar-updater": "^1.0",
     "psr/log": "^1.1",
+    "ramsey/uuid": "^4.1",
     "react/event-loop": "^1.1",
     "symfony/cache": "^5.1",
     "symfony/config": "^5.1",
