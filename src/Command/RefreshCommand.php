@@ -698,7 +698,7 @@ class RefreshCommand extends CommandBase {
   ): void {
     $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
     if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $question = new ConfirmationQuestion("<question>Would you like to change the PHP version on this IDE to match the PHP version on the <options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?</question> ",
+      $question = new ConfirmationQuestion("<question>Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?</question> ",
         FALSE);
       $answer = $this->questionHelper->ask($this->input, $this->output, $question);
       if ($answer) {
