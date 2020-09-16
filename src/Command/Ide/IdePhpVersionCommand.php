@@ -26,6 +26,11 @@ class IdePhpVersionCommand extends IdeCommandBase {
   private $phpVersionFilePath;
 
   /**
+   * @var string
+   */
+  private $idePhpFilePathPrefix;
+
+  /*
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
@@ -64,6 +69,23 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @return string
    */
+  public function getIdePhpFilePathPrefix(): string {
+    if (!isset($this->idePhpFilePathPrefix)) {
+      $this->idePhpFilePathPrefix = '/usr/local/php/';
+    }
+    return $this->idePhpFilePathPrefix;
+  }
+
+  /**
+   * @param string $path
+   */
+  public function setIdePhpFilePathPrefix($path): void {
+    $this->idePhpFilePathPrefix = $path;
+  }
+
+  /**
+   * @return string
+   */
   public function getIdePhpVersionFilePath(): string {
     if (!isset($this->phpVersionFilePath)) {
       $this->phpVersionFilePath = '/home/ide/configs/php/.version';
@@ -94,7 +116,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
-    if (!$this->localMachineHelper->getFilesystem()->exists($this->getIdePhpVersionFilePath())) {
+    $php_filepath = $this->getIdePhpFilePathPrefix() . $version;
+    if (!$this->localMachineHelper->getFilesystem()->exists($php_filepath)) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 
