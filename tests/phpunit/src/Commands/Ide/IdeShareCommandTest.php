@@ -15,9 +15,9 @@ use Symfony\Component\Console\Command\Command;
 class IdeShareCommandTest extends IdeRequiredTestBase {
 
   /**
-   * @var string
+   * @var array
    */
-  private $shareCodeFilepath;
+  private $shareCodeFilepaths;
 
   /**
    * @var string
@@ -34,9 +34,9 @@ class IdeShareCommandTest extends IdeRequiredTestBase {
   public function setUp($output = NULL): void {
     parent::setUp();
     $this->shareCode = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $this->shareCodeFilepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_share_uuid_');
-    $this->fs->dumpFile($this->shareCodeFilepath, $this->shareCode);
-    $this->command->setShareCodeFilepath($this->shareCodeFilepath);
+    $shareCodeFilepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_share_uuid_');
+    $this->fs->dumpFile($shareCodeFilepath, $this->shareCode);
+    $this->command->setShareCodeFilepaths([$shareCodeFilepath]);
   }
 
   /**

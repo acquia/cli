@@ -18,9 +18,9 @@ class IdeShareCommand extends CommandBase {
   protected static $defaultName = 'ide:share';
 
   /**
-   * @var string
+   * @var array
    */
-  private $shareCodeFilepath;
+  private $shareCodeFilepaths;
 
   /**
    * {inheritdoc}.
@@ -45,7 +45,7 @@ class IdeShareCommand extends CommandBase {
       $this->regenerateShareCode();
     }
 
-    $share_uuid = $this->localMachineHelper->readFile($this->getShareCodeFilepath());
+    $share_uuid = $this->localMachineHelper->readFile($this->getShareCodeFilepaths()[0]);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $ides_resource->get($this::getThisCloudIdeUuid());
@@ -57,20 +57,23 @@ class IdeShareCommand extends CommandBase {
   }
 
   /**
-   * @param string $file_path
+   * @param array $file_path
    */
-  public function setShareCodeFilepath($file_path): void {
-    $this->shareCodeFilepath = $file_path;
+  public function setShareCodeFilepaths($file_path): void {
+    $this->shareCodeFilepaths = $file_path;
   }
 
   /**
-   * @return string
+   * @return array
    */
-  public function getShareCodeFilepath(): string {
-    if (!isset($this->shareCodeFilepath)) {
-      $this->shareCodeFilepath = '/usr/local/share/ide/.sharecode';
+  public function getShareCodeFilepaths(): array {
+    if (!isset($this->shareCodeFilepaths)) {
+      $this->shareCodeFilepaths = [
+        '/usr/local/share/ide/.sharecode',
+        '/home/ide/.sharecode',
+      ];
     }
-    return $this->shareCodeFilepath;
+    return $this->shareCodeFilepaths;
   }
 
   /**
@@ -78,7 +81,9 @@ class IdeShareCommand extends CommandBase {
    */
   public function regenerateShareCode(): void {
     $new_share_code = Uuid::uuid4();
-    $this->localMachineHelper->writeFile($this->getShareCodeFilepath(), $new_share_code);
+    foreach ($this->getShareCodeFilepaths() as $path) {
+      $this->localMachineHelper->writeFile($path, $new_share_code);
+    }
   }
 
 }
