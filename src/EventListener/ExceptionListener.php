@@ -17,6 +17,10 @@ class ExceptionListener
       $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.',
         [], $exitCode));
     }
+
+    if ($error instanceof \AcquiaCloudApi\Exception\ApiErrorException) {
+      $event->setError(new AcquiaCliException('Acquia Cloud Platform API returned an error: ' . $error->getMessage(), [], $exitCode));
+    }
   }
 
 }
