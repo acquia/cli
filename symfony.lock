@@ -178,6 +178,9 @@
     "react/stream": {
         "version": "v1.1.1"
     },
+    "sebastian/cli-parser": {
+        "version": "1.0.0"
+    },
     "sebastian/code-unit": {
         "version": "1.0.2"
     },
@@ -225,6 +228,9 @@
     },
     "seld/jsonlint": {
         "version": "1.8.0"
+    },
+    "sirbrillig/phpcs-variable-analysis": {
+        "version": "v2.8.3"
     },
     "slevomat/coding-standard": {
         "version": "5.0.4"
