@@ -10,13 +10,6 @@
   <arg name="cache" value=".phpcs-cache"/>
   <arg name="parallel" value="10"/>
 
-  <!-- Internal sniffs -->
-  <!-- Can be removed after upstream bug is fixed. -->
-  <!-- @see https://github.com/acquia/coding-standards-php/pull/10 -->
-  <rule ref="Internal.NoCodeFound">
-    <!-- No PHP code in *.md, *.txt, or *.yml -->
-    <exclude-pattern>*.(md|txt|yml)</exclude-pattern>
-  </rule>
   <file>.</file>
 
   <exclude-pattern>var/</exclude-pattern>
