@@ -85,17 +85,7 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
-    $acsf_multisite_fetch_process = $this->mockProcess();
-    $acsf_multisite_fetch_process->getOutput()
-      ->willReturn(
-        file_get_contents(
-          Path::join($this->fixtureDir, '/multisite-config.json')
-        ))
-      ->shouldBeCalled();
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'], FALSE)
-      ->willReturn($acsf_multisite_fetch_process->reveal())
-      ->shouldBeCalled();
+    $ssh_helper = $this->mockGetAcsfSites();
     $process = $this->mockProcess();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -148,7 +138,8 @@ class RefreshCommandTest extends CommandTestBase {
   public function testRefreshFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
+    $ssh_helper = $this->mockGetAcsfSites();
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper
       ->getFilesystem()
@@ -158,6 +149,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->sshHelper = $ssh_helper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -167,6 +159,8 @@ class RefreshCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'n',
       // Please choose an Acquia environment:
+      0,
+      // Choose site from which to copy files:
       0,
     ];
 
@@ -442,7 +436,8 @@ class RefreshCommandTest extends CommandTestBase {
         'rsync',
         '-rltDvPhe',
         'ssh -o StrictHostKeyChecking=no',
-        $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
+        // $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
+        'site.dev@server-123.hosted.hosting.acquia.com:/mnt/files/site.dev/sites/g/files/jxr5000596dev/files',
         $this->projectFixtureDir . '/docroot/sites/default/',
       ];
       $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
@@ -704,6 +699,19 @@ class RefreshCommandTest extends CommandTestBase {
       'status',
       '--short',
     ], NULL, $this->projectFixtureDir, FALSE)->willReturn($dirty_process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockGetAcsfSites(): \Prophecy\Prophecy\ObjectProphecy {
+    $acsf_multisite_fetch_process = $this->mockProcess();
+    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->fixtureDir,
+        '/multisite-config.json')))->shouldBeCalled();
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'],
+      FALSE)->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
+    return $ssh_helper;
   }
 
 }
