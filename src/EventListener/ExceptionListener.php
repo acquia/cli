@@ -3,6 +3,7 @@
 namespace Acquia\Cli\EventListener;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 
@@ -18,7 +19,7 @@ class ExceptionListener
         [], $exitCode));
     }
 
-    if ($error instanceof \AcquiaCloudApi\Exception\ApiErrorException) {
+    if ($error instanceof ApiErrorException) {
       $event->setError(new AcquiaCliException('Acquia Cloud Platform API returned an error: ' . $error->getMessage(), [], $exitCode));
     }
   }
