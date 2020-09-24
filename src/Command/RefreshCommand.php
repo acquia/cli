@@ -534,7 +534,6 @@ class RefreshCommand extends CommandBase {
     }
   }
 
-
   /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    *
@@ -604,6 +603,22 @@ class RefreshCommand extends CommandBase {
   protected function getAcsfSites($cloud_environment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
     $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
+    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+    if ($process->isSuccessful()) {
+      return json_decode($process->getOutput(), TRUE);
+    }
+    throw new AcquiaCliException("Could not get ACSF sites");
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getRemoteMultisiteDirs($cloud_environment): array {
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
+    $command = ['ls', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
       return json_decode($process->getOutput(), TRUE);
