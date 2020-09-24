@@ -511,19 +511,48 @@ class RefreshCommand extends CommandBase {
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
     $destination = $this->dir . '/docroot/sites/default/';
-    $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
+
+    if ($this->isAcsfEnv($chosen_environment)) {
+      $site = $this->promptChooseFiles($chosen_environment);
+      $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
+    }
+    else {
+      $source_dir = '/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files';
+    }
+    $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      $chosen_environment->sshUrl . ':/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files',
+      $chosen_environment->sshUrl . ':' . $source_dir,
       $destination,
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }
+  }
+
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function promptChooseFiles($cloud_environment) {
+    $choices = [];
+    $acsf_sites = $this->getAcsfSites($cloud_environment);
+    foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
+      $choices[] = $acsf_site['name'];
+    }
+
+    $question = new ChoiceQuestion('<question>Choose site from which to copy files</question>:', $choices);
+    $helper = $this->getHelper('question');
+    $choice = $helper->ask($this->input, $this->output, $question);
+
+    return $choice;
   }
 
   /**
