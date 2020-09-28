@@ -41,8 +41,7 @@
     "zumba/amplitude-php": "^1.0"
   },
   "require-dev": {
-    "acquia/coding-standards": "^0.4.3",
-    "pheromone/phpcs-security-audit": "^2.0.1",
+    "acquia/coding-standards": "*",
     "brainmaestro/composer-git-hooks": "^2.8",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2",
     "phpspec/prophecy": "^1.10",
