@@ -87,3 +87,7 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 ## Development / contribution
 
 Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md), which also has more detailed information on how to develop Acquia CLI.
+
+## Support
+
+Please refer to our [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on product and services we officially support.
