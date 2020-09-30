@@ -13,7 +13,7 @@ Download the latest `acli.phar` file from the [releases](https://github.com/acqu
 
 For example, you can run following simple script:
 ```bash
-curl -OL https://github.com/acquia/cli/releases/download/v1.0.0-rc8/acli.phar
+curl -OL https://github.com/acquia/cli/releases/download/v1.0.0/acli.phar
 chmod +x acli.phar
 ```
 
@@ -90,6 +90,4 @@ Contributions to Acquia CLI are welcome subject to the [contributions policy](CO
 
 ## Support
 
-Until Acquia CLI has a stable 1.0.0 release support for it is limited to basic diagnostics only. Please refer to our
-[Support Users Guide](https://docs.acquia.com/support/guide/) for more information on product and services
-we officially support.
+Please refer to our [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on product and services we officially support.
