@@ -132,7 +132,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
-  protected $sshHelper;
+  public $sshHelper;
 
   /**
    * @var string
