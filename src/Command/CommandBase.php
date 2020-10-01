@@ -9,6 +9,8 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Helpers\UpdateHelper;
+use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -35,7 +37,6 @@ use Symfony\Component\Console\Terminal;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Component\Validator\Constraints\Uuid;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
@@ -131,7 +132,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
-  public $sshHelper;
+  protected $sshHelper;
 
   /**
    * @var string
@@ -139,20 +140,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $sshDir;
 
   /**
+   * @var \Acquia\Cli\Helpers\UpdateHelper
+   */
+  protected $updateHelper;
+
+  /**
    * CommandBase constructor.
    *
    * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   * @param \Acquia\Cli\Helpers\UpdateHelper $updateHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilename
    * @param string $repoRoot
+   * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
+   * @param \AcquiaLogstream\LogstreamManager $logstreamManager
+   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
+   * @param string $sshDir
    */
   public function __construct(
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
+    UpdateHelper $updateHelper,
     JsonFileStore $datastoreCloud,
     JsonFileStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
@@ -166,6 +178,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
+    $this->updateHelper = $updateHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
@@ -210,6 +223,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $this->loadLocalProjectInfo();
+
+    if ($new_version = $this->updateHelper->getUpdater($input, $output, $this->getApplication())->hasUpdate()) {
+      $output->writeln("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
+    }
   }
 
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {

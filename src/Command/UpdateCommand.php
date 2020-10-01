@@ -5,14 +5,11 @@ namespace Acquia\Cli\Command;
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Exception;
-use GuzzleHttp\Client;
 use Humbug\SelfUpdate\Updater;
-use Phar;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class UpdateCommand.
@@ -20,14 +17,6 @@ use Webmozart\PathUtil\Path;
 class UpdateCommand extends CommandBase {
 
   protected static $defaultName = 'self-update';
-
-  /** @var string */
-  protected $pharPath;
-
-  /**
-   * @var \GuzzleHttp\Client
-   */
-  protected $client;
 
   /**
    * {inheritdoc}.
@@ -52,19 +41,11 @@ class UpdateCommand extends CommandBase {
    * {@inheritdoc}
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if (!$this->getPharPath()) {
+    if (!$this->updateHelper->getPharPath()) {
       throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
     }
 
-    $updater = new Updater($this->getPharPath(), FALSE);
-    $strategy = new GithubStrategy($output);
-    $updater->setStrategyObject($strategy);
-    $updater->getStrategy()->setClient($this->getClient());
-    $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
-    $updater->getStrategy()->setStability($stability);
-    $updater->getStrategy()->setPackageName('acquia/cli');
-    $updater->getStrategy()->setPharName('acli');
-    $updater->getStrategy()->setCurrentLocalVersion($this->getApplication()->getVersion());
+    $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
     try {
       $result = $updater->update();
       if ($result) {
@@ -80,41 +61,6 @@ class UpdateCommand extends CommandBase {
       $output->writeln("<error>{$e->getMessage()}</error>");
       return 1;
     }
-  }
-
-  /**
-   * @param \GuzzleHttp\Client $client
-   */
-  public function setClient($client): void {
-    $this->client = $client;
-  }
-
-  /**
-   * @return \GuzzleHttp\Client
-   */
-  public function getClient(): Client {
-    if (!isset($this->client)) {
-      $client = new Client();
-      $this->setClient($client);
-    }
-    return $this->client;
-  }
-
-  /**
-   * @return string
-   */
-  public function getPharPath(): string {
-    if (!isset($this->pharPath)) {
-      $this->setPharPath(Phar::running(FALSE));
-    }
-    return $this->pharPath;
-  }
-
-  /**
-   * @param string $pharPath
-   */
-  public function setPharPath(string $pharPath): void {
-    $this->pharPath = Path::canonicalize($pharPath);
   }
 
 }
