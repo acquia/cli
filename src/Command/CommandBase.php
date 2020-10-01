@@ -224,11 +224,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->loadLocalProjectInfo();
 
-    if ($new_version = $this->updateHelper->getUpdater($input, $output, $this->getApplication())->hasUpdate()) {
+    $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
+    if ($updater->hasUpdate()) {
+      $new_version = $updater->getNewVersion();
       $output->writeln("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
     }
   }
 
+  /**
+   * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
+   *
+   * @return bool
+   */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
     return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
   }

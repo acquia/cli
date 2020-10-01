@@ -45,7 +45,8 @@ class UpdateCommand extends CommandBase {
       throw new RuntimeException('update only works when running the phar version of ' . $this->getApplication()->getName() . '.');
     }
 
-    $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
+    $allow_unstable = $input->getOption('allow-unstable') !== FALSE;
+    $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication(), $allow_unstable);
     try {
       $result = $updater->update();
       if ($result) {

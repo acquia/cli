@@ -8,6 +8,7 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Helpers\UpdateHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
@@ -153,6 +154,11 @@ abstract class TestBase extends TestCase {
   protected $acliRepoRoot;
 
   /**
+   * @var \Acquia\Cli\Helpers\UpdateHelper
+   */
+  protected $updateHelper;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -183,6 +189,7 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
     $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
+    $this->updateHelper = new UpdateHelper();
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
@@ -265,6 +272,7 @@ abstract class TestBase extends TestCase {
     return new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
+      $this->updateHelper,
       $this->cloudDatastore,
       $this->acliDatastore,
       $this->telemetryHelper,

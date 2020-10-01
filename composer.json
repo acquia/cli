@@ -16,6 +16,7 @@
     "acquia/drupal-environment-detector": "^1.2.0",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
+    "kevinrob/guzzle-cache-middleware": "^3.3",
     "padraic/phar-updater": "^1.0",
     "psr/log": "^1.1",
     "ramsey/uuid": "^4.1",
@@ -43,12 +44,12 @@
   "require-dev": {
     "acquia/coding-standards": "*",
     "brainmaestro/composer-git-hooks": "^2.8",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2",
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
     "php-coveralls/php-coveralls": "^2.2",
     "squizlabs/php_codesniffer": "^3.5",
-    "webmozart/path-util": "^2.3"
+    "webmozart/path-util": "^2.3",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0"
   },
   "autoload": {
     "psr-4": {

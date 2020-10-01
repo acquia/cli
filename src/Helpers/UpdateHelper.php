@@ -4,7 +4,9 @@ namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use GuzzleHttp\Client;
+use GuzzleHttp\HandlerStack;
 use Humbug\SelfUpdate\Updater;
+use Kevinrob\GuzzleCache\CacheMiddleware;
 use Phar;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
@@ -33,7 +35,9 @@ class UpdateHelper {
    */
   public function getClient(): Client {
     if (!isset($this->client)) {
-      $client = new Client();
+      $stack = HandlerStack::create();
+      $stack->push(new CacheMiddleware(), 'cache');
+      $client = new Client(['handler' => $stack]);
       $this->setClient($client);
     }
     return $this->client;
@@ -64,12 +68,12 @@ class UpdateHelper {
    *
    * @return \Humbug\SelfUpdate\Updater
    */
-  public function getUpdater(InputInterface $input, OutputInterface $output, Application $application): Updater {
+  public function getUpdater(InputInterface $input, OutputInterface $output, Application $application, $allow_unstable = FALSE): Updater {
     $updater = new Updater($this->getPharPath(), FALSE);
     $strategy = new GithubStrategy($output);
     $updater->setStrategyObject($strategy);
     $updater->getStrategy()->setClient($this->getClient());
-    $stability = $input->getOption('allow-unstable') !== FALSE ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
+    $stability = $allow_unstable ? GithubStrategy::UNSTABLE : GithubStrategy::STABLE;
     $updater->getStrategy()->setStability($stability);
     $updater->getStrategy()->setPackageName('acquia/cli');
     $updater->getStrategy()->setPharName('acli');
