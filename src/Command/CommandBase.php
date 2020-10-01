@@ -225,7 +225,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->loadLocalProjectInfo();
 
     $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
-    if (strpos($input->getFirstArgument(), 'api:') === FALSE && $updater->hasUpdate()) {
+    if (strpos($input->getArgument('command'), 'api:') === FALSE && $updater->hasUpdate()) {
       $new_version = $updater->getNewVersion();
       $this->logger->notice("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
     }
