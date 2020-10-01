@@ -36,7 +36,7 @@
     "symfony/validator": "^5.1",
     "symfony/yaml": "^5.1@dev",
     "typhonius/acquia-logstream": "dev-master",
-    "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.12",
+    "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.13",
     "webmozart/json": "^1.2",
     "webmozart/key-value-store": "^1.0",
     "zumba/amplitude-php": "^1.0"

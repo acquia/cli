@@ -52,7 +52,7 @@ jobs:
           tags: true
 
 before_install:
-  - composer selfupdate
+  - composer selfupdate --preview
   # Tests for the SSH key commands rely on ssh-agent running.
   - eval "$(ssh-agent -s)"
 

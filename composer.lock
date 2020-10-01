@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "990bb42779475fc57dcb3df55ac83645",
+    "content-hash": "655b56afd80d600be99ed626ae53c3eb",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -7924,8 +7924,8 @@
         {
             "package": "typhonius/acquia-php-sdk-v2",
             "version": "dev-master",
-            "alias": "2.0.12",
-            "alias_normalized": "2.0.12.0"
+            "alias": "2.0.13",
+            "alias_normalized": "2.0.13.0"
         }
     ],
     "minimum-stability": "dev",
