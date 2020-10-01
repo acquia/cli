@@ -223,12 +223,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $this->loadLocalProjectInfo();
-
-    $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
-    if (strpos($input->getArgument('command'), 'api:') === FALSE && $updater->hasUpdate()) {
-      $new_version = $updater->getNewVersion();
-      $this->logger->notice("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
-    }
+    $this->checkForNewVersion($input, $output);
   }
 
   /**
@@ -998,6 +993,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to delete SSH key from the Cloud Platform');
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
+    try {
+      $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
+      if (strpos($input->getArgument('command'), 'api:') === FALSE && $updater->hasUpdate()) {
+        $new_version = $updater->getNewVersion();
+        $this->logger->notice("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
+      }
+    } catch (\Exception $e) {
+      $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
   }
 
