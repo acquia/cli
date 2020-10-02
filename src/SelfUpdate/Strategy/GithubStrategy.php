@@ -97,14 +97,14 @@ class GithubStrategy extends \Humbug\SelfUpdate\Strategy\GithubStrategy {
   /**
    * @return \GuzzleHttp\Client
    */
-  public function getClient(): \GuzzleHttp\Client {
+  public function getClient(): Client {
     return $this->client;
   }
 
   /**
    * @param \GuzzleHttp\Client $client
    */
-  public function setClient(\GuzzleHttp\Client $client): void {
+  public function setClient(Client $client): void {
     $this->client = $client;
   }
 

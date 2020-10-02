@@ -310,6 +310,7 @@ class RefreshCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString("Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?", $output);
+    IdeRequiredTestBase::unsetCloudIdeEnvVars();
   }
 
   /**
