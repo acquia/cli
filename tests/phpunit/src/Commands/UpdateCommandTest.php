@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -33,6 +34,9 @@ class UpdateCommandTest extends CommandTestBase {
     return $this->injectCommand(UpdateCommand::class);
   }
 
+  /**
+   *
+   */
   public function testNonPharException(): void {
     try {
       $this->executeCommand([], []);
@@ -40,6 +44,33 @@ class UpdateCommandTest extends CommandTestBase {
     catch (Exception $e) {
       $this->assertStringContainsString('update only works when running the phar version of ', $e->getMessage());
     }
+  }
+
+  /**
+   * Tests the 'ide:list' command for "Update" message.
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testIdeListCommandForUpdateMessage(): void {
+    $this->command = $this->injectCommand(IdeListCommand::class);
+    $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockIdeListRequest();
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select the application.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+    ];
+    $this->executeCommand([], $inputs);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('A newer version of Acquia CLI is available. Run ', $output);
   }
 
   /**
@@ -53,9 +84,9 @@ class UpdateCommandTest extends CommandTestBase {
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->fs->chmod($stub_phar, 0751);
     $original_file_perms = fileperms($stub_phar);
-    $this->command->setPharPath($stub_phar);
+    $this->updateHelper->setPharPath($stub_phar);
     $guzzle_client = $this->mockGuzzleClient($releases);
-    $this->command->setClient($guzzle_client->reveal());
+    $this->updateHelper->setClient($guzzle_client->reveal());
 
     $args = [
       '--allow-unstable' => '',
@@ -120,6 +151,9 @@ class UpdateCommandTest extends CommandTestBase {
     return $stub_phar;
   }
 
+  /**
+   * @return array
+   */
   public function providerTestDownloadUpdate(): array {
     $response = [
       0 =>
