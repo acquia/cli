@@ -33,6 +33,7 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+        - composer selfupdate --preview
     - stage: "Build packages for CLI"
       if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
