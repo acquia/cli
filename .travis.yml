@@ -37,6 +37,7 @@ jobs:
       if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
       before_script:
+        - composer selfupdate --preview
         # Generate .env.local.php
         - composer dump-env prod
         # Warm the symfony cache so it gets bundled with phar.
