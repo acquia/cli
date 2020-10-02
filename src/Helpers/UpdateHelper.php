@@ -3,10 +3,13 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
+use Doctrine\Common\Cache\FilesystemCache;
 use GuzzleHttp\Client;
 use GuzzleHttp\HandlerStack;
 use Humbug\SelfUpdate\Updater;
 use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Phar;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
@@ -36,7 +39,14 @@ class UpdateHelper {
   public function getClient(): Client {
     if (!isset($this->client)) {
       $stack = HandlerStack::create();
-      $stack->push(new CacheMiddleware(), 'cache');
+      $stack->push(new CacheMiddleware(
+        new PrivateCacheStrategy(
+          new DoctrineCacheStorage(
+            new FilesystemCache(sys_get_temp_dir())
+          )
+        )
+      ),
+      'cache');
       $client = new Client(['handler' => $stack]);
       $this->setClient($client);
     }
