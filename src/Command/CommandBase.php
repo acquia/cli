@@ -931,6 +931,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->logger->debug("Found application matching $drush_site. Searching environments...");
 
+    // Remove the host=@*.$drush_site query as it would persist for future requests.
+    $acquia_cloud_client->clearQuery();
+
     return $customer_application;
   }
 
