@@ -26,7 +26,6 @@ jobs:
         - choco install php
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
-        - composer selfupdate --preview
         # Fix curl errors in coveralls.
         - curl -o /c/tools/php74/extras/ssl/cacert.pem https://curl.haxx.se/ca/cacert.pem
         - echo 'curl.cainfo = "C:\tools\php74\extras\ssl\cacert.pem"' >> /c/tools/php74/php.ini
