@@ -8,14 +8,18 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Helpers\UpdateHelper;
+use Acquia\Cli\Tests\Commands\UpdateCommandTest;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
+use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -30,6 +34,7 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -153,6 +158,11 @@ abstract class TestBase extends TestCase {
   protected $acliRepoRoot;
 
   /**
+   * @var \Acquia\Cli\Helpers\UpdateHelper
+   */
+  protected $updateHelper;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -183,6 +193,9 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
     $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
+    $this->updateHelper = new UpdateHelper();
+    $guzzle_client = $this->mockGuzzleClientForUpdate(UpdateCommandTest::mockGitHubReleasesResponse());
+    $this->updateHelper->setClient($guzzle_client->reveal());
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
@@ -265,6 +278,7 @@ abstract class TestBase extends TestCase {
     return new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
+      $this->updateHelper,
       $this->cloudDatastore,
       $this->acliDatastore,
       $this->telemetryHelper,
@@ -643,6 +657,31 @@ abstract class TestBase extends TestCase {
 
   protected function removeMockAcliConfigFile(): void {
     $this->fs->remove($this->acliConfigFilepath);
+  }
+
+  /**
+   * @param array $releases
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  public function mockGuzzleClientForUpdate($releases): ObjectProphecy {
+    $stream = $this->prophet->prophesize(StreamInterface::class);
+    $stream->getContents()->willReturn(json_encode($releases));
+    $response = $this->prophet->prophesize(Response::class);
+    $response->getBody()->willReturn($stream->reveal());
+    $guzzle_client = $this->prophet->prophesize(\GuzzleHttp\Client::class);
+    $guzzle_client->request('GET', Argument::containingString('https://api.github.com/repos'), Argument::type('array'))
+      ->willReturn($response->reveal());
+
+    $stream = $this->prophet->prophesize(StreamInterface::class);
+    $phar_contents = file_get_contents(Path::join($this->fixtureDir, 'test.phar'));
+    $stream->getContents()->willReturn($phar_contents);
+    $response = $this->prophet->prophesize(Response::class);
+    $response->getBody()->willReturn($stream->reveal());
+    $guzzle_client->request('GET', 'https://github.com/acquia/cli/releases/download/v1.0.0-beta3/acli.phar',
+      Argument::type('array'))->willReturn($response->reveal());
+
+    return $guzzle_client;
   }
 
 }

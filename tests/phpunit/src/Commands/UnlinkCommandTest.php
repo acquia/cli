@@ -29,7 +29,6 @@ class UnlinkCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUnlinkCommand(): void {
-
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
     $cloud_application = $applications_response->{'_embedded'}->items[0];
@@ -57,7 +56,6 @@ class UnlinkCommandTest extends CommandTestBase {
   }
 
   public function testUnlinkCommandInvalidDir(): void {
-
     try {
       $this->executeCommand([], []);
     }

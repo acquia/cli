@@ -16,6 +16,7 @@
     "acquia/drupal-environment-detector": "^1.2.0",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
+    "kevinrob/guzzle-cache-middleware": "^3.3",
     "padraic/phar-updater": "^1.0",
     "psr/log": "^1.1",
     "ramsey/uuid": "^4.1",
@@ -35,7 +36,7 @@
     "symfony/validator": "^5.1",
     "symfony/yaml": "^5.1@dev",
     "typhonius/acquia-logstream": "dev-master",
-    "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.12",
+    "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.13",
     "webmozart/json": "^1.2",
     "webmozart/key-value-store": "^1.0",
     "zumba/amplitude-php": "^1.0"
@@ -43,7 +44,7 @@
   "require-dev": {
     "acquia/coding-standards": "*",
     "brainmaestro/composer-git-hooks": "^2.8",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2",
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
     "php-coveralls/php-coveralls": "^2.2",

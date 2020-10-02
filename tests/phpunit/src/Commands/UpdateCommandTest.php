@@ -2,21 +2,13 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\Cli\Tests\CommandTestBase;
-use drupol\phposinfo\OsInfo;
 use Exception;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
-use Prophecy\Argument;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class UpdateCommandTest.
@@ -33,6 +25,9 @@ class UpdateCommandTest extends CommandTestBase {
     return $this->injectCommand(UpdateCommand::class);
   }
 
+  /**
+   *
+   */
   public function testNonPharException(): void {
     try {
       $this->executeCommand([], []);
@@ -43,19 +38,42 @@ class UpdateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @dataProvider providerTestDownloadUpdate
+   * Tests the 'ide:list' command for "Update" message.
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testIdeListCommandForUpdateMessage(): void {
+    $this->command = $this->injectCommand(IdeListCommand::class);
+    $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockIdeListRequest();
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select the application.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+    ];
+    $this->executeCommand([], $inputs);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('A newer version of Acquia CLI is available. Run acli self-update to update to ', $output);
+  }
+
+  /**
    * @requires OS linux|darwin
-   * @param array $releases
    *
    * @throws \Exception
    */
-  public function testDownloadUpdate($releases): void {
+  public function testDownloadUpdate(): void {
     $stub_phar = $this->fs->tempnam(sys_get_temp_dir(), 'acli_phar');
     $this->fs->chmod($stub_phar, 0751);
     $original_file_perms = fileperms($stub_phar);
-    $this->command->setPharPath($stub_phar);
-    $guzzle_client = $this->mockGuzzleClient($releases);
-    $this->command->setClient($guzzle_client->reveal());
+    $this->updateHelper->setPharPath($stub_phar);
 
     $args = [
       '--allow-unstable' => '',
@@ -86,31 +104,6 @@ class UpdateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param array $releases
-   *
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function mockGuzzleClient($releases): \Prophecy\Prophecy\ObjectProphecy {
-    $stream = $this->prophet->prophesize(StreamInterface::class);
-    $stream->getContents()->willReturn(json_encode($releases));
-    $response = $this->prophet->prophesize(Response::class);
-    $response->getBody()->willReturn($stream->reveal());
-    $guzzle_client = $this->prophet->prophesize(Client::class);
-    $guzzle_client->request('GET', Argument::containingString('https://api.github.com/repos'), Argument::type('array'))
-      ->willReturn($response->reveal());
-
-    $stream = $this->prophet->prophesize(StreamInterface::class);
-    $phar_contents = file_get_contents(Path::join($this->fixtureDir, 'test.phar'));
-    $stream->getContents()->willReturn($phar_contents);
-    $response = $this->prophet->prophesize(Response::class);
-    $response->getBody()->willReturn($stream->reveal());
-    $guzzle_client->request('GET', 'https://github.com/acquia/cli/releases/download/v1.0.0-beta3/acli.phar', Argument::type('array'))
-      ->willReturn($response->reveal());
-
-    return $guzzle_client;
-  }
-
-  /**
    * @return string
    */
   protected function createPharStub(): string {
@@ -120,9 +113,96 @@ class UpdateCommandTest extends CommandTestBase {
     return $stub_phar;
   }
 
-  public function providerTestDownloadUpdate(): array {
+  /**
+   * @return array
+   */
+  public static function mockGitHubReleasesResponse(): array {
     $response = [
-      0 =>
+      0 => [
+        'url' => 'https://api.github.com/repos/acquia/cli/releases/32008147',
+        'assets_url' => 'https://api.github.com/repos/acquia/cli/releases/32008147/assets',
+        'upload_url' => 'https://uploads.github.com/repos/acquia/cli/releases/32008147/assets{?name,label}',
+        'html_url' => 'https://github.com/acquia/cli/releases/tag/1.0.0',
+        'id' => 32008147,
+        'node_id' => 'MDc6UmVsZWFzZTMyMDA4MTQ3',
+        'tag_name' => '1.0.0',
+        'target_commitish' => '9c1b7e815c9ff4e6ad64ce3a10b2ec07bcbffef2',
+        'name' => '1.0.0',
+        'draft' => FALSE,
+        'author' =>
+          [
+            'login' => 'grasmash',
+            'id' => 539205,
+            'node_id' => 'MDQ6VXNlcjUzOTIwNQ==',
+            'avatar_url' => 'https://avatars0.githubusercontent.com/u/539205?v=4',
+            'gravatar_id' => '',
+            'url' => 'https://api.github.com/users/grasmash',
+            'html_url' => 'https://github.com/grasmash',
+            'followers_url' => 'https://api.github.com/users/grasmash/followers',
+            'following_url' => 'https://api.github.com/users/grasmash/following{/other_user}',
+            'gists_url' => 'https://api.github.com/users/grasmash/gists{/gist_id}',
+            'starred_url' => 'https://api.github.com/users/grasmash/starred{/owner}{/repo}',
+            'subscriptions_url' => 'https://api.github.com/users/grasmash/subscriptions',
+            'organizations_url' => 'https://api.github.com/users/grasmash/orgs',
+            'repos_url' => 'https://api.github.com/users/grasmash/repos',
+            'events_url' => 'https://api.github.com/users/grasmash/events{/privacy}',
+            'received_events_url' => 'https://api.github.com/users/grasmash/received_events',
+            'type' => 'User',
+            'site_admin' => FALSE,
+          ],
+        'prerelease' => FALSE,
+        'created_at' => '2020-09-30T18:54:19Z',
+        'published_at' => '2020-09-30T19:12:25Z',
+        'assets' =>
+          [
+            0 =>
+              [
+                'url' => 'https://api.github.com/repos/acquia/cli/releases/assets/26393047',
+                'id' => 26393047,
+                'node_id' => 'MDEyOlJlbGVhc2VBc3NldDI2MzkzMDQ3',
+                'name' => 'acli.phar',
+                'label' => '',
+                'uploader' =>
+                  [
+                    'login' => 'acquia-cli-deploy',
+                    'id' => 66086891,
+                    'node_id' => 'MDQ6VXNlcjY2MDg2ODkx',
+                    'avatar_url' => 'https://avatars3.githubusercontent.com/u/66086891?v=4',
+                    'gravatar_id' => '',
+                    'url' => 'https://api.github.com/users/acquia-cli-deploy',
+                    'html_url' => 'https://github.com/acquia-cli-deploy',
+                    'followers_url' => 'https://api.github.com/users/acquia-cli-deploy/followers',
+                    'following_url' => 'https://api.github.com/users/acquia-cli-deploy/following{/other_user}',
+                    'gists_url' => 'https://api.github.com/users/acquia-cli-deploy/gists{/gist_id}',
+                    'starred_url' => 'https://api.github.com/users/acquia-cli-deploy/starred{/owner}{/repo}',
+                    'subscriptions_url' => 'https://api.github.com/users/acquia-cli-deploy/subscriptions',
+                    'organizations_url' => 'https://api.github.com/users/acquia-cli-deploy/orgs',
+                    'repos_url' => 'https://api.github.com/users/acquia-cli-deploy/repos',
+                    'events_url' => 'https://api.github.com/users/acquia-cli-deploy/events{/privacy}',
+                    'received_events_url' => 'https://api.github.com/users/acquia-cli-deploy/received_events',
+                    'type' => 'User',
+                    'site_admin' => FALSE,
+                  ],
+                'content_type' => 'application/octet-stream',
+                'state' => 'uploaded',
+                'size' => 9906464,
+                'download_count' => 20,
+                'created_at' => '2020-09-30T19:16:13Z',
+                'updated_at' => '2020-09-30T19:16:14Z',
+                'browser_download_url' => 'https://github.com/acquia/cli/releases/download/1.0.0/acli.phar',
+              ],
+          ],
+        'tarball_url' => 'https://api.github.com/repos/acquia/cli/tarball/1.0.0',
+        'zipball_url' => 'https://api.github.com/repos/acquia/cli/zipball/1.0.0',
+        'body' => 'This is the first stable release of Acquia CLI!
+
+* Remove a line of whitespace from update command. (#273)
+* Fixes #274: Regenerate parameter should modify both /usr/local/share/ide/.sharecode and /home/ide/.sharecode. (#275)
+* DX-2334: Indicate when errors come from Cloud API (#279)
+* Allow choice of source files dir for ACSF sites. (#281)
+* Remove deprecation warnings on composer install (#278)',
+      ],
+      1 =>
         [
           'url' => 'https://api.github.com/repos/acquia/cli/releases/27415350',
           'assets_url' => 'https://api.github.com/repos/acquia/cli/releases/27415350/assets',
@@ -166,7 +246,7 @@ class UpdateCommandTest extends CommandTestBase {
 - Correctly set Phar path for self update. (#137)
 ',
         ],
-      1 =>
+      2 =>
         [
           'url' => 'https://api.github.com/repos/acquia/cli/releases/27387040',
           'assets_url' => 'https://api.github.com/repos/acquia/cli/releases/27387040/assets',
@@ -252,7 +332,7 @@ class UpdateCommandTest extends CommandTestBase {
 - Check blt.yml for Cloud app uuid. (#130)
 - Fixes #132: Allowing multiple arguments for remote:drush command. (#133)',
         ],
-      2 =>
+      3 =>
         [
           'url' => 'https://api.github.com/repos/acquia/cli/releases/27281238',
           'assets_url' => 'https://api.github.com/repos/acquia/cli/releases/27281238/assets',
@@ -337,7 +417,7 @@ class UpdateCommandTest extends CommandTestBase {
 - Check if repository is already linked in link command. (#101)
 - Fixes #110: api:environments:domains-clear-varnish not working. (#115)',
         ],
-      3 =>
+      4 =>
         [
           'url' => 'https://api.github.com/repos/acquia/cli/releases/27104247',
           'assets_url' => 'https://api.github.com/repos/acquia/cli/releases/27104247/assets',
@@ -418,9 +498,7 @@ class UpdateCommandTest extends CommandTestBase {
         ],
     ];
 
-    return [
-      [$response],
-    ];
+    return $response;
   }
 
 }
