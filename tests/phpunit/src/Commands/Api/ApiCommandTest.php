@@ -108,6 +108,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
+    $this->clientProphecy->clearQuery()->shouldBeCalled();
 
     $this->executeCommand(['applicationUuid' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
