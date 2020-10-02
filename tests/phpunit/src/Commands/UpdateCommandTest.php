@@ -6,17 +6,13 @@ use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\UpdateCommand;
 use Acquia\Cli\SelfUpdate\Strategy\GithubStrategy;
 use Acquia\Cli\Tests\CommandTestBase;
-use drupol\phposinfo\OsInfo;
 use Exception;
 use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -56,6 +52,7 @@ class UpdateCommandTest extends CommandTestBase {
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
+    $this->removeMockConfigFiles();
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -70,7 +67,7 @@ class UpdateCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('A newer version of Acquia CLI is available. Run ', $output);
+    $this->assertStringContainsString('A newer version of Acquia CLI is available. Run acli self-update to update to ', $output);
   }
 
   /**

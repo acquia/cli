@@ -56,6 +56,7 @@ class LinkCommandTest extends CommandTestBase {
    * Tests the 'link' command.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLinkCommandInvalidDir(): void {
     $applications_response = $this->mockApplicationsRequest();

@@ -53,8 +53,6 @@ abstract class CommandTestBase extends TestBase {
    * This method is called before each test.
    *
    * @param OutputInterface $output
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function setUp($output = NULL): void {
     parent::setUp();
