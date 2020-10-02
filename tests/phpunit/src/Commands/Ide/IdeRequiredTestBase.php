@@ -24,7 +24,6 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
    *
    * @param null $output
    *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function setUp($output = NULL): void {
     parent::setUp();
@@ -33,10 +32,10 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $this->unsetCloudIdeEnvVars();
+    self::unsetCloudIdeEnvVars();
   }
 
-  protected static function getCloudIdeEnvVars(): array {
+  public static function getCloudIdeEnvVars(): array {
     return [
       'REMOTEIDE_UUID' => self::$remote_ide_uuid,
       'ACQUIA_APPLICATION_UUID' => self::$application_uuid,
@@ -51,7 +50,7 @@ abstract class IdeRequiredTestBase extends CommandTestBase {
     }
   }
 
-  protected function unsetCloudIdeEnvVars(): void {
+  public static function unsetCloudIdeEnvVars(): void {
     foreach (self::getCloudIdeEnvVars() as $key => $value) {
       putenv($key);
     }
