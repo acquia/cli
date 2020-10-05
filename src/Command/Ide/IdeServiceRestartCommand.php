@@ -8,9 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\Choice;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
@@ -38,7 +35,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to restart')
       ->addUsage('php')
       ->addUsage('apache')
-      ->addUsage('mysql');
+      ->addUsage('mysql')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
