@@ -53,8 +53,11 @@ class IdeServiceRestartCommand extends IdeCommandBase {
 
     $service_name_map = [
       'php' => 'php-fpm',
+      'php-fpm' => 'php-fpm',
       'apache' => 'apache2',
+      'apache2' => 'apache2',
       'mysql' => 'mysqld',
+      'mysqld' => 'mysqld',
     ];
     $service_name = $service_name_map[$service];
     $this->restartService($service_name);
@@ -70,7 +73,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
   protected function validateService($service) {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
-        'choices' => ['php', 'apache', 'mysql'],
+        'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
         'message' => 'Please specify a valid service name: php, apache, or mysql',
       ]),
     ]);
