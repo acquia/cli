@@ -50,7 +50,14 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     $this->requireCloudIdeEnvironment();
     $service = $input->getArgument('service');
     $this->validateService($service);
-    $this->restartService($service);
+
+    $service_name_map = [
+      'php' => 'php-fpm',
+      'apache' => 'apache2',
+      'mysql' => 'mysqld',
+    ];
+    $service_name = $service_name_map[$service];
+    $this->restartService($service_name);
 
     return 0;
   }
@@ -64,7 +71,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
         'choices' => ['php', 'apache', 'mysql'],
-        'message' => 'Pleases specify a valid service name: php, apache, or mysql',
+        'message' => 'Please specify a valid service name: php, apache, or mysql',
       ]),
     ]);
     if (count($violations)) {
@@ -89,6 +96,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to restart ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
     }
+    $this->logger->notice("Restarted $service");
   }
 
 }
