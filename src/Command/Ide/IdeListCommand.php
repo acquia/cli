@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class IdeListCommand.
  */
-class IdeListCommand extends CommandBase {
+class IdeListCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list';
 
@@ -22,7 +23,7 @@ class IdeListCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('List available Cloud IDEs')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
+      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
   }
 
   /**

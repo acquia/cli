@@ -11,6 +11,7 @@ use AcquiaCloudApi\Response\OperationResponse;
 use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,7 +20,7 @@ use Symfony\Component\Console\Question\Question;
 /**
  * Class IdeCreateCommand.
  */
-class IdeCreateCommand extends CommandBase {
+class IdeCreateCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:create';
 
@@ -38,8 +39,7 @@ class IdeCreateCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Create a Cloud IDE for development')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
-    // @todo Add option to accept an ide UUID.
+      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
   }
 
   /**

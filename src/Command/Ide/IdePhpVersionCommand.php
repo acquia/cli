@@ -60,7 +60,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
-    $this->restartPhp();
+    $this->restartService('php-fpm');
     $this->restartBash();
 
     return 0;

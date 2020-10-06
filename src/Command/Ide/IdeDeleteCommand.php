@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,8 +23,8 @@ class IdeDeleteCommand extends IdeCommandBase {
    */
   protected function configure() {
     $this->setDescription('Delete a Cloud IDE')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
-    // @todo Add option to accept an ide UUID.
+      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
+      // @todo Add option to accept an ide UUID.
   }
 
   /**
