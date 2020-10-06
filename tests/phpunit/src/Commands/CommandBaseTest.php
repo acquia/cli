@@ -81,7 +81,7 @@ class CommandBaseTest extends CommandTestBase {
   public function testInvalidCloudAppUuidArg($uuid, $message): void {
     try {
       $this->executeCommand([
-        '--cloud-app-uuid' => $uuid,
+        'applicationUuid' => $uuid,
       ], []);
     }
     catch (ValidatorException $e) {
