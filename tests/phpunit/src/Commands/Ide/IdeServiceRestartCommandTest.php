@@ -34,7 +34,7 @@ class IdeServiceRestartCommandTest extends IdeRequiredTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Restarted php-fpm', $output);
+    $this->assertStringContainsString('Restarted php', $output);
   }
 
   /**
