@@ -59,8 +59,10 @@ class IdeServiceRestartCommand extends IdeCommandBase {
       'mysql' => 'mysqld',
       'mysqld' => 'mysqld',
     ];
+    $output->writeln("Restarting <options=bold>$service</>...");
     $service_name = $service_name_map[$service];
     $this->restartService($service_name);
+    $output->writeln("<info>Restarted <options=bold>$service</></info>");
 
     return 0;
   }

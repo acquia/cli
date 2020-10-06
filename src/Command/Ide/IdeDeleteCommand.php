@@ -24,7 +24,7 @@ class IdeDeleteCommand extends IdeCommandBase {
   protected function configure() {
     $this->setDescription('Delete a Cloud IDE')
       ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
-    // @todo Add option to accept an ide UUID.
+      // @todo Add option to accept an ide UUID.
   }
 
   /**
