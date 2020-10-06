@@ -5,76 +5,7 @@ The official command-line tool for interacting with the Drupal Cloud Platform an
 
 Acquia CLI does not provide or manage local development environments. If you are looking for a packaged development environment, consider [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/). 
 
-## Installation
-
-Acquia CLI requires PHP 7.3+ with the [PHP-JSON extension](https://www.php.net/manual/en/book.json.php) enabled. It fully supports Windows (Powershell / CMD / Git Bash), Linux, and macOS, and will probably work on any other platform running PHP. 
-
-Download the latest `acli.phar` file from the [releases](https://github.com/acquia/cli/releases) page, make it executable, and optionally rename it to `acli`. 
-
-For example, you can run following simple script:
-```bash
-curl -OL https://github.com/acquia/cli/releases/latest/download/acli.phar
-chmod +x acli.phar
-```
-
-Next, place it somewhere globally accessible on your machine. For instance:
-```
-mv acli.phar /usr/local/bin/acli
-```
-
-Acquia CLI cannot and should not be installed via Composer. It is distributed only as a [self-contained Phar archive](https://www.php.net/manual/en/phar.using.intro.php) in order to avoid dependency conflicts.
-
-Note: on certain systems or PHP builds where the `php-phar` extension is not installed, you will not be able to run `acli`. Make sure to install/compile with the extension if PHP returns `Class 'Phar' not found`.
-
-## Usage
-
-You probably want to start by linking Acquia CLI to your Cloud Platform account using `acli auth:login`:
-```console
-$ acli auth:login
-You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens
-Do you want to open this page to generate a token now? y
-Please enter your API Key: <YOUR_API_KEY_HERE>
-Please enter your API Secret: <YOUR_API_SECRET_HERE>
-Saved credentials to /home/<USERNAME>/.acquia/cloud_api.conf
-```
-
-Note that if you use other Acquia tools such as ADS CLI, BLT, or Pipelines CLI, your computer may already be linked and you can skip this step.
-
-Acquia CLI commands provide inline help and docoumentation. Run `acli` or `acli list` to see a list of all available options and commands:
-```console
-$ acli
-Usage:
-  command [options] [arguments]
-
-Options:
-  -h, --help            Display this help message
-  -q, --quiet           Do not output any message
-  -V, --version         Display this application version
-      --ansi            Force ANSI output
-      --no-ansi         Disable ANSI output
-  -n, --no-interaction  Do not ask any interactive question
-  -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
-
-Available commands:
-  help                     Displays help for a command
-  ...
-```
-
-Run `acli help [command]` to get help for a particular command:
-```console
-$ acli help ssh-key:create
-Description:
-  Create an ssh key on your local machine
-
-Usage:
-  ssh-key:create [options]
-
-Options:
-      --filename=FILENAME  The filename of the SSH key
-      --password=PASSWORD  The password for the SSH key
-  -h, --help               Display this help message
-
-```
+**Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/**
 
 ## Similar tools
 Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can safely be used with any of these tools, although some functionality may be duplicated.
@@ -90,4 +21,4 @@ Contributions to Acquia CLI are welcome subject to the [contributions policy](CO
 
 ## Support
 
-Please refer to our [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on product and services we officially support.
+Please refer to our [Support Users Guide](https://docs.acquia.com/support/guide/) for more information on products and services we officially support.
