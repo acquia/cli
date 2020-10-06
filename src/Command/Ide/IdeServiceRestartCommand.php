@@ -84,22 +84,4 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     return $service;
   }
 
-  /**
-   * Restart Apache inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function restartService($service): void {
-    $this->logger->notice("Restarting $service...");
-    $process = $this->localMachineHelper->execute([
-      'supervisorctl',
-      'restart',
-      $service,
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
-    }
-    $this->logger->notice("Restarted $service");
-  }
-
 }

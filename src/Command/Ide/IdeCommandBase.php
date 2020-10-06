@@ -6,11 +6,25 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IdeCommandBase.
  */
 abstract class IdeCommandBase extends CommandBase {
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
+    $this->convertApplicationAliastoUuid($input);
+  }
 
   /**
    * @param string $question_text
@@ -36,19 +50,20 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
-   * Restart PHP inside IDE.
+   * Restart Apache inside IDE.
+   *
+   * @param string $service
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function restartPhp(): void {
-    $this->logger->notice('Restarting PHP...');
+  protected function restartService($service): void {
     $process = $this->localMachineHelper->execute([
       'supervisorctl',
       'restart',
-      'php-fpm',
+      $service,
     ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to restart PHP in the IDE: {error}', ['error' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Unable to restart ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
     }
   }
 

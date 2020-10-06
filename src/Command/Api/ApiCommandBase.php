@@ -238,28 +238,6 @@ class ApiCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function convertApplicationAliastoUuid(InputInterface $input): void {
-    if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
-      $application_uuid_argument = $input->getArgument('applicationUuid');
-      try {
-        self::validateUuid($application_uuid_argument);
-      } catch (ValidatorException $validator_exception) {
-        // Since this isn't a valid UUID, let's see if it's a valid alias.
-        try {
-          $customer_application = $this->getApplicationFromAlias($application_uuid_argument);
-          $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {applicationUuid} must be a valid UUID or site alias.");
-        }
-      }
-    }
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function convertEnvironmentAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
       $env_uuid_argument = $input->getArgument('environmentId');

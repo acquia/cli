@@ -638,6 +638,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function doDetermineCloudApplication() {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
 
+    if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
+      $cloud_application_uuid = $this->input->getArgument('applicationUuid');
+      return self::validateUuid($cloud_application_uuid);
+    }
+
     if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
       $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');
       return self::validateUuid($cloud_application_uuid);
@@ -947,7 +952,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $drush_site]);
     }
 
-    $this->logger->debug("Found application matching $drush_site. Searching environments...");
+    $this->logger->debug("Found application {$customer_application->uuid} matching alias $drush_site.");
 
     // Remove the host=@*.$drush_site query as it would persist for future requests.
     $acquia_cloud_client->clearQuery();
@@ -1011,6 +1016,28 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     } catch (\Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function convertApplicationAliastoUuid(InputInterface $input): void {
+    if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
+      $application_uuid_argument = $input->getArgument('applicationUuid');
+      try {
+        self::validateUuid($application_uuid_argument);
+      } catch (ValidatorException $validator_exception) {
+        // Since this isn't a valid UUID, let's see if it's a valid alias.
+        try {
+          $customer_application = $this->getApplicationFromAlias($application_uuid_argument);
+          $input->setArgument('applicationUuid', $customer_application->uuid);
+        } catch (AcquiaCliException $exception) {
+          throw new AcquiaCliException("The {applicationUuid} must be a valid UUID or site alias.");
+        }
+      }
     }
   }
 
