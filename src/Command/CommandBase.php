@@ -643,11 +643,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return self::validateUuid($cloud_application_uuid);
     }
 
-    if ($this->input->hasOption('cloud-app-uuid') && $this->input->getOption('cloud-app-uuid')) {
-      $cloud_application_uuid = $this->input->getOption('cloud-app-uuid');
-      return self::validateUuid($cloud_application_uuid);
-    }
-
     // Try local project info.
     if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
       return $application_uuid;

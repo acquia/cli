@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,7 +19,7 @@ class LinkCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Associate your project with a Cloud Platform application')
-    ->addOption('cloud-app-uuid', 'uuid', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform Application');
+      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
   }
 
   /**
@@ -27,6 +28,7 @@ class LinkCommand extends CommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->validateCwdIsValidDrupalProject();
