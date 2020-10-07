@@ -1027,7 +1027,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function fillMissingApplicationUuid(InputInterface $input, OutputInterface $output): void {
-    if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
+    if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()->getArgument('applicationUuid')->isRequired()) {
       $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
       if ($application_uuid = $this->determineCloudApplication()) {
         $output->writeln("Set application uuid to <options=bold>$application_uuid</>", OutputInterface::VERBOSITY_VERBOSE);
