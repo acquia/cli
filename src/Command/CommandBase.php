@@ -222,6 +222,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $this->loadLocalProjectInfo();
+    $this->convertApplicationAliastoUuid($input);
+    $this->fillMissingApplicationUuid($input, $output);
+    $this->convertEnvironmentAliasToUuid($input);
     $this->checkForNewVersion($input, $output);
   }
 
@@ -592,12 +595,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determine the Cloud environment.
    *
-   * @param string $application_uuid
-   *
    * @return mixed
    * @throws \Exception
    */
-  protected function determineCloudEnvironment($application_uuid) {
+  protected function determineCloudEnvironment() {
+    if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
+      return $this->input->getArgument('environmentId');
+    }
+
+    $application_uuid = $this->determineCloudApplication();
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
@@ -875,7 +881,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return string
    */
-  protected function normalizeAlias($alias) {
+  protected function normalizeAlias($alias): string {
     return str_replace('@', '', $alias);
   }
 
@@ -893,20 +899,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $drush_site
-   * @param string $drush_env
+   * @param string $application_alias
+   * @param string $environment_alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getEnvFromAlias(
-    $drush_site,
-    $drush_env
+    $application_alias,
+    $environment_alias
   ): EnvironmentResponse {
-    $this->logger->debug("Searching for an environment matching alias $drush_site.$drush_env.");
+    $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
 
     // Get application.
-    $customer_application = $this->getApplicationFromAlias($drush_site);
+    $customer_application = $this->getApplicationFromAlias($application_alias);
 
     // Get environments.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -914,26 +920,26 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
     foreach ($environments as $environment) {
-      if ($environment->name === $drush_env) {
+      if ($environment->name === $environment_alias) {
         // @todo Create a cache entry for this alias.
-        $this->logger->debug("Found environment matching $drush_env.");
+        $this->logger->debug("Found environment matching $environment_alias.");
 
         return $environment;
       }
     }
 
-    throw new AcquiaCliException("Environment not found matching the alias {alias}", ['alias' => "$drush_site.$drush_env"]);
+    throw new AcquiaCliException("Environment not found matching the alias {alias}", ['alias' => "$application_alias.$environment_alias"]);
   }
 
   /**
-   * @param string $drush_site
+   * @param string $application_alias
    *
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getApplicationFromAlias($drush_site) {
+  protected function getApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $drush_site);
+    $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $application_alias);
     $customer_applications = $acquia_cloud_client->request('get', '/applications');
     $site_prefix = '';
     if ($customer_applications) {
@@ -943,11 +949,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $site_prefix = $parts[1];
     }
 
-    if ($site_prefix !== $drush_site) {
-      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $drush_site]);
+    if ($site_prefix !== $application_alias) {
+      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);
     }
 
-    $this->logger->debug("Found application {$customer_application->uuid} matching alias $drush_site.");
+    $this->logger->debug("Found application {$customer_application->uuid} matching alias $application_alias.");
 
     // Remove the host=@*.$drush_site query as it would persist for future requests.
     $acquia_cloud_client->clearQuery();
@@ -1016,6 +1022,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
+   */
+  protected function fillMissingApplicationUuid(InputInterface $input, OutputInterface $output): void {
+    if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid')) {
+      $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
+      if ($application_uuid = $this->determineCloudApplication()) {
+        $output->writeln("Set application uuid to <options=bold>$application_uuid</>", OutputInterface::VERBOSITY_VERBOSE);
+        $input->setArgument('applicationUuid', $application_uuid);
+      }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -1027,10 +1049,41 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         try {
-          $customer_application = $this->getApplicationFromAlias($application_uuid_argument);
+          $alias = $this->normalizeAlias($application_uuid_argument);
+          $customer_application = $this->getApplicationFromAlias($alias);
           $input->setArgument('applicationUuid', $customer_application->uuid);
         } catch (AcquiaCliException $exception) {
           throw new AcquiaCliException("The {applicationUuid} must be a valid UUID or site alias.");
+        }
+      }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function convertEnvironmentAliasToUuid(InputInterface $input): void {
+    if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
+      $env_uuid_argument = $input->getArgument('environmentId');
+      try {
+        // Environment IDs take the form of [env-num]-[app-uuid].
+        $uuid_parts = explode('-', $env_uuid_argument);
+        $env_id = $uuid_parts[0];
+        unset($uuid_parts[0]);
+        $application_uuid = implode('-', $uuid_parts);
+        self::validateUuid($application_uuid);
+      } catch (ValidatorException $validator_exception) {
+        try {
+          // Since this isn't a valid environment ID, let's see if it's a valid alias.
+          $alias = $env_uuid_argument;
+          $alias = $this->normalizeAlias($alias);
+          $alias = $this->validateEnvironmentAlias($alias);
+          $environment = $this->getEnvironmentFromAliasArg($alias);
+          $input->setArgument('environmentId', $environment->uuid);
+        } catch (AcquiaCliException $exception) {
+          throw new AcquiaCliException("The {environmentId} must be a valid UUID or site alias.");
         }
       }
     }
