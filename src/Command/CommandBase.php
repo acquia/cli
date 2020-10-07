@@ -223,7 +223,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->loadLocalProjectInfo();
     $this->convertApplicationAliastoUuid($input);
-    $this->fillMissingApplicationUuid($input, $output);
+    $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
     $this->checkForNewVersion($input, $output);
   }
@@ -1026,7 +1026,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Exception
    */
-  protected function fillMissingApplicationUuid(InputInterface $input, OutputInterface $output): void {
+  protected function fillMissingRequiredApplicationUuid(InputInterface $input, OutputInterface $output): void {
     if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()->getArgument('applicationUuid')->isRequired()) {
       $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
       if ($application_uuid = $this->determineCloudApplication()) {
@@ -1048,13 +1048,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         self::validateUuid($application_uuid_argument);
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
-        try {
-          $alias = $this->normalizeAlias($application_uuid_argument);
-          $customer_application = $this->getApplicationFromAlias($alias);
-          $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {applicationUuid} must be a valid UUID or site alias.");
-        }
+        $alias = $this->normalizeAlias($application_uuid_argument);
+        $customer_application = $this->getApplicationFromAlias($alias);
+        $input->setArgument('applicationUuid', $customer_application->uuid);
       }
     }
   }
