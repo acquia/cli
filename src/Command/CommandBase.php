@@ -608,7 +608,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
     return $environment->uuid;
-
   }
 
   /**
