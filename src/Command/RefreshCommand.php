@@ -322,7 +322,7 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param string $dump_filepath
+   * @param string $local_dump_filepath
    * @param string $db_host
    * @param string $db_user
    * @param string $db_name
@@ -331,30 +331,8 @@ class RefreshCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-<<<<<<< Updated upstream
-    // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
-    // @see https://github.com/symfony/symfony/issues/10025.
-    // scp username@remote:/file/to/send /where/to/put
-    $command = '';
-    if ($this->localMachineHelper->commandExists('pv')) {
-      $command .= 'pv ';
-    }
-    else {
-      $command .= 'cat ';
-    }
-    $command .= "$dump_filepath | ";
-
-    $dump_file_parts = pathinfo($dump_filepath);
-    if ($dump_file_parts['extension'] === 'gz') {
-      $command .= 'gunzip | ';
-    }
-
-    $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
-
-=======
-    $command = "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name < $dump_filepath";
->>>>>>> Stashed changes
+  protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+    $command = "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name < $local_dump_filepath";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
