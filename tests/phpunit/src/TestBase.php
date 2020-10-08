@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -204,6 +205,7 @@ abstract class TestBase extends TestCase {
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
+    ClearCacheCommand::clearCaches();
 
     parent::setUp();
   }
