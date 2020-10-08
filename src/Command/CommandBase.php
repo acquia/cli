@@ -23,6 +23,8 @@ use ArrayObject;
 use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -39,6 +41,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Cache\ItemInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
@@ -211,6 +214,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
     );
     $this->formatter = $this->getHelper('formatter');
+    // @todo This logger is not shared in the container! Fix that.
     $this->setLogger(new ConsoleLogger($output));
 
     $this->telemetryHelper->initializeAmplitude($this->amplitude);
@@ -873,7 +877,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return $alias;
-}
+  }
 
   /**
    * @param string $alias
@@ -888,40 +892,45 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
-    $site_env_parts = explode('.', $alias);
-    [$drush_site, $drush_env] = $site_env_parts;
-
-    return $this->getEnvFromAlias($drush_site, $drush_env);
+    return $this->getEnvFromAlias($alias);
   }
 
   /**
-   * @param string $application_alias
-   * @param string $environment_alias
+   * @param $alias
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getEnvFromAlias($alias): EnvironmentResponse {
+    $cache = self::getAliasCache();
+    $value = $cache->get($alias, function (ItemInterface $item) use ($alias) {
+      return $this->doGetEnvFromAlias($alias);
+    });
+    return $value;
+  }
+
+  /**
+   * @param $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getEnvFromAlias(
-    $application_alias,
-    $environment_alias
-  ): EnvironmentResponse {
+  protected function doGetEnvFromAlias($alias): EnvironmentResponse {
+    $site_env_parts = explode('.', $alias);
+    [$application_alias, $environment_alias] = $site_env_parts;
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
-
-    // Get application.
     $customer_application = $this->getApplicationFromAlias($application_alias);
-
-    // Get environments.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
     foreach ($environments as $environment) {
       if ($environment->name === $environment_alias) {
-        // @todo Create a cache entry for this alias.
-        $this->logger->debug("Found environment matching $environment_alias.");
+        $this->logger->debug("Found environment {$environment->uuid} matching $environment_alias.");
 
         return $environment;
       }
@@ -934,9 +943,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $application_alias
    *
    * @return mixed
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApplicationFromAlias($application_alias) {
+    $cache = self::getAliasCache();
+    return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
+      return $this->doGetApplicationFromAlias($application_alias);
+    });
+  }
+
+  /**
+   * Return the ACLI alias cache.
+   * @return \Symfony\Component\Cache\Adapter\FilesystemAdapter
+   */
+  public static function getAliasCache() {
+    return new FilesystemAdapter('acli_aliases');
+  }
+
+  /**
+   * @param $application_alias
+   *
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function doGetApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $application_alias);
     $customer_applications = $acquia_cloud_client->request('get', '/applications');

@@ -30,6 +30,7 @@ class SshCommand extends SshBaseCommand {
    * {@inheritdoc}
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $alias = $input->getArgument('alias');
