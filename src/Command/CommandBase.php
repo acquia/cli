@@ -895,42 +895,33 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
-    $site_env_parts = explode('.', $alias);
-    [$drush_site, $drush_env] = $site_env_parts;
-
-    return $this->getEnvFromAlias($drush_site, $drush_env);
+    return $this->getEnvFromAlias($alias);
   }
 
   /**
-   * @param string $application_alias
-   * @param string $environment_alias
+   * @param $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getEnvFromAlias(
-    $application_alias,
-    $environment_alias
-  ): EnvironmentResponse {
+  protected function getEnvFromAlias($alias): EnvironmentResponse {
     $cache = self::getAliasCache();
-    $value = $cache->get($application_alias, function (ItemInterface $item) use ($application_alias, $environment_alias) {
-      return $this->doGetEnvFromAlias($application_alias, $environment_alias);
+    $value = $cache->get($alias, function (ItemInterface $item) use ($alias) {
+      return $this->doGetEnvFromAlias($alias);
     });
     return $value;
   }
 
   /**
-   * @param string $application_alias
-   * @param string $environment_alias
+   * @param $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function doGetEnvFromAlias(
-    $application_alias,
-    $environment_alias
-  ): EnvironmentResponse {
+  protected function doGetEnvFromAlias($alias): EnvironmentResponse {
+    $site_env_parts = explode('.', $alias);
+    [$application_alias, $environment_alias] = $site_env_parts;
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
     $customer_application = $this->getApplicationFromAlias($application_alias);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -963,8 +954,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Return the ACLI alias cache.
+   * @return \Symfony\Component\Cache\Adapter\FilesystemAdapter
    */
-  protected static function getAliasCache() {
+  public static function getAliasCache() {
     return new FilesystemAdapter('acli_aliases');
   }
 
