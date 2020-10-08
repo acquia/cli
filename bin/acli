@@ -62,7 +62,7 @@ if (!getenv('HOME')) {
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 
-// Handle a clear-kerner-cache pseudo command. This isn't implemented as a true console
+// Handle a clear-kernel-cache pseudo command. This isn't implemented as a true console
 // command because a stale or corrupted cache would render it unusable--
 // precisely when it is needed.
 if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
