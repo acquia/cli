@@ -33,7 +33,7 @@ class LogTailCommandTest extends CommandTestBase {
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockLogListRequest();
     $this->mockLogStreamRequest();
-    $inputs = [
+    $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
       // Please select the application.
@@ -44,8 +44,7 @@ class LogTailCommandTest extends CommandTestBase {
       0,
       // Select log
       0
-    ];
-    $this->executeCommand([], $inputs);
+    ]);
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -53,6 +52,27 @@ class LogTailCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
+    $this->assertStringContainsString('Apache access', $output);
+    $this->assertStringContainsString('Drupal request', $output);
+  }
+
+  /**
+   * Tests the 'log:tail' commands.
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testLogTailCommandWithEnvArg(): void {
+    $this->mockLogListRequest();
+    $this->mockLogStreamRequest();
+    $this->executeCommand(
+      ['environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'],
+      // Select log.
+      [0]
+    );
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
     $this->assertStringContainsString('Apache access', $output);
     $this->assertStringContainsString('Drupal request', $output);
   }

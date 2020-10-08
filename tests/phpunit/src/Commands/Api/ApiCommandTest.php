@@ -134,7 +134,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals('The {applicationUuid} must be a valid UUID or site alias.', $exception->getMessage());
+      $this->assertEquals('Application not found matching the alias ' . $alias, $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }
@@ -143,7 +143,6 @@ class ApiCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
-    //$this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applications_response);
 
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
