@@ -313,6 +313,7 @@ class RefreshCommand extends CommandBase {
   protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
     // @see https://github.com/symfony/symfony/issues/10025.
+    // scp username@remote:/file/to/send /where/to/put
     $command = '';
     if ($this->localMachineHelper->commandExists('pv')) {
       $command .= 'pv ';
