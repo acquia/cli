@@ -23,8 +23,7 @@ class ClearCacheCommandTest extends CommandTestBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
-  public function testConvertApplicationAliasToUuidArgument(): void {
-
+  public function testAliasesAreCached(): void {
     $this->command = $this->injectCommand(IdeListCommand::class);
 
     // Request for applications.
@@ -32,6 +31,7 @@ class ClearCacheCommandTest extends CommandTestBase {
       'get', '200');
     $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
+      // Ensure this is only called once, even though we execute the command twice.
       ->shouldBeCalledTimes(1);
 
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
@@ -42,10 +42,6 @@ class ClearCacheCommandTest extends CommandTestBase {
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $args = ['applicationUuid' => $alias];
     $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Please select a Cloud Platform application:
-      '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
     ];
@@ -73,6 +69,5 @@ class ClearCacheCommandTest extends CommandTestBase {
     $cache = CommandBase::getAliasCache();
     $this->assertCount(0, $cache->getItems());
   }
-
 
 }
