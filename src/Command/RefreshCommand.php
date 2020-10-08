@@ -189,10 +189,11 @@ class RefreshCommand extends CommandBase {
    *
    * @return bool
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function createAndImportRemoteDatabaseDump($environment, $database, string $db_host, $db_name, $output_callback = NULL): bool {
-    $mysql_dump_filepath = $this->dumpFromRemoteHost($environment, $database, $db_host, $db_name, $output_callback);
-    if (!$mysql_dump_filepath) {
+    $remote_mysql_dump_filepath = $this->dumpFromRemoteHost($environment, $database, $db_host, $db_name, $output_callback);
+    if (!$remote_mysql_dump_filepath) {
       $this->output->writeln('<error>Unable to dump MySQL database on remote host.</error>');
       return FALSE;
     }
@@ -208,16 +209,10 @@ class RefreshCommand extends CommandBase {
     // @todo See if this is successful!
     $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-    $this->importDatabaseDump(
-          $mysql_dump_filepath,
-          $local_db_host,
-          $local_db_user,
-          $local_db_name,
-          $local_db_password,
-          $output_callback
-      );
+    $local_filepath = $this->downloadRemoteDatabaseDump($remote_mysql_dump_filepath, $local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
+    $this->importDatabaseDump($local_filepath, $local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
 
-    $this->localMachineHelper->getFilesystem()->remove($mysql_dump_filepath);
+    $this->localMachineHelper->getFilesystem()->remove($remote_mysql_dump_filepath);
 
     return TRUE;
   }
@@ -301,6 +296,32 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
+   * @param $remote_mysql_dump_filepath
+   * @param $db_host
+   * @param $db_user
+   * @param $db_name
+   * @param $db_password
+   * @param null $output_callback
+   *
+   * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function downloadRemoteDatabaseDump($remote_mysql_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): string {
+    $local_path = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'db_dump_');
+    $command = [
+      'scp',
+      "$db_user@$db_host:$remote_mysql_dump_filepath",
+      $local_path,
+    ];
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to download database dump. {message}', ['message' => $process->getErrorOutput()]);
+    }
+
+    return $local_path;
+  }
+
+  /**
    * @param string $dump_filepath
    * @param string $db_host
    * @param string $db_user
@@ -311,6 +332,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function importDatabaseDump($dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+<<<<<<< Updated upstream
     // Unfortunately we need to make this a string to prevent the '|' characters from being escaped.
     // @see https://github.com/symfony/symfony/issues/10025.
     // scp username@remote:/file/to/send /where/to/put
@@ -330,6 +352,9 @@ class RefreshCommand extends CommandBase {
 
     $command .= "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
 
+=======
+    $command = "MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name < $dump_filepath";
+>>>>>>> Stashed changes
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
