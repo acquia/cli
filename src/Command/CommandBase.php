@@ -877,7 +877,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return $alias;
-}
+  }
 
   /**
    * @param string $alias
@@ -892,7 +892,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvironmentFromAliasArg($alias): EnvironmentResponse {
     $site_env_parts = explode('.', $alias);
@@ -906,25 +906,39 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param string $environment_alias
    *
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvFromAlias(
     $application_alias,
     $environment_alias
   ): EnvironmentResponse {
+    $cache = self::getAliasCache();
+    $value = $cache->get($application_alias, function (ItemInterface $item) use ($application_alias, $environment_alias) {
+      return $this->doGetEnvFromAlias($application_alias, $environment_alias);
+    });
+    return $value;
+  }
+
+  /**
+   * @param string $application_alias
+   * @param string $environment_alias
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function doGetEnvFromAlias(
+    $application_alias,
+    $environment_alias
+  ): EnvironmentResponse {
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
-
-    // Get application.
     $customer_application = $this->getApplicationFromAlias($application_alias);
-
-    // Get environments.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
     foreach ($environments as $environment) {
       if ($environment->name === $environment_alias) {
-        // @todo Create a cache entry for this alias.
         $this->logger->debug("Found environment {$environment->uuid} matching $environment_alias.");
 
         return $environment;
@@ -948,10 +962,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
+   * Return the ACLI alias cache.
    */
   protected static function getAliasCache() {
-    return new PhpArrayAdapter(sys_get_temp_dir() . '/acli_aliases', new FilesystemAdapter());
+    return new FilesystemAdapter('acli_aliases');
   }
 
   /**
