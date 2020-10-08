@@ -62,14 +62,13 @@ if (!getenv('HOME')) {
 
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 
-// Handle a cache:clear pseudo command. This isn't implemented as a true console
+// Handle a clear-kerner-cache pseudo command. This isn't implemented as a true console
 // command because a stale or corrupted cache would render it unusable--
 // precisely when it is needed.
-if (in_array($input->getFirstArgument(), ['clear-internal-cache', 'cci'])) {
+if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
   $filesystem = new Filesystem();
   $kernel_cache_dir = $kernel->getCacheDir();
-  $system_cache_dir = Path::join(sys_get_temp_dir(), 'symphony-cache');
-  $filesystem->remove([$kernel_cache_dir, $system_cache_dir]);
+  $filesystem->remove([$kernel_cache_dir]);
   $filesystem->mkdir($kernel_cache_dir);
   $filesystem->touch("{$kernel_cache_dir}/.gitkeep");
   exit;

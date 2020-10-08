@@ -7,6 +7,8 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class ClearCacheCommand.
@@ -42,6 +44,9 @@ class ClearCacheCommand extends CommandBase {
   public static function clearCaches(): void {
     $cache = self::getAliasCache();
     $cache->clear();
+    $system_cache_dir = Path::join(sys_get_temp_dir(), 'symphony-cache');
+    $fs = new Filesystem();
+    $fs->remove([$system_cache_dir]);
   }
 
 }
