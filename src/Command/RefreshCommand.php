@@ -210,8 +210,8 @@ class RefreshCommand extends CommandBase {
     $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
     $this->importDatabaseDump($local_filepath, $local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
+    // @todo Delete remote file.
 
     return TRUE;
   }
@@ -226,11 +226,11 @@ class RefreshCommand extends CommandBase {
    * @return string|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
+  protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): string {
     $filename = uniqid(mt_rand(), true) . '.sql.gz';
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' .  $filename;
     $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9 > $remote_filepath";
-    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE, 60 * 60);
+    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE, NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}', ['message' => $process->getOutput()]);
     }
@@ -244,7 +244,7 @@ class RefreshCommand extends CommandBase {
       $environment->sshUrl . ':' . $remote_filepath,
       $local_filepath,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, NULL, NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not download remote database dump: {message}', ['message' => $process->getOutput()]);
     }
@@ -318,7 +318,7 @@ class RefreshCommand extends CommandBase {
    */
   protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     $command = "gunzip < $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 60 * 60);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -665,7 +665,6 @@ class RefreshCommand extends CommandBase {
     if ($input->getOption('cloud-env-uuid')) {
       $environment_id = $input->getOption('cloud-env-uuid');
       $chosen_environment = $this->getCloudEnvironment($environment_id);
-      // @todo Write "Using Cloud Application ...".
     }
     else {
       $cloud_application_uuid = $this->determineCloudApplication();
@@ -673,6 +672,8 @@ class RefreshCommand extends CommandBase {
       $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
+    $this->logger->debug("Using environment {$chosen_environment->label} {$chosen_environment->uuid}");
+
     return $chosen_environment;
   }
 
