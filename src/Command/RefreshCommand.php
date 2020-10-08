@@ -295,29 +295,6 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param string $remote_mysql_dump_filepath
-   * @param array $database
-   * @param null $output_callback
-   *
-   * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function downloadRemoteDatabaseDump($remote_mysql_dump_filepath, $environment, $output_callback = NULL): string {
-    $local_path = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'db_dump_');
-    $command = [
-      'scp',
-      "{$environment->sshUrl}:$remote_mysql_dump_filepath",
-      $local_path,
-    ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to download database dump. {message}', ['message' => $process->getErrorOutput()]);
-    }
-
-    return $local_path;
-  }
-
-  /**
    * @param string $local_dump_filepath
    * @param string $db_host
    * @param string $db_user
