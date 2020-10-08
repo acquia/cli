@@ -227,17 +227,29 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): ?string {
-    $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9";
+    $filename = uniqid(mt_rand(), true) . '.sql.gz';
+    $remote_filepath = '/mnt/tmp/' . $db_name . '/' .  $filename;
+    $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], FALSE, 60 * 60);
-    if ($process->isSuccessful()) {
-      $filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), $environment->uuid . '_mysqldump_');
-      $filepath .= '.sql.gz';
-      $this->localMachineHelper->writeFile($filepath, $process->getOutput());
-
-      return $filepath;
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Could not create database dump on remote host: {message}', ['message' => $process->getOutput()]);
     }
 
-    return NULL;
+    $local_filepath = sys_get_temp_dir() . '/' . $filename;
+    $this->logger->debug('Downloading database dump to ' . $local_filepath);
+    $command = [
+      'rsync',
+      '-tDvPhe',
+      'ssh -o StrictHostKeyChecking=no',
+      $environment->sshUrl . ':' . $remote_filepath,
+      $local_filepath,
+    ];
+    $process = $this->localMachineHelper->execute($command, $output_callback);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Could not download remote database dump: {message}', ['message' => $process->getOutput()]);
+    }
+
+    return $local_filepath;
   }
 
   /**
