@@ -229,8 +229,9 @@ class RefreshCommand extends CommandBase {
   protected function dumpFromRemoteHost($environment, $database, string $db_host, $db_name, $output_callback = NULL): string {
     $filename = uniqid(mt_rand(), true) . '.sql.gz';
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' .  $filename;
-    $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | gzip -9 > $remote_filepath";
-    $process = $this->sshHelper->executeCommand($environment, [$command], FALSE, NULL);
+    $this->logger->debug("Dumping remote MySQL database to $remote_filepath on remote server");
+    $command =  "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
+    $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}', ['message' => $process->getOutput()]);
     }
@@ -244,7 +245,7 @@ class RefreshCommand extends CommandBase {
       $environment->sshUrl . ':' . $remote_filepath,
       $local_filepath,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, NULL, NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not download remote database dump: {message}', ['message' => $process->getOutput()]);
     }
@@ -317,8 +318,9 @@ class RefreshCommand extends CommandBase {
    * @throws \Exception
    */
   protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $command = "gunzip < $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, NULL);
+    $this->logger->debug("Importing $local_dump_filepath to MySQL");
+    $command = "pv $local_dump_filepath --progress --size 100m | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
     }
