@@ -164,6 +164,11 @@ abstract class TestBase extends TestCase {
   protected $updateHelper;
 
   /**
+   * @var \Symfony\Component\Console\Logger\ConsoleLogger
+   */
+  protected $logger;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -179,7 +184,7 @@ abstract class TestBase extends TestCase {
     $this->consoleOutput = new ConsoleOutput();
     $this->input = new ArrayInput([]);
     $this->output = $output;
-    $logger = new ConsoleLogger($output);
+    $this->logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
@@ -193,7 +198,7 @@ abstract class TestBase extends TestCase {
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $logger);
+    $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $this->logger);
     $this->updateHelper = new UpdateHelper();
     $guzzle_client = $this->mockGuzzleClientForUpdate(UpdateCommandTest::mockGitHubReleasesResponse());
     $this->updateHelper->setClient($guzzle_client->reveal());
@@ -201,7 +206,7 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();

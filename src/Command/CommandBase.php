@@ -1068,7 +1068,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function convertApplicationAliastoUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
@@ -1088,6 +1088,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function convertEnvironmentAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {

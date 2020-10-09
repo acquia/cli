@@ -57,12 +57,11 @@ class LocalMachineHelper {
    *   A function to run while waiting for the process to complete.
    * @param string $cwd
    * @param bool $print_output
-   *
    * @param int $timeout
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
+  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL): Process {
     $process = new Process($cmd);
     $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
     return $this->executeProcess($process, $callback);
@@ -77,7 +76,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = 600): Process {
+  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
     $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
 
@@ -92,7 +91,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = 600) {
+  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = NULL) {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
@@ -114,7 +113,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, $callback = NULL, $timeout = 600): Process {
+  protected function executeProcess(Process $process, $callback = NULL, $timeout = NULL): Process {
     $process->setTimeout($timeout);
     $process->start(NULL);
     $process->wait($callback);

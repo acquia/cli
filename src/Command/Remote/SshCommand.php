@@ -39,8 +39,9 @@ class SshCommand extends SshBaseCommand {
     $environment = $this->getEnvironmentFromAliasArg($alias);
     $arguments = $input->getArguments();
     array_shift($arguments);
+    $arguments[] = 'cd /var/www/html/' . $alias . '; exec $SHELL -l';
 
-    return $this->sshHelper->executeCommand($environment, $arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $arguments, TRUE, NULL)->getExitCode();
   }
 
 }
