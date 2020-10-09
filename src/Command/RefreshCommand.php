@@ -219,7 +219,7 @@ class RefreshCommand extends CommandBase {
   }
 
   /**
-   * @param $environment
+   * @param EnvironmentResponse $environment
    * @param $database
    * @param string $db_host
    * @param $db_name
@@ -228,7 +228,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function createRemoteDatabaseDump($environment, $database, string $db_host, $db_name): array {
-    $filename = uniqid(mt_rand(), TRUE) . '.sql.gz';
+    $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
@@ -663,7 +663,7 @@ class RefreshCommand extends CommandBase {
       $this->dir,
     ];
     $command = implode(' ', $command);
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, FALSE, 30 * 60);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }

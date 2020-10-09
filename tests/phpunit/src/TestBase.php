@@ -201,7 +201,7 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $logger);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();

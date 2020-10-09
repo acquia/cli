@@ -9,6 +9,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use PhpParser\Node\Arg;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -85,7 +86,8 @@ class RefreshCommandTest extends CommandTestBase {
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
-    $ssh_helper = $this->mockGetAcsfSites();
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $this->mockGetAcsfSites($ssh_helper);
     $process = $this->mockProcess();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -98,11 +100,11 @@ class RefreshCommandTest extends CommandTestBase {
     // Database.
     $mysql_dump_successful = TRUE;
     $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response, $mysql_dump_successful);
-    $this->mockWriteMySqlDump($local_machine_helper);
+    $this->mockDownloadMySqlDump($local_machine_helper);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $process);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $process);
-    $this->mockExecutePvExists($local_machine_helper);
     $this->mockExecuteMySqlImport($local_machine_helper, $process);
+    $this->mockExecuteSshRemove($ssh_helper, $environments_response, TRUE);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -139,7 +141,8 @@ class RefreshCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
-    $ssh_helper = $this->mockGetAcsfSites();
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper
       ->getFilesystem()
@@ -466,7 +469,7 @@ class RefreshCommandTest extends CommandTestBase {
       $dir,
     ];
     $command = implode(' ', $command);
-    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, FALSE, 30 * 60)
+    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -525,10 +528,10 @@ class RefreshCommandTest extends CommandTestBase {
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
   ): void {
-// MySQL import command.
+    // MySQL import command.
     $local_machine_helper
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
-        NULL, FALSE, 60 * 60)
+        NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -558,18 +561,6 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   */
-  protected function mockExecutePvExists(
-    ObjectProphecy $local_machine_helper
-  ): void {
-    $local_machine_helper
-      ->commandExists('pv')
-      ->willReturn(TRUE)
-      ->shouldBeCalled();
-  }
-
-  /**
    * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
    * @param object $environments_response
    * @param bool $success
@@ -585,8 +576,9 @@ class RefreshCommandTest extends CommandTestBase {
     $process->getOutput()->willReturn('dbdumpcontents');
     $ssh_helper->executeCommand(
         new EnvironmentResponse($environments_response),
-        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | gzip -9'],
-        FALSE, 60 * 60
+        ['MYSQL_PWD=heWbRncbAfJk6Nx mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | pv --rate --bytes | gzip -9 > /mnt/tmp/profserv201dev/acli-mysql-dump-dev-profserv201dev.sql.gz'],
+        TRUE,
+        NULL
       )
       ->willReturn($process->reveal())
       ->shouldBeCalled();
@@ -595,12 +587,35 @@ class RefreshCommandTest extends CommandTestBase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
-  protected function mockWriteMySqlDump(
-    ObjectProphecy $local_machine_helper
+  protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper): void {
+    $process = $this->mockProcess(TRUE);
+    $local_machine_helper->execute(
+      Argument::containing('site.dev@server-123.hosted.hosting.acquia.com:/mnt/tmp/profserv201dev/acli-mysql-dump-dev-profserv201dev.sql.gz'),
+      Argument::type('callable'), NULL, TRUE, NULL)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
+   * @param object $environments_response
+   * @param bool $success
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function mockExecuteSshRemove(
+    ObjectProphecy $ssh_helper,
+    $environments_response,
+    $success
   ): void {
-    // Download MySQL dump.
-    $local_machine_helper
-      ->writeFile(Argument::type('string'), 'dbdumpcontents')
+    $process = $this->mockProcess($success);
+    $ssh_helper->executeCommand(
+      new EnvironmentResponse($environments_response),
+      Argument::containing('rm'),
+      TRUE,
+      NULL
+    )
+      ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
@@ -703,16 +718,19 @@ class RefreshCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @param $ssh_helper
+   *
+   * @return void
    */
-  protected function mockGetAcsfSites(): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockGetAcsfSites($ssh_helper) {
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->fixtureDir,
         '/multisite-config.json')))->shouldBeCalled();
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->executeCommand(Argument::type('object'), ['cat', '/var/www/site-php/site.dev/multisite-config.json'],
-      FALSE)->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
-    return $ssh_helper;
+    $ssh_helper->executeCommand(
+      Argument::type('object'),
+      ['cat', '/var/www/site-php/site.dev/multisite-config.json'],
+      FALSE
+    )->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
   }
 
 }
