@@ -198,6 +198,7 @@ class RefreshCommand extends CommandBase {
     // Workaround until db_host is fixed (CXAPI-7018).
     $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
 
+    // @todo Add spinner.
     [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database, $db_host, $db_name);
     $local_filepath = $this->downloadDatabaseDump($environment, $output_callback, $filename, $remote_filepath);
 
@@ -227,7 +228,7 @@ class RefreshCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function createRemoteDatabaseDump($environment, $database, string $db_host, $db_name): array {
-    $filename = uniqid(mt_rand(), true) . '.sql.gz';
+    $filename = uniqid(mt_rand(), TRUE) . '.sql.gz';
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
@@ -236,7 +237,7 @@ class RefreshCommand extends CommandBase {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}',
         ['message' => $process->getOutput()]);
     }
-    return array($filename, $remote_filepath);
+    return [$filename, $remote_filepath];
   }
 
   /**
