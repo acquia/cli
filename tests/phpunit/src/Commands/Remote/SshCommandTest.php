@@ -33,6 +33,7 @@ class SshCommandTest extends SshCommandTestBase {
     $ssh_command = [
       'ssh',
       'site.dev@server-123.hosted.hosting.acquia.com',
+      '-t',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
       '-o LogLevel=ERROR',
