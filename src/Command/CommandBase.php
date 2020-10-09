@@ -627,12 +627,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
       if (!$this->getAppUuidFromLocalProjectInfo()) {
-        if ($link_app) {
-          $this->saveLocalConfigCloudAppUuid($application);
-        }
-        elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-          // @todo Don't prompt if the user already has this linked in blt.yml.
-          $this->promptLinkApplication($application);
+        // No point in trying to link a directory that's not a repo.
+        if (!empty($this->repoRoot)) {
+          if ($link_app) {
+            $this->saveLocalConfigCloudAppUuid($application);
+          }
+          elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+            // @todo Don't prompt if the user already has this linked in blt.yml.
+            $this->promptLinkApplication($application);
+          }
         }
       }
     }
