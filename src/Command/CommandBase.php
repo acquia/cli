@@ -626,7 +626,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
-      if (!$this->getAppUuidFromLocalProjectInfo()) {
+      // No point in trying to link a directory that's not a repo.
+      if (!empty($this->repoRoot) && !$this->getAppUuidFromLocalProjectInfo()) {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
         }
