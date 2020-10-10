@@ -1,15 +1,14 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
-use Acquia\Cli\Command\RefreshCommand;
+use Acquia\Cli\Command\Pull\PullCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use PhpParser\Node\Arg;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -18,18 +17,18 @@ use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
 /**
- * Class RefreshCommandTest.
+ * Class PullCommandTest.
  *
- * @property \Acquia\Cli\Command\RefreshCommand $command
+ * @property \Acquia\Cli\Command\Pull\PullCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class RefreshCommandTest extends CommandTestBase {
+class PullCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(RefreshCommand::class);
+    return $this->injectCommand(PullCommand::class);
   }
 
   public function setUp($output = NULL): void {
