@@ -15,13 +15,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PullCommand extends PullCommandBase {
 
-  protected static $defaultName = 'pull';
+  protected static $defaultName = 'pull:all';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setAliases(['refresh'])
+    $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform source environment')
