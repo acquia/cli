@@ -23,7 +23,7 @@ class PullDatabaseCommand extends PullCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Copy files from a Cloud Platform environment')
+    $this->setDescription('Copy database from a Cloud Platform environment')
       ->setAliases(['pull:db'])
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
@@ -38,6 +38,6 @@ class PullDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-
+    
   }
 }
