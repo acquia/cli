@@ -38,6 +38,7 @@ class PullDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    
+
   }
+
 }
