@@ -8,11 +8,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class PullCodeCommand.
+ * Class PullScriptsCommand.
  */
-class PullCodeCommand extends PullCommandBase {
+class PullScriptsCommand extends PullCommandBase {
 
-  protected static $defaultName = 'pull:code';
+  protected static $defaultName = 'pull:files';
 
   /**
    * @var string
@@ -23,11 +23,10 @@ class PullCodeCommand extends PullCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Copy code from a Cloud Platform environment')
+    $this->setDescription('Execute post pull scripts')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment')
-      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE);
+        'The UUID of the associated Cloud Platform source environment');
   }
 
   /**
@@ -38,18 +37,7 @@ class PullCodeCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->pullCode($input, $output);
-    $this->matchIdePhpVersion($output, $this->sourceEnvironment);
-    if (!$input->getOption('no-scripts')) {
-      $output_callback = $this->getOutputCallback($output, $this->checklist);
-      $this->runComposerScripts($output_callback);
-      if ($this->drushHasActiveDatabaseConnection($output_callback)) {
-        // Drush rebuild caches.
-        $this->checklist->addItem('Clearing Drupal caches via Drush');
-        $this->drushRebuildCaches($output_callback);
-        $this->checklist->completePreviousItem();
-      }
-    }
+    $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
 
     return 0;
   }

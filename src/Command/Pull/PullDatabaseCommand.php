@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Pull;
 
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,9 +24,9 @@ class PullDatabaseCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Copy database from a Cloud Platform environment')
       ->setAliases(['pull:db'])
-      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment');
+        'The UUID of the associated Cloud Platform source environment')
+      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE);
   }
 
   /**
@@ -38,7 +37,12 @@ class PullDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->pullDatabase($input, $output);
+    if (!$input->getOption('no-scripts')) {
+      $this->runDrushScripts($this->getOutputCallback($output, $this->checklist));
+    }
 
+    return 0;
   }
 
 }

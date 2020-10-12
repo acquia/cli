@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -21,13 +22,101 @@ use Webmozart\PathUtil\Path;
 abstract class PullCommandBase extends CommandBase {
 
   /**
+   * @var Checklist
+   */
+  protected $checklist;
+
+  /**
+   * @var EnvironmentResponse
+   */
+  protected $sourceEnvironment;
+
+  /**
    * @var string
    */
   protected $dir;
 
   /**
-   * @return bool
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
+   */
+  public function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
+    $this->checklist = new Checklist($output);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function pullCode(InputInterface $input, OutputInterface $output): void {
+    $this->requireProjectCwd($input);
+    $clone = $this->determineCloneProject($output);
+    $source_environment = $this->determineEnvironment($input, $output);
+
+    if ($clone) {
+      $this->checklist->addItem('Cloning git repository from the Cloud Platform');
+      $this->cloneFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+      $this->checklist->completePreviousItem();
+    }
+    else {
+      $this->checklist->addItem('Pulling code from the Cloud Platform');
+      $this->pullCodeFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+      $this->checklist->completePreviousItem();
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $source_environment = $this->determineEnvironment($input, $output);
+    $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
+    $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
+    $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->completePreviousItem();
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
+   */
+  protected function pullFiles(InputInterface $input, OutputInterface $output): void {
+    $this->requireProjectCwd($input);
+    $source_environment = $this->determineEnvironment($input, $output);
+    $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
+    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->completePreviousItem();
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function requireProjectCwd(InputInterface $input): void {
+    $this->determineDir($input);
+    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
+    }
+  }
+
+  /**
+   * @param null $output_callback
+   *
+   * @return bool
    */
   protected function drushHasActiveDatabaseConnection($output_callback = NULL): bool {
     if ($this->localMachineHelper->commandExists('drush')) {
@@ -59,7 +148,7 @@ abstract class PullCommandBase extends CommandBase {
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
+      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     // @todo Validate that an Acquia remote is configured for this repository.
     $this->localMachineHelper->execute([
@@ -123,6 +212,8 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function createRemoteDatabaseDump($environment, $database, string $db_host, $db_name): array {
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
+    // @todo This is a bug! This file path does not work for ODEs.
+    // @todo Verify path for ACSF.
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
@@ -392,14 +483,11 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function composerInstall($output_callback = NULL): void {
-    $process = $this->localMachineHelper->execute([
-      'composer',
-      'install',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE, 30 * 60);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}', ['message' => $process->getErrorOutput()]);
+  protected function runComposerScripts($output_callback = NULL): void {
+    if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
+      $this->checklist->addItem('Installing Composer dependencies');
+      $this->composerInstall($output_callback);
+      $this->checklist->completePreviousItem();
     }
   }
 
@@ -572,7 +660,11 @@ abstract class PullCommandBase extends CommandBase {
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
    * @throws \Exception
    */
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output, $acquia_cloud_client) {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output) {
+    if (isset($this->sourceEnvironment)) {
+      return $this->sourceEnvironment;
+    }
+
     if ($input->getOption('cloud-env-uuid')) {
       $environment_id = $input->getOption('cloud-env-uuid');
       $chosen_environment = $this->getCloudEnvironment($environment_id);
@@ -581,17 +673,24 @@ abstract class PullCommandBase extends CommandBase {
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
       $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
+      $acquia_cloud_client = $this->cloudApiClientService->getClient();
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     $this->logger->debug("Using environment {$chosen_environment->label} {$chosen_environment->uuid}");
 
-    return $chosen_environment;
+    $this->sourceEnvironment = $chosen_environment;
+
+    return $this->sourceEnvironment;
   }
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    */
   protected function determineDir(InputInterface $input): void {
+    if (isset($this->dir)) {
+      return;
+    }
+
     if ($dir = $input->getArgument('dir')) {
       $this->dir = $dir;
     }
@@ -635,6 +734,70 @@ abstract class PullCommandBase extends CommandBase {
         $exit_code = $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
           $output);
       }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Acquia\Cli\Output\Checklist $checklist
+   *
+   * @return \Closure
+   */
+  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): \Closure {
+    $output_callback = static function ($type, $buffer) use ($checklist, $output) {
+      if (!$output->isVerbose()) {
+        $checklist->updateProgressBar($buffer);
+      }
+      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
+    };
+    return $output_callback;
+  }
+
+  /**
+   * @param $input
+   * @param \Closure $output_callback
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function executeAllScripts($input, \Closure $output_callback): void {
+    $this->requireProjectCwd($input);
+    $this->runComposerScripts($output_callback);
+    $this->runDrushScripts($output_callback);
+  }
+
+  /**
+   * @param \Closure $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function runDrushScripts(\Closure $output_callback): void {
+    if ($this->drushHasActiveDatabaseConnection($output_callback)) {
+      // Drush rebuild caches.
+      $this->checklist->addItem('Clearing Drupal caches via Drush');
+      $this->drushRebuildCaches($output_callback);
+      $this->checklist->completePreviousItem();
+
+      // Drush sanitize.
+      $this->checklist->addItem('Sanitizing database via Drush');
+      $this->drushSqlSanitize($output_callback);
+      $this->checklist->completePreviousItem();
+    }
+  }
+
+  /**
+   * @param $output_callback
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function composerInstall($output_callback): void {
+    $process = $this->localMachineHelper->execute([
+      'composer',
+      'install',
+      '--no-interaction',
+    ], $output_callback, $this->dir, FALSE, NULL);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
+        ['message' => $process->getErrorOutput()]);
     }
   }
 

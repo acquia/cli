@@ -37,16 +37,6 @@ abstract class CommandTestBase extends TestBase {
   protected $command;
 
   /**
-   * @var string
-   */
-  protected $targetGitConfigFixture;
-
-  /**
-   * @var string
-   */
-  protected $sourceGitConfigFixture;
-
-  /**
    * Creates a command object to test.
    *
    * @return \Symfony\Component\Console\Command\Command
@@ -176,22 +166,28 @@ abstract class CommandTestBase extends TestBase {
     }
   }
 
+  protected function getTargetGitConfigFixture() {
+    return Path::join($this->fixtureDir, 'project', '.git', 'config');
+  }
+
+  protected function getSourceGitConfigFixture() {
+    return Path::join($this->fixtureDir, 'git_config');;
+  }
+
   /**
    * Creates a mock .git/config.
    */
   protected function createMockGitConfigFile(): void {
     // Create mock git config file.
-    $this->sourceGitConfigFixture = Path::join($this->fixtureDir, 'git_config');
-    $this->targetGitConfigFixture = Path::join($this->fixtureDir, 'project', '.git', 'config');
-    $this->fs->remove([$this->targetGitConfigFixture]);
-    $this->fs->copy($this->sourceGitConfigFixture, $this->targetGitConfigFixture);
+    $this->fs->remove([$this->getTargetGitConfigFixture()]);
+    $this->fs->copy($this->getSourceGitConfigFixture(), $this->getTargetGitConfigFixture());
   }
 
   /**
    * Remove mock .git/config.
    */
   protected function removeMockGitConfig(): void {
-    $this->fs->remove([$this->targetGitConfigFixture, dirname($this->targetGitConfigFixture)]);
+    $this->fs->remove([$this->getTargetGitConfigFixture(), dirname($this->getTargetGitConfigFixture())]);
   }
 
   /**
