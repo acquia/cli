@@ -23,6 +23,9 @@ class PullCommand extends PullCommandBase {
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform source environment')
+      ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
+      ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
+      ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')
       ->addOption(
             'no-scripts',
             NULL,
@@ -39,9 +42,17 @@ class PullCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->pullCode($input, $output);
-    $this->pullFiles($input, $output);
-    $this->pullDatabase($input, $output);
+    if (!$input->getOption('no-code')) {
+      $this->pullCode($input, $output);
+    }
+
+    if (!$input->getOption('no-files')) {
+      $this->pullFiles($input, $output);
+    }
+
+    if (!$input->getOption('no-databases')) {
+      $this->pullDatabase($input, $output);
+    }
 
     if (!$input->getOption('no-scripts')) {
       $output_callback = $this->getOutputCallback($output, $this->checklist);

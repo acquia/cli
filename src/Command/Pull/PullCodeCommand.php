@@ -27,7 +27,8 @@ class PullCodeCommand extends PullCommandBase {
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
-      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE);
+      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
+        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.');
   }
 
   /**
