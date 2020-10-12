@@ -54,12 +54,12 @@ class AliasesDownloadCommand extends SshCommand {
     $this->localMachineHelper->getFilesystem()->mkdir($drush_aliases_dir);
     $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
+    // @todo Upgrade to Drush 9 aliases and the open from sites subdir, not .drush!
     $archive = new PharData($drush_archive_filepath . '/.drush');
     $drushFiles = [];
     foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
       $drushFiles[] = '.drush/' . $file->getFileName();
     }
-
     $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
     $this->output->writeln(sprintf(
       'Cloud Platform Drush aliases installed into <options=bold>%s</>',
