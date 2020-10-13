@@ -132,7 +132,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       '--no-scripts' => TRUE,
     ], $inputs);
     } catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('was aborted', $exception->getMessage());
+      $this->assertStringContainsString('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes', $exception->getMessage());
     }
   }
 

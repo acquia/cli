@@ -878,7 +878,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return string
    */
-  protected function validateEnvironmentAlias($alias): string {
+  public static function validateEnvironmentAlias($alias): string {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -1117,7 +1117,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
           $alias = $env_uuid_argument;
           $alias = $this->normalizeAlias($alias);
-          $alias = $this->validateEnvironmentAlias($alias);
+          $alias = self::validateEnvironmentAlias($alias);
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument('environmentId', $environment->uuid);
         } catch (AcquiaCliException $exception) {

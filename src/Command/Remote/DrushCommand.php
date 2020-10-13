@@ -39,7 +39,7 @@ class DrushCommand extends SSHBaseCommand {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);
-    $alias = $this->validateEnvironmentAlias($alias);
+    $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
 
     $acli_arguments = $input->getArguments();

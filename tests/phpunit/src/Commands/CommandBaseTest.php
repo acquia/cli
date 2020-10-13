@@ -87,4 +87,29 @@ class CommandBaseTest extends CommandTestBase {
     }
   }
 
+  public function providerTestInvalidCloudEnvironmentAlias(): array {
+    return [
+      ['bl.a', 'This value is too short. It should have 5 characters or more.'],
+      ['blarg', 'Environment alias must match the pattern [app-name].[env]'],
+      ['12345', 'Environment alias must match the pattern [app-name].[env]'],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestInvalidCloudEnvironmentAlias
+   *
+   * @param string $alias
+   * @param string $message
+   *
+   * @throws \Exception
+   */
+  public function testInvalidCloudEnvironmentAlias($alias, $message): void {
+    try {
+      CommandBase::validateEnvironmentAlias($alias);
+    }
+    catch (ValidatorException $e) {
+      $this->assertEquals($message, $e->getMessage());
+    }
+  }
+
 }
