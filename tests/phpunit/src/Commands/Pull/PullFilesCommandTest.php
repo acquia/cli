@@ -74,6 +74,15 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
+  public function testInvalidCwd(): void {
+    IdeRequiredTestBase::setCloudIdeEnvVars();
+    try {
+      $this->executeCommand([], []);
+    } catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
+    }
+  }
+
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param object $environments_response
