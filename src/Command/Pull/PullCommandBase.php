@@ -383,7 +383,7 @@ abstract class PullCommandBase extends CommandBase {
         continue;
       }
 
-      $choices[] = "{$environment->label} (vcs: {$environment->vcs->path})";
+      $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);

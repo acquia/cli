@@ -71,7 +71,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment:', $output);
-    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
   public function testInvalidCwd(): void {
