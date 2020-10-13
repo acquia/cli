@@ -146,6 +146,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $updateHelper;
 
+  protected $localDbUser;
+  protected $localDbPassword;
+  protected $localDbName;
+  protected $localDbHost;
+
   /**
    * CommandBase constructor.
    *
@@ -204,6 +209,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
@@ -230,6 +236,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
     $this->checkForNewVersion($input, $output);
+
+    // @todo Enable these vars to be configured.
+    $this->localDbHost = 'localhost';
+    $this->localDbUser = 'drupal';
+    $this->localDbName = 'drupal';
+    $this->localDbPassword = 'drupal';
   }
 
   /**

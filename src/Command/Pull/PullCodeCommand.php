@@ -15,11 +15,6 @@ class PullCodeCommand extends PullCommandBase {
   protected static $defaultName = 'pull:code';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {

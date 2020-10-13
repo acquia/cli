@@ -15,11 +15,6 @@ class PullFilesCommand extends PullCommandBase {
   protected static $defaultName = 'pull:files';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {

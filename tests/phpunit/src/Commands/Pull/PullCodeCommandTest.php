@@ -67,7 +67,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  public function testRefreshCode(): void {
+  public function testPullCode(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -99,7 +99,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
     $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose a Cloud Platform environment to copy from:', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 

@@ -42,6 +42,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
@@ -56,7 +57,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullCode(InputInterface $input, OutputInterface $output): void {
-    $this->requireProjectCwd($input);
+    $this->setDirAndRequireProjectCwd($input);
     $clone = $this->determineCloneProject($output);
     $source_environment = $this->determineEnvironment($input, $output);
 
@@ -94,7 +95,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullFiles(InputInterface $input, OutputInterface $output): void {
-    $this->requireProjectCwd($input);
+    $this->setDirAndRequireProjectCwd($input);
     $source_environment = $this->determineEnvironment($input, $output);
     $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
     $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
@@ -106,7 +107,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function requireProjectCwd(InputInterface $input): void {
+  protected function setDirAndRequireProjectCwd(InputInterface $input): void {
     $this->determineDir($input);
     if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
@@ -176,27 +177,18 @@ abstract class PullCommandBase extends CommandBase {
     $database,
     $output_callback = NULL
   ): void {
-    $db_url_parts = explode('/', $database->url);
-    $db_name = end($db_url_parts);
-    // Workaround until db_host is fixed (CXAPI-7018).
-    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
+    $db_name = $this->getNameFromDatabaseResponse($database);
+    $db_host = $this->getHostFromDatabaseResponse($database);
 
-    // @todo Add spinner.
-    [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database, $db_host, $db_name);
+      // @todo Add spinner.
+    [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database);
     $local_filepath = $this->downloadDatabaseDump($environment, $output_callback, $filename, $remote_filepath);
 
-    // @todo Determine this dynamically?
-    // @todo Allow to be passed by argument?
     // @todo Validate local MySQL connection before running commands.
-    // @todo Enable these vars to be configured.
-    $local_db_host = 'localhost';
-    $local_db_user = 'drupal';
-    $local_db_name = 'drupal';
-    $local_db_password = 'drupal';
     // @todo Drop and create in a single command.
-    $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-    $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-    $this->importDatabaseDump($local_filepath, $local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
+    $this->dropLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
+    $this->createLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
+    $this->importDatabaseDump($local_filepath, $this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
     $this->deleteRemoteDatabaseDump($environment, $remote_filepath);
   }
@@ -210,13 +202,14 @@ abstract class PullCommandBase extends CommandBase {
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createRemoteDatabaseDump($environment, $database, string $db_host, $db_name): array {
+  protected function createRemoteDatabaseDump($environment, $database): array {
+    $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
     // @todo This is a bug! This file path does not work for ODEs.
     // @todo Verify path for ACSF.
     $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
-    $command = "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
+    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}',
@@ -324,7 +317,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->logger->debug("Importing $local_dump_filepath to MySQL");
+    $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
     $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
@@ -387,7 +380,7 @@ abstract class PullCommandBase extends CommandBase {
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);
     $question = new ChoiceQuestion(
-      '<question>Choose a Cloud Platform environment to copy from</question>:',
+      '<question>Choose a Cloud Platform environment</question>:',
       $choices
     );
     $helper = $this->getHelper('question');
@@ -432,7 +425,7 @@ abstract class PullCommandBase extends CommandBase {
     }
 
     $question = new ChoiceQuestion(
-      '<question>Choose a database to copy</question>:',
+      '<question>Choose a database</question>:',
       $choices,
       $default_database_index
     );
@@ -535,7 +528,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $acsf_site['name'];
     }
 
-    $question = new ChoiceQuestion('<question>Choose site from which to copy files</question>:', $choices);
+    $question = new ChoiceQuestion('<question>Choose a site</question>:', $choices);
     $helper = $this->getHelper('question');
     $choice = $helper->ask($this->input, $this->output, $question);
 
@@ -546,8 +539,8 @@ abstract class PullCommandBase extends CommandBase {
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param $chosen_environment
    *
-   * @return object
-   * @throws \Exception
+   * @return \stdClass|\AcquiaCloudApi\Response\DatabaseResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
     $databases = $acquia_cloud_client->request(
@@ -760,7 +753,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function executeAllScripts($input, \Closure $output_callback): void {
-    $this->requireProjectCwd($input);
+    $this->setDirAndRequireProjectCwd($input);
     $this->runComposerScripts($output_callback);
     $this->runDrushScripts($output_callback);
   }
@@ -799,6 +792,31 @@ abstract class PullCommandBase extends CommandBase {
       throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
         ['message' => $process->getErrorOutput()]);
     }
+  }
+
+  /**
+   * @param $database
+   *
+   * @return array
+   */
+  protected function getNameFromDatabaseResponse($database): string {
+    $db_url_parts = explode('/', $database->url);
+    $db_name = end($db_url_parts);
+
+    return $db_name;
+  }
+
+  /**
+   * @param $database
+   *
+   * @return string
+   */
+  protected function getHostFromDatabaseResponse($database): string {
+    // Workaround until db_host is fixed (CXAPI-7018).
+    $db_name = $this->getNameFromDatabaseResponse($database);
+    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
+
+    return $db_host;
   }
 
 }

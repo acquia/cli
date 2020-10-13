@@ -7,16 +7,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class PullFilesCommand.
+ * Class PullDatabaseCommand.
  */
 class PullDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:database';
-
-  /**
-   * @var string
-   */
-  protected $dir;
 
   /**
    * {inheritdoc}.
@@ -26,7 +21,8 @@ class PullDatabaseCommand extends PullCommandBase {
       ->setAliases(['pull:db'])
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
-      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE);
+      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
+        'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.');
   }
 
   /**
