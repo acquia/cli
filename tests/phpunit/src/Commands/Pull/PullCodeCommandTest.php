@@ -76,9 +76,9 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    $dirty_process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $this->projectFixtureDir, $environments_response->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $dirty_process, $local_machine_helper, $this->projectFixtureDir);
+    $process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -103,6 +103,113 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
   }
 
+  public function testPullCodeDirtyRepo(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->createMockGitConfigFile();
+
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+
+    try {
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], $inputs);
+    } catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString('was aborted', $exception->getMessage());
+    }
+  }
+
+  public function testPullCodeGitStatusFail(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->createMockGitConfigFile();
+
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+
+    try {
+      $this->executeCommand([
+        '--no-scripts' => TRUE,
+      ], $inputs);
+    } catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString('unable to determine', $exception->getMessage());
+    }
+
+  }
+
+  public function testWithScripts(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->createMockGitConfigFile();
+
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $process = $this->mockProcess();
+    $this->mockExecuteComposerExists($local_machine_helper);
+    $this->mockExecuteComposerInstall($local_machine_helper, $process);
+    $this->mockExecuteDrushExists($local_machine_helper);
+    $this->mockExecuteDrushStatus($local_machine_helper, TRUE);
+    $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
+
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      // Please choose an Acquia environment:
+      0,
+    ];
+
+    $this->executeCommand([], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev (vcs: master)', $output);
+  }
+
   /**
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -118,9 +225,9 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    $dirty_process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $dirty_process, $dir, 'master');
-    $this->mockExecuteGitStatus(FALSE, $dirty_process, $local_machine_helper, $dir);
+    $process = $this->mockProcess();
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $dir, 'master');
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $dir);
 
     $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
@@ -175,13 +282,13 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
    * @param $cwd
    * @param $vcs_path
    */
   protected function mockExecuteGitFetchAndCheckout(
     ObjectProphecy $local_machine_helper,
-    ObjectProphecy $dirty_process,
+    ObjectProphecy $process,
     $cwd,
     $vcs_path
   ): void {
@@ -190,35 +297,35 @@ class PullCodeCommandTest extends PullCommandTestBase {
       'fetch',
       '--all',
     ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($dirty_process->reveal())
+      ->willReturn($process->reveal())
       ->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
       'checkout',
       $vcs_path,
     ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($dirty_process->reveal())
+      ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
   /**
-   * @param $is_dirty
-   * @param \Prophecy\Prophecy\ObjectProphecy $dirty_process
+   * @param $failed
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $cwd
    */
   protected function mockExecuteGitStatus(
-    $is_dirty,
-    ObjectProphecy $dirty_process,
+    $failed,
     ObjectProphecy $local_machine_helper,
     $cwd
   ): void {
-    $dirty_process->isSuccessful()->willReturn(!$is_dirty)->shouldBeCalled();
-    $dirty_process->getOutput()->willReturn('')->shouldBeCalled();
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(!$failed)->shouldBeCalled();
+    $process->getOutput()->willReturn('')->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
       'status',
       '--short',
-    ], NULL, $cwd, FALSE)->willReturn($dirty_process->reveal())->shouldBeCalled();
+    ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
   }
 
 }

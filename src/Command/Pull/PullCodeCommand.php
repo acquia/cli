@@ -39,12 +39,7 @@ class PullCodeCommand extends PullCommandBase {
     if (!$input->getOption('no-scripts')) {
       $output_callback = $this->getOutputCallback($output, $this->checklist);
       $this->runComposerScripts($output_callback);
-      if ($this->drushHasActiveDatabaseConnection($output_callback)) {
-        // Drush rebuild caches.
-        $this->checklist->addItem('Clearing Drupal caches via Drush');
-        $this->drushRebuildCaches($output_callback);
-        $this->checklist->completePreviousItem();
-      }
+      $this->runDrushCacheClear($output_callback);
     }
 
     return 0;

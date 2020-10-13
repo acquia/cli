@@ -258,7 +258,7 @@ abstract class CommandTestBase extends TestBase {
   protected function mockProcess($success = TRUE): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
+    $process->getExitCode()->willReturn($success ? 0 : 1);
     return $process;
   }
 

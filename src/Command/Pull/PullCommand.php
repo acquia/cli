@@ -55,8 +55,7 @@ class PullCommand extends PullCommandBase {
     }
 
     if (!$input->getOption('no-scripts')) {
-      $output_callback = $this->getOutputCallback($output, $this->checklist);
-      $this->executeAllScripts($input, $output_callback);
+      $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
     }
 
     return 0;

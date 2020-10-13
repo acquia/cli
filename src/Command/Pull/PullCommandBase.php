@@ -37,6 +37,11 @@ abstract class PullCommandBase extends CommandBase {
   protected $dir;
 
   /**
+   * @var bool
+   */
+  protected $drushHasActiveDatabaseConnection;
+
+  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -119,7 +124,10 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return bool
    */
-  protected function drushHasActiveDatabaseConnection($output_callback = NULL): bool {
+  protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
+    if (isset($this->drushHasActiveDatabaseConnection)) {
+      return $this->drushHasActiveDatabaseConnection;
+    }
     if ($this->localMachineHelper->commandExists('drush')) {
       $process = $this->localMachineHelper->execute([
         'drush',
@@ -131,12 +139,15 @@ abstract class PullCommandBase extends CommandBase {
       if ($process->isSuccessful()) {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
-          return TRUE;
+          $this->drushHasActiveDatabaseConnection = TRUE;
+        }
+        else {
+          $this->drushHasActiveDatabaseConnection = FALSE;
         }
       }
     }
 
-    return FALSE;
+    return $this->drushHasActiveDatabaseConnection;
   }
 
   /**
@@ -441,41 +452,6 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function drushRebuildCaches($output_callback = NULL): void {
-    // @todo Add support for Drush 8.
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'cache:rebuild',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  /**
-   * @param callable $output_callback
-   *
-   * @throws \Exception
-   */
-  protected function drushSqlSanitize($output_callback = NULL): void {
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'sql:sanitize',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  /**
-   * @param callable $output_callback
-   *
-   * @throws \Exception
-   */
   protected function runComposerScripts($output_callback = NULL): void {
     if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
       $this->checklist->addItem('Installing Composer dependencies');
@@ -751,11 +727,13 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Closure $output_callback
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function executeAllScripts($input, \Closure $output_callback): void {
     $this->setDirAndRequireProjectCwd($input);
     $this->runComposerScripts($output_callback);
-    $this->runDrushScripts($output_callback);
+    $this->runDrushCacheClear($output_callback);
+    $this->runDrushSqlSanitize($output_callback);
   }
 
   /**
@@ -763,16 +741,40 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function runDrushScripts(\Closure $output_callback): void {
-    if ($this->drushHasActiveDatabaseConnection($output_callback)) {
-      // Drush rebuild caches.
+  protected function runDrushCacheClear(\Closure $output_callback): void {
+    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
       $this->checklist->addItem('Clearing Drupal caches via Drush');
-      $this->drushRebuildCaches($output_callback);
+      // @todo Add support for Drush 8.
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'cache:rebuild',
+        '--yes',
+        '--no-interaction',
+      ], $output_callback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
       $this->checklist->completePreviousItem();
+    }
+  }
 
-      // Drush sanitize.
+  /**
+   * @param \Closure $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function runDrushSqlSanitize(\Closure $output_callback): void {
+    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
       $this->checklist->addItem('Sanitizing database via Drush');
-      $this->drushSqlSanitize($output_callback);
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'sql:sanitize',
+        '--yes',
+        '--no-interaction',
+      ], $output_callback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
       $this->checklist->completePreviousItem();
     }
   }

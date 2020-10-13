@@ -35,7 +35,7 @@ class PullDatabaseCommand extends PullCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->pullDatabase($input, $output);
     if (!$input->getOption('no-scripts')) {
-      $this->runDrushScripts($this->getOutputCallback($output, $this->checklist));
+      $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
     }
 
     return 0;
