@@ -726,12 +726,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
-    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
-    if (!$local_user_config) {
-      $local_user_config = [
-        'localProjects' => [],
-      ];
-    }
+    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename, ['localProjects' => []]);
     foreach ($local_user_config['localProjects'] as $key => $project) {
       if ($project['directory'] === $this->repoRoot) {
         $project['cloud_application_uuid'] = $application->uuid;
