@@ -81,6 +81,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     } catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
     }
+    IdeRequiredTestBase::unsetCloudIdeEnvVars();
   }
 
   /**
