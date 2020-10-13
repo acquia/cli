@@ -204,8 +204,6 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param EnvironmentResponse $environment
    * @param $database
-   * @param string $db_host
-   * @param $db_name
    *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -213,9 +211,8 @@ abstract class PullCommandBase extends CommandBase {
   protected function createRemoteDatabaseDump($environment, $database): array {
     $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
-    // @todo This is a bug! This file path does not work for ODEs.
-    // @todo Verify path for ACSF.
-    $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
+    $temp_prefix = $database->name . $database->environment->name;
+    $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
