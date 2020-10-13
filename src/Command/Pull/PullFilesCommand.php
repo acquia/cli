@@ -15,11 +15,6 @@ class PullFilesCommand extends PullCommandBase {
   protected static $defaultName = 'pull:files';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -37,7 +32,9 @@ class PullFilesCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->pullFiles($input, $output);
 
+    return 0;
   }
 
 }

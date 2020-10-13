@@ -51,7 +51,7 @@ class IdeCreateCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $cloud_application_uuid = $this->determineCloudApplication();
-    $checklist = new Checklist($output);
+    $this->checklist = new Checklist($output);
 
     $question = new Question('<question>Please enter a label for your Cloud IDE:</question> ');
     $helper = $this->getHelper('question');
@@ -61,15 +61,15 @@ class IdeCreateCommand extends IdeCommandBase {
     $ides_resource = new Ides($acquia_cloud_client);
 
     // Create it.
-    $checklist->addItem('Creating your Cloud IDE');
+    $this->checklist->addItem('Creating your Cloud IDE');
     $response = $ides_resource->create($cloud_application_uuid, $ide_label);
-    $checklist->completePreviousItem();
+    $this->checklist->completePreviousItem();
 
     // Get IDE info.
-    $checklist->addItem('Getting IDE information');
+    $this->checklist->addItem('Getting IDE information');
     $this->ide = $this->getIdeFromResponse($response, $acquia_cloud_client);
     $ide_url = $this->ide->links->ide->href;
-    $checklist->completePreviousItem();
+    $this->checklist->completePreviousItem();
 
     // Wait!
     $this->waitForDnsPropagation($ide_url);

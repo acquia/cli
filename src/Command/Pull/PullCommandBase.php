@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -21,15 +22,112 @@ use Webmozart\PathUtil\Path;
 abstract class PullCommandBase extends CommandBase {
 
   /**
+   * @var Checklist
+   */
+  protected $checklist;
+
+  /**
+   * @var EnvironmentResponse
+   */
+  protected $sourceEnvironment;
+
+  /**
    * @var string
    */
   protected $dir;
 
   /**
-   * @return bool
+   * @var bool
+   */
+  protected $drushHasActiveDatabaseConnection;
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function initialize(InputInterface $input, OutputInterface $output) {
+    parent::initialize($input, $output);
+    $this->checklist = new Checklist($output);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function drushHasActiveDatabaseConnection($output_callback = NULL): bool {
+  protected function pullCode(InputInterface $input, OutputInterface $output): void {
+    $this->setDirAndRequireProjectCwd($input);
+    $clone = $this->determineCloneProject($output);
+    $source_environment = $this->determineEnvironment($input, $output);
+
+    if ($clone) {
+      $this->checklist->addItem('Cloning git repository from the Cloud Platform');
+      $this->cloneFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+      $this->checklist->completePreviousItem();
+    }
+    else {
+      $this->checklist->addItem('Pulling code from the Cloud Platform');
+      $this->pullCodeFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+      $this->checklist->completePreviousItem();
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $source_environment = $this->determineEnvironment($input, $output);
+    $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
+    $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
+    $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->completePreviousItem();
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
+   */
+  protected function pullFiles(InputInterface $input, OutputInterface $output): void {
+    $this->setDirAndRequireProjectCwd($input);
+    $source_environment = $this->determineEnvironment($input, $output);
+    $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
+    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->completePreviousItem();
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function setDirAndRequireProjectCwd(InputInterface $input): void {
+    $this->determineDir($input);
+    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
+    }
+  }
+
+  /**
+   * @param null $output_callback
+   *
+   * @return bool
+   */
+  protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
+    if (isset($this->drushHasActiveDatabaseConnection)) {
+      return $this->drushHasActiveDatabaseConnection;
+    }
     if ($this->localMachineHelper->commandExists('drush')) {
       $process = $this->localMachineHelper->execute([
         'drush',
@@ -41,12 +139,15 @@ abstract class PullCommandBase extends CommandBase {
       if ($process->isSuccessful()) {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
-          return TRUE;
+          $this->drushHasActiveDatabaseConnection = TRUE;
+        }
+        else {
+          $this->drushHasActiveDatabaseConnection = FALSE;
         }
       }
     }
 
-    return FALSE;
+    return $this->drushHasActiveDatabaseConnection;
   }
 
   /**
@@ -59,7 +160,7 @@ abstract class PullCommandBase extends CommandBase {
   protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes. Otherwise, re-run `acli refresh` with the `--no-code` option.');
+      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     // @todo Validate that an Acquia remote is configured for this repository.
     $this->localMachineHelper->execute([
@@ -87,27 +188,15 @@ abstract class PullCommandBase extends CommandBase {
     $database,
     $output_callback = NULL
   ): void {
-    $db_url_parts = explode('/', $database->url);
-    $db_name = end($db_url_parts);
-    // Workaround until db_host is fixed (CXAPI-7018).
-    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
-
-    // @todo Add spinner.
-    [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database, $db_host, $db_name);
+      // @todo Add spinner.
+    [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database);
     $local_filepath = $this->downloadDatabaseDump($environment, $output_callback, $filename, $remote_filepath);
 
-    // @todo Determine this dynamically?
-    // @todo Allow to be passed by argument?
     // @todo Validate local MySQL connection before running commands.
-    // @todo Enable these vars to be configured.
-    $local_db_host = 'localhost';
-    $local_db_user = 'drupal';
-    $local_db_name = 'drupal';
-    $local_db_password = 'drupal';
     // @todo Drop and create in a single command.
-    $this->dropLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-    $this->createLocalDatabase($local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
-    $this->importDatabaseDump($local_filepath, $local_db_host, $local_db_user, $local_db_name, $local_db_password, $output_callback);
+    $this->dropLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
+    $this->createLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
+    $this->importDatabaseDump($local_filepath, $this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
     $this->deleteRemoteDatabaseDump($environment, $remote_filepath);
   }
@@ -115,17 +204,17 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param EnvironmentResponse $environment
    * @param $database
-   * @param string $db_host
-   * @param $db_name
    *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createRemoteDatabaseDump($environment, $database, string $db_host, $db_name): array {
+  protected function createRemoteDatabaseDump($environment, $database): array {
+    $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
-    $remote_filepath = '/mnt/tmp/' . $db_name . '/' . $filename;
+    $temp_prefix = $database->name . $database->environment->name;
+    $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
-    $command = "MYSQL_PWD={$database->password} mysqldump --host={$db_host} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
+    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}',
@@ -233,7 +322,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->logger->debug("Importing $local_dump_filepath to MySQL");
+    $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
     $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
@@ -291,12 +380,12 @@ abstract class PullCommandBase extends CommandBase {
         continue;
       }
 
-      $choices[] = "{$environment->label} (vcs: {$environment->vcs->path})";
+      $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);
     $question = new ChoiceQuestion(
-      '<question>Choose a Cloud Platform environment to copy from</question>:',
+      '<question>Choose a Cloud Platform environment</question>:',
       $choices
     );
     $helper = $this->getHelper('question');
@@ -341,7 +430,7 @@ abstract class PullCommandBase extends CommandBase {
     }
 
     $question = new ChoiceQuestion(
-      '<question>Choose a database to copy</question>:',
+      '<question>Choose a database</question>:',
       $choices,
       $default_database_index
     );
@@ -357,49 +446,11 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function drushRebuildCaches($output_callback = NULL): void {
-    // @todo Add support for Drush 8.
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'cache:rebuild',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  /**
-   * @param callable $output_callback
-   *
-   * @throws \Exception
-   */
-  protected function drushSqlSanitize($output_callback = NULL): void {
-    $process = $this->localMachineHelper->execute([
-      'drush',
-      'sql:sanitize',
-      '--yes',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  /**
-   * @param callable $output_callback
-   *
-   * @throws \Exception
-   */
-  protected function composerInstall($output_callback = NULL): void {
-    $process = $this->localMachineHelper->execute([
-      'composer',
-      'install',
-      '--no-interaction',
-    ], $output_callback, $this->dir, FALSE, 30 * 60);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}', ['message' => $process->getErrorOutput()]);
+  protected function runComposerScripts($output_callback = NULL): void {
+    if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
+      $this->checklist->addItem('Installing Composer dependencies');
+      $this->composerInstall($output_callback);
+      $this->checklist->completePreviousItem();
     }
   }
 
@@ -447,7 +498,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $acsf_site['name'];
     }
 
-    $question = new ChoiceQuestion('<question>Choose site from which to copy files</question>:', $choices);
+    $question = new ChoiceQuestion('<question>Choose a site</question>:', $choices);
     $helper = $this->getHelper('question');
     $choice = $helper->ask($this->input, $this->output, $question);
 
@@ -458,8 +509,8 @@ abstract class PullCommandBase extends CommandBase {
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param $chosen_environment
    *
-   * @return object
-   * @throws \Exception
+   * @return \stdClass|\AcquiaCloudApi\Response\DatabaseResponse
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
     $databases = $acquia_cloud_client->request(
@@ -572,7 +623,11 @@ abstract class PullCommandBase extends CommandBase {
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
    * @throws \Exception
    */
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output, $acquia_cloud_client) {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output) {
+    if (isset($this->sourceEnvironment)) {
+      return $this->sourceEnvironment;
+    }
+
     if ($input->getOption('cloud-env-uuid')) {
       $environment_id = $input->getOption('cloud-env-uuid');
       $chosen_environment = $this->getCloudEnvironment($environment_id);
@@ -581,17 +636,24 @@ abstract class PullCommandBase extends CommandBase {
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
       $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
+      $acquia_cloud_client = $this->cloudApiClientService->getClient();
       $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
     }
     $this->logger->debug("Using environment {$chosen_environment->label} {$chosen_environment->uuid}");
 
-    return $chosen_environment;
+    $this->sourceEnvironment = $chosen_environment;
+
+    return $this->sourceEnvironment;
   }
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    */
   protected function determineDir(InputInterface $input): void {
+    if (isset($this->dir)) {
+      return;
+    }
+
     if ($dir = $input->getArgument('dir')) {
       $this->dir = $dir;
     }
@@ -636,6 +698,121 @@ abstract class PullCommandBase extends CommandBase {
           $output);
       }
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Acquia\Cli\Output\Checklist $checklist
+   *
+   * @return \Closure
+   */
+  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): \Closure {
+    $output_callback = static function ($type, $buffer) use ($checklist, $output) {
+      if (!$output->isVerbose()) {
+        $checklist->updateProgressBar($buffer);
+      }
+      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
+    };
+    return $output_callback;
+  }
+
+  /**
+   * @param $input
+   * @param \Closure $output_callback
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function executeAllScripts($input, \Closure $output_callback): void {
+    $this->setDirAndRequireProjectCwd($input);
+    $this->runComposerScripts($output_callback);
+    $this->runDrushCacheClear($output_callback);
+    $this->runDrushSqlSanitize($output_callback);
+  }
+
+  /**
+   * @param \Closure $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function runDrushCacheClear(\Closure $output_callback): void {
+    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
+      $this->checklist->addItem('Clearing Drupal caches via Drush');
+      // @todo Add support for Drush 8.
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'cache:rebuild',
+        '--yes',
+        '--no-interaction',
+      ], $output_callback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
+      $this->checklist->completePreviousItem();
+    }
+  }
+
+  /**
+   * @param \Closure $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function runDrushSqlSanitize(\Closure $output_callback): void {
+    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
+      $this->checklist->addItem('Sanitizing database via Drush');
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'sql:sanitize',
+        '--yes',
+        '--no-interaction',
+      ], $output_callback, $this->dir, FALSE);
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
+      }
+      $this->checklist->completePreviousItem();
+    }
+  }
+
+  /**
+   * @param $output_callback
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function composerInstall($output_callback): void {
+    $process = $this->localMachineHelper->execute([
+      'composer',
+      'install',
+      '--no-interaction',
+    ], $output_callback, $this->dir, FALSE, NULL);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
+        ['message' => $process->getErrorOutput()]);
+    }
+  }
+
+  /**
+   * @param $database
+   *
+   * @return array
+   */
+  protected function getNameFromDatabaseResponse($database): string {
+    $db_url_parts = explode('/', $database->url);
+    $db_name = end($db_url_parts);
+
+    return $db_name;
+  }
+
+  /**
+   * @param $database
+   *
+   * @return string
+   */
+  protected function getHostFromDatabaseResponse($database): string {
+    // Workaround until db_host is fixed (CXAPI-7018).
+    $db_name = $this->getNameFromDatabaseResponse($database);
+    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
+
+    return $db_host;
   }
 
 }

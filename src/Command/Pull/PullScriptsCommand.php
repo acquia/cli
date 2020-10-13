@@ -2,27 +2,31 @@
 
 namespace Acquia\Cli\Command\Pull;
 
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class PullDatabaseCommand.
+ * Class PullScriptsCommand.
  */
-class PullDatabaseCommand extends PullCommandBase {
+class PullScriptsCommand extends PullCommandBase {
 
-  protected static $defaultName = 'pull:database';
+  protected static $defaultName = 'pull:files';
+
+  /**
+   * @var string
+   */
+  protected $dir;
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Copy database from a Cloud Platform environment')
-      ->setAliases(['pull:db'])
+    $this->setDescription('Execute post pull scripts')
+      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment')
-      ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
-        'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.');
+        'The UUID of the associated Cloud Platform source environment');
   }
 
   /**
@@ -33,10 +37,7 @@ class PullDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->pullDatabase($input, $output);
-    if (!$input->getOption('no-scripts')) {
-      $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
-    }
+    $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
 
     return 0;
   }

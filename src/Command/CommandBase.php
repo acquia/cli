@@ -146,6 +146,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $updateHelper;
 
+  protected $localDbUser;
+  protected $localDbPassword;
+  protected $localDbName;
+  protected $localDbHost;
+
   /**
    * CommandBase constructor.
    *
@@ -204,6 +209,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
@@ -230,6 +236,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
     $this->checkForNewVersion($input, $output);
+
+    // @todo Enable these vars to be configured.
+    $this->localDbHost = 'localhost';
+    $this->localDbUser = 'drupal';
+    $this->localDbName = 'drupal';
+    $this->localDbPassword = 'drupal';
   }
 
   /**
@@ -715,12 +727,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
-    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
-    if (!$local_user_config) {
-      $local_user_config = [
-        'localProjects' => [],
-      ];
-    }
+    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename, ['localProjects' => []]);
     foreach ($local_user_config['localProjects'] as $key => $project) {
       if ($project['directory'] === $this->repoRoot) {
         $project['cloud_application_uuid'] = $application->uuid;
@@ -867,7 +874,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return string
    */
-  protected function validateEnvironmentAlias($alias): string {
+  public static function validateEnvironmentAlias($alias): string {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -1106,7 +1113,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
           $alias = $env_uuid_argument;
           $alias = $this->normalizeAlias($alias);
-          $alias = $this->validateEnvironmentAlias($alias);
+          $alias = self::validateEnvironmentAlias($alias);
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument('environmentId', $environment->uuid);
         } catch (AcquiaCliException $exception) {

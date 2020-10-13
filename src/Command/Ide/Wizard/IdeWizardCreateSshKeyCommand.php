@@ -63,7 +63,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireCloudIdeEnvironment();
-    $checklist = new Checklist($output);
+    $this->checklist = new Checklist($output);
     $key_was_uploaded = FALSE;
 
     // Create local SSH key.
@@ -73,46 +73,46 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
       $this->deleteIdeSshKeyFromCloud();
 
-      $checklist->addItem('Creating a local SSH key');
+      $this->checklist->addItem('Creating a local SSH key');
 
       // Create SSH key.
       $password = md5(random_bytes(10));
       $this->savePassPhraseToFile($password);
       $this->createLocalSshKey($this->privateSshKeyFilename, $password);
 
-      $checklist->completePreviousItem();
+      $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
     }
     else {
-      $checklist->addItem('Already created a local key');
-      $checklist->completePreviousItem();
+      $this->checklist->addItem('Already created a local key');
+      $this->checklist->completePreviousItem();
     }
 
     // Upload SSH key to the Cloud Platform.
     if (!$this->userHasUploadedIdeKeyToCloud()) {
-      $checklist->addItem('Uploading the local key to the Cloud Platform');
+      $this->checklist->addItem('Uploading the local key to the Cloud Platform');
 
       // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
       $this->deleteIdeSshKeyFromCloud();
       $this->uploadSshKeyToCloud($this->ide, $this->publicSshKeyFilepath);
 
-      $checklist->completePreviousItem();
+      $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
     }
     else {
-      $checklist->addItem('Already uploaded the local key to the Cloud Platform');
-      $checklist->completePreviousItem();
+      $this->checklist->addItem('Already uploaded the local key to the Cloud Platform');
+      $this->checklist->completePreviousItem();
     }
 
     // Add SSH key to local keychain.
     if (!$this->sshKeyIsAddedToKeychain()) {
-      $checklist->addItem('Adding the SSH key to local keychain');
+      $this->checklist->addItem('Adding the SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
-      $checklist->completePreviousItem();
+      $this->checklist->completePreviousItem();
     }
     else {
-      $checklist->addItem('Already added the SSH key to local keychain');
-      $checklist->completePreviousItem();
+      $this->checklist->addItem('Already added the SSH key to local keychain');
+      $this->checklist->completePreviousItem();
     }
 
     // Wait for the key to register on the Cloud Platform.

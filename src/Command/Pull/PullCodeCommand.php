@@ -15,11 +15,6 @@ class PullCodeCommand extends PullCommandBase {
   protected static $defaultName = 'pull:code';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -28,7 +23,7 @@ class PullCodeCommand extends PullCommandBase {
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
-        'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.');
+        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.');
   }
 
   /**
@@ -39,7 +34,15 @@ class PullCodeCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->pullCode($input, $output);
+    $this->matchIdePhpVersion($output, $this->sourceEnvironment);
+    if (!$input->getOption('no-scripts')) {
+      $output_callback = $this->getOutputCallback($output, $this->checklist);
+      $this->runComposerScripts($output_callback);
+      $this->runDrushCacheClear($output_callback);
+    }
 
+    return 0;
   }
 
 }
