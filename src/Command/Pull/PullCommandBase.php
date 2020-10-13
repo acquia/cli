@@ -188,9 +188,6 @@ abstract class PullCommandBase extends CommandBase {
     $database,
     $output_callback = NULL
   ): void {
-    $db_name = $this->getNameFromDatabaseResponse($database);
-    $db_host = $this->getHostFromDatabaseResponse($database);
-
       // @todo Add spinner.
     [$filename, $remote_filepath] = $this->createRemoteDatabaseDump($environment, $database);
     $local_filepath = $this->downloadDatabaseDump($environment, $output_callback, $filename, $remote_filepath);
