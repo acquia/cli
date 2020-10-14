@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "18e50e843b9c032f61afd5d30dc86cec",
+    "content-hash": "7faa07bec4f218f4abb148d8f54d057a",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -4965,22 +4965,22 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "2.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "adeca403a01c948f7f998be82bf5f13975255549"
+                "reference": "9432509cc423e5fb05ac31e7cc090ea2e928e654"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/adeca403a01c948f7f998be82bf5f13975255549",
-                "reference": "adeca403a01c948f7f998be82bf5f13975255549",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9432509cc423e5fb05ac31e7cc090ea2e928e654",
+                "reference": "9432509cc423e5fb05ac31e7cc090ea2e928e654",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "league/oauth2-client": "^2.4",
-                "php": ">=7.3"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.0.0",
@@ -4989,7 +4989,6 @@
                 "phpunit/phpunit": "^7.0",
                 "squizlabs/php_codesniffer": "3.*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -5012,7 +5011,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/master"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.0.14"
             },
             "funding": [
                 {
@@ -5020,7 +5019,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-13T21:02:53+00:00"
+            "time": "2020-10-06T23:22:41+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -7923,20 +7922,12 @@
             "time": "2020-07-12T23:59:07+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
-            "alias": "2.0.13",
-            "alias_normalized": "2.0.13.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
-        "typhonius/acquia-logstream": 20,
-        "typhonius/acquia-php-sdk-v2": 20
+        "typhonius/acquia-logstream": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
