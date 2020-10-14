@@ -28,6 +28,7 @@ use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\NullOutput;
@@ -303,6 +304,26 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->amplitude->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
+  }
+
+  /**
+   * Add argument and usage examples for applicationUuid.
+   */
+  protected function acceptApplicationUuid() {
+    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias.')
+    ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
+    ->addUsage(self::getDefaultName() . ' myapp')
+    ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
+  }
+
+  /**
+   * Add argument and usage examples for environmentId.
+   */
+  protected function acceptEnvironmentId() {
+    $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias.')
+    ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
+    ->addUsage(self::getDefaultName() . ' myapp.dev')
+    ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
   }
 
   /**

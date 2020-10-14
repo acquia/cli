@@ -20,8 +20,8 @@ class LogTailCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Tail the logs from your environments')
-      ->setAliases(['tail'])
-      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud environment UUID or alias.');
+      ->setAliases(['tail']);
+    $this->acceptEnvironmentId();
   }
 
   /**

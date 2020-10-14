@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command;
 
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,8 +17,8 @@ class LinkCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Associate your project with a Cloud Platform application')
-      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
+    $this->setDescription('Associate your project with a Cloud Platform application');
+    $this->acceptApplicationUuid();
   }
 
   /**
