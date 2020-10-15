@@ -13,7 +13,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -581,9 +580,7 @@ abstract class PullCommandBase extends CommandBase {
 
     $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
     if (!$finder->hasResults()) {
-      $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question> ',
-        TRUE);
-      if ($this->questionHelper->ask($this->input, $this->output, $question)) {
+      if ($this->io->confirm('Would you like to clone a project into the current directory?')) {
         return TRUE;
       }
     }
@@ -689,12 +686,10 @@ abstract class PullCommandBase extends CommandBase {
   ): void {
     $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
     if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $question = new ConfirmationQuestion("<question>Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?</question> ",
-        FALSE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
-        $exit_code = $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
+        $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
           $output);
       }
     }

@@ -5,9 +5,7 @@ namespace Acquia\Cli\Command\Ide;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class CreateProjectCommand.
@@ -46,9 +44,7 @@ class IdeDeleteCommand extends IdeCommandBase {
     // Check to see if an SSH key for this IDE exists on Cloud.
     $cloud_key = $this->findIdeSshKeyOnCloud($ide->uuid);
     if ($cloud_key) {
-      $question = new ConfirmationQuestion('<question>Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?</question> ',
-        TRUE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm('Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?');
       if ($answer) {
         $this->deleteSshKeyFromCloud($cloud_key);
       }

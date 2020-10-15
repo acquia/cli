@@ -9,7 +9,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class PushFilesCommand.
@@ -49,8 +48,7 @@ class PushFilesCommand extends PullCommandBase {
     else {
       $chosen_site = NULL;
     }
-    $question = new ConfirmationQuestion("<question>Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?</question> ", TRUE);
-    $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+    $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?");
     if (!$answer) {
       return 0;
     }

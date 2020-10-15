@@ -7,7 +7,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -42,9 +41,7 @@ class AuthLoginCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?</question> ',
-        TRUE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
         return 0;
       }
@@ -146,9 +143,7 @@ class AuthLoginCommand extends CommandBase {
       $this->output->writeln("You will need a Cloud Platform API token from <href=$token_url>$token_url</>");
 
       if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        $question = new ConfirmationQuestion('<question>Do you want to open this page to generate a token now?</question> ',
-          TRUE);
-        if ($this->questionHelper->ask($input, $output, $question)) {
+        if ($this->io->confirm('Do you want to open this page to generate a token now?')) {
           $this->localMachineHelper->startBrowser($token_url);
         }
       }

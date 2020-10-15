@@ -3,18 +3,8 @@
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use Closure;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Class AuthLogoutCommand.
@@ -50,9 +40,7 @@ class AuthLogoutCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $question = new ConfirmationQuestion('<question>Are you sure you\'d like to remove your Cloud Platform API login credentials from this machine?</question> ',
-        TRUE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm('Are you sure you\'d like to remove your Cloud Platform API login credentials from this machine?');
       if (!$answer) {
         return 0;
       }
