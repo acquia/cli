@@ -219,7 +219,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
-    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
+    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}',
@@ -812,17 +812,13 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return string
    */
-  protected function getHostFromDatabaseResponse($database): string {
-    // Workaround until db_host is fixed (CXAPI-7018).
-    // Works for all but ACSF.
-    // ACSF should look like fsdb-74.enterprise-g1.hosting.acquia.com
-    $db_name = $this->getNameFromDatabaseResponse($database);
-    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
-    // $db_url = parse_url($database->url);
-    // $db_host = $db_url['host'];
-    return $database->db_host;
-
-    return $db_host;
+  protected function getHostFromDatabaseResponse($environment, $database): string {
+    if ($this->isAcsfEnv($environment)) {
+      return $database->db_host . '.enterprise-g1.hosting.acquia.com';
+    }
+    else {
+      return $database->db_host;
+    }
   }
 
 }
