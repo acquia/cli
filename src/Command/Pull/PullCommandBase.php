@@ -12,7 +12,6 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -383,12 +382,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);
-    $question = new ChoiceQuestion(
-      '<question>Choose a Cloud Platform environment</question>:',
-      $choices
-    );
-    $helper = $this->getHelper('question');
-    $chosen_environment_label = $helper->ask($this->input, $this->output, $question);
+    $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices);
     $chosen_environment_index = array_search($chosen_environment_label, $choices, TRUE);
 
     return $application_environments[$chosen_environment_index];
@@ -428,13 +422,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $database->name . $suffix;
     }
 
-    $question = new ChoiceQuestion(
-      '<question>Choose a database</question>:',
-      $choices,
-      $default_database_index
-    );
-    $helper = $this->getHelper('question');
-    $chosen_database_label = $helper->ask($this->input, $this->output, $question);
+    $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
     $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
 
     return $environment_databases[$chosen_database_index];
@@ -497,11 +485,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $acsf_site['name'];
     }
 
-    $question = new ChoiceQuestion('<question>Choose a site</question>:', $choices);
-    $helper = $this->getHelper('question');
-    $choice = $helper->ask($this->input, $this->output, $question);
-
-    return $choice;
+    return $this->io->choice('Choose a site', $choices);
   }
 
   /**

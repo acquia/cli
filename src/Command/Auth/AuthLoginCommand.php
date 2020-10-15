@@ -7,7 +7,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -69,9 +68,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_key);
     }
     else {
-      $question = new Question('<question>Please enter your API Key:</question> ');
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
-      $api_key = $this->questionHelper->ask($input, $output, $question);
+      $api_key = $this->io->ask('Please enter your API Key', NULL, \Closure::fromCallable([$this, 'validateApiKey']));
     }
 
     return $api_key;
@@ -107,11 +104,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_secret);
     }
     else {
-      $question = new Question('<question>Please enter your API Secret:</question> ');
-      $question->setHidden($this->localMachineHelper->useTty());
-      $question->setHiddenFallback(TRUE);
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
-      $api_secret = $this->questionHelper->ask($input, $output, $question);
+      $api_secret = $this->io->askHidden('Please enter your API Secret', \Closure::fromCallable([$this, 'validateApiKey']));
     }
 
     return $api_secret;
