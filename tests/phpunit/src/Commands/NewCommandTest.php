@@ -75,7 +75,7 @@ class NewCommandTest extends CommandTestBase {
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $inputs = [
-      // Which starting project would you like to use?
+      // Choose a starting project
       $project,
     ];
     $this->executeCommand([
@@ -83,7 +83,7 @@ class NewCommandTest extends CommandTestBase {
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Which starting project would you like to use?', $output);
+    $this->assertStringContainsString('Choose a starting project', $output);
     $this->assertStringContainsString($project, $output);
     $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
 

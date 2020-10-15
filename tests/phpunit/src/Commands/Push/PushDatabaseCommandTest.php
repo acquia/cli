@@ -68,7 +68,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a database:', $output);
+    $this->assertStringContainsString('Choose a database', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
     $this->assertStringContainsString('profserv2 (default)', $output);
     $this->assertStringContainsString('Overwrite the jxr136 database on dev with a copy of the database from the current machine?', $output);
