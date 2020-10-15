@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -11,9 +10,7 @@ use AcquiaCloudApi\Response\OperationResponse;
 use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -38,8 +35,8 @@ class IdeCreateCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create a Cloud IDE for development')
-      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
+    $this->setDescription('Create a Cloud IDE for development');
+    $this->acceptApplicationUuid();
   }
 
   /**

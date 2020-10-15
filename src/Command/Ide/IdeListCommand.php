@@ -2,13 +2,10 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -22,8 +19,8 @@ class IdeListCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('List available Cloud IDEs')
-      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
+    $this->setDescription('List available Cloud IDEs');
+    $this->acceptApplicationUuid();
   }
 
   /**
