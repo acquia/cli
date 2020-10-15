@@ -20,7 +20,7 @@ class IdeOpenCommand extends IdeCommandBase {
   protected function configure() {
     $this->setDescription('Open a Cloud IDE in your browser')
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
-      $this->acceptApplicationUuid;
+    $this->acceptApplicationUuid();
     // @todo Add option to accept an ide UUID.
   }
 
