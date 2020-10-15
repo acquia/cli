@@ -585,8 +585,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ): ?ApplicationResponse {
     if ($this->repoRoot) {
       $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
-      $style = new SymfonyStyle($this->input, $this->output);
-      $answer = $style->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
+      $io = new SymfonyStyle($this->input, $this->output);
+      $answer = $io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
         $this->output->writeln('Searching for a matching Cloud application...');
         if ($git_config = $this->getGitConfig()) {
@@ -761,8 +761,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
     ): bool {
-    $style = new SymfonyStyle($this->input, $this->output);
-    $answer = $style->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository?");
+    $io = new SymfonyStyle($this->input, $this->output);
+    $answer = $io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository?");
     if ($answer) {
       return $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
