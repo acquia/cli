@@ -218,6 +218,7 @@ abstract class CommandTestBase extends TestBase {
       'get', '200');
     $acsf_env_response = $this->getAcsfEnvResponse();
     $response->sshUrl = $acsf_env_response->sshUrl;
+    $response->ssh_url = $acsf_env_response->sshUrl;
     $response->domains = $acsf_env_response->domains;
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
@@ -245,7 +246,7 @@ abstract class CommandTestBase extends TestBase {
       '/multisite-config.json')))->shouldBeCalled();
     $ssh_helper->executeCommand(
       Argument::type('object'),
-      ['cat', '/var/www/site-php/site.dev/multisite-config.json'],
+      ['cat', '/var/www/site-php/profserv2.dev/multisite-config.json'],
       FALSE
     )->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
   }

@@ -125,7 +125,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return bool
    */
   protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
-    if (isset($this->drushHasActiveDatabaseConnection)) {
+    if (!is_null($this->drushHasActiveDatabaseConnection)) {
       return $this->drushHasActiveDatabaseConnection;
     }
     if ($this->localMachineHelper->commandExists('drush')) {
@@ -140,12 +140,12 @@ abstract class PullCommandBase extends CommandBase {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
-        }
-        else {
-          $this->drushHasActiveDatabaseConnection = FALSE;
+          return $this->drushHasActiveDatabaseConnection;
         }
       }
     }
+
+    $this->drushHasActiveDatabaseConnection = FALSE;
 
     return $this->drushHasActiveDatabaseConnection;
   }
@@ -211,10 +211,10 @@ abstract class PullCommandBase extends CommandBase {
   protected function createRemoteDatabaseDump($environment, $database): array {
     $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
-    $temp_prefix = $database->name . $database->environment->name;
-    $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
+    $remote_temp_dir = $this->getRemoteTempFilepath($environment, $database, $filename);
+    $remote_filepath = $remote_temp_dir . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
-    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
+    $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not create database dump on remote host: {message}',
@@ -803,16 +803,37 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param $environment
    * @param $database
    *
    * @return string
    */
-  protected function getHostFromDatabaseResponse($database): string {
-    // Workaround until db_host is fixed (CXAPI-7018).
-    $db_name = $this->getNameFromDatabaseResponse($database);
-    $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
+  protected function getHostFromDatabaseResponse($environment, $database): string {
+    if ($this->isAcsfEnv($environment)) {
+      return $database->db_host . '.enterprise-g1.hosting.acquia.com';
+    }
+    else {
+      return $database->db_host;
+    }
+  }
 
-    return $db_host;
+  /**
+   * @param $environment
+   * @param $database
+   * @param string $filename
+   *
+   * @return string
+   */
+  protected function getRemoteTempFilepath($environment, $database, string $filename): string {
+    if ($this->isAcsfEnv($environment)) {
+      $ssh_url_parts = explode('.', $database->ssh_host);
+      $temp_prefix = reset($ssh_url_parts);
+    }
+    else {
+      $temp_prefix = $database->name . '.' . $database->environment->name;
+    }
+
+    return '/mnt/tmp/' . $temp_prefix;
   }
 
 }

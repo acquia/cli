@@ -121,7 +121,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
 
     // Database.
-    $this->mockExecuteSshMySqlDump($ssh_helper, $environments_response, $mysql_dump_successful);
+    $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
     $this->mockDownloadMySqlDump($local_machine_helper, $mysql_dl_successful);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $mysql_drop_successful);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
@@ -204,7 +204,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function mockExecuteSshMySqlDump(
+  protected function mockCreateRemoteDatabaseDump(
     ObjectProphecy $ssh_helper,
     $environments_response,
     $success
@@ -213,7 +213,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $process->getOutput()->willReturn('dbdumpcontents');
     $ssh_helper->executeCommand(
       new EnvironmentResponse($environments_response),
-      ['MYSQL_PWD=password mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | pv --rate --bytes | gzip -9 > /mnt/tmp/profserv201dev/acli-mysql-dump-dev-profserv201dev.sql.gz'],
+      ['MYSQL_PWD=password mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | pv --rate --bytes | gzip -9 > /mnt/tmp/web-1675/acli-mysql-dump-dev-profserv201dev.sql.gz'],
       TRUE,
       NULL
     )
@@ -227,7 +227,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
     $process = $this->mockProcess($success);
     $local_machine_helper->execute(
-      Argument::containing('site.dev@server-123.hosted.hosting.acquia.com:/mnt/tmp/profserv201dev/acli-mysql-dump-dev-profserv201dev.sql.gz'),
+      Argument::containing('profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/web-1675/acli-mysql-dump-dev-profserv201dev.sql.gz'),
       Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();

@@ -98,8 +98,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      // $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
-      'site.dev@server-123.hosted.hosting.acquia.com:/mnt/files/site.dev/sites/g/files/jxr5000596dev/files',
+      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',
       $this->projectFixtureDir . '/docroot/sites/default/',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
