@@ -23,8 +23,8 @@ class AliasListCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('List all aliases for the Cloud Platform environments')
-      ->setAliases(['aliases', 'sa'])
-      ->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The UUID or alias of the associated Cloud Platform Application');
+      ->setAliases(['aliases', 'sa']);
+    $this->acceptApplicationUuid();
   }
 
   /**

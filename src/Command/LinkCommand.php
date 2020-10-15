@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Command;
 
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -36,7 +35,7 @@ class LinkCommand extends CommandBase {
       $output->writeln('This repository is already linked to Cloud application <options=bold>' . $cloud_application->name . '</>. Run <options=bold>acli unlink</> to unlink it.');
       return 1;
     }
-    $cloud_application_uuid = $this->determineCloudApplication(TRUE);
+    $this->determineCloudApplication(TRUE);
 
     return 0;
   }
