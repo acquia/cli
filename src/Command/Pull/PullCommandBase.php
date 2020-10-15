@@ -210,14 +210,8 @@ abstract class PullCommandBase extends CommandBase {
   protected function createRemoteDatabaseDump($environment, $database): array {
     $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
-    if ($this->isAcsfEnv($environment)) {
-      $ssh_url_parts = explode('.', $database->ssh_host);
-      $temp_prefix = reset($ssh_url_parts);
-    }
-    else {
-      $temp_prefix = $database->name . '.' . $database->environment->name;
-    }
-    $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
+    $remote_temp_dir = $this->getRemoteTempFilepath($environment, $database, $filename);
+    $remote_filepath = $remote_temp_dir . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
     $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
@@ -819,6 +813,25 @@ abstract class PullCommandBase extends CommandBase {
     else {
       return $database->db_host;
     }
+  }
+
+  /**
+   * @param $environment
+   * @param $database
+   * @param string $filename
+   *
+   * @return string
+   */
+  protected function getRemoteTempFilepath($environment, $database, string $filename): string {
+    if ($this->isAcsfEnv($environment)) {
+      $ssh_url_parts = explode('.', $database->ssh_host);
+      $temp_prefix = reset($ssh_url_parts);
+    }
+    else {
+      $temp_prefix = $database->name . '.' . $database->environment->name;
+    }
+
+    return '/mnt/tmp/' . $temp_prefix;
   }
 
 }
