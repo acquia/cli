@@ -125,7 +125,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return bool
    */
   protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
-    if (isset($this->drushHasActiveDatabaseConnection)) {
+    if (!is_null($this->drushHasActiveDatabaseConnection)) {
       return $this->drushHasActiveDatabaseConnection;
     }
     if ($this->localMachineHelper->commandExists('drush')) {
@@ -141,11 +141,10 @@ abstract class PullCommandBase extends CommandBase {
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
         }
-        else {
-          $this->drushHasActiveDatabaseConnection = FALSE;
-        }
       }
     }
+
+    $this->drushHasActiveDatabaseConnection = FALSE;
 
     return $this->drushHasActiveDatabaseConnection;
   }
@@ -211,7 +210,13 @@ abstract class PullCommandBase extends CommandBase {
   protected function createRemoteDatabaseDump($environment, $database): array {
     $db_name = $this->getNameFromDatabaseResponse($database);
     $filename = "acli-mysql-dump-{$environment->name}-{$db_name}.sql.gz";
-    $temp_prefix = $database->name . $database->environment->name;
+    if ($this->isAcsfEnv($environment)) {
+      $ssh_url_parts = explode('.', $database->ssh_host);
+      $temp_prefix = reset($ssh_url_parts);
+    }
+    else {
+      $temp_prefix = $database->name . '.' . $database->environment->name;
+    }
     $remote_filepath = '/mnt/tmp/' . $temp_prefix . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $remote_filepath on remote server");
     $command = "MYSQL_PWD={$database->password} mysqldump --host={$this->getHostFromDatabaseResponse($database)} --user={$database->user_name} {$db_name} | pv --rate --bytes | gzip -9 > $remote_filepath";
@@ -809,8 +814,13 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function getHostFromDatabaseResponse($database): string {
     // Workaround until db_host is fixed (CXAPI-7018).
+    // Works for all but ACSF.
+    // ACSF should look like fsdb-74.enterprise-g1.hosting.acquia.com
     $db_name = $this->getNameFromDatabaseResponse($database);
     $db_host = $database->db_host ?: "db-{$db_name}.cdb.database.services.acquia.io";
+    // $db_url = parse_url($database->url);
+    // $db_host = $db_url['host'];
+    return $database->db_host;
 
     return $db_host;
   }
