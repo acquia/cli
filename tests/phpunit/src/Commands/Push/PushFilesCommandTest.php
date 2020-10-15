@@ -43,7 +43,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-    $this->mockExecuteRsync($local_machine_helper, $environments_response, $process);
+    $this->mockExecuteRsync($local_machine_helper, $process);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -75,12 +75,10 @@ class PushFilesCommandTest extends CommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param object $environments_response
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteRsync(
     ObjectProphecy $local_machine_helper,
-    $environments_response,
     ObjectProphecy $process
   ): void {
     $command = [
@@ -88,8 +86,7 @@ class PushFilesCommandTest extends CommandTestBase {
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
       $this->projectFixtureDir . '/docroot/sites/default/',
-      // $environments_response->ssh_url . ':/home/' . RefreshCommand::getSiteGroupFromSshUrl($environments_response) . '/' . $environments_response->name . '/sites/default/files',
-      'site.dev@server-123.hosted.hosting.acquia.com:/mnt/files/site.dev/sites/g/files/jxr5000596dev/files',
+      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())

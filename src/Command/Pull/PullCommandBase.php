@@ -140,6 +140,7 @@ abstract class PullCommandBase extends CommandBase {
         $drush_status_return_output = json_decode($process->getOutput(), TRUE);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
+          return $this->drushHasActiveDatabaseConnection;
         }
       }
     }
@@ -802,6 +803,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param $environment
    * @param $database
    *
    * @return string
