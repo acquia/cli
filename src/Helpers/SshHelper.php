@@ -80,7 +80,6 @@ class SshHelper implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function sendCommandViaSsh($environment, $command, $print_output, $timeout = NULL): Process {
-    $this->localMachineHelper->setIsTty(TRUE);
     $command = array_values($this->getSshCommand($environment, $command));
 
     return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output, $timeout);
