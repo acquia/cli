@@ -8,7 +8,6 @@ use Acquia\Cli\Output\Checklist;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 /**
  * Class PushDatabaseCommand.
@@ -44,8 +43,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $database = $this->determineSourceDatabase($acquia_cloud_client, $destination_environment);
 
-    $question = new ConfirmationQuestion("<question>Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?</question> ", TRUE);
-    $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+    $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
       return 0;
     }

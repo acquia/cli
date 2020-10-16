@@ -12,8 +12,6 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -384,12 +382,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     // Re-key the array since we removed production.
     $application_environments = array_values($application_environments);
-    $question = new ChoiceQuestion(
-      '<question>Choose a Cloud Platform environment</question>:',
-      $choices
-    );
-    $helper = $this->getHelper('question');
-    $chosen_environment_label = $helper->ask($this->input, $this->output, $question);
+    $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices);
     $chosen_environment_index = array_search($chosen_environment_label, $choices, TRUE);
 
     return $application_environments[$chosen_environment_index];
@@ -429,13 +422,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $database->name . $suffix;
     }
 
-    $question = new ChoiceQuestion(
-      '<question>Choose a database</question>:',
-      $choices,
-      $default_database_index
-    );
-    $helper = $this->getHelper('question');
-    $chosen_database_label = $helper->ask($this->input, $this->output, $question);
+    $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
     $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
 
     return $environment_databases[$chosen_database_index];
@@ -498,11 +485,7 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $acsf_site['name'];
     }
 
-    $question = new ChoiceQuestion('<question>Choose a site</question>:', $choices);
-    $helper = $this->getHelper('question');
-    $choice = $helper->ask($this->input, $this->output, $question);
-
-    return $choice;
+    return $this->io->choice('Choose a site', $choices);
   }
 
   /**
@@ -581,9 +564,7 @@ abstract class PullCommandBase extends CommandBase {
 
     $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
     if (!$finder->hasResults()) {
-      $question = new ConfirmationQuestion('<question>Would you like to clone a project into the current directory?</question> ',
-        TRUE);
-      if ($this->questionHelper->ask($this->input, $this->output, $question)) {
+      if ($this->io->confirm('Would you like to clone a project into the current directory?')) {
         return TRUE;
       }
     }
@@ -689,12 +670,10 @@ abstract class PullCommandBase extends CommandBase {
   ): void {
     $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
     if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $question = new ConfirmationQuestion("<question>Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?</question> ",
-        FALSE);
-      $answer = $this->questionHelper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
-        $exit_code = $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
+        $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
           $output);
       }
     }

@@ -12,7 +12,6 @@ use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Class IdeCreateCommand.
@@ -50,9 +49,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $cloud_application_uuid = $this->determineCloudApplication();
     $this->checklist = new Checklist($output);
 
-    $question = new Question('<question>Please enter a label for your Cloud IDE:</question> ');
-    $helper = $this->getHelper('question');
-    $ide_label = $helper->ask($input, $output, $question);
+    $ide_label = $this->io->ask('Please enter a label for your Cloud IDE');
 
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);

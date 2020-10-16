@@ -39,9 +39,7 @@ class NewCommand extends CommandBase {
       'acquia/drupal-recommended-project',
       'acquia/drupal-minimal-project',
     ];
-    $question = new ChoiceQuestion('<question>Which starting project would you like to use?</question>', $distros);
-    $helper = $this->getHelper('question');
-    $project = $helper->ask($this->input, $this->output, $question);
+    $project = $this->io->choice('Choose a starting project', $distros);
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));

@@ -34,7 +34,7 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -65,6 +65,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
   protected $output;
+
+  /**
+   * @var \Symfony\Component\Console\Style\SymfonyStyle
+   */
+  protected $io;
 
   /**
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
@@ -215,6 +220,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function initialize(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
+    $this->io = new SymfonyStyle($input, $output);
     // Register custom progress bar format.
     ProgressBar::setFormatDefinition(
       'message',
@@ -262,8 +268,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
-      $question = new ConfirmationQuestion('<question>Would you like to share anonymous performance usage and data?</question> ', TRUE);
-      $pref = $this->questionHelper->ask($this->input, $this->output, $question);
+      $style = new SymfonyStyle($this->input, $this->output);
+      $pref = $style->confirm('Would you like to share anonymous performance usage and data?');
       $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
         $this->output->writeln('Awesome! Thank you for helping!');
@@ -606,9 +612,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ): ?ApplicationResponse {
     if ($this->repoRoot) {
       $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
-      $question = new ConfirmationQuestion('<question>Would you like Acquia CLI to search for a Cloud application that matches your local git config?</question> ');
-      $helper = $this->getHelper('question');
-      $answer = $helper->ask($this->input, $this->output, $question);
+      $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
         $this->output->writeln('Searching for a matching Cloud application...');
         if ($git_config = $this->getGitConfig()) {
@@ -783,9 +787,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function promptLinkApplication(
     ?ApplicationResponse $cloud_application
     ): bool {
-    $question = new ConfirmationQuestion("<question>Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository</question>? ");
-    $helper = $this->getHelper('question');
-    $answer = $helper->ask($this->input, $this->output, $question);
+    $answer = $this->io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository?");
     if ($answer) {
       return $this->saveLocalConfigCloudAppUuid($cloud_application);
     }
