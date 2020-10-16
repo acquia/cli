@@ -668,8 +668,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
         }
-        elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-          // @todo Don't prompt if the user already has this linked in blt.yml.
+        elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->getCloudApplicationUuidFromBltYaml()) {
           $this->promptLinkApplication($application);
         }
       }
@@ -695,14 +694,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $application_uuid;
     }
 
-    // Try blt.yml.
-    $blt_yaml_file_path = Path::join($this->repoRoot, 'blt', 'blt.yml');
-    if (file_exists($blt_yaml_file_path)) {
-      $contents = Yaml::parseFile($blt_yaml_file_path);
-      if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
-        $this->logger->debug('Using Cloud application UUID ' . $contents['cloud']['appId'] . ' from blt/blt.yml');
-        return $contents['cloud']['appId'];
-      }
+    if ($application_uuid = $this->getCloudApplicationUuidFromBltYaml()) {
+      $this->logger->debug('Using Cloud application UUID ' . $application_uuid . ' from blt/blt.yml');
+      return $application_uuid;
     }
 
     // Get from the Cloud Platform env var.
@@ -718,6 +712,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // Finally, just ask.
     if ($application = $this->promptChooseApplication($acquia_cloud_client)) {
       return $application->uuid;
+    }
+
+    return NULL;
+  }
+
+  /**
+   * @return string|null
+   */
+  protected function getCloudApplicationUuidFromBltYaml() {
+    $blt_yaml_file_path = Path::join($this->repoRoot, 'blt', 'blt.yml');
+    if (file_exists($blt_yaml_file_path)) {
+      $contents = Yaml::parseFile($blt_yaml_file_path);
+      if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
+        return $contents['cloud']['appId'];
+      }
     }
 
     return NULL;
