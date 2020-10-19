@@ -26,7 +26,6 @@ jobs:
         - choco install php
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
-        - composer self-update --preview
         # Fix curl errors in coveralls.
         - curl -o /c/tools/php74/extras/ssl/cacert.pem https://curl.haxx.se/ca/cacert.pem
         - echo 'curl.cainfo = "C:\tools\php74\extras\ssl\cacert.pem"' >> /c/tools/php74/php.ini
@@ -34,6 +33,7 @@ jobs:
         - cmd.exe //c "RefreshEnv.cmd"
         # Emulate RefreshEnv to pick up new bin paths in Git Bash (the native Travis CI shell).
         - eval $(powershell -NonInteractive -Command 'write("export PATH=`"" + ([Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [Environment]::GetEnvironmentVariable("PATH","User")).replace("\","/").replace("C:","/c").replace(";",":") + ":`$PATH`"")')
+        - composer self-update --preview
     - stage: "Build packages for CLI"
       if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
