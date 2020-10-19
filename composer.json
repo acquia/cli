@@ -14,6 +14,7 @@
     "php": "^7.3",
     "ext-json": "*",
     "acquia/drupal-environment-detector": "^1.2.0",
+    "consolidation/self-update": "^1.2",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
     "kevinrob/guzzle-cache-middleware": "^3.3",
