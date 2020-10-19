@@ -482,7 +482,7 @@ abstract class PullCommandBase extends CommandBase {
     $choices = [];
     $acsf_sites = $this->getAcsfSites($cloud_environment);
     foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
-      $choices[] = $acsf_site['name'];
+      $choices[] = "{$acsf_site['name']} ($domain)" ;
     }
 
     return $this->io->choice('Choose a site', $choices);
