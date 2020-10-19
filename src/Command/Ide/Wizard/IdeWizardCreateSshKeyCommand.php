@@ -273,8 +273,8 @@ EOT
         $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
-          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
           $loop->stop();
+          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
         }
         else {
           $this->logger->debug($process->getOutput() . $process->getErrorOutput());
