@@ -26,6 +26,7 @@ jobs:
         - choco install php
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
+        - composer self-update --preview
         # Fix curl errors in coveralls.
         - curl -o /c/tools/php74/extras/ssl/cacert.pem https://curl.haxx.se/ca/cacert.pem
         - echo 'curl.cainfo = "C:\tools\php74\extras\ssl\cacert.pem"' >> /c/tools/php74/php.ini
@@ -54,6 +55,7 @@ jobs:
 before_install:
   # Tests for the SSH key commands rely on ssh-agent running.
   - eval "$(ssh-agent -s)"
+  - composer self-update --preview
 
 install:
   # Load composer dependencies.
