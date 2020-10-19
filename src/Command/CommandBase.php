@@ -9,7 +9,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Helpers\UpdateHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -147,11 +146,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $sshDir;
 
-  /**
-   * @var \Acquia\Cli\Helpers\UpdateHelper
-   */
-  protected $updateHelper;
-
   protected $localDbUser;
   protected $localDbPassword;
   protected $localDbName;
@@ -162,7 +156,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Acquia\Cli\Helpers\UpdateHelper $updateHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
@@ -177,7 +170,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function __construct(
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
-    UpdateHelper $updateHelper,
     JsonFileStore $datastoreCloud,
     JsonFileStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
@@ -191,7 +183,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
-    $this->updateHelper = $updateHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
@@ -242,7 +233,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertApplicationAliastoUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
-    $this->checkForNewVersion($input, $output);
 
     // @todo Enable these vars to be configured.
     $this->localDbHost = 'localhost';
@@ -1070,22 +1060,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to delete SSH key from the Cloud Platform');
-    }
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
-    try {
-      $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
-      if (strpos($input->getArgument('command'), 'api:') === FALSE && $updater->hasUpdate()) {
-        $new_version = $updater->getNewVersion();
-        $this->logger->notice("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
-      }
-    } catch (\Exception $e) {
-      $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
   }
 

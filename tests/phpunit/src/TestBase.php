@@ -9,8 +9,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Helpers\UpdateHelper;
-use Acquia\Cli\Tests\Commands\UpdateCommandTest;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
@@ -159,11 +157,6 @@ abstract class TestBase extends TestCase {
   protected $acliRepoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\UpdateHelper
-   */
-  protected $updateHelper;
-
-  /**
    * @var \Symfony\Component\Console\Logger\ConsoleLogger
    */
   protected $logger;
@@ -282,7 +275,6 @@ abstract class TestBase extends TestCase {
     return new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
-      $this->updateHelper,
       $this->cloudDatastore,
       $this->acliDatastore,
       $this->telemetryHelper,
