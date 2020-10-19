@@ -11,9 +11,6 @@
     "brick/math": {
         "version": "0.9.1"
     },
-    "composer/ca-bundle": {
-        "version": "1.2.7"
-    },
     "consolidation/self-update": {
         "version": "1.2.0"
     },
@@ -55,12 +52,6 @@
     },
     "nikic/php-parser": {
         "version": "v4.8.0"
-    },
-    "padraic/humbug_get_contents": {
-        "version": "1.1.2"
-    },
-    "padraic/phar-updater": {
-        "version": "v1.0.6"
     },
     "paragonie/random_compat": {
         "version": "v9.99.99"
