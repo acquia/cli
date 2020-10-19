@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PullScriptsCommand extends PullCommandBase {
 
-  protected static $defaultName = 'pull:files';
+  protected static $defaultName = 'pull:run-scripts';
 
   /**
    * @var string
