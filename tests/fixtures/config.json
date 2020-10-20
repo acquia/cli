@@ -1,0 +1,30 @@
+{
+  "databases":{
+    "something":{
+      "id":"134547",
+      "role":"something",
+      "name":"somethingdev"
+    },
+    "foo":{
+      "id":"283211",
+      "role":"foo",
+      "name":"somethingdb283211"
+    },
+    "bar":{
+      "id":"283214",
+      "role":"bar",
+      "name":"somethingdb283214"
+    }
+  },
+  "file_paths":{
+    "real_files_path":"\/mnt\/gfs\/somethingdev",
+    "virtual_files_path":"\/mnt\/gfs\/somethingdev",
+    "real_home_path":"\/mnt\/gfs\/home\/something",
+    "virtual_home_path":"\/home\/something",
+    "real_tmp_path":"\/mnt\/tmp\/something.dev\/.contained_tmp",
+    "mount_point":"\/mnt\/gfs"
+  },
+  "name":"somethingdev",
+  "hide_hostname":false,
+  "fpm_status_hostname":"status.somethingdev.prod.acquia-sites.com"
+}

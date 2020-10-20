@@ -1,0 +1,56 @@
+{
+  "id": "3285-2ed281d4-9dec-4cc3-ac63-691c3ba002c3",
+  "label": "Dev",
+  "name": "dev",
+  "application": {
+    "name": "Something",
+    "uuid": "2ed281d4-9dec-4cc3-ac63-691c3ba002c3"
+  },
+  "domains": [
+    "somethingdev.prod.acquia-sites.com"
+  ],
+  "active_domain": "somethingdev.prod.acquia-sites.com",
+  "default_domain": "somethingdev.prod.acquia-sites.com",
+  "image_url": null,
+  "ssh_url": "something.dev@somethingdev.ssh.prod.acquia-sites.com",
+  "region": "us-east-1",
+  "balancer": "balancers",
+  "platform": "cloud",
+  "status": "normal",
+  "type": "drupal",
+  "size": null,
+  "weight": 0,
+  "flags": {
+    "cde": false,
+    "cdn": false,
+    "hsd": false,
+    "livedev": false,
+    "migration": false,
+    "multicert": true,
+    "multi_region": false,
+    "production": false,
+    "production_mode": false,
+    "remote_admin": false,
+    "varnish": true,
+    "varnish_over_ssl": false
+  },
+  "configuration": {
+    "operating_system": "xenial",
+    "php": {
+      "apcu": 8,
+      "interned_strings_buffer": null,
+      "max_execution_time": null,
+      "max_input_vars": null,
+      "max_post_size": null,
+      "memory_limit": 128,
+      "opcache": 96,
+      "version": "7.3"
+    }
+  },
+  "artifact": null,
+  "_links": {
+    "self": {
+      "href": "https:\/\/cloud.acquia.com\/api\/environments\/3285-2ed281d4-9dec-4cc3-ac63-691c3ba002c3"
+    }
+  }
+}
