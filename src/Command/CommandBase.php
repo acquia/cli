@@ -1155,4 +1155,98 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
+  /**
+   * @param $cloud_environment
+   *
+   * @return string
+   */
+  public static function getSiteGroupFromSshUrl($cloud_environment): string {
+    $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
+    $sitegroup = reset($ssh_url_parts);
+
+    return $sitegroup;
+  }
+
+  /**
+   * @param $cloud_environment
+   *
+   * @return bool
+   */
+  protected function isAcsfEnv($cloud_environment): bool {
+    if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== FALSE) {
+      return TRUE;
+    }
+    foreach ($cloud_environment->domains as $domain) {
+      if (strpos($domain, 'acsitefactory') !== FALSE) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getAcsfSites($cloud_environment): array {
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
+    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
+    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+    if ($process->isSuccessful()) {
+      return json_decode($process->getOutput(), TRUE);
+    }
+    throw new AcquiaCliException("Could not get ACSF sites");
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getCloudSites($cloud_environment): array {
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
+    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/config.json"];
+    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+    if ($process->isSuccessful()) {
+      return json_decode($process->getOutput(), TRUE);
+    }
+    throw new AcquiaCliException("Could not get Cloud sites");
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function promptChooseAcsfSite($cloud_environment) {
+    $choices = [];
+    $acsf_sites = $this->getAcsfSites($cloud_environment);
+    foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
+      $choices[] = "{$acsf_site['name']} ($domain)";
+    }
+    $choice = $this->io->choice('Choose a site', $choices);
+    $key = array_search($choice, $choices, TRUE);
+    $sites = array_values($acsf_sites['sites']);
+    $site = $sites[$key];
+
+    return $site['name'];
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   *
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function promptChooseCloudSite($cloud_environment) {
+    $cloud_sites = $this->getCloudSites($cloud_environment);
+    $choices = array_keys($cloud_sites['databases']);
+    return $this->io->choice('Choose a site', $choices);
+  }
+
 }
