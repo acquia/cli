@@ -4969,19 +4969,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "a301ebd5ef18d7cd2f314dfca1fda9e660bb6155"
+                "reference": "9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/a301ebd5ef18d7cd2f314dfca1fda9e660bb6155",
-                "reference": "a301ebd5ef18d7cd2f314dfca1fda9e660bb6155",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab",
+                "reference": "9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "league/oauth2-client": "^2.4",
                 "php": ">=7.3",
-                "symfony/cache": "^4|^5"
+                "symfony/cache": "^4|^5",
+                "webmozart/path-util": "^2.3"
             },
             "require-dev": {
                 "eloquent/phony-phpunit": "^4",
@@ -5022,7 +5023,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-17T05:10:55+00:00"
+            "time": "2020-10-20T20:36:31+00:00"
         },
         {
             "name": "webmozart/assert",
