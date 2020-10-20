@@ -761,27 +761,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
-    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename, ['localProjects' => []]);
-    foreach ($local_user_config['localProjects'] as $key => $project) {
-      if ($project['directory'] === $this->repoRoot) {
-        $project['cloud_application_uuid'] = $application->uuid;
-        $local_user_config['localProjects'][$key] = $project;
-        $this->localProjectInfo = $local_user_config;
-        $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
-        $this->output->writeln("<info>The Cloud application <options=bold>{$application->name}</> has been linked to this repository</info>");
-
-        return TRUE;
-      }
+    $acquia_cli_yml_filepath = Path::join($this->repoRoot, '.acquia-cli.yml');
+    if ($this->localMachineHelper->getFilesystem()->exists($acquia_cli_yml_filepath)) {
+      $acquia_cli_yml = Yaml::parseFile($acquia_cli_yml_filepath);
+      $acquia_cli_yml['cloud_app_uuid'] = $application->uuid;
+      $this->localMachineHelper->getFilesystem()->dumpFile($acquia_cli_yml_filepath, Yaml::dump($acquia_cli_yml));
     }
-    return FALSE;
+    else {
+      $acquia_cli_yml = ['cloud_app_uuid' => $application->uuid];
+    }
+    $this->localMachineHelper->getFilesystem()->dumpFile($acquia_cli_yml_filepath, Yaml::dump($acquia_cli_yml));
+
+    return TRUE;
   }
 
   /**
    * @return mixed
    */
   protected function getAppUuidFromLocalProjectInfo() {
-    if (isset($this->localProjectInfo) && array_key_exists('cloud_application_uuid', $this->localProjectInfo)) {
-      return $this->localProjectInfo['cloud_application_uuid'];
+    $acquia_cli_yml_filepath = Path::join($this->repoRoot, '.acquia-cli.yml');
+    if ($this->localMachineHelper->getFilesystem()->exists($acquia_cli_yml_filepath)) {
+      $acquia_cli_yml = Yaml::parseFile($acquia_cli_yml_filepath);
+      if (array_key_exists('cloud_app_uuid', $acquia_cli_yml)) {
+        return $acquia_cli_yml['cloud_app_uuid'];
+      }
     }
 
     return NULL;
