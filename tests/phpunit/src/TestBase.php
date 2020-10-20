@@ -177,14 +177,12 @@ abstract class TestBase extends TestCase {
     if (!$output) {
       $output = new BufferedOutput();
     }
+    $input = new ArrayInput([]);
 
     $this->application = new Application();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->input = new ArrayInput([]);
-    $this->output = $output;
-    $this->logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
@@ -198,15 +196,14 @@ abstract class TestBase extends TestCase {
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $this->logger);
     $this->updateHelper = new UpdateHelper();
     $guzzle_client = $this->mockGuzzleClientForUpdate(UpdateCommandTest::mockGitHubReleasesResponse());
     $this->updateHelper->setClient($guzzle_client->reveal());
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
+
+    $this->setIo($input, $output);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
@@ -218,6 +215,15 @@ abstract class TestBase extends TestCase {
   protected function tearDown(): void {
     parent::tearDown();
     $this->removeMockConfigFiles();
+  }
+
+  protected function setIo($input, $output) {
+    $this->input = $input;
+    $this->output = $output;
+    $this->logger = new ConsoleLogger($output);
+    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }
 
   /**
