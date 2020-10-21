@@ -88,7 +88,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
     }
     catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
