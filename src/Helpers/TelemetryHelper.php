@@ -72,7 +72,7 @@ class TelemetryHelper {
    */
   public function initializeAmplitude(Amplitude $amplitude): void {
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
-    $amplitude->setOptOut($send_telemetry);
+    $amplitude->setOptOut($send_telemetry === FALSE);
 
     if ($send_telemetry === FALSE) {
       return;
