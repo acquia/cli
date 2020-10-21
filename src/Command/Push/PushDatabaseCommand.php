@@ -50,7 +50,7 @@ class PushDatabaseCommand extends PullCommandBase {
 
     $this->checklist = new Checklist($output);
     $this->checklist->addItem('Creating local database dump');
-    $local_dump_filepath = $this->createMySqlDumpOnLocal($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword);
+    $local_dump_filepath = $this->createMySqlDumpOnLocal($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword());
     $this->checklist->completePreviousItem();
     $this->checklist->addItem('Uploading database dump to remote machine');
     $remote_dump_filepath = $this->uploadDatabaseDump($destination_environment, $database, $local_dump_filepath, $this->getOutputCallback($output, $this->checklist));
