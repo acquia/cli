@@ -37,7 +37,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
 
     // Assert we set it correctly.
-    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
+    $acquia_cli_config = $this->datastoreAcli->get($this->acliConfigFilename);
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
@@ -48,7 +48,7 @@ class UnlinkCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
 
     // Assert it's been unset.
-    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
+    $acquia_cli_config = $this->datastoreAcli->get($this->acliConfigFilename);
     $this->assertIsArray($acquia_cli_config);
     $this->assertArrayHasKey('localProjects', $acquia_cli_config);
     $this->assertArrayNotHasKey(0, $acquia_cli_config['localProjects']);

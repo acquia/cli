@@ -29,7 +29,7 @@ class ExceptionApplicationTest extends TestBase {
     $kernel = new Kernel('dev', 0);
     $kernel->boot();
     $container = $kernel->getContainer();
-    $container->set('datastore.cloud', $this->cloudDatastore);
+    $container->set('datastore.cloud', $this->datastoreCloud);
     $application = $container->get(Application::class);
     $application->setAutoExit(FALSE);
     $input = new ArrayInput(['link']);

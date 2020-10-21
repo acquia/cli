@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -116,12 +117,12 @@ abstract class TestBase extends TestCase {
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  protected $acliDatastore;
+  protected $datastoreAcli;
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  protected $cloudDatastore;
+  protected $datastoreCloud;
 
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
@@ -190,11 +191,11 @@ abstract class TestBase extends TestCase {
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->sshDir = sys_get_temp_dir();
-    $this->acliConfigFilename = 'acquia-cli.json';
+    $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
-    $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
-    $this->acliDatastore = new JsonFileStore($this->acliConfigFilepath);
-    $this->cloudDatastore = new JsonFileStore($this->cloudConfigFilepath, 1);
+    $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
+    $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
+    $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
@@ -204,7 +205,7 @@ abstract class TestBase extends TestCase {
     $this->updateHelper->setClient($guzzle_client->reveal());
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
+    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
 
@@ -286,8 +287,8 @@ abstract class TestBase extends TestCase {
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->updateHelper,
-      $this->cloudDatastore,
-      $this->acliDatastore,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
       $this->telemetryHelper,
       $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
@@ -404,7 +405,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->acliDatastore->set($this->acliConfigFilename, [
+    $this->datastoreAcli->set($this->acliConfigFilename, [
       'localProjects' => [
         0 => [
           'directory' => $this->projectFixtureDir,

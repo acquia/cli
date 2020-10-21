@@ -633,9 +633,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
       // No point in trying to link a directory that's not a repo.
-      if (!empty($this->repoRoot) && !$this->getAppUuidFromLocalAcliConfig()) {
+      if (!empty($this->repoRoot) && !$this->getCloudUuidFromDatastore()) {
         if ($link_app) {
-          $this->saveLocalConfigCloudAppUuid($application);
+          $this->saveCloudUuidToDatastore($application);
         }
         elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->getCloudApplicationUuidFromBltYaml()) {
           $this->promptLinkApplication($application);
@@ -659,7 +659,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Try local project info.
-    if ($application_uuid = $this->getAppUuidFromLocalAcliConfig()) {
+    if ($application_uuid = $this->getCloudUuidFromDatastore()) {
       $this->logger->debug('Using Cloud application UUID: ' . $application_uuid . ' from .acquia.yml');
       return $application_uuid;
     }
@@ -730,17 +730,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    * @throws \Exception
    */
-  protected function saveLocalConfigCloudAppUuid(ApplicationResponse $application): bool {
-    $acquia_cli_yml_filepath = Path::join($this->repoRoot, '.acquia-cli.yml');
-    if ($this->localMachineHelper->getFilesystem()->exists($acquia_cli_yml_filepath)) {
-      $acquia_cli_yml = Yaml::parseFile($acquia_cli_yml_filepath);
-      $acquia_cli_yml['cloud_app_uuid'] = $application->uuid;
-      $this->localMachineHelper->getFilesystem()->dumpFile($acquia_cli_yml_filepath, Yaml::dump($acquia_cli_yml));
-    }
-    else {
-      $acquia_cli_yml = ['cloud_app_uuid' => $application->uuid];
-    }
-    $this->localMachineHelper->getFilesystem()->dumpFile($acquia_cli_yml_filepath, Yaml::dump($acquia_cli_yml));
+  protected function saveCloudUuidToDatastore(ApplicationResponse $application): bool {
+    $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
 
     return TRUE;
   }
@@ -748,7 +739,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  protected function getAppUuidFromLocalAcliConfig() {
+  protected function getCloudUuidFromDatastore() {
     return $this->datastoreAcli->get('cloud_app_uuid');
   }
 
@@ -763,7 +754,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ): bool {
     $answer = $this->io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository?");
     if ($answer) {
-      return $this->saveLocalConfigCloudAppUuid($cloud_application);
+      return $this->saveCloudUuidToDatastore($cloud_application);
     }
     return FALSE;
   }
