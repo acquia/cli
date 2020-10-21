@@ -28,7 +28,7 @@ class TelemetryCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $datastore = $this->acliDatastore;
+    $datastore = $this->datastoreCloud;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
       $this->output->writeln('<info>Telemetry has been disabled.</info>');

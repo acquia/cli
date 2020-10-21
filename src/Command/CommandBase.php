@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
@@ -24,7 +25,6 @@ use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -106,9 +106,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $datastoreCloud;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\YamlStore
    */
-  protected $acliDatastore;
+  protected $datastoreAcli;
 
   /**
    * @var string
@@ -118,7 +118,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var string
    */
-  protected $acliConfigFilename;
+  protected $acliConfigFilepath;
 
   /**
    * @var \Zumba\Amplitude\Amplitude
@@ -164,10 +164,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Acquia\Cli\Helpers\UpdateHelper $updateHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
+   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param \Zumba\Amplitude\Amplitude $amplitude
-   * @param string $acliConfigFilename
+   * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
@@ -179,10 +179,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LocalMachineHelper $localMachineHelper,
     UpdateHelper $updateHelper,
     JsonFileStore $datastoreCloud,
-    JsonFileStore $datastoreAcli,
+    YamlStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
     Amplitude $amplitude,
-    string $acliConfigFilename,
+    string $acliConfigFilepath,
     string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
@@ -193,10 +193,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localMachineHelper = $localMachineHelper;
     $this->updateHelper = $updateHelper;
     $this->datastoreCloud = $datastoreCloud;
-    $this->acliDatastore = $datastoreAcli;
+    $this->datastoreAcli = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
     $this->amplitude = $amplitude;
-    $this->acliConfigFilename = $acliConfigFilename;
+    $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
@@ -238,7 +238,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
-    $this->loadLocalProjectInfo();
     $this->convertApplicationAliastoUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
@@ -264,13 +263,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   public function checkAndPromptTelemetryPreference(): void {
-    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
+    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     if (!isset($send_telemetry) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $style = new SymfonyStyle($this->input, $this->output);
       $pref = $style->confirm('Would you like to share anonymous performance usage and data?');
-      $this->acliDatastore->set(DataStoreContract::SEND_TELEMETRY, $pref);
+      $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, $pref);
       if ($pref) {
         $this->output->writeln('Awesome! Thank you for helping!');
       }
@@ -460,36 +459,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Load local project info from the datastore. If none exists, create default info and set it.
-   * @throws \Exception
-   */
-  protected function loadLocalProjectInfo() {
-    $this->logger->debug('Loading local project information...');
-    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
-    if ($local_user_config !== NULL && $this->repoRoot !== NULL) {
-      $this->logger->debug('Searching local datastore for matching project...');
-      foreach ($local_user_config['localProjects'] as $project) {
-        if ($project['directory'] === $this->repoRoot) {
-          $this->logger->debug('Matching local project found.');
-          if (array_key_exists('cloud_application_uuid', $project)) {
-            $this->logger->debug('Cloud application UUID: ' . $project['cloud_application_uuid']);
-          }
-          $this->localProjectInfo = $project;
-          return;
-        }
-      }
-    }
-
-    // Save empty local project info.
-    // @todo Abstract this.
-    $this->logger->debug('No matching local project found.');
-    $local_user_config = [];
-    if ($this->repoRoot) {
-      $this->createLocalProjectStubInConfig($local_user_config);
-    }
-  }
-
-  /**
    * Load configuration from .git/config.
    *
    * @return array|null
@@ -664,7 +633,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
       // No point in trying to link a directory that's not a repo.
-      if (!empty($this->repoRoot) && !$this->getAppUuidFromLocalProjectInfo()) {
+      if (!empty($this->repoRoot) && !$this->getAppUuidFromLocalAcliConfig()) {
         if ($link_app) {
           $this->saveLocalConfigCloudAppUuid($application);
         }
@@ -690,7 +659,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Try local project info.
-    if ($application_uuid = $this->getAppUuidFromLocalProjectInfo()) {
+    if ($application_uuid = $this->getAppUuidFromLocalAcliConfig()) {
+      $this->logger->debug('Using Cloud application UUID: ' . $application_uuid . ' from .acquia.yml');
       return $application_uuid;
     }
 
@@ -778,16 +748,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  protected function getAppUuidFromLocalProjectInfo() {
-    $acquia_cli_yml_filepath = Path::join($this->repoRoot, '.acquia-cli.yml');
-    if ($this->localMachineHelper->getFilesystem()->exists($acquia_cli_yml_filepath)) {
-      $acquia_cli_yml = Yaml::parseFile($acquia_cli_yml_filepath);
-      if (array_key_exists('cloud_app_uuid', $acquia_cli_yml)) {
-        return $acquia_cli_yml['cloud_app_uuid'];
-      }
-    }
-
-    return NULL;
+  protected function getAppUuidFromLocalAcliConfig() {
+    return $this->datastoreAcli->get('cloud_app_uuid');
   }
 
   /**
@@ -845,24 +807,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public static function getThisCloudIdeUuid() {
     return getenv('REMOTEIDE_UUID');
-  }
-
-  /**
-   * @param array $local_user_config
-   *
-   * @throws \Exception
-   */
-  protected function createLocalProjectStubInConfig(
-    array $local_user_config
-  ): void {
-    $project = [];
-    $project['name'] = basename($this->repoRoot);
-    $project['directory'] = $this->repoRoot;
-    $local_user_config['localProjects'][] = $project;
-
-    $this->localProjectInfo = $local_user_config;
-    $this->logger->debug('Saving local project information.');
-    $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
   }
 
   /**

@@ -17,7 +17,7 @@ class ApiListCommandTest extends CommandTestBase {
       $this->localMachineHelper,
       $this->updateHelper,
       $this->cloudDatastore,
-      $this->acliDatastore,
+      $this->Acquia CLIstore,
       $this->telemetryHelper,
       $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,

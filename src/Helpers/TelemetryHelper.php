@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\OsInfo;
@@ -25,7 +26,7 @@ class TelemetryHelper {
   private $input;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\YamlStore
    */
   private $acliDatastore;
 
@@ -45,14 +46,14 @@ class TelemetryHelper {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\Helpers\ClientService $cloud_api
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
+   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
     ClientService $cloud_api,
-    JsonFileStore $datastoreAcli,
+    YamlStore $datastoreAcli,
     JsonFileStore $datastoreCloud
   ) {
     $this->input = $input;
