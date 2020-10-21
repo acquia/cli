@@ -14,6 +14,15 @@ class TelemetryCommand extends CommandBase {
   protected static $defaultName = 'telemetry';
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    return FALSE;
+  }
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {

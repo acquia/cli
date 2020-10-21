@@ -45,7 +45,7 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
-    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
   /**
