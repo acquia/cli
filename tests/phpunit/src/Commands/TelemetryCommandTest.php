@@ -69,7 +69,8 @@ class TelemetryCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testTelemetryPrompt(array $inputs, $message): void {
-    $this->removeMockAcliConfigFile();
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
+    $this->createMockConfigFile();
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
@@ -83,7 +84,7 @@ class TelemetryCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAmplitudeDisabled(): void {
-    $this->acliConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];
     $this->createMockConfigFile();
 
     $this->amplitudeProphecy->setOptOut(TRUE)->shouldBeCalled();
