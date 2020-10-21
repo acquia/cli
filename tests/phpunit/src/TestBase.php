@@ -405,7 +405,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->datastoreAcli->set($this->acliConfigFilename, ['cloud_app_uuid' => $cloud_app_uuid]);
+    $this->datastoreAcli->set('cloud_app_uuid', $cloud_app_uuid);
   }
 
   /**
