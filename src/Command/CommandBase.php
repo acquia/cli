@@ -734,7 +734,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function saveCloudUuidToDatastore(ApplicationResponse $application): bool {
     $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
-    $this->io->success("The Cloud application <options=bold>{$application->name}</> has been linked to this repository");
+    $this->io->success("The Cloud application {$application->name} has been linked to this repository");
 
     return TRUE;
   }
