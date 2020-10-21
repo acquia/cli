@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Symfony\Component\Console\Command\Command;
 
-
 /**
  * Class LandoInfoTest
  */
