@@ -194,7 +194,7 @@ abstract class PullCommandBase extends CommandBase {
     // @todo Drop and create in a single command.
     $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
-    $this->importDatabaseDump($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
     $this->deleteRemoteDatabaseDump($environment, $remote_filepath);
   }
