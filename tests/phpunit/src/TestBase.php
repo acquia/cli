@@ -391,13 +391,13 @@ abstract class TestBase extends TestCase {
 
   protected function createMockConfigFile(): void {
     // @todo Read from config object.
-    $default_values = ['key' => 'testkey', 'secret' => 'test'];
+    $default_values = ['key' => 'testkey', 'secret' => 'test', DataStoreContract::SEND_TELEMETRY => FALSE];
     $cloud_config = array_merge($default_values, $this->cloudConfig);
     $contents = json_encode($cloud_config);
     $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
 
-    $default_values = [DataStoreContract::SEND_TELEMETRY => FALSE];
+    $default_values = [];
     $acli_config = array_merge($default_values, $this->acliConfig);
     $contents = json_encode($acli_config);
     $filepath = $this->acliConfigFilepath;
@@ -405,14 +405,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->datastoreAcli->set($this->acliConfigFilename, [
-      'localProjects' => [
-        0 => [
-          'directory' => $this->projectFixtureDir,
-          'cloud_application_uuid' => $cloud_app_uuid,
-        ],
-      ],
-    ]);
+    $this->datastoreAcli->set($this->acliConfigFilename, ['cloud_app_uuid' => $cloud_app_uuid]);
   }
 
   /**

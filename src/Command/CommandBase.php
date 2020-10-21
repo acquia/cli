@@ -81,11 +81,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   private $cloudApplication;
 
   /**
-   * @var array
-   */
-  protected $localProjectInfo;
-
-  /**
    * @var \Symfony\Component\Console\Helper\QuestionHelper
    */
   protected $questionHelper;
@@ -203,6 +198,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
     parent::__construct();
+  }
+
+  /**
+   * @param string $repoRoot
+   */
+  public function setRepoRoot(string $repoRoot): void {
+    $this->repoRoot = $repoRoot;
   }
 
   /**
@@ -732,6 +734,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function saveCloudUuidToDatastore(ApplicationResponse $application): bool {
     $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
+    $this->io->success("The Cloud application {$application->name} has been linked to this repository");
 
     return TRUE;
   }
