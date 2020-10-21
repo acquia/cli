@@ -37,21 +37,13 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
 
     // Assert we set it correctly.
-    $acquia_cli_config = $this->datastoreAcli->get($this->acliConfigFilename);
-    $this->assertIsArray($acquia_cli_config);
-    $this->assertArrayHasKey('localProjects', $acquia_cli_config);
-    $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
-    $this->assertArrayHasKey('cloud_application_uuid', $acquia_cli_config['localProjects'][0]);
-    $this->assertEquals($cloud_application_uuid, $acquia_cli_config['localProjects'][0]['cloud_application_uuid']);
+    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
 
     $this->executeCommand([], []);
     $output = $this->getDisplay();
 
     // Assert it's been unset.
-    $acquia_cli_config = $this->datastoreAcli->get($this->acliConfigFilename);
-    $this->assertIsArray($acquia_cli_config);
-    $this->assertArrayHasKey('localProjects', $acquia_cli_config);
-    $this->assertArrayNotHasKey(0, $acquia_cli_config['localProjects']);
+    $this->assertNull($this->datastoreAcli->get('cloud_app_uuid'));
     $this->assertStringContainsString("Unlinked {$this->projectFixtureDir} from Cloud application " . $cloud_application->name, $output);
   }
 
