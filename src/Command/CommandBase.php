@@ -253,7 +253,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!isset($this->localDbHost)) {
       $this->localDbHost = 'localhost';
       if ($lando_info = $this->getLandoInfo()) {
-        $this->localDbHost = $lando_info->database->creds->database;
+        $this->localDbHost = $lando_info->database->hostnames[0];
       }
     }
 
