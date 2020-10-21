@@ -813,7 +813,9 @@ abstract class PullCommandBase extends CommandBase {
       $temp_prefix = reset($ssh_url_parts);
     }
     else {
-      $temp_prefix = $database->name . '.' . $database->environment->name;
+      $vcs_url_parts = explode('@', $environment->vcs->url);
+      $sitegroup = $vcs_url_parts[0];
+      $temp_prefix = $sitegroup . '.' . $database->environment->name;
     }
 
     return '/mnt/tmp/' . $temp_prefix;
