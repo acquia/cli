@@ -54,6 +54,21 @@ class LinkCommandTest extends CommandTestBase {
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
+  public function testLinkCommandAlreadyLinked(): void {
+    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->mockApplicationRequest();
+    $this->executeCommand([], []);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('This repository is already linked to Cloud application', $output);
+    $this->assertEquals(1, $this->getStatusCode());
+  }
+
+  /**
+   * Tests the 'link' command.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testLinkCommandInvalidDir(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->command->setRepoRoot('');
