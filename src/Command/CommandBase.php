@@ -232,9 +232,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // @todo This logger is not shared in the container! Fix that.
     $this->setLogger(new ConsoleLogger($output));
 
-    $this->telemetryHelper->initializeAmplitude($this->amplitude);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
+    $this->telemetryHelper->initializeAmplitude($this->amplitude);
 
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
@@ -266,7 +266,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function checkAndPromptTelemetryPreference(): void {
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
-    if (!isset($send_telemetry) && $this->input->isInteractive()) {
+    if ((!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $style = new SymfonyStyle($this->input, $this->output);

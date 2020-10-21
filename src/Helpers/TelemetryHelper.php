@@ -38,7 +38,7 @@ class TelemetryHelper {
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  private $cloudDatastore;
+  private $datastoreCloud;
 
   /**
    * TelemetryHelper constructor.
@@ -59,7 +59,7 @@ class TelemetryHelper {
     $this->input = $input;
     $this->output = $output;
     $this->cloudApi = $cloud_api;
-    $this->cloudDatastore = $datastoreCloud;
+    $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
   }
 
@@ -71,10 +71,10 @@ class TelemetryHelper {
    * @throws \Exception
    */
   public function initializeAmplitude(Amplitude $amplitude): void {
-    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
-    $amplitude->setOptOut(!$send_telemetry);
+    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    $amplitude->setOptOut($send_telemetry);
 
-    if (!$send_telemetry) {
+    if ($send_telemetry === FALSE) {
       return;
     }
     try {
@@ -143,7 +143,7 @@ class TelemetryHelper {
    */
   protected function getUserData(): ?array {
     $user = $this->acliDatastore->get(DataStoreContract::USER);
-    if (!$user && CommandBase::isMachineAuthenticated($this->cloudDatastore)) {
+    if (!$user && CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
       $this->setDefaultUserData();
       $user = $this->acliDatastore->get(DataStoreContract::USER);
     }
