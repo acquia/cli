@@ -202,7 +202,6 @@ abstract class TestBase extends TestCase {
     $this->updateHelper->setClient($guzzle_client->reveal());
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);
@@ -224,7 +223,7 @@ abstract class TestBase extends TestCase {
     $this->output = $output;
     $this->logger = new ConsoleLogger($output);
     $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
-    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
+    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }
 
