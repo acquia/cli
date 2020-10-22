@@ -58,7 +58,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Found a matching application!', $output);
-    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
   /**
@@ -97,7 +97,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Searching for a matching Cloud application...', $output);
     $this->assertStringContainsString('Could not find a matching Cloud application.', $output);
-    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
   public function tearDown(): void {

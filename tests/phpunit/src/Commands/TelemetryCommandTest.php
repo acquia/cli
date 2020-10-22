@@ -2,14 +2,13 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Command\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\AccountResponse;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Validator\Constraints\Uuid;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -21,6 +20,22 @@ use Webmozart\PathUtil\Path;
 class TelemetryCommandTest extends CommandTestBase {
 
   /**
+   * @var string
+   */
+  protected $legacyAcliConfigFilepath;
+
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+  }
+
+  /**b
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
@@ -47,11 +62,6 @@ class TelemetryCommandTest extends CommandTestBase {
     return [
       [
         // Would you like to share anonymous performance usage and data?
-        ['y'],
-        'Awesome! Thank you for helping!',
-      ],
-      [
-        // Would you like to share anonymous performance usage and data?
         ['n'],
         'Ok, no data will be collected and shared with us.',
       ],
@@ -67,10 +77,15 @@ class TelemetryCommandTest extends CommandTestBase {
    * @param $message
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testTelemetryPrompt(array $inputs, $message): void {
-    $this->removeMockAcliConfigFile();
-
+    $this->command = $this->injectCommand(LinkCommand::class);
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
+    $this->createMockConfigFile();
+    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->mockApplicationRequest();
+    $this->mockAmplitudeRequest();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
 
@@ -83,12 +98,10 @@ class TelemetryCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAmplitudeDisabled(): void {
-    $this->acliConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];
     $this->createMockConfigFile();
-
     $this->amplitudeProphecy->setOptOut(TRUE)->shouldBeCalled();
     $this->amplitudeProphecy->queueEvent('Ran command', Argument::type('array'))->shouldBeCalled();
-
     $this->executeCommand();
 
     $this->assertEquals(0, $this->getStatusCode());
@@ -96,23 +109,44 @@ class TelemetryCommandTest extends CommandTestBase {
   }
 
   public function testAmplitudeEnabled(): void {
-    $this->acliConfig = [DataStoreContract::SEND_TELEMETRY => TRUE];
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => TRUE];
     $this->createMockConfigFile();
 
+    $this->mockAmplitudeRequest();
+    $this->executeCommand();
+
+    $this->prophet->checkPredictions();
+    $this->assertEquals(0, $this->getStatusCode());
+  }
+
+  public function testMigrateLegacyTelemetryPreference(): void {
+    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
+    $this->createMockConfigFile();
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+    $legacy_acli_config = ['send_telemetry' => TRUE];
+    $contents = json_encode($legacy_acli_config);
+    $this->fs->dumpFile($this->legacyAcliConfigFilepath, $contents);
+    $this->mockAmplitudeRequest();
+    $this->executeCommand();
+    $this->prophet->checkPredictions();
+    $this->assertEquals(0, $this->getStatusCode());
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+  }
+
+  protected function mockAmplitudeRequest(): void {
     $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
-    $this->clientProphecy->request('get', '/account')
-      ->willReturn($account)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/account')->willReturn($account)->shouldBeCalled();
 
     $this->amplitudeProphecy->queueEvent('Ran command', Argument::type('array'))->shouldBeCalled();
-    $this->amplitudeProphecy->init('956516c74386447a3148c2cc36013ac3')->shouldBeCalled();
+    $this->amplitudeProphecy->init(Argument::type('string'))->shouldBeCalled();
+    $this->amplitudeProphecy->setUserProperties(Argument::type('array'))->shouldBeCalled();
     $this->amplitudeProphecy->setDeviceId(Argument::type('string'))->shouldBeCalled();
+    $this->amplitudeProphecy->setUserId(Argument::type('string'))->shouldBeCalled();
     $this->amplitudeProphecy->setOptOut(FALSE)->shouldBeCalled();
     $this->amplitudeProphecy->logQueuedEvents()->shouldBeCalled();
     // Ensure problems with telemetry reporting are handled silently.
     // This doesn't seem to actually trigger code coverage of the exception catch, why?
     $this->amplitudeProphecy->setUserId()->willThrow(new IdentityProviderException('test', 1, 'test'));
-    $this->executeCommand();
-    $this->assertEquals(0, $this->getStatusCode());
   }
 
 }

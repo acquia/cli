@@ -29,6 +29,8 @@ class AuthLoginCommandTest extends CommandTestBase {
       [
         FALSE,
         [
+          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
+          'yes',
           // Do you want to open this page to generate a token now?
           'no',
           // Please enter your API Key:
@@ -69,6 +71,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLoginCommand
    *
+   * @param $machine_is_authenticated
    * @param $inputs
    * @param $args
    *

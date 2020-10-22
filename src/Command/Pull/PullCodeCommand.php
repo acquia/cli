@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Pull;
 
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -23,7 +24,8 @@ class PullCodeCommand extends PullCommandBase {
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
-        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.');
+        'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.')
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
   /**

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +30,8 @@ class PushFilesCommand extends PullCommandBase {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
-      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project with files to be pushed');
+      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project with files to be pushed')
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
   /**

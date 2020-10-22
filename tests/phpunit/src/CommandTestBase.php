@@ -88,7 +88,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
     }
     catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
@@ -199,6 +199,7 @@ abstract class CommandTestBase extends TestBase {
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
+    $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
 
     return $local_machine_helper;
   }

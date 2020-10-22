@@ -41,24 +41,15 @@ class UnlinkCommand extends CommandBase {
     $this->validateCwdIsValidDrupalProject();
 
     $repo_root = $this->repoRoot;
-    $local_user_config = $this->acliDatastore->get($this->acliConfigFilename);
-    if (!$this->getAppUuidFromLocalProjectInfo()) {
+    if (!$this->getCloudUuidFromDatastore()) {
       throw new AcquiaCliException('There is no Cloud Platform application linked to {repo_root}', ['repo_root' => $repo_root]);
     }
-    foreach ($local_user_config['localProjects'] as $key => $project) {
-      if ($project['directory'] === $repo_root) {
-        // @todo Add confirmation.
-        unset($local_user_config['localProjects'][$key]);
-        $this->localProjectInfo = NULL;
-        $this->acliDatastore->set($this->acliConfigFilename, $local_user_config);
 
-        $application = $this->getCloudApplication($project['cloud_application_uuid']);
-        $output->writeln("<info>Unlinked <options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
-        return 0;
-      }
-    }
+    $application = $this->getCloudApplication($this->datastoreAcli->get('cloud_app_uuid'));
+    $this->datastoreAcli->set('cloud_app_uuid', NULL);
+    $output->writeln("<info>Unlinked <options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
 
-    throw new AcquiaCliException('This project is not linked to a Cloud application.');
+    return 0;
   }
 
 }

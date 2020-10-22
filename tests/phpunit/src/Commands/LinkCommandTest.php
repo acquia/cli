@@ -40,16 +40,27 @@ class LinkCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $acquia_cli_config = $this->acliDatastore->get($this->acliConfigFilename);
-    $this->assertIsArray($acquia_cli_config);
-    $this->assertArrayHasKey('localProjects', $acquia_cli_config);
-    $this->assertArrayHasKey(0, $acquia_cli_config['localProjects']);
-    $this->assertArrayHasKey('cloud_application_uuid', $acquia_cli_config['localProjects'][0]);
-    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $acquia_cli_config['localProjects'][0]['cloud_application_uuid']);
+    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
+    $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Please select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
-    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked to this repository', $output);
+    $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
+  }
+
+  /**
+   * Tests the 'link' command.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testLinkCommandAlreadyLinked(): void {
+    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->mockApplicationRequest();
+    $this->executeCommand([], []);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('This repository is already linked to Cloud application', $output);
+    $this->assertEquals(1, $this->getStatusCode());
   }
 
   /**
@@ -60,11 +71,12 @@ class LinkCommandTest extends CommandTestBase {
    */
   public function testLinkCommandInvalidDir(): void {
     $applications_response = $this->mockApplicationsRequest();
+    $this->command->setRepoRoot('');
     try {
       $this->executeCommand([], []);
     }
     catch (AcquiaCliException $e) {
-      $this->assertEquals('Could not find a local Drupal project.', $e->getMessage());
+      $this->assertStringContainsString('Could not find a local Drupal project.', $e->getMessage());
     }
   }
 
