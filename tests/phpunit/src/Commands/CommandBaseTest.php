@@ -2,7 +2,9 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
@@ -38,10 +40,20 @@ class CommandBaseTest extends CommandTestBase {
   }
 
   public function testCloudAppFromLocalConfig(): void {
-    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
-
+    $this->command = $this->injectCommand(IdeListCommand::class);
     $this->mockApplicationRequest();
+    $this->mockIdeListRequest();
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select the application.
+      0,
+      // Would you like to link the project at ... ?
+      'y',
+    ];
+    $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->executeCommand([], []);
+    $this->prophet->checkPredictions();
   }
 
   public function providerTestCloudAppUuidArg(): array {
