@@ -457,9 +457,6 @@ abstract class PullCommandBase extends CommandBase {
     }
     else {
       $site = $this->promptChooseCloudSite($chosen_environment);
-      if ($site == $sitegroup) {
-        $site = 'default';
-      }
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
     }
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
