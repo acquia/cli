@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Output\Checklist;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,7 +32,8 @@ class PullCommand extends PullCommandBase {
             NULL,
             InputOption::VALUE_NONE,
             'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
-        );
+        )
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
   /**

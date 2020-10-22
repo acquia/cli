@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -22,7 +23,8 @@ class PushCodeCommand extends PullCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Push code from your IDE to a Cloud Platform environment');
+    $this->setDescription('Push code from your IDE to a Cloud Platform environment')
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
   /**

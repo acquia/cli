@@ -210,7 +210,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function getLocalDbUser() {
     if (!isset($this->localDbUser)) {
       $this->localDbUser = 'drupal';
-      if ($lando_info = $this->getLandoInfo()) {
+      if ($lando_info = self::getLandoInfo()) {
         $this->localDbUser = $lando_info->database->creds->user;
       }
     }
@@ -224,7 +224,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function getLocalDbPassword() {
     if (!isset($this->localDbPassword)) {
       $this->localDbPassword = 'drupal';
-      if ($lando_info = $this->getLandoInfo()) {
+      if ($lando_info = self::getLandoInfo()) {
         $this->localDbPassword = $lando_info->database->creds->password;
       }
     }
@@ -238,7 +238,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function getLocalDbName() {
     if (!isset($this->localDbName)) {
       $this->localDbName = 'drupal';
-      if ($lando_info = $this->getLandoInfo()) {
+      if ($lando_info = self::getLandoInfo()) {
         $this->localDbName = $lando_info->database->creds->database;
       }
     }
@@ -252,7 +252,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function getLocalDbHost() {
     if (!isset($this->localDbHost)) {
       $this->localDbHost = 'localhost';
-      if ($lando_info = $this->getLandoInfo()) {
+      if ($lando_info = self::getLandoInfo()) {
         $this->localDbHost = $lando_info->database->hostnames[0];
       }
     }
@@ -1207,11 +1207,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed|null
    */
-  protected function getLandoInfo() {
+  public static function getLandoInfo() {
     if ($lando_info = getenv('LANDO_INFO')) {
       return json_decode($lando_info);
     }
     return NULL;
+  }
+
+  public static function isLandoEnv() {
+    return (bool) self::getLandoInfo();
   }
 
 }
