@@ -265,6 +265,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   public function checkAndPromptTelemetryPreference(): void {
+    $this->migrateLegacySendTelemetryPreference();
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     if ((!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
@@ -1092,6 +1093,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         } catch (AcquiaCliException $exception) {
           throw new AcquiaCliException("The {environmentId} must be a valid UUID or site alias.");
         }
+      }
+    }
+  }
+
+  /**
+   * @return mixed
+   */
+  protected function migrateLegacySendTelemetryPreference() {
+    $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath), 'acquia-cli.json'));
+    if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
+      $legacy_acli_config = json_decode(file_get_contents($legacy_acli_config_filepath), TRUE);
+      if (array_key_exists('send_telemetry', $legacy_acli_config)) {
+        $send_telemetry = $legacy_acli_config['send_telemetry'];
+        $this->datastoreCloud->set('send_telemetry', $send_telemetry);
       }
     }
   }
