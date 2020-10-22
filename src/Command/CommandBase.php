@@ -265,8 +265,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if telemetry preference is set, prompt if not.
    */
   public function checkAndPromptTelemetryPreference(): void {
-    $this->migrateLegacySendTelemetryPreference();
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    if (!isset($send_telemetry) || is_null($send_telemetry)) {
+      $this->migrateLegacySendTelemetryPreference();
+      $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    }
     if ((!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');

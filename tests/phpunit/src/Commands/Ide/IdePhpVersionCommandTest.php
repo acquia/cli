@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class IdePhpVersionCommandTest.
