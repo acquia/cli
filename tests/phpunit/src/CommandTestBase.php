@@ -291,11 +291,10 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockGetCloudSites($ssh_helper) {
     $cloud_multisite_fetch_process = $this->mockProcess();
-    $cloud_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->fixtureDir,
-      '/config.json')))->shouldBeCalled();
+    $cloud_multisite_fetch_process->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
     $ssh_helper->executeCommand(
       Argument::type('object'),
-      ['cat', '/var/www/site-php/something.dev/config.json'],
+      ['ls', '/mnt/files/something.dev/sites'],
       FALSE
     )->willReturn($cloud_multisite_fetch_process->reveal())->shouldBeCalled();
   }

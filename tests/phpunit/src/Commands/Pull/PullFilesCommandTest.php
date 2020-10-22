@@ -160,7 +160,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      'something.dev@somethingdev.ssh.prod.acquia-sites.com:/mnt/files/something.dev/sites/default/files',
+      'something.dev@somethingdev.ssh.prod.acquia-sites.com:/mnt/files/something.dev/sites/bar/files',
       $this->projectFixtureDir . '/docroot/sites/default/',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
