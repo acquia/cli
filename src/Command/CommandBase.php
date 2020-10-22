@@ -205,8 +205,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function setRepoRoot(string $repoRoot): void {
     $this->repoRoot = $repoRoot;
-   * @return mixed
-   */
+  }
+
   public function getLocalDbUser() {
     if (!isset($this->localDbUser)) {
       $this->localDbUser = 'drupal';
@@ -1151,7 +1151,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    */
   protected function migrateLegacySendTelemetryPreference() {
-    $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath), 'acquia-cli.json'));
+    $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
+      'acquia-cli.json'));
     if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
       $legacy_acli_config = json_decode(file_get_contents($legacy_acli_config_filepath), TRUE);
       if (array_key_exists('send_telemetry', $legacy_acli_config)) {
@@ -1159,8 +1160,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->datastoreCloud->set('send_telemetry', $send_telemetry);
       }
     }
-   * @return mixed|null
-   */
+  }
+
   public static function getLandoInfo() {
     if ($lando_info = getenv('LANDO_INFO')) {
       return json_decode($lando_info);
