@@ -1209,10 +1209,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function getCloudSites($cloud_environment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
-    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/config.json"];
+    $command = ['ls', "/mnt/files/$sitegroup.{$cloud_environment->name}/sites"];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
-      return json_decode($process->getOutput(), TRUE);
+      return explode("\n", trim($process->getOutput()));
     }
     throw new AcquiaCliException("Could not get Cloud sites");
   }
@@ -1244,9 +1244,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptChooseCloudSite($cloud_environment) {
-    $cloud_sites = $this->getCloudSites($cloud_environment);
-    $choices = array_keys($cloud_sites['databases']);
-    return $this->io->choice('Choose a site', $choices);
+    return $this->io->choice('Choose a site', $this->getCloudSites($cloud_environment));
   }
 
 }
