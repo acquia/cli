@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7faa07bec4f218f4abb148d8f54d057a",
+    "content-hash": "df9fff98f810d6d8c50c45eb562a5d4d",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -996,20 +996,20 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v9.99.99",
+            "version": "v9.99.100",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95"
+                "reference": "996434e5492cb4c3edcb9168db6fbb1359ef965a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
-                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/996434e5492cb4c3edcb9168db6fbb1359ef965a",
+                "reference": "996434e5492cb4c3edcb9168db6fbb1359ef965a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7"
+                "php": ">= 7"
             },
             "require-dev": {
                 "phpunit/phpunit": "4.*|5.*",
@@ -1042,7 +1042,7 @@
                 "issues": "https://github.com/paragonie/random_compat/issues",
                 "source": "https://github.com/paragonie/random_compat"
             },
-            "time": "2018-07-02T15:55:56+00:00"
+            "time": "2020-10-15T08:29:30+00:00"
         },
         {
             "name": "psr/cache",
@@ -4965,30 +4965,34 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "2.0.14",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "9432509cc423e5fb05ac31e7cc090ea2e928e654"
+                "reference": "9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9432509cc423e5fb05ac31e7cc090ea2e928e654",
-                "reference": "9432509cc423e5fb05ac31e7cc090ea2e928e654",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab",
+                "reference": "9dbeeeb9f10f84bab82186bd7d38fc355e03e5ab",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.3",
                 "league/oauth2-client": "^2.4",
-                "php": ">=7.1"
+                "php": ">=7.3",
+                "symfony/cache": "^4|^5",
+                "webmozart/path-util": "^2.3"
             },
             "require-dev": {
+                "eloquent/phony-phpunit": "^4",
                 "php-coveralls/php-coveralls": "^2.0.0",
                 "phpstan/phpstan": "^0.11.19",
                 "phpstan/phpstan-phpunit": "^0.11.2",
                 "phpunit/phpunit": "^7.0",
                 "squizlabs/php_codesniffer": "3.*"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -5011,7 +5015,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.0.14"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/master"
             },
             "funding": [
                 {
@@ -5019,7 +5023,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-06T23:22:41+00:00"
+            "time": "2020-10-20T20:36:31+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -6586,16 +6590,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.4.1",
+            "version": "9.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "1f09a12726593737e8a228ebb1c8647305d07c41"
+                "reference": "3866b2eeeed21b1b099c4bc0b7a1690ac6fd5baa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/1f09a12726593737e8a228ebb1c8647305d07c41",
-                "reference": "1f09a12726593737e8a228ebb1c8647305d07c41",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3866b2eeeed21b1b099c4bc0b7a1690ac6fd5baa",
+                "reference": "3866b2eeeed21b1b099c4bc0b7a1690ac6fd5baa",
                 "shasum": ""
             },
             "require": {
@@ -6673,7 +6677,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.4.1"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.4.2"
             },
             "funding": [
                 {
@@ -6685,7 +6689,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-11T07:41:19+00:00"
+            "time": "2020-10-19T09:23:29+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -7922,12 +7926,20 @@
             "time": "2020-07-12T23:59:07+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "typhonius/acquia-php-sdk-v2",
+            "version": "dev-master",
+            "alias": "2.0.14",
+            "alias_normalized": "2.0.14.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
-        "typhonius/acquia-logstream": 20
+        "typhonius/acquia-logstream": 20,
+        "typhonius/acquia-php-sdk-v2": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
