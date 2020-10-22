@@ -23,8 +23,9 @@ class IdeCreateCommandTest extends CommandTestBase {
    */
   public function testCreate(): void {
 
-    $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
+    $this->mockAllEnvironmentsRequest($applications_response);
 
     // Request to create IDE.
     $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');
