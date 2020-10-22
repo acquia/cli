@@ -7,13 +7,8 @@ use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\ArrayStore;
 
 /**
- * A key-value store backed by a PHP array.
- *
- * The contents of the store are lost when the store is released from memory.
- *
- * @since  1.0
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
+ * Class YamlStore
+ * @package Acquia\Cli\DataStore
  */
 class YamlStore extends ArrayStore
 {
