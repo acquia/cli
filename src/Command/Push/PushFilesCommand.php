@@ -48,7 +48,7 @@ class PushFilesCommand extends PullCommandBase {
       $chosen_site = $this->promptChooseAcsfSite($destination_environment);
     }
     else {
-      $chosen_site = NULL;
+      $chosen_site = $this->promptChooseCloudSite($destination_environment);
     }
     $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?");
     if (!$answer) {
@@ -66,19 +66,19 @@ class PushFilesCommand extends PullCommandBase {
   /**
    * @param $chosen_environment
    * @param callable $output_callback
-   * @param string|null $acsf_site
+   * @param string|null $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $acsf_site = NULL): void {
+  protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/';
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
 
-    if ($acsf_site) {
-      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $acsf_site . '/files';
+    if ($this->isAcsfEnv($chosen_environment)) {
+      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $dest_dir = '/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files';
+      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
     }
     $command = [
       'rsync',
