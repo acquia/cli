@@ -24,7 +24,6 @@ use drupol\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -206,6 +205,62 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @return mixed
+   */
+  public function getLocalDbUser() {
+    if (!isset($this->localDbUser)) {
+      $this->localDbUser = 'drupal';
+      if ($lando_info = self::getLandoInfo()) {
+        $this->localDbUser = $lando_info->database->creds->user;
+      }
+    }
+
+    return $this->localDbUser;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getLocalDbPassword() {
+    if (!isset($this->localDbPassword)) {
+      $this->localDbPassword = 'drupal';
+      if ($lando_info = self::getLandoInfo()) {
+        $this->localDbPassword = $lando_info->database->creds->password;
+      }
+    }
+
+    return $this->localDbPassword;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getLocalDbName() {
+    if (!isset($this->localDbName)) {
+      $this->localDbName = 'drupal';
+      if ($lando_info = self::getLandoInfo()) {
+        $this->localDbName = $lando_info->database->creds->database;
+      }
+    }
+
+    return $this->localDbName;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getLocalDbHost() {
+    if (!isset($this->localDbHost)) {
+      $this->localDbHost = 'localhost';
+      if ($lando_info = self::getLandoInfo()) {
+        $this->localDbHost = $lando_info->database->hostnames[0];
+      }
+    }
+
+    return $this->localDbHost;
+  }
+
+  /**
    * Initializes the command just after the input has been validated.
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -243,12 +298,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
     $this->checkForNewVersion($input, $output);
-
-    // @todo Enable these vars to be configured.
-    $this->localDbHost = 'localhost';
-    $this->localDbUser = 'drupal';
-    $this->localDbName = 'drupal';
-    $this->localDbPassword = 'drupal';
   }
 
   /**
@@ -1153,6 +1202,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         }
       }
     }
+  }
+
+  /**
+   * @return mixed|null
+   */
+  public static function getLandoInfo() {
+    if ($lando_info = getenv('LANDO_INFO')) {
+      return json_decode($lando_info);
+    }
+    return NULL;
+  }
+
+  public static function isLandoEnv() {
+    return (bool) self::getLandoInfo();
   }
 
 }
