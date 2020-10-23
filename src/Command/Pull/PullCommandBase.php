@@ -825,9 +825,8 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
-   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
    */
-  protected function createDbSettingsFile(EnvironmentResponse $source_environment, DatabaseResponse $database): void {
+  protected function createDbSettingsFile(EnvironmentResponse $source_environment, $database): void {
     $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
     $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
     $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";

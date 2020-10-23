@@ -14,6 +14,7 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
@@ -117,8 +118,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockGetAcsfSites($ssh_helper);
 
     $local_machine_helper = $this->mockLocalMachineHelper();
-    // Set up file system.
-    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')->willReturn();
+    $fs->remove('/tmp/acli-mysql-dump-dev-profserv201dev.sql.gz')->willReturn();
+    $local_machine_helper->getFilesystem()->willReturn($fs);
 
     // Database.
     $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
@@ -127,7 +130,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
     $this->mockExecuteMySqlImport($local_machine_helper, $mysql_import_successful);
     $this->mockExecuteSshRemove($ssh_helper, $environments_response, TRUE);
-    $this->mockSettingsFileCopy($local_machine_helper);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -196,16 +198,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-  }
-
-  protected function mockSettingsFileCopy(
-    ObjectProphecy $local_machine_helper
-  ): void {
-    $process = $this->mockProcess();
-    $local_machine_helper
-      ->execute(['cp', '/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc'])
-    ->willReturn($process->reveal())
-    ->shouldBeCalled();
   }
 
   /**

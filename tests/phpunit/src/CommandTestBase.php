@@ -172,7 +172,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   protected function getSourceGitConfigFixture() {
-    return Path::join($this->fixtureDir, 'git_config');;
+    return Path::join($this->fixtureDir, 'git_config');
   }
 
   /**
