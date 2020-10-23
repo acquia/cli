@@ -120,7 +120,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $fs = $this->prophet->prophesize(Filesystem::class);
     $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')->willReturn();
-    $fs->remove('/tmp/acli-mysql-dump-dev-profserv201dev.sql.gz')->willReturn();
+    $fs->remove(Argument::type('string'))->willReturn();
     $local_machine_helper->getFilesystem()->willReturn($fs);
 
     // Database.
