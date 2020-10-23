@@ -8,6 +8,7 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -88,10 +89,7 @@ abstract class PullCommandBase extends CommandBase {
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
-    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
-    $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
-    $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";
-    $this->localMachineHelper->execute(['cp', $default_path, $db_name_path]);
+    $this->createDbSettingsFile($source_environment, $database);
     $this->checklist->completePreviousItem();
   }
 
@@ -823,6 +821,18 @@ abstract class PullCommandBase extends CommandBase {
     }
 
     return '/mnt/tmp/' . $temp_prefix;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
+   */
+  protected function createDbSettingsFile(EnvironmentResponse $source_environment, DatabaseResponse $database): void {
+    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
+    $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
+    $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";
+    $this->localMachineHelper->getFilesystem()
+      ->copy($default_path, $db_name_path);
   }
 
 }
