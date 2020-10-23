@@ -14,6 +14,46 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 - [Typhonius Acquia CLI](https://github.com/typhonius/acquia_cli): Provides just an interface for Cloud API. Acquia CLI (acquia/cli) is a superset of this functionality, with access to the Cloud API as well as Acquia services not part of Cloud API.
 - [ACSF tools](https://github.com/acquia/acsf-tools): Provides Drush commands for interacting with ACSF. Duplicates some functionality of Acquia CLI, but in the form of Drush commands rather than a standalone CLI.
 
+# Example Usage
+
+
+### api:* commands
+
+Trying Using [jq](https://stedolan.github.io/jq/) to highlight and parse JSON output from `acli api` commands.
+```
+// Get a list of all Acquia Cloud Platform applications that you have access to.
+acli api:applications:list
+// Do the same, but highlight the JSON output.
+acli api:applications:list | jq
+// Output only the "name" field for every object in the JSON output.
+acli api:applications:list | jq '.[] | .name'
+// Output only the first object in the JSON output.
+acli api:applications:list | jq '.[0]'
+```
+
+### Manage SSH keys
+
+```
+// Create a new SSH key locally and upload it to Acquia Cloud Platform.
+ssh-key:create-upload
+```
+
+### Manage IDEs
+
+```
+// Create a new Acquia Cloud IDE
+acli ide:create
+```
+
+### Interact with Acquia Cloud Platform Environments
+
+```
+// SSH into an environment.
+acli ssh myapp.dev
+// Run a drush command in an environment.
+acli drush myapp.dev cache-rebuild
+```
+
 ## Development / contribution
 
 Contributions to Acquia CLI are welcome subject to the [contributions policy](CONTRIBUTING.md), which also has more detailed information on how to develop Acquia CLI.
