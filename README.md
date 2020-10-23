@@ -36,6 +36,8 @@ acli api:applications:list | jq '.[0]'
 ```
 // Create a new SSH key locally and upload it to Acquia Cloud Platform.
 ssh-key:create-upload
+// List all local and remote SSH keys.
+acli ssh-key:list
 ```
 
 ### Manage IDEs
@@ -43,11 +45,17 @@ ssh-key:create-upload
 ```
 // Create a new Acquia Cloud IDE
 acli ide:create
+// List existing IDEs.
+acli ide:list
+// Open an IDE in your web browser.
+acli ide:open
 ```
 
 ### Interact with Acquia Cloud Platform Environments
 
 ```
+// List aliases for all environments.
+acli remote:aliases:list
 // SSH into an environment.
 acli ssh myapp.dev
 // Run a drush command in an environment.
