@@ -88,7 +88,7 @@ abstract class PullCommandBase extends CommandBase {
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
-    $sitegroup = self::getSiteGroupFromSshUrl($source_environment->sshUrl);
+    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
     $db_name = $this->getNameFromDatabaseResponse($database);
     $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
     $db_name_path = "/var/www/site-php/$sitegroup/$db_name-settings.inc";
