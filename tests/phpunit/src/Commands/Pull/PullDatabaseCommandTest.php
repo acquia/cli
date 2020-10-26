@@ -51,7 +51,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPullDatabaseSettingsFiles(): void {
-    // ACLI should copy settings files in an IDE environment, so mock the environment.
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
     putenv('AH_SITE_ENVIRONMENT=IDE');
