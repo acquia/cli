@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -124,16 +123,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
     $this->mockGetAcsfSites($ssh_helper);
 
+    $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    // Always prophesize the fs?
+    // Set up file system.
+    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+
     if ($mock_ide_fs) {
-      $fs = $this->mockSettingsFiles();
+      $this->mockSettingsFiles($fs);
     }
-    else {
-      $fs = $this->fs;
-    }
-    // Use shouldbecalled here and elsewhere.
-    $local_machine_helper->getFilesystem()->willReturn($fs);
 
     // Database.
     $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
@@ -288,15 +285,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return $inputs;
   }
 
-  /**
-   * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
-   */
-  protected function mockSettingsFiles() {
-    $fs = $this->prophet->prophesize(Filesystem::class);
+  protected function mockSettingsFiles($fs): void {
     $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')
-      ->willReturn();
-    $fs->remove(Argument::type('string'))->willReturn();
-    return $fs;
+      ->willReturn()
+      ->shouldBeCalled();
+    $fs->remove(Argument::type('string'))
+      ->willReturn()
+      ->shouldBeCalled();
   }
 
 }
