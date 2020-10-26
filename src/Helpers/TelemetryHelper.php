@@ -142,10 +142,10 @@ class TelemetryHelper {
    * @throws \Exception
    */
   protected function getUserData(): ?array {
-    $user = $this->acliDatastore->get(DataStoreContract::USER);
+    $user = $this->datastoreCloud->get(DataStoreContract::USER);
     if (!$user && CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
       $this->setDefaultUserData();
-      $user = $this->acliDatastore->get(DataStoreContract::USER);
+      $user = $this->datastoreCloud->get(DataStoreContract::USER);
     }
 
     return $user;
@@ -156,7 +156,7 @@ class TelemetryHelper {
    */
   protected function setDefaultUserData(): void {
     $user = $this->getDefaultUserData();
-    $this->acliDatastore->set(DataStoreContract::USER, $user);
+    $this->datastoreCloud->set(DataStoreContract::USER, $user);
   }
 
   /**
@@ -165,6 +165,7 @@ class TelemetryHelper {
    * @return array
    */
   protected function getDefaultUserData(): array {
+    // @todo Cache this!
     $account = new Account($this->cloudApi->getClient());
     $user = [
       'uuid' => $account->get()->uuid,
