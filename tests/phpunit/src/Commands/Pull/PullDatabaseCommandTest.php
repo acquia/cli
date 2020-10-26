@@ -53,6 +53,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   public function testPullDatabaseSettingsFiles(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
+    // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
+    // IdeRequiredTestBase sets other env vars (such as application ID) that
+    // seem to conflict with the rest of this test.
     putenv('AH_SITE_ENVIRONMENT=IDE');
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     putenv('AH_SITE_ENVIRONMENT');
