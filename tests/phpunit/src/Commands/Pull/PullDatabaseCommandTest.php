@@ -117,11 +117,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
     $this->mockGetAcsfSites($ssh_helper);
 
+    // ACLI should copy settings files in an IDE environment, so mock the environment.
+    IdeRequiredTestBase::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
     $fs = $this->prophet->prophesize(Filesystem::class);
     $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')->willReturn();
     $fs->remove(Argument::type('string'))->willReturn();
     $local_machine_helper->getFilesystem()->willReturn($fs);
+    IdeRequiredTestBase::unsetCloudIdeEnvVars();
 
     // Database.
     $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
