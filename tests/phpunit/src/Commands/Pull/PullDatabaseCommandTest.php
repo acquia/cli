@@ -6,7 +6,6 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -56,9 +55,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // ACLI should copy settings files in an IDE environment, so mock the environment.
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
-    IdeRequiredTestBase::setCloudIdeEnvVars();
+    putenv('AH_SITE_ENVIRONMENT=IDE');
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    IdeRequiredTestBase::unsetCloudIdeEnvVars();
+    putenv('AH_SITE_ENVIRONMENT');
   }
 
   public function testPullDatabaseWithMySqlDumpError(): void {
