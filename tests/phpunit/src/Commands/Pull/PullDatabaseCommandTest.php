@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -44,6 +45,20 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Choose a database', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
     $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
+  /**
+   * Test that settings files are created for multisite DBs in IDEs.
+   *
+   * @throws \Exception
+   */
+  public function testPullDatabaseSettingsFiles(): void {
+    // ACLI should copy settings files in an IDE environment, so mock the environment.
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+    IdeRequiredTestBase::setCloudIdeEnvVars();
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    IdeRequiredTestBase::unsetCloudIdeEnvVars();
   }
 
   public function testPullDatabaseWithMySqlDumpError(): void {
@@ -101,7 +116,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dump_successful, $mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful): void {
+  protected function setupPullDatabase($mysql_dump_successful, $mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -110,14 +125,16 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
     $this->mockGetAcsfSites($ssh_helper);
 
-    // ACLI should copy settings files in an IDE environment, so mock the environment.
-    IdeRequiredTestBase::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $fs = $this->prophet->prophesize(Filesystem::class);
-    $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')->willReturn();
-    $fs->remove(Argument::type('string'))->willReturn();
+    // Always prophesize the fs?
+    if ($mock_ide_fs) {
+      $fs = $this->mockSettingsFiles();
+    }
+    else {
+      $fs = $this->fs;
+    }
+    // Use shouldbecalled here and elsewhere.
     $local_machine_helper->getFilesystem()->willReturn($fs);
-    IdeRequiredTestBase::unsetCloudIdeEnvVars();
 
     // Database.
     $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
@@ -270,6 +287,17 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       0,
     ];
     return $inputs;
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
+   */
+  protected function mockSettingsFiles() {
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')
+      ->willReturn();
+    $fs->remove(Argument::type('string'))->willReturn();
+    return $fs;
   }
 
 }
