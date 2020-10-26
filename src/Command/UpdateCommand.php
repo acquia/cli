@@ -52,6 +52,7 @@ class UpdateCommand extends CommandBase {
       if ($result) {
         $new = $updater->getNewVersion();
         $old = $updater->getOldVersion();
+        $output->writeln("");
         $output->writeln("<info>Updated from $old to $new</info>");
       }
       else {
