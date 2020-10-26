@@ -5,7 +5,10 @@ The official command-line tool for interacting with the Drupal Cloud Platform an
 
 Acquia CLI does not provide or manage local development environments. If you are looking for a packaged development environment, consider [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/). 
 
-**Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/**
+
+## Installation 
+
+Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/
 
 ## Similar tools
 Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can safely be used with any of these tools, although some functionality may be duplicated.
@@ -14,8 +17,7 @@ Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can s
 - [Typhonius Acquia CLI](https://github.com/typhonius/acquia_cli): Provides just an interface for Cloud API. Acquia CLI (acquia/cli) is a superset of this functionality, with access to the Cloud API as well as Acquia services not part of Cloud API.
 - [ACSF tools](https://github.com/acquia/acsf-tools): Provides Drush commands for interacting with ACSF. Duplicates some functionality of Acquia CLI, but in the form of Drush commands rather than a standalone CLI.
 
-# Example Usage
-
+## Example Usage
 
 ### Interact with Cloud API
 
