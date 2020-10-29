@@ -47,6 +47,8 @@ class AliasesDownloadCommand extends SshCommand {
     $this->localMachineHelper->writeFile($drush_archive_filepath, $aliases);
     $drush_aliases_dir = $this->getDrushAliasesDir();
 
+    // This message is useful for debugging but could be misleading in ordinary
+    // usage, because the archive is deleted before the command exits.
     $this->output->writeln(sprintf(
       'Cloud Platform Drush Aliases archive downloaded to <options=bold>%s</>',
       $drush_archive_filepath
@@ -55,7 +57,7 @@ class AliasesDownloadCommand extends SshCommand {
     $this->localMachineHelper->getFilesystem()->mkdir($drush_aliases_dir);
     $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
-    // Tarball may have many subdirectories, which one to extract?
+    // Tarball may have many subdirectories, only extract this one.
     $base_dir = 'sites';
     $archive = new PharData($drush_archive_filepath . '/' . $base_dir);
     $drushFiles = [];
