@@ -38,9 +38,10 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $archive_fixture->compress(Phar::GZ);
 
     $stream = stream_for(file_get_contents($drush_aliases_tarball_fixture_filepath . '.tar.gz'));
+    $this->clientProphecy->addQuery('version', 9);
     $this->clientProphecy->request('get', '/account/drush-aliases/download')->willReturn($stream);
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
-    $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
+    $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush/sites');
     $this->command->setDrushAliasesDir($drush_aliases_dir);
 
     $inputs = [];
