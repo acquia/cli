@@ -29,7 +29,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * Test all Drush alias versions.
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
-    return [[8, 9]];
+    return [[8], [9]];
   }
 
   /**
