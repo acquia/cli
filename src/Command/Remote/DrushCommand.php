@@ -25,7 +25,7 @@ class DrushCommand extends SSHBaseCommand {
       ->setHelp('Pleases pay close attention to the argument syntax! Note the usage of <options=bold>--</> to separate the drush command arguments and options.')
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addArgument('drush_command', InputArgument::IS_ARRAY, 'Drush command')
-      ->addUsage('<site>.<env> -- <command>')
+      ->addUsage('<app>.<env> -- <command>')
       ->addUsage('myapp.dev -- uli 1')
       ->addUsage('myapp.dev -- status --fields=db-status');
   }
