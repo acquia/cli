@@ -46,7 +46,7 @@ class IdeInfoCommand extends IdeCommandBase {
       ['Owner username' => $response->owner->username],
       ['Owner email' => $response->owner->mail],
       ['Cloud application' => $response->links->application->href],
-      ['Editor URL' => $response->links->ide->href],
+      ['IDE URL' => $response->links->ide->href],
       ['Web URL' => $response->links->web->href]
     );
 
