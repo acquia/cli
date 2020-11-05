@@ -17,7 +17,7 @@ class ExceptionListener
 
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-      $newErrorMessage = 'Your Cloud API credentials are invalid. Run acli auth:login to reset them.';
+      $newErrorMessage = 'Your Cloud Platform API credentials are invalid. Run acli auth:login to reset them.';
     }
 
     if ($error instanceof ApiErrorException) {
@@ -26,7 +26,7 @@ class ExceptionListener
           $newErrorMessage = $errorMessage . 'Delete an existing IDE (acli ide:delete) or submit a support ticket to purchase additional IDEs (https://support.acquia.com)';
           break;
         default:
-          $newErrorMessage = 'Acquia Cloud Platform API returned an error: ' . $errorMessage;
+          $newErrorMessage = 'Cloud Platform API returned an error: ' . $errorMessage;
       }
     }
 

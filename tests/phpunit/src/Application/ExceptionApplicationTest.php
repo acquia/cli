@@ -37,6 +37,6 @@ class ExceptionApplicationTest extends TestBase {
     $output = new BufferedOutput();
     $application->run($input, $output);
     $buffer = $output->fetch();
-    $this->assertStringContainsString('Your Cloud API credentials are invalid. Run acli auth:login to reset them.', $buffer);  }
+    $this->assertStringContainsString('Your Cloud Platform API credentials are invalid. Run acli auth:login to reset them.', $buffer);  }
 
 }
