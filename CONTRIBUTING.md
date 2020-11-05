@@ -55,11 +55,11 @@ Be sure to validate and test your code locally using the provided Composer test 
 
 Any changes to the `acli update` command should be manually tested using the following steps:
 
-1. Replace `@package_version@` on this line with `v1.0.0-rc4` or any older version string: https://github.com/acquia/cli/blob/v1.0.0-rc5/bin/acli#L87
-2. Clear and rebuild your Symfony cache: `./bin/acli cache:clear && ./bin/acli`
+1. Replace `@package_version@` on this line with `1.0.0` or any older version string: https://github.com/acquia/cli/blob/v1.0.0/bin/acli#L84
+2. Clear and rebuild your Symfony cache: `./bin/acli ckc && ./bin/acli`
 4. Install Box if you haven't already: `composer box-install && composer dump-env prod`
 5. Compile phar: `composer box-compile`
-6. Now test: `./build/acli.phar update --allow-unstable`
+6. Now test: `./build/acli.phar self:update`
 
 ## Updating Cloud Platform API spec
 
