@@ -20,10 +20,10 @@ class SshCommand extends SshBaseCommand {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Open a new SSH connection to a Cloud Platform environment')
+    $this->setDescription('Open a new SSH session to a Cloud Platform environment')
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
-      ->addUsage(" <app>.<env> -- <command> Runs the Drush command <command> remotely on <site>'s <env> environment.");
+      ->addUsage("<app>.<env>");
   }
 
   /**
