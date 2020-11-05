@@ -20,7 +20,12 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
+use Doctrine\Common\Cache\FilesystemCache;
 use drupol\phposinfo\OsInfo;
+use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -145,6 +150,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $localDbPassword;
   protected $localDbName;
   protected $localDbHost;
+
+  /**
+   * @var \GuzzleHttp\Client
+   */
+  protected $client;
 
   /**
    * CommandBase constructor.
@@ -287,6 +297,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertApplicationAliastoUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
+    $this->checkForNewVersion($input, $output);
   }
 
   /**
@@ -1053,6 +1064,72 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to delete SSH key from the Cloud Platform');
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
+    try {
+      if (strpos($input->getArgument('command'), 'api:') === FALSE && $this->hasUpdate()) {
+        $output->writeln("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update.");
+      }
+    } catch (\Exception $e) {
+      $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
+    }
+  }
+
+  /**
+   * Check if an update is available.
+   *
+   * @todo unify with consolidation/self-update command
+   *
+   * @throws \Exception
+   */
+  protected function hasUpdate() {
+    $client = $this->getClient();
+    $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
+    $releases = json_decode($response->getBody());
+
+    if (!isset($releases[0])) {
+      throw new \Exception('API error - no release found at GitHub repository acquia/cli');
+    }
+
+    $version = $releases[0]->tag_name;
+    if ($version == $this->getApplication()->getVersion()) {
+      return FALSE;
+    }
+    else {
+      return TRUE;
+    }
+  }
+
+  /**
+   * @param \GuzzleHttp\Client $client
+   */
+  public function setClient(\GuzzleHttp\Client $client): void {
+    $this->client = $client;
+  }
+
+  /**
+   * @return \GuzzleHttp\Client
+   */
+  public function getClient(): \GuzzleHttp\Client {
+    if (!isset($this->client)) {
+      $stack = HandlerStack::create();
+      $stack->push(new CacheMiddleware(
+        new PrivateCacheStrategy(
+          new DoctrineCacheStorage(
+            new FilesystemCache(sys_get_temp_dir())
+          )
+        )
+      ),
+        'cache');
+      $client = new \GuzzleHttp\Client(['handler' => $stack]);
+      $this->setClient($client);
+    }
+    return $this->client;
   }
 
   /**
