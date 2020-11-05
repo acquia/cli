@@ -287,12 +287,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertApplicationAliastoUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input);
-
-    // @todo Enable these vars to be configured.
-    $this->localDbHost = 'localhost';
-    $this->localDbUser = 'drupal';
-    $this->localDbName = 'drupal';
-    $this->localDbPassword = 'drupal';
   }
 
   /**
