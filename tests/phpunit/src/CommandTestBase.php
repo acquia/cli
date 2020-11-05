@@ -88,7 +88,7 @@ abstract class CommandTestBase extends TestBase {
     }
 
     try {
-      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERBOSE]);
+      $tester->execute($args, ['verbosity' => Output::VERBOSITY_VERY_VERBOSE]);
     }
     catch (Exception $e) {if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
         print $this->getDisplay();
@@ -172,7 +172,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   protected function getSourceGitConfigFixture() {
-    return Path::join($this->fixtureDir, 'git_config');;
+    return Path::join($this->fixtureDir, 'git_config');
   }
 
   /**
@@ -199,6 +199,7 @@ abstract class CommandTestBase extends TestBase {
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
+    $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
 
     return $local_machine_helper;
   }
@@ -229,10 +230,42 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * @param object $applications_response
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function mockCloudEnvironmentsRequest(
+    $applications_response
+  ) {
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209.
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      'get', '200');
+    $cloud_env_response = $this->getCloudEnvResponse();
+    $response->sshUrl = $cloud_env_response->ssh_url;
+    $response->ssh_url = $cloud_env_response->ssh_url;
+    $response->domains = $cloud_env_response->domains;
+    $this->clientProphecy->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$response])
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
    * @return object
    */
   protected function getAcsfEnvResponse() {
     return json_decode(file_get_contents(Path::join($this->fixtureDir, 'acsf_env_response.json')));
+  }
+
+  /**
+   * @return object
+   */
+  protected function getCloudEnvResponse() {
+    return json_decode(file_get_contents(Path::join($this->fixtureDir, 'cloud_env_response.json')));
   }
 
   /**
@@ -249,6 +282,21 @@ abstract class CommandTestBase extends TestBase {
       ['cat', '/var/www/site-php/profserv2.dev/multisite-config.json'],
       FALSE
     )->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @param $ssh_helper
+   *
+   * @return void
+   */
+  protected function mockGetCloudSites($ssh_helper) {
+    $cloud_multisite_fetch_process = $this->mockProcess();
+    $cloud_multisite_fetch_process->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
+    $ssh_helper->executeCommand(
+      Argument::type('object'),
+      ['ls', '/mnt/files/something.dev/sites'],
+      FALSE
+    )->willReturn($cloud_multisite_fetch_process->reveal())->shouldBeCalled();
   }
 
   /**

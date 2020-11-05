@@ -88,6 +88,9 @@ abstract class PullCommandBase extends CommandBase {
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $this->createDbSettingsFile($source_environment, $database);
+    }
     $this->checklist->completePreviousItem();
   }
 
@@ -192,9 +195,9 @@ abstract class PullCommandBase extends CommandBase {
 
     // @todo Validate local MySQL connection before running commands.
     // @todo Drop and create in a single command.
-    $this->dropLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
-    $this->createLocalDatabase($this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
-    $this->importDatabaseDump($local_filepath, $this->localDbHost, $this->localDbUser, $this->localDbName, $this->localDbPassword, $output_callback);
+    $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
     $this->deleteRemoteDatabaseDump($environment, $remote_filepath);
   }
@@ -452,11 +455,12 @@ abstract class PullCommandBase extends CommandBase {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
 
     if ($this->isAcsfEnv($chosen_environment)) {
-      $site = $this->promptChooseFiles($chosen_environment);
+      $site = $this->promptChooseAcsfSite($chosen_environment);
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $source_dir = '/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files';
+      $site = $this->promptChooseCloudSite($chosen_environment);
+      $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
     }
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
@@ -470,26 +474,6 @@ abstract class PullCommandBase extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }
-  }
-
-  /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
-   *
-   * @return mixed
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function promptChooseFiles($cloud_environment) {
-    $choices = [];
-    $acsf_sites = $this->getAcsfSites($cloud_environment);
-    foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
-      $choices[] = "{$acsf_site['name']} ($domain)";
-    }
-    $choice = $this->io->choice('Choose a site', $choices);
-    $key = array_search($choice, $choices, TRUE);
-    $sites = array_values($acsf_sites['sites']);
-    $site = $sites[$key];
-
-    return $site['name'];
   }
 
   /**
@@ -512,40 +496,6 @@ abstract class PullCommandBase extends CommandBase {
     }
 
     return $database;
-  }
-
-  /**
-   * @param $cloud_environment
-   *
-   * @return bool
-   */
-  protected function isAcsfEnv($cloud_environment): bool {
-    if (strpos($cloud_environment->sshUrl, 'enterprise-g1') !== FALSE) {
-      return TRUE;
-    }
-    foreach ($cloud_environment->domains as $domain) {
-      if (strpos($domain, 'acsitefactory') !== FALSE) {
-        return TRUE;
-      }
-    }
-
-    return FALSE;
-  }
-
-  /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
-   *
-   * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function getAcsfSites($cloud_environment): array {
-    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
-    $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
-    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
-    if ($process->isSuccessful()) {
-      return json_decode($process->getOutput(), TRUE);
-    }
-    throw new AcquiaCliException("Could not get ACSF sites");
   }
 
   /**
@@ -648,18 +598,6 @@ abstract class PullCommandBase extends CommandBase {
     else {
       $this->dir = getcwd();
     }
-  }
-
-  /**
-   * @param $cloud_environment
-   *
-   * @return string
-   */
-  public static function getSiteGroupFromSshUrl($cloud_environment): string {
-    $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
-    $sitegroup = reset($ssh_url_parts);
-
-    return $sitegroup;
   }
 
   /**
@@ -813,10 +751,23 @@ abstract class PullCommandBase extends CommandBase {
       $temp_prefix = reset($ssh_url_parts);
     }
     else {
-      $temp_prefix = $database->name . '.' . $database->environment->name;
+      $vcs_url_parts = explode('@', $environment->vcs->url);
+      $sitegroup = $vcs_url_parts[0];
+      $temp_prefix = $sitegroup . '.' . $database->environment->name;
     }
 
     return '/mnt/tmp/' . $temp_prefix;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   */
+  protected function createDbSettingsFile(EnvironmentResponse $source_environment, $database): void {
+    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
+    $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
+    $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";
+    $this->localMachineHelper->getFilesystem()
+      ->copy($default_path, $db_name_path);
   }
 
 }

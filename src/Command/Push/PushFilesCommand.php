@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +30,8 @@ class PushFilesCommand extends PullCommandBase {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
         'The UUID of the associated Cloud Platform source environment')
-      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project with files to be pushed');
+      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project with files to be pushed')
+      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
   /**
@@ -43,10 +45,10 @@ class PushFilesCommand extends PullCommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $destination_environment = $this->determineEnvironment($input, $output);
     if ($this->isAcsfEnv($destination_environment)) {
-      $chosen_site = $this->promptChooseFiles($destination_environment);
+      $chosen_site = $this->promptChooseAcsfSite($destination_environment);
     }
     else {
-      $chosen_site = NULL;
+      $chosen_site = $this->promptChooseCloudSite($destination_environment);
     }
     $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?");
     if (!$answer) {
@@ -64,19 +66,19 @@ class PushFilesCommand extends PullCommandBase {
   /**
    * @param $chosen_environment
    * @param callable $output_callback
-   * @param string|null $acsf_site
+   * @param string|null $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $acsf_site = NULL): void {
+  protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/';
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
 
-    if ($acsf_site) {
-      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $acsf_site . '/files';
+    if ($this->isAcsfEnv($chosen_environment)) {
+      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $dest_dir = '/home/' . $sitegroup . '/' . $chosen_environment->name . '/sites/default/files';
+      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
     }
     $command = [
       'rsync',

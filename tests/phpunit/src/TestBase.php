@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -114,12 +115,12 @@ abstract class TestBase extends TestCase {
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  protected $acliDatastore;
+  protected $datastoreAcli;
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  protected $cloudDatastore;
+  protected $datastoreCloud;
 
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
@@ -170,33 +171,30 @@ abstract class TestBase extends TestCase {
     if (!$output) {
       $output = new BufferedOutput();
     }
+    $input = new ArrayInput([]);
 
     $this->application = new Application();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->input = new ArrayInput([]);
-    $this->output = $output;
-    $this->logger = new ConsoleLogger($output);
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->sshDir = sys_get_temp_dir();
-    $this->acliConfigFilename = 'acquia-cli.json';
+    $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
-    $this->acliConfigFilepath = $this->dataDir . '/' . $this->acliConfigFilename;
-    $this->acliDatastore = new JsonFileStore($this->acliConfigFilepath);
-    $this->cloudDatastore = new JsonFileStore($this->cloudConfigFilepath, 1);
+    $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
+    $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
+    $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->localMachineHelper = new LocalMachineHelper($this->input, $output, $this->logger);
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->telemetryHelper = new TelemetryHelper($this->input, $output, $this->clientServiceProphecy->reveal(), $this->acliDatastore, $this->cloudDatastore);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
+
+    $this->setIo($input, $output);
 
     $this->removeMockConfigFiles();
     $this->createMockConfigFile();
@@ -208,6 +206,15 @@ abstract class TestBase extends TestCase {
   protected function tearDown(): void {
     parent::tearDown();
     $this->removeMockConfigFiles();
+  }
+
+  protected function setIo($input, $output) {
+    $this->input = $input;
+    $this->output = $output;
+    $this->logger = new ConsoleLogger($output);
+    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }
 
   /**
@@ -275,8 +282,8 @@ abstract class TestBase extends TestCase {
     return new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
-      $this->cloudDatastore,
-      $this->acliDatastore,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
       $this->telemetryHelper,
       $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
@@ -379,13 +386,13 @@ abstract class TestBase extends TestCase {
 
   protected function createMockConfigFile(): void {
     // @todo Read from config object.
-    $default_values = ['key' => 'testkey', 'secret' => 'test'];
+    $default_values = ['key' => 'testkey', 'secret' => 'test', DataStoreContract::SEND_TELEMETRY => FALSE];
     $cloud_config = array_merge($default_values, $this->cloudConfig);
     $contents = json_encode($cloud_config);
     $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
 
-    $default_values = [DataStoreContract::SEND_TELEMETRY => FALSE];
+    $default_values = [];
     $acli_config = array_merge($default_values, $this->acliConfig);
     $contents = json_encode($acli_config);
     $filepath = $this->acliConfigFilepath;
@@ -393,14 +400,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->acliDatastore->set($this->acliConfigFilename, [
-      'localProjects' => [
-        0 => [
-          'directory' => $this->projectFixtureDir,
-          'cloud_application_uuid' => $cloud_app_uuid,
-        ],
-      ],
-    ]);
+    $this->datastoreAcli->set('cloud_app_uuid', $cloud_app_uuid);
   }
 
   /**

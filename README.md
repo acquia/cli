@@ -5,7 +5,57 @@ The official command-line tool for interacting with the Drupal Cloud Platform an
 
 Acquia CLI does not provide or manage local development environments. If you are looking for a packaged development environment, consider [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/). 
 
-**Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/**
+
+## Installation 
+
+Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/
+
+## Example Usage
+
+### Interact with Cloud API
+
+Trying Using [jq](https://stedolan.github.io/jq/) to highlight and parse JSON output from `acli api` commands.
+```
+// Get a list of all Acquia Cloud Platform applications that you have access to.
+$ acli api:applications:list
+// Do the same, but highlight the JSON output.
+$ acli api:applications:list | jq
+// Output only the "name" field for every object in the JSON output.
+$ acli api:applications:list | jq '.[] | .name'
+// Output only the first object in the JSON output.
+$ acli api:applications:list | jq '.[0]'
+```
+
+### Manage SSH keys
+
+```
+// Create a new SSH key locally and upload it to Acquia Cloud Platform.
+$ ssh-key:create-upload
+// List all local and remote SSH keys.
+$ acli ssh-key:list
+```
+
+### Manage IDEs
+
+```
+// Create a new Acquia Cloud IDE
+$ acli ide:create
+// List existing IDEs.
+$ acli ide:list
+// Open an IDE in your web browser.
+$ acli ide:open
+```
+
+### Interact with Acquia Cloud Platform Environments
+
+```
+// List aliases for all environments.
+$ acli remote:aliases:list
+// SSH into an environment.
+$ acli ssh myapp.dev
+// Run a drush command in an environment.
+$ acli drush myapp.dev cache-rebuild
+```
 
 ## Similar tools
 Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can safely be used with any of these tools, although some functionality may be duplicated.

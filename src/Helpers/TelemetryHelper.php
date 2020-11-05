@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use drupol\phposinfo\OsInfo;
@@ -25,7 +26,7 @@ class TelemetryHelper {
   private $input;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\YamlStore
    */
   private $acliDatastore;
 
@@ -37,7 +38,7 @@ class TelemetryHelper {
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  private $cloudDatastore;
+  private $datastoreCloud;
 
   /**
    * TelemetryHelper constructor.
@@ -45,20 +46,20 @@ class TelemetryHelper {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\Helpers\ClientService $cloud_api
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
+   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
     ClientService $cloud_api,
-    JsonFileStore $datastoreAcli,
+    YamlStore $datastoreAcli,
     JsonFileStore $datastoreCloud
   ) {
     $this->input = $input;
     $this->output = $output;
     $this->cloudApi = $cloud_api;
-    $this->cloudDatastore = $datastoreCloud;
+    $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
   }
 
@@ -70,10 +71,10 @@ class TelemetryHelper {
    * @throws \Exception
    */
   public function initializeAmplitude(Amplitude $amplitude): void {
-    $send_telemetry = $this->acliDatastore->get(DataStoreContract::SEND_TELEMETRY);
-    $amplitude->setOptOut(!$send_telemetry);
+    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    $amplitude->setOptOut($send_telemetry === FALSE);
 
-    if (!$send_telemetry) {
+    if ($send_telemetry === FALSE) {
       return;
     }
     try {
@@ -141,10 +142,10 @@ class TelemetryHelper {
    * @throws \Exception
    */
   protected function getUserData(): ?array {
-    $user = $this->acliDatastore->get(DataStoreContract::USER);
-    if (!$user && CommandBase::isMachineAuthenticated($this->cloudDatastore)) {
+    $user = $this->datastoreCloud->get(DataStoreContract::USER);
+    if (!$user && CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
       $this->setDefaultUserData();
-      $user = $this->acliDatastore->get(DataStoreContract::USER);
+      $user = $this->datastoreCloud->get(DataStoreContract::USER);
     }
 
     return $user;
@@ -155,7 +156,7 @@ class TelemetryHelper {
    */
   protected function setDefaultUserData(): void {
     $user = $this->getDefaultUserData();
-    $this->acliDatastore->set(DataStoreContract::USER, $user);
+    $this->datastoreCloud->set(DataStoreContract::USER, $user);
   }
 
   /**
@@ -164,6 +165,7 @@ class TelemetryHelper {
    * @return array
    */
   protected function getDefaultUserData(): array {
+    // @todo Cache this!
     $account = new Account($this->cloudApi->getClient());
     $user = [
       'uuid' => $account->get()->uuid,

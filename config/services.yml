@@ -4,9 +4,9 @@ parameters:
   app.data_dir: "%env(HOME)%/.acquia"
   app.repo_root: "%env(ACLI_REPO_ROOT)%"
   app.ssh_dir: "%env(HOME)%/.ssh"
-  app.acli_config_filename: 'acquia-cli.json'
+  app.acli_config_filename: '.acquia-cli.yml'
   app.cloud_config_filename: 'cloud_api.conf'
-  app.acli_config_filepath: "%app.data_dir%/%app.acli_config_filename%"
+  app.acli_config_filepath: "%app.repo_root%/%app.acli_config_filename%"
   app.cloud_config_filepath: "%app.data_dir%/%app.cloud_config_filename%"
 
 services:
@@ -15,12 +15,12 @@ services:
     autowire: true
     bind:
       $cloudConfigFilepath: '%app.cloud_config_filepath%'
-      $acliConfigFilename: '%app.acli_config_filename%'
+      $acliConfigFilepath: '%app.acli_config_filepath%'
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
       $repoRoot: "%app.repo_root%"
       $sshDir: "%app.ssh_dir%"
       Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
-      Webmozart\KeyValueStore\JsonFileStore $datastoreAcli: '@datastore.acli'
+      Acquia\Cli\DataStore\YamlStore $datastoreAcli: '@datastore.acli'
     public: true
 
   # Register nearly all Acquia CLI classes as services.
@@ -48,7 +48,7 @@ services:
       $path: '%app.cloud_config_filepath%'
       $flags: !php/const Webmozart\KeyValueStore\JsonFileStore::NO_SERIALIZE_STRINGS
   datastore.acli:
-    class: Webmozart\KeyValueStore\JsonFileStore
+    class: Acquia\Cli\DataStore\YamlStore
     arguments:
       $path: '%app.acli_config_filepath%'
 

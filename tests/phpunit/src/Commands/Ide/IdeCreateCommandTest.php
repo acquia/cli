@@ -49,7 +49,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       // Would you like to link the project at ... ?
-      'y',
+      'n',
       0,
       // Please select the application for which you'd like to create a new IDE
       0,

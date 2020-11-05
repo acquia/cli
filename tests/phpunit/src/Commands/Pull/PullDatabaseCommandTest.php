@@ -2,21 +2,14 @@
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
-use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
-use Acquia\Cli\Command\Pull\PullCodeCommand;
-use Acquia\Cli\Command\Pull\PullCommand;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
-use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class PullDatabaseCommandTest.
@@ -50,6 +43,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Choose a database', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
     $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
+  /**
+   * Test that settings files are created for multisite DBs in IDEs.
+   *
+   * @throws \Exception
+   */
+  public function testPullDatabaseSettingsFiles(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+    // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
+    // IdeRequiredTestBase sets other env vars (such as application ID) that
+    // seem to conflict with the rest of this test.
+    putenv('AH_SITE_ENVIRONMENT=IDE');
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    putenv('AH_SITE_ENVIRONMENT');
   }
 
   public function testPullDatabaseWithMySqlDumpError(): void {
@@ -107,7 +116,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dump_successful, $mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful): void {
+  protected function setupPullDatabase($mysql_dump_successful, $mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -116,9 +125,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
     $this->mockGetAcsfSites($ssh_helper);
 
+    $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();
     // Set up file system.
-    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+
+    if ($mock_ide_fs) {
+      $this->mockSettingsFiles($fs);
+    }
 
     // Database.
     $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
@@ -271,6 +285,15 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       0,
     ];
     return $inputs;
+  }
+
+  protected function mockSettingsFiles($fs): void {
+    $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')
+      ->willReturn()
+      ->shouldBeCalled();
+    $fs->remove(Argument::type('string'))
+      ->willReturn()
+      ->shouldBeCalled();
   }
 
 }

@@ -1,0 +1,14 @@
+# Application 'eemgrasmick', environment 'prod'.
+prod:
+  root: /var/www/html/eemgrasmick.prod/docroot
+  ac-site: eemgrasmick
+  ac-env: prod
+  ac-realm: prod
+  uri: eemgrasmick.prod.acquia-sites.com
+  prod.livedev:
+    parent: '@eemgrasmick.prod'
+    root: /mnt/gfs/eemgrasmick.prod/livedev/docroot
+  host: eemgrasmick.ssh.prod.acquia-sites.com
+  user: eemgrasmick.prod
+  paths:
+    drush-script: drush9

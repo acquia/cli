@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -63,7 +64,7 @@ class ApiCommandHelper {
   /**
    * @var string
    */
-  protected $acliConfigFilename;
+  protected $acliConfigFilepath;
 
   /**
    * @var \Zumba\Amplitude\Amplitude
@@ -101,7 +102,7 @@ class ApiCommandHelper {
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param \Zumba\Amplitude\Amplitude $amplitude
-   * @param string $acliConfigFilename
+   * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
@@ -112,10 +113,10 @@ class ApiCommandHelper {
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
-    JsonFileStore $datastoreAcli,
+    YamlStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
     Amplitude $amplitude,
-    string $acliConfigFilename,
+    string $acliConfigFilepath,
     string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
@@ -128,7 +129,7 @@ class ApiCommandHelper {
     $this->acliDatastore = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
     $this->amplitude = $amplitude;
-    $this->acliConfigFilename = $acliConfigFilename;
+    $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
@@ -485,7 +486,7 @@ class ApiCommandHelper {
 
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
-          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilename, $this->repoRoot,
+          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilepath, $this->repoRoot,
           $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);

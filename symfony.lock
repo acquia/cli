@@ -44,6 +44,9 @@
     "justinrainbow/json-schema": {
         "version": "1.6.1"
     },
+    "kevinrob/guzzle-cache-middleware": {
+        "version": "v3.3.1"
+    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },
@@ -294,6 +297,9 @@
         "files": [
             ".env"
         ]
+    },
+    "symfony/http-client-contracts": {
+        "version": "v2.3.1"
     },
     "symfony/http-foundation": {
         "version": "v5.1.0"
