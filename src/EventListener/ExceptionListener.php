@@ -23,7 +23,7 @@ class ExceptionListener
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $newErrorMessage = $errorMessage . 'Delete an existing IDE (acli ide:delete) or submit a support ticket to purchase additional IDEs (https://support.acquia.com)';
+          $newErrorMessage = $errorMessage . "Delete an existing IDE (acli ide:delete) or contact your Account Manager or Acquia Sales to purchase additional IDEs.\n You may also submit a support ticket to ask for more information (https://insight.acquia.com/support/tickets/new?product=p:ride)";
           break;
         default:
           $newErrorMessage = 'Cloud Platform API returned an error: ' . $errorMessage;
