@@ -1072,6 +1072,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
     try {
+      // Running on API commands would corrupt JSON output.
       if (strpos($input->getArgument('command'), 'api:') === FALSE && $this->hasUpdate()) {
         $output->writeln("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update.");
       }
