@@ -155,11 +155,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @var \GuzzleHttp\Client
    */
-  protected $client;
-
-  /**
-   * @var \GuzzleHttp\Client
-   */
   protected $updateClient;
 
   /**
