@@ -21,8 +21,7 @@ class PullFilesCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Copy files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment')
+      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 

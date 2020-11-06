@@ -28,9 +28,8 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function configure() {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
-      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project with files to be pushed')
+      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
