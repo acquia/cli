@@ -295,7 +295,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->convertApplicationAliastoUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
-    $this->convertEnvironmentAliasToUuid($input);
+    $this->convertEnvironmentAliasToUuid($input, 'environmentId');
+    $this->convertEnvironmentAliasToUuid($input, 'source');
     $this->checkForNewVersion($input, $output);
   }
 
@@ -1119,12 +1120,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
+   * @param $argument_name
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function convertEnvironmentAliasToUuid(InputInterface $input): void {
-    if ($input->hasArgument('environmentId') && $input->getArgument('environmentId')) {
-      $env_uuid_argument = $input->getArgument('environmentId');
+  protected function convertEnvironmentAliasToUuid(InputInterface $input, $argument_name): void {
+    if ($input->hasArgument($argument_name) && $input->getArgument($argument_name)) {
+      $env_uuid_argument = $input->getArgument($argument_name);
       try {
         // Environment IDs take the form of [env-num]-[app-uuid].
         $uuid_parts = explode('-', $env_uuid_argument);
@@ -1139,9 +1142,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $alias = $this->normalizeAlias($alias);
           $alias = self::validateEnvironmentAlias($alias);
           $environment = $this->getEnvironmentFromAliasArg($alias);
-          $input->setArgument('environmentId', $environment->uuid);
+          $input->setArgument($argument_name, $environment->uuid);
         } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {environmentId} must be a valid UUID or site alias.");
+          throw new AcquiaCliException("The {$argument_name} must be a valid UUID or site alias.");
         }
       }
     }
