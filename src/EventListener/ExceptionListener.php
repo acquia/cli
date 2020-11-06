@@ -13,14 +13,25 @@ class ExceptionListener
   public function onConsoleError(ConsoleErrorEvent $event) {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
+    $errorMessage = $error->getMessage();
+
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-      $event->setError(new AcquiaCliException('Your Cloud API credentials are invalid. Run acli auth:login to reset them.',
-        [], $exitCode));
+      $newErrorMessage = 'Your Cloud Platform API credentials are invalid. Run acli auth:login to reset them.';
     }
 
     if ($error instanceof ApiErrorException) {
-      $event->setError(new AcquiaCliException('Acquia Cloud Platform API returned an error: ' . $error->getMessage(), [], $exitCode));
+      switch ($errorMessage) {
+        case "There are no available Cloud IDEs for this application.\n":
+          $newErrorMessage = $errorMessage . "Delete an existing IDE (acli ide:delete) or contact your Account Manager or Acquia Sales to purchase additional IDEs.\n You may also submit a support ticket to ask for more information (https://insight.acquia.com/support/tickets/new?product=p:ride)";
+          break;
+        default:
+          $newErrorMessage = 'Cloud Platform API returned an error: ' . $errorMessage;
+      }
+    }
+
+    if (isset($newErrorMessage)) {
+      $event->setError(new AcquiaCliException($newErrorMessage, [], $exitCode));
     }
   }
 
