@@ -20,6 +20,7 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
+use Composer\Semver\VersionParser;
 use Doctrine\Common\Cache\FilesystemCache;
 use drupol\phposinfo\OsInfo;
 use GuzzleHttp\HandlerStack;
@@ -50,6 +51,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
+use const Composer\Semver\VersionParser;
 
 /**
  * Class CommandBase.
@@ -1074,7 +1076,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     try {
       // Running on API commands would corrupt JSON output.
       if (strpos($input->getArgument('command'), 'api:') === FALSE && $this->hasUpdate()) {
-        $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</options> to update.");
+        $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
       }
     } catch (\Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
@@ -1084,7 +1086,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Check if an update is available.
    *
-   * @todo unify with consolidation/self-update command
+   * @todo unify with consolidation/self-update and support unstable channels
    *
    * @throws \Exception
    */
@@ -1098,12 +1100,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     $version = $releases[0]->tag_name;
-    if ($version == $this->getApplication()->getVersion()) {
-      return FALSE;
-    }
-    else {
+    $versionStability = VersionParser::parseStability($version);
+    $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
+    if ($versionStability === 'stable' && $versionIsNewer) {
       return TRUE;
     }
+
+    return FALSE;
   }
 
   /**
