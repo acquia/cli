@@ -51,7 +51,6 @@ use Symfony\Contracts\Cache\ItemInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
-use const Composer\Semver\VersionParser;
 
 /**
  * Class CommandBase.
@@ -157,6 +156,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var \GuzzleHttp\Client
    */
   protected $client;
+
+  /**
+   * @var \GuzzleHttp\Client
+   */
+  protected $updateClient;
 
   /**
    * CommandBase constructor.
@@ -1091,7 +1095,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function hasUpdate() {
-    $client = $this->getClient();
+    $client = $this->getUpdateClient();
     $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
     $releases = json_decode($response->getBody());
 
@@ -1112,15 +1116,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param \GuzzleHttp\Client $client
    */
-  public function setClient(\GuzzleHttp\Client $client): void {
-    $this->client = $client;
+  public function setUpdateClient(\GuzzleHttp\Client $client): void {
+    $this->updateClient = $client;
   }
 
   /**
    * @return \GuzzleHttp\Client
    */
-  public function getClient(): \GuzzleHttp\Client {
-    if (!isset($this->client)) {
+  public function getUpdateClient(): \GuzzleHttp\Client {
+    if (!isset($this->updateClient)) {
       $stack = HandlerStack::create();
       $stack->push(new CacheMiddleware(
         new PrivateCacheStrategy(
@@ -1131,9 +1135,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       ),
         'cache');
       $client = new \GuzzleHttp\Client(['handler' => $stack]);
-      $this->setClient($client);
+      $this->setUpdateClient($client);
     }
-    return $this->client;
+    return $this->updateClient;
   }
 
   /**
