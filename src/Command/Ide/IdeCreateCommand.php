@@ -28,7 +28,7 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @var \GuzzleHttp\Client
    */
-  protected $client;
+  private $client;
 
   /**
    * {inheritdoc}.
@@ -116,7 +116,7 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @return \GuzzleHttp\Client|null
    */
-  public function getClient(): Client {
+  public function getClient(): ?Client {
     return $this->client;
   }
 
