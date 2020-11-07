@@ -23,7 +23,7 @@ class PullCommand extends PullCommandBase {
     $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED, 'The UUID of the associated Cloud Platform source environment')
+      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
       ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')

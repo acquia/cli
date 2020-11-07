@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,8 +21,7 @@ class PullDatabaseCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Copy database from a Cloud Platform environment')
       ->setAliases(['pull:db'])
-      ->addOption('cloud-env-uuid', 'from', InputOption::VALUE_REQUIRED,
-        'The UUID of the associated Cloud Platform source environment')
+      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
