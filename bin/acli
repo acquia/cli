@@ -18,6 +18,7 @@ namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
@@ -84,4 +85,5 @@ $application->setVersion('@package_version@');
 /** @var \Acquia\Cli\Command\Api\ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
+$application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
 $application->run();

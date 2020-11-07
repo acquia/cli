@@ -339,7 +339,6 @@ class ApiCommandTest extends CommandTestBase {
     $api_command_helper = new ApiCommandHelper(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
-      $this->updateHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->telemetryHelper,

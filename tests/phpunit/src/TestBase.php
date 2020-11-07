@@ -10,8 +10,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Helpers\UpdateHelper;
-use Acquia\Cli\Tests\Commands\UpdateCommandTest;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
@@ -160,11 +158,6 @@ abstract class TestBase extends TestCase {
   protected $acliRepoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\UpdateHelper
-   */
-  protected $updateHelper;
-
-  /**
    * @var \Symfony\Component\Console\Logger\ConsoleLogger
    */
   protected $logger;
@@ -197,9 +190,6 @@ abstract class TestBase extends TestCase {
     $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->updateHelper = new UpdateHelper();
-    $guzzle_client = $this->mockGuzzleClientForUpdate(UpdateCommandTest::mockGitHubReleasesResponse());
-    $this->updateHelper->setClient($guzzle_client->reveal());
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
@@ -292,7 +282,6 @@ abstract class TestBase extends TestCase {
     return new $commandName(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
-      $this->updateHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->telemetryHelper,

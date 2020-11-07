@@ -10,7 +10,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
-use Acquia\Cli\Helpers\UpdateHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -21,7 +20,13 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
+use Composer\Semver\VersionParser;
+use Doctrine\Common\Cache\FilesystemCache;
 use drupol\phposinfo\OsInfo;
+use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -142,22 +147,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $sshDir;
 
-  /**
-   * @var \Acquia\Cli\Helpers\UpdateHelper
-   */
-  protected $updateHelper;
-
   protected $localDbUser;
   protected $localDbPassword;
   protected $localDbName;
   protected $localDbHost;
 
   /**
+   * @var \GuzzleHttp\Client
+   */
+  protected $updateClient;
+
+  /**
    * CommandBase constructor.
    *
    * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Acquia\Cli\Helpers\UpdateHelper $updateHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
@@ -172,7 +176,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function __construct(
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
-    UpdateHelper $updateHelper,
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
@@ -186,7 +189,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
-    $this->updateHelper = $updateHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
@@ -1071,14 +1073,66 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
     try {
-      $updater = $this->updateHelper->getUpdater($input, $output, $this->getApplication());
-      if (strpos($input->getArgument('command'), 'api:') === FALSE && $updater->hasUpdate()) {
-        $new_version = $updater->getNewVersion();
-        $this->logger->notice("A newer version of Acquia CLI is available. Run <comment>acli self-update</comment> to update to <options=bold>{$new_version}</>");
+      // Running on API commands would corrupt JSON output.
+      if (strpos($input->getArgument('command'), 'api:') === FALSE && $this->hasUpdate()) {
+        $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
       }
     } catch (\Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
+  }
+
+  /**
+   * Check if an update is available.
+   *
+   * @todo unify with consolidation/self-update and support unstable channels
+   *
+   * @throws \Exception
+   */
+  protected function hasUpdate() {
+    $client = $this->getUpdateClient();
+    $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
+    $releases = json_decode($response->getBody());
+
+    if (!isset($releases[0])) {
+      throw new \Exception('API error - no release found at GitHub repository acquia/cli');
+    }
+
+    $version = $releases[0]->tag_name;
+    $versionStability = VersionParser::parseStability($version);
+    $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
+    if ($versionStability === 'stable' && $versionIsNewer) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * @param \GuzzleHttp\Client $client
+   */
+  public function setUpdateClient(\GuzzleHttp\Client $client): void {
+    $this->updateClient = $client;
+  }
+
+  /**
+   * @return \GuzzleHttp\Client
+   */
+  public function getUpdateClient(): \GuzzleHttp\Client {
+    if (!isset($this->updateClient)) {
+      $stack = HandlerStack::create();
+      $stack->push(new CacheMiddleware(
+        new PrivateCacheStrategy(
+          new DoctrineCacheStorage(
+            new FilesystemCache(sys_get_temp_dir())
+          )
+        )
+      ),
+        'cache');
+      $client = new \GuzzleHttp\Client(['handler' => $stack]);
+      $this->setUpdateClient($client);
+    }
+    return $this->updateClient;
   }
 
   /**
