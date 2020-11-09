@@ -1198,7 +1198,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument($argument_name, $environment->uuid);
         } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {$argument_name} must be a valid UUID or site alias.");
+          throw new AcquiaCliException("The \{{$argument_name}\} must be a valid UUID or site alias.");
         }
       }
     }
