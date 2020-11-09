@@ -31,6 +31,11 @@ class IdeCreateCommand extends IdeCommandBase {
   private $client;
 
   /**
+   * @var \Acquia\Cli\Output\Checklist
+   */
+  private $checklist;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {

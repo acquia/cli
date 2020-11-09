@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Spinner\Spinner;
 use React\EventLoop\LoopInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -47,8 +48,8 @@ class LoopHelper {
   ): void {
     $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner, $output) {
       self::finishSpinner($spinner);
-      $output->writeln("Timed out after $minutes minutes!");
       $loop->stop();
+      throw new AcquiaCliException("Timed out after $minutes minutes!");
     });
   }
 
