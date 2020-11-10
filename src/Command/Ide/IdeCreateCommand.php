@@ -96,7 +96,7 @@ class IdeCreateCommand extends IdeCommandBase {
         $this->logger->debug($e->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 15, $spinner, $this->output);
+    LoopHelper::addTimeoutToLoop($loop, 30, $spinner, $this->output);
 
     // Start the loop.
     $loop->run();
