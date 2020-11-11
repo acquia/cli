@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
@@ -46,8 +47,12 @@ class ChecklistTest extends TestBase {
     $message = 'Waiting for DNS to propagate...';
     $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $output);
     LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
-    $loop->run();
-    $this->assertStringContainsString('Timed out after 0.01 minutes!', $output->fetch());
+    try {
+      $loop->run();
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals('Timed out after 0.01 minutes!', $exception->getMessage());
+    }
   }
 
 }

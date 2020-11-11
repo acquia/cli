@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -29,6 +30,11 @@ class IdeCreateCommand extends IdeCommandBase {
    * @var \GuzzleHttp\Client
    */
   private $client;
+
+  /**
+   * @var \Acquia\Cli\Output\Checklist
+   */
+  private $checklist;
 
   /**
    * {inheritdoc}.
@@ -66,15 +72,15 @@ class IdeCreateCommand extends IdeCommandBase {
     $this->checklist->completePreviousItem();
 
     // Wait!
-    $this->waitForDnsPropagation($ide_url);
-
-    return 0;
+    return $this->waitForDnsPropagation($ide_url);
   }
 
   /**
    * @param $ide_url
+   *
+   * @return int
    */
-  protected function waitForDnsPropagation($ide_url): void {
+  protected function waitForDnsPropagation($ide_url): int {
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
@@ -99,8 +105,18 @@ class IdeCreateCommand extends IdeCommandBase {
     LoopHelper::addTimeoutToLoop($loop, 30, $spinner, $this->output);
 
     // Start the loop.
-    $loop->run();
+    try {
+      $loop->run();
+    }
+    catch (AcquiaCliException $exception) {
+      $this->io->error($exception->getMessage());
+      // Write IDE links to screen in the event of a DNS timeout. The IDE may still provision correctly.
+      $this->writeIdeLinksToScreen();
+      return 1;
+    }
+
     $this->writeIdeLinksToScreen();
+    return 0;
   }
 
   /**
