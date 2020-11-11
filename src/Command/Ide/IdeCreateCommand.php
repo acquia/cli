@@ -115,6 +115,7 @@ class IdeCreateCommand extends IdeCommandBase {
       return 1;
     }
 
+    $this->writeIdeLinksToScreen();
     return 0;
   }
 
