@@ -65,7 +65,7 @@ class IdeXdebugToggleCommandTest extends IdeRequiredTestBase {
     $this->assertFileExists($this->xdebugFilePath);
     $this->assertStringContainsString('zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
     $this->assertStringNotContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
-    $this->assertStringContainsString("Enabling xdebug in {$this->xdebugFilePath}...", $this->getDisplay());
+    $this->assertStringContainsString("Enabling Xdebug PHP extension in {$this->xdebugFilePath}...", $this->getDisplay());
   }
 
   /**
@@ -78,7 +78,7 @@ class IdeXdebugToggleCommandTest extends IdeRequiredTestBase {
     $this->executeCommand([], []);
     $this->assertFileExists($this->xdebugFilePath);
     $this->assertStringContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
-    $this->assertStringContainsString("Disabling xdebug in {$this->xdebugFilePath}...", $this->getDisplay());
+    $this->assertStringContainsString("Disabling Xdebug PHP extension in {$this->xdebugFilePath}...", $this->getDisplay());
   }
 
 }
