@@ -36,7 +36,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Toggle xDebug on or off in the current IDE')
+    $this->setDescription('Toggle Xdebug on or off in the current IDE')
       ->setAliases(['xdebug'])
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
@@ -118,11 +118,12 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    *   The contents of php.ini.
    */
   protected function enableXDebug($destination_file, $contents): void {
-    $this->logger->notice("Enabling xdebug in $destination_file...");
+    $this->logger->notice("Enabling Xdebug PHP extension in $destination_file...");
     // Note that this replaces 1 or more ";" characters.
     $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
     file_put_contents($destination_file, $new_contents);
-    $this->output->writeln("<info>xDebug enabled.</info>");
+    $this->output->writeln("<info>Xdebug PHP extension enabled.</info>")
+    $this->output->writeln("You must also enable Xdebug listening in your code editor to begin a debugging session.");
   }
 
   /**
@@ -133,10 +134,10 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    *   The contents of php.ini.
    */
   protected function disableXDebug($destination_file, $contents) {
-    $this->logger->notice("Disabling xdebug in $destination_file...");
+    $this->logger->notice("Disabling Xdebug PHP extension in $destination_file...");
     $new_contents = preg_replace('/(;)*(zend_extension=xdebug\.so)/', ';$2', $contents);
     file_put_contents($destination_file, $new_contents);
-    $this->output->writeln("<info>xDebug disabled.</info>");
+    $this->output->writeln("<info>Xdebug PHP extension disabled.</info>");
   }
 
 }
