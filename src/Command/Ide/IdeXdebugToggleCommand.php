@@ -122,7 +122,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     // Note that this replaces 1 or more ";" characters.
     $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
     file_put_contents($destination_file, $new_contents);
-    $this->output->writeln("<info>Xdebug PHP extension enabled.</info>")
+    $this->output->writeln("<info>Xdebug PHP extension enabled.</info>");
     $this->output->writeln("You must also enable Xdebug listening in your code editor to begin a debugging session.");
   }
 
