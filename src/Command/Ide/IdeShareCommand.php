@@ -27,8 +27,7 @@ class IdeShareCommand extends CommandBase {
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool
-  {
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
   }
 
