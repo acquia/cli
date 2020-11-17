@@ -10,12 +10,18 @@
     }
   ],
   "minimum-stability": "dev",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/danepowell/self-update.git"
+    }
+  ],
   "require": {
     "php": "^7.3",
     "ext-json": "*",
     "acquia/drupal-environment-detector": "^1.2.0",
     "composer/semver": "^3.2",
-    "consolidation/self-update": "^1.2",
+    "consolidation/self-update": "dev-allow-unstable as 1.1",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
     "kevinrob/guzzle-cache-middleware": "^3.3",
