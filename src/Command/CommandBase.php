@@ -287,6 +287,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // @todo This logger is not shared in the container! Fix that.
     $this->setLogger(new ConsoleLogger($output));
 
+    // Output and logging are initialized after this point.
+    $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
     $this->telemetryHelper->initializeAmplitude($this->amplitude);
