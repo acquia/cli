@@ -1075,9 +1075,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
+    // Running on API commands would corrupt JSON output.
+    if (strpos($input->getArgument('command'), 'api:')) {
+      return;
+    }
+    // Bale for development builds.
+    if ($this->getApplication()->getVersion() == '@package_version@') {
+      return;
+    }
     try {
-      // Running on API commands would corrupt JSON output.
-      if (strpos($input->getArgument('command'), 'api:') === FALSE && $this->hasUpdate()) {
+      if ($this->hasUpdate()) {
         $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
       }
     } catch (\Exception $e) {
