@@ -4,6 +4,8 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Process\Process;
 
 /**
@@ -32,6 +34,7 @@ abstract class SshCommandTestBase extends CommandTestBase {
     $process->getExitCode()->willReturn(0);
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE)->shouldBeCalled();
+    $local_machine_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     return [$process, $local_machine_helper];
   }
 

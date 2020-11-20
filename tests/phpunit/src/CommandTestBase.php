@@ -2,16 +2,14 @@
 
 namespace Acquia\Cli\Tests;
 
-use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
-use Acquia\Cli\Tests\Commands\UpdateCommandTest;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
@@ -205,6 +203,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $local_machine_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
 
