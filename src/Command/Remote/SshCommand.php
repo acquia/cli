@@ -23,6 +23,7 @@ class SshCommand extends SshBaseCommand {
     $this->setDescription('Open a new SSH session to a Cloud Platform environment')
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
+      ->addArgument('ssh_command', InputArgument::OPTIONAL, 'Command to run via SSH (opens a shell by default)')
       ->addUsage("<app>.<env>");
   }
 
@@ -39,8 +40,9 @@ class SshCommand extends SshBaseCommand {
     $environment = $this->getEnvironmentFromAliasArg($alias);
     $arguments = $input->getArguments();
     array_shift($arguments);
-    $arguments[] = 'cd /var/www/html/' . $alias . '; exec $SHELL -l';
-
+    if (empty($arguments['ssh_command'])) {
+      $arguments['ssh_command'] = 'cd /var/www/html/' . $alias . '; exec $SHELL -l';
+    }
     return $this->sshHelper->executeCommand($environment, $arguments, TRUE, NULL)->getExitCode();
   }
 
