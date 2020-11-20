@@ -16,6 +16,7 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
@@ -39,7 +40,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
@@ -77,7 +78,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockCloudEnvironmentsRequest($applications_response);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $this->mockGetCloudSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();

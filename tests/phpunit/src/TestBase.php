@@ -212,9 +212,11 @@ abstract class TestBase extends TestCase {
     $this->input = $input;
     $this->output = $output;
     $this->logger = new ConsoleLogger($output);
-    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+    $this->localMachineHelper = new LocalMachineHelper($input, $output);
+    $this->localMachineHelper->setLogger($this->logger);
     $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
+    $this->sshHelper = new SshHelper($output, $this->localMachineHelper);
+    $this->sshHelper->setLogger($this->logger);
   }
 
   /**

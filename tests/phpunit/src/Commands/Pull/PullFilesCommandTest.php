@@ -38,7 +38,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper
@@ -78,7 +78,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockCloudEnvironmentsRequest($applications_response);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $this->mockGetCloudSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper

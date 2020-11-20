@@ -29,12 +29,10 @@ class LocalMachineHelper {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $logger
    */
-  public function __construct(InputInterface $input, OutputInterface $output, LoggerInterface $logger) {
+  public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
-    $this->setLogger($logger);
   }
 
   /**

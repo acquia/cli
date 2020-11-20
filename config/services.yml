@@ -57,16 +57,11 @@ services:
   AcquiaCloudApi\Connector\ConnectorInterface: ~
   AcquiaLogstream\LogstreamManager: ~
 
-  # Psr services.
-  Psr\Log\LoggerInterface:
-    alias: Symfony\Component\Console\Logger\ConsoleLogger
-
   # Symfony services.
   Symfony\Component\Console\Application: ~
   Symfony\Component\Console\Input\ArgvInput: ~
   Symfony\Component\Console\Input\InputInterface:
     alias: Symfony\Component\Console\Input\ArgvInput
-  Symfony\Component\Console\Logger\ConsoleLogger: ~
   Symfony\Component\Console\Output\ConsoleOutput: ~
   Symfony\Component\Console\Output\OutputInterface:
     alias: Symfony\Component\Console\Output\ConsoleOutput
