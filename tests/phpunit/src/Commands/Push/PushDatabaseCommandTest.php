@@ -31,7 +31,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $process = $this->mockProcess();
 

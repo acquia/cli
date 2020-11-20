@@ -52,8 +52,7 @@ class NewCommandTest extends CommandTestBase {
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
 
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
+    $local_machine_helper = $this->mockLocalMachineHelper();
 
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
     $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);

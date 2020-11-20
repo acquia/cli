@@ -143,7 +143,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper = $this->mockSshHelper();
     $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();

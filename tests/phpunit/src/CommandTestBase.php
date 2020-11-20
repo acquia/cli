@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\SshHelper;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -208,6 +209,15 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
 
     return $local_machine_helper;
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockSshHelper(): \Prophecy\Prophecy\ObjectProphecy {
+    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
+    return $ssh_helper;
   }
 
   /**
