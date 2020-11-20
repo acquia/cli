@@ -284,11 +284,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
     );
     $this->formatter = $this->getHelper('formatter');
+
+    // We set the loggers here rather than via dependency injection because the $output object is not available
+    // when the services are constructed.
     $this->setLogger(new ConsoleLogger($output));
     $this->localMachineHelper->setLogger($this->logger);
     $this->sshHelper->setLogger($this->logger);
 
-    // Output and logging are initialized after this point.
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
