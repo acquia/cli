@@ -284,8 +284,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       "%current%/%max% [%bar%] <info>%percent:3s%%</info> -- %elapsed:6s%/%estimated:-6s%\n %message%"
     );
     $this->formatter = $this->getHelper('formatter');
-    // @todo This logger is not shared in the container! Fix that.
     $this->setLogger(new ConsoleLogger($output));
+    $this->localMachineHelper->setLogger($this->logger);
 
     // Output and logging are initialized after this point.
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
