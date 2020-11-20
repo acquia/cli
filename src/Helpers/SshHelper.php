@@ -27,12 +27,10 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Psr\Log\LoggerInterface $logger
    */
-  public function __construct(OutputInterface $output, LocalMachineHelper $localMachineHelper, LoggerInterface $logger) {
+  public function __construct(OutputInterface $output, LocalMachineHelper $localMachineHelper) {
     $this->output = $output;
     $this->localMachineHelper = $localMachineHelper;
-    $this->setLogger($logger);
   }
 
   /**

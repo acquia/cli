@@ -286,6 +286,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->formatter = $this->getHelper('formatter');
     $this->setLogger(new ConsoleLogger($output));
     $this->localMachineHelper->setLogger($this->logger);
+    $this->sshHelper->setLogger($this->logger);
 
     // Output and logging are initialized after this point.
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
