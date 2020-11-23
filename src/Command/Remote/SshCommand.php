@@ -20,11 +20,12 @@ class SshCommand extends SshBaseCommand {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Open a new SSH session to a Cloud Platform environment')
+    $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
-      ->addArgument('ssh_command', InputArgument::OPTIONAL, 'Command to run via SSH (opens a shell by default)')
-      ->addUsage("<app>.<env>");
+      ->addArgument('ssh_command', InputArgument::OPTIONAL, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
+      ->addUsage("myapp.dev # open a shell in the myapp.dev environment")
+      ->addUsage("myapp.dev ls # list files in the myapp.dev environment and return");
   }
 
   /**
