@@ -20,10 +20,12 @@ class SshCommand extends SshBaseCommand {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Open a new SSH session to a Cloud Platform environment')
+    $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
-      ->addUsage("<app>.<env>");
+      ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
+      ->addUsage("myapp.dev # open a shell in the myapp.dev environment")
+      ->addUsage("myapp.dev -- ls -al # list files in the myapp.dev environment and return");
   }
 
   /**
@@ -37,11 +39,18 @@ class SshCommand extends SshBaseCommand {
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
+    $ssh_command = [
+      'cd /var/www/html/' . $alias,
+    ];
     $arguments = $input->getArguments();
-    array_shift($arguments);
-    $arguments[] = 'cd /var/www/html/' . $alias . '; exec $SHELL -l';
-
-    return $this->sshHelper->executeCommand($environment, $arguments, TRUE, NULL)->getExitCode();
+    if (empty($arguments['ssh_command'])) {
+      $ssh_command[] = 'exec $SHELL -l';
+    }
+    else {
+      $ssh_command[] = implode(' ', $arguments['ssh_command']);
+    }
+    $ssh_command = (array) implode('; ', $ssh_command);
+    return $this->sshHelper->executeCommand($environment, $ssh_command, TRUE, NULL)->getExitCode();
   }
 
 }
