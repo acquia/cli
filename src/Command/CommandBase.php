@@ -1076,7 +1076,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
     // Running on API commands would corrupt JSON output.
-    if (strpos($input->getArgument('command'), 'api:')) {
+    if (strpos($input->getArgument('command'), 'api:') !== FALSE) {
       return;
     }
     // Bale for development builds.
