@@ -11,7 +11,7 @@ use Webmozart\PathUtil\Path;
 class ApiSpecTest extends TestCase {
 
   public function testApiSpec(): void {
-    $api_spec_file = Path::canonicalize(__DIR__ . '/../../../assets/acquia-spec.yaml');
+    $api_spec_file = Path::canonicalize(__DIR__ . '/../../../../assets/acquia-spec.yaml');
     $this->assertFileExists($api_spec_file);
     $api_spec = file_get_contents($api_spec_file);
     $this->assertStringNotContainsString('x-internal', $api_spec);
