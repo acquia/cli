@@ -100,7 +100,7 @@ components:
       required: true
       description: An ID that uniquely identifies a certificate.
       schema:
-        type: int
+        type: integer
       example: 7
     CronId:
       name: cronId
@@ -109,7 +109,7 @@ components:
       description: An ID that uniquely identifies a cron job.
       schema:
         type: string
-      example: 24
+      example: e10a665c-c9ec-4422-a82b-b32c82329f9d
     DatabaseName:
       name: databaseName
       in: path
@@ -150,11 +150,11 @@ components:
       in: path
       description: The environment variable name.
       required: true
-      minLength: 1
-      maxLength: 255
-      pattern: '^(?!(ACQUIA_|AH_))[A-Za-z_][A-Za-z0-9_]*$'
       schema:
         type: string
+        minLength: 1
+        maxLength: 255
+        pattern: '^(?!(ACQUIA_|AH_))[A-Za-z_][A-Za-z0-9_]*$'
       example: EXAMPLE_VARIABLE_NAME
     LogType:
       name: logType
@@ -163,13 +163,13 @@ components:
       description: An ID that uniquely identifies a log type.
       schema:
         type: string
-      enum:
-        - apache-access
-        - apache-error
-        - drupal-request
-        - drupal-watchdog
-        - php-error
-        - mysql-slow-query
+        enum:
+          - apache-access
+          - apache-error
+          - drupal-request
+          - drupal-watchdog
+          - php-error
+          - mysql-slow-query
       example: php-error
     Name:
       name: name
@@ -360,7 +360,7 @@ components:
     IdeUuid:
       name: ideUuid
       in: path
-      description: The Remote IDE universally unique identifier.
+      description: The Cloud IDE universally unique identifier.
       required: true
       schema:
         type: string
@@ -1254,6 +1254,7 @@ components:
               - $ref: '#/components/schemas/EntitlementLogForwarding'
               - $ref: '#/components/schemas/EntitlementShield'
               - $ref: '#/components/schemas/EntitlementDefaultNewRelic'
+              - $ref: '#/components/schemas/EntitlementMigrate'
     EntitlementPipelines:
       type: object
       description: Pipelines entitlement.
@@ -1315,6 +1316,19 @@ components:
         name:
           type: string
           description: The name of the entitlement.
+    EntitlementMigrate:
+      type: object
+      description: Acquia Migrate Accelerator entitlement.
+      required:
+        - name
+        - properties
+      properties:
+        name:
+          type: string
+          description: The name of the entitlement.
+        properties:
+          type: object
+          description: Entitlement data.
     EntitlementDefaultNewRelic:
       type: object
       description: Represents the default New Relic account. The default New Relic account is created when a subscription is provisioned.
@@ -1432,7 +1446,7 @@ components:
           description: The type of backup this is.
         started_at:
           type: string
-          fomrat: date-time
+          format: date-time
           description: The ISO-8601 formatted date/time of when the backup process was started.
         completed_at:
           type: string
@@ -1467,7 +1481,7 @@ components:
     BackupFlags:
       type: object
       description: Response schema for database backup flags.
-      additionalProperties:
+      properties:
         deleted:
           type: boolean
           description: Whether this database is deleted.
@@ -1486,7 +1500,7 @@ components:
         - _links
       properties:
         id:
-          type: int
+          type: integer
           description: The ID of the certificate.
         label:
           type: string
@@ -1564,7 +1578,7 @@ components:
         - _links
       properties:
         id:
-          type: int
+          type: integer
           description: The hosting ID of the CSR/SSL Certificate (0 for 'elb' type).
         csr:
           type: string
@@ -1633,6 +1647,7 @@ components:
       properties:
         id:
           type: string
+          format: uuid
           description: The ID of the cron job.
         server:
           $ref: '#/components/schemas/ServerStub'
@@ -1757,7 +1772,7 @@ components:
     DatabaseFlags:
       type: object
       description: Response schema for database flags.
-      additionalProperties:
+      properties:
         default:
           type: boolean
           description: Whether this is the default database.
@@ -1795,18 +1810,50 @@ components:
       required:
         - apex_domain
         - subdomains
+        - regional_configuration
+        - global_configuration
         - _links
       properties:
         apex_domain:
+          deprecated: true
           type: array
           description: Environment apex domain DNS records.
           items:
             $ref: '#/components/schemas/DnsRecord'
         subdomains:
+          deprecated: true
           type: array
           description: Environment subdomain DNS records.
           items:
             $ref: '#/components/schemas/DnsRecord'
+        regional_configuration:
+          type: object
+          description: List of regional apex and subdomain DNS records.
+          properties:
+            apex_domain:
+              type: array
+              description: Environment regional apex domain DNS records.
+              items:
+                $ref: '#/components/schemas/DnsRecord'
+            subdomains:
+              type: array
+              description: Environment regional subdomain DNS records.
+              items:
+                $ref: '#/components/schemas/DnsRecord'
+        global_configuration:
+          type: object
+          description: List of global apex and subdomain DNS records.
+          properties:
+            apex_domain:
+              type: array
+              description: Environment global apex domain DNS records.
+              items:
+                $ref: '#/components/schemas/DnsRecord'
+            subdomains:
+              type: array
+              description: Environment global subdomain DNS records.
+              items:
+                $ref: '#/components/schemas/DnsRecord'
         _links:
           $ref: '#/components/schemas/Links'
     DnsRecord:
@@ -1923,7 +1970,7 @@ components:
     DomainStatusFlags:
       type: object
       description: An array of hosting flags for the domain.
-      additionalProperties:
+      properties:
         default:
           type: boolean
           description: Whether or not this is the default domain.
@@ -1935,7 +1982,7 @@ components:
           description: Whether or not this domain resolves in DNS.
         acquia_hosted:
           type: boolean
-          descrioption: Whether or not this domain is Acquia-hosted.
+          description: Whether or not this domain is Acquia-hosted.
     Environment:
       type: object
       required:
@@ -2155,7 +2202,7 @@ components:
             description: Determines if the environment has live development enabled.
           migration:
             type: boolean
-            description: Determines if the environment is an Acquia Migrate Accelerator environment.
+            description: Determines if the environment is a Migrate Environment.
           multicert:
             type: boolean
             description: Determines if the environment has multicert enabled.
@@ -2457,7 +2504,7 @@ components:
     LogForwardingDestinationFlags:
       type: object
       description: Various flags for this log forwarding destination.
-      additionalProperties:
+      properties:
         enabled:
           type: boolean
           description: Destination enabled status.
@@ -2467,7 +2514,7 @@ components:
     LogForwardingDestinationHealth:
       type: object
       description: Health information for this log forwarding destination.
-      additionalProperties:
+      properties:
         code:
           type: string
           description: The error code for this log forwarding destination if an error occured.
@@ -2486,7 +2533,7 @@ components:
       properties:
         legacy:
           type: boolean
-          description: Whether this is a legacy certificate.
+          description: Must be set to true for legacy certificates.
         certificate:
           type: string
           description: The SSL certificate being installed.
@@ -2498,10 +2545,10 @@ components:
           description: The CA intermediary certificates.
         csr_id:
           type: integer
-          description: The CSR to associate with this certificate.
+          description: The CSR (certificate signing request) to associate with this certificate. Optional.
         label:
           type: string
-          description: The label for this certificate (required if not legacy certificate).
+          description: The label for this certificate. Required for standard certificates. Optional for legacy certificates.
     PostCron:
       type: object
       required:
@@ -2571,6 +2618,50 @@ components:
         server_id:
           type: integer
           description: 'The ID of the server the cron will run on. If not provided, cron will be run on the lowest numbered web server for this environment.'
+    RemoteAdministration:
+      type: object
+      required:
+        - update_mode
+      properties:
+        update_mode:
+          type: string
+          description: The update mode to select.
+          enum:
+            - update
+            - inform
+            - none
+        update_type:
+          type: string
+          description: What components to update (core only or core and contrib modules).
+          enum:
+            - core
+            - core_contrib
+        pause_until:
+          type: string
+          format: date-time
+          description: What date/time to pause RA updates until (if applicable).
+        deploy_at:
+          type: string
+          format: date-time
+          description: What date/time to deploy RA updates at (if applicable).
+        deploy_environment:
+          type: string
+          description: The environment id of the environment to deploy to.
+        source_environment:
+          type: string
+          description: The environment id of the environment to use as a starting point for testing.
+        copy_files:
+          type: boolean
+          description: Whether to copy files from production to testing environment.
+        copy_database:
+          type: boolean
+          description: Whether to copy database from production to testing environment.
+        merge_tag:
+          type: boolean
+          description: Whether to automatically merge the approved code into your development branch.
+        merge_branch:
+          type: string
+          description: The development branch into which to merge the update tag.
     Ssl:
       type: object
       description: The SSL settings for an environment.
@@ -2702,7 +2793,7 @@ components:
           $ref: '#/components/schemas/Links'
         _embedded:
           type: array
-          description: A collection of Remote IDEs matching the request parameters.
+          description: A collection of Cloud IDEs matching the request parameters.
           items:
             $ref: '#/components/schemas/Ide'
     Ide:
@@ -2715,10 +2806,10 @@ components:
         uuid:
           type: string
           format: uuid
-          description: The unique identifier of the Remote IDE.
+          description: The unique identifier of the Cloud IDE.
         label:
           type: string
-          description: The human-friendly label of the Remote IDE.
+          description: The human-friendly label of the Cloud IDE.
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
@@ -3524,7 +3615,7 @@ components:
         progress:
           type: integer
           description: The notification progress.
-          minimun: 0
+          minimum: 0
           maximum: 100
         user:
           $ref: '#/components/schemas/UserStub'
@@ -3644,7 +3735,7 @@ components:
         flags:
           type: object
           description: An array of various flags that indicate functionality for the organization.
-          additionalProperties:
+          properties:
             federated_authentication:
               type: boolean
               description: Indicates whether the organization supports federated authentication.
@@ -4132,7 +4223,7 @@ components:
           description: The machine name of the server.
         hostname:
           type: string
-          foramt: uri
+          format: uri
           description: The hostname for the server.
         ssh_user:
           type: string
@@ -4196,7 +4287,7 @@ components:
     ServerConfiguration:
       type: object
       description: An array of various configuration settings for the server.
-      additionalProperties:
+      properties:
         ecu:
           type: integer
           description: The number of EC2 Compute Units (ECU) for this server type.
@@ -4209,7 +4300,7 @@ components:
     ServerFlags:
       type: object
       description: An array of various flags that indicate functionality for the server.
-      additionalProperties:
+      properties:
         elastic_ip:
           type: boolean
           description: Determines if the server has an elastic (static) IP or not.
@@ -4254,7 +4345,7 @@ components:
       description: Information about the server this cron job is attached to.
       properties:
         id:
-          type: int
+          type: integer
           description: The server ID.
         name:
           type: string
@@ -4325,10 +4416,14 @@ components:
           enum:
             - core
             - core_contrib
-        pause_until_date:
+        pause_until:
           type: string
           format: date-time
           description: The ISO-8601 formatted date/time to pause RA until. Only applicable for 'full' and 'inform' update modes and when it is in future.
+        deploy_at:
+          type: string
+          format: date-time
+          description: The ISO-8601 formatted date/time to deploy RA at. Only applicable for 'full' and 'inform' update modes and when it is in future.
         deploy_environment:
           type: string
           description: The environment to deploy the code and production database to for testing.
@@ -4342,7 +4437,7 @@ components:
         flags:
           type: object
           description: Remote administration settings flags.
-          additionalProperties:
+          properties:
             copy_files:
               type: boolean
             copy_database:
@@ -5133,7 +5228,7 @@ components:
         flags:
           type: object
           description: Flags detailing the token's status.
-          addtionalProperties:
+          properties:
             active:
               type: boolean
               description: Whether or not this token is active.
@@ -5488,7 +5583,7 @@ components:
         state:
           type: string
           description: 'The state of the user, if in the United States.'
-          enun:
+          enum:
             - Alabama
             - Alaska
             - American Samoa
@@ -6286,8 +6381,8 @@ paths:
     get:
       tags:
         - Account
-      summary: Returns a list of Remote IDEs associated with the current user.
-      description: Returns a list of Remote IDEs associated with the current user.
+      summary: Returns a list of Cloud IDEs associated with the current user.
+      description: Returns a list of Cloud IDEs associated with the current user.
       operationId: getAccountIdes
       x-cli-name: 'accounts:ide-list'
       responses:
@@ -6828,8 +6923,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
-                value:
-                  Key with label already exists:
+                Key with label already exists:
+                  value:
                     error: conflict
                     message: An SSH key with this label already exists for this user.
                 Key with public key already exists:
@@ -7754,7 +7849,7 @@ paths:
                 $ref: '#/components/schemas/Error'
               examples:
                 Not found:
-                  values:
+                  value:
                     error: forbidden
                     message: You do not have permission to view applications.
   '/applications/{applicationUuid}':
@@ -8076,23 +8171,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application:
-                value:
-                  error: not_found
-                  message: The application with UUID a47ac10b-58cc-4372-a567-0e02b2c3d470 does not exist.
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-              No artifact:
-                value:
-                  error: not_found
-                  message: 'The build artifact you are trying to access does not exist, or you do not have permission to access it.'
-              Application type:
-                value:
-                  error: not_found
-                  message: Artifacts are only available for Node.js applications.
+              examples:
+                No application:
+                  value:
+                    error: not_found
+                    message: The application with UUID a47ac10b-58cc-4372-a567-0e02b2c3d470 does not exist.
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                No artifact:
+                  value:
+                    error: not_found
+                    message: 'The build artifact you are trying to access does not exist, or you do not have permission to access it.'
+                Application type:
+                  value:
+                    error: not_found
+                    message: Artifacts are only available for Node.js applications.
   '/applications/{applicationUuid}/code':
     get:
       tags:
@@ -8180,45 +8275,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApplicationDatabases'
-            example:
-              total: 2
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases'
-                sort:
-                  href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?sort}'
-                  templated: true
-                filter:
-                  href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?filter}'
-                  templated: true
-                limit:
-                  href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?limit}'
-                  templated: true
-                parent:
-                  href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a'
-              _embedded:
-                items:
-                  - name: database1
-                  - name: database2
+              example:
+                total: 2
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?filter}'
+                    templated: true
+                  limit:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/databases{?limit}'
+                    templated: true
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a'
+                _embedded:
+                  items:
+                    - name: database1
+                    - name: database2
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No data or permission:
-              value:
-                error: not_found
-                message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-            Not available on Node.js:
-              value:
-                error: not_found
-                message: Databases do not exist on Node.js applications.
-            Non-hosted application:
-              value:
-                error: not_found
-                message: Databases do not exist on non-hosted applications.
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_found
+                    message: Databases do not exist on Node.js applications.
+                Non-hosted application:
+                  value:
+                    error: not_found
+                    message: Databases do not exist on non-hosted applications.
     post:
       tags:
         - Applications
@@ -8343,11 +8438,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/databases/{name}':
     delete:
       tags:
@@ -8527,12 +8622,12 @@ paths:
                   value:
                     error: not_found
                     message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-  '/api/applications/{applicationUuid}/ides':
+  '/applications/{applicationUuid}/ides':
     get:
       tags:
         - Applications
-      summary: Returns a list of Remote IDEs associated with this application.
-      description: Returns a list of Remote IDEs associated with this application.
+      summary: Returns a list of Cloud IDEs associated with this application.
+      description: Returns a list of Cloud IDEs associated with this application.
       operationId: getApplicationIdes
       x-cli-name: 'applications:ide-list'
       parameters:
@@ -8609,8 +8704,8 @@ paths:
     post:
       tags:
         - Applications
-      summary: Creates a new Remote IDE.
-      description: Creates a new Remote IDE.
+      summary: Creates a new Cloud IDE.
+      description: Creates a new Cloud IDE.
       operationId: postApplicationsIde
       x-cli-name: 'ide:create'
       parameters:
@@ -8626,7 +8721,7 @@ paths:
               properties:
                 label:
                   type: string
-                  description: The label of the Remote IDE.
+                  description: The label of the Cloud IDE.
                   minLength: 1
                   maxLength: 255
             example:
@@ -8639,7 +8734,7 @@ paths:
               properties:
                 label:
                   type: string
-                  description: The label of the Remote IDE.
+                  description: The label of the Cloud IDE.
                   minLength: 1
                   maxLength: 255
             example:
@@ -8656,7 +8751,7 @@ paths:
               examples:
                 IDE created:
                   value:
-                    message: The remote IDE is being created.
+                    message: The Cloud IDE is being created.
                     _links:
                       self:
                         href: 'https://cloud.acquia.com/api/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3'
@@ -8675,18 +8770,18 @@ paths:
                   value:
                     error: validation_error
                     message:
-                      name: A Remote IDE labeled My new IDE already exists.
+                      name: A Cloud IDE labeled My new IDE already exists.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No user:
-                value:
-                  error: not_found
-                  message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
+              examples:
+                No user:
+                  value:
+                    error: not_found
+                    message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/messages':
     get:
       tags:
@@ -8719,81 +8814,81 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UxMessages'
-            example:
-              total: 2
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages'
-                sort:
-                  href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?sort}'
-                  templated: true
-                filter:
-                  href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?filter}'
-                  templated: true
-                limit:
-                  href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?limit}'
-                  templated: true
-              _embedded:
-                items:
-                  - id: '123'
-                    uuid: 77fedb64-b8c0-4712-90e3-f39b4716e623
-                    title: IPM Title
-                    body: This is the body of <strong>the</strong> IPM.
-                    url: 'http://www.acquia.com'
-                    filters:
-                      paths:
-                        - /some/random/path
-                        - /other/random/path
-                      display_mode: bar
-                      type: general
-                    flags:
-                      dismissed: false
-                      dismissible: true
-                      active: true
-                    weight: -1
-                    start_at: '2015-11-05T00:30:00-05:00'
-                    expire_at: '2015-12-05T13:30:00-05:00'
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623'
-                      dismiss:
-                        href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623/actions/dismiss'
-                      follow:
-                        href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623/actions/follow'
-                  - id: '234'
-                    uuid: c5328e00-282a-4bec-a3c8-4322d97545b2
-                    title: IPM Message 2
-                    body: IPM <strong>Message</strong> 2 body
-                    url: 'http://www.google.ca'
-                    filters:
-                      paths: null
-                      display_mode: bar
-                      type: new
-                    flags:
-                      dismissed: false
-                      dismissible: true
-                      active: true
-                    weight: 0
-                    start_at: '2015-11-07T17:30:00-05:00'
-                    expire_at: '2016-11-07T17:30:00-05:00'
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2'
-                      dismiss:
-                        href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2/actions/dismiss'
-                      follow:
-                        href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2/actions/follow'
+              example:
+                total: 2
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?filter}'
+                    templated: true
+                  limit:
+                    href: 'https://cloud.acquia.com/api/applications/a838f9a8-11e2-c374-6954-6931d150b259/messages{?limit}'
+                    templated: true
+                _embedded:
+                  items:
+                    - id: '123'
+                      uuid: 77fedb64-b8c0-4712-90e3-f39b4716e623
+                      title: IPM Title
+                      body: This is the body of <strong>the</strong> IPM.
+                      url: 'http://www.acquia.com'
+                      filters:
+                        paths:
+                          - /some/random/path
+                          - /other/random/path
+                        display_mode: bar
+                        type: general
+                      flags:
+                        dismissed: false
+                        dismissible: true
+                        active: true
+                      weight: -1
+                      start_at: '2015-11-05T00:30:00-05:00'
+                      expire_at: '2015-12-05T13:30:00-05:00'
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623'
+                        dismiss:
+                          href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623/actions/dismiss'
+                        follow:
+                          href: 'https://cloud.acquia.com/api/messages/77fedb64-b8c0-4712-90e3-f39b4716e623/actions/follow'
+                    - id: '234'
+                      uuid: c5328e00-282a-4bec-a3c8-4322d97545b2
+                      title: IPM Message 2
+                      body: IPM <strong>Message</strong> 2 body
+                      url: 'http://www.google.ca'
+                      filters:
+                        paths: null
+                        display_mode: bar
+                        type: new
+                      flags:
+                        dismissed: false
+                        dismissible: true
+                        active: true
+                      weight: 0
+                      start_at: '2015-11-07T17:30:00-05:00'
+                      expire_at: '2016-11-07T17:30:00-05:00'
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2'
+                        dismiss:
+                          href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2/actions/dismiss'
+                        follow:
+                          href: 'https://cloud.acquia.com/api/messages/c5328e00-282a-4bec-a3c8-4322d97545b2/actions/follow'
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No application or permission:
-              value:
-                error: not_found
-                message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/notifications':
     get:
       tags:
@@ -8944,11 +9039,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No data or permission:
-                value:
-                  error: not_found
-                  message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/permissions':
     get:
       tags:
@@ -9349,7 +9444,6 @@ paths:
         - Applications
       summary: Returns the remote administration settings for this application.
       description: Returns the remote administration settings for this application.
-      deprecated: true
       operationId: getApplicationRemoteAdministrationSettings
       x-cli-name: 'applications:ra-settings-find'
       parameters:
@@ -9367,7 +9461,8 @@ paths:
                 application_uuid: abcd1234-1111-2222-3333-0e02b2c3d470
                 update_mode: full
                 update_type: core
-                pause_until_date: '2016-03-04T12:01:05-0500'
+                pause_until: '2016-03-04T12:01:05-0500'
+                deploy_at: '2016-03-04T12:01:05-0500'
                 deploy_environment: test
                 source_environment: prod
                 merge_branch: master
@@ -9411,7 +9506,6 @@ paths:
         - Applications
       summary: Modifies the remote administration settings for an application.
       description: Modifies the remote administration settings for an application.
-      deprecated: true
       operationId: putApplicationRemoteAdministrationSettings
       x-cli-name: 'applications:ra-settings-update'
       parameters:
@@ -9421,106 +9515,23 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required:
-                - update_mode
-              properties:
-                update_mode:
-                  type: string
-                  description: The update mode to select.
-                  enum:
-                    - update
-                    - inform
-                    - none
-                update_type:
-                  type: string
-                  description: What components to update (core only or core and contrib modules).
-                  enum:
-                    - core
-                    - core_contrib
-                pause_until_date:
-                  type: string
-                  format: date-time
-                  description: What date/time to pause RA updates until (if applicable).
-                deploy_environment:
-                  type: string
-                  description: The environment id of the environment to deploy to.
-                source_environment:
-                  type: string
-                  description: The environment id of the environment to use as a starting point for testing.
-                copy_files:
-                  type: boolean
-                  description: Whether to copy files from production to testing environment.
-                copy_database:
-                  type: boolean
-                  description: Whether to copy database from production to testing environment.
-                merge_tag:
-                  type: boolean
-                  description: Whether to automatically merge the approved code into your development branch.
-                merge_branch:
-                  type: string
-                  description: The development branch into which to merge the update tag.
+              $ref: '#/components/schemas/RemoteAdministration'
             example:
               update_mode: update
               update_type: core_contrib
-              pause_until_date: '2017-03-28T13:16:00.000Z'
-              deploy_environment: 24-a47ac10b-58cc-4372-a567-0e02b2c3d470
-              source_environment: 23-a47ac10b-58cc-4372-a567-0e02b2c3d470
-              copy_files: true
+              pause_until: '2021-10-10 13:00:00'
+              deploy_at: '2020-10-13 13:00:00'
+              deploy_environment: test
+              source_environment: prod
+              copy_files: false
               copy_database: true
-              merge_tag: true
+              merge_tag: false
               merge_branch: master
           application/x-www-form-urlencoded:
             schema:
-              type: object
-              required:
-                - update_mode
-              properties:
-                update_mode:
-                  type: string
-                  description: The update mode to select.
-                  enum:
-                    - update
-                    - inform
-                    - none
-                update_type:
-                  type: string
-                  description: What components to update (core only or core and contrib modules).
-                  enum:
-                    - core
-                    - core_contrib
-                pause_until_date:
-                  type: string
-                  format: date-time
-                  description: What date/time to pause RA updates until (if applicable).
-                deploy_environment:
-                  type: string
-                  description: The environment id of the environment to deploy to.
-                source_environment:
-                  type: string
-                  description: The environment id of the environment to use as a starting point for testing.
-                copy_files:
-                  type: boolean
-                  description: Whether to copy files from production to testing environment.
-                copy_database:
-                  type: boolean
-                  description: Whether to copy database from production to testing environment.
-                merge_tag:
-                  type: boolean
-                  description: Whether to automatically merge the approved code into your development branch.
-                merge_branch:
-                  type: string
-                  description: The development branch into which to merge the update tag.
-              example:
-                update_mode: update
-                update_type: core_contrib
-                pause_until_date: 'Tue Mar 28 2017 09:16:00 GMT-0400 (EDT)'
-                deploy_environment: 24-a47ac10b-58cc-4372-a567-0e02b2c3d470
-                source_environment: 23-a47ac10b-58cc-4372-a567-0e02b2c3d470
-                copy_files: true
-                copy_database: true
-                merge_tag: true
-                merge_branch: master
+              $ref: '#/components/schemas/RemoteAdministration'
+            example:
+              $ref: '#/paths/~1applications~1%7BapplicationUuid%7D~1settings~1ra/put/requestBody/content/application~1json/example'
       security:
         - OAuth2: []
       responses:
@@ -10121,11 +10132,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No user:
-                value:
-                  error: not_found
-                  message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
+              examples:
+                No user:
+                  value:
+                    error: not_found
+                    message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/tags/{tagName}':
     delete:
       tags:
@@ -10161,11 +10172,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No user:
-                value:
-                  error: not_found
-                  message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
+              examples:
+                No user:
+                  value:
+                    error: not_found
+                    message: 'The Application with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/tasks':
     get:
       tags:
@@ -11305,7 +11316,7 @@ paths:
                       configuration:
                         operating_system: precise
                         php:
-                          version: '7.2'
+                          version: '7.3'
                           memory_limit: 128
                           opcache: 96
                           apcu: 32
@@ -11840,7 +11851,7 @@ paths:
                 configuration:
                   operating_system: precise
                   php:
-                    version: '7.1'
+                    version: '7.3'
                     memory_limit: 128
                     opcache: 96
                     apcu: 64
@@ -11922,7 +11933,7 @@ paths:
             schema:
               $ref: '#/components/schemas/EnvironmentConfigurations'
             example:
-              version: '7.1'
+              version: '7.3'
               max_execution_time: 10
               memory_limit: 192
               apcu: 8
@@ -12127,26 +12138,345 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Insufficient permissions:
-                value:
-                  error: forbidden
-                  message: You do not have permission to change the label for this environment.
-              Labels can only be changed on hosted applications:
-                value:
-                  error: forbidden
-                  message: Environment labels cannot be changed on non-hosted applications.
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to change the label for this environment.
+                Labels can only be changed on hosted applications:
+                  value:
+                    error: forbidden
+                    message: Environment labels cannot be changed on non-hosted applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not found:
-                value:
-                  error: not_found
-                  message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/actions/migrate':
+    post:
+      tags:
+        - Environments
+        - Migrate Accelerator
+      summary: Create a Migrate Environment using the provided environment as its source.
+      deprecated: false
+      description: Create a Migrate Environment using the provided environment as its source.
+      operationId: postMigrateEnvironment
+      x-cli-name: 'environments:migrate'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+                  description: The Migrate Environment label.
+                config:
+                  type: boolean
+                  description: Indicates whether or not to copy configurations.
+            example:
+              label: Migrate Environment
+              config: true
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - label
+              properties:
+                label:
+                  type: string
+                  description: The Migrate Environment label.
+                config:
+                  type: boolean
+                  description: Indicates whether or not to copy configurations.
+            example:
+              label: Migrate Environment
+              config: true
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Creating Migrate Environment:
+                  value:
+                    message: The Migrate Environment is being created.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/migrate'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Missing parameter:
+                  value:
+                    error: validation_failed
+                    message:
+                      name: 'Missing required parameter(s): example_param'
+                Not available:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Acquia Migrate Accelerator is not available for this subscription.
+                Unavailable:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This application cannot be migrated at this time. Please try again later or contact support.
+                Another migrate environment exists:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The application can only have one Migrate Environment.
+                Environment cannot be migrated:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Source environment cannot be used for the Migrate Environment.
+                Label already used:
+                  value:
+                    error: validation_failed
+                    message:
+                      label: Another environment within this application already has this label.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to manage the Migrate Environment on this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The Migrate Environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/actions/promote':
+    post:
+      tags:
+        - Environments
+        - Migrate Accelerator
+      summary: Promote a Migrate Environment.
+      deprecated: false
+      description: Promote a Migrate Environment.
+      operationId: postPromoteEnvironment
+      x-cli-name: 'environments:promote'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - target
+              properties:
+                target:
+                  type: string
+                  description: The UUID of the environment to promote to.
+            example:
+              target: 6a534a67-2d89-406d-95c8-efb515342983
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - target
+              properties:
+                target:
+                  type: string
+                  description: The UUID of the environment to promote to.
+            example:
+              target: 6a534a67-2d89-406d-95c8-efb515342983
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Promoting Migrate Environment:
+                  value:
+                    message: The Migrate Environment is being promoted.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/promote'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Missing parameter:
+                  value:
+                    error: validation_failed
+                    message:
+                      name: 'Missing required parameter(s): example_param'
+                Not available:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Acquia Migrate Accelerator is not available for this subscription.
+                Unavailable:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This application cannot be migrated at this time. Please try again later or contact support.
+                Not a Migrate Environment:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The environment is not a Migrate Environment.
+                Invalid target environment:
+                  value:
+                    error: validation_failed
+                    message:
+                      label: The environment is not a valid target for promotion.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Cannot manage Migrate Environment:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to manage migrate on this application.
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to promote to the target environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Application not found:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Migrate Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The Migrate Environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/actions/refresh':
+    post:
+      tags:
+        - Environments
+        - Migrate Accelerator
+      summary: Refreshes a Migrate Environment.
+      deprecated: false
+      description: Refreshes a Migrate Environment.
+      operationId: postRefreshEnvironment
+      x-cli-name: 'environments:refresh'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Refreshing Migrate Environment:
+                  value:
+                    message: The Migrate Environment is being refreshed.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9/actions/refresh'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/environments/123-fa83c358-42bb-44d3-8e22-d046168af6d9'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/d4315515-9c1a-4153-9e88-0b681d5c76b2'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Not available:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Acquia Migrate Accelerator is not available for this subscription.
+                Unavailable:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This application cannot be used at this time. Please try again later or contact support.
+                Not a Migrate Environment:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The environment is not a Migrate Environment.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to refresh the Migrate Environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The Migrate Environment you are trying to access does not exist, or you do not have permission to access it.'
   '/environments/{environmentId}/artifacts/actions/switch':
     post:
       tags:
@@ -12182,8 +12512,8 @@ paths:
                 artifact_id:
                   type: string
                   description: The id of the artifact to deploy.
-              example:
-                artifact_id: 123
+            example:
+              artifact_id: 123
       responses:
         '202':
           description: Accepted
@@ -12218,45 +12548,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Insufficient permissions:
-                value:
-                  error: forbidden
-                  message: You do not have permission to deploy an artifact to this environment.
-              Cannot be deployed on non-hosted applications:
-                value:
-                  error: forbidden
-                  message: Artifacts cannot be deployed on non-hosted applications.
-              Cannot be deployed on managed applications:
-                value:
-                  error: forbidden
-                  message: Artifacts cannot be deployed on Service Management-enabled applications.
-              Cannot be deployed on Node.js applications:
-                value:
-                  error: forbidden
-                  message: Artifacts can only be deployed on Node.js applications.
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to deploy an artifact to this environment.
+                Cannot be deployed on non-hosted applications:
+                  value:
+                    error: forbidden
+                    message: Artifacts cannot be deployed on non-hosted applications.
+                Cannot be deployed on managed applications:
+                  value:
+                    error: forbidden
+                    message: Artifacts cannot be deployed on Service Management-enabled applications.
+                Cannot be deployed on Node.js applications:
+                  value:
+                    error: forbidden
+                    message: Artifacts can only be deployed on Node.js applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not found:
-                value:
-                  error: not_found
-                  message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not found:
-                value:
-                  error: conflict
-                  message: The artifact with ID 123 does not belong to this application and cannot be deployed.
+              examples:
+                Not found:
+                  value:
+                    error: conflict
+                    message: The artifact with ID 123 does not belong to this application and cannot be deployed.
   '/environments/{environmentId}/available-runtimes':
     get:
       tags:
@@ -12277,9 +12607,8 @@ paths:
               example:
                 runtime: php
                 versions:
-                  - '5.6'
-                  - '7.1'
-                  - '7.2'
+                  - '7.3'
+                  - '7.4'
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/24-8fc7d3c6-2a53-11e9-b210-d663bd873d93/available-runtimes'
@@ -12407,6 +12736,10 @@ paths:
                   value:
                     error: conflict
                     message: Code cannot be deployed from an environment to itself.
+                Not allowed on a Migrate environment:
+                  value:
+                    error: conflict
+                    message: Code deploy is not allowed on the Migrate Environment.
   '/environments/{environmentId}/code/actions/switch':
     post:
       tags:
@@ -12495,6 +12828,17 @@ paths:
                   value:
                     error: not_found
                     message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not allowed on a Migrate environment:
+                  value:
+                    error: conflict
+                    message: Code switch is not allowed on the Migrate Environment.
   '/environments/{environmentId}/code/actions/import':
     post:
       tags:
@@ -12598,6 +12942,10 @@ paths:
                   value:
                     error: conflict
                     message: Sites cannot be imported on this environment.
+                Not allowed on a Migrate environment:
+                  value:
+                    error: conflict
+                    message: Site import is not allowed on the Migrate Environment.
   '/environments/{environmentId}/crons':
     get:
       tags:
@@ -12627,7 +12975,7 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470'
                 _embedded:
                   items:
-                    - id: '24'
+                    - id: e82b77cc-a9ed-4458-b12c-d87af1a795ad
                       server:
                         id: 6
                         name: web-18
@@ -12647,8 +12995,8 @@ paths:
                         name: dev
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/24'
-                    - id: '25'
+                          href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/e82b77cc-a9ed-4458-b12c-d87af1a795ad'
+                    - id: 8eea655e-71be-4c71-bf5b-9c5c9a5c5b43
                       server:
                         id: 6
                         name: web-18
@@ -12668,7 +13016,7 @@ paths:
                         name: dev
                       _links:
                         self:
-                          href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/25'
+                          href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/8eea655e-71be-4c71-bf5b-9c5c9a5c5b43'
         '404':
           description: Not Found
           content:
@@ -12797,7 +13145,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Cron'
               example:
-                id: '24'
+                id: e82b77cc-a9ed-4458-b12c-d87af1a795ad
                 server: {}
                 command: /usr/local/bin/drush cc all
                 minute: '25'
@@ -12815,7 +13163,7 @@ paths:
                   name: dev
                 _links:
                   self:
-                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/24'
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons/e82b77cc-a9ed-4458-b12c-d87af1a795ad'
                   parent:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons'
         '404':
@@ -12903,10 +13251,10 @@ paths:
                   value:
                     error: not_found
                     message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-              Environment mismatch:
-                value:
-                  error: not_found
-                  message: 'The cron does not belong to this environment, and cannot be updated.'
+                Environment mismatch:
+                  value:
+                    error: not_found
+                    message: 'The cron does not belong to this environment, and cannot be updated.'
         '409':
           description: Conflict
           content:
@@ -12960,34 +13308,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to delete this cron.
-              Non hosted application:
-                value:
-                  error: forbidden
-                  message: Cron jobs cannot be deleted on non-hosted applications.
-              Node.js application:
-                value:
-                  error: forbidden
-                  message: Cron jobs are not available for Node.js applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to delete this cron.
+                Non hosted application:
+                  value:
+                    error: forbidden
+                    message: Cron jobs cannot be deleted on non-hosted applications.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Cron jobs are not available for Node.js applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No environment or permission:
-                value:
-                  error: not_found
-                  message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-              Environment mismatch:
-                value:
-                  error: not_found
-                  message: 'The cron does not belong to this environment, and cannot be removed.'
+              examples:
+                No environment or permission:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Environment mismatch:
+                  value:
+                    error: not_found
+                    message: 'The cron does not belong to this environment, and cannot be removed.'
   '/environments/{environmentId}/crons/{cronId}/actions/enable':
     post:
       tags:
@@ -13023,41 +13371,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to modify this cron.
-              Non-hosted application:
-                value:
-                  error: forbidden
-                  message: Cron jobs cannot be enabled on non-hosted applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to modify this cron.
+                Non-hosted application:
+                  value:
+                    error: forbidden
+                    message: Cron jobs cannot be enabled on non-hosted applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No cron or permission:
-                value:
-                  error: not_found
-                  message: 'The cron you are trying to access does not exist, or you do not have permission to access it.'
-              Environment mismatch:
-                value:
-                  error: not_found
-                  message: 'The cron does not belong to this environment, and cannot be enabled.'
+              examples:
+                No cron or permission:
+                  value:
+                    error: not_found
+                    message: 'The cron you are trying to access does not exist, or you do not have permission to access it.'
+                Environment mismatch:
+                  value:
+                    error: not_found
+                    message: 'The cron does not belong to this environment, and cannot be enabled.'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Action currently unavailable:
-                value:
-                  error: conflict
-                  message: The cron is already enabled. No action taken.
+              examples:
+                Action currently unavailable:
+                  value:
+                    error: conflict
+                    message: The cron is already enabled. No action taken.
   '/environments/{environmentId}/crons/{cronId}/actions/disable':
     post:
       tags:
@@ -13093,41 +13441,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to modify this cron.
-              Non-hosted application:
-                value:
-                  error: forbidden
-                  message: Cron jobs cannot be disabled on non-hosted applications.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to modify this cron.
+                Non-hosted application:
+                  value:
+                    error: forbidden
+                    message: Cron jobs cannot be disabled on non-hosted applications.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No cron or permission:
-                value:
-                  error: not_found
-                  message: 'The cron you are trying to access does not exist, or you do not have permission to access it.'
-              Environment mismatch:
-                value:
-                  error: not_found
-                  message: 'The cron does not belong to this environment, and cannot be disabled.'
+              examples:
+                No cron or permission:
+                  value:
+                    error: not_found
+                    message: 'The cron you are trying to access does not exist, or you do not have permission to access it.'
+                Environment mismatch:
+                  value:
+                    error: not_found
+                    message: 'The cron does not belong to this environment, and cannot be disabled.'
         '409':
           description: Conflict
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Action currently unavailable:
-                value:
-                  error: conflict
-                  message: The cron is already disabled. No action taken.
+              examples:
+                Action currently unavailable:
+                  value:
+                    error: conflict
+                    message: The cron is already disabled. No action taken.
   '/environments/{environmentId}/databases':
     get:
       tags:
@@ -13357,6 +13705,10 @@ paths:
                   value:
                     error: conflict
                     message: A database cannot be copied to an environment that is currently in production mode.
+                Not allowed on a Migrate environment:
+                  value:
+                    error: conflict
+                    message: Database copying is not allowed on the Migrate Environment.
   '/environments/{environmentId}/databases/{databaseName}':
     get:
       tags:
@@ -14032,12 +14384,32 @@ paths:
               example:
                 apex_domain:
                   - type: A
-                    value: 10.0.1.1
+                    value: 192.0.2.1
                   - type: AAAA
-                    value: 'e7ac:e0d0:1729:aa03:80b5:1c65:bea:42ff'
+                    value: '2001:0db8:1729:aa03:80b5:1c65:bea:42ff'
                 subdomains:
                   - type: CNAME
-                    value: 1234567890.us-west-2.elb.amazonaws.com
+                    value: subdomain.example.com
+                regional_configuration:
+                  apex_domain:
+                    - type: A
+                      value: 192.0.2.1
+                    - type: AAAA
+                      value: '2001:0db8:1729:aa03:80b5:1c65:bea:42ff'
+                  subdomains:
+                    - type: CNAME
+                      value: subdomain.example.com
+                global_configuration:
+                  apex_domain:
+                    - type: A
+                      value: 192.0.2.3
+                    - type: A
+                      value: 192.0.2.4
+                    - type: AAAA
+                      value: '2001:0db8:1730:aa03:80b5:1c65:bea:42ff'
+                  subdomains:
+                    - type: CNAME
+                      value: subdomain.example.com
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/24-47c9ae06-2a57-11e9-b210-d663bd873d93/dns'
@@ -14768,8 +15140,12 @@ paths:
                     message: Files cannot be copied from an environment to itself.
                 Cannot be copied to production:
                   value:
-                    error: validation_failed
+                    error: conflict
                     message: Files cannot be copied to an environment that is currently in production mode.
+                Not allowed on a Migrate environment:
+                  value:
+                    error: conflict
+                    message: File copying is not allowed on the Migrate Environment.
   '/environments/{environmentId}/insight':
     get:
       tags:
@@ -15258,15 +15634,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              LiveDev already disabled:
-                value:
-                  error: validation_failed
-                  message: LiveDev is already disabled on this environment.
-              Cannot be enabled or disabled on production:
-                value:
-                  error: validation_failed
-                  message: LiveDev cannot be disabled or enabled on a production environment.
+              examples:
+                LiveDev already disabled:
+                  value:
+                    error: validation_failed
+                    message: LiveDev is already disabled on this environment.
+                Cannot be enabled or disabled on production:
+                  value:
+                    error: validation_failed
+                    message: LiveDev cannot be disabled or enabled on a production environment.
   '/environments/{environmentId}/livedev/actions/enable':
     post:
       tags:
@@ -15287,10 +15663,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Enabling LiveDev:
-                value:
-                  example: Enabling LiveDev.
+              examples:
+                Enabling LiveDev:
+                  value:
+                    example: Enabling LiveDev.
         '400':
           description: Bad Request
           content:
@@ -16313,7 +16689,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
-                Not availabe on Acquia Cloud Free:
+                Not available on Acquia Cloud Free:
                   value:
                     error: forbidden
                     message: Metrics are not available to Acquia Cloud Free subscriptions.
@@ -16352,7 +16728,7 @@ paths:
                 total: 4
                 _links:
                   self:
-                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/metrics/stackmetrics/data?filter=metric=db_cpu,metric=web_cpu&from=2019-06-20'
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/metrics/stackmetrics/data?filter=metric=db-cpu,metric=web-cpu&from=2019-06-20'
                 _embedded:
                   items:
                     - metric: db-cpu
@@ -16414,7 +16790,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
-                Not availabe on Acquia Cloud Free:
+                Not available on Acquia Cloud Free:
                   value:
                     error: forbidden
                     message: Metrics are not available to Acquia Cloud Free subscriptions.
@@ -16492,7 +16868,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
-                Not availabe on Acquia Cloud Free:
+                Not available on Acquia Cloud Free:
                   value:
                     error: forbidden
                     message: Metrics are not available to Acquia Cloud Free subscriptions.
@@ -16754,10 +17130,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Production mode disabled:
-                value:
-                  example: Production mode has been disabled for this environment.
+              examples:
+                Production mode disabled:
+                  value:
+                    example: Production mode has been disabled for this environment.
         '400':
           description: Bad Request
           content:
@@ -16795,11 +17171,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not found:
-                value:
-                  error: not_found
-                  message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
         '409':
           description: Conflict
           content:
@@ -16831,10 +17207,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Production mode enabled:
-                value:
-                  example: Production mode has been enabled for this environment.
+              examples:
+                Production mode enabled:
+                  value:
+                    example: Production mode has been enabled for this environment.
         '400':
           description: Bad Request
           content:
@@ -19236,9 +19612,9 @@ paths:
   '/ides/{ideUuid}':
     get:
       tags:
-        - Remote IDE
-      summary: Returns Remote IDE info.
-      description: Returns Remote IDE info.
+        - Cloud IDE
+      summary: Returns Cloud IDE info.
+      description: Returns Cloud IDE info.
       operationId: getIde
       x-cli-name: 'ide:find'
       parameters:
@@ -19289,9 +19665,9 @@ paths:
                     message: 'The IDE you are trying to access does not exist, or you do not have permission to access it.'
     delete:
       tags:
-        - Remote IDE
-      summary: De-provisions a specific Remote IDE.
-      description: De-provisions a specific Remote IDE.
+        - Cloud IDE
+      summary: De-provisions a specific Cloud IDE.
+      description: De-provisions a specific Cloud IDE.
       operationId: deleteIde
       x-cli-name: 'ide:delete'
       parameters:
@@ -19308,7 +19684,7 @@ paths:
               examples:
                 De-provisioning IDE:
                   value:
-                    message: The remote IDE is being deleted.
+                    message: The Cloud IDE is being deleted.
                     _links:
                       self:
                         href: 'https://cloud.acquia.com/api/ides/215824ff-272a-4a8c-9027-df32ed1d68a9'
@@ -19443,6 +19819,8 @@ paths:
                     href: 'https://cloud.acquia.com/api/identity-providers'
                   acs:
                     href: 'https://accounts.acquia.com/api/auth/saml/acs/1bc5dbb4-6d59-403b-afc7-777e520aaa40'
+                  organization:
+                    href: 'https://cloud.acquia.com/api/organizations/a81c08c6-a02f-4b57-87e3-c3f395a2bb34'
         '404':
           description: Not Found
           content:
@@ -19833,11 +20211,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No data or permission:
-                value:
-                  error: not_found
-                  message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
   '/insight/{siteId}/actions/revoke':
     post:
       tags:
@@ -20097,19 +20475,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No alert or permission:
-                value:
-                  error: not_found
-                  message: 'The alert you are trying to access does not exist, or you do not have permission to access it.'
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-              Not available on Node.js:
-                value:
-                  error: not_available
-                  message: Insight alerts are not available on Node.js applications.
+              examples:
+                No alert or permission:
+                  value:
+                    error: not_found
+                    message: 'The alert you are trying to access does not exist, or you do not have permission to access it.'
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_available
+                    message: Insight alerts are not available on Node.js applications.
   '/insight/{siteId}/alerts/{alertUuid}/actions/ignore':
     post:
       tags:
@@ -20137,26 +20515,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to ignore this alert.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to ignore this alert.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not available on Node.js:
-                value:
-                  error: not_found
-                  message: Insight alerts are not available on Node.js applications.
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Not available on Node.js:
+                  value:
+                    error: not_found
+                    message: Insight alerts are not available on Node.js applications.
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
   '/insight/{siteId}/alerts/{alertUuid}/actions/restore':
     post:
       tags:
@@ -20184,22 +20562,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to restore this alert.
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to restore this alert.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Not Found:
-                value:
-                  error: not_found
-                  message: No alert found for UUID f92f1522-a6a0-11e2-b0d3-12313931d520.
+              examples:
+                Not Found:
+                  value:
+                    error: not_found
+                    message: No alert found for UUID f92f1522-a6a0-11e2-b0d3-12313931d520.
   '/insight/{siteId}/connection-history':
     get:
       tags:
@@ -20260,15 +20638,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-              Not available on Node.js:
-                value:
-                  error: not_available
-                  message: Insight is not available on Node.js applications.
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_available
+                    message: Insight is not available on Node.js applications.
   '/insight/{siteId}/modules':
     get:
       tags:
@@ -20362,15 +20740,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-              Not available on Node.js:
-                value:
-                  error: not_available
-                  message: Insight is not available on Node.js applications.
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_available
+                    message: Insight is not available on Node.js applications.
   '/insight/{siteId}/score-history':
     get:
       tags:
@@ -20432,15 +20810,15 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No application or permission:
-                value:
-                  error: not_found
-                  message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-              Not available on Node.js:
-                value:
-                  error: not_available
-                  message: Insight is not available on Node.js applications.
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_available
+                    message: Insight is not available on Node.js applications.
   '/invites/{token}':
     get:
       tags:
@@ -20499,22 +20877,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No invite or permission:
-                value:
-                  error: unauthorized
-                  message: You do not have permission to access this resource.
+              examples:
+                No invite or permission:
+                  value:
+                    error: unauthorized
+                    message: You do not have permission to access this resource.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No invite or permission:
-                value:
-                  error: not_found
-                  message: 'The invite you are trying to view does not exist, or you do not have permission to view it.'
+              examples:
+                No invite or permission:
+                  value:
+                    error: not_found
+                    message: 'The invite you are trying to view does not exist, or you do not have permission to view it.'
     delete:
       tags:
         - Invite
@@ -20533,32 +20911,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Cancelled invite:
-                value:
-                  message: Cancelled invite.
+              examples:
+                Cancelled invite:
+                  value:
+                    message: Cancelled invite.
         '403':
           description: Forbidden
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No invite or permission:
-                value:
-                  error: unauthorized
-                  message: You do not have permission to access this resource.
+              examples:
+                No invite or permission:
+                  value:
+                    error: unauthorized
+                    message: You do not have permission to access this resource.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No invite or permission:
-                value:
-                  error: not_found
-                  message: 'The invite you are trying to view does not exist, or you do not have permission to view it.'
+              examples:
+                No invite or permission:
+                  value:
+                    error: not_found
+                    message: 'The invite you are trying to view does not exist, or you do not have permission to view it.'
   '/invites/{token}/actions/accept':
     post:
       tags:
@@ -20578,21 +20956,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Accepted invite:
-                value:
-                  example: The invite has been accepted.
+              examples:
+                Accepted invite:
+                  value:
+                    example: The invite has been accepted.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Validation failed:
-                value:
-                  error: not_found
-                  message: 'The invite you are trying to accept does not exist, or you do not have permission to accept it.'
+              examples:
+                Validation failed:
+                  value:
+                    error: not_found
+                    message: 'The invite you are trying to accept does not exist, or you do not have permission to accept it.'
         '409':
           description: Conflict
           content:
@@ -20623,21 +21001,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Declined invite:
-                value:
-                  example: The invite has been declined.
+              examples:
+                Declined invite:
+                  value:
+                    example: The invite has been declined.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Validation failed:
-                value:
-                  error: not_found
-                  message: 'The invite you are trying to decline does not exist, or you do not have permission to decline it.'
+              examples:
+                Validation failed:
+                  value:
+                    error: not_found
+                    message: 'The invite you are trying to decline does not exist, or you do not have permission to decline it.'
         '409':
           description: Conflict
           content:
@@ -20649,7 +21027,7 @@ paths:
                   value:
                     error: conflict
                     message: This invite has already been declined.
-  '/invites/{token}/actions/resent':
+  '/invites/{token}/actions/resend':
     post:
       tags:
         - Invite
@@ -20668,21 +21046,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Declined invite:
-                value:
-                  example: Resent invitation.
+              examples:
+                Declined invite:
+                  value:
+                    example: Resent invitation.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Validation failed:
-                value:
-                  error: not_found
-                  message: 'The invite you are trying to resent does not exist, or you do not have permission to resent it.'
+              examples:
+                Validation failed:
+                  value:
+                    error: not_found
+                    message: 'The invite you are trying to resent does not exist, or you do not have permission to resent it.'
   '/messages/{messageUuid}/actions/dismiss':
     post:
       tags:
@@ -20700,21 +21078,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Site revoked:
-                value:
-                  message: Message dismissed.
+              examples:
+                Site revoked:
+                  value:
+                    message: Message dismissed.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission or message:
-                value:
-                  error: forbidden
-                  message: 'The message you are trying to dismiss does not exist, or you do not have permission to access it.'
+              examples:
+                No permission or message:
+                  value:
+                    error: forbidden
+                    message: 'The message you are trying to dismiss does not exist, or you do not have permission to access it.'
         '409':
           description: Conflict
           content:
@@ -20745,19 +21123,20 @@ paths:
           description: Moved Permanently
           headers:
             Location:
-              type: string
-              description: Redirects to the message link.
+              schema:
+                type: string
+              description: The redirect destination URL.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No application or permission:
-              value:
-                error: not_found
-                message: 'The message you are trying to follow the link for does not exist, or you do not have permission to access it.'
+              examples:
+                No application or permission:
+                  value:
+                    error: not_found
+                    message: 'The message you are trying to follow the link for does not exist, or you do not have permission to access it.'
   '/notifications/{notificationUuid}':
     get:
       tags:
@@ -20804,11 +21183,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No data or permission:
-                value:
-                  error: not_found
-                  message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
   /options:
     get:
       tags:
@@ -21177,11 +21556,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No user:
-                value:
-                  error: not_found
-                  message: The user with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist.
+              examples:
+                No user:
+                  value:
+                    error: not_found
+                    message: The user with UUID 3c6a3d3e-c3ee-4fee-97d6-9074971feb76 does not exist.
   '/organizations/{organizationUuid}':
     get:
       tags:
@@ -21420,14 +21799,15 @@ paths:
                   description: The uuid of the user you want to make the owner for this organization.
                   format: uuid
           application/x-www-form-urlencoded:
-            type: object
-            required:
-              - user_uuid
-            properties:
-              user_uuid:
-                type: string
-                description: The uuid of the user you want to make the owner for this organization.
-                format: uuid
+            schema:
+              type: object
+              required:
+                - user_uuid
+              properties:
+                user_uuid:
+                  type: string
+                  description: The uuid of the user you want to make the owner for this organization.
+                  format: uuid
       security:
         - OAuth2: []
       responses:
@@ -21674,7 +22054,7 @@ paths:
                 $ref: '#/components/schemas/Error'
               examples:
                 No permission:
-                  values:
+                  value:
                     error: forbidden
                     message: You do not have permission to view this administrator.
         '404':
@@ -21717,23 +22097,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No organization or permission:
-                value:
-                  error: not_found
-                  message: 'The organization you are trying to administer does not exist, or you do not have permission to administer it.'
-              Organization not found:
-                value:
-                  error: not_found
-                  message: The organization with UUID 653077de-9349-4822-a104-5e5a8dd2ba05 does not exist.
-              User mismatch:
-                value:
-                  error: validation_failed
-                  message: The user is not an administrator for this organization.
-              User not found:
-                value:
-                  error: not_found
-                  message: The user with UUID 5404f30f-465c-4d94-80f1-61f1d35fde0b does not exist.
+              examples:
+                No organization or permission:
+                  value:
+                    error: not_found
+                    message: 'The organization you are trying to administer does not exist, or you do not have permission to administer it.'
+                Organization not found:
+                  value:
+                    error: not_found
+                    message: The organization with UUID 653077de-9349-4822-a104-5e5a8dd2ba05 does not exist.
+                User mismatch:
+                  value:
+                    error: validation_failed
+                    message: The user is not an administrator for this organization.
+                User not found:
+                  value:
+                    error: not_found
+                    message: The user with UUID 5404f30f-465c-4d94-80f1-61f1d35fde0b does not exist.
   '/organizations/{organizationUuid}/admin-invites':
     get:
       tags:
@@ -22637,11 +23017,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No organization or permission:
-                value:
-                  error: not_found
-                  message: 'The organization you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No organization or permission:
+                  value:
+                    error: not_found
+                    message: 'The organization you are trying to access does not exist, or you do not have permission to access it.'
     delete:
       tags:
         - Organizations
@@ -22671,23 +23051,23 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No organization or permission:
-                value:
-                  error: not_found
-                  message: 'The organization you are trying to administer does not exist, or you do not have permission to administer it.'
-              Organization not found:
-                value:
-                  error: not_found
-                  message: The organization with UUID 653077de-9349-4822-a104-5e5a8dd2ba05 does not exist.
-              User not found:
-                value:
-                  error: not_found
-                  message: The user with UUID 5404f30f-465c-4d94-80f1-61f1d35fde0b does not exist.
-              User mismatch:
-                value:
-                  error: not_found
-                  message: The user is not a member of this organization.
+              examples:
+                No organization or permission:
+                  value:
+                    error: not_found
+                    message: 'The organization you are trying to administer does not exist, or you do not have permission to administer it.'
+                Organization not found:
+                  value:
+                    error: not_found
+                    message: The organization with UUID 653077de-9349-4822-a104-5e5a8dd2ba05 does not exist.
+                User not found:
+                  value:
+                    error: not_found
+                    message: The user with UUID 5404f30f-465c-4d94-80f1-61f1d35fde0b does not exist.
+                User mismatch:
+                  value:
+                    error: not_found
+                    message: The user is not a member of this organization.
         '409':
           description: Conflict
           content:
@@ -23964,7 +24344,7 @@ paths:
                 $ref: '#/components/schemas/Error'
               examples:
                 Not found:
-                  values:
+                  value:
                     error: not_found
                     message: You do not have permission to view subscriptions.
   '/subscriptions/{subscriptionUuid}':
@@ -24035,11 +24415,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No subscription or permission:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
     put:
       tags:
         - Subscriptions
@@ -24061,7 +24441,7 @@ paths:
                 name:
                   type: string
                   description: The new subscription name.
-                  maxLenght: 255
+                  maxLength: 255
       responses:
         '200':
           description: OK
@@ -24069,21 +24449,21 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Message'
-            examples:
-              Subscription updated:
-                value:
-                  example: Subscription updated.
+              examples:
+                Subscription updated:
+                  value:
+                    example: Subscription updated.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              Validation failed:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                Validation failed:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
   '/subscriptions/{subscriptionUuid}/apm':
     get:
       tags:
@@ -24403,6 +24783,8 @@ paths:
                       properties:
                         visits: 10000000
                         views: 500000000
+                    - name: migrate-accelerator
+                      properties: []
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/subscriptions/8533debb-ae4e-427b-aa34-731719b4201a/entitlements'
@@ -24416,15 +24798,15 @@ paths:
                 $ref: '#/components/schemas/Error'
               examples:
                 Not found:
-                  values:
+                  value:
                     error: not_found
                     message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
   '/subscriptions/{subscriptionUuid}/ides':
     get:
       tags:
         - Subscriptions
-      summary: Returns a list of Remote IDEs associated with this subscription.
-      description: Returns a list of Remote IDEs associated with this subscription.
+      summary: Returns a list of Cloud IDEs associated with this subscription.
+      description: Returns a list of Cloud IDEs associated with this subscription.
       operationId: getSubscriptionIdes
       x-cli-name: 'subscriptions:ide-list'
       parameters:
@@ -24566,12 +24948,12 @@ paths:
         Filterable fields:
         * `metric` - One of: {`views`, `visits`}
         * `application`
+        * `from`
+        * `to`
       operationId: getSubscriptionsUsageData
       x-cli-name: 'subscriptions:usage-data'
       parameters:
         - $ref: '#/components/parameters/SubscriptionUuid'
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
         - $ref: '#/components/parameters/Filter'
         - $ref: '#/components/parameters/Resolution'
       security:
@@ -25044,68 +25426,68 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ShieldAclCollection'
-            example:
-              total: 3
-              _links:
-                self:
-                  href: 'https://cloud.acquia.com/api/subscriptions/abcd1234-58cc-4372-a567-0e02b2c3d470/shield-acl'
-                parent:
-                  href: 'https://cloud.acquia.com/api/subscriptions/abcd1234-58cc-4372-a567-0e02b2c3d470'
-              _embedded:
-                items:
-                  - uuid: d5afa695-92a0-401b-b973-1f09992d6ba2
-                    subscription:
-                      uuid: 720d4df4-7469-47f2-9e42-a6a5152761bf
-                      name: Example Subscription
-                    description: My rule 1
-                    service: ssh
-                    addresses:
-                      - 127.0.0.82/32
-                      - 127.0.0.83/32
-                    action: allow
-                    status: active
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl/d5afa695-92a0-401b-b973-1f09992d6ba2'
-                      parent:
-                        href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl'
-                  - uuid: d5afa695-92a0-401b-b973-1f09992d6ba3
-                    subscription:
-                      uuid: 720d4df4-7469-47f2-9e42-a6a5152761bf
-                      name: Example Subscription
-                    description: My rule 2
-                    service: ssh
-                    addresses:
-                      - 192.168.2.2/24
-                    action: allow
-                    status: active
-                    _links:
-                      self:
-                        href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl/d5afa695-92a0-401b-b973-1f09992d6ba3'
-                      parent:
-                        href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl'
+              example:
+                total: 3
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/abcd1234-58cc-4372-a567-0e02b2c3d470/shield-acl'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/abcd1234-58cc-4372-a567-0e02b2c3d470'
+                _embedded:
+                  items:
+                    - uuid: d5afa695-92a0-401b-b973-1f09992d6ba2
+                      subscription:
+                        uuid: 720d4df4-7469-47f2-9e42-a6a5152761bf
+                        name: Example Subscription
+                      description: My rule 1
+                      service: ssh
+                      addresses:
+                        - 127.0.0.82/32
+                        - 127.0.0.83/32
+                      action: allow
+                      status: active
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl/d5afa695-92a0-401b-b973-1f09992d6ba2'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl'
+                    - uuid: d5afa695-92a0-401b-b973-1f09992d6ba3
+                      subscription:
+                        uuid: 720d4df4-7469-47f2-9e42-a6a5152761bf
+                        name: Example Subscription
+                      description: My rule 2
+                      service: ssh
+                      addresses:
+                        - 192.168.2.2/24
+                      action: allow
+                      status: active
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl/d5afa695-92a0-401b-b973-1f09992d6ba3'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/subscriptions/720d4df4-7469-47f2-9e42-a6a5152761bf/shield-acl'
         '403':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No permission:
-              value:
-                error: not_found
-                message: You do not have permission to view the Shield ACL rules for subscription d17b25bb-28dd-4a24-8f89-bfe8b1e151e9.
+              examples:
+                No permission:
+                  value:
+                    error: not_found
+                    message: You do not have permission to view the Shield ACL rules for subscription d17b25bb-28dd-4a24-8f89-bfe8b1e151e9.
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-          examples:
-            No subscription or permission:
-              value:
-                error: not_found
-                message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
     post:
       tags:
         - Subscriptions
@@ -25244,26 +25626,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No permission:
-                value:
-                  error: forbidden
-                  message: You do not have permission to view the Shield ACL rules for subscription 720d4df4-7469-47f2-9e42-a6a5152761bf
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to view the Shield ACL rules for subscription 720d4df4-7469-47f2-9e42-a6a5152761bf
         '404':
           description: Not Found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-            examples:
-              No Shield Acl:
-                value:
-                  error: not_found
-                  message: 'The Shield ACL rule you are trying to access does not exist, or you do not have permission to access it.'
-              No subscription:
-                value:
-                  error: not_found
-                  message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+              examples:
+                No Shield Acl:
+                  value:
+                    error: not_found
+                    message: 'The Shield ACL rule you are trying to access does not exist, or you do not have permission to access it.'
+                No subscription:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
     put:
       tags:
         - Subscriptions
