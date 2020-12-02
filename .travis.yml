@@ -55,6 +55,7 @@ jobs:
 before_install:
   # Tests for the SSH key commands rely on ssh-agent running.
   - eval "$(ssh-agent -s)"
+  - echo " xdebug.mode=coverage" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
   - composer self-update --preview
 
 install:
