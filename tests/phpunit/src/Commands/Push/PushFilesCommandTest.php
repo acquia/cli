@@ -124,7 +124,7 @@ class PushFilesCommandTest extends CommandTestBase {
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      $this->projectFixtureDir . '/docroot/sites/default/',
+      $this->projectFixtureDir . '/docroot/sites/default/files',
       'something.dev@somethingdev.ssh.prod.acquia-sites.com:/mnt/files/something.dev/sites/bar/files',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
