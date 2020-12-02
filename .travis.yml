@@ -23,7 +23,7 @@ jobs:
       git:
         autocrlf: false
       before_install:
-        - choco install php --version=7.4
+        - choco install php --version=7.4.13
         - sed -i 's/memory_limit = .*/memory_limit = 512M/' /c/tools/php74/php.ini
         - choco install composer
         # Fix curl errors in coveralls.
