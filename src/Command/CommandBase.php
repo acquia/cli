@@ -1275,6 +1275,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($process->isSuccessful()) {
       return explode("\n", trim($process->getOutput()));
     }
+
+    $command = ['ls', "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites"];
+    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+    if ($process->isSuccessful()) {
+      return explode("\n", trim($process->getOutput()));
+    }
+
     throw new AcquiaCliException("Could not get Cloud sites");
   }
 
