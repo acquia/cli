@@ -1270,16 +1270,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function getCloudSites($cloud_environment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
-    $command = ['ls', "/mnt/files/$sitegroup.{$cloud_environment->name}/sites"];
-    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
-    if ($process->isSuccessful()) {
-      return explode("\n", trim($process->getOutput()));
+    if ($cloud_environment->platform === 'cloud-next') {
+      $command = ['ls', "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites"];
+      $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+      if ($process->isSuccessful()) {
+        return explode("\n", trim($process->getOutput()));
+      }
     }
-
-    $command = ['ls', "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites"];
-    $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
-    if ($process->isSuccessful()) {
-      return explode("\n", trim($process->getOutput()));
+    else {
+      $command = ['ls', "/mnt/files/$sitegroup.{$cloud_environment->name}/sites"];
+      $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
+      if ($process->isSuccessful()) {
+        return explode("\n", trim($process->getOutput()));
+      }
     }
 
     throw new AcquiaCliException("Could not get Cloud sites");
