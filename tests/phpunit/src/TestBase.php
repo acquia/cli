@@ -444,15 +444,30 @@ abstract class TestBase extends TestCase {
   public function mockEnvironmentsRequest(
     $applications_response
   ) {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
-    $response->platform = 'cloud';
+    $response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
       ->shouldBeCalled();
+
+    return $response;
+  }
+
+  /**
+   * @param string $method
+   *
+   * @param string $http_code
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getMockEnvironmentResponse($method = 'get', $http_code = '200') {
+    // Request for Environments data. This isn't actually the endpoint we should
+    // be using, but we do it due to CXAPI-7209. It should be
+    // applications/{applicationUuid}/environments.
+    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+      $method, $http_code);
+    $response->platform = 'cloud';
 
     return $response;
   }

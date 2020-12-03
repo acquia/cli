@@ -42,9 +42,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $environments_response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.
@@ -93,9 +91,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       ->willReturn($delete_response->reveal())
       ->shouldBeCalled();
 
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $environments_response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
 
     // List uploaded keys.

@@ -145,7 +145,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
 
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}', 'get', '200');
+    $response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($response)->shouldBeCalled();
 
     $this->command = $this->getApiCommandByName('api:environments:find');
@@ -203,7 +203,7 @@ class ApiCommandTest extends CommandTestBase {
   public function testApiCommandExecutionForHttpPut(): void {
     $mock_request_options = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
     $mock_request_options['varnish_over_ssl'] = TRUE;
-    $mock_response_body = $this->getMockResponseFromSpec('/environments/{environmentId}', 'put', '202');
+    $mock_response_body = $this->getMockEnvironmentResponse('put', '202');
 
     // @see CXAPI-7713
     unset($mock_request_options['apcu']);
