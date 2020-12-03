@@ -448,6 +448,7 @@ abstract class TestBase extends TestCase {
     // be using, but we do it due to CXAPI-7209.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', '200');
+    $response->platform = 'cloud';
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$response])
