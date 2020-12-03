@@ -42,10 +42,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
   public function mockEnvironmentsRequest(
     $applications_response
   ) {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $response = $this->getMockEnvironmentResponse();
     $response->sshUrl = $response->ssh_url;
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")

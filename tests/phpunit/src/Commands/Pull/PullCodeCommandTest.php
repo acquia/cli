@@ -229,8 +229,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $dir, 'master');
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $dir);
 
-    $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $environment_response = $this->getMockEnvironmentResponse();
     $environment_response->configuration->php->version = '7.1';
     $environment_response->sshUrl = $environment_response->ssh_url;
     $this->clientProphecy->request('get',

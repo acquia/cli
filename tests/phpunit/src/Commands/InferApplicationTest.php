@@ -31,11 +31,7 @@ class InferApplicationTest extends CommandTestBase {
 
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $environment_response = $this->getMockEnvironmentResponse();
     // The searchApplicationEnvironmentsForGitUrl() method will only look
     // for a match of the vcs url on the prod env. So, we mock a prod env.
     $environment_response2 = $environment_response;
@@ -69,10 +65,7 @@ class InferApplicationTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $environment_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $environment_response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn([$environment_response, $environment_response])

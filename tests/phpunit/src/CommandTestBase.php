@@ -231,8 +231,7 @@ abstract class CommandTestBase extends TestBase {
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $response = $this->getMockEnvironmentResponse();
     $acsf_env_response = $this->getAcsfEnvResponse();
     $response->sshUrl = $acsf_env_response->sshUrl;
     $response->ssh_url = $acsf_env_response->sshUrl;
@@ -254,10 +253,7 @@ abstract class CommandTestBase extends TestBase {
   public function mockCloudEnvironmentsRequest(
     $applications_response
   ) {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
-      'get', '200');
+    $response = $this->getMockEnvironmentResponse();
     $cloud_env_response = $this->getCloudEnvResponse();
     $response->sshUrl = $cloud_env_response->ssh_url;
     $response->ssh_url = $cloud_env_response->ssh_url;
