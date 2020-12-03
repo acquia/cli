@@ -1270,18 +1270,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function getCloudSites($cloud_environment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
-    if ($cloud_environment->platform === 'cloud-next') {
-      $command = ['ls', "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites"];
-    }
-    else {
-      $command = ['ls', "/mnt/files/$sitegroup.{$cloud_environment->name}/sites"];
-    }
+    $command = ['ls', $this->getCloudSitesPath($cloud_environment, $sitegroup)];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
       return explode("\n", trim($process->getOutput()));
     }
 
     throw new AcquiaCliException("Could not get Cloud sites");
+  }
+
+  protected function getCloudSitesPath($cloud_environment, $sitegroup) {
+    if ($cloud_environment->platform === 'cloud-next') {
+      $path = "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites";
+    }
+    else {
+      $path = "/mnt/files/$sitegroup.{$cloud_environment->name}/sites";
+    }
+    return $path;
   }
 
   /**

@@ -460,12 +460,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     else {
       $site = $this->promptChooseCloudSite($chosen_environment);
-      if ($chosen_environment->platform === 'cloud-next') {
-        $source_dir = '/mnt/gfs/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
-      }
-      else {
-        $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
-      }
+      $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
