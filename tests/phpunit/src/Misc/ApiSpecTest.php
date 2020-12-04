@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests;
+namespace Acquia\Cli\Tests\Misc;
 
 use PHPUnit\Framework\TestCase;
 use Webmozart\PathUtil\Path;

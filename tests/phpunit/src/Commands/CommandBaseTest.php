@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\LinkCommand;
