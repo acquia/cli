@@ -1,6 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests;
+namespace Acquia\Cli\Tests\Misc;
+
+use Acquia\Cli\Tests\TestBase;
 
 /**
  * Class LocalMachineHelperTest.
