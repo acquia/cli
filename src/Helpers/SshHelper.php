@@ -5,8 +5,6 @@ namespace Acquia\Cli\Helpers;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Process;
 
@@ -62,6 +60,34 @@ class SshHelper implements LoggerAwareInterface {
     }
 
     return $process;
+  }
+
+  /**
+   * Adds a given password protected local SSH key to the local keychain.
+   *
+   * @param $filepath
+   *   The filepath of the private SSH key.
+   * @param $password
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  public function addSshKeyToAgent($filepath, $password): void {
+    // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
+    // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
+    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+    $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
+#!/usr/bin/env bash
+echo $SSH_PASS
+EOT
+    );
+    $this->localMachineHelper->getFilesystem()->chmod($temp_filepath, 0755);
+
+    $private_key_filepath = str_replace('.pub', '', $filepath);
+    $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $temp_filepath . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
+    $this->localMachineHelper->getFilesystem()->remove($temp_filepath);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to add the SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
+    }
   }
 
   /**

@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
+use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
@@ -48,13 +49,18 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // List uploaded keys.
     $this->mockUploadSshKey();
 
+    // Construct SSH key file info.
+    $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
+    $ssh_key = Path::join(sys_get_temp_dir(), $ssh_key_filename);
+    $ssh_pub_key = Path::join(sys_get_temp_dir(), $ssh_key_filename . '.pub');
+
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+    $ssh_helper->addSshKeyToAgent($ssh_pub_key, Argument::type('string'))->shouldBeCalled();
     $this->command->sshHelper = $ssh_helper->reveal();
 
     // Remove SSH key if it exists.
-    $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
-    $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
+    $this->fs->remove($ssh_key);
 
     // Set properties and execute.
     $this->executeCommand([], [
