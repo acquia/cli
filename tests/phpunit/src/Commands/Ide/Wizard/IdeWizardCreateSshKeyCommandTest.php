@@ -7,9 +7,11 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
+use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -51,6 +53,8 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->command->sshHelper = $ssh_helper->reveal();
+
+    $this->mockSshAgent();
 
     // Remove SSH key if it exists.
     $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
@@ -101,6 +105,8 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->command->sshHelper = $ssh_helper->reveal();
 
+    $this->mockSshAgent();
+
     $this->createLocalSshKey($mock_request_args['public_key']);
     try {
       $this->executeCommand([], []);
@@ -144,6 +150,27 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;
+  }
+
+  protected function mockSshAgent(): void {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $process->getOutput()->willReturn(NULL);
+    $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)
+      ->shouldBeCalled()
+      ->willReturn($process->reveal());
+    $local_machine_helper->getLocalFilepath('~/.passphrase')
+      ->willReturn('/tmp/.passphrase');
+    $local_machine_helper->getFilesystem()->willReturn($this->fs);
+    $local_machine_helper->execute([
+      'ssh-add',
+      '-L',
+    ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
+    $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
+      ->shouldBeCalled();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
 }
