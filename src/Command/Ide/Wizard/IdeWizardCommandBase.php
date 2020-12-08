@@ -2,12 +2,9 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Response\IdeResponse;
-use stdClass;
+use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -57,7 +54,6 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $this->ide = $ides_resource->get($this->ideUuid);
   }

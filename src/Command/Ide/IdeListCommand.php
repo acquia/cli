@@ -33,7 +33,7 @@ class IdeListCommand extends IdeCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $application_uuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $acquia_cloud_client = $this->cloudApiClient;
     $ides_resource = new Ides($acquia_cloud_client);
     $application_ides = $ides_resource->getAll($application_uuid);
 
