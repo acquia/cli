@@ -17,7 +17,7 @@
     }
   ],
   "require": {
-    "php": "^7.3",
+    "php": "^7.3 | ^8.0",
     "ext-json": "*",
     "acquia/drupal-environment-detector": "^1.2.0",
     "composer/semver": "^3.2",
