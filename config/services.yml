@@ -54,7 +54,11 @@ services:
 
   # AcquiaCloudApi services.
   AcquiaCloudApi\Connector\Client: ~
-  AcquiaCloudApi\Connector\ConnectorInterface: ~
+  AcquiaCloudApi\Connector\Connector:
+    arguments:
+      $config: ['@=service("datastore.cloud").get("key")', '@=service("datastore.cloud").get("secret")']
+  AcquiaCloudApi\Connector\ConnectorInterface:
+    alias: AcquiaCloudApi\Connector\Connector
   AcquiaLogstream\LogstreamManager: ~
 
   # Symfony services.
