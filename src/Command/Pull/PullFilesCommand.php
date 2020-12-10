@@ -33,10 +33,7 @@ class PullFilesCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // Generate file directories now in case we need them later.
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $this->ideDrupalSettingsRefresh();
-    }
+    parent::execute($input, $output);
     $this->pullFiles($input, $output);
 
     return 0;
