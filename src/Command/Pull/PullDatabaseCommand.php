@@ -35,6 +35,10 @@ class PullDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    // Generate database settings now in case we need them later.
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $this->ideDrupalSettingsRefresh();
+    }
     $this->pullDatabase($input, $output);
     if (!$input->getOption('no-scripts')) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));

@@ -88,9 +88,6 @@ abstract class PullCommandBase extends CommandBase {
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $this->createDbSettingsFile($source_environment, $database);
-    }
     $this->checklist->completePreviousItem();
   }
 
@@ -760,14 +757,10 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   * Setup files and directories for multisite applications.
    */
-  protected function createDbSettingsFile(EnvironmentResponse $source_environment, $database): void {
-    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
-    $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
-    $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";
-    $this->localMachineHelper->getFilesystem()
-      ->copy($default_path, $db_name_path);
+  protected function ideDrupalSettingsRefresh() {
+    $this->localMachineHelper->execute(['/ide/drupal-setup.sh']);
   }
 
 }

@@ -44,6 +44,11 @@ class PullCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    // Generate database settings and files now in case we need them later.
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $this->ideDrupalSettingsRefresh();
+    }
+
     if (!$input->getOption('no-code')) {
       $this->pullCode($input, $output);
     }
