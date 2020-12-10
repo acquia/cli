@@ -4,32 +4,28 @@ namespace Acquia\Cli\Helpers;
 
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
-use Webmozart\KeyValueStore\JsonFileStore;
 
+/**
+ * Factory producing Acquia Cloud Api clients.
+ *
+ * This class is only necessary as a testing shim, so that we can prophesize
+ * client queries. Consumers could otherwise just call
+ * Client::factory($connector) directly.
+ *
+ * @package Acquia\Cli\Helpers
+ */
 class ClientService {
 
-  private $acquiaCloudClient;
+  private $connector;
 
-  private $cloud_api_conf;
-
-  public function __construct(JsonFileStore $datastoreCloud) {
-    $this->cloud_api_conf = $datastoreCloud;
+  public function __construct(Connector $connector) {
+    $this->connector = $connector;
   }
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
    */
   public function getClient(): Client {
-    if (isset($this->acquiaCloudClient)) {
-      return $this->acquiaCloudClient;
-    }
-
-    $config = [
-      'key' => $this->cloud_api_conf->get('key'),
-      'secret' => $this->cloud_api_conf->get('secret'),
-    ];
-    $this->acquiaCloudClient = Client::factory(new Connector($config));
-
-    return $this->acquiaCloudClient;
+    return Client::factory($this->connector);
   }
 }

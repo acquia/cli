@@ -56,7 +56,9 @@ services:
   AcquiaCloudApi\Connector\Client: ~
   AcquiaCloudApi\Connector\Connector:
     arguments:
-      $config: ['@=service("datastore.cloud").get("key")', '@=service("datastore.cloud").get("secret")']
+      $config:
+        key: '@=service("datastore.cloud").get("key")'
+        secret: '@=service("datastore.cloud").get("secret")'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: AcquiaCloudApi\Connector\Connector
   AcquiaLogstream\LogstreamManager: ~
