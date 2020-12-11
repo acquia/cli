@@ -157,4 +157,17 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockDrupalSettingsRefresh(
+    ObjectProphecy $local_machine_helper
+  ): void {
+    $local_machine_helper
+      ->execute([
+        '/ide/drupal-setup.sh',
+      ])
+      ->shouldBeCalled();
+  }
+
 }

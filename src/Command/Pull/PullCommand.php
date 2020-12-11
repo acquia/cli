@@ -44,6 +44,8 @@ class PullCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    parent::execute($input, $output);
+
     if (!$input->getOption('no-code')) {
       $this->pullCode($input, $output);
     }

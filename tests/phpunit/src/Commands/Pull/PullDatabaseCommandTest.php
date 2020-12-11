@@ -130,7 +130,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     // Set up file system.
     $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
+    // Mock IDE filesystem.
     if ($mock_ide_fs) {
+      $this->mockDrupalSettingsRefresh($local_machine_helper);
       $this->mockSettingsFiles($fs);
     }
 
@@ -288,9 +290,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   protected function mockSettingsFiles($fs): void {
-    $fs->copy('/var/www/site-php/profserv2/profserv2-settings.inc', '/var/www/site-php/profserv2/profserv2-settings.inc')
-      ->willReturn()
-      ->shouldBeCalled();
     $fs->remove(Argument::type('string'))
       ->willReturn()
       ->shouldBeCalled();

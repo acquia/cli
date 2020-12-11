@@ -56,6 +56,22 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
+   * @return int 0 if everything went fine, or an exit code
+   * @throws \Exception
+   */
+  protected function execute(InputInterface $input, OutputInterface $output) {
+    // Generate settings and files in case we need them later.
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $this->ideDrupalSettingsRefresh();
+    }
+
+    return 0;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -88,9 +104,6 @@ abstract class PullCommandBase extends CommandBase {
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $this->getOutputCallback($output, $this->checklist));
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $this->createDbSettingsFile($source_environment, $database);
-    }
     $this->checklist->completePreviousItem();
   }
 
@@ -760,14 +773,10 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   * Setup files and directories for multisite applications.
    */
-  protected function createDbSettingsFile(EnvironmentResponse $source_environment, $database): void {
-    $sitegroup = self::getSiteGroupFromSshUrl($source_environment);
-    $default_path = "/var/www/site-php/$sitegroup/$sitegroup-settings.inc";
-    $db_name_path = "/var/www/site-php/$sitegroup/{$database->name}-settings.inc";
-    $this->localMachineHelper->getFilesystem()
-      ->copy($default_path, $db_name_path);
+  protected function ideDrupalSettingsRefresh() {
+    $this->localMachineHelper->execute(['/ide/drupal-setup.sh']);
   }
 
 }

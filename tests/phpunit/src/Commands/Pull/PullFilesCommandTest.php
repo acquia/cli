@@ -116,6 +116,9 @@ class PullFilesCommandTest extends PullCommandTestBase {
 
   public function testInvalidCwd(): void {
     IdeRequiredTestBase::setCloudIdeEnvVars();
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockDrupalSettingsRefresh($local_machine_helper);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     try {
       $this->executeCommand([], []);
     } catch (AcquiaCliException $exception) {

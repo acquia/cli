@@ -33,6 +33,7 @@ class PullFilesCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    parent::execute($input, $output);
     $this->pullFiles($input, $output);
 
     return 0;
