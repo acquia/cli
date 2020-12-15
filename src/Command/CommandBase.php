@@ -1091,7 +1091,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return;
     }
     try {
-      // Bale in Cloud IDEs to avoid hitting Github API rate limits.
       if ($this->hasUpdate()) {
         $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
       }
