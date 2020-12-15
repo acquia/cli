@@ -29,9 +29,6 @@
     "amphp/sync": {
         "version": "v1.4.0"
     },
-    "brainmaestro/composer-git-hooks": {
-        "version": "v2.8.3"
-    },
     "brick/math": {
         "version": "0.9.1"
     },

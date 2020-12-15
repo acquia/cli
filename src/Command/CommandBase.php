@@ -120,11 +120,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $acliConfigFilepath;
 
-  /**
-   * @var \Zumba\Amplitude\Amplitude
-   */
-  protected $amplitude;
-
   protected $repoRoot;
 
   /**
@@ -165,7 +160,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
@@ -179,7 +173,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
-    Amplitude $amplitude,
     string $acliConfigFilepath,
     string $repoRoot,
     ClientService $cloudApiClientService,
@@ -192,7 +185,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
-    $this->amplitude = $amplitude;
     $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
@@ -294,7 +286,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
-    $this->telemetryHelper->initializeAmplitude($this->amplitude);
+    $this->telemetryHelper->initializeAmplitude();
 
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
@@ -367,7 +359,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
     ];
-    $this->amplitude->queueEvent('Ran command', $event_properties);
+    Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
 
     return $exit_code;
   }

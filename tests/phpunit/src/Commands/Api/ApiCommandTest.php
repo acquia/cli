@@ -342,7 +342,6 @@ class ApiCommandTest extends CommandTestBase {
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->telemetryHelper,
-      $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
       $this->projectFixtureDir,
       $this->clientServiceProphecy->reveal(),
