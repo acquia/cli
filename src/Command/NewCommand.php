@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -101,14 +102,16 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
-    $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',
       '--no-install',
       $project,
       $dir,
     ]);
-    // @todo Check that this was successful!
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to create new project.");
+    }
   }
 
   /**
