@@ -50,7 +50,7 @@
   },
   "require-dev": {
     "acquia/coding-standards": "*",
-    "brainmaestro/composer-git-hooks": "^2.8",
+    "phpro/grumphp": "^1.2",
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
     "phpspec/prophecy": "^1.10",
     "phpunit/phpunit": "^9.1",
@@ -83,14 +83,7 @@
   "extra": {
     "branch-alias": {
       "dev-master": "1.x-dev"
-    },
-    "hooks": {
-      "pre-commit": "vendor/bin/phpcs",
-      "pre-push": "vendor/bin/phpcs",
-      "post-install-cmd": "cghooks add --ignore-lock",
-      "post-update-cmd": "cghooks update"
-    },
-    "phpcodesniffer-search-depth": 4
+    }
   },
   "prefer-stable": true,
   "scripts": {
