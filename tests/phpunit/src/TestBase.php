@@ -35,7 +35,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\PathUtil\Path;
-use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandTestBase.
@@ -77,11 +76,6 @@ abstract class TestBase extends TestCase {
   protected $input;
 
   protected $output;
-
-  /**
-   * @var \Prophecy\Prophecy\ObjectProphecy|Amplitude
-   */
-  protected $amplitudeProphecy;
 
   /**
    * @var \Prophecy\Prophecy\ObjectProphecy|\AcquiaCloudApi\Connector\Client
@@ -187,7 +181,6 @@ abstract class TestBase extends TestCase {
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
     $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
     $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
-    $this->amplitudeProphecy = $this->prophet->prophesize(Amplitude::class);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
@@ -287,7 +280,6 @@ abstract class TestBase extends TestCase {
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->telemetryHelper,
-      $this->amplitudeProphecy->reveal(),
       $this->acliConfigFilename,
       $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),

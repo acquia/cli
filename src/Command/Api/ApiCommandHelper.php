@@ -15,7 +15,6 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
-use Zumba\Amplitude\Amplitude;
 
 /**
  *
@@ -66,11 +65,6 @@ class ApiCommandHelper {
    */
   protected $acliConfigFilepath;
 
-  /**
-   * @var \Zumba\Amplitude\Amplitude
-   */
-  protected $amplitude;
-
   protected $repoRoot;
 
   /**
@@ -101,7 +95,6 @@ class ApiCommandHelper {
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreAcli
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param \Zumba\Amplitude\Amplitude $amplitude
    * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
@@ -115,7 +108,6 @@ class ApiCommandHelper {
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
     TelemetryHelper $telemetryHelper,
-    Amplitude $amplitude,
     string $acliConfigFilepath,
     string $repoRoot,
     ClientService $cloudApiClientService,
@@ -128,7 +120,6 @@ class ApiCommandHelper {
     $this->datastoreCloud = $datastoreCloud;
     $this->acliDatastore = $datastoreAcli;
     $this->telemetryHelper = $telemetryHelper;
-    $this->amplitude = $amplitude;
     $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
@@ -480,7 +471,7 @@ class ApiCommandHelper {
 
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase($this->cloudConfigFilepath, $this->localMachineHelper, $this->datastoreCloud,
-          $this->acliDatastore, $this->telemetryHelper, $this->amplitude, $this->acliConfigFilepath, $this->repoRoot,
+          $this->acliDatastore, $this->telemetryHelper, $this->acliConfigFilepath, $this->repoRoot,
           $this->cloudApiClientService, $this->logstreamManager, $this->sshHelper, $this->sshDir);
         $command->setName($command_name);
         $command->setDescription($schema['summary']);

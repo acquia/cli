@@ -66,12 +66,11 @@ class TelemetryHelper {
   /**
    * Initializes Amplitude.
    *
-   * @param \Zumba\Amplitude\Amplitude $amplitude
-   *
    * @throws \Exception
    */
-  public function initializeAmplitude(Amplitude $amplitude): void {
+  public function initializeAmplitude(): void {
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    $amplitude = Amplitude::getInstance();
     $amplitude->setOptOut($send_telemetry === FALSE);
 
     if ($send_telemetry === FALSE) {
