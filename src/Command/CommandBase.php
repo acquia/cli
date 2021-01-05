@@ -317,7 +317,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $this->migrateLegacySendTelemetryPreference();
       $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     }
-    if ((!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
+    if ($this->input->getFirstArgument() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $style = new SymfonyStyle($this->input, $this->output);
