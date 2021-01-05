@@ -408,6 +408,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
+    if (!$customer_applications->count()) {
+      throw new AcquiaCliException("You have no Cloud applications.");
+    }
     return $this->promptChooseFromObjects(
       $customer_applications,
       'uuid',
