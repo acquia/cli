@@ -317,7 +317,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $this->migrateLegacySendTelemetryPreference();
       $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     }
-    if ($this->input->getFirstArgument() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
+    if ($this->getName() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
       $style = new SymfonyStyle($this->input, $this->output);
@@ -430,6 +430,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $environment_resource = new Environments($acquia_cloud_client);
     $environments = $environment_resource->getAll($application_uuid);
+    // @todo Make sure there are actually environments here.
     return $this->promptChooseFromObjects(
       $environments,
       'uuid',
