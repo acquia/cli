@@ -408,6 +408,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
+    if (!$customer_applications->count()) {
+      throw new AcquiaCliException("You have no Cloud applications.");
+    }
     return $this->promptChooseFromObjects(
       $customer_applications,
       'uuid',
@@ -430,6 +433,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $environment_resource = new Environments($acquia_cloud_client);
     $environments = $environment_resource->getAll($application_uuid);
+    if (!$environments->count()) {
+      throw new AcquiaCliException("There are no environments available for application $application_uuid.");
+    }
     return $this->promptChooseFromObjects(
       $environments,
       'uuid',
