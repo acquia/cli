@@ -551,7 +551,7 @@ class ApiCommandHelper {
    * @return array
    */
   protected function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
-    if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
+    if (array_key_exists('application/json', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
     }
     elseif (array_key_exists('application/x-www-form-urlencoded', $schema['requestBody']['content'])) {
