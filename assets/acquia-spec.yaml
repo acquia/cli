@@ -102,6 +102,14 @@ components:
       schema:
         type: integer
       example: 7
+    ConfigurationSetId:
+      name: configurationSetId
+      in: path
+      required: true
+      description: An ID that uniquely identifies a configuration set.
+      schema:
+        type: string
+      example: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
     CronId:
       name: cronId
       in: path
@@ -156,6 +164,14 @@ components:
         maxLength: 255
         pattern: '^(?!(ACQUIA_|AH_))[A-Za-z_][A-Za-z0-9_]*$'
       example: EXAMPLE_VARIABLE_NAME
+    IndexId:
+      name: indexId
+      in: path
+      required: true
+      description: An ID that uniquely identifies an index.
+      schema:
+        type: string
+      example: ABCDE-1234.test.example
     LogType:
       name: logType
       in: path
@@ -627,6 +643,19 @@ components:
           description: The human-friendly confirmation of the creation of the resource.
         _links:
           $ref: '#/components/schemas/Links'
+    Pagination:
+      type: object
+      description: A collection of pagination properties.
+      properties:
+        total:
+          type: integer
+          description: The total number of objects in the collection.
+        limit:
+          type: integer
+          description: The limit on the number of objects in the collection.
+        offset:
+          type: integer
+          description: The offset on the retrieved objects in the collection.
     Root:
       type: object
       required:
@@ -1485,6 +1514,40 @@ components:
         deleted:
           type: boolean
           description: Whether this database is deleted.
+    Cdn:
+      type: object
+      required:
+        - status
+      description: CDN status information.
+      properties:
+        status:
+          type: string
+          description: The CDN status.
+          enum:
+            - active
+            - delete-failed
+            - deleting
+            - disable-failed
+            - disabling
+            - install-failed
+            - installing
+        _links:
+          $ref: '#/components/schemas/Links'
+    CdnInformation:
+      type: object
+      nullable: true
+      description: 'Domain-specific CDN information, if CDN is enabled.'
+      properties:
+        status:
+          type: string
+          enum:
+            - active
+            - installing
+            - install-failed
+            - deleting
+            - delete-failed
+            - unknown
+          description: The current provisioning status of CDN for this domain.
     Certificate:
       type: object
       description: An SSL certificate.
@@ -1878,6 +1941,7 @@ components:
       description: Response schema for a domain.
       required:
         - hostname
+        - cdn
         - flags
         - uptime
         - environment
@@ -1887,6 +1951,8 @@ components:
           type: string
           format: uri
           description: The domain's hostname.
+        cdn:
+          $ref: '#/components/schemas/CdnInformation'
         flags:
           $ref: '#/components/schemas/DomainFlags'
         uptime:
@@ -2154,7 +2220,7 @@ components:
           type: integer
           description: This is the total amount of memory available for caching precompiled script bytecode per PHP/FPM process.
           default: 96
-        apc:
+        apcu:
           type: integer
           description: APCu shared memory size per web server.
           default: 96
@@ -2181,10 +2247,6 @@ components:
         sendmail_path:
           type: string
           description: 'Sets the PHP sendmail_path, usually to manage the "From" address or disable mail.'
-        varnish_over_ssl:
-          type: boolean
-          description: Enables the Varnish proxy for SSL requests.
-          default: false
     EnvironmentFlags:
       type: object
       description: An array of various flags that indicate functionality associated with the environment.
@@ -2194,6 +2256,9 @@ components:
           cde:
             type: boolean
             description: Determines if the environment is on-demand.
+          cdn:
+            type: boolean
+            description: Determines if the environment has Platform CDN enabled.
           hsd:
             type: boolean
             description: Determines if the environment is under high-site density.
@@ -4196,6 +4261,121 @@ components:
           description: The collection of colors.
           items:
             $ref: '#/components/schemas/Color'
+    ConfigurationSet:
+      type: object
+      description: An Acquia Search configuration set.
+      required:
+        - id
+        - application_uuid
+        - label
+        - flags
+        - status
+        - _links
+      properties:
+        id:
+          type: string
+          description: The search configuration set ID.
+        application_uuid:
+          type: string
+          description: The UUID for the application the search configuration belongs to.
+        label:
+          type: string
+          description: The human-readable search configuration set label.
+        flags:
+          type: object
+          description: The collection of flags for the search configuration set.
+          properties:
+            custom:
+              type: boolean
+              description: Indicates whether the search configuration set is a custom configuration set.
+        status:
+          type: string
+          description: The status of the search configuration set.
+        _links:
+          $ref: '#/components/schemas/Links'
+    ConfigurationSets:
+      type: object
+      description: A collection of configuration sets.
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of configuration sets.
+          items:
+            $ref: '#/components/schemas/ConfigurationSet'
+    Index:
+      type: object
+      description: An Acquia Search index.
+      required:
+        - id
+        - environment_id
+        - config_set_id
+        - database_role
+        - status
+        - solr_version
+        - url
+        - _links
+        - _embedded
+      properties:
+        id:
+          type: string
+          description: The index ID.
+        environment_id:
+          type: string
+          description: The ID for the environment the search index belongs to.
+        config_set_id:
+          type: string
+          description: The search configuration set ID.
+        database_role:
+          type: string
+          description: The database role.
+        status:
+          type: string
+          description: The state for the index.
+        solr_version:
+          type: string
+          description: The Solr version the index is currently running on.
+        url:
+          type: string
+          description: The index URL.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: The configuration set associated with the index.
+          properties:
+            configuration_set:
+              $ref: '#/components/schemas/ConfigurationSet'
+    Indexes:
+      type: object
+      description: A collection of indexes.
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of indexes.
+          items:
+            $ref: '#/components/schemas/Index'
+    Search:
+      type: object
+      description: A collection of links that provides traversal of search endpoints.
+      required:
+        - _links
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
     Server:
       type: object
       description: Server information.
@@ -4885,6 +5065,7 @@ components:
         - label
         - description
         - group_label
+        - flags
       properties:
         name:
           type: string
@@ -4898,6 +5079,15 @@ components:
         group_label:
           type: string
           description: The human readable label for the group.
+        flags:
+          $ref: '#/components/schemas/PermissionFlags'
+    PermissionFlags:
+      type: object
+      description: An array of various flags regarding the status of the permission.
+      properties:
+        deprecated:
+          type: boolean
+          description: Whether the permission is deprecated or not.
     Permissions:
       type: object
       description: A collection of all permissions that may be granted.
@@ -6853,13 +7043,13 @@ paths:
               $ref: '#/components/schemas/SshKeyRequest'
             example:
               label: mykey
-              public_key: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
+              public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/SshKeyRequest'
             example:
               label: mykey
-              public_key: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
+              public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com
       security:
         - OAuth2: []
       responses:
@@ -6955,7 +7145,7 @@ paths:
                 label: PC Home
                 fingerprint: '8d:13:fb:50:50:da:cf:c5:bf:ca:31:33:ed:51:27:24'
                 created_at: '2017-05-09T20:30:35+00:00'
-                public_key: ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAklOUpkDHrfHY17SbrmTIpNLTGK9Tjom/BWDSUGPl+nafzlHDTYW7hdI4yZ5ew18JH4JW9jbhUFrviQzM7xlELEVf4h9lFX5QVkbPppSwg0cda3Pbv7kOdJ/MTyBlWXFCR+HAo3FXRitBqxiX1nKhXpHAZsMciLq8V6RjsNAQwdsdMFvSlVK/7XAt3FaoJoAsncM1Q9x5+3V0Ww68/eIFmb1zuUFljQJKprrX88XypNDvjYNby6vw/Pb0rwert/EnmZ+AW4OZPnTPI89ZPmVMLuayrD2cE86Z/il8b+gw3r3+1nKatmIkjn2so1d01QraTlMqVSsbxNrRFi9wrf+M7Q== example@example.com
+                public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/account/ssh-keys/b2a53dfb-f4e2-4543-814d-7a9aa3793746'
@@ -7907,6 +8097,8 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/insight'
                   permissions:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/permissions'
+                  search:
+                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/search'
                   settings:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/settings'
                   tasks:
@@ -9062,7 +9254,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApplicationsPermissions'
               example:
-                total: 53
+                total: 55
                 flags:
                   administrator: false
                 _links:
@@ -9076,206 +9268,320 @@ paths:
                       label: Manage Insight alerts
                       description: Grants the ability to ignore alerts and change settings on a Drupal website using the "Fix it Now" feature.
                       group_label: Insight
+                      flags:
+                        deprecated: false
                     - name: revoke insight installs
                       title: Revoke Insight sites
                       description: Grants the ability to revoke sites so they can no longer submit data.
                       group_label: Insight
+                      flags:
+                        deprecated: false
                     - name: deploy to non-prod
                       label: 'Pull and deploy code, files, or databases to non-production environments'
                       description: Grants the ability to enable or disable live development and non-production work.
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: deploy to prod
                       label: 'Deploy code, files, or databases to the production environment'
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: pull from prod
                       label: Pull files or databases from the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file to non-prod
                       label: Move files to non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file to prod
                       label: Move files to the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file from prod
                       label: Move files from production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file from non-prod
                       label: Move files from non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: clear varnish on non-prod
                       label: Clear Varnish cache for non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: true
                     - name: clear varnish on prod
                       label: Clear Varnish cache for the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: true
                     - name: configure prod env
                       label: Configure production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: configure non-prod env
                       label: Configure non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: add an environment
                       label: Add an environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: delete an environment
                       label: Delete an environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: administer domain non-prod
                       label: Add or remove domains for non-production environments
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer domain prod
                       label: Add or remove domains for the production environment
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer ssl prod
                       label: Add or remove SSL certificates for the production environment
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer ssl non-prod
                       label: Add or remove SSL certificates for the non-production environments
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: reboot server
                       label: Reboot server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: resize server
                       label: Resize server
                       description: Increasing the size of your server costs money.
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: suspend server
                       label: Suspend server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: configure server
                       label: Configure server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: download logs non-prod
                       label: Download logs for non-production environments
                       description: null
                       group_label: Logs
+                      flags:
+                        deprecated: false
                     - name: download logs prod
                       label: Download logs for the production environment
                       description: null
                       group_label: Logs
+                      flags:
+                        deprecated: false
                     - name: add database
                       label: Add a database
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: remove database
                       label: Remove a database
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: view database connection
                       label: 'View database connection details (username, password, or hostname)'
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: download db backup non-prod
                       label: Download database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: download db backup prod
                       label: Download database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: create db backup non-prod
                       label: Create database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: create db backup prod
                       label: Create database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: restore db backup non-prod
                       label: Restore database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: restore db backup prod
                       label: Restore database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: administer team
                       label: Add or remove a user of a team
                       description: Granting this permission will give any user with this role full permissions on this team.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: access cloud api
                       label: Access the Cloud API
                       description: Grants the ability to use the API and bypass all other permissions via command line tools.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: administer cron non-prod
                       label: Modify cron tasks for non-production environments
                       description: null
                       group_label: Cron
+                      flags:
+                        deprecated: false
                     - name: administer cron prod
                       label: Modify cron tasks for the production environment
                       description: null
                       group_label: Cron
+                      flags:
+                        deprecated: false
                     - name: search limit increase
                       label: Increase the search index limit for a subscription
                       description: null
                       group_label: Search
+                      flags:
+                        deprecated: false
                     - name: search schema edit
                       label: Edit the search schema for a subscription
                       description: null
                       group_label: Search
+                      flags:
+                        deprecated: false
                     - name: create support ticket
                       label: Create a support ticket
                       description: null
                       group_label: Support
+                      flags:
+                        deprecated: false
                     - name: edit any support ticket
                       label: View and edit any support tickets for a subscription
                       description: null
                       group_label: Support
+                      flags:
+                        deprecated: false
                     - name: administer ssh keys
                       label: Manage SSH keys
                       description: Grants the ability to use SSH and bypass all other permissions via command line tools.
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: view build plans
                       label: View Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: edit build plans
                       label: Edit Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: run build plans
                       label: Run Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: add ssh key to git
                       label: Add SSH key to git repository
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: add ssh key to non-prod
                       label: Add SSH key to non-production environments
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: add ssh key to prod
                       label: Add SSH key to the production environment
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: view remote administration
                       label: View Remote Administration
                       description: This permission is only relevant if your subscription has remote administration.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: edit remote administration
                       label: Edit Remote Administration
                       description: This permission is only relevant if your subscription has remote administration.
                       group_label: Administration
+                      flags:
+                        deprecated: false
+                    - name: clear caches on prod
+                      label: Clear caches for the production environment
+                      description: null
+                      group_label: Workflow
+                      flags:
+                        deprecated: false
+                    - name: clear caches on non-prod
+                      label: Clear caches for non-production environments
+                      description: null
+                      group_label: Workflow
+                      flags:
+                        deprecated: false
         '404':
           description: Not Found
           content:
@@ -9287,6 +9593,370 @@ paths:
                   value:
                     error: not_found
                     message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+  '/applications/{applicationUuid}/search':
+    get:
+      tags:
+        - Applications
+      summary: Returns a traversal endpoint for search entities for the application.
+      description: Does not return any data. Allows traversal to search entity endpoints.
+      operationId: getApplicationSearchList
+      x-cli-name: 'applications:search:list'
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Search'
+              example:
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905'
+                  config-sets:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Forbidden:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage search for this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+  '/applications/{applicationUuid}/search/config-sets':
+    get:
+      tags:
+        - Applications
+      summary: Returns a collection of search configuration sets for an application
+      description: A collection of search configuration sets for an application.
+      operationId: getApplicationSearchConfigurationSets
+      x-cli-name: 'applications:search:configuration-set-list'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationSets'
+              example:
+                total: 3
+                pagination:
+                  total: 3
+                  limit: 3
+                  offset: 0
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets{?offset}'
+                    templated: true
+                  sort:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - id: shared-1234567891011-121
+                      application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                      label: example-0
+                      flags:
+                        custom: false
+                      status: active
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/shared-1234567891011-121'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                        download:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/download'
+                    - id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                      application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                      label: example-1
+                      flags:
+                        custom: true
+                      status: in-progress
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                        download:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/download'
+                    - id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn79
+                      application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                      label: example-2
+                      flags:
+                        custom: true
+                      status: in-progress
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn79'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                        download:
+                          href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/download'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to view search configuration sets for this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+    post:
+      tags:
+        - Applications
+      summary: Creates a search configuration set for an application.
+      description: Creates a search configuration set for an application.
+      operationId: postApplicationSearchConfigurationSets
+      x-cli-name: 'applications:search:configuration-set-create'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                archive:
+                  format: binary
+                  type: string
+      responses:
+        '202':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The search configuration set is being created.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/05fb83f1-59dd-4079-b9f3-ce9243a126ed'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                Request missing uploaded file:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The request does not contain an uploaded file.
+                Error during file upload:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: An error occurred during file upload.
+                Uploaded file is not a zip file:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The uploaded file is not a zip file.
+                File exceeds size limit:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The uploaded file size exceeds the 10MB limit.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to create search configuration sets on this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: conflict
+                message: Acquia Search is not available for this subscription.
+  '/applications/{applicationUuid}/search/config-sets/{configurationSetId}':
+    get:
+      tags:
+        - Applications
+      summary: Returns a search configuration set for an application
+      description: A specific search configuration set.
+      operationId: getApplicationSearchConfigurationSet
+      x-cli-name: 'applications:search:configuration-set-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+        - $ref: '#/components/parameters/ConfigurationSetId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationSets'
+              example:
+                id: shared-1234567891011-121
+                application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                label: example-0
+                flags:
+                  custom: false
+                status: active
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/shared-1234567891011-121'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                  download:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/download'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to view search configuration sets for this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No application or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                No configuration set or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The search configuration set you are trying to access does not exist, or you do not have permission to access it.'
+    delete:
+      tags:
+        - Applications
+      summary: Removes and deletes a specific search configuration set from an application.
+      description: Removes and deletes a specific search configuration set from an application.
+      operationId: deleteApplicationSearchConfigurationSet
+      x-cli-name: 'applications:search:configuration-set-delete'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+        - $ref: '#/components/parameters/ConfigurationSetId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The search configuration set has been deleted.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/41aaeac7-7ead-4f39-b74c-42493e4dc27b'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to delete search configuration sets for this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No application or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+                No configuration set or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The search configuration set you are trying to access does not exist, or you do not have permission to access it.'
+                Search configuration set not available:
+                  value:
+                    error: not_found
+                    message: The configuration set is not available for this application.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: conflict
+                message: Acquia Search is not available for this subscription.
   '/applications/{applicationUuid}/settings':
     get:
       tags:
@@ -11265,6 +11935,7 @@ paths:
                       active_domain: example.com
                       default_domain: sitedev.hosted.acquia-sites.com
                       image_url: null
+                      ssh_url: site.dev@sitedev.ssh.hosted.acquia-sites.com
                       ips:
                         - 10.0.1.5
                       region: us-east-1
@@ -11303,6 +11974,7 @@ paths:
                             percent: 100
                       flags:
                         cde: false
+                        cdn: false
                         hsd: false
                         livedev: false
                         migration: false
@@ -11343,6 +12015,7 @@ paths:
                         multi-site: prod.example.com/admin/gardens/staging
                       active_domain: example.com
                       image_url: null
+                      ssh_url: site.prod@siteprod.ssh.hosted.acquia-sites.com
                       ips:
                         - 10.0.1.1
                         - 10.0.1.2
@@ -11358,6 +12031,7 @@ paths:
                       insight: null
                       flags:
                         cde: false
+                        cdn: false
                         hsd: false
                         livedev: false
                         migration: false
@@ -11384,6 +12058,7 @@ paths:
                         - test.example.com
                       active_domain: test.example.com
                       image_url: null
+                      ssh_url: site.test@sitetest.ssh.hosted.acquia-sites.com
                       ips: []
                       region: us-east-1
                       status: normal
@@ -11400,6 +12075,7 @@ paths:
                         counts: null
                       flags:
                         cde: false
+                        cdn: false
                         hsd: false
                         livedev: false
                         migration: false
@@ -11799,6 +12475,7 @@ paths:
                 active_domain: example.com
                 default_domain: sitedev.hosted.acquia-sites.com
                 image_url: null
+                ssh_url: site.dev@sitedev.ssh.hosted.acquia-sites.com
                 ips:
                   - 10.0.1.5
                 region: us-east-1
@@ -11806,7 +12483,6 @@ paths:
                 status: normal
                 type: drupal
                 size: null
-                ssh_url: site.dev@server-123.hosted.hosting.acquia.com
                 weight: 0
                 vcs:
                   type: git
@@ -11838,6 +12514,7 @@ paths:
                       percent: 100
                 flags:
                   cde: false
+                  cdn: false
                   hsd: false
                   livedev: false
                   migration: false
@@ -11867,10 +12544,14 @@ paths:
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments'
                   alerts:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/alerts'
                   available-runtimes:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/available-runtimes'
+                  cdn:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cdn'
                   connection-history:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/connection-history'
                   crons:
@@ -11891,14 +12572,14 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/modules'
                   score-history:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/score-history'
+                  search:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/search'
                   servers:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/servers'
                   ssl:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/ssl'
                   variables:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/variables'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments'
                 _embedded:
                   application:
                     name: Sample application
@@ -12063,6 +12744,93 @@ paths:
                     error: not_found
                     message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
                 Environment Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/actions/clear-caches':
+    post:
+      tags:
+        - Environments
+      summary: Clears the caches for one or more domains attached to this environment.
+      description: Clears the caches for one or more domains attached to this environment.
+      operationId: postEnvironmentsClearCaches
+      x-cli-name: 'environments:clear-caches'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                domains:
+                  type: array
+                  description: A list of domains to clear the caches for.
+                  items:
+                    type: string
+                    format: uri
+            example:
+              domains:
+                - domain1.example.com
+                - domain2.example.com
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                domains:
+                  type: array
+                  description: A list of domains to clear the caches for.
+                  items:
+                    type: string
+                    format: uri
+            example:
+              domains:
+                - domain1.example.com
+                - domain2.example.com
+      security:
+        - OAuth2: []
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Clearing cache:
+                  value:
+                    message: Caches are being cleared.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/actions/clear-caches'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to clear caches on this environment.
+                Can only be cleared on hosting applications:
+                  value:
+                    error: forbidden
+                    message: Caches cannot be cleared on non-hosted applications.
+                Cannot be cleared for Node.js applications:
+                  value:
+                    error: forbidden
+                    message: Caches cannot be cleared on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
                   value:
                     error: not_found
                     message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
@@ -12633,6 +13401,172 @@ paths:
                   value:
                     error: not_found
                     message: 'The available runtimes you are trying to access do not exist, or you do not have permission to access them.'
+  '/environments/{environmentId}/cdn':
+    get:
+      tags:
+        - Environments
+      summary: Returns the CDN status for an environment.
+      description: Returns the CDN status for an environment. The CDN must be enabled for the status to be displayed.
+      operationId: getCdnByEnvironmentId
+      x-cli-name: 'environments:cdn-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/Cdn'
+              example:
+                status: active
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cdn'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                CDN not found:
+                  value:
+                    error: not_found
+                    message: 'The CDN you are trying to access does not exist, or you do not have permission to access it.'
+    post:
+      tags:
+        - Environments
+      summary: Enables a CDN for an environment.
+      description: Enables a CDN for an environment.
+      operationId: postCdnByEnvironmentId
+      x-cli-name: 'environments:cdn-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Enabling Platform CDN.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4/cdn'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/ea01b886-40bb-c028-b3de-4353e25fa462'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to enable CDN for this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not supported:
+                  value:
+                    error: conflict
+                    message: This environment does not support Platform CDN.
+                Already enabled:
+                  value:
+                    error: conflict
+                    message: Platform CDN is already enabled for this environment.
+    delete:
+      tags:
+        - Environments
+      summary: Disables a CDN for an environment.
+      description: Disables a CDN for an environment.
+      operationId: deleteCdnByEnvironmentId
+      x-cli-name: 'environments:cdn-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Disabling Platform CDN.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4/cdn'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/ea01b886-40bb-c028-b3de-4353e25fa462'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have sufficient permission to disable CDN for this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not supported:
+                  value:
+                    error: conflict
+                    message: This environment does not support Platform CDN.
+                Not enabled:
+                  value:
+                    error: conflict
+                    message: Platform CDN is not enabled for this environment.
   '/environments/{environmentId}/code':
     post:
       tags:
@@ -14464,6 +15398,8 @@ paths:
                 _embedded:
                   items:
                     - hostname: www.example.com
+                      cdn:
+                        status: installing
                       flags:
                         default: true
                         active: true
@@ -14481,6 +15417,7 @@ paths:
                         status:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/www.example.com/status'
                     - hostname: other.example.com
+                      cdn: null
                       flags:
                         default: false
                         active: false
@@ -14495,9 +15432,13 @@ paths:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com'
                         status:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com/status'
+                        dns:
+                          href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/dns'
                         uptime:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com/metrics/uptime'
                     - hostname: '*.example.com'
+                      cdn:
+                        status: active
                       flags:
                         default: false
                         active: false
@@ -14634,6 +15575,7 @@ paths:
       tags:
         - Environments
       summary: Clears the Varnish cache for one or more domains attached to this environment.
+      deprecated: true
       description: Clears the Varnish cache for one or more domains attached to this environment.
       operationId: postEnvironmentsDomainsClearVarnish
       x-cli-name: 'environments:domains-clear-varnish'
@@ -14683,7 +15625,7 @@ paths:
                     message: Varnish is being cleared for the selected domains.
                     _links:
                       self:
-                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-varnish
+                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/actions/clear-varnish
                       notification:
                         href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
         '403':
@@ -14736,6 +15678,8 @@ paths:
                 $ref: '#/components/schemas/Domains'
               example:
                 hostname: example.com
+                cdn:
+                  status: active
                 flags:
                   default: false
                   active: true
@@ -14838,6 +15782,7 @@ paths:
       tags:
         - Environments
       summary: Clears the Varnish cache for the specified domain.
+      deprecated: true
       description: Clears the Varnish cache for the specified domain.
       operationId: postEnvironmentsDomainClearVarnish
       x-cli-name: 'environments:domain-clear-varnish'
@@ -14859,7 +15804,7 @@ paths:
                     message: Varnish is being cleared for domain 'example.com'.
                     _links:
                       self:
-                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/actions/clear-varnish
+                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-varnish
                       notification:
                         href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
         '403':
@@ -14881,6 +15826,65 @@ paths:
                   value:
                     error: forbidden
                     message: Varnish cannot be cleared on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/domains/{domain}/actions/clear-caches':
+    post:
+      tags:
+        - Environments
+      summary: Clears the caches for the specified domain.
+      description: Clears the caches for the specified domain.
+      operationId: postEnvironmentsDomainClearCaches
+      x-cli-name: 'environments:domain-clear-caches'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+        - $ref: '#/components/parameters/Domain'
+      security:
+        - OAuth2: []
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Clearing cache:
+                  value:
+                    message: Caches are being cleared.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/example.com/actions/clear-caches'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to clear caches on this environment.
+                Can only be cleared on hosting applications:
+                  value:
+                    error: forbidden
+                    message: Caches cannot be cleared on non-hosted applications.
+                Cannot be cleared for Node.js applications:
+                  value:
+                    error: forbidden
+                    message: Caches cannot be cleared on Node.js applications.
         '404':
           description: Not Found
           content:
@@ -17264,6 +18268,487 @@ paths:
                   value:
                     error: conflict
                     message: This environment is already in production mode.
+  '/environments/{environmentId}/search':
+    get:
+      tags:
+        - Environments
+      summary: Returns a traversal endpoint for search entities for the environment.
+      description: Does not return any data. Allows traversal to search entity endpoints.
+      operationId: getEnvironmentSearchList
+      x-cli-name: 'environments:search:list'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Search'
+              example:
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905'
+                  indexes:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Forbidden:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage search for this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/search/indexes':
+    get:
+      tags:
+        - Environments
+      summary: Returns a collection of search indexes for an environment.
+      description: A collection of search indexes for an environment.
+      operationId: getEnvironmentSearchIndexes
+      x-cli-name: 'environments:search:indexes-list'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Indexes'
+              example:
+                total: 2
+                pagination:
+                  total: 2
+                  limit: 0
+                  offset: 0
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes{?offset}'
+                    templated: true
+                  sort:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - id: ABCDE-1234.test.example
+                      environment_id: 123-3f6d06a9-9236-411e-9dcc-44f0003a5905
+                      config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                      database_role: example
+                      status: active
+                      solr_version: '7'
+                      url: 'https://example.com/solr/ABCDE-1234.test.example/'
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1234.test.example'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes'
+                      _embedded:
+                        configuration_set:
+                          id: shared-1234567891011-121
+                          application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                          label: example-0
+                          flags:
+                            custom: false
+                          status: active
+                          _links:
+                            self:
+                              href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/shared-1234567891011-121'
+                            parent:
+                              href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+                    - id: ABCDE-1235.test.example
+                      environment_id: 123-3f6d06a9-9236-411e-9dcc-44f0003a5905
+                      config_set_id: ABCD5-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                      database_role: example
+                      status: active
+                      solr_version: '7'
+                      url: 'https://example.com/solr/ABCDE-1235.test.example/'
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1235.test.example'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes'
+                      _embedded:
+                        configuration_set:
+                          id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                          application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                          label: example-1
+                          flags:
+                            custom: true
+                          status: in-progress
+                          _links:
+                            self:
+                              href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78'
+                            parent:
+                              href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to view the search indexes on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+    post:
+      tags:
+        - Environments
+      summary: Creates a search index for an environment.
+      description: Creates a search index for an environment.
+      operationId: postEnvironmentSearchIndexes
+      x-cli-name: 'environments:search:index-create'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - database_role
+              properties:
+                config_set_id:
+                  type: string
+                  description: A configuration set ID to assign to the index.
+                database_role:
+                  type: string
+                  description: The database role for the search index.
+            example:
+              config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+              database_role: example
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - database_role
+              properties:
+                config_set_id:
+                  type: string
+                  description: A configuration set ID to assign to the index.
+                database_role:
+                  type: string
+                  description: The database role for the search index.
+            example:
+              config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+              database_role: example
+      responses:
+        '202':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The search index for example is being created.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1234.test.example'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/5494cbe6-fe98-4cfa-877b-05bab3be3bf8'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to create search configuration sets on this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found or not enough permission:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Configuration set not found or not enough permission:
+                  value:
+                    error: not_found
+                    message: 'The configuration set you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Search not available:
+                  value:
+                    error: validation_failed
+                    message: Acquia Search is not available for this subscription.
+                Search index already available:
+                  value:
+                    error: validation_failed
+                    message: The search index is already available for this environment.
+                Database does not exist:
+                  value:
+                    error: validation_failed
+                    message: The database does not exist in this environment.
+                Configuration set not available:
+                  value:
+                    error: validation_failed
+                    message: The configuration set is not available for this environment.
+  '/environments/{environmentId}/search/indexes/{indexId}':
+    get:
+      tags:
+        - Environments
+      summary: Returns a search configuration set for an application
+      description: A specific search configuration set.
+      operationId: getEnvironmentSearchIndex
+      x-cli-name: 'environments:search:index-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+        - $ref: '#/components/parameters/IndexId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Indexes'
+              example:
+                id: ABCDE-1234.test.example
+                environment_id: 123-3f6d06a9-9236-411e-9dcc-44f0003a5905
+                config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                database_role: example
+                status: active
+                solr_version: '7'
+                url: 'https://example.com/solr/ABCDE-1234.test.example/'
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1234.test.example'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes'
+                _embedded:
+                  configuration_set:
+                    id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+                    application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
+                    label: example-1
+                    flags:
+                      custom: true
+                    status: in-progress
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets/ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/applications/3f6d06a9-9236-411e-9dcc-44f0003a5905/search/config-sets'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to view the search indexes on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No environment or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                No index or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The search index you are trying to access does not exist, or you do not have permission to access it.'
+    put:
+      tags:
+        - Environments
+      summary: Updates a search index on an environment.
+      description: Updates a search index on an environment.
+      operationId: putEnvironmentSearchIndex
+      x-cli-name: 'environments:search:index-update'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+        - $ref: '#/components/parameters/IndexId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                config_set_id:
+                  type: string
+                  description: The configuration set ID to update to.
+            example:
+              config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                config_set_id:
+                  type: string
+                  description: The configuration set ID to update to.
+            example:
+              config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
+      responses:
+        '202':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Indexes'
+              example:
+                message: The search index ABCDE-1234.test.example is being updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1234.test.example'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/a0733378-eee4-4c29-bc2d-dea85e17b1aa'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to make a change in a search index on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: not_found
+                message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Search not available:
+                  value:
+                    error: conflict
+                    message: Acquia Search is not available for this subscription.
+                Configuration set not available:
+                  value:
+                    error: conflict
+                    message: The configuration set is not available for this environment.
+    delete:
+      tags:
+        - Environments
+      summary: Removes and deletes a specific search index from an environment
+      description: Removes and deletes a specific search index from an environment
+      operationId: deleteEnvironmentSearchIndex
+      x-cli-name: 'environments:search:index-delete'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+        - $ref: '#/components/parameters/IndexId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The search index has been removed from the environment.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/ABCDE-1234.test.example'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/search/indexes/'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/d64552a2-7e3e-46af-b2a0-b122aae26a7d'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: forbidden
+                message: You do not have permission to delete search indexes on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No application or not enough permissions:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Search index not available:
+                  value:
+                    error: not_found
+                    message: The search index is not available to this environment.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: validation_failed
+                message: Acquia Search is not available for this subscription.
   '/environments/{environmentId}/servers':
     get:
       tags:
@@ -23791,7 +25276,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Permissions'
               example:
-                total: 53
+                total: 55
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/permissions'
@@ -23801,206 +25286,320 @@ paths:
                       label: Manage Insight alerts
                       description: Grants the ability to ignore alerts and change settings on a Drupal website using the "Fix it Now" feature.
                       group_label: Insight
+                      flags:
+                        deprecated: false
                     - name: revoke insight installs
                       title: Revoke Insight sites
                       description: Grants the ability to revoke sites so they can no longer submit data.
                       group_label: Insight
+                      flags:
+                        deprecated: false
                     - name: deploy to non-prod
                       label: 'Pull and deploy code, files, or databases to non-production environments'
                       description: Grants the ability to enable or disable live development and non-production work.
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: deploy to prod
                       label: 'Deploy code, files, or databases to the production environment'
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: pull from prod
                       label: Pull files or databases from the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file to non-prod
                       label: Move files to non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file to prod
                       label: Move files to the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file from prod
                       label: Move files from production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: move file from non-prod
                       label: Move files from non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: clear varnish on non-prod
                       label: Clear Varnish cache for non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: true
                     - name: clear varnish on prod
                       label: Clear Varnish cache for the production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: true
                     - name: configure prod env
                       label: Configure production environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: configure non-prod env
                       label: Configure non-production environments
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: add an environment
                       label: Add an environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: delete an environment
                       label: Delete an environment
                       description: null
                       group_label: Workflow
+                      flags:
+                        deprecated: false
                     - name: administer domain non-prod
                       label: Add or remove domains for non-production environments
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer domain prod
                       label: Add or remove domains for the production environment
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer ssl prod
                       label: Add or remove SSL certificates for the production environment
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: administer ssl non-prod
                       label: Add or remove SSL certificates for the non-production environments
                       description: null
                       group_label: Domains
+                      flags:
+                        deprecated: false
                     - name: reboot server
                       label: Reboot server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: resize server
                       label: Resize server
                       description: Increasing the size of your server costs money.
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: suspend server
                       label: Suspend server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: configure server
                       label: Configure server
                       description: null
                       group_label: Server administration
+                      flags:
+                        deprecated: false
                     - name: download logs non-prod
                       label: Download logs for non-production environments
                       description: null
                       group_label: Logs
+                      flags:
+                        deprecated: false
                     - name: download logs prod
                       label: Download logs for the production environment
                       description: null
                       group_label: Logs
+                      flags:
+                        deprecated: false
                     - name: add database
                       label: Add a database
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: remove database
                       label: Remove a database
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: view database connection
                       label: 'View database connection details (username, password, or hostname)'
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: download db backup non-prod
                       label: Download database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: download db backup prod
                       label: Download database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: create db backup non-prod
                       label: Create database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: create db backup prod
                       label: Create database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: restore db backup non-prod
                       label: Restore database backups for non-production environments
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: restore db backup prod
                       label: Restore database backups for the production environment
                       description: null
                       group_label: Databases
+                      flags:
+                        deprecated: false
                     - name: administer team
                       label: Add or remove a user of a team
                       description: Granting this permission will give any user with this role full permissions on this team.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: access cloud api
                       label: Access the Cloud API
                       description: Grants the ability to use the API and bypass all other permissions via command line tools.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: administer cron non-prod
                       label: Modify cron tasks for non-production environments
                       description: null
                       group_label: Cron
+                      flags:
+                        deprecated: false
                     - name: administer cron prod
                       label: Modify cron tasks for the production environment
                       description: null
                       group_label: Cron
+                      flags:
+                        deprecated: false
                     - name: search limit increase
                       label: Increase the search index limit for a subscription
                       description: null
                       group_label: Search
+                      flags:
+                        deprecated: false
                     - name: search schema edit
                       label: Edit the search schema for a subscription
                       description: null
                       group_label: Search
+                      flags:
+                        deprecated: false
                     - name: create support ticket
                       label: Create a support ticket
                       description: null
                       group_label: Support
+                      flags:
+                        deprecated: false
                     - name: edit any support ticket
                       label: View and edit any support tickets for a subscription
                       description: null
                       group_label: Support
+                      flags:
+                        deprecated: false
                     - name: administer ssh keys
                       label: Manage SSH keys
                       description: Grants the ability to use SSH and bypass all other permissions via command line tools.
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: view build plans
                       label: View Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: edit build plans
                       label: Edit Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: run build plans
                       label: Run Build plans
                       description: null
                       group_label: Build
+                      flags:
+                        deprecated: false
                     - name: add ssh key to git
                       label: Add SSH key to git repository
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: add ssh key to non-prod
                       label: Add SSH key to non-production environments
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: add ssh key to prod
                       label: Add SSH key to the production environment
                       description: null
                       group_label: SSH keys
+                      flags:
+                        deprecated: false
                     - name: view remote administration
                       label: View Remote Administration
                       description: This permission is only relevant if your subscription has remote administration.
                       group_label: Administration
+                      flags:
+                        deprecated: false
                     - name: edit remote administration
                       label: Edit Remote Administration
                       description: This permission is only relevant if your subscription has remote administration.
                       group_label: Administration
+                      flags:
+                        deprecated: false
+                    - name: clear caches on prod
+                      label: Clear caches for the production environment
+                      description: null
+                      group_label: Workflow
+                      flags:
+                        deprecated: false
+                    - name: clear caches on non-prod
+                      label: Clear caches for non-production environments
+                      description: null
+                      group_label: Workflow
+                      flags:
+                        deprecated: false
   '/roles/{roleUuid}':
     get:
       tags:
