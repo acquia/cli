@@ -322,21 +322,6 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $environment
-   * @param $remote_filepath
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function deleteRemoteDatabaseDump($environment, $remote_filepath): void {
-    $command = ['rm', $remote_filepath];
-    $process = $this->sshHelper->executeCommand($environment, $command, $this->output->isVerbose(), NULL);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Could not delete database dump on remote host: {message}',
-        ['message' => $process->getOutput()]);
-    }
-  }
-
-  /**
    * @return bool
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
