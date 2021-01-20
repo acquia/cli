@@ -209,11 +209,6 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client,
     $output_callback = NULL
   ): void {
-    $response = $this->createRemoteDatabaseDump($environment, $database, $acquia_cloud_client);
-    $url_parts = explode('/', $response->links->notification->href);
-    $notification_uuid = end($url_parts);
-    $this->waitForDatabaseBackup($notification_uuid, $acquia_cloud_client);
-    // Todo: make this deterministic, so that we download the backup that we know _we_ created. Sadly this isn't possible right now, since the notification response doesn't provide a backup id.
     $local_filepath = $this->downloadDatabaseDump($environment, $database, $acquia_cloud_client);
 
     // @todo Validate local MySQL connection before running commands.
@@ -222,22 +217,6 @@ abstract class PullCommandBase extends CommandBase {
     $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
-    // I think we shouldn't delete remote backups until we can do so deterministically (see todo above).
-    // $this->deleteRemoteDatabaseDump($environment, $remote_filepath);
-  }
-
-  /**
-   * @param EnvironmentResponse $environment
-   * @param \stdClass $database
-   *
-   * @param $acquia_cloud_client
-   *
-   * @return OperationResponse
-   *   The response of the database backup.
-   */
-  protected function createRemoteDatabaseDump(EnvironmentResponse $environment, \stdClass $database, $acquia_cloud_client): OperationResponse {
-    $backups = new DatabaseBackups($acquia_cloud_client);
-    return $backups->create($environment->uuid, $database->name);
   }
 
   /**
@@ -257,11 +236,11 @@ abstract class PullCommandBase extends CommandBase {
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $backups_response = $database_backups->getAll($environment->uuid, $database->name);
     $backup_response = $backups_response[0];
+    $this->logger->debug('Using database backup generated at ' . $backup_response->completedAt);
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
-    $this->logger->debug('Downloading database dump to ' . $local_filepath);
-
+    $this->logger->debug('Downloading database backup to ' . $local_filepath);
     $backup_file = $database_backups->download($environment->uuid, $database->name, $backup_response->id);
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
