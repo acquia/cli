@@ -202,11 +202,8 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testApiCommandExecutionForHttpPut(): void {
     $mock_request_options = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
-    $mock_request_options['varnish_over_ssl'] = TRUE;
+    $mock_request_options['max_input_vars'] = 1001;
     $mock_response_body = $this->getMockEnvironmentResponse('put', '202');
-
-    // @see CXAPI-7713
-    unset($mock_request_options['apcu']);
 
     foreach ($mock_request_options as $name => $value) {
       $this->clientProphecy->addOption('json', [$name => $value])->shouldBeCalled();
