@@ -12,7 +12,6 @@ use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use AcquiaCloudApi\Response\OperationResponse;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -273,30 +272,6 @@ abstract class PullCommandBase extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to drop a local database. {message}', ['message' => $process->getErrorOutput()]);
     }
-  }
-
-  protected function waitForDatabaseBackup($notification_uuid, $acquia_cloud_client): void {
-    $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
-    $notifications = new Notifications($acquia_cloud_client);
-
-    $loop->addPeriodicTimer(5, function () use ($loop, $spinner, $notification_uuid, $notifications) {
-      try {
-        $response = $notifications->get($notification_uuid);
-        if ($response->status === 'completed') {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->output->writeln('');
-          $this->output->writeln('<info>Database backup is ready!</info>');
-        }
-      } catch (Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
-    });
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner, $this->output);
-
-    // Start the loop.
-    $loop->run();
   }
 
   /**

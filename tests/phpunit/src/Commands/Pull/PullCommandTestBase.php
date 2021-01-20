@@ -166,8 +166,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
     $local_machine_helper
       ->execute([
         '/ide/drupal-setup.sh',
-      ])
-      ->shouldBeCalled();
+      ]);
   }
 
 }
