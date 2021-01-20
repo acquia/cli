@@ -563,9 +563,6 @@ class ApiCommandHelper {
     elseif (array_key_exists('multipart/form-data', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['multipart/form-data']['schema'];
     }
-    else {
-      $a = 0;
-    }
 
     // If this is a reference to the top level schema, go grab the referenced component.
     if (array_key_exists('$ref', $request_body_schema)) {
