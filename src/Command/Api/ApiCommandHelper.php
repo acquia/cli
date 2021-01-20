@@ -267,7 +267,7 @@ class ApiCommandHelper {
           $prop_key,
               NULL,
               $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
-              $param_definition['description']
+              array_key_exists('description', $param_definition) ? $param_definition['description'] : $prop_key
                 );
         $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $prop_key, $param_definition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
@@ -295,11 +295,14 @@ class ApiCommandHelper {
    * @return string
    */
   protected function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
-    if (!array_key_exists('application/json', $request_body['content'])) {
+    if (array_key_exists('application/x-www-form-urlencoded', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
     }
-    else {
+    elseif (array_key_exists('application/json', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/json'];
+    }
+    elseif (array_key_exists('multipart/form-data', $request_body['content'])) {
+      $request_body_schema = $request_body['content']['multipart/form-data'];
     }
 
     if (array_key_exists('example', $request_body_schema)) {
@@ -551,11 +554,14 @@ class ApiCommandHelper {
    * @return array
    */
   protected function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
-    if (!array_key_exists('application/json', $schema['requestBody']['content'])) {
+    if (array_key_exists('application/json', $schema['requestBody']['content'])) {
+      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
+    }
+    elseif (array_key_exists('application/x-www-form-urlencoded', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['application/x-www-form-urlencoded']['schema'];
     }
-    else {
-      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
+    elseif (array_key_exists('multipart/form-data', $schema['requestBody']['content'])) {
+      $request_body_schema = $schema['requestBody']['content']['multipart/form-data']['schema'];
     }
 
     // If this is a reference to the top level schema, go grab the referenced component.

@@ -32,7 +32,7 @@ class SshCommandTest extends SshCommandTestBase {
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
     $ssh_command = [
       'ssh',
-      'site.dev@server-123.hosted.hosting.acquia.com',
+      'site.dev@sitedev.ssh.hosted.acquia-sites.com',
       '-t',
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
