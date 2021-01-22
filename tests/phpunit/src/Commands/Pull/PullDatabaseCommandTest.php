@@ -8,6 +8,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -51,7 +52,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPullDatabaseSettingsFiles(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
     // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
     // IdeRequiredTestBase sets other env vars (such as application ID) that
@@ -61,19 +62,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     putenv('AH_SITE_ENVIRONMENT');
   }
 
-  public function testPullDatabaseWithMySqlDumpError(): void {
-    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Could not create database dump on remote host', $exception->getMessage());
-    }
-  }
-
   public function testPullDatabaseWithMySqlDownloadError(): void {
-    $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -84,7 +74,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseWithMySqlDropError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE, TRUE);
+    $this->setupPullDatabase( TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -95,7 +85,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseWithMySqlCreateError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -106,7 +96,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   public function testPullDatabaseWithMySqlImportError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
 
     try {
@@ -116,12 +106,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dump_successful, $mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE): void {
+  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
+    $this->mockDatabaseBackupsResponse($environments_response, 'profserv2');
+    $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
 
@@ -137,12 +129,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
 
     // Database.
-    $this->mockCreateRemoteDatabaseDump($ssh_helper, $environments_response, $mysql_dump_successful);
     $this->mockDownloadMySqlDump($local_machine_helper, $mysql_dl_successful);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $mysql_drop_successful);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
     $this->mockExecuteMySqlImport($local_machine_helper, $mysql_import_successful);
-    $this->mockExecuteSshRemove($ssh_helper, $environments_response, TRUE);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -214,61 +204,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
-   * @param object $environments_response
-   * @param bool $success
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function mockCreateRemoteDatabaseDump(
-    ObjectProphecy $ssh_helper,
-    $environments_response,
-    $success
-  ): void {
-    $process = $this->mockProcess($success);
-    $process->getOutput()->willReturn('dbdumpcontents');
-    $ssh_helper->executeCommand(
-      new EnvironmentResponse($environments_response),
-      ['MYSQL_PWD=password mysqldump --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv201dev | pv --rate --bytes | gzip -9 > /mnt/tmp/web-1675/acli-mysql-dump-dev-profserv201dev.sql.gz'],
-      TRUE,
-      NULL
-    )
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
     $process = $this->mockProcess($success);
-    $local_machine_helper->execute(
-      Argument::containing('profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/web-1675/acli-mysql-dump-dev-profserv201dev.sql.gz'),
-      Argument::type('callable'), NULL, TRUE, NULL)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
-   * @param object $environments_response
-   * @param bool $success
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function mockExecuteSshRemove(
-    ObjectProphecy $ssh_helper,
-    $environments_response,
-    $success
-  ): void {
-    $process = $this->mockProcess($success);
-    $ssh_helper->executeCommand(
-      new EnvironmentResponse($environments_response),
-      Argument::containing('rm'),
-      TRUE,
-      NULL
+    $local_machine_helper->writeFile(
+      Argument::containingString("backup-something-profserv2.sql.gz"),
+      Argument::type(StreamInterface::class)
     )
-      ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 

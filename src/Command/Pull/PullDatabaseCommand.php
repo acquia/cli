@@ -19,7 +19,8 @@ class PullDatabaseCommand extends PullCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Copy database from a Cloud Platform environment')
+    $this->setDescription('Import latest database backup from a Cloud Platform environment')
+      ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. You can generate an on-demand backup using api:environments:database-backup-create.')
       ->setAliases(['pull:db'])
       ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,

@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\Output;
@@ -338,6 +339,36 @@ abstract class CommandTestBase extends TestBase {
       ->shouldBeCalled();
 
     return $databases_response;
+  }
+
+  /**
+   * @param object $environments_response
+   *
+   * @return object
+   */
+  protected function mockDatabaseBackupsResponse(
+    $environments_response,
+    $db_name
+  ) {
+    $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/backups_response.json')));
+    $this->clientProphecy->request('get',
+      "/environments/{$environments_response->id}/databases/{$db_name}/backups")
+      ->willReturn($databases_response)
+      ->shouldBeCalled();
+
+    return $databases_response;
+  }
+
+  protected function mockDownloadBackupResponse(
+    $environments_response,
+    $db_name,
+    $backup_id
+  ) {
+    $stream = $this->prophet->prophesize(StreamInterface::class);
+    $this->clientProphecy->request('get',
+      "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download")
+      ->willReturn($stream->reveal())
+      ->shouldBeCalled();
   }
 
 }

@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "database": "profserv2",
+    "type": "user",
+    "started_at": "something",
+    "completed_at": "something",
+    "flags": "",
+    "environment": "",
+    "_links": ""
+  }
+]
