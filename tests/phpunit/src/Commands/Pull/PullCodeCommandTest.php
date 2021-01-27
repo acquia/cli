@@ -46,6 +46,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $dir = Path::join($this->fixtureDir, 'empty-dir');
     $this->fs->mkdir([$dir]);
     $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process, $dir);
+    $this->mockExecuteGitCheckout($local_machine_helper, $environments_response->vcs->path, $dir, $process);
     $local_machine_helper->getFinder()->willReturn(new Finder());
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -298,13 +299,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     ], Argument::type('callable'), $cwd, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $local_machine_helper->execute([
-      'git',
-      'checkout',
-      $vcs_path,
-    ], Argument::type('callable'), $cwd, FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
+    $this->mockExecuteGitCheckout($local_machine_helper, $vcs_path, $cwd, $process);
   }
 
   /**
@@ -325,6 +320,22 @@ class PullCodeCommandTest extends PullCommandTestBase {
       'status',
       '--short',
     ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $vcs_path
+   * @param $cwd
+   * @param \Prophecy\Prophecy\ObjectProphecy $process
+   */
+  protected function mockExecuteGitCheckout(ObjectProphecy $local_machine_helper, $vcs_path, $cwd, ObjectProphecy $process): void {
+    $local_machine_helper->execute([
+      'git',
+      'checkout',
+      $vcs_path,
+    ], Argument::type('callable'), $cwd, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
   }
 
 }
