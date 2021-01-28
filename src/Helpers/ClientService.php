@@ -19,6 +19,10 @@ class ClientService {
   private $connector;
 
   public function __construct(Connector $connector) {
+    $this->setConnector($connector);
+  }
+
+  public function setConnector(Connector $connector) {
     $this->connector = $connector;
   }
 

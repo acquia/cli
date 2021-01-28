@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Connector\Connector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -60,7 +61,10 @@ class AuthLoginCommand extends CommandBase {
     $api_key = $this->determineApiKey($input, $output);
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
-
+    // Client service needs to be reinitialized with new credentials in case
+    // this is being run as a sub-command.
+    // @see https://github.com/acquia/cli/issues/403
+    $this->cloudApiClientService->setConnector(new Connector(['key' => $api_key, 'secret' => $api_secret]));
     $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
