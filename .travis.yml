@@ -8,7 +8,7 @@ php:
 
 cache:
   directories:
-    - "$HOME/.composer/cache"
+    - "$HOME/.cache/composer"
     - "$HOME/AppData/Local/Composer"
 
 services:
@@ -68,3 +68,4 @@ script:
   # Run coveralls here instead of after_success because it should break the build if it fails to report.
   # Only run once per build so Coveralls doesn't get confused.
   - if [ $TRAVIS_TEST_RESULT -eq 0 ] && [ "$TRAVIS_OS_NAME" = "linux" ] && [ "$TRAVIS_PHP_VERSION" = "7.4" ]; then composer coveralls; fi
+  - ls -al "$HOME/.cache"
