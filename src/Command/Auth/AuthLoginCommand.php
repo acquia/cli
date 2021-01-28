@@ -63,6 +63,7 @@ class AuthLoginCommand extends CommandBase {
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
     // Client service needs to be reinitialized with new credentials in case
     // this is being run as a sub-command.
+    // @see https://github.com/acquia/cli/issues/403
     $this->cloudApiClientService->setConnector(new Connector(['key' => $api_key, 'secret' => $api_secret]));
     $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
