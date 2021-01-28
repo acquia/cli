@@ -169,6 +169,9 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
     "psr/http-message": {
         "version": "1.0.1"
     },
@@ -358,9 +361,6 @@
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.17.0"
     },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.17.0"
-    },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.17.0"
     },
@@ -369,9 +369,6 @@
     },
     "symfony/polyfill-php70": {
         "version": "v1.18.0"
-    },
-    "symfony/polyfill-php72": {
-        "version": "v1.17.0"
     },
     "symfony/polyfill-php73": {
         "version": "v1.17.0"
