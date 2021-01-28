@@ -175,7 +175,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function pullCodeFromCloud($chosen_environment, $output_callback = NULL): void {
+  protected function pullCodeFromCloud(EnvironmentResponse $chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
@@ -186,10 +186,20 @@ abstract class PullCommandBase extends CommandBase {
       'fetch',
       '--all',
     ], $output_callback, $this->dir, FALSE);
+    $this->checkoutBranchFromEnv($chosen_environment, $output_callback);
+  }
+
+  /**
+   * Checks out the matching branch from a source environment.
+   *
+   * @param $environment
+   * @param null $output_callback
+   */
+  protected function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
     $this->localMachineHelper->execute([
       'git',
       'checkout',
-      $chosen_environment->vcs->path,
+      $environment->vcs->path,
     ], $output_callback, $this->dir, FALSE);
   }
 
@@ -512,7 +522,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function cloneFromCloud($chosen_environment, \Closure $output_callback): void {
+  protected function cloneFromCloud(EnvironmentResponse $chosen_environment, \Closure $output_callback): void {
     $command = [
       'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
       'git',
@@ -522,6 +532,7 @@ abstract class PullCommandBase extends CommandBase {
     ];
     $command = implode(' ', $command);
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
+    $this->checkoutBranchFromEnv($chosen_environment, $output_callback);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
