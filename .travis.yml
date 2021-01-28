@@ -9,6 +9,8 @@ php:
 cache:
   directories:
     - "$HOME/.composer/cache"
+    - "$HOME/AppData/Local/Temp/chocolatey"
+    - "$HOME/AppData/Local/Composer"
 
 services:
   - mysql
