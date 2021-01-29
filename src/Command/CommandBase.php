@@ -286,6 +286,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
+    $this->migrateLegacyApiKey();
     $this->telemetryHelper->initializeAmplitude();
 
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
@@ -299,13 +300,41 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->checkForNewVersion($input, $output);
   }
 
+  protected function migrateLegacyApiKey() {
+    if ($this->datastoreCloud && $this->datastoreCloud->get('key') && $this->datastoreCloud->get('secret') && !$this->datastoreCloud->get('acli_key') && !$this->datastoreCloud->get('keys')) {
+      $uuid = $this->datastoreCloud->get('key');
+      $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
+      $keys[$uuid] = [
+        'label' => $token_info->label,
+        'uuid' => $uuid,
+        'secret' => $this->datastoreCloud->get('secret'),
+      ];
+      $this->datastoreCloud->set('keys', $keys);
+      $this->datastoreCloud->get('acli_key', $uuid);
+    }
+  }
+
   /**
    * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
    *
    * @return bool
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
-    return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
+    if ($cloud_datastore === NULL) {
+      return FALSE;
+    }
+
+    if ($cloud_datastore->get('key') && $cloud_datastore->get('secret')) {
+      return TRUE;
+    }
+
+    $acli_key = $cloud_datastore->get('acli_key');
+    $keys = $cloud_datastore->get('keys');
+    if ($acli_key && $keys) {
+      return array_key_exists($acli_key, $keys);
+    }
+
+    return FALSE;
   }
 
   /**
@@ -472,7 +501,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * The list is generated from an array of objects. The objects much have at least one unique property and one
    * property that can be used as a human readable label.
    *
-   * @param object[]|ArrayObject $items An array of objects.
+   * @param object[]|array $items An array of objects.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
@@ -484,7 +513,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
     $list = [];
     foreach ($items as $item) {
-      $list[$item->$unique_property] = trim($item->$label_property);
+      $item_array = (array) $item;
+      $list[$item_array[$unique_property]] = trim($item_array[$label_property]);
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);
@@ -494,7 +524,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!$multiselect) {
       $identifier = array_search($choice_id, $list, TRUE);
       foreach ($items as $item) {
-        if ($item->$unique_property === $identifier) {
+        $item_array = (array) $item;
+        if ($item_array[$unique_property] === $identifier) {
           return $item;
         }
       }
@@ -504,7 +535,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       foreach ($choice_id as $choice) {
         $identifier = array_search($choice, $list, TRUE);
         foreach ($items as $item) {
-          if ($item->$unique_property === $identifier) {
+          if ($item[$unique_property] === $identifier) {
             $chosen[] = $item;
           }
         }
@@ -1319,9 +1350,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->io->choice('Choose a site', $this->getCloudSites($cloud_environment));
   }
 
-  /**
-   * @return mixed
-   */
   protected function migrateLegacySendTelemetryPreference() {
     $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
       'acquia-cli.json'));
