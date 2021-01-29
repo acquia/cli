@@ -67,13 +67,8 @@ class AuthLoginCommand extends CommandBase {
       if ($selected_key['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
         $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
-        // Client service needs to be reinitialized with new credentials in case
-        // this is being run as a sub-command.
-        // @see https://github.com/acquia/cli/issues/403
-        $this->cloudApiClientService->setConnector(new Connector([
-          'key' => $selected_key['uuid'],
-          'secret' => $this->datastoreCloud->get('keys')[$selected_key['uuid']]['secret'],
-        ]));
+        $secret = $this->datastoreCloud->get('keys')[$selected_key['uuid']]['secret'];
+        $this->reAuthenticate($selected_key['uuid'], $secret);
         return 0;
       }
     }
@@ -82,10 +77,7 @@ class AuthLoginCommand extends CommandBase {
     $api_key = $this->determineApiKey($input, $output);
     $api_secret = $this->determineApiSecret($input, $output);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
-    // Client service needs to be reinitialized with new credentials in case
-    // this is being run as a sub-command.
-    // @see https://github.com/acquia/cli/issues/403
-    $this->cloudApiClientService->setConnector(new Connector(['key' => $api_key, 'secret' => $api_secret]));
+    $this->reAuthenticate($api_key, $api_secret);
     $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
@@ -187,6 +179,20 @@ class AuthLoginCommand extends CommandBase {
         }
       }
     }
+  }
+
+  /**
+   * @param string $api_key
+   * @param string $api_secret
+   */
+  protected function reAuthenticate(string $api_key, string $api_secret): void {
+    // Client service needs to be reinitialized with new credentials in case
+    // this is being run as a sub-command.
+    // @see https://github.com/acquia/cli/issues/403
+    $this->cloudApiClientService->setConnector(new Connector([
+      'key' => $api_key,
+      'secret' => $api_secret
+    ]));
   }
 
 }
