@@ -6,11 +6,6 @@ php:
   - 7.4
   - 8.0.0
 
-cache:
-  directories:
-    - "$HOME/.cache/composer"
-    - "$HOME/AppData/Local/Composer"
-
 services:
   - mysql
 
