@@ -76,8 +76,8 @@ class AuthLoginCommand extends CommandBase {
     $this->promptOpenBrowserToCreateToken($input, $output);
     $api_key = $this->determineApiKey($input, $output);
     $api_secret = $this->determineApiSecret($input, $output);
-    $this->writeApiCredentialsToDisk($api_key, $api_secret);
     $this->reAuthenticate($api_key, $api_secret);
+    $this->writeApiCredentialsToDisk($api_key, $api_secret);
     $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
