@@ -300,20 +300,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->checkForNewVersion($input, $output);
   }
 
-  protected function migrateLegacyApiKey() {
-    if ($this->datastoreCloud && $this->datastoreCloud->get('key') && $this->datastoreCloud->get('secret') && !$this->datastoreCloud->get('acli_key') && !$this->datastoreCloud->get('keys')) {
-      $uuid = $this->datastoreCloud->get('key');
-      $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
-      $keys[$uuid] = [
-        'label' => $token_info->label,
-        'uuid' => $uuid,
-        'secret' => $this->datastoreCloud->get('secret'),
-      ];
-      $this->datastoreCloud->set('keys', $keys);
-      $this->datastoreCloud->get('acli_key', $uuid);
-    }
-  }
-
   /**
    * @param \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore
    *
@@ -1350,6 +1336,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->io->choice('Choose a site', $this->getCloudSites($cloud_environment));
   }
 
+  /**
+   * Migrate from storing preference in acquia-cli.json.
+   */
   protected function migrateLegacySendTelemetryPreference() {
     $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
       'acquia-cli.json'));
@@ -1359,6 +1348,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $send_telemetry = $legacy_acli_config['send_telemetry'];
         $this->datastoreCloud->set('send_telemetry', $send_telemetry);
       }
+    }
+  }
+
+  /**
+   * Migrate from storing only a single API key to storing multiple.
+   */
+  protected function migrateLegacyApiKey(): void {
+    if ($this->datastoreCloud && $this->datastoreCloud->get('key') && $this->datastoreCloud->get('secret') && !$this->datastoreCloud->get('acli_key') && !$this->datastoreCloud->get('keys')) {
+      $uuid = $this->datastoreCloud->get('key');
+      $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
+      $keys[$uuid] = [
+        'label' => $token_info->label,
+        'uuid' => $uuid,
+        'secret' => $this->datastoreCloud->get('secret'),
+      ];
+      $this->datastoreCloud->set('keys', $keys);
+      $this->datastoreCloud->get('acli_key', $uuid);
     }
   }
 
