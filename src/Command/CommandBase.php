@@ -487,7 +487,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * The list is generated from an array of objects. The objects much have at least one unique property and one
    * property that can be used as a human readable label.
    *
-   * @param object[]|array $items An array of objects.
+   * @param object[]|array $items An array of objects or arrays.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
@@ -498,9 +498,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
     $list = [];
-    foreach ($items as $item) {
-      $item_array = (array) $item;
-      $list[$item_array[$unique_property]] = trim($item_array[$label_property]);
+    $items_array = [];
+    foreach ($items as $key => $item) {
+      $items_array[$key] = (array) $item;
+    }
+    foreach ($items_array as $item) {
+      $list[$item[$unique_property]] = trim($item[$label_property]);
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);
@@ -509,9 +512,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $choice_id = $helper->ask($this->input, $this->output, $question);
     if (!$multiselect) {
       $identifier = array_search($choice_id, $list, TRUE);
-      foreach ($items as $item) {
-        $item_array = (array) $item;
-        if ($item_array[$unique_property] === $identifier) {
+      foreach ($items_array as $item) {
+        if ($item[$unique_property] === $identifier) {
           return $item;
         }
       }
@@ -520,7 +522,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $chosen = [];
       foreach ($choice_id as $choice) {
         $identifier = array_search($choice, $list, TRUE);
-        foreach ($items as $item) {
+        foreach ($items_array as $item) {
           if ($item[$unique_property] === $identifier) {
             $chosen[] = $item;
           }
