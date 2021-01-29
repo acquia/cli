@@ -66,13 +66,13 @@ class AuthLoginCommand extends CommandBase {
       $selected_key = $this->promptChooseFromObjects($keys, 'uuid', 'label', 'Choose which API key to use');
       if ($selected_key['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
-        $output->writeln("<info>Acquia CLI will use the API Key<options=bold>{$selected_key['label']}</></info>");
+        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
         // Client service needs to be reinitialized with new credentials in case
         // this is being run as a sub-command.
         // @see https://github.com/acquia/cli/issues/403
         $this->cloudApiClientService->setConnector(new Connector([
-          'key' => $answer,
-          'secret' => $this->datastoreCloud->get('keys')[$answer]['secret'],
+          'key' => $selected_key['uuid'],
+          'secret' => $this->datastoreCloud->get('keys')[$selected_key['uuid']]['secret'],
         ]));
         return 0;
       }
