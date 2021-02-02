@@ -436,7 +436,6 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
-    $destination = $this->dir . '/docroot/sites/default/';
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
 
     if ($this->isAcsfEnv($chosen_environment)) {
@@ -447,6 +446,7 @@ abstract class PullCommandBase extends CommandBase {
       $site = $this->promptChooseCloudSite($chosen_environment);
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
+    $destination = $this->dir . '/docroot/sites/' . $site . '/';
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
