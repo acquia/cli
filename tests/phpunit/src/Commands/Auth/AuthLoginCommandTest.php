@@ -3,7 +3,9 @@
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -128,6 +130,24 @@ class AuthLoginCommandTest extends CommandTestBase {
     catch (ValidatorException $exception) {
       $this->assertEquals(ValidatorException::class, get_class($exception));
     }
+  }
+
+  public function testMigrateLegacyApiKey() {
+    $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}', 'get', '200');
+    $this->clientProphecy->request('get', "/account/tokens/{$mock_body->uuid}")->willReturn($mock_body)->shouldBeCalled();
+    $this->removeMockCloudConfigFile();
+    $this->createMockCloudConfigFile([
+      'key' => $mock_body->uuid,
+      'secret' => 'test',
+      DataStoreContract::SEND_TELEMETRY => FALSE,
+    ]);
+    $inputs = [
+      // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
+      'n',
+    ];
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?', $output);
   }
 
   /**

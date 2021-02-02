@@ -190,7 +190,7 @@ abstract class TestBase extends TestCase {
     $this->setIo($input, $output);
 
     $this->removeMockConfigFiles();
-    $this->createMockConfigFile();
+    $this->createMockConfigFiles();
     ClearCacheCommand::clearCaches();
 
     parent::setUp();
@@ -378,18 +378,33 @@ abstract class TestBase extends TestCase {
     return $public_key_filepath;
   }
 
-  protected function createMockConfigFile(): void {
-    // @todo Read from config object.
-    $default_values = ['key' => 'testkey', 'secret' => 'test', DataStoreContract::SEND_TELEMETRY => FALSE];
-    $cloud_config = array_merge($default_values, $this->cloudConfig);
-    $contents = json_encode($cloud_config);
-    $filepath = $this->cloudConfigFilepath;
-    $this->fs->dumpFile($filepath, $contents);
+  protected function createMockConfigFiles(): void {
+    $this->createMockCloudConfigFile();
 
     $default_values = [];
     $acli_config = array_merge($default_values, $this->acliConfig);
     $contents = json_encode($acli_config);
     $filepath = $this->acliConfigFilepath;
+    $this->fs->dumpFile($filepath, $contents);
+  }
+
+  protected function createMockCloudConfigFile($default_values = []) {
+    if (!$default_values) {
+      $default_values = [
+        'acli_key' => 'testkey',
+        'keys' => [
+          'testkey' => [
+            'uuid' => 'testkey',
+            'label' => 'Test Key',
+            'secret' => 'test',
+          ],
+        ],
+        DataStoreContract::SEND_TELEMETRY => FALSE,
+      ];
+    }
+    $cloud_config = array_merge($default_values, $this->cloudConfig);
+    $contents = json_encode($cloud_config);
+    $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
