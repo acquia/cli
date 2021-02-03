@@ -63,7 +63,7 @@ class AuthLoginCommand extends CommandBase {
         'uuid' => 'create_new',
         'label' => 'Create a new API key',
       ];
-      $selected_key = $this->promptChooseFromObjects($keys, 'uuid', 'label', 'Choose which API key to use');
+      $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
       if ($selected_key['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
         $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");

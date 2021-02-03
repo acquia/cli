@@ -24,7 +24,7 @@ abstract class IdeCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
-    $question_text,
+    string $question_text,
     Ides $ides_resource,
     $cloud_application_uuid
   ): ?IdeResponse {
@@ -33,7 +33,7 @@ abstract class IdeCommandBase extends CommandBase {
       throw new AcquiaCliException('No IDEs exist for this application.');
     }
     /** @var IdeResponse $ide_response */
-    $ide_response = $this->promptChooseFromObjects($ides, 'uuid', 'label', $question_text);
+    $ide_response = $this->promptChooseFromObjectsOrArrays($ides, 'uuid', 'label', $question_text);
     return $ide_response;
   }
 

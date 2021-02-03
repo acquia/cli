@@ -53,7 +53,7 @@ class SshKeyDeleteCommand extends CommandBase {
     }
 
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $cloud_key = $this->promptChooseFromObjects(
+    $cloud_key = $this->promptChooseFromObjectsOrArrays(
       $cloud_keys,
       'uuid',
       'label',

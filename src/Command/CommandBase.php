@@ -426,7 +426,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!$customer_applications->count()) {
       throw new AcquiaCliException("You have no Cloud applications.");
     }
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $customer_applications,
       'uuid',
       'name',
@@ -449,7 +449,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environment_resource = new Environments($acquia_cloud_client);
     $environments = $environment_resource->getAll($application_uuid);
     // @todo Make sure there are actually environments here.
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $environments,
       'uuid',
       'name',
@@ -472,7 +472,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $logs_resource = new Logs($acquia_cloud_client);
     $logs = $logs_resource->getAll($environment_id);
 
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $logs,
       'type',
       'label',
@@ -487,23 +487,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * The list is generated from an array of objects. The objects much have at least one unique property and one
    * property that can be used as a human readable label.
    *
-   * @param object[]|array $items An array of objects or arrays.
+   * @param object[]|array[] $items An array of objects or arrays.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
    *
    * @param bool $multiselect
    *
-   * @return null|object|array
+   * @return null|array|object
    */
-  public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
+  public function promptChooseFromObjectsOrArrays($items, string $unique_property, string $label_property, string $question_text, $multiselect = FALSE) {
     $list = [];
-    $items_array = [];
-    foreach ($items as $key => $item) {
-      $items_array[$key] = (array) $item;
-    }
-    foreach ($items_array as $item) {
-      $list[$item[$unique_property]] = trim($item[$label_property]);
+    foreach ($items as $item) {
+      if (is_array($item)) {
+        $list[$item[$unique_property]] = trim($item[$label_property]);
+      }
+      else {
+        $list[$item->$unique_property] = trim($item->$label_property);
+      }
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);
@@ -512,9 +513,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $choice_id = $helper->ask($this->input, $this->output, $question);
     if (!$multiselect) {
       $identifier = array_search($choice_id, $list, TRUE);
-      foreach ($items_array as $item) {
-        if ($item[$unique_property] === $identifier) {
-          return $item;
+      foreach ($items as $item) {
+        if (is_array($item)) {
+          if ($item[$unique_property] === $identifier) {
+            return $item;
+          }
+        }
+        else {
+          if ($item->$unique_property === $identifier) {
+            return $item;
+          }
         }
       }
     }
@@ -522,9 +530,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $chosen = [];
       foreach ($choice_id as $choice) {
         $identifier = array_search($choice, $list, TRUE);
-        foreach ($items_array as $item) {
-          if ($item[$unique_property] === $identifier) {
-            $chosen[] = $item;
+        foreach ($items as $item) {
+          if (is_array($item)) {
+            if ($item[$unique_property] === $identifier) {
+              $chosen[] = $item;
+            }
+          }
+          else {
+            if ($item->$unique_property === $identifier) {
+              $chosen[] = $item;
+            }
           }
         }
       }
