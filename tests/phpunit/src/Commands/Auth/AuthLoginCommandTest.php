@@ -8,6 +8,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthCommandTest.
@@ -25,45 +26,77 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   public function providerTestAuthLoginCommand(): array {
-    $key = 'testkey123123';
-    $secret = 'testsecret123123';
     return [
       [
+        // $machine_is_authenticated
         FALSE,
+        // $assert_cloud_prompts
+        TRUE,
         [
           // Would you like to share anonymous performance usage and data? (yes/no) [yes]
           'yes',
           // Do you want to open this page to generate a token now?
           'no',
           // Please enter your API Key:
-          $key,
+          $this->key,
           // Please enter your API Secret:
-          $secret,
+          $this->secret,
         ],
         // No arguments, all interactive.
-        []
+        [],
+        // Output to assert.
+        'Saved credentials to',
       ],
       [
+        // $machine_is_authenticated
+        TRUE,
+        // $assert_cloud_prompts
         TRUE,
         [
           // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
           'yes',
+          // Choose which API key to use:
+          "Create a new API key",
           // Do you want to open this page to generate a token now?
           'no',
           // Please enter your API Key:
-          $key,
+          $this->key,
           // Please enter your API Secret:
-          $secret,
+          $this->secret,
         ],
         // No arguments, all interactive.
-        []
+        [],
+        // Output to assert.
+        'Saved credentials to',
       ],
       [
+        // $machine_is_authenticated
+        TRUE,
+        // $assert_cloud_prompts
+        FALSE,
+        [
+          // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
+          'yes',
+          // Choose which API key to use:
+          'Test Key',
+          // @todo Make sure this key has the right value to assert.
+        ],
+        // No arguments, all interactive.
+        [],
+        // Output to assert.
+        'Acquia CLI will use the API Key',
+      ],
+      [
+        // $machine_is_authenticated
+        FALSE,
+        // $assert_cloud_prompts
         FALSE,
         // No interaction
         [],
         // Args.
-        ['--key' => $key, '--secret' => $secret]
+        ['--key' => $this->key, '--secret' => $this->secret],
+        // Output to assert.
+        'Saved credentials to',
       ],
     ];
   }
@@ -74,12 +107,14 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @dataProvider providerTestAuthLoginCommand
    *
    * @param $machine_is_authenticated
+   * @param $assert_cloud_prompts
    * @param $inputs
    * @param $args
    *
    * @throws \Exception
    */
-  public function testAuthLoginCommand($machine_is_authenticated, $inputs, $args): void {
+  public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
+    $mock_body = $this->mockTokenRequest();
     if (!$machine_is_authenticated) {
       $this->removeMockCloudConfigFile();
     }
@@ -87,28 +122,26 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
 
-    // Assert.
-    if (!array_key_exists('--key', $args)) {
+    if ($assert_cloud_prompts) {
       $this->assertInteractivePrompts($output);
     }
-    $this->assertSavedOutput($output);
+    $this->assertStringContainsString($output_to_assert, $output);
     $this->assertKeySavedCorrectly();
   }
 
   public function providerTestAuthLoginInvalidInputCommand(): array {
-    $secret = 'testsecret123123';
     return [
       [
         [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $secret]
+        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret]
       ],
       [
         [],
-        ['--key' => 'shorty' , '--secret' => $secret]
+        ['--key' => 'shorty' , '--secret' => $this->secret]
       ],
       [
         [],
-        ['--key' => ' ', '--secret' => $secret]
+        ['--key' => ' ', '--secret' => $this->secret]
       ],
     ];
   }
@@ -133,8 +166,7 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   public function testMigrateLegacyApiKey() {
-    $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}', 'get', '200');
-    $this->clientProphecy->request('get', "/account/tokens/{$mock_body->uuid}")->willReturn($mock_body)->shouldBeCalled();
+    $mock_body = $this->mockTokenRequest();
     $this->removeMockCloudConfigFile();
     $this->createMockCloudConfigFile([
       'key' => $mock_body->uuid,
@@ -154,6 +186,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param string $output
    */
   protected function assertInteractivePrompts(string $output): void {
+    // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
     $this->assertStringContainsString('Please enter your API Key:', $output);
@@ -163,21 +196,28 @@ class AuthLoginCommandTest extends CommandTestBase {
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
-    $contents = file_get_contents($creds_file);
-    $this->assertJson($contents);
-    $config = json_decode($contents, TRUE);
-    $this->assertArrayHasKey('key', $config);
-    $this->assertArrayHasKey('secret', $config);
-    $this->assertEquals('testkey123123', $config['key']);
-    $this->assertEquals('testsecret123123', $config['secret']);
+    $config = new JsonFileStore($creds_file, JsonFileStore::NO_SERIALIZE_STRINGS);
+    $this->assertTrue($config->exists('acli_key'));
+    $this->assertEquals($this->key, $config->get('acli_key'));
+    $this->assertTrue($config->exists('keys'));
+    $keys = $config->get('keys');
+    $this->assertArrayHasKey($this->key, $keys);
+    $this->assertArrayHasKey('uuid', $keys[$this->key]);
+    $this->assertArrayHasKey('label', $keys[$this->key]);
+    $this->assertArrayHasKey('secret', $keys[$this->key]);
+    $this->assertEquals($this->secret, $keys[$this->key]['secret']);
   }
 
   /**
-   * @param string $output
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function assertSavedOutput(string $output): void {
-    $this->assertStringContainsString('Saved credentials to ', $output);
-    $this->assertStringContainsString('/cloud_api.conf', $output);
+  protected function mockTokenRequest() {
+    $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
+      'get', '200');
+    $this->clientProphecy->request('get', "/account/tokens/{$this->key}")
+      ->willReturn($mock_body);
+    return $mock_body;
   }
 
 }

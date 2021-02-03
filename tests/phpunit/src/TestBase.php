@@ -94,6 +94,16 @@ abstract class TestBase extends TestCase {
   /**
    * @var string
    */
+  protected $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
+
+  /**
+   * @var string
+   */
+  protected $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
+
+  /**
+   * @var string
+   */
   protected $dataDir;
 
   /**
@@ -391,12 +401,12 @@ abstract class TestBase extends TestCase {
   protected function createMockCloudConfigFile($default_values = []) {
     if (!$default_values) {
       $default_values = [
-        'acli_key' => 'testkey',
+        'acli_key' => $this->key,
         'keys' => [
-          'testkey' => [
-            'uuid' => 'testkey',
+          (string) ($this->key) => [
+            'uuid' => $this->key,
             'label' => 'Test Key',
-            'secret' => 'test',
+            'secret' => $this->secret,
           ],
         ],
         DataStoreContract::SEND_TELEMETRY => FALSE,
