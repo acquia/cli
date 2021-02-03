@@ -142,7 +142,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',
-      $this->projectFixtureDir . '/docroot/sites/default/',
+      $this->projectFixtureDir . '/docroot/sites/jxr5000596dev/',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())
@@ -164,7 +164,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
       'something.dev@somethingdev.ssh.prod.acquia-sites.com:/mnt/files/something.dev/sites/bar/files',
-      $this->projectFixtureDir . '/docroot/sites/default/',
+      $this->projectFixtureDir . '/docroot/sites/bar/',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())
