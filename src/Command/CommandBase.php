@@ -1356,7 +1356,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Migrate from storing preference in acquia-cli.json.
    */
-  protected function migrateLegacySendTelemetryPreference() {
+  protected function migrateLegacySendTelemetryPreference(): void {
     $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
       'acquia-cli.json'));
     if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
