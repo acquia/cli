@@ -45,7 +45,7 @@ class AuthLogoutCommand extends CommandBase {
         return 0;
       }
     }
-    $this->datastoreCloud->set('acli_key', NULL);
+    $this->datastoreCloud->remove('acli_key');
 
     $output->writeln("Unset the Acquia Cloud API key for Acquia CLI in <options=bold>{$this->cloudConfigFilepath}</></info>");
 
