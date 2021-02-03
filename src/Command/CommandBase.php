@@ -309,7 +309,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($cloud_datastore === NULL) {
       return FALSE;
     }
-
+    // Continue to honor legacy method of authentication.
     if ($cloud_datastore->get('key') && $cloud_datastore->get('secret')) {
       return TRUE;
     }
