@@ -1381,7 +1381,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         'secret' => $this->datastoreCloud->get('secret'),
       ];
       $this->datastoreCloud->set('keys', $keys);
-      $this->datastoreCloud->get('acli_key', $uuid);
+      $this->datastoreCloud->set('acli_key', $uuid);
     }
   }
 
