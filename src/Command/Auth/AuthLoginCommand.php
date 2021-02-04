@@ -56,15 +56,28 @@ class AuthLoginCommand extends CommandBase {
         return 0;
       }
     }
-    $this->promptOpenBrowserToCreateToken($input, $output);
 
+    // If keys already are saved locally, prompt to select.
+    if ($keys = $this->datastoreCloud->get('keys')) {
+      $keys['create_new'] = [
+        'uuid' => 'create_new',
+        'label' => 'Create a new API key',
+      ];
+      $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
+      if ($selected_key['uuid'] !== 'create_new') {
+        $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
+        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
+        $secret = $this->datastoreCloud->get('keys')[$selected_key['uuid']]['secret'];
+        $this->reAuthenticate($selected_key['uuid'], $secret);
+        return 0;
+      }
+    }
+
+    $this->promptOpenBrowserToCreateToken($input, $output);
     $api_key = $this->determineApiKey($input, $output);
     $api_secret = $this->determineApiSecret($input, $output);
+    $this->reAuthenticate($api_key, $api_secret);
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
-    // Client service needs to be reinitialized with new credentials in case
-    // this is being run as a sub-command.
-    // @see https://github.com/acquia/cli/issues/403
-    $this->cloudApiClientService->setConnector(new Connector(['key' => $api_key, 'secret' => $api_secret]));
     $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
@@ -134,9 +147,16 @@ class AuthLoginCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function writeApiCredentialsToDisk($api_key, $api_secret): void {
-    $this->datastoreCloud->set('key', $api_key);
-    $this->datastoreCloud->set('secret', $api_secret);
+  protected function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
+    $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
+    $keys = $this->datastoreCloud->get('keys');
+    $keys[$api_key] = [
+      'label' => $token_info->label,
+      'uuid' => $api_key,
+      'secret' => $api_secret,
+    ];
+    $this->datastoreCloud->set('keys', $keys);
+    $this->datastoreCloud->set('acli_key', $api_key);
   }
 
   /**
@@ -159,6 +179,20 @@ class AuthLoginCommand extends CommandBase {
         }
       }
     }
+  }
+
+  /**
+   * @param string $api_key
+   * @param string $api_secret
+   */
+  protected function reAuthenticate(string $api_key, string $api_secret): void {
+    // Client service needs to be reinitialized with new credentials in case
+    // this is being run as a sub-command.
+    // @see https://github.com/acquia/cli/issues/403
+    $this->cloudApiClientService->setConnector(new Connector([
+      'key' => $api_key,
+      'secret' => $api_secret
+    ]));
   }
 
 }

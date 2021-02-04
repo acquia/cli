@@ -286,6 +286,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
+    $this->migrateLegacyApiKey();
     $this->telemetryHelper->initializeAmplitude();
 
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
@@ -305,7 +306,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
-    return $cloud_datastore !== NULL && $cloud_datastore->get('key') && $cloud_datastore->get('secret');
+    if ($cloud_datastore === NULL) {
+      return FALSE;
+    }
+    // Continue to honor legacy method of authentication.
+    if ($cloud_datastore->get('key') && $cloud_datastore->get('secret')) {
+      return TRUE;
+    }
+
+    $acli_key = $cloud_datastore->get('acli_key');
+    $keys = $cloud_datastore->get('keys');
+    if ($acli_key && $keys) {
+      return array_key_exists($acli_key, $keys);
+    }
+
+    return FALSE;
   }
 
   /**
@@ -411,7 +426,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!$customer_applications->count()) {
       throw new AcquiaCliException("You have no Cloud applications.");
     }
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $customer_applications,
       'uuid',
       'name',
@@ -434,7 +449,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environment_resource = new Environments($acquia_cloud_client);
     $environments = $environment_resource->getAll($application_uuid);
     // @todo Make sure there are actually environments here.
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $environments,
       'uuid',
       'name',
@@ -457,7 +472,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $logs_resource = new Logs($acquia_cloud_client);
     $logs = $logs_resource->getAll($environment_id);
 
-    return $this->promptChooseFromObjects(
+    return $this->promptChooseFromObjectsOrArrays(
       $logs,
       'type',
       'label',
@@ -472,19 +487,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * The list is generated from an array of objects. The objects much have at least one unique property and one
    * property that can be used as a human readable label.
    *
-   * @param object[]|ArrayObject $items An array of objects.
+   * @param object[]|array[] $items An array of objects or arrays.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
    *
    * @param bool $multiselect
    *
-   * @return null|object|array
+   * @return null|array|object
    */
-  public function promptChooseFromObjects($items, $unique_property, $label_property, $question_text, $multiselect = FALSE) {
+  public function promptChooseFromObjectsOrArrays($items, string $unique_property, string $label_property, string $question_text, $multiselect = FALSE) {
     $list = [];
     foreach ($items as $item) {
-      $list[$item->$unique_property] = trim($item->$label_property);
+      if (is_array($item)) {
+        $list[$item[$unique_property]] = trim($item[$label_property]);
+      }
+      else {
+        $list[$item->$unique_property] = trim($item->$label_property);
+      }
     }
     $labels = array_values($list);
     $question = new ChoiceQuestion($question_text, $labels);
@@ -494,8 +514,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!$multiselect) {
       $identifier = array_search($choice_id, $list, TRUE);
       foreach ($items as $item) {
-        if ($item->$unique_property === $identifier) {
-          return $item;
+        if (is_array($item)) {
+          if ($item[$unique_property] === $identifier) {
+            return $item;
+          }
+        }
+        else {
+          if ($item->$unique_property === $identifier) {
+            return $item;
+          }
         }
       }
     }
@@ -504,8 +531,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       foreach ($choice_id as $choice) {
         $identifier = array_search($choice, $list, TRUE);
         foreach ($items as $item) {
-          if ($item->$unique_property === $identifier) {
-            $chosen[] = $item;
+          if (is_array($item)) {
+            if ($item[$unique_property] === $identifier) {
+              $chosen[] = $item;
+            }
+          }
+          else {
+            if ($item->$unique_property === $identifier) {
+              $chosen[] = $item;
+            }
           }
         }
       }
@@ -1320,9 +1354,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return mixed
+   * Migrate from storing preference in acquia-cli.json.
    */
-  protected function migrateLegacySendTelemetryPreference() {
+  protected function migrateLegacySendTelemetryPreference(): void {
     $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
       'acquia-cli.json'));
     if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
@@ -1331,6 +1365,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $send_telemetry = $legacy_acli_config['send_telemetry'];
         $this->datastoreCloud->set('send_telemetry', $send_telemetry);
       }
+    }
+  }
+
+  /**
+   * Migrate from storing only a single API key to storing multiple.
+   */
+  protected function migrateLegacyApiKey(): void {
+    if ($this->datastoreCloud && $this->datastoreCloud->get('key') && $this->datastoreCloud->get('secret') && !$this->datastoreCloud->get('acli_key') && !$this->datastoreCloud->get('keys')) {
+      $uuid = $this->datastoreCloud->get('key');
+      $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
+      $keys[$uuid] = [
+        'label' => $token_info->label,
+        'uuid' => $uuid,
+        'secret' => $this->datastoreCloud->get('secret'),
+      ];
+      $this->datastoreCloud->set('keys', $keys);
+      $this->datastoreCloud->set('acli_key', $uuid);
     }
   }
 

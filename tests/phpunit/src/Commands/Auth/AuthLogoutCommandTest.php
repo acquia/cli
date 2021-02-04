@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Auth\AuthLogoutCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthLogoutCommandTest.
@@ -52,11 +53,8 @@ class AuthLogoutCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     // Assert creds are removed locally.
     $this->assertFileExists($this->cloudConfigFilepath);
-    $contents = file_get_contents($this->cloudConfigFilepath);
-    $this->assertJson($contents);
-    $config = json_decode($contents, TRUE);
-    $this->assertNull($config['key']);
-    $this->assertNull($config['secret']);
+    $config = new JsonFileStore($this->cloudConfigFilepath, JsonFileStore::NO_SERIALIZE_STRINGS);
+    $this->assertFalse($config->exists('acli_key'));
   }
 
 }

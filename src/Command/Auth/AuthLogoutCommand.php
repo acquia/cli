@@ -40,15 +40,14 @@ class AuthLogoutCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
-      $answer = $this->io->confirm('Are you sure you\'d like to remove your Cloud Platform API login credentials from this machine?');
+      $answer = $this->io->confirm('Are you sure you\'d like to unset the Acquia Cloud API key for Acquia CLI?');
       if (!$answer) {
         return 0;
       }
     }
-    $this->datastoreCloud->set('key', NULL);
-    $this->datastoreCloud->set('secret', NULL);
+    $this->datastoreCloud->remove('acli_key');
 
-    $output->writeln("Removed Cloud API credentials from <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("Unset the Acquia Cloud API key for Acquia CLI in <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }
