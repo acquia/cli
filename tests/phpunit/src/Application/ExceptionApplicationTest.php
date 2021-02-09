@@ -18,29 +18,43 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ExceptionApplicationTest extends TestBase {
 
+  protected $kernel;
+
   public function setUp($output = NULL):void {
     parent::setUp($output);
     // If kernel is cached from a previous run, it doesn't get detected in code
     // coverage reports.
     $this->fs->remove('var/cache');
+    $this->kernel = new Kernel('dev', 0);
+    $this->kernel->boot();
+    $this->kernel->getContainer()->set('datastore.cloud', $this->datastoreCloud);
+    $this->kernel->getContainer()->set('Acquia\Cli\Helpers\ClientService', $this->clientServiceProphecy->reveal());
   }
 
   public function testInvalidApiCreds(): void {
-    $kernel = new Kernel('dev', 0);
-    $kernel->boot();
-    $container = $kernel->getContainer();
-    $container->set('datastore.cloud', $this->datastoreCloud);
-    $container->set('Acquia\Cli\Helpers\ClientService', $this->clientServiceProphecy->reveal());
     $this->mockUnauthorizedRequest();
-    $application = $container->get(Application::class);
+    $buffer = $this->runApp();
+    // This is sensitive to the display width of the test environment, so that's fun.
+    self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
+  }
+
+  public function testApiError(): void {
+    $this->mockApiError();
+    $buffer = $this->runApp();
+    self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
+  }
+
+  /**
+   * @return string
+   */
+  protected function runApp(): string {
+    $application = $this->kernel->getContainer()->get(Application::class);
     $application->setAutoExit(FALSE);
     $input = new ArrayInput(['link']);
     $input->setInteractive(FALSE);
     $output = new BufferedOutput();
     $application->run($input, $output);
-    $buffer = $output->fetch();
-    // This is sensitive to the display width of the test environment, so that's fun.
-    self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
+    return $output->fetch();
   }
 
 }

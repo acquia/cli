@@ -11,6 +11,7 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
@@ -437,13 +438,31 @@ abstract class TestBase extends TestCase {
     return $applications_response;
   }
 
-  public function mockUnauthorizedRequest() {
+  public function mockUnauthorizedRequest(): void {
     $response = [
       'error' => 'invalid_client',
       'error_description' => 'Client credentials were not found in the headers or body',
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new IdentityProviderException($response['error'], 0, $response));
+  }
+
+  public function mockApiError(): void {
+    $response = (object) [
+      'message' => 'some error',
+      'error' => 'some error',
+    ];
+    $this->clientProphecy->request('get', Argument::type('string'))
+      ->willThrow(new ApiErrorException($response, $response->message));
+  }
+
+  public function mockNoAvailableIdes(): void {
+    $response = (object) [
+      'message' => 'There are no available Cloud IDEs for this application',
+      'error' => 'There are no available Cloud IDEs for this application',
+    ];
+    $this->clientProphecy->request('get', Argument::type('string'))
+      ->willThrow(new ApiErrorException($response, $response->message));
   }
 
   /**
