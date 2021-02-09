@@ -40,6 +40,7 @@ class ExceptionApplicationTest extends TestBase {
     $application->run($input, $output);
     $buffer = $output->fetch();
     // This is sensitive to the display width of the test environment, so that's fun.
-    self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);  }
+    self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
+  }
 
 }
