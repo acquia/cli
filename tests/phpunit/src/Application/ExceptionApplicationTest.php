@@ -30,6 +30,8 @@ class ExceptionApplicationTest extends TestBase {
     $kernel->boot();
     $container = $kernel->getContainer();
     $container->set('datastore.cloud', $this->datastoreCloud);
+    $container->set('Acquia\Cli\Helpers\ClientService', $this->clientServiceProphecy->reveal());
+    $this->mockUnauthorizedRequest();
     $application = $container->get(Application::class);
     $application->setAutoExit(FALSE);
     $input = new ArrayInput(['link']);
@@ -38,6 +40,6 @@ class ExceptionApplicationTest extends TestBase {
     $application->run($input, $output);
     $buffer = $output->fetch();
     // This is sensitive to the display width of the test environment, so that's fun.
-    $this->assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);  }
+    self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);  }
 
 }
