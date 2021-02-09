@@ -458,8 +458,8 @@ abstract class TestBase extends TestCase {
 
   public function mockNoAvailableIdes(): void {
     $response = (object) [
-      'message' => 'There are no available Cloud IDEs for this application',
-      'error' => 'There are no available Cloud IDEs for this application',
+      'message' => "There are no available Cloud IDEs for this application.\n",
+      'error' => "There are no available Cloud IDEs for this application.\n",
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new ApiErrorException($response, $response->message));

@@ -44,6 +44,12 @@ class ExceptionApplicationTest extends TestBase {
     self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
   }
 
+  public function testNoAvailableIdes(): void {
+    $this->mockNoAvailableIdes();
+    $buffer = $this->runApp();
+    self::assertStringContainsString('Delete an existing IDE', $buffer);
+  }
+
   /**
    * @return string
    */
