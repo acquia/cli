@@ -18,6 +18,11 @@ use Symfony\Component\Console\Output\BufferedOutput;
  */
 class ExceptionApplicationTest extends TestBase {
 
+  /**
+   * Symfony kernel.
+   *
+   * @var \Acquia\Cli\Kernel
+   */
   protected $kernel;
 
   public function setUp($output = NULL):void {
