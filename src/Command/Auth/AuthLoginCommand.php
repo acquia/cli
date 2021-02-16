@@ -58,7 +58,7 @@ class AuthLoginCommand extends CommandBase {
     }
 
     // If keys already are saved locally, prompt to select.
-    if ($keys = $this->datastoreCloud->get('keys')) {
+    if ($input->isInteractive() && $keys = $this->datastoreCloud->get('keys')) {
       $keys['create_new'] = [
         'uuid' => 'create_new',
         'label' => 'Create a new API key',
