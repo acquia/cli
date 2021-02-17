@@ -494,7 +494,7 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockIdeListRequest() {
-    $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides',
+    $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides',
       'get', '200');
     $this->clientProphecy->request('get',
       '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')

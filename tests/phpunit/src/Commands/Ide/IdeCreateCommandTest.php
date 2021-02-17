@@ -27,7 +27,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
 
     // Request to create IDE.
-    $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides', 'post', '202');
+    $response = $this->getMockResponseFromSpec('/api/applications/{applicationUuid}/ides', 'post', '202');
     $this->clientProphecy->request(
           'post',
           // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
