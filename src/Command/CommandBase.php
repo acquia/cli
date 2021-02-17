@@ -1064,7 +1064,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function requireCloudIdeEnvironment(): void {
-    if (!self::isAcquiaCloudIde()) {
+    if (!self::isAcquiaCloudIde() || !self::getThisCloudIdeUuid()) {
       throw new AcquiaCliException('This command can only be run inside of an Acquia Cloud IDE');
     }
   }
