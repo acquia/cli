@@ -17,8 +17,6 @@
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
-  <rule ref="AcquiaPHP">
-    <exclude name="PHPCompatibility.FunctionUse.NewFunctions.array_key_lastFound"/>
-  </rule>
+  <rule ref="AcquiaPHP"/>
 
 </ruleset>
