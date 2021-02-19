@@ -34,60 +34,47 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
 
-    $table = new Table($output);
-    $table->setHeaders([
-      'Cloud platform key label and UUID',
-      'Local key filename',
-      'Hashes — sha256 and md5',
-    ]);
-    // First list all keys for which there are both Cloud and local keys.
-    $last_key = array_key_last($cloud_keys);
+    $this->io->title('Cloud keys with matching local keys');
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
           $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-          $table->addRow([
-            $cloud_key->label . PHP_EOL . $cloud_key->uuid,
-            $local_file->getFilename(),
-            $sha256_hash . PHP_EOL . $cloud_key->fingerprint,
-          ]);
-          if ($last_key !== $index) {
-            $table->addRow(new TableSeparator());
-          }
+          $this->io->definitionList(
+            ['Label' => $cloud_key->label],
+            ['UUID' => $cloud_key->uuid],
+            ['Local filename' => $local_file->getFilename()],
+            ['sha256 hash' => $sha256_hash],
+            ['md5' => $cloud_key->fingerprint]
+          );
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
         }
       }
     }
-    // Second list all cloud keys for which there is no local key.
-    $last_key = array_key_last($cloud_keys);
+    $this->io->title('Cloud keys with no matching local keys');
     foreach ($cloud_keys as $index => $cloud_key) {
       $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-      $table->addRow([
-        $cloud_key->label . PHP_EOL . $cloud_key->uuid,
-        'none',
-        $sha256_hash . PHP_EOL . $cloud_key->fingerprint,
-      ]);
-      if ($last_key !== $index || $local_keys) {
-        $table->addRow(new TableSeparator());
-      }
+      $this->io->definitionList(
+        ['Label' => $cloud_key->label],
+        ['UUID' => $cloud_key->uuid],
+        ['Local filename' => 'none'],
+        ['sha256 hash' => $sha256_hash],
+        ['md5' => $cloud_key->fingerprint]
+      );
     }
 
-    // Last list all local keys for which there is no cloud key.
-    $last_key = array_key_last($local_keys);
+    $this->io->title('Local keys with no matching cloud keys');
     foreach ($local_keys as $index => $local_file) {
       $sha256_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'sha256');
       $md5_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'md5');
-      $table->addRow([
-        'none',
-        $local_file->getFilename(),
-        $sha256_hash . PHP_EOL . $md5_hash,
-      ]);
-      if ($last_key !== $index) {
-        $table->addRow(new TableSeparator());
-      }
+      $this->io->definitionList(
+        ['Label' => 'none'],
+        ['UUID' => 'none'],
+        ['Local filename' => $local_file->getFilename()],
+        ['sha256 hash' => $sha256_hash],
+        ['md5' => $md5_hash]
+      );
     }
-    $table->render();
 
     return 0;
   }
