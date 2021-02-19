@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\ClientService;
+use Acquia\Cli\Helpers\CloudCredentials;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -111,6 +112,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $datastoreAcli;
 
   /**
+   * @var \Acquia\Cli\Helpers\CloudCredentials
+   */
+  protected $cloudCredentials;
+
+  /**
    * @var string
    */
   protected $cloudConfigFilepath;
@@ -120,6 +126,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $acliConfigFilepath;
 
+  /**
+   * @var string
+   */
   protected $repoRoot;
 
   /**
@@ -159,6 +168,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
+   * @param \Acquia\Cli\Helpers\CloudCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
@@ -172,6 +182,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
+    CloudCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,
@@ -184,6 +195,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
+    $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
     $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
