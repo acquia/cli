@@ -86,11 +86,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   private $cloudApplication;
 
   /**
-   * @var \Symfony\Component\Console\Helper\QuestionHelper
-   */
-  protected $questionHelper;
-
-  /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
    */
   protected $telemetryHelper;
@@ -284,7 +279,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->sshHelper->setLogger($this->logger);
 
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
-    $this->questionHelper = $this->getHelper('question');
     $this->checkAndPromptTelemetryPreference();
     $this->migrateLegacyApiKey();
     $this->telemetryHelper->initializeAmplitude();
