@@ -40,10 +40,11 @@ class SshKeyListCommand extends SshKeyCommandBase {
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
+          $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
           $table->addRow([
             $cloud_key->label,
             $local_file->getFilename(),
-            $cloud_key->fingerprint,
+            $hash,
           ]);
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
@@ -55,10 +56,11 @@ class SshKeyListCommand extends SshKeyCommandBase {
 
     $table = $this->createSshKeyTable($output, 'Cloud Platform keys with no matching local keys');
     foreach ($cloud_keys as $index => $cloud_key) {
+      $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
       $table->addRow([
         $cloud_key->label,
         'none',
-        $cloud_key->fingerprint,
+        $hash,
       ]);
     }
     $table->render();
@@ -66,11 +68,11 @@ class SshKeyListCommand extends SshKeyCommandBase {
 
     $table = $this->createSshKeyTable($output, 'Local keys with no matching Cloud Platform keys');
     foreach ($local_keys as $index => $local_file) {
-      $md5_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'md5');
+      $hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'sha256');
       $table->addRow([
         'none',
         $local_file->getFilename(),
-        $md5_hash,
+        $hash,
       ]);
     }
     $table->render();
@@ -91,7 +93,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $table->setHeaders([
       'Cloud Platform label',
       'Local filename',
-      'Fingerprint',
+      'Fingerprint (sha256)',
     ]);
     $table->setHeaderTitle($title);
     $table->setColumnWidths([
