@@ -3,9 +3,12 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableCell;
+use Symfony\Component\Console\Helper\TableCellStyle;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Terminal;
 use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 /**
@@ -33,50 +36,71 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
-
-    $this->io->title('Cloud Platform keys with matching local keys');
+    $table = $this->createSshKeyTable($output, 'Cloud Platform keys with matching local keys');
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
-          $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-          $this->io->definitionList(
-            ['Label' => $cloud_key->label],
-            ['UUID' => $cloud_key->uuid],
-            ['Local filename' => $local_file->getFilename()],
-            ['sha256 hash' => $sha256_hash],
-            ['md5 hash' => $cloud_key->fingerprint]
-          );
+          $table->addRow([
+            $cloud_key->label,
+            $local_file->getFilename(),
+            $cloud_key->fingerprint,
+          ]);
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
         }
       }
     }
-    $this->io->title('Cloud Platform keys with no matching local keys');
-    foreach ($cloud_keys as $index => $cloud_key) {
-      $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-      $this->io->definitionList(
-        ['Label' => $cloud_key->label],
-        ['UUID' => $cloud_key->uuid],
-        ['Local filename' => 'none'],
-        ['sha256 hash' => $sha256_hash],
-        ['md5 hash' => $cloud_key->fingerprint]
-      );
-    }
+    $table->render();
+    $this->io->newLine();
 
-    $this->io->title('Local keys with no matching Cloud Platform keys');
-    foreach ($local_keys as $index => $local_file) {
-      $sha256_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'sha256');
-      $md5_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'md5');
-      $this->io->definitionList(
-        ['Label' => 'none'],
-        ['UUID' => 'none'],
-        ['Local filename' => $local_file->getFilename()],
-        ['sha256 hash' => $sha256_hash],
-        ['md5 hash' => $md5_hash]
-      );
+    $table = $this->createSshKeyTable($output, 'Cloud Platform keys with no matching local keys');
+    foreach ($cloud_keys as $index => $cloud_key) {
+      $table->addRow([
+        $cloud_key->label,
+        'none',
+        $cloud_key->fingerprint,
+      ]);
     }
+    $table->render();
+    $this->io->newLine();
+
+    $table = $this->createSshKeyTable($output, 'Local keys with no matching Cloud Platform keys');
+    foreach ($local_keys as $index => $local_file) {
+      $md5_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'md5');
+      $table->addRow([
+        'none',
+        $local_file->getFilename(),
+        $md5_hash,
+      ]);
+    }
+    $table->render();
 
     return 0;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param string $title
+   *
+   * @return \Symfony\Component\Console\Helper\Table
+   */
+  protected function createSshKeyTable(OutputInterface $output, string $title): Table {
+    $terminal_width = (new Terminal())->getWidth();
+    $terminal_width *= .90;
+    $table = new Table($output);
+    $table->setHeaders([
+      'Cloud Platform label',
+      'Local filename',
+      'Fingerprint',
+    ]);
+    $table->setHeaderTitle($title);
+    $table->setColumnWidths([
+      $terminal_width * .4,
+      $terminal_width * .2,
+      $terminal_width * .2,
+    ]);
+
+    return $table;
   }
 
 }
