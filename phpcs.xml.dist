@@ -12,10 +12,13 @@
 
   <file>.</file>
 
+  <exclude-pattern>build/</exclude-pattern>
   <exclude-pattern>var/</exclude-pattern>
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
-  <rule ref="AcquiaPHP"/>
+  <rule ref="AcquiaPHP">
+    <exclude name="PHPCompatibility.FunctionUse.NewFunctions.array_key_lastFound"/>
+  </rule>
 
 </ruleset>

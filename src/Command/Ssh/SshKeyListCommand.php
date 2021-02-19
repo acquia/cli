@@ -42,34 +42,50 @@ class SshKeyListCommand extends SshKeyCommandBase {
     ]);
     // First list all keys for which there are both Cloud and local keys.
     foreach ($local_keys as $local_index => $local_file) {
+      $last_key = array_key_last($cloud_keys);
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
-            $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
+            $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
             $table->addRow([
               $cloud_key->label . PHP_EOL . $cloud_key->uuid,
               $local_file->getFilename(),
-              $hash . PHP_EOL . $cloud_key->fingerprint,
+              $sha256_hash . PHP_EOL . $cloud_key->fingerprint,
             ]);
-            $table->addRow(new TableSeparator());
+            if ($last_key !== $index) {
+              $table->addRow(new TableSeparator());
+            }
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
         }
       }
     }
     // Second list all cloud keys for which there is no local key.
+    $last_key = array_key_last($cloud_keys);
     foreach ($cloud_keys as $index => $cloud_key) {
-      $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
+      $sha256_hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
       $table->addRow([
         $cloud_key->label . PHP_EOL . $cloud_key->uuid,
         'none',
-        $hash . PHP_EOL . $cloud_key->fingerprint,
+        $sha256_hash . PHP_EOL . $cloud_key->fingerprint,
       ]);
-      $table->addRow(new TableSeparator());
+      if ($last_key !== $index) {
+        $table->addRow(new TableSeparator());
+      }
     }
 
     // Last list all local keys for which there is no cloud key.
+    $local_keys = array_key_last($cloud_keys);
     foreach ($local_keys as $local_file) {
-      $table->addRow(['none', $local_file->getFilename(), '']);
+      $sha256_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'sha256');
+      $md5_hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'md5');
+      $table->addRow([
+        'none',
+        $local_file->getFilename(),
+        $sha256_hash . PHP_EOL . $md5_hash,
+      ]);
+      if ($last_key !== $index) {
+        $table->addRow(new TableSeparator());
+      }
     }
     $table->render();
 
