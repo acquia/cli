@@ -35,13 +35,21 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $local_keys = $this->findLocalSshKeys();
 
     $table = new Table($output);
-    $table->setHeaders(['Cloud Platform Key Label and UUID', 'Local Key Filename', 'Hashes — sha256 and md5']);
+    $table->setHeaders([
+      'Cloud platform key label and UUID',
+      'Local key filename',
+      'Hashes — sha256 and md5',
+    ]);
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
             $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-            $table->addRow([$cloud_key->label . PHP_EOL . $cloud_key->uuid, $local_file->getFilename(), $hash . PHP_EOL . $cloud_key->fingerprint]);
-            $table->addRow([PHP_EOL]);
+            $table->addRow([
+              $cloud_key->label . PHP_EOL . $cloud_key->uuid,
+              $local_file->getFilename(),
+              $hash . PHP_EOL . $cloud_key->fingerprint,
+            ]);
+            $table->addRow(new TableSeparator());
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
         }
@@ -49,12 +57,16 @@ class SshKeyListCommand extends SshKeyCommandBase {
     }
     foreach ($cloud_keys as $index => $cloud_key) {
       $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
-      $table->addRow([$cloud_key->label . PHP_EOL . $cloud_key->uuid, '---', $hash . PHP_EOL . $cloud_key->fingerprint]);
-      $table->addRow([PHP_EOL]);
+      $table->addRow([
+        $cloud_key->label . PHP_EOL . $cloud_key->uuid,
+        'none',
+        $hash . PHP_EOL . $cloud_key->fingerprint,
+      ]);
+      $table->addRow(new TableSeparator());
     }
 
     foreach ($local_keys as $local_file) {
-      $table->addRow(['---', $local_file->getFilename(), '']);
+      $table->addRow(['none', $local_file->getFilename(), '']);
     }
     $table->render();
 
