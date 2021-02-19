@@ -360,12 +360,6 @@ abstract class PullCommandBase extends CommandBase {
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
     $choices = [];
     foreach ($application_environments as $key => $environment) {
-      // Don't allow a refresh from prod.
-      if ($environment->flags->production) {
-        unset($application_environments[$key]);
-        continue;
-      }
-
       $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
     // Re-key the array since we removed production.
