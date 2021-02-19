@@ -37,7 +37,12 @@ class CloudCredentials {
    */
   public function getCloudSecret() {
     $acli_key = $this->getCloudKey();
-    return $this->datastoreCloud->get('keys')[$acli_key]['secret'];
+    $keys = $this->datastoreCloud->get('keys');
+    if (array_key_exists($acli_key, $keys)) {
+      return $this->datastoreCloud->get('keys')[$acli_key]['secret'];
+    }
+
+    return NULL;
   }
 
 }
