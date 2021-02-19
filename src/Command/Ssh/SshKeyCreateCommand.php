@@ -88,12 +88,12 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $this->validateFilename($filename);
     }
     else {
-      $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ');
+      $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ', 'id_rsa_acquia');
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
       $question->setValidator(Closure::fromCallable([$this, 'validateFilename']));
-      $filename = $this->questionHelper->ask($input, $output, $question);
+      $filename = $this->io->askQuestion($question);
     }
 
     return $filename;
@@ -136,7 +136,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
         return $value ? trim($value) : '';
       });
       $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
-      $password = $this->questionHelper->ask($input, $output, $question);
+      $password = $this->io->askQuestion($question);
     }
 
     return $password;

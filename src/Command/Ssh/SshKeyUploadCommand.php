@@ -105,10 +105,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       '<question>Choose a local SSH key to upload to the Cloud Platform:</question>',
       $labels
     );
-    $helper = $this->getHelper('question');
-    $answer = $helper->ask($this->input, $this->output, $question);
-
-    return $answer;
+    return $this->io->askQuestion($question);
   }
 
   /**
@@ -127,7 +124,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       $question = new Question('<question>Please enter a Cloud Platform label for this SSH key:</question> ');
       $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
       $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
-      $label = $this->questionHelper->ask($input, $output, $question);
+      $label = $this->io->askQuestion($question);
     }
 
     return $label;
