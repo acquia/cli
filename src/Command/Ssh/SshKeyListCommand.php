@@ -40,6 +40,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
       'Local key filename',
       'Hashes — sha256 and md5',
     ]);
+    // First list all keys for which there are both Cloud and local keys.
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
@@ -55,6 +56,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
         }
       }
     }
+    // Second list all cloud keys for which there is no local key.
     foreach ($cloud_keys as $index => $cloud_key) {
       $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
       $table->addRow([
@@ -65,6 +67,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
       $table->addRow(new TableSeparator());
     }
 
+    // Last list all local keys for which there is no cloud key.
     foreach ($local_keys as $local_file) {
       $table->addRow(['none', $local_file->getFilename(), '']);
     }
