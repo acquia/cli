@@ -37,8 +37,9 @@ class SshKeyListCommandTest extends CommandTestBase
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Local Key Filename', $output);
-    $this->assertStringContainsString('Cloud Platform Key Label', $output);
+    $this->assertStringContainsString('Local filename', $output);
+    $this->assertStringContainsString('Cloud Platform label', $output);
+    $this->assertStringContainsString('Fingerprint', $output);
     $this->assertStringContainsString($base_filename, $output);
     $this->assertStringContainsString($mock_body->_embedded->items[0]->label, $output);
     $this->assertStringContainsString($mock_body->_embedded->items[1]->label, $output);

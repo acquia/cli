@@ -12,6 +12,7 @@
 
   <file>.</file>
 
+  <exclude-pattern>build/</exclude-pattern>
   <exclude-pattern>var/</exclude-pattern>
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>

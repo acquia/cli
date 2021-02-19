@@ -422,6 +422,9 @@
     "typhonius/acquia-php-sdk-v2": {
         "version": "2.0.12"
     },
+    "violuke/rsa-ssh-key-fingerprint": {
+        "version": "v1.1.1"
+    },
     "webmozart/assert": {
         "version": "1.8.0"
     },

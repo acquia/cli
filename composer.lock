@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3ad75b3bc538c0ac03c41e4423daa768",
+    "content-hash": "2f8748a33a53d78de1e7ed6eb64786af",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -4667,6 +4667,43 @@
                 }
             ],
             "time": "2021-01-18T23:11:48+00:00"
+        },
+        {
+            "name": "violuke/rsa-ssh-key-fingerprint",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/violuke/rsa-ssh-key-fingerprint.git",
+                "reference": "e1be5f95851cecf0471a653bd7c618fc638248a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/violuke/rsa-ssh-key-fingerprint/zipball/e1be5f95851cecf0471a653bd7c618fc638248a1",
+                "reference": "e1be5f95851cecf0471a653bd7c618fc638248a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "violuke\\RsaSshKeyFingerprint": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0+"
+            ],
+            "description": "Generate a fingerprint from an RSA SSH public key.",
+            "support": {
+                "issues": "https://github.com/violuke/rsa-ssh-key-fingerprint/issues",
+                "source": "https://github.com/violuke/rsa-ssh-key-fingerprint/tree/v1.1.1"
+            },
+            "time": "2020-11-29T11:08:48+00:00"
         },
         {
             "name": "webmozart/assert",

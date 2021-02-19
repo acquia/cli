@@ -3,8 +3,13 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableCell;
+use Symfony\Component\Console\Helper\TableCellStyle;
+use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Terminal;
+use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 /**
  * Class SshKeyListCommand.
@@ -31,27 +36,73 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();
-
-    $table = new Table($output);
-    $table->setHeaders(['Local Key Filename', 'Cloud Platform Key Label']);
+    $table = $this->createSshKeyTable($output, 'Cloud Platform keys with matching local keys');
     foreach ($local_keys as $local_index => $local_file) {
       foreach ($cloud_keys as $index => $cloud_key) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
-          $table->addRow([$local_file->getFilename(), $cloud_key->label]);
+          $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
+          $table->addRow([
+            $cloud_key->label,
+            $local_file->getFilename(),
+            $hash,
+          ]);
           unset($cloud_keys[$index], $local_keys[$local_index]);
           break;
         }
       }
     }
+    $table->render();
+    $this->io->newLine();
+
+    $table = $this->createSshKeyTable($output, 'Cloud Platform keys with no matching local keys');
     foreach ($cloud_keys as $index => $cloud_key) {
-      $table->addRow(['---', $cloud_key->label]);
+      $hash = FingerprintGenerator::getFingerprint($cloud_key->public_key, 'sha256');
+      $table->addRow([
+        $cloud_key->label,
+        'none',
+        $hash,
+      ]);
     }
-    foreach ($local_keys as $local_file) {
-      $table->addRow([$local_file->getFilename(), '---']);
+    $table->render();
+    $this->io->newLine();
+
+    $table = $this->createSshKeyTable($output, 'Local keys with no matching Cloud Platform keys');
+    foreach ($local_keys as $index => $local_file) {
+      $hash = FingerprintGenerator::getFingerprint($local_file->getContents(), 'sha256');
+      $table->addRow([
+        'none',
+        $local_file->getFilename(),
+        $hash,
+      ]);
     }
     $table->render();
 
     return 0;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param string $title
+   *
+   * @return \Symfony\Component\Console\Helper\Table
+   */
+  protected function createSshKeyTable(OutputInterface $output, string $title): Table {
+    $terminal_width = (new Terminal())->getWidth();
+    $terminal_width *= .90;
+    $table = new Table($output);
+    $table->setHeaders([
+      'Cloud Platform label',
+      'Local filename',
+      'Fingerprint (sha256)',
+    ]);
+    $table->setHeaderTitle($title);
+    $table->setColumnWidths([
+      $terminal_width * .4,
+      $terminal_width * .2,
+      $terminal_width * .2,
+    ]);
+
+    return $table;
   }
 
 }
