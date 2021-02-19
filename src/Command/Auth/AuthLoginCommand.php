@@ -67,8 +67,7 @@ class AuthLoginCommand extends CommandBase {
       if ($selected_key['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
         $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
-        $secret = $this->datastoreCloud->get('keys')[$selected_key['uuid']]['secret'];
-        $this->reAuthenticate($selected_key['uuid'], $secret);
+        $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret());
         return 0;
       }
     }

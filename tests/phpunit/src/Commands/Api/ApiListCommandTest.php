@@ -17,6 +17,7 @@ class ApiListCommandTest extends CommandTestBase {
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
+      $this->cloudCredentials,
       $this->telemetryHelper,
       $this->acliConfigFilename,
       $this->projectFixtureDir,
