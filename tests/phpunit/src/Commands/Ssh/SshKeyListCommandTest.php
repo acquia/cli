@@ -24,6 +24,7 @@ class SshKeyListCommandTest extends CommandTestBase
   /**
    * Tests the 'ssh-key:upload' command.
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testUpload(): void {
 

@@ -42,6 +42,7 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
       '--no-wait' => $input->getOption('no-wait'),
     ];
     $list_input = new ArrayInput($arguments);
+    $list_input->setStream($input->getStream());
 
     return $command->run($list_input, $output);
   }
