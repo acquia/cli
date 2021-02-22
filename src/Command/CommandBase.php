@@ -699,8 +699,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineCloudEnvironment() {
-    if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
-      return $this->input->getArgument('environmentId');
+    if ($this->input->hasOption('environmentId') && $this->input->getOption('environmentId')) {
+      return $this->input->getOption('environmentId');
     }
 
     $application_uuid = $this->determineCloudApplication();
@@ -743,8 +743,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function doDetermineCloudApplication() {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
 
-    if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
-      $cloud_application_uuid = $this->input->getArgument('applicationUuid');
+    if ($this->input->hasOption('applicationUuid') && $this->input->getOption('applicationUuid')) {
+      $cloud_application_uuid = $this->input->getOption('applicationUuid');
       return self::validateUuid($cloud_application_uuid);
     }
 
@@ -1188,11 +1188,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function fillMissingRequiredApplicationUuid(InputInterface $input, OutputInterface $output): void {
-    if ($input->hasArgument('applicationUuid') && !$input->getArgument('applicationUuid') && $this->getDefinition()->getArgument('applicationUuid')->isRequired()) {
+    if ($input->hasOption('applicationUuid') && !$input->getOption('applicationUuid')) {
       $output->writeln('Inferring Cloud Application UUID for this command since none was provided...', OutputInterface::VERBOSITY_VERBOSE);
       if ($application_uuid = $this->determineCloudApplication()) {
         $output->writeln("Set application uuid to <options=bold>$application_uuid</>", OutputInterface::VERBOSITY_VERBOSE);
-        $input->setArgument('applicationUuid', $application_uuid);
+        $input->setOption('applicationUuid', $application_uuid);
       }
     }
   }
@@ -1203,15 +1203,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function convertApplicationAliastoUuid(InputInterface $input): void {
-    if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
-      $application_uuid_argument = $input->getArgument('applicationUuid');
+    if ($input->hasOption('applicationUuid') && $input->getOption('applicationUuid')) {
+      $application_uuid_argument = $input->getOption('applicationUuid');
       try {
         self::validateUuid($application_uuid_argument);
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         $alias = $this->normalizeAlias($application_uuid_argument);
         $customer_application = $this->getApplicationFromAlias($alias);
-        $input->setArgument('applicationUuid', $customer_application->uuid);
+        $input->setOption('applicationUuid', $customer_application->uuid);
       }
     }
   }
@@ -1225,12 +1225,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function convertEnvironmentAliasToUuid(InputInterface $input, $argument_name): void {
+    $env_uuid_argument = '';
+    $type = '';
     if ($input->hasArgument($argument_name) && $input->getArgument($argument_name)) {
       $env_uuid_argument = $input->getArgument($argument_name);
+      $type = 'argument';
+    }
+    if ($input->hasOption($argument_name) && $input->getOption($argument_name)) {
+      $env_uuid_argument = $input->getOption($argument_name);
+      $type = 'option';
+    }
+    if (!empty($env_uuid_argument)) {
       try {
         // Environment IDs take the form of [env-num]-[app-uuid].
         $uuid_parts = explode('-', $env_uuid_argument);
-        $env_id = $uuid_parts[0];
         unset($uuid_parts[0]);
         $application_uuid = implode('-', $uuid_parts);
         self::validateUuid($application_uuid);
@@ -1241,7 +1249,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $alias = $this->normalizeAlias($alias);
           $alias = self::validateEnvironmentAlias($alias);
           $environment = $this->getEnvironmentFromAliasArg($alias);
-          $input->setArgument($argument_name, $environment->uuid);
+          if ($type === 'argument') {
+            $input->setArgument($argument_name, $environment->uuid);
+          }
+          else {
+            $input->setOption($argument_name, $environment->uuid);
+          }
         } catch (AcquiaCliException $exception) {
           throw new AcquiaCliException("The {{$argument_name}} must be a valid UUID or site alias.");
         }

@@ -546,8 +546,8 @@ abstract class PullCommandBase extends CommandBase {
       return $this->sourceEnvironment;
     }
 
-    if ($input->getArgument('environmentId')) {
-      $environment_id = $input->getArgument('environmentId');
+    if ($input->getOption('environmentId')) {
+      $environment_id = $input->getOption('environmentId');
       $chosen_environment = $this->getCloudEnvironment($environment_id);
     }
     else {
