@@ -241,7 +241,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       // @todo Execute ONLY match php aspect, not the code pull.
       'dir' => $dir,
-      'environmentId' => $environment_response->id,
+      '--environmentId' => $environment_response->id,
       '--no-scripts' => TRUE,
     ], [
       // Please choose an Acquia environment:

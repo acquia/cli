@@ -65,7 +65,7 @@ class LogTailCommandTest extends CommandTestBase {
     $this->mockLogListRequest();
     $this->mockLogStreamRequest();
     $this->executeCommand(
-      ['environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'],
+      ['--environmentId' => '24-a47ac10b-58cc-4372-a567-0e02b2c3d470'],
       // Select log.
       [0]
     );
