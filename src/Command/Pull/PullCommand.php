@@ -23,7 +23,6 @@ class PullCommand extends PullCommandBase {
     $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
-      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->addOption('no-code', NULL, InputOption::VALUE_NONE, 'Do not refresh code from remote repository')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Do not refresh files')
       ->addOption('no-databases', NULL, InputOption::VALUE_NONE, 'Do not refresh databases')
@@ -34,6 +33,7 @@ class PullCommand extends PullCommandBase {
             'Do not run any additional scripts after code and database are copied. E.g., composer install , drush cache-rebuild, etc.'
         )
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+    $this->acceptEnvironmentId();
   }
 
   /**
