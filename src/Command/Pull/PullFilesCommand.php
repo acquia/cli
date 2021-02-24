@@ -20,8 +20,8 @@ class PullFilesCommand extends PullCommandBase {
    */
   protected function configure() {
     $this->setDescription('Copy files from a Cloud Platform environment')
+      ->acceptEnvironmentId()
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
-    $this->acceptEnvironmentId();
   }
 
   /**

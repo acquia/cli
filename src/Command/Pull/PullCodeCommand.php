@@ -21,10 +21,10 @@ class PullCodeCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Copy code from a Cloud Platform environment')
       ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
+      ->acceptEnvironmentId()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after code is pulled. E.g., composer install , drush cache-rebuild, etc.')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
-    $this->acceptEnvironmentId();
   }
 
   /**

@@ -28,8 +28,8 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function configure() {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
+      ->acceptEnvironmentId()
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
-    $this->acceptEnvironmentId();
   }
 
   /**
