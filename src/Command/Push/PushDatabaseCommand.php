@@ -29,8 +29,8 @@ class PushDatabaseCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Push a database from your IDE to a Cloud Platform environment')
       ->setAliases(['push:db'])
-      ->addArgument('environmentId', InputArgument::OPTIONAL, 'The UUID of the associated Cloud Platform source environment')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+    $this->acceptEnvironmentId();
   }
 
   /**
