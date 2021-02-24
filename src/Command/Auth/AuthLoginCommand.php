@@ -180,18 +180,4 @@ class AuthLoginCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param string $api_key
-   * @param string $api_secret
-   */
-  protected function reAuthenticate(string $api_key, string $api_secret): void {
-    // Client service needs to be reinitialized with new credentials in case
-    // this is being run as a sub-command.
-    // @see https://github.com/acquia/cli/issues/403
-    $this->cloudApiClientService->setConnector(new Connector([
-      'key' => $api_key,
-      'secret' => $api_secret
-    ]));
-  }
-
 }

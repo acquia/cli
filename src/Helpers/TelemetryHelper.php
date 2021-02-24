@@ -166,11 +166,10 @@ class TelemetryHelper {
   protected function getDefaultUserData(): array {
     // @todo Cache this!
     $account = new Account($this->cloudApi->getClient());
-    $user = [
+    return [
       'uuid' => $account->get()->uuid,
       'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
     ];
-    return $user;
   }
 
 }
