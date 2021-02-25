@@ -17,5 +17,5 @@ How can we replicate the issue and verify that this PR fixes it?
 3. (add specific steps for this pr)
 
 **Merge requirements**
-- [ ] _Bug_, _enhancement_, or _breaking change_ label applied
+- [ ] _Major_, _Minor_, or _Patch_ label applied
 - [ ] Manual testing by a reviewer
