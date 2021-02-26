@@ -27,7 +27,6 @@ jobs:
         - export PATH=$(cmd.exe //c "refreshenv > nul & C:\Progra~1\Git\bin\bash -c 'echo \$PATH' ")
         - composer self-update --preview
     - stage: "Build packages for CLI"
-      if: tag IS present
       install: composer install --no-dev --optimize-autoloader && composer box-install
       before_script:
         # Generate .env.local.php
