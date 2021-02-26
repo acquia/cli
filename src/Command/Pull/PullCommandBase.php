@@ -572,7 +572,7 @@ abstract class PullCommandBase extends CommandBase {
       return;
     }
 
-    if ($input->hasArgument('dir') && $dir = $input->getArgument('dir')) {
+    if ($input->hasOption('dir') && $dir = $input->getOption('dir')) {
       $this->dir = $dir;
     }
     elseif ($this->repoRoot) {

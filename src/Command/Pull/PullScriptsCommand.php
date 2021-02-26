@@ -25,8 +25,8 @@ class PullScriptsCommand extends PullCommandBase {
    */
   protected function configure() {
     $this->setDescription('Execute post pull scripts')
-      ->addArgument('dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->acceptEnvironmentId()
+      ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
