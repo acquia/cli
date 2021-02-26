@@ -13,6 +13,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
@@ -50,6 +51,7 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\ItemInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\KeyValueStore\Util\Serializer;
 use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
@@ -333,6 +335,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (!isset($send_telemetry) || is_null($send_telemetry)) {
       $this->migrateLegacySendTelemetryPreference();
       $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    }
+    // Convert from serialized to unserialized.
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('user')
+      && is_string($this->datastoreCloud->get('user'))
+      && strpos($this->datastoreCloud->get('user'), 'a:') === 0
+    ) {
+      $value = Serializer::unserialize($this->datastoreCloud->get('user'));
+      $this->datastoreCloud->set('user', $value);
     }
     if ($this->getName() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
@@ -1375,7 +1386,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Migrate from storing only a single API key to storing multiple.
    */
   protected function migrateLegacyApiKey(): void {
-    if ($this->datastoreCloud && $this->datastoreCloud->get('key') && $this->datastoreCloud->get('secret') && !$this->datastoreCloud->get('acli_key') && !$this->datastoreCloud->get('keys')) {
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('key')
+      && $this->datastoreCloud->get('secret')
+      && !$this->datastoreCloud->get('acli_key')
+      && !$this->datastoreCloud->get('keys')
+    ) {
       $uuid = $this->datastoreCloud->get('key');
       $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
       $keys[$uuid] = [
@@ -1385,6 +1401,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       ];
       $this->datastoreCloud->set('keys', $keys);
       $this->datastoreCloud->set('acli_key', $uuid);
+    }
+
+    // Convert from serialized to unserialized.
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('acli_key')
+      && $this->datastoreCloud->get('keys')
+      && is_string($this->datastoreCloud->get('keys'))
+      && strpos($this->datastoreCloud->get('keys'), 'a:') === 0
+    ) {
+      $value = Serializer::unserialize($this->datastoreCloud->get('keys'));
+      $this->datastoreCloud->set('keys', $value);
+      $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret());
     }
   }
 
@@ -1397,6 +1425,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   public static function isLandoEnv() {
     return (bool) self::getLandoInfo();
+  }
+
+  /**
+   * @param string $api_key
+   * @param string $api_secret
+   */
+  protected function reAuthenticate(string $api_key, string $api_secret): void {
+    // Client service needs to be reinitialized with new credentials in case
+    // this is being run as a sub-command.
+    // @see https://github.com/acquia/cli/issues/403
+    $this->cloudApiClientService->setConnector(new Connector([
+      'key' => $api_key,
+      'secret' => $api_secret
+    ]));
   }
 
 }

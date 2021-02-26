@@ -46,7 +46,8 @@ services:
     class: Webmozart\KeyValueStore\JsonFileStore
     arguments:
       $path: '%app.cloud_config_filepath%'
-      $flags: !php/const Webmozart\KeyValueStore\JsonFileStore::NO_SERIALIZE_STRINGS
+      # NO_SERIALIZE_STRINGS & NO_SERIALIZE_ARRAYS
+      $flags: 3
   datastore.acli:
     class: Acquia\Cli\DataStore\YamlStore
     arguments:
