@@ -18,8 +18,8 @@ class LogTailCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Tail the logs from your environments')
+      ->acceptEnvironmentId()
       ->setAliases(['tail']);
-    $this->acceptEnvironmentId();
   }
 
   /**

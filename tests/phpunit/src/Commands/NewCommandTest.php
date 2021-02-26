@@ -84,7 +84,7 @@ class NewCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('Choose a starting project', $output);
     $this->assertStringContainsString($project, $output);
-    $this->assertStringContainsString('New 💧Drupal project created in ' . $this->newProjectDir, $output);
+    $this->assertStringContainsString('New 💧 Drupal project created in ' . $this->newProjectDir, $output);
 
   }
 
