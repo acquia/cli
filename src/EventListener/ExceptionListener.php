@@ -20,6 +20,13 @@ class ExceptionListener
       $newErrorMessage = 'Your Cloud Platform API credentials are invalid. Run acli auth:login to reset them.';
     }
 
+    if ($error instanceof \Symfony\Component\Console\Exception\RuntimeException) {
+      switch ($errorMessage) {
+        case 'Not enough arguments (missing: "environmentId").':
+          $newErrorMessage = $errorMessage . PHP_EOL . 'Note: "environmentId" can also be an Acquia sitegroup and environment construct, e.g. myapp.dev.';
+      }
+    }
+
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
