@@ -38,7 +38,9 @@ class IdeDeleteCommand extends IdeCommandBase {
     $cloud_application_uuid = $this->determineCloudApplication();
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to delete:", $ides_resource, $cloud_application_uuid);
     $response = $ides_resource->delete($ide->uuid);
-    $this->output->writeln($response->message);
+    $this->io->writeln($response->message);
+    // @todo Remove after CXAPI-8261 is closed.
+    $this->io->writeln("This process usually takes a few minutes.");
 
     // Check to see if an SSH key for this IDE exists on Cloud.
     $cloud_key = $this->findIdeSshKeyOnCloud($ide->uuid);
