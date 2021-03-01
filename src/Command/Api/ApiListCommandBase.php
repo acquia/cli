@@ -15,7 +15,7 @@ class ApiListCommandBase extends CommandBase {
   /**
    * @var string
    */
-  protected $namespace = 'api';
+  protected $namespace;
 
   /**
    * @param string $namespace
