@@ -7,6 +7,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class IdeCreateCommandTest.
@@ -25,6 +26,11 @@ class IdeCreateCommandTest extends CommandTestBase {
 
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
+
+    // Request account information.
+    $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
+    $this->clientProphecy->request('get', '/account')
+      ->willReturn($account);
 
     // Request to create IDE.
     $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides', 'post', '202');
@@ -64,8 +70,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('  [0] Sample application 1', $output);
     $this->assertStringContainsString('  [1] Sample application 2', $output);
-    $this->assertStringContainsString('Please enter a label for your Cloud IDE:', $output);
-    // $this->assertStringContainsString('Waiting for DNS to propagate...', $output);
+    $this->assertStringContainsString("Please enter a label for your Cloud IDE [Jane Doe's IDE]", $output);
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);
     $this->assertStringContainsString('Your Drupal Site URL: https://ide-215824ff-272a-4a8c-9027-df32ed1d68a9.prod.acquia-sites.com', $output);
