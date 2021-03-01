@@ -2,19 +2,14 @@
 
 namespace Acquia\Cli\Tests\Application;
 
-use Acquia\Cli\EventListener\ExceptionListener;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
-use Symfony\Component\Config\Loader;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -38,17 +33,14 @@ class ExceptionApplicationTest extends TestBase {
     // If kernel is cached from a previous run, it doesn't get detected in code
     // coverage reports.
     $this->fs->remove('var/cache');
-    $this->kernel = new Kernel('dev', 1);
+    $this->kernel = new Kernel('dev', 0);
     $this->kernel->boot();
     $this->kernel->getContainer()->set('datastore.cloud', $this->datastoreCloud);
     $this->kernel->getContainer()->set(ClientService::class, $this->clientServiceProphecy->reveal());
 
-    // Input.
     $input = new ArrayInput(['link']);
     $input->setInteractive(FALSE);
     $this->kernel->getContainer()->set(InputInterface::class, $input);
-
-    // Output.
     $output = new BufferedOutput();
     $this->kernel->getContainer()->set(OutputInterface::class, $output);
   }
