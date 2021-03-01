@@ -44,7 +44,7 @@ class ChecklistTest extends TestBase {
   public function testLoopTimeout(): void {
     $loop = Factory::create();
     $output = new BufferedOutput();
-    $message = 'Waiting for DNS to propagate...';
+    $message = 'Waiting for the IDE to be ready. This can take up to 15 minutes...';
     $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $output);
     LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
     try {

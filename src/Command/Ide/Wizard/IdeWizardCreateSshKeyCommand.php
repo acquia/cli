@@ -237,16 +237,12 @@ EOT
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
    * @throws \Exception
    */
-  protected function getDevEnvironment($cloud_app_uuid): ?EnvironmentResponse {
+  protected function getAnyAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
-    foreach ($application_environments as $environment) {
-      if (AcquiaDrupalEnvironmentDetector::isAhDevEnv($environment->name)) {
-        return $environment;
-      }
-    }
-    return NULL;
+    $first_environment = reset($application_environments);
+    return $first_environment;
   }
 
   /**
@@ -265,7 +261,7 @@ EOT
 
     // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $environment = $this->getDevEnvironment($cloud_app_uuid);
+    $environment = $this->getAnyAhEnvironment($cloud_app_uuid);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {

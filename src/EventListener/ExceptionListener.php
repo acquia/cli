@@ -34,20 +34,6 @@ class ExceptionListener {
     $this->output = $output;
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   */
-  public function setInput(InputInterface $input): void {
-    $this->input = $input;
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  public function setOutput(OutputInterface $output): void {
-    $this->output = $output;
-  }
-
   public function onConsoleError(ConsoleErrorEvent $event): void {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
@@ -89,10 +75,6 @@ class ExceptionListener {
         case "There are no available Cloud IDEs for this application.\n":
           $io->comment("Delete an existing IDE via <options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.");
           $this->writeSupportTicketHelp($io);
-          break;
-        // @todo Remove after CXAPI-8261 is closed.
-        case "The Cloud IDE is being deleted.\n":
-          $new_error_message = "The Cloud IDE will be deleted momentarily. This process usually takes a few minutes." . PHP_EOL;
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
