@@ -301,7 +301,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
-    $this->convertApplicationAliastoUuid($input);
+    $this->convertApplicationAliasToUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
@@ -1217,7 +1217,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function convertApplicationAliastoUuid(InputInterface $input): void {
+  protected function convertApplicationAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
       try {
@@ -1225,8 +1225,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         $alias = $this->normalizeAlias($application_uuid_argument);
-        $customer_application = $this->getApplicationFromAlias($alias);
-        $input->setArgument('applicationUuid', $customer_application->uuid);
+        try {
+          $customer_application = $this->getApplicationFromAlias($alias);
+          $input->setArgument('applicationUuid', $customer_application->uuid);
+        } catch (AcquiaCliException $exception) {
+          throw new AcquiaCliException("{applicationUuid} must be a valid UUID or application alias.");
+        }
       }
     }
   }
@@ -1258,7 +1262,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument($argument_name, $environment->uuid);
         } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {{$argument_name}} must be a valid UUID or site alias.");
+          throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
         }
       }
     }

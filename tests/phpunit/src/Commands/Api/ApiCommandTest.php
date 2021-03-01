@@ -177,7 +177,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['environmentId' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals('The {environmentId} must be a valid UUID or site alias.', $exception->getMessage());
+      $this->assertEquals('{environmentId} must be a valid UUID or site alias.', $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }
