@@ -241,15 +241,8 @@ EOT
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
-    foreach ($application_environments as $environment) {
-      if (AcquiaDrupalEnvironmentDetector::isAhDevEnv($environment->name)
-      || AcquiaDrupalEnvironmentDetector::isAhProdEnv($environment->name)
-      || AcquiaDrupalEnvironmentDetector::isAhStageEnv($environment->name)
-      ) {
-        return $environment;
-      }
-    }
-    return NULL;
+    $first_environment = reset($application_environments);
+    return $first_environment;
   }
 
   /**
