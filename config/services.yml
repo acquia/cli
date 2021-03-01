@@ -33,7 +33,7 @@ services:
   Acquia\Cli\Command\:
     resource: ../src/Command
     parent: Acquia\Cli\Command\CommandBase
-    exclude: [../src/Command/CommandBase.php, ../src/Command/Api/ApiCommandBase.php]
+    exclude: [../src/Command/CommandBase.php, ../src/Command/Api/ApiCommandBase.php, ../src/Command/Api/ApiListCommandBase.php]
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
