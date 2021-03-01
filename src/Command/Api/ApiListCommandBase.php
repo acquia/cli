@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  *
  */
-class ApiListCommandBase extends CommandBase {
+abstract class ApiListCommandBase extends CommandBase {
 
   /**
    * @var string
@@ -32,8 +32,9 @@ class ApiListCommandBase extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {
-      if (strpos($command->getName(), $this->namespace) !== FALSE
-      && $command->getName() !== $this->namespace) {
+      if ($command->getName() !== $this->namespace
+        && strpos($command->getName(), $this->namespace) !== FALSE
+        ) {
         $command->setHidden(FALSE);
       }
       else {
