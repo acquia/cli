@@ -87,8 +87,4 @@ $application->setVersion('@package_version@');
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
-/** @var ExceptionListener $exception_listener */
-$exception_listener = $container->get(ExceptionListener::class);
-$exception_listener->setInput($input);
-$exception_listener->setOutput($container->get(\Symfony\Component\Console\Output\ConsoleOutput::class));
 $application->run();

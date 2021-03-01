@@ -7,10 +7,8 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\ConsoleOutput;
-use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ExceptionListener {
@@ -19,16 +17,34 @@ class ExceptionListener {
    * @var \Symfony\Component\Console\Input\InputInterface
    */
   private $input;
+
   /**
-   * @var \Symfony\Component\Console\Output\Output
+   * @var \Symfony\Component\Console\Output\OutputInterface
    */
   private $output;
 
+  /**
+   * ExceptionListener constructor.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function __construct(InputInterface $input, OutputInterface $output) {
+    $this->input = $input;
+    $this->output = $output;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   */
   public function setInput(InputInterface $input): void {
     $this->input = $input;
   }
 
-  public function setOutput(Output $output): void {
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function setOutput(OutputInterface $output): void {
     $this->output = $output;
   }
 
