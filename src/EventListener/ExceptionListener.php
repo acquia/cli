@@ -7,20 +7,36 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Formatter\OutputFormatter;
-use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ExceptionListener
-{
+class ExceptionListener {
 
-  public function onConsoleError(ConsoleErrorEvent $event) {
+  /**
+   * @var \Symfony\Component\Console\Input\InputInterface
+   */
+  private $input;
+  /**
+   * @var \Symfony\Component\Console\Output\Output
+   */
+  private $output;
+
+  public function setInput(InputInterface $input): void {
+    $this->input = $input;
+  }
+
+  public function setOutput(Output $output): void {
+    $this->output = $output;
+  }
+
+  public function onConsoleError(ConsoleErrorEvent $event): void {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
     $errorMessage = $error->getMessage();
-    $io = new SymfonyStyle(new ArrayInput([]), new ConsoleOutput());
+    $io = new SymfonyStyle($this->input, $this->output);
 
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
@@ -78,21 +94,23 @@ class ExceptionListener
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeApplicationAliasHelp(SymfonyStyle $io): void {
-    $io->comment('<options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.' . PHP_EOL . 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
+    $io->comment('<options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.');
+    $io->comment('Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
   }
 
   /**
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeSiteAliasHelp(SymfonyStyle $io): void {
-    $io->comment('<options=bold>environmentId</> can also be an site alias. E.g. <options=bold>myapp.dev</>.' . PHP_EOL . 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
+    $io->comment('<options=bold>environmentId</> can also be an site alias. E.g. <options=bold>myapp.dev</>.');
+    $io->comment('Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
   }
 
   /**
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeSupportTicketHelp(SymfonyStyle $io): void {
-    $io->comment("You may also <href=https://insight.acquia.com/support/tickets/new?product=p:ride>submit a support ticket</> to ask for more information");
+    $io->comment("You may also <href=https://insight.acquia.com/support/tickets/new?product=p:ride>submit a support ticket</> to ask for more information.");
   }
 
 }
