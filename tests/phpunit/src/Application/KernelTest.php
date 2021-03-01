@@ -26,7 +26,7 @@ class KernelTest extends TestCase {
     $kernel = new Kernel('dev', 0);
     $kernel->boot();
     $container = $kernel->getContainer();
-    $input = new ArrayInput(['link']);
+    $input = new ArrayInput(['list']);
     $input->setInteractive(FALSE);
     $container->set(InputInterface::class, $input);
     $output = new BufferedOutput();
