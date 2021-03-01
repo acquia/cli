@@ -25,7 +25,7 @@ class ExceptionListener
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $io->comment("Run <options=bold>acli auth:loThe {environmentId} must be a valid UUID or site alias.gin</> to reset your API credentials.");
+      $io->comment("Run <options=bold>acli auth:login</> to reset your API credentials.");
     }
 
     if ($error instanceof RuntimeException) {
