@@ -33,7 +33,7 @@ class ApiListCommandBase extends CommandBase {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {
       if ($command->getName() !== $this->namespace
-        && strpos($command->getName(), $this->namespace) !== FALSE
+        && strpos($command->getName(), $this->namespace . ':') !== FALSE
         ) {
         $command->setHidden(FALSE);
       }
