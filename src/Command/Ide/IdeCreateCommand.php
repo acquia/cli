@@ -86,7 +86,7 @@ class IdeCreateCommand extends IdeCommandBase {
     }
 
     $loop = Factory::create();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be configured. This can take up to 15 minutes...', $this->output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be ready. This can take up to 15 minutes...', $this->output);
 
     $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {
       try {
