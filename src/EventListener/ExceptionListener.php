@@ -100,7 +100,7 @@ class ExceptionListener {
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeSiteAliasHelp(SymfonyStyle $io): void {
-    $io->comment('<options=bold>environmentId</> can also be an site alias. E.g. <options=bold>myapp.dev</>.' . PHP_EOL
+    $io->comment('<options=bold>environmentId</> can also be a site alias. E.g. <options=bold>myapp.dev</>.' . PHP_EOL
     . 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
   }
 
