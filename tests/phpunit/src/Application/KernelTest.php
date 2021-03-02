@@ -6,7 +6,10 @@ use Acquia\Cli\Kernel;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * @package Acquia\Cli\Tests\Application
@@ -23,10 +26,13 @@ class KernelTest extends TestCase {
     $kernel = new Kernel('dev', 0);
     $kernel->boot();
     $container = $kernel->getContainer();
+    $input = new ArrayInput(['list']);
+    $input->setInteractive(FALSE);
+    $container->set(InputInterface::class, $input);
+    $output = new BufferedOutput();
+    $container->set(OutputInterface::class, $output);
     $application = $container->get(Application::class);
     $application->setAutoExit(FALSE);
-    $input = new ArgvInput(['list']);
-    $output = new BufferedOutput();
     $application->run($input, $output);
     $buffer = $output->fetch();
     $this->assertStringContainsString('Available commands:', $buffer);

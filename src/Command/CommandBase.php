@@ -33,6 +33,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -301,7 +302,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
-    $this->convertApplicationAliastoUuid($input);
+    $this->convertApplicationAliasToUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
@@ -684,7 +685,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function inferCloudAppFromLocalGitConfig(
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
-    if ($this->repoRoot) {
+    if ($this->repoRoot && $this->input->isInteractive()) {
       $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
       $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
@@ -716,6 +717,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudEnvironment() {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
       return $this->input->getArgument('environmentId');
+    }
+
+    if (!$this->input->isInteractive()) {
+      throw new RuntimeException('Not enough arguments (missing: "environmentId").');
     }
 
     $application_uuid = $this->determineCloudApplication();
@@ -785,7 +790,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    if ($application = $this->promptChooseApplication($acquia_cloud_client)) {
+    if ($this->input->isInteractive() && $application = $this->promptChooseApplication($acquia_cloud_client)) {
       return $application->uuid;
     }
 
@@ -1217,7 +1222,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function convertApplicationAliastoUuid(InputInterface $input): void {
+  protected function convertApplicationAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
       try {
@@ -1225,8 +1230,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       } catch (ValidatorException $validator_exception) {
         // Since this isn't a valid UUID, let's see if it's a valid alias.
         $alias = $this->normalizeAlias($application_uuid_argument);
-        $customer_application = $this->getApplicationFromAlias($alias);
-        $input->setArgument('applicationUuid', $customer_application->uuid);
+        try {
+          $customer_application = $this->getApplicationFromAlias($alias);
+          $input->setArgument('applicationUuid', $customer_application->uuid);
+        } catch (AcquiaCliException $exception) {
+          throw new AcquiaCliException("{applicationUuid} must be a valid UUID or application alias.");
+        }
       }
     }
   }
@@ -1258,7 +1267,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument($argument_name, $environment->uuid);
         } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {{$argument_name}} must be a valid UUID or site alias.");
+          throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
         }
       }
     }

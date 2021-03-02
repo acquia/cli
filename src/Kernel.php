@@ -28,7 +28,7 @@ class Kernel extends BaseKernel {
    * {@inheritdoc}
    */
   public function registerContainerConfiguration(LoaderInterface $loader): void {
-    $loader->load($this->getProjectDir() . '/config/services.yml');
+    $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
   }
 
   /**
@@ -54,14 +54,15 @@ class Kernel extends BaseKernel {
         foreach ($container_builder->getDefinitions() as $definition) {
           // Handle event listeners.
           if ($definition->hasTag('kernel.event_listener')) {
-            $tag = $definition->getTag('kernel.event_listener');
-            $dispatcher_definition->addMethodCall('addListener', [
-              $tag[0]['event'],
-              [
-                new ServiceClosureArgument(new Reference($definition->getClass())),
-                $tag[0]['method']
-              ],
-            ]);
+            foreach ($definition->getTag('kernel.event_listener') as $tag) {
+              $dispatcher_definition->addMethodCall('addListener', [
+                $tag['event'],
+                [
+                  new ServiceClosureArgument(new Reference($definition->getClass())),
+                  $tag['method']
+                ],
+              ]);
+            }
           }
 
           // Handle commands.
