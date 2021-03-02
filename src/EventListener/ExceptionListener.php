@@ -49,7 +49,7 @@ class ExceptionListener {
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $block_messages[] = "Run <options=bold>acli auth:login</> to reset your API credentials.";
+      $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
     }
 
     if ($error instanceof RuntimeException) {
@@ -79,7 +79,7 @@ class ExceptionListener {
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $block_messages[] = "Delete an existing IDE via <options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
+          $block_messages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           $this->writeSupportTicketHelp();
           break;
         default:
@@ -102,15 +102,15 @@ class ExceptionListener {
   /**
    */
   protected function writeApplicationAliasHelp(): void {
-    $block_messages[] = '<options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.';
-    $block_messages[] = 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.';
+    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.";
+    $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    */
   protected function writeSiteAliasHelp(): void {
-    $block_messages[] = '<options=bold>environmentId</> can also be a site alias. E.g. <options=bold>myapp.dev</>.';
-    $block_messages[] = 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.';
+    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
+    $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
