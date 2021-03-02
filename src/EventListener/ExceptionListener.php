@@ -7,9 +7,7 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -38,6 +36,9 @@ class ExceptionListener {
     $this->output = $output;
   }
 
+  /**
+   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
+   */
   public function onConsoleError(ConsoleErrorEvent $event): void {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
@@ -85,10 +86,10 @@ class ExceptionListener {
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
       }
-      $block_messages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>docs.acquia.com</>";
+      $block_messages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
     }
 
-    $block_messages[] = "You can find Acquia CLI documentation at <bg={$this->messagesBgColor};href=https://docs.acquia.com/acquia-cli/>docs.acquia.com</>";
+    $block_messages[] = "You can find Acquia CLI documentation at <bg={$this->messagesBgColor};href=https://docs.acquia.com/acquia-cli/>https://docs.acquia.com/acquia-cli/</>";
     if ($block_messages) {
       $output_style = new OutputFormatterStyle(NULL, $this->messagesBgColor);
       $this->output->getFormatter()->setStyle('help', $output_style);
@@ -100,13 +101,15 @@ class ExceptionListener {
   }
 
   /**
+   *
    */
   protected function writeApplicationAliasHelp(): void {
-    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.";
+    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
     $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
+   *
    */
   protected function writeSiteAliasHelp(): void {
     $block_messages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
@@ -114,9 +117,11 @@ class ExceptionListener {
   }
 
   /**
+   *
    */
   protected function writeSupportTicketHelp(): void {
-    $block_messages[] = "You may also <bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>submit a support ticket</> to ask for more information.";
+    $block_messages[] = "You may also to ask for more information.";
+    $block_messages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
   }
 
 }
