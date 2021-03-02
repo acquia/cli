@@ -9,7 +9,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class Application extends \Symfony\Component\Console\Application {
 
-
+  /**
+   * @var array
+   */
   protected $helpMessages = [];
 
   /**
@@ -26,6 +28,10 @@ class Application extends \Symfony\Component\Console\Application {
     $this->helpMessages = $helpMessages;
   }
 
+  /**
+   * @param \Throwable $e
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
   public function renderThrowable(
     \Throwable $e,
     OutputInterface $output

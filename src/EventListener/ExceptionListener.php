@@ -69,7 +69,7 @@ class ExceptionListener {
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
       }
-      $this->helpMessages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
+      $this->helpMessages[] = "You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/";
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
@@ -86,24 +86,24 @@ class ExceptionListener {
    *
    */
   protected function writeApplicationAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
-    $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>." . PHP_EOL
+      . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSiteAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
-    $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>." . PHP_EOL
+    . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSupportTicketHelp(): void {
-    $this->helpMessages[] = "You may also to ask for more information.";
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
+    $this->helpMessages[] = "You may also to ask for more information at" . PHP_EOL
+    . "https://insight.acquia.com/support/tickets/new?product=p:ride";
   }
 
 }
