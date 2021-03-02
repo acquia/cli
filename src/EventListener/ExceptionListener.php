@@ -19,7 +19,7 @@ class ExceptionListener {
   /**
    * @var string[]
    */
-  private $blockMessages = [];
+  private $helpMessages = [];
 
   /**
    * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
@@ -33,7 +33,7 @@ class ExceptionListener {
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
+      $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
     }
 
     if ($error instanceof RuntimeException) {
@@ -63,19 +63,19 @@ class ExceptionListener {
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $this->blockMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
+          $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           $this->writeSupportTicketHelp();
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
       }
-      $this->blockMessages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
+      $this->helpMessages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
     }
 
-    $this->blockMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
+    $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
     /** @var \Acquia\Cli\Application $application */
     $application = $event->getCommand()->getApplication();
-    $application->setHelpMessages($this->blockMessages);
+    $application->setHelpMessages($this->helpMessages);
 
     if (isset($new_error_message)) {
       $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
@@ -86,24 +86,24 @@ class ExceptionListener {
    *
    */
   protected function writeApplicationAliasHelp(): void {
-    $this->blockMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
-    $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
+    $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSiteAliasHelp(): void {
-    $this->blockMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
-    $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
+    $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSupportTicketHelp(): void {
-    $this->blockMessages[] = "You may also to ask for more information.";
-    $this->blockMessages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
+    $this->helpMessages[] = "You may also to ask for more information.";
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
   }
 
 }
