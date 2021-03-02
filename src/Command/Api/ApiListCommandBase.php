@@ -10,21 +10,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  *
  */
-class ApiListCommand extends ApiListCommandBase {
-
-  protected static $defaultName = 'api:list';
+class ApiListCommandBase extends CommandBase {
 
   /**
-   * {inheritdoc}.
+   * @var string
    */
-  protected function configure() {
-    $this->setDescription("List all API commands")
-      ->setAliases(['api']);
-  }
+  protected $namespace;
 
-  public function initialize(InputInterface $input, OutputInterface $output) {
-    parent::initialize($input, $output);
-    $this->namespace = 'api';
+  /**
+   * @param string $namespace
+   */
+  public function setNamespace(string $namespace): void {
+    $this->namespace = $namespace;
   }
 
   /**
@@ -33,10 +30,22 @@ class ApiListCommand extends ApiListCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $commands = $this->getApplication()->all();
+    foreach ($commands as $command) {
+      if ($command->getName() !== $this->namespace
+        && strpos($command->getName(), $this->namespace . ':') !== FALSE
+        ) {
+        $command->setHidden(FALSE);
+      }
+      else {
+        $command->setHidden(TRUE);
+      }
+    }
+
     $command = $this->getApplication()->find('list');
     $arguments = [
       'command' => 'list',
-      'namespace' => $this->namespace,
+      'namespace' => 'api',
     ];
     $list_input = new ArrayInput($arguments);
 
