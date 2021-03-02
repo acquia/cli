@@ -25,15 +25,15 @@ services:
 
   # Register nearly all Acquia CLI classes as services.
   Acquia\Cli\:
-    exclude: [../src/Kernel.php, ../src/Command/Api/ApiCommandBase.php, ../src/Command/Api/ApiListCommandBase.php, ../src/DataStore/YamlStore.php]
+    exclude: [../../src/Kernel.php, ../../src/Command/Api/ApiCommandBase.php, ../../src/DataStore/YamlStore.php]
     public: true
-    resource: ../src
+    resource: ../../src
 
   # All commands inherit from a common base and use the same DI parameters.
   Acquia\Cli\Command\:
-    resource: ../src/Command
+    resource: ../../src/Command
     parent: Acquia\Cli\Command\CommandBase
-    exclude: [../src/Command/CommandBase.php, ../src/Command/Api/ApiCommandBase.php, ../src/Command/Api/ApiListCommandBase.php]
+    exclude: [../../src/Command/CommandBase.php, ../../src/Command/Api/ApiCommandBase.php]
   Acquia\Cli\Command\CommandBase:
     abstract: true
 

@@ -134,7 +134,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals('Application not found matching the alias ' . $alias, $exception->getMessage());
+      $this->assertEquals('{applicationUuid} must be a valid UUID or application alias.', $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }
@@ -177,7 +177,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['environmentId' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals('The {environmentId} must be a valid UUID or site alias.', $exception->getMessage());
+      $this->assertEquals('{environmentId} must be a valid UUID or site alias.', $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }

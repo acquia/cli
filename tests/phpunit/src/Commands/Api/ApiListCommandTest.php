@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\Api\ApiListCommand;
-use Acquia\Cli\Command\Api\ApiListCommandBase;
 use Acquia\Cli\Command\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
@@ -49,23 +48,6 @@ class ApiListCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'api:*' list commands.
-   *
-   * @throws \Exception
-   */
-  public function testApiNamespaceListCommand(): void {
-    $this->command = $this->injectCommand(ApiListCommandBase::class);
-    $name = 'api:accounts';
-    $this->command->setName($name);
-    $this->command->setNamespace($name);
-    $this->executeCommand();
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('api:accounts:', $output);
-    $this->assertStringContainsString('api:accounts:ssh-keys-list', $output);
-    $this->assertStringNotContainsString('api:subscriptions', $output);
-  }
-
-  /**
    * Tests the 'list' command.
    *
    * @throws \Exception
@@ -74,7 +56,6 @@ class ApiListCommandTest extends CommandTestBase {
     $this->command = $this->injectCommand(ListCommand::class);
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString(' api:accounts', $output);
     $this->assertStringNotContainsString(' api:accounts:ssh-keys-list', $output);
   }
 
