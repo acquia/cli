@@ -48,7 +48,7 @@ class ExceptionApplicationTest extends TestBase {
   }
 
   public function testInvalidApiCreds(): void {
-    $this->setInput();
+    $this->setInput(['aliases']);
     $this->mockUnauthorizedRequest();
     $buffer = $this->runApp();
     // This is sensitive to the display width of the test environment, so that's fun.
@@ -56,14 +56,14 @@ class ExceptionApplicationTest extends TestBase {
   }
 
   public function testApiError(): void {
-    $this->setInput();
+    $this->setInput(['aliases']);
     $this->mockApiError();
     $buffer = $this->runApp();
     self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
   }
 
   public function testNoAvailableIdes(): void {
-    $this->setInput();
+    $this->setInput(['aliases']);
     $this->mockNoAvailableIdes();
     $buffer = $this->runApp();
     self::assertStringContainsString('Delete an existing IDE', $buffer);
