@@ -80,7 +80,7 @@ class ExceptionApplicationTest extends TestBase {
       'command' => 'log:tail',
     ]);
     $buffer = $this->runApp();
-    self::assertStringContainsString('can also be an site alias.', $buffer);
+    self::assertStringContainsString('can also be a site alias.', $buffer);
   }
 
   public function testInvalidEnvironmentUuid(): void {
@@ -89,7 +89,7 @@ class ExceptionApplicationTest extends TestBase {
       'environmentId' => 'aoeuth.aoeu',
     ]);
     $buffer = $this->runApp();
-    self::assertStringContainsString('can also be an site alias.', $buffer);
+    self::assertStringContainsString('can also be a site alias.', $buffer);
   }
 
   public function testMissingApplicationUuid(): void {
