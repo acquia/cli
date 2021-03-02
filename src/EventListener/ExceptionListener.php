@@ -92,16 +92,16 @@ class ExceptionListener {
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeApplicationAliasHelp(SymfonyStyle $io): void {
-    $io->comment('<options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.');
-    $io->comment('Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
+    $io->comment('<options=bold>applicationUuid</> can also be an application alias. E.g. <options=bold>myapp</>.' . PHP_EOL
+    . 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
   }
 
   /**
    * @param \Symfony\Component\Console\Style\SymfonyStyle $io
    */
   protected function writeSiteAliasHelp(SymfonyStyle $io): void {
-    $io->comment('<options=bold>environmentId</> can also be an site alias. E.g. <options=bold>myapp.dev</>.');
-    $io->comment('Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
+    $io->comment('<options=bold>environmentId</> can also be an site alias. E.g. <options=bold>myapp.dev</>.' . PHP_EOL
+    . 'Run <options=bold>acli remote:aliases:list</> to see a list of all available aliases.');
   }
 
   /**
