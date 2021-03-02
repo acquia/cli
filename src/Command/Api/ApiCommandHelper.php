@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\Command\ListCommand;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Helpers\CloudCredentials;
@@ -151,8 +152,11 @@ class ApiCommandHelper {
    */
   public function getApiCommands(): array {
     $acquia_cloud_spec = $this->getCloudApiSpec();
+    $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec);
+    $api_list_commands = $this->generateApiListCommands($api_commands);
+    $commands = array_merge($api_commands, $api_list_commands);
 
-    return $this->generateApiCommandsFromSpec($acquia_cloud_spec);
+    return $commands;
   }
 
   /**
@@ -466,7 +470,7 @@ class ApiCommandHelper {
   /**
    * @param array $acquia_cloud_spec
    *
-   * @return array
+   * @return ApiCommandBase[]
    */
   protected function generateApiCommandsFromSpec(array $acquia_cloud_spec): array {
     $api_commands = [];
@@ -645,6 +649,36 @@ class ApiCommandHelper {
       $prop_key = $parameter_rename_map[$prop_key];
     }
     return $prop_key;
+  }
+
+  /**
+   * @param array $api_commands
+   *
+   * @return ApiListCommandBase[]
+   */
+  protected function generateApiListCommands(array $api_commands): array {
+    $api_list_commands = [];
+    foreach ($api_commands as $api_command) {
+      $command_name_parts = explode(':', $api_command->getName());
+      if (count($command_name_parts) < 3) {
+        continue;
+      }
+      $namespace = $command_name_parts[1];
+      if (!array_key_exists($namespace, $api_list_commands)) {
+        $command = new ApiListCommandBase($this->cloudConfigFilepath,
+          $this->localMachineHelper, $this->datastoreCloud,
+          $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper,
+          $this->acliConfigFilepath, $this->repoRoot,
+          $this->cloudApiClientService, $this->logstreamManager,
+          $this->sshHelper, $this->sshDir);
+        $name = 'api:' . $namespace;
+        $command->setName($name);
+        $command->setNamespace($name);
+        $command->setDescription("List all API commands for the {$namespace} resource");
+        $api_list_commands[$name] = $command;
+      }
+    }
+    return $api_list_commands;
   }
 
 }
