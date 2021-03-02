@@ -39,7 +39,9 @@ services:
 
   Acquia\Cli\EventListener\ExceptionListener:
     tags:
+      # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.error, method: onConsoleError}
+      - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate, priority: 256}
 
   # We have multiple datastores using the same class, just different arguments.
   datastore.cloud:

@@ -6,34 +6,30 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ExceptionListener {
 
   /**
-   * @var \Symfony\Component\Console\Input\InputInterface
+   * @var string
    */
-  private $input;
-
-  /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
-   */
-  private $output;
   private $messagesBgColor;
 
   /**
-   * ExceptionListener constructor.
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @var string[]
    */
-  public function __construct(InputInterface $input, OutputInterface $output) {
-    $this->input = $input;
-    $this->output = $output;
+  private $blockMessages = [];
+
+  public function onConsoleTerminate(ConsoleTerminateEvent $event): void {
+    if ($this->blockMessages) {
+      $io = new SymfonyStyle($event->getInput(), $event->getOutput());
+      $output_style = new OutputFormatterStyle(NULL, $this->messagesBgColor);
+      $event->getOutput()->getFormatter()->setStyle('help', $output_style);
+      $io->block($this->blockMessages, 'help', 'help', ' ', TRUE, FALSE);
+    }
   }
 
   /**
@@ -43,14 +39,11 @@ class ExceptionListener {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
     $errorMessage = $error->getMessage();
-    $io = new SymfonyStyle($this->input, $this->output);
     $this->messagesBgColor = 'blue';
-    $block_messages = [];
-
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
+      $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
     }
 
     if ($error instanceof RuntimeException) {
@@ -80,21 +73,16 @@ class ExceptionListener {
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $block_messages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
+          $this->blockMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           $this->writeSupportTicketHelp();
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
       }
-      $block_messages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
+      $this->blockMessages[] = "You can learn more about Cloud Platform API at <bg={$this->messagesBgColor};href=https://docs.acquia.com/cloud-platform/develop/api/>https://docs.acquia.com/cloud-platform/develop/api/</>";
     }
 
-    $block_messages[] = "You can find Acquia CLI documentation at <bg={$this->messagesBgColor};href=https://docs.acquia.com/acquia-cli/>https://docs.acquia.com/acquia-cli/</>";
-    if ($block_messages) {
-      $output_style = new OutputFormatterStyle(NULL, $this->messagesBgColor);
-      $this->output->getFormatter()->setStyle('help', $output_style);
-      $io->block($block_messages, 'note', 'help', ' ', FALSE, FALSE);
-    }
+    $this->blockMessages[] = "You can find Acquia CLI documentation at <bg={$this->messagesBgColor};href=https://docs.acquia.com/acquia-cli/>https://docs.acquia.com/acquia-cli/</>";
     if (isset($new_error_message)) {
       $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
     }
@@ -104,24 +92,24 @@ class ExceptionListener {
    *
    */
   protected function writeApplicationAliasHelp(): void {
-    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
-    $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->blockMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>.";
+    $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSiteAliasHelp(): void {
-    $block_messages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
-    $block_messages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->blockMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>.";
+    $this->blockMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   protected function writeSupportTicketHelp(): void {
-    $block_messages[] = "You may also to ask for more information.";
-    $block_messages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
+    $this->blockMessages[] = "You may also to ask for more information.";
+    $this->blockMessages[] = "<bg={$this->messagesBgColor};href=https://insight.acquia.com/support/tickets/new?product=p:ride>https://insight.acquia.com/support/tickets/new?product=p:ride</>";
   }
 
 }
