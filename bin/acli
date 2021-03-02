@@ -17,7 +17,6 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\EventListener\ExceptionListener;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Application;
@@ -25,7 +24,6 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\Filesystem\Filesystem;
-use Webmozart\PathUtil\Path;
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
   echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;

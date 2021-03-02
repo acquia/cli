@@ -33,6 +33,7 @@ use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -684,7 +685,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function inferCloudAppFromLocalGitConfig(
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
-    if ($this->repoRoot) {
+    if ($this->repoRoot && $this->input->isInteractive()) {
       $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
       $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
@@ -716,6 +717,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function determineCloudEnvironment() {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
       return $this->input->getArgument('environmentId');
+    }
+
+    if (!$this->input->isInteractive()) {
+      throw new RuntimeException('Not enough arguments (missing: "environmentId").');
     }
 
     $application_uuid = $this->determineCloudApplication();
@@ -785,7 +790,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Finally, just ask.
-    if ($application = $this->promptChooseApplication($acquia_cloud_client)) {
+    if ($this->input->isInteractive() && $application = $this->promptChooseApplication($acquia_cloud_client)) {
       return $application->uuid;
     }
 

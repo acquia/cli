@@ -37,15 +37,18 @@ class ExceptionApplicationTest extends TestBase {
     $this->kernel->boot();
     $this->kernel->getContainer()->set('datastore.cloud', $this->datastoreCloud);
     $this->kernel->getContainer()->set(ClientService::class, $this->clientServiceProphecy->reveal());
-
-    $input = new ArrayInput(['link']);
-    $input->setInteractive(FALSE);
-    $this->kernel->getContainer()->set(InputInterface::class, $input);
     $output = new BufferedOutput();
     $this->kernel->getContainer()->set(OutputInterface::class, $output);
   }
 
+  protected function setInput($args = ['link']) {
+    $input = new ArrayInput($args);
+    $input->setInteractive(FALSE);
+    $this->kernel->getContainer()->set(InputInterface::class, $input);
+  }
+
   public function testInvalidApiCreds(): void {
+    $this->setInput();
     $this->mockUnauthorizedRequest();
     $buffer = $this->runApp();
     // This is sensitive to the display width of the test environment, so that's fun.
@@ -53,15 +56,41 @@ class ExceptionApplicationTest extends TestBase {
   }
 
   public function testApiError(): void {
+    $this->setInput();
     $this->mockApiError();
     $buffer = $this->runApp();
     self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
   }
 
   public function testNoAvailableIdes(): void {
+    $this->setInput();
     $this->mockNoAvailableIdes();
     $buffer = $this->runApp();
     self::assertStringContainsString('Delete an existing IDE', $buffer);
+  }
+
+  public function testMissingEnvironmentUuid(): void {
+    $this->setInput(['log:tail']);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('can also be an site alias.', $buffer);
+  }
+
+  public function testInvalidEnvironmentUuid(): void {
+    $this->setInput(['log:tail', 'aoeuth']);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('can also be an site alias.', $buffer);
+  }
+
+  public function testMissingApplicationUuid(): void {
+    $this->setInput(['ide:open']);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('can also be an application alias.', $buffer);
+  }
+
+  public function testInvalidApplicationUuid(): void {
+    $this->setInput(['ide:open', 'aoeuthao']);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('can also be an application alias.', $buffer);
   }
 
   /**
