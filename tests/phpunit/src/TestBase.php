@@ -509,9 +509,16 @@ abstract class TestBase extends TestCase {
 
   /**
    * Request account information.
+   *
+   * @param bool $support
+   *   Whether the account should have the support flag.
    */
-  protected function mockAccountRequest(): void {
+  protected function mockAccountRequest($support = FALSE): void {
     $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
+    if ($support) {
+      $account->flags->support = TRUE;
+      $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
+    }
     $this->clientProphecy->request('get', '/account')->willReturn($account);
   }
 

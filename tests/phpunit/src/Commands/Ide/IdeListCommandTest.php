@@ -27,7 +27,6 @@ class IdeListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListCommand(): void {
-
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
@@ -61,7 +60,6 @@ class IdeListCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListEmptyCommand(): void {
-
     $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->clientProphecy->request('get',

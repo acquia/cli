@@ -102,14 +102,28 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  public function testConvertApplicationAliasToUuidArgument(): void {
+  public function providerTestConvertApplicationAliasToUuidArgument() {
+    return [
+      [FALSE],
+      [TRUE],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestConvertApplicationAliasToUuidArgument
+   *
+   * @param bool $support
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testConvertApplicationAliasToUuidArgument($support): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
     $this->clientProphecy->clearQuery()->shouldBeCalled();
-    $this->mockAccountRequest();
+    $this->mockAccountRequest($support);
 
     $this->executeCommand(['applicationUuid' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
