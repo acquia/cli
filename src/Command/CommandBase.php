@@ -14,11 +14,13 @@ use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
+use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
+use AcquiaCloudApi\Response\ApplicationsResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
@@ -439,6 +441,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
+
     if (!$customer_applications->count()) {
       throw new AcquiaCliException("You have no Cloud applications.");
     }
@@ -1058,6 +1061,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function doGetApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $application_alias);
+    // Allow Cloud users with 'support' role to resolve aliases for applications to
+    // which they don't explicitly belong.
+    $account_resource = new Account($acquia_cloud_client);
+    $account = $account_resource->get();
+    if ($account->flags->support) {
+      $acquia_cloud_client->addQuery('all', 'true');
+    }
     $customer_applications = $acquia_cloud_client->request('get', '/applications');
     $site_prefix = '';
     if ($customer_applications) {

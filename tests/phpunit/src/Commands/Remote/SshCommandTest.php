@@ -27,7 +27,6 @@ class SshCommandTest extends SshCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesDownloadCommand(): void {
-
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
     $ssh_command = [
