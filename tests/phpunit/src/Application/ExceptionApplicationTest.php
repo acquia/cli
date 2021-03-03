@@ -84,6 +84,7 @@ class ExceptionApplicationTest extends TestBase {
   }
 
   public function testInvalidEnvironmentUuid(): void {
+    $this->mockAccountRequest();
     $this->setInput([
       'command' => 'log:tail',
       'environmentId' => 'aoeuth.aoeu',
@@ -101,6 +102,7 @@ class ExceptionApplicationTest extends TestBase {
   }
 
   public function testInvalidApplicationUuid(): void {
+    $this->mockAccountRequest();
     $this->setInput([
       'command' => 'ide:open',
       'applicationUuid' => 'aoeuthao',

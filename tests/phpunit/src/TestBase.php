@@ -508,6 +508,14 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * Request account information.
+   */
+  protected function mockAccountRequest(): void {
+    $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
+    $this->clientProphecy->request('get', '/account')->willReturn($account);
+  }
+
+  /**
    * @param string $method
    *
    * @param string $http_code

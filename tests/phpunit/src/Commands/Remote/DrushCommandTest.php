@@ -49,7 +49,6 @@ class DrushCommandTest extends SshCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteDrushCommand($args): void {
-
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
 

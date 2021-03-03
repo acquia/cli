@@ -23,6 +23,7 @@ abstract class SshCommandTestBase extends CommandTestBase {
     $this->mockEnvironmentsRequest($applications_response);
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->mockAccountRequest();
   }
 
   /**

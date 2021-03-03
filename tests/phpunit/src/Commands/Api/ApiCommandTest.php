@@ -109,6 +109,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
     $this->clientProphecy->clearQuery()->shouldBeCalled();
+    $this->mockAccountRequest();
 
     $this->executeCommand(['applicationUuid' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -128,6 +129,7 @@ class ApiCommandTest extends CommandTestBase {
   public function testConvertInvalidApplicationAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*invalidalias')->shouldBeCalled();
+    $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'invalidalias';
     try {
@@ -144,6 +146,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
+    $this->mockAccountRequest();
 
     $response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get', '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470')->willReturn($response)->shouldBeCalled();
@@ -171,6 +174,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
+    $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:environments:find');
     $alias = 'devcloud2.invalid';
     try {
