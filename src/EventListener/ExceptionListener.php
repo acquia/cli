@@ -102,7 +102,7 @@ class ExceptionListener {
    *
    */
   protected function writeSupportTicketHelp(): void {
-    $this->helpMessages[] = "You may also to ask for more information at" . PHP_EOL
+    $this->helpMessages[] = "You may also ask for more information at" . PHP_EOL
     . "https://insight.acquia.com/support/tickets/new?product=p:ride";
   }
 
