@@ -2,10 +2,10 @@
 
 namespace Acquia\Cli\Tests\Application;
 
+use Acquia\Cli\Application;
 use Acquia\Cli\Helpers\ClientService;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;

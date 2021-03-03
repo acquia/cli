@@ -3,7 +3,6 @@
 namespace Acquia\Cli;
 
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
