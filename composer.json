@@ -97,7 +97,7 @@
       "rm -rf cx-api-spec"
     ],
     "box-install": [
-      "curl -O -L https://github.com/humbug/box/releases/latest/download/box.phar"
+      "curl -L https://github.com/humbug/box/releases/latest/download/box.phar -o build/box.phar"
     ],
     "box-compile": [
       "php build/box.phar compile"
