@@ -3,6 +3,7 @@
 namespace Acquia\Cli\EventListener;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
@@ -106,7 +107,7 @@ class ExceptionListener {
     $self_update_command = $event->getCommand()->getApplication()->find('self-update');
     [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
     // This will always be TRUE during dev because the package version is set to '@package_version@'.
-    if ($latest !== $event->getCommand()->getApplication()->getVersion()) {
+    if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $latest !== $event->getCommand()->getApplication()->getVersion()) {
       $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
     }
     else {
