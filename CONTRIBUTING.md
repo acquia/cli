@@ -74,7 +74,10 @@ If you are testing a change to `consolidation/self-update`, start by linking it 
     }
   ],
 ```
-Run `composer update` and ensure your development copy of self-update is linked. Then follow the steps below to test the update command.
+
+In the `composer.json` requirements section, then change the version string to match your locally checked-out branch. For instance: `"consolidation/self-update": "dev-foo as 1.1",` 
+
+Finally, run `composer update` and ensure your development copy of self-update is linked. Then follow the steps below to test the update command.
 
 ### Testing the `update` command
 
