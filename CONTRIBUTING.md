@@ -51,15 +51,22 @@ composer install
 
 Be sure to validate and test your code locally using the provided Composer test scripts (`composer test`) before opening a PR.
 
+### Building acli.phar
+
+To test changes in production mode, build and run acli.phar using this process. You can verify that the "Build PHAR" stage of .travis.yml follows a similar process.
+
+1. Install Composer production dependencies: `composer install --no-dev --optimize-autoloader`
+1. Clear and rebuild your Symfony cache: `./bin/acli ckc && ./bin/acli`
+1. Install Box and dump env vars (only need to do this once): `composer box-install && composer dump-env prod`
+1. Compile phar: `composer box-compile`
+
 ### Testing the `update` command
 
 Any changes to the `acli update` command should be manually tested using the following steps:
 
 1. Replace `@package_version@` on this line with `1.0.0` or any older version string: https://github.com/acquia/cli/blob/v1.0.0/bin/acli#L84
-2. Clear and rebuild your Symfony cache: `./bin/acli ckc && ./bin/acli`
-4. Install Box if you haven't already: `composer box-install && composer dump-env prod`
-5. Compile phar: `composer box-compile`
-6. Now test: `./build/acli.phar self:update`
+1. Build acli.phar as described above.
+1. Now test: `./build/acli.phar self:update`
 
 ## Updating Cloud Platform API spec
 

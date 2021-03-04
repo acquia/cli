@@ -100,7 +100,7 @@
       "curl -O -L https://github.com/humbug/box/releases/latest/download/box.phar"
     ],
     "box-compile": [
-      "php box.phar compile"
+      "php build/box.phar compile"
     ],
     "cs": "phpcs",
     "cbf": "phpcbf",
