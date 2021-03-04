@@ -5,7 +5,6 @@ namespace Acquia\Cli\EventListener;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Psr\EventDispatcher\StoppableEventInterface;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
 
@@ -102,10 +101,19 @@ class ExceptionListener {
   /**
    * @param $event
    */
-  protected function writeSupportTicketHelp(StoppableEventInterface $event): void {
-    $message =  "You may also submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
-    if (!$event->getOutput()->isVeryVerbose()) {
-      $message.= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
+  protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
+    /** @var \SelfUpdate\SelfUpdateCommand $self_update_command */
+    $self_update_command = $event->getCommand()->getApplication()->find('self-update');
+    [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
+    // This will always be TRUE during dev because the package version is set to '@package_version@'.
+    if ($latest !== $event->getCommand()->getApplication()->getVersion()) {
+      $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
+    }
+    else {
+      $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
+      if (!$event->getOutput()->isVeryVerbose()) {
+        $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
+      }
     }
     $this->helpMessages[] = $message;
   }
