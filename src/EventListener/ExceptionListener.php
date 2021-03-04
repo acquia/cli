@@ -7,6 +7,7 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
 
 class ExceptionListener {
@@ -77,6 +78,7 @@ class ExceptionListener {
     /** @var \Acquia\Cli\Application $application */
     $application = $event->getCommand()->getApplication();
     $application->setHelpMessages($this->helpMessages);
+    $this->writeUpdateHelp($event);
 
     if (isset($new_error_message)) {
       $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
@@ -103,20 +105,34 @@ class ExceptionListener {
    * @param $event
    */
   protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
-    /** @var \SelfUpdate\SelfUpdateCommand $self_update_command */
-    $self_update_command = $event->getCommand()->getApplication()->find('self-update');
-    [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
-    // This will always be TRUE during dev because the package version is set to '@package_version@'.
-    if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $latest !== $event->getCommand()->getApplication()->getVersion()) {
-      $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
-    }
-    else {
-      $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
-      if (!$event->getOutput()->isVeryVerbose()) {
-        $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
-      }
+    $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
+    if (!$event->getOutput()->isVeryVerbose()) {
+      $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
     }
     $this->helpMessages[] = $message;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
+   */
+  protected function writeUpdateHelp(ConsoleErrorEvent $event): void {
+    try {
+      /** @var \SelfUpdate\SelfUpdateCommand $self_update_command */
+      $self_update_command = $event->getCommand()
+        ->getApplication()
+        ->find('self-update');
+      [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
+      // This will always be TRUE during dev because the package version is set to '@package_version@'.
+      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $latest !== $event->getCommand()
+          ->getApplication()
+          ->getVersion()) {
+        $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
+        $this->helpMessages[] = $message;
+      }
+      // This command may not exist during some testing.
+    } catch (CommandNotFoundException $exception) {
+
+    }
   }
 
 }
