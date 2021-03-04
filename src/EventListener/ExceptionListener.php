@@ -73,9 +73,11 @@ class ExceptionListener {
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
-    /** @var \Acquia\Cli\Application $application */
-    $application = $event->getCommand()->getApplication();
-    $application->setHelpMessages($this->helpMessages);
+    if ($application = $event->getCommand()) {
+      /** @var \Acquia\Cli\Application $application */
+      $application = $event->getCommand()->getApplication();
+      $application->setHelpMessages($this->helpMessages);
+    }
 
     if (isset($new_error_message)) {
       $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
