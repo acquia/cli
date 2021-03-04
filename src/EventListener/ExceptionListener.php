@@ -73,12 +73,12 @@ class ExceptionListener {
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
+    $this->writeUpdateHelp($event);
     $this->writeSupportTicketHelp($event);
 
     /** @var \Acquia\Cli\Application $application */
     $application = $event->getCommand()->getApplication();
     $application->setHelpMessages($this->helpMessages);
-    $this->writeUpdateHelp($event);
 
     if (isset($new_error_message)) {
       $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
@@ -123,9 +123,8 @@ class ExceptionListener {
         ->find('self-update');
       [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
       // This will always be TRUE during dev because the package version is set to '@package_version@'.
-      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $latest !== $event->getCommand()
-          ->getApplication()
-          ->getVersion()) {
+      $current_version = $event->getCommand()->getApplication()->getVersion();
+      if ($latest !== $current_version && !AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
         $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
         $this->helpMessages[] = $message;
       }
