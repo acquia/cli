@@ -5,9 +5,9 @@ namespace Acquia\Cli\EventListener;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use Psr\EventDispatcher\StoppableEventInterface;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\RuntimeException;
-use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 
 class ExceptionListener {
 
@@ -64,15 +64,16 @@ class ExceptionListener {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
           $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
-          $this->writeSupportTicketHelp();
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
+          $this->helpMessages[] = "You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/";
       }
-      $this->helpMessages[] = "You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/";
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
+    $this->writeSupportTicketHelp($event);
+
     /** @var \Acquia\Cli\Application $application */
     $application = $event->getCommand()->getApplication();
     $application->setHelpMessages($this->helpMessages);
@@ -99,11 +100,14 @@ class ExceptionListener {
   }
 
   /**
-   *
+   * @param $event
    */
-  protected function writeSupportTicketHelp(): void {
-    $this->helpMessages[] = "You may also ask for more information at" . PHP_EOL
-    . "https://insight.acquia.com/support/tickets/new?product=p:ride";
+  protected function writeSupportTicketHelp(StoppableEventInterface $event): void {
+    $message =  "You may also submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
+    if (!$event->getOutput()->isVeryVerbose()) {
+      $message.= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
+    }
+    $this->helpMessages[] = $message;
   }
 
 }
