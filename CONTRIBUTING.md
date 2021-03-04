@@ -60,6 +60,22 @@ To test changes in production mode, build and run acli.phar using this process. 
 1. Install Box and dump env vars (only need to do this once): `composer box-install && composer dump-env prod`
 1. Compile phar: `composer box-compile`
 
+### Testing changes to consolidation/self-update
+
+If you are testing a change to `consolidation/self-update`, start by linking it to ACLI. Modify the repositories key in composer.json so that the url is the path to your working copy of `self-update` on your local machine, and optionally disable symlinking if Composer has autoloading complaints:
+```
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "../self-update",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
+```
+Run `composer update` and ensure your development copy of self-update is linked. Then follow the steps below to test the update command.
+
 ### Testing the `update` command
 
 Any changes to the `acli update` command should be manually tested using the following steps:
