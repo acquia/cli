@@ -120,6 +120,10 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function initializeGitRepository(string $dir): void {
+    if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
+      $this->logger->debug('.git directory detected, skipping Git repo initialization');
+      return;
+    }
     $this->localMachineHelper->execute([
       'git',
       'init',

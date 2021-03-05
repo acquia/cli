@@ -54,6 +54,7 @@ class NewCommandTest extends CommandTestBase {
 
     $local_machine_helper = $this->mockLocalMachineHelper();
 
+    $this->mockGetFilesystem($local_machine_helper);
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
     $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
