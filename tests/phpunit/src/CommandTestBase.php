@@ -375,7 +375,6 @@ abstract class CommandTestBase extends TestBase {
     $environments_response,
     $db_name
   ) {
-    //$backup_create_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/backup_create_response.json')));
     $backup_create_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
     $this->clientProphecy->request('post', "/environments/{$environments_response->id}/databases/{$db_name}/backups")
       ->willReturn($backup_create_response)
@@ -386,7 +385,6 @@ abstract class CommandTestBase extends TestBase {
 
   protected function mockNotificationResponse($notification_uuid) {
     $notification_response = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
-    // $notification_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/notification_response.json')));
     $this->clientProphecy->request('get', "/notifications/$notification_uuid")
       ->willReturn($notification_response)
       ->shouldBeCalled();
