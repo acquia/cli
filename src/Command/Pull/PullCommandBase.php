@@ -255,7 +255,11 @@ abstract class PullCommandBase extends CommandBase {
       $backups_response = $database_backups->getAll($environment->uuid, $database->name);
     }
     $backup_response = $backups_response[0];
-    $this->logger->debug('Using database backup generated at ' . $backup_response->completedAt);
+    $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
+    $interval = time() - strtotime($backup_response->completedAt);
+    if ($interval > 24*60*60) {
+      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the `--on-demand` option.');
+    }
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
