@@ -106,6 +106,11 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
+    if ($input->getOption('on-demand')) {
+      $this->checklist->addItem('Creating an on-demand backup');
+      $this->createBackup($source_environment, $database, $acquia_cloud_client);
+      $this->checklist->completePreviousItem();
+    }
     $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
     $this->importRemoteDatabase($source_environment, $database, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
@@ -244,6 +249,11 @@ abstract class PullCommandBase extends CommandBase {
   ): string {
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $backups_response = $database_backups->getAll($environment->uuid, $database->name);
+    if (!count($backups_response)) {
+      $this->logger->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
+      $this->createBackup($environment, $database, $acquia_cloud_client);
+      $backups_response = $database_backups->getAll($environment->uuid, $database->name);
+    }
     $backup_response = $backups_response[0];
     $this->logger->debug('Using database backup generated at ' . $backup_response->completedAt);
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
@@ -254,6 +264,51 @@ abstract class PullCommandBase extends CommandBase {
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
     return $local_filepath;
+  }
+
+  /**
+   * Create an on-demand backup and wait for it to become available.
+   *
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   * @param \stdClass $database
+   * @param $acquia_cloud_client
+   */
+  protected function createBackup(EnvironmentResponse $environment, \stdClass $database, $acquia_cloud_client): void {
+    $backups = new DatabaseBackups($acquia_cloud_client);
+    $response = $backups->create($environment->uuid, $database->name);
+    $url_parts = explode('/', $response->links->notification->href);
+    $notification_uuid = end($url_parts);
+    $this->waitForBackup($notification_uuid, $acquia_cloud_client);
+  }
+
+  /**
+   * Wait for an on-demand backup to become available (Cloud API notification).
+   *
+   * @param string $notification_uuid
+   * @param $acquia_cloud_client
+   */
+  protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
+    $loop = Factory::create();
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
+    $notifications = new Notifications($acquia_cloud_client);
+
+    $loop->addPeriodicTimer(5, function () use ($loop, $spinner, $notification_uuid, $notifications) {
+      try {
+        $response = $notifications->get($notification_uuid);
+        if ($response->status === 'completed') {
+          LoopHelper::finishSpinner($spinner);
+          $loop->stop();
+          $this->output->writeln('');
+          $this->output->writeln('<info>Database backup is ready!</info>');
+        }
+      } catch (Exception $e) {
+        $this->logger->debug($e->getMessage());
+      }
+    });
+    LoopHelper::addTimeoutToLoop($loop, 45, $spinner, $this->output);
+
+    // Start the loop.
+    $loop->run();
   }
 
   /**
