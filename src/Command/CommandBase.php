@@ -213,15 +213,32 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->repoRoot = $repoRoot;
   }
 
+  protected function setLocalDbUser(): void {
+    $this->localDbUser = 'drupal';
+    if ($lando_info = self::getLandoInfo()) {
+      $this->localDbUser = $lando_info->database->creds->user;
+    }
+    if (getenv('ACLI_DB_USER')) {
+      $this->localDbUser = getenv('ACLI_DB_USER');
+    }
+  }
+
   public function getLocalDbUser() {
     if (!isset($this->localDbUser)) {
-      $this->localDbUser = 'drupal';
-      if ($lando_info = self::getLandoInfo()) {
-        $this->localDbUser = $lando_info->database->creds->user;
-      }
+      $this->setLocalDbUser();
     }
 
     return $this->localDbUser;
+  }
+
+  protected function setLocalDbPassword(): void {
+    $this->localDbPassword = 'drupal';
+    if ($lando_info = self::getLandoInfo()) {
+      $this->localDbPassword = $lando_info->database->creds->password;
+    }
+    if (getenv('ACLI_DB_PASSWORD')) {
+      $this->localDbPassword = getenv('ACLI_DB_PASSWORD');
+    }
   }
 
   /**
@@ -229,13 +246,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getLocalDbPassword() {
     if (!isset($this->localDbPassword)) {
-      $this->localDbPassword = 'drupal';
-      if ($lando_info = self::getLandoInfo()) {
-        $this->localDbPassword = $lando_info->database->creds->password;
-      }
+      $this->setLocalDbPassword();
     }
 
     return $this->localDbPassword;
+  }
+
+  protected function setLocalDbName(): void {
+    $this->localDbName = 'drupal';
+    if ($lando_info = self::getLandoInfo()) {
+      $this->localDbName = $lando_info->database->creds->database;
+    }
+    if (getenv('ACLI_DB_NAME')) {
+      $this->localDbName = getenv('ACLI_DB_NAME');
+    }
   }
 
   /**
@@ -243,13 +267,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getLocalDbName() {
     if (!isset($this->localDbName)) {
-      $this->localDbName = 'drupal';
-      if ($lando_info = self::getLandoInfo()) {
-        $this->localDbName = $lando_info->database->creds->database;
-      }
+      $this->setLocalDbName();
     }
 
     return $this->localDbName;
+  }
+
+  protected function setLocalDbHost(): void {
+    $this->localDbHost = 'localhost';
+    if ($lando_info = self::getLandoInfo()) {
+      $this->localDbHost = $lando_info->database->hostnames[0];
+    }
+    if (getenv('ACLI_DB_HOST')) {
+      $this->localDbHost = getenv('ACLI_DB_HOST');
+    }
   }
 
   /**
@@ -257,10 +288,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getLocalDbHost() {
     if (!isset($this->localDbHost)) {
-      $this->localDbHost = 'localhost';
-      if ($lando_info = self::getLandoInfo()) {
-        $this->localDbHost = $lando_info->database->hostnames[0];
-      }
+      $this->setLocalDbHost();
     }
 
     return $this->localDbHost;
