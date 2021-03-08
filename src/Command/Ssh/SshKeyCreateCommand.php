@@ -88,7 +88,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $this->validateFilename($filename);
     }
     else {
-      $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ', 'id_rsa_acquia');
+      $question = new Question('<question>Please enter a filename for your new local SSH key (default is id_rsa_acquia):</question> ', 'id_rsa_acquia');
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
