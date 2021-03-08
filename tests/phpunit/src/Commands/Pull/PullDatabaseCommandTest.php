@@ -46,6 +46,26 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('profserv2 (default)', $output);
   }
 
+  public function testPullDatabasesOnDemand(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+      '--on-demand' => TRUE
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment:', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Choose a database', $output);
+    $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
+    $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
   /**
    * Test that settings files are created for multisite DBs in IDEs.
    *
@@ -106,7 +126,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE): void {
+  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -116,6 +136,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
+
+    if ($on_demand) {
+      $this->mockDatabaseBackupCreateResponse($environments_response, 'profserv2');
+      // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
+      $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
+    }
 
     $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();

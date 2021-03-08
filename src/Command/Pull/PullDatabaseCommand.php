@@ -19,12 +19,14 @@ class PullDatabaseCommand extends PullCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Import latest database backup from a Cloud Platform environment')
-      ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. You can generate an on-demand backup using api:environments:database-backup-create.')
+    $this->setDescription('Import database backup from a Cloud Platform environment')
+      ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->setAliases(['pull:db'])
       ->acceptEnvironmentId()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
+      ->addOption('on-demand', NULL, InputOption::VALUE_NONE,
+        'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
