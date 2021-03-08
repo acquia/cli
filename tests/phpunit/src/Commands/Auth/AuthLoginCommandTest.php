@@ -190,7 +190,7 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
     $this->assertStringContainsString('Please enter your API Key:', $output);
-    $this->assertStringContainsString('Please enter your API Secret:', $output);
+    $this->assertStringContainsString('Please enter your API Secret', $output);
   }
 
   protected function assertKeySavedCorrectly(): void {
