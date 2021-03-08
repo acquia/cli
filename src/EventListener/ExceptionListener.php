@@ -15,7 +15,12 @@ class ExceptionListener {
   /**
    * @var string
    */
-  private $messagesBgColor;
+  private $messagesBgColor = 'blue';
+
+  /**
+   * @var string
+   */
+  private $messagesFgColor = 'white';
 
   /**
    * @var string[]
@@ -29,12 +34,11 @@ class ExceptionListener {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
     $errorMessage = $error->getMessage();
-    $this->messagesBgColor = 'blue';
 
     // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $this->helpMessages[] = "Run <bg={$this->messagesBgColor};options=bold>acli auth:login</> to reset your API credentials.";
+      $this->helpMessages[] = "Run <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli auth:login</> to reset your API credentials.";
     }
 
     if ($error instanceof RuntimeException) {
@@ -64,7 +68,7 @@ class ExceptionListener {
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
+          $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
@@ -91,7 +95,7 @@ class ExceptionListener {
    *
    */
   protected function writeApplicationAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp</>." . PHP_EOL
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp</>." . PHP_EOL
       . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
@@ -99,7 +103,7 @@ class ExceptionListener {
    *
    */
   protected function writeSiteAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};options=bold>myapp.dev</>." . PHP_EOL
+    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp.dev</>." . PHP_EOL
     . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
@@ -109,7 +113,7 @@ class ExceptionListener {
   protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
     if (!$event->getOutput()->isVeryVerbose()) {
-      $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
+      $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
     }
     $this->helpMessages[] = $message;
   }
@@ -127,7 +131,7 @@ class ExceptionListener {
       // This will always be TRUE during dev because the package version is set to '@package_version@'.
       $current_version = $event->getCommand()->getApplication()->getVersion();
       if ($latest !== $current_version && !AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};options=bold>acli self-update</> and then run the command again.";
+        $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli self-update</> and then run the command again.";
         $this->helpMessages[] = $message;
       }
       // This command may not exist during some testing.
