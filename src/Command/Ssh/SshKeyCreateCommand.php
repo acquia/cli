@@ -50,6 +50,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    *
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function createSshKey($input, OutputInterface $output): string {
     $filename = $this->determineFilename($input, $output);
@@ -88,7 +89,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $this->validateFilename($filename);
     }
     else {
-      $question = new Question('<question>Please enter a filename for your new local SSH key (default is id_rsa_acquia):</question> ', 'id_rsa_acquia');
+      $default = 'id_rsa_acquia';
+      $question = new Question("<question>Please enter a filename for your new local SSH key.</question>\n Press enter to use default", $default);
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
