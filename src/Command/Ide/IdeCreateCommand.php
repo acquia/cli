@@ -60,7 +60,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
     $default = "{$account->first_name} {$account->last_name}'s IDE";
-    $question = new Question("<question>Please enter a label for your Cloud IDE.</question>\n Press enter to use default", $default);
+    $question = new Question("Please enter a label for your Cloud IDE. Press enter to use default", $default);
     $ide_label = $this->io->askQuestion($question);
 
     // Create it.

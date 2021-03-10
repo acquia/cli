@@ -57,7 +57,7 @@ class SshKeyDeleteCommand extends CommandBase {
       $cloud_keys,
       'uuid',
       'label',
-      '<question>Choose an SSH key to delete from the Cloud Platform</question>:'
+      'Choose an SSH key to delete from the Cloud Platform'
     );
     return $cloud_key;
   }
