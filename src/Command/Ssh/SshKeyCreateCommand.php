@@ -50,6 +50,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    *
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function createSshKey($input, OutputInterface $output): string {
     $filename = $this->determineFilename($input, $output);
@@ -57,7 +58,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
 
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
-      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry.', ['filepath' => $filepath]);
+      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filepath]);
     }
 
     $process = $this->localMachineHelper->execute([
@@ -88,7 +89,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $this->validateFilename($filename);
     }
     else {
-      $question = new Question('<question>Please enter a filename for your new local SSH key:</question> ', 'id_rsa_acquia');
+      $default = 'id_rsa_acquia';
+      $question = new Question("Please enter a filename for your new local SSH key. Press enter to use default value", $default);
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
@@ -130,7 +132,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       $this->validatePassword($password);
     }
     else {
-      $question = new Question('<question>Enter a password for your SSH key:</question> ');
+      $question = new Question('Enter a password for your SSH key');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
