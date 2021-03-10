@@ -90,7 +90,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     }
     else {
       $default = 'id_rsa_acquia';
-      $question = new Question("Please enter a filename for your new local SSH key. Press enter to use default value.", $default);
+      $question = new Question("Please enter a filename for your new local SSH key. Press enter to use default value", $default);
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
