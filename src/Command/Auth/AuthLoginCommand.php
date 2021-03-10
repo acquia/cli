@@ -130,7 +130,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_secret);
     }
     else {
-      $question = new Question('Please enter your API Secret: ');
+      $question = new Question('Please enter your API Secret');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
       $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
