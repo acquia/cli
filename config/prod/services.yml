@@ -67,6 +67,7 @@ services:
         # @see https://symfony.com/doc/current/service_container/expression_language.html
         key: '@=service("cloud.credentials").getCloudKey()'
         secret: '@=service("cloud.credentials").getCloudSecret()'
+        base_url: '@=service("cloud.credentials").getBaseUri()'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: AcquiaCloudApi\Connector\Connector
   AcquiaLogstream\LogstreamManager: ~
