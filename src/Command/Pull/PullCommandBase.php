@@ -480,6 +480,9 @@ abstract class PullCommandBase extends CommandBase {
       $this->composerInstall($output_callback);
       $this->checklist->completePreviousItem();
     }
+    else {
+      $this->logger->notice('No composer.json file found. Skipping composer install.');
+    }
   }
 
   /**
@@ -671,7 +674,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function getOutputCallback(OutputInterface $output, Checklist $checklist): \Closure {
     $output_callback = static function ($type, $buffer) use ($checklist, $output) {
-      if (!$output->isVerbose()) {
+      if (!$output->isVerbose() && $checklist->getItems()) {
         $checklist->updateProgressBar($buffer);
       }
       $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
@@ -713,6 +716,9 @@ abstract class PullCommandBase extends CommandBase {
       }
       $this->checklist->completePreviousItem();
     }
+    else {
+      $this->logger->notice('Drush does not have an active database connection. Skipping cache:rebuild');
+    }
   }
 
   /**
@@ -733,6 +739,9 @@ abstract class PullCommandBase extends CommandBase {
         throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
       }
       $this->checklist->completePreviousItem();
+    }
+    else {
+      $this->logger->notice('Drush does not have an active database connection. Skipping sql:sanitize.');
     }
   }
 
