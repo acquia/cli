@@ -38,6 +38,9 @@
     "consolidation/self-update": {
         "version": "1.2.0"
     },
+    "cweagans/composer-patches": {
+        "version": "1.7.0"
+    },
     "dealerdirect/phpcodesniffer-composer-installer": {
         "version": "v0.6.2"
     },
