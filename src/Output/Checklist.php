@@ -19,6 +19,8 @@ class Checklist {
    */
   private $output;
 
+  private $indentLength = 4;
+
   /**
    * Checklist constructor.
    *
@@ -35,7 +37,7 @@ class Checklist {
     $item = ['message' => $message];
 
     if ($this->useSpinner()) {
-      $spinner = new Spinner($this->output, 4);
+      $spinner = new Spinner($this->output, $this->indentLength);
       $spinner->setMessage($message . '...');
       $spinner->start();
       $item['spinner'] = $spinner;
@@ -51,6 +53,7 @@ class Checklist {
       $item = $this->getLastItem();
       /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
       $spinner = $item['spinner'];
+      $spinner->setMessage('', 'detail');
       $spinner->setMessage($item['message']);
       $spinner->advance();
       $spinner->finish();
@@ -68,15 +71,21 @@ class Checklist {
    * @param $update_message
    */
   public function updateProgressBar($update_message): void {
+    $item = $this->getLastItem();
+    if (!$item) {
+      return;
+    }
     if ($this->useSpinner()) {
-      $item = $this->getLastItem();
       /** @var \Acquia\Cli\Output\Spinner\Spinner $spinner */
       $spinner = $item['spinner'];
     }
 
     $message_lines = explode(PHP_EOL, $update_message);
     foreach ($message_lines as $line) {
-      if ($this->useSpinner()) {
+      if ($this->useSpinner() && $item['spinner']) {
+        if (trim($line)) {
+          $spinner->setMessage(str_repeat(' ', $this->indentLength * 2) . $line, 'detail');
+        }
         $spinner->advance();
       }
     }

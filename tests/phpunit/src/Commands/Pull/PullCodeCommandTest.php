@@ -187,7 +187,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteComposerExists($local_machine_helper);
     $this->mockExecuteComposerInstall($local_machine_helper, $process);
     $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, TRUE);
+    $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectFixtureDir);
     $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
 
     $inputs = [

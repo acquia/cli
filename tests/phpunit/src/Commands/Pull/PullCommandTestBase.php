@@ -67,10 +67,12 @@ abstract class PullCommandTestBase extends CommandTestBase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $has_connection
+   * @param null $dir
    */
   protected function mockExecuteDrushStatus(
     ObjectProphecy $local_machine_helper,
-    $has_connection
+    $has_connection,
+    $dir = NULL
   ): void {
     $drush_status_process = $this->prophet->prophesize(Process::class);
     $drush_status_process->isSuccessful()->willReturn($has_connection);
@@ -84,7 +86,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ], Argument::type('callable'), $dir, FALSE)
       ->willReturn($drush_status_process->reveal())
       ->shouldBeCalled();
   }

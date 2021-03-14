@@ -13,8 +13,10 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use React\EventLoop\Factory;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
 
@@ -101,18 +103,27 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
+    if (!$this->getDrushDatabaseConnectionStatus($this->getOutputCallback($output, $this->checklist))) {
+      //throw new AcquiaCliException('Drush was unable to connect to local MySQL database.');
+    }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
-    if ($input->getOption('on-demand')) {
+    if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
     }
-    $this->checklist->addItem('Importing Drupal database copy from the Cloud Platform');
-    $this->importRemoteDatabase($source_environment, $database, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
+    $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+    $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
+    $this->checklist->completePreviousItem();
+
+    $this->checklist->addItem('Importing Drupal database download');
+    $this->importRemoteDatabase($source_environment, $database, $local_filepath, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
   }
 
@@ -211,22 +222,19 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param EnvironmentResponse $environment
    * @param \stdClass $database
-   * @param $acquia_cloud_client
+   * @param string $local_filepath
+   * @param Client $acquia_cloud_client
    * @param null $output_callback
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
   protected function importRemoteDatabase(
     EnvironmentResponse $environment,
     \stdClass $database,
+    $local_filepath,
     $acquia_cloud_client,
     $output_callback = NULL
   ): void {
-    $local_filepath = $this->downloadDatabaseDump($environment, $database, $acquia_cloud_client);
-
-    // @todo Validate local MySQL connection before running commands.
-    // @todo Drop and create in a single command.
     $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
     $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
@@ -235,39 +243,62 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param $environment
-   * @param $output_callback
-   * @param string $filename
-   * @param string $remote_filepath
+   * @param $database
+   * @param $backup_response
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param callable|null $output_callback
    *
    * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function downloadDatabaseDump(
     $environment,
     $database,
-    $acquia_cloud_client
+    $backup_response,
+    Client $acquia_cloud_client,
+    $output_callback = NULL
   ): string {
-    $database_backups = new DatabaseBackups($acquia_cloud_client);
-    $backups_response = $database_backups->getAll($environment->uuid, $database->name);
-    if (!count($backups_response)) {
-      $this->logger->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
-      $this->createBackup($environment, $database, $acquia_cloud_client);
-      $backups_response = $database_backups->getAll($environment->uuid, $database->name);
-    }
-    $backup_response = $backups_response[0];
-    $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
-    $interval = time() - strtotime($backup_response->completedAt);
-    if ($interval > 24*60*60) {
-      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the <options=bold>--on-demand</> option.');
+    if ($output_callback) {
+      $output_callback('out', "Downloading backup {$backup_response->id}");
     }
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
-    $this->logger->debug('Downloading database backup to ' . $local_filepath);
-    $backup_file = $database_backups->download($environment->uuid, $database->name, $backup_response->id);
+    $section = $this->output->section();
+    $options = [
+      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $section) {
+        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $section);
+      },
+    ];
+    $response = $acquia_cloud_client->makeRequest('get', "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $options);
+    $backup_file = $response->getBody()->getContents();
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
     return $local_filepath;
+  }
+
+  /**
+   * @param $total_bytes
+   * @param $downloaded_bytes
+   * @param $progress
+   * @param \Symfony\Component\Console\Output\ConsoleSectionOutput $section
+   */
+  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, ConsoleSectionOutput $section): void {
+    if ($total_bytes > 0 && is_null($progress)) {
+      $progress = new ProgressBar($section, $total_bytes);
+      $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
+      $progress->setProgressCharacter('💧');
+      $progress->setOverwrite(TRUE);
+      $progress->start();
+    }
+
+    if (!is_null($progress)) {
+      if ($total_bytes === $downloaded_bytes && $progress->getProgressPercent() !== 1.0) {
+        $progress->finish();
+        $section->clear();
+        return;
+      }
+      $progress->setProgress($downloaded_bytes);
+    }
   }
 
   /**
@@ -325,7 +356,9 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->logger->debug("Dropping database $db_name");
+    if ($output_callback) {
+      $output_callback('out', "Dropping database $db_name");
+    }
     $command = [
       'mysql',
       '--host',
@@ -353,7 +386,9 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
-    $this->logger->debug("Creating new empty database $db_name");
+    if ($output_callback) {
+      $output_callback('out', "Creating new empty database $db_name");
+    }
     $command = [
       'mysql',
       '--host',
@@ -377,11 +412,14 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param callable $output_callback
+   * @param null $output_callback
    *
    * @throws \Exception
    */
-  protected function importDatabaseDump($local_dump_filepath, $db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  protected function importDatabaseDump(string $local_dump_filepath, string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): void {
+    if ($output_callback) {
+      $output_callback('out', "Importing downloaded file to database $db_name");
+    }
     $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
     $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
@@ -421,8 +459,6 @@ abstract class PullCommandBase extends CommandBase {
     foreach ($application_environments as $key => $environment) {
       $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
-    // Re-key the array since we removed production.
-    $application_environments = array_values($application_environments);
     $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices);
     $chosen_environment_index = array_search($chosen_environment_label, $choices, TRUE);
 
@@ -476,7 +512,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function runComposerScripts($output_callback = NULL): void {
     if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
-      $this->checklist->addItem('Installing Composer dependencies');
+      $this->checklist->addItem("Installing Composer dependencies");
       $this->composerInstall($output_callback);
       $this->checklist->completePreviousItem();
     }
@@ -710,6 +746,7 @@ abstract class PullCommandBase extends CommandBase {
         'cache:rebuild',
         '--yes',
         '--no-interaction',
+        '--verbose',
       ], $output_callback, $this->dir, FALSE);
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException('Unable to rebuild Drupal caches via Drush. {message}', ['message' => $process->getErrorOutput()]);
@@ -734,11 +771,14 @@ abstract class PullCommandBase extends CommandBase {
         'sql:sanitize',
         '--yes',
         '--no-interaction',
+        '--verbose',
       ], $output_callback, $this->dir, FALSE);
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException('Unable to sanitize Drupal database via Drush. {message}', ['message' => $process->getErrorOutput()]);
       }
       $this->checklist->completePreviousItem();
+      $this->io->newLine();
+      $this->io->text('Your database was sanitized via <options=bold>drush sql:sanitize</>. This has changed all user passwords to randomly generated strings. To log in to your Drupal site, use <options=bold>drush uli</>');>>>>>>>
     }
     else {
       $this->logger->notice('Drush does not have an active database connection. Skipping sql:sanitize.');
@@ -815,6 +855,36 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function ideDrupalSettingsRefresh() {
     $this->localMachineHelper->execute(['/ide/drupal-setup.sh']);
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param $environment
+   * @param $database
+   *
+   * @return false|mixed
+   */
+  protected function getDatabaseBackup(
+    Client $acquia_cloud_client,
+    $environment,
+    $database
+  ) {
+    $database_backups = new DatabaseBackups($acquia_cloud_client);
+    $backups_response = $database_backups->getAll($environment->uuid,
+      $database->name);
+    if (!count($backups_response)) {
+      $this->logger->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
+      $this->createBackup($environment, $database, $acquia_cloud_client);
+      $backups_response = $database_backups->getAll($environment->uuid,
+        $database->name);
+    }
+    $backup_response = $backups_response[0];
+    $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
+    $interval = time() - strtotime($backup_response->completedAt);
+    if ($interval > 24 * 60 * 60) {
+      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the <options=bold>--on-demand</> option.');
+    }
+    return $backup_response;
   }
 
 }
