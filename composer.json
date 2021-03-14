@@ -22,6 +22,7 @@
     "acquia/drupal-environment-detector": "^1.2.0",
     "composer/semver": "^3.2",
     "consolidation/self-update": "dev-allow-unstable as 1.1",
+    "cweagans/composer-patches": "^1.7",
     "doctrine/cache": "^1.10",
     "drupol/phposinfo": "^1.6.5",
     "kevinrob/guzzle-cache-middleware": "^3.3",
@@ -84,6 +85,14 @@
   "extra": {
     "branch-alias": {
       "dev-master": "1.x-dev"
+    },
+    "patches": {
+      "symfony/console": [
+        "https://github.com/symfony/symfony/commit/22a4b09aa828f6594526d485315bcfe710937729.patch"
+      ]
+    },
+    "patchLevel": {
+      "symfony/console": "-p5"
     }
   },
   "prefer-stable": true,
