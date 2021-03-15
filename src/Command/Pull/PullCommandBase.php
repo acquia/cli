@@ -778,7 +778,7 @@ abstract class PullCommandBase extends CommandBase {
       }
       $this->checklist->completePreviousItem();
       $this->io->newLine();
-      $this->io->text('Your database was sanitized via <options=bold>drush sql:sanitize</>. This has changed all user passwords to randomly generated strings. To log in to your Drupal site, use <options=bold>drush uli</>');>>>>>>>
+      $this->io->text('Your database was sanitized via <options=bold>drush sql:sanitize</>. This has changed all user passwords to randomly generated strings. To log in to your Drupal site, use <options=bold>drush uli</>');
     }
     else {
       $this->logger->notice('Drush does not have an active database connection. Skipping sql:sanitize.');
