@@ -358,7 +358,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function connectToLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     if ($output_callback) {
-      $output_callback('out', "Dropping database $db_name");
+      $output_callback('out', "Connecting to database $db_name");
     }
     $command = [
       'mysql',
