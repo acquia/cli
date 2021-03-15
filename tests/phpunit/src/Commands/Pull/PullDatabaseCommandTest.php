@@ -240,7 +240,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $process = $this->mockProcess($success);
     $local_machine_helper->writeFile(
       Argument::containingString("backup-something-profserv2.sql.gz"),
-      Argument::type(StreamInterface::class)
+      'backupfilecontents'
     )
       ->shouldBeCalled();
   }

@@ -16,6 +16,7 @@ use React\EventLoop\Factory;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
@@ -263,10 +264,15 @@ abstract class PullCommandBase extends CommandBase {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
-    $section = $this->output->section();
+    if ($this->output instanceof ConsoleOutput) {
+      $output = $this->output->section();
+    }
+    else {
+      $output = $this->output;
+    }
     $options = [
-      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $section) {
-        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $section);
+      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
+        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
     $response = $acquia_cloud_client->makeRequest('get', "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $options);
@@ -280,11 +286,11 @@ abstract class PullCommandBase extends CommandBase {
    * @param $total_bytes
    * @param $downloaded_bytes
    * @param $progress
-   * @param \Symfony\Component\Console\Output\ConsoleSectionOutput $section
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, ConsoleSectionOutput $section): void {
+  public static function displayDownloadProgress($total_bytes, $downloaded_bytes, &$progress, OutputInterface $output): void {
     if ($total_bytes > 0 && is_null($progress)) {
-      $progress = new ProgressBar($section, $total_bytes);
+      $progress = new ProgressBar($output, $total_bytes);
       $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
       $progress->setProgressCharacter('💧');
       $progress->setOverwrite(TRUE);
@@ -294,7 +300,9 @@ abstract class PullCommandBase extends CommandBase {
     if (!is_null($progress)) {
       if ($total_bytes === $downloaded_bytes && $progress->getProgressPercent() !== 1.0) {
         $progress->finish();
-        $section->clear();
+        if ($output instanceof ConsoleSectionOutput) {
+          $output->clear();
+        }
         return;
       }
       $progress->setProgress($downloaded_bytes);

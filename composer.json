@@ -88,7 +88,7 @@
     },
     "patches": {
       "symfony/console": [
-        "https://github.com/symfony/symfony/commit/33bfcea0e4afb89fbfff7ca853228ba09425978b.patch"
+        "https://github.com/symfony/symfony/commit/57910d696b1a3b8573cd562d438880854ba4328e.patch"
       ]
     },
     "patchLevel": {
