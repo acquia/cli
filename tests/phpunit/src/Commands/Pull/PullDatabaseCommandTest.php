@@ -183,9 +183,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         'localhost',
         '--user',
         'drupal',
-        '--password=drupal',
         'drupal',
-      ], Argument::type('callable'), NULL, FALSE)
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -206,10 +205,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         'localhost',
         '--user',
         'drupal',
-        '--password=drupal',
         '-e',
         'DROP DATABASE IF EXISTS drupal',
-      ], Argument::type('callable'), NULL, FALSE)
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -230,10 +228,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         'localhost',
         '--user',
         'drupal',
-        '--password=drupal',
         '-e',
         'create database drupal',
-      ], Argument::type('callable'), NULL, FALSE)
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

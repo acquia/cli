@@ -366,11 +366,9 @@ abstract class PullCommandBase extends CommandBase {
       $db_host,
       '--user',
       $db_user,
-      // @todo Is this insecure in any way?
-      '--password=' . $db_password,
       $db_name
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to connect to local database. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -395,12 +393,10 @@ abstract class PullCommandBase extends CommandBase {
       $db_host,
       '--user',
       $db_user,
-      // @todo Is this insecure in any way?
-      '--password=' . $db_password,
       '-e',
       'DROP DATABASE IF EXISTS ' . $db_name,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to drop a local database. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -425,12 +421,10 @@ abstract class PullCommandBase extends CommandBase {
       $db_host,
       '--user',
       $db_user,
-      // @todo Is this insecure in any way?
-      '--password=' . $db_password,
       '-e',
       'create database ' . $db_name,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to create a local database. {message}', ['message' => $process->getErrorOutput()]);
     }
