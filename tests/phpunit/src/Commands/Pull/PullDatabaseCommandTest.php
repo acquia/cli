@@ -147,8 +147,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, TRUE);
+    $this->mockExecuteMySqlConnect($local_machine_helper, TRUE);
     // Set up file system.
     $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
@@ -166,6 +165,29 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $success
+   */
+  protected function mockExecuteMySqlConnect(
+    ObjectProphecy $local_machine_helper,
+    $success
+  ): void {
+    $process = $this->mockProcess($success);
+    $local_machine_helper
+      ->execute([
+        'mysql',
+        '--host',
+        'localhost',
+        '--user',
+        'drupal',
+        '--password=drupal',
+        'drupal',
+      ], Argument::type('callable'), NULL, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
   }
 
   /**

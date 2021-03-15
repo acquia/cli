@@ -107,9 +107,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    if (!$this->getDrushDatabaseConnectionStatus($this->getOutputCallback($output, $this->checklist))) {
-      //throw new AcquiaCliException('Drush was unable to connect to local MySQL database.');
-    }
+    $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
@@ -124,7 +122,8 @@ abstract class PullCommandBase extends CommandBase {
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Importing Drupal database download');
-    $this->importRemoteDatabase($source_environment, $database, $local_filepath, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
+    $this->importRemoteDatabase($local_filepath,
+      $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
   }
 
@@ -221,19 +220,13 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param EnvironmentResponse $environment
-   * @param \stdClass $database
    * @param string $local_filepath
-   * @param Client $acquia_cloud_client
    * @param null $output_callback
    *
    * @throws \Exception
    */
   protected function importRemoteDatabase(
-    EnvironmentResponse $environment,
-    \stdClass $database,
     $local_filepath,
-    $acquia_cloud_client,
     $output_callback = NULL
   ): void {
     $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
@@ -352,6 +345,35 @@ abstract class PullCommandBase extends CommandBase {
 
     // Start the loop.
     $loop->run();
+  }
+
+  /**
+   * @param string $db_host
+   * @param string $db_user
+   * @param string $db_name
+   * @param string $db_password
+   * @param callable $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function connectToLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+    if ($output_callback) {
+      $output_callback('out', "Dropping database $db_name");
+    }
+    $command = [
+      'mysql',
+      '--host',
+      $db_host,
+      '--user',
+      $db_user,
+      // @todo Is this insecure in any way?
+      '--password=' . $db_password,
+      $db_name
+    ];
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to connect to local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
   /**
