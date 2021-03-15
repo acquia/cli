@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Logger\ConsoleLogger;
@@ -365,9 +366,16 @@ abstract class CommandTestBase extends TestBase {
     $backup_id
   ) {
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $this->clientProphecy->request('get',
-      "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download")
-      ->willReturn($stream->reveal())
+    $stream->getContents()->willReturn('backupfilecontents');
+    $response = $this->prophet->prophesize(ResponseInterface::class);
+    $response->getBody()->willReturn($stream->reveal());
+    $this->clientProphecy
+      ->makeRequest(
+        'get',
+        "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download",
+          Argument::type('array')
+      )
+      ->willReturn($response->reveal())
       ->shouldBeCalled();
   }
 

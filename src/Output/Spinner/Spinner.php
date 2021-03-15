@@ -2,9 +2,11 @@
 
 namespace Acquia\Cli\Output\Spinner;
 
+use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Terminal;
 
 /**
  *
@@ -76,10 +78,12 @@ class Spinner {
 
   private $currentCharIdx = 0;
   /**
-   * @var int*/
+   * @var int
+   */
   private $currentColorIdx = 0;
   /**
-   * @var int*/
+   * @var int
+   */
   private $colorCount;
   /**
    * @var \Symfony\Component\Console\Helper\ProgressBar
@@ -87,11 +91,13 @@ class Spinner {
   private $progressBar;
 
   /**
-   * @var int*/
+   * @var int
+   */
   private $colorLevel;
 
   /**
-   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput*/
+   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
+   */
   private $section;
   /**
    * @var string
@@ -103,12 +109,18 @@ class Spinner {
   private $output;
 
   /**
+   * @var int
+   */
+  private $indentLength;
+
+  /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param int $indent
    * @param int $colorLevel
    */
   public function __construct(OutputInterface $output, $indent = 0, $colorLevel = Color::COLOR_256) {
     $this->output = $output;
+    $this->indentLength = $indent;
     $this->indentString = str_repeat(' ', $indent);
 
     if (!$this->spinnerIsSupported()) {
@@ -123,9 +135,10 @@ class Spinner {
     $this->progressBar->setBarCharacter('<info>✔</info>');
     $this->progressBar->setProgressCharacter('⌛');
     $this->progressBar->setEmptyBarCharacter('⌛');
-    $this->progressBar->setFormat($this->indentString . '%bar% %message%');
+    $this->progressBar->setFormat($this->indentString . "%bar% %message%\n%detail%");
     $this->progressBar->setBarWidth(1);
     $this->progressBar->setRedrawFrequency($this->interval());
+    $this->progressBar->setMessage('', 'detail');
   }
 
   /**
@@ -142,7 +155,7 @@ class Spinner {
    *
    */
   public function advance(): void {
-    if (!$this->spinnerIsSupported()) {
+    if (!$this->spinnerIsSupported() || $this->progressBar->getProgressPercent() === 1.0) {
       return;
     }
 
@@ -173,12 +186,24 @@ class Spinner {
 
   /**
    * @param string $message
+   * @param string $name
    */
-  public function setMessage(string $message): void {
+  public function setMessage(string $message, $name = 'message'): void {
     if (!$this->spinnerIsSupported()) {
       return;
     }
-    $this->progressBar->setMessage($message);
+    if ($name === 'detail') {
+      $terminal_width = (new Terminal())->getWidth();
+      $message_length = Helper::strlen($message) + ($this->indentLength * 2);
+      if ($message_length > $terminal_width) {
+        $suffix = '...';
+        $new_message_len = ($terminal_width - ($this->indentLength * 2) - strlen($suffix));
+        $message = Helper::substr($message, 0, $new_message_len);
+        $message .= $suffix;
+      }
+    }
+
+    $this->progressBar->setMessage($message, $name);
   }
 
   /**
@@ -188,8 +213,9 @@ class Spinner {
     if (!$this->spinnerIsSupported()) {
       return;
     }
-    $this->section->overwrite($this->indentString . '<info>✔</info> ' . $this->progressBar->getMessage());
     $this->progressBar->finish();
+    // Clear the %detail% line.
+    $this->section->clear(1);
   }
 
   /**
@@ -199,8 +225,9 @@ class Spinner {
     if (!$this->spinnerIsSupported()) {
       return;
     }
-    $this->section->overwrite($this->indentString . '❌' . $this->progressBar->getMessage());
     $this->progressBar->finish();
+    // Clear the %detail% line.
+    $this->section->clear(1);
   }
 
   /**

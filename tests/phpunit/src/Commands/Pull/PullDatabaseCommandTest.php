@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
@@ -10,6 +11,7 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -145,6 +147,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($local_machine_helper, TRUE);
     // Set up file system.
     $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
@@ -168,6 +171,28 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $success
    */
+  protected function mockExecuteMySqlConnect(
+    ObjectProphecy $local_machine_helper,
+    $success
+  ): void {
+    $process = $this->mockProcess($success);
+    $local_machine_helper
+      ->execute([
+        'mysql',
+        '--host',
+        'localhost',
+        '--user',
+        'drupal',
+        'drupal',
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $success
+   */
   protected function mockExecuteMySqlDropDb(
     ObjectProphecy $local_machine_helper,
     $success
@@ -180,10 +205,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         'localhost',
         '--user',
         'drupal',
-        '--password=drupal',
         '-e',
         'DROP DATABASE IF EXISTS drupal',
-      ], Argument::type('callable'), NULL, FALSE)
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -204,10 +228,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         'localhost',
         '--user',
         'drupal',
-        '--password=drupal',
         '-e',
         'create database drupal',
-      ], Argument::type('callable'), NULL, FALSE)
+      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -236,7 +259,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $process = $this->mockProcess($success);
     $local_machine_helper->writeFile(
       Argument::containingString("backup-something-profserv2.sql.gz"),
-      Argument::type(StreamInterface::class)
+      'backupfilecontents'
     )
       ->shouldBeCalled();
   }
@@ -262,6 +285,21 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $fs->remove(Argument::type('string'))
       ->willReturn()
       ->shouldBeCalled();
+  }
+
+  public function testDownloadProgressDisplay(): void {
+    $output = new BufferedOutput();
+    $progress = NULL;
+    PullCommandBase::displayDownloadProgress(100, 0, $progress, $output);
+    $this->assertStringContainsString('0/100 [💧---------------------------]   0%', $output->fetch());
+
+    // Need to sleep to prevent the default redraw frequency from skipping display.
+    sleep(1);
+    PullCommandBase::displayDownloadProgress(100, 50, $progress, $output);
+    $this->assertStringContainsString('50/100 [==============💧-------------]  50%', $output->fetch());
+
+    PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
+    $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
 }

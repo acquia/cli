@@ -73,6 +73,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
     }
+    // @todo Validate or set file permissions.
 
     return $filepath;
   }

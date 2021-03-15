@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,9 +33,15 @@ abstract class IdeCommandBase extends CommandBase {
     if (empty($ides)) {
       throw new AcquiaCliException('No IDEs exist for this application.');
     }
-    /** @var IdeResponse $ide_response */
-    $ide_response = $this->promptChooseFromObjectsOrArrays($ides, 'uuid', 'label', $question_text);
-    return $ide_response;
+
+    $choices = [];
+    foreach ($ides as $key => $ide) {
+      $choices[] = "{$ide->label} ($ide->uuid)";
+    }
+    $choice = $this->io->choice($question_text, $choices);
+    $chosen_environment_index = array_search($choice, $choices, TRUE);
+
+    return $ides[$chosen_environment_index];
   }
 
   /**

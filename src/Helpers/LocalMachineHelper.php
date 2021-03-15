@@ -51,17 +51,18 @@ class LocalMachineHelper {
    *
    * @param array $cmd
    *   The command to execute.
-   * @param callable $callback
+   * @param null $callback
    *   A function to run while waiting for the process to complete.
-   * @param string $cwd
+   * @param null $cwd
    * @param bool $print_output
-   * @param int $timeout
+   * @param null $timeout
+   * @param null $env
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL): Process {
+  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = new Process($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
+    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
     return $this->executeProcess($process, $callback);
   }
 
@@ -85,11 +86,12 @@ class LocalMachineHelper {
    * @param \Symfony\Component\Process\Process $process
    * @param string|null $cwd
    * @param bool $print_output
-   * @param int $timeout
+   * @param null $timeout
+   * @param null $env
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = NULL) {
+  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL) {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
@@ -98,6 +100,9 @@ class LocalMachineHelper {
     }
     if ($print_output) {
       $process->setTty($this->useTty());
+    }
+    if ($env) {
+      $process->setEnv($env);
     }
     $process->setTimeout($timeout);
 
