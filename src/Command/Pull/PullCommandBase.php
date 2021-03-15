@@ -106,7 +106,7 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output);
     $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
-    if ($input->getOption('on-demand')) {
+    if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
