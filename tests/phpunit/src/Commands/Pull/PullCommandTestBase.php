@@ -105,6 +105,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         'cache:rebuild',
         '--yes',
         '--no-interaction',
+        '--verbose',
       ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
@@ -124,6 +125,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         'sql:sanitize',
         '--yes',
         '--no-interaction',
+        '--verbose',
       ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
