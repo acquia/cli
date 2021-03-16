@@ -41,7 +41,7 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->setDirAndRequireProjectCwd($input);
-    $destination_environment = $this->determineEnvironment($input, $output);
+    $destination_environment = $this->determineEnvironment($input, $output, FALSE);
     if ($this->isAcsfEnv($destination_environment)) {
       $chosen_site = $this->promptChooseAcsfSite($destination_environment);
     }
