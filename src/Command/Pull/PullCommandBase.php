@@ -643,6 +643,15 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   */
+  protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
+    if (!$this->environmentPhpVersionMatches($environment)) {
+      $this->io->warning("You are using PHP version {$this->getCurrentPhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
+    }
+  }
+
+  /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    *
@@ -652,8 +661,7 @@ abstract class PullCommandBase extends CommandBase {
     OutputInterface $output,
     EnvironmentResponse $chosen_environment
   ): void {
-    $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
-    if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->environmentPhpVersionMatches($chosen_environment)) {
       $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
@@ -661,6 +669,23 @@ abstract class PullCommandBase extends CommandBase {
           $output);
       }
     }
+  }
+
+  /**
+   * @param $environment
+   *
+   * @return bool
+   */
+  protected function environmentPhpVersionMatches($environment): bool {
+    $current_php_version = $this->getCurrentPhpVersion();
+    return $environment->configuration->php->version !== $current_php_version;
+  }
+
+  /**
+   * @return string
+   */
+  protected function getCurrentPhpVersion(): string {
+    return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**
