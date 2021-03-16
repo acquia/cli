@@ -678,7 +678,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function environmentPhpVersionMatches($environment): bool {
     $current_php_version = $this->getCurrentPhpVersion();
-    return $environment->configuration->php->version !== $current_php_version;
+    return $environment->configuration->php->version === $current_php_version;
   }
 
   /**
