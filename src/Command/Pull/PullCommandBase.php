@@ -85,7 +85,7 @@ abstract class PullCommandBase extends CommandBase {
   protected function pullCode(InputInterface $input, OutputInterface $output): void {
     $this->setDirAndRequireProjectCwd($input);
     $clone = $this->determineCloneProject($output);
-    $source_environment = $this->determineEnvironment($input, $output);
+    $source_environment = $this->determineEnvironment($input, $output, TRUE);
 
     if ($clone) {
       $this->checklist->addItem('Cloning git repository from the Cloud Platform');
@@ -109,8 +109,8 @@ abstract class PullCommandBase extends CommandBase {
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
     $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $source_environment = $this->determineEnvironment($input, $output);
-    $database = $this->determineSourceDatabase($acquia_cloud_client, $source_environment);
+    $source_environment = $this->determineEnvironment($input, $output, TRUE);
+    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment);
     if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
@@ -135,7 +135,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function pullFiles(InputInterface $input, OutputInterface $output): void {
     $this->setDirAndRequireProjectCwd($input);
-    $source_environment = $this->determineEnvironment($input, $output);
+    $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
     $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
@@ -473,14 +473,19 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param $acquia_cloud_client
    * @param string $cloud_application_uuid
+   * @param bool $allow_production
    *
    * @return mixed
    */
-  protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid) {
+  protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
     $choices = [];
     foreach ($application_environments as $key => $environment) {
+      if (!$allow_production && $environment->flags->production) {
+        unset($application_environments[$key]);
+        continue;
+      }
       $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
     $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices);
@@ -587,7 +592,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineSourceDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
+  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
@@ -663,7 +668,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
    * @throws \Exception
    */
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output) {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, $allow_production = FALSE) {
     if (isset($this->sourceEnvironment)) {
       return $this->sourceEnvironment;
     }
@@ -677,7 +682,7 @@ abstract class PullCommandBase extends CommandBase {
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
       $output->writeln('Using Cloud Application <options=bold>' . $cloud_application->name . '</>');
       $acquia_cloud_client = $this->cloudApiClientService->getClient();
-      $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid);
+      $chosen_environment = $this->promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production);
     }
     $this->logger->debug("Using environment {$chosen_environment->label} {$chosen_environment->uuid}");
 

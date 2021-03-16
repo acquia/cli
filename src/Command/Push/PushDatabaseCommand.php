@@ -41,9 +41,9 @@ class PushDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $destination_environment = $this->determineEnvironment($input, $output);
+    $destination_environment = $this->determineEnvironment($input, $output, FALSE);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $database = $this->determineSourceDatabase($acquia_cloud_client, $destination_environment);
+    $database = $this->determineCloudDatabase($acquia_cloud_client, $destination_environment);
 
     $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
