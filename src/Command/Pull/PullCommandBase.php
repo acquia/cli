@@ -11,6 +11,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
+use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -248,7 +249,7 @@ abstract class PullCommandBase extends CommandBase {
   protected function downloadDatabaseDump(
     $environment,
     $database,
-    $backup_response,
+    BackupResponse $backup_response,
     Client $acquia_cloud_client,
     $output_callback = NULL
   ): string {
@@ -269,10 +270,10 @@ abstract class PullCommandBase extends CommandBase {
         self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
-    $url = "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download";
+    $url = parse_url($backup_response->links->self->href, PHP_URL_PATH);
     $response = $acquia_cloud_client->makeRequest('get', $url, $options);
     if ($response->getStatusCode() !== 200) {
-      throw new AcquiaCliException("Unable to download database copy from $url. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
+      throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
     }
     $backup_file = $response->getBody()->getContents();
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
