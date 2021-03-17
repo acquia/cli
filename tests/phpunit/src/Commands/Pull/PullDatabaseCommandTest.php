@@ -134,7 +134,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $this->createMockGitConfigFile();
     $this->mockDatabasesResponse($environments_response);
-    $this->mockDatabaseBackupsResponse($environments_response, 'profserv2');
+    $this->mockDatabaseBackupsResponse($environments_response, 'profserv2', 1);
     $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);

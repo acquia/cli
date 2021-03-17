@@ -7,6 +7,10 @@
     "completed_at": "something",
     "flags": "",
     "environment": "",
-    "_links": ""
+    "_links": {
+      "self": {
+        "href": ""
+      }
+    }
   }
 ]
