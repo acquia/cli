@@ -355,7 +355,7 @@ abstract class CommandTestBase extends TestBase {
     $backup_id
   ) {
     $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/backups_response.json')));
-    $databases_response[0]->_links->self->href = "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download";
+    $databases_response[0]->_links->download->href = "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download";
     $this->clientProphecy->request('get',
       "/environments/{$environments_response->id}/databases/{$db_name}/backups")
       ->willReturn($databases_response)

@@ -270,7 +270,8 @@ abstract class PullCommandBase extends CommandBase {
         self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
-    $url = parse_url($backup_response->links->self->href, PHP_URL_PATH);
+    $url = parse_url($backup_response->links->download->href, PHP_URL_PATH);
+    $url = str_replace('/api', '', $url);
     $response = $acquia_cloud_client->makeRequest('get', $url, $options);
     if ($response->getStatusCode() !== 200) {
       throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
