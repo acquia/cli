@@ -243,6 +243,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param callable|null $output_callback
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function downloadDatabaseDump(
     $environment,
@@ -268,7 +269,11 @@ abstract class PullCommandBase extends CommandBase {
         self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
       },
     ];
-    $response = $acquia_cloud_client->makeRequest('get', "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $options);
+    $url = "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download";
+    $response = $acquia_cloud_client->makeRequest('get', $url, $options);
+    if ($response->getStatusCode() !== 200) {
+      throw new AcquiaCliException("Unable to download database copy from $url. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
+    }
     $backup_file = $response->getBody()->getContents();
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
