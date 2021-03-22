@@ -344,14 +344,18 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param object $environments_response
+   * @param $db_name
+   * @param $backup_id
    *
    * @return object
    */
   protected function mockDatabaseBackupsResponse(
     $environments_response,
-    $db_name
+    $db_name,
+    $backup_id
   ) {
     $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/backups_response.json')));
+    $databases_response[0]->_links->download->href = "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download";
     $this->clientProphecy->request('get',
       "/environments/{$environments_response->id}/databases/{$db_name}/backups")
       ->willReturn($databases_response)
@@ -360,6 +364,13 @@ abstract class CommandTestBase extends TestBase {
     return $databases_response;
   }
 
+  /**
+   * @param $environments_response
+   * @param $db_name
+   * @param $backup_id
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy|ResponseInterface
+   */
   protected function mockDownloadBackupResponse(
     $environments_response,
     $db_name,
@@ -369,6 +380,7 @@ abstract class CommandTestBase extends TestBase {
     $stream->getContents()->willReturn('backupfilecontents');
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getBody()->willReturn($stream->reveal());
+    $response->getStatusCode()->willReturn(200);
     $this->clientProphecy
       ->makeRequest(
         'get',
