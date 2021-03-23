@@ -44,7 +44,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Choose an SSH key to delete from the Cloud Platform:', $output);
+    $this->assertStringContainsString('Choose an SSH key to delete from the Cloud Platform', $output);
     $this->assertStringContainsString($ssh_key_list_response->_embedded->items[0]->label, $output);
   }
 
