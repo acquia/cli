@@ -38,7 +38,7 @@ abstract class IdeCommandBase extends CommandBase {
     foreach ($ides as $key => $ide) {
       $choices[] = "{$ide->label} ($ide->uuid)";
     }
-    $choice = $this->io->choice($question_text, $choices);
+    $choice = $this->io->choice($question_text, $choices, $choices[0]);
     $chosen_environment_index = array_search($choice, $choices, TRUE);
 
     return $ides[$chosen_environment_index];
