@@ -39,7 +39,7 @@ class NewCommand extends CommandBase {
       'acquia/drupal-recommended-project',
       'acquia/drupal-minimal-project',
     ];
-    $project = $this->io->choice('Choose a starting project', $distros);
+    $project = $this->io->choice('Choose a starting project', $distros, $distros[0]);
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));

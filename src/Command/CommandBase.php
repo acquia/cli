@@ -554,7 +554,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     $labels = array_values($list);
-    $question = new ChoiceQuestion($question_text, $labels);
+    $default = $multiselect ? NULL : $labels[0];
+    $question = new ChoiceQuestion($question_text, $labels, $default);
     $question->setMultiselect($multiselect);
     $choice_id = $this->io->askQuestion($question);
     if (!$multiselect) {
@@ -1396,7 +1397,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     foreach ($acsf_sites['sites'] as $domain => $acsf_site) {
       $choices[] = "{$acsf_site['name']} ($domain)";
     }
-    $choice = $this->io->choice('Choose a site', $choices);
+    $choice = $this->io->choice('Choose a site', $choices, $choices[0]);
     $key = array_search($choice, $choices, TRUE);
     $sites = array_values($acsf_sites['sites']);
     $site = $sites[$key];
@@ -1416,7 +1417,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $site = reset($sites);
       return $site;
     }
-    return $this->io->choice('Choose a site', $sites);
+    return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
 
   /**

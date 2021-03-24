@@ -495,7 +495,7 @@ abstract class PullCommandBase extends CommandBase {
       }
       $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
     }
-    $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices);
+    $chosen_environment_label = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
     $chosen_environment_index = array_search($chosen_environment_label, $choices, TRUE);
 
     return $application_environments[$chosen_environment_index];
