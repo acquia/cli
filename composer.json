@@ -31,7 +31,7 @@
     "react/event-loop": "^1.1",
     "symfony/cache": "^5.1",
     "symfony/config": "^5.1",
-    "symfony/console": "^5.1",
+    "symfony/console": "^5.2.6",
     "symfony/dependency-injection": "^5.1",
     "symfony/dotenv": "^5.1",
     "symfony/event-dispatcher": "^5.1",
@@ -85,11 +85,6 @@
   "extra": {
     "branch-alias": {
       "dev-master": "1.x-dev"
-    },
-    "patches": {
-      "symfony/console": [
-        "https://github.com/symfony/symfony/commit/57910d696b1a3b8573cd562d438880854ba4328e.patch"
-      ]
     },
     "patchLevel": {
       "symfony/console": "-p5"
