@@ -63,4 +63,14 @@ class CloudCredentials {
     return NULL;
   }
 
+  /**
+   * @return string|null
+   */
+  public function getBaseUri(): ?string {
+    if (getenv('ACLI_CLOUD_API_BASE_URI')) {
+      return getenv('ACLI_CLOUD_API_BASE_URI');
+    }
+    return NULL;
+  }
+
 }
