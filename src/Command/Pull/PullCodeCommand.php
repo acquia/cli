@@ -36,6 +36,7 @@ class PullCodeCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->pullCode($input, $output);
+    $this->checkEnvironmentPhpVersions($this->sourceEnvironment);
     $this->matchIdePhpVersion($output, $this->sourceEnvironment);
     if (!$input->getOption('no-scripts')) {
       $output_callback = $this->getOutputCallback($output, $this->checklist);
