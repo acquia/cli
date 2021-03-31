@@ -112,13 +112,18 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment);
+
     if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
     }
-    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+    if ($input->hasOption('on-demand') && !$input->getOption('on-demand')) {
+      $this->printDatabaseBackupInfo($backup_response, $source_environment);
+    }
+
+    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
 
@@ -921,11 +926,35 @@ abstract class PullCommandBase extends CommandBase {
     }
     $backup_response = $backups_response[0];
     $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
-    $interval = time() - strtotime($backup_response->completedAt);
-    if ($interval > 24 * 60 * 60) {
-      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the <options=bold>--on-demand</> option.');
-    }
+
     return $backup_response;
+  }
+
+  /**
+   * Print information to the console about the selected database backup.
+   *
+   * @param BackupResponse $backup_response
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   */
+  protected function printDatabaseBackupInfo(
+    BackupResponse $backup_response,
+    EnvironmentResponse $source_environment
+  ): void {
+    $interval = time() - strtotime($backup_response->completedAt);
+    $hours_interval = floor($interval / 60 / 60);
+    $date_formatted = date("D M j G:i:s T Y", strtotime($backup_response->completedAt));
+    $web_link = "https://cloud.acquia.com/a/environments/{$source_environment->uuid}/databases";
+    $messages = [
+      "Using a database backup that is $hours_interval hours old. Backup #{$backup_response->id} was created at {$date_formatted}.",
+      "You can view your backups here: {$web_link}",
+      "To generate a new backup, re-run this command with the --on-demand or --od option."
+    ];
+    if ($hours_interval > 24) {
+      $this->io->warning($messages);
+    }
+    else {
+      $this->io->info($messages);
+    }
   }
 
 }
