@@ -621,22 +621,27 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineCloneProject(OutputInterface $output): bool {
+    $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
+
+    // If we are in an IDE, assume we should pull into /home/ide/project.
+    if ($this->dir === '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$finder->hasResults()) {
+      $output->writeln('Cloning into current directory.');
+      return TRUE;
+    }
+
+    // If $this->repoRoot is set, pull into that dir rather than cloning.
     if ($this->repoRoot) {
       return FALSE;
     }
-    // @todo Don't show this message when a the 'dir' argument is specified.
-    $output->writeln('Could not find a local Drupal project. Looked for <options=bold>docroot/index.php</> in current and parent directories');
 
+    // If ./.git exists, assume we pull into that dir rather than cloning.
     if (file_exists(Path::join($this->dir, '.git'))) {
       return FALSE;
     }
     $output->writeln('Could not find a git repository in the current directory');
 
-    $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
-    if (!$finder->hasResults()) {
-      if ($this->io->confirm('Would you like to clone a project into the current directory?')) {
-        return TRUE;
-      }
+    if (!$finder->hasResults() && $this->io->confirm('Would you like to clone a project into the current directory?')) {
+      return TRUE;
     }
 
     $output->writeln('Could not clone into the current directory because it is not empty');
