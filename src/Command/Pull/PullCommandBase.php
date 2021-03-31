@@ -933,11 +933,11 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * Print information to the console about the selected database backup.
    *
-   * @param bool $backup_response
+   * @param BackupResponse $backup_response
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
    */
   protected function printDatabaseBackupInfo(
-    bool $backup_response,
+    BackupResponse $backup_response,
     EnvironmentResponse $source_environment
   ): void {
     $interval = time() - strtotime($backup_response->completedAt);
