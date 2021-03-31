@@ -123,7 +123,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($input->hasOption('on-demand') && !$input->getOption('on-demand')) {
       $interval = time() - strtotime($backup_response->completedAt);
       $hours_interval = $interval * 60 * 60;
-      $this->io->note([
+      $this->io->info([
         "Using database backup that is <options=bold>{$hours_interval}</> hours old, created at {$backup_response->completedAt}.",
         "To generate a new backup, re-run this command with the <options=bold>--on-demand</> option."
       ]);
