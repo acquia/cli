@@ -25,7 +25,7 @@ class PullDatabaseCommand extends PullCommandBase {
       ->acceptEnvironmentId()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
-      ->addOption('on-demand', NULL, InputOption::VALUE_NONE,
+      ->addOption('on-demand', 'od', InputOption::VALUE_NONE,
         'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
