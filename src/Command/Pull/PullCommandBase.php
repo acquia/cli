@@ -112,13 +112,24 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment);
+
     if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
     }
-    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+
+    if ($input->hasOption('on-demand') && !$input->getOption('on-demand')) {
+      $interval = time() - strtotime($backup_response->completedAt);
+      $hours_interval = $interval * 60 * 60;
+      $this->io->note([
+        "Using database backup that is <options=bold>{$hours_interval}</> hours old, created at {$backup_response->completedAt}.",
+        "To generate a new backup, re-run this command with the <options=bold>--on-demand</> option."
+      ]);
+    }
+
+    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
 
@@ -921,10 +932,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     $backup_response = $backups_response[0];
     $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
-    $interval = time() - strtotime($backup_response->completedAt);
-    if ($interval > 24 * 60 * 60) {
-      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the <options=bold>--on-demand</> option.');
-    }
+
     return $backup_response;
   }
 
