@@ -75,6 +75,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -111,6 +113,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -144,6 +148,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -178,6 +184,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -224,6 +232,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -336,6 +346,19 @@ class PullCodeCommandTest extends PullCommandTestBase {
     ], Argument::type('callable'), $cwd, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockFinder(): ObjectProphecy {
+    $finder = $this->prophet->prophesize(Finder::class);
+    $finder->files()->willReturn($finder);
+    $finder->in(Argument::type('string'))->willReturn($finder);
+    $finder->ignoreDotFiles(FALSE)->willReturn($finder);
+    $finder->hasResults()->willReturn($finder);
+
+    return $finder;
   }
 
 }
