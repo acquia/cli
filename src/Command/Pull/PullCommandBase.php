@@ -482,6 +482,20 @@ abstract class PullCommandBase extends CommandBase {
     return (bool) $process->getOutput();
   }
 
+  protected function getLocalGitCommitHash(): string {
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'rev-parse',
+      'HEAD',
+    ], NULL, $this->dir, FALSE);
+
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to determine Git commit hash.");
+    }
+
+    return trim($process->getOutput());
+  }
+
   /**
    * @param $acquia_cloud_client
    * @param string $cloud_application_uuid
