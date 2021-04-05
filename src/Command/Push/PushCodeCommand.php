@@ -205,7 +205,8 @@ class PushCodeCommand extends PullCommandBase {
       'docroot/modules/contrib',
       'docroot/themes/contrib',
       'docroot/profiles/contrib',
-      'docroot/libraries'
+      'docroot/libraries',
+      'drush/Commands'
     ];
   }
 
