@@ -8,6 +8,7 @@ use Acquia\Cli\Output\Checklist;
 use Closure;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Webmozart\PathUtil\Path;
@@ -30,6 +31,7 @@ class PushCodeCommand extends PullCommandBase {
   protected function configure(): void {
     $this->setDescription('Push local code to a Cloud Platform environment')
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
+      ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->acceptEnvironmentId()
     ->setHelp('This command builds a sanitized deploy artifact by running composer install and removing common sensitive files. To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events');
   }
@@ -65,9 +67,11 @@ class PushCodeCommand extends PullCommandBase {
     $this->build($output_callback, $artifact_dir);
     $this->checklist->completePreviousItem();
 
-    $this->checklist->addItem('Sanitizing build artifact');
-    $this->sanitize($artifact_dir);
-    $this->checklist->completePreviousItem();
+    if (!$input->getOption('no-sanitize')) {
+      $this->checklist->addItem('Sanitizing build artifact');
+      $this->sanitize($artifact_dir);
+      $this->checklist->completePreviousItem();
+    }
 
     $this->checklist->addItem("Pushing changes to {$environment->vcs->path} branch in the {$environment->name} environment");
     $this->push($output_callback, $artifact_dir, $commit_hash);
