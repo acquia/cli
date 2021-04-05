@@ -101,6 +101,12 @@ class PushCodeCommand extends PullCommandBase {
     $this->logger->info('Global .gitignore file is temporarily disabled during artifact builds.');
     $this->localMachineHelper->executeFromCmd('git config --local core.excludesFile false', $output_callback, $artifact_dir, $this->output->isVerbose());
     $this->localMachineHelper->executeFromCmd('git config --local core.fileMode true', $output_callback, $artifact_dir, $this->output->isVerbose());
+
+    // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
+    $this->logger->info('Removing vendor directories');
+    foreach (self::vendorDirectories() as $vendor_directory) {
+      $fs->remove(Path::join($artifact_dir, $vendor_directory));
+    }
   }
 
   protected function build(Closure $output_callback, string $artifact_dir): void {
@@ -181,7 +187,19 @@ class PushCodeCommand extends PullCommandBase {
 
   protected function push(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $this->logger->info('Adding and committing changed files');
-    $force_add = [
+    $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
+    foreach (self::vendorDirectories() as $vendor_directory) {
+      // This will fatally error if the directory doesn't exist. Suppress error output.
+      $this->localMachineHelper->executeFromCmd('git add -f ' . $vendor_directory, NULL, $artifact_dir, FALSE);
+    }
+    $this->localMachineHelper->executeFromCmd('git commit -m "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"', $output_callback, $artifact_dir, $this->output->isVerbose());
+
+    $this->logger->info('Pushing changes to Acquia Git');
+    $this->localMachineHelper->executeFromCmd('git push', $output_callback, $artifact_dir, $this->output->isVerbose());
+  }
+
+  private static function vendorDirectories(): array {
+    return [
       'vendor',
       'docroot/core',
       'docroot/modules/contrib',
@@ -189,12 +207,6 @@ class PushCodeCommand extends PullCommandBase {
       'docroot/profiles/contrib',
       'docroot/libraries'
     ];
-    $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
-    $this->localMachineHelper->executeFromCmd('git add -f ' . implode(' ', $force_add), $output_callback, $artifact_dir, $this->output->isVerbose());
-    $this->localMachineHelper->executeFromCmd('git commit -m "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"', $output_callback, $artifact_dir, $this->output->isVerbose());
-
-    $this->logger->info('Pushing changes to Acquia Git');
-    $this->localMachineHelper->executeFromCmd('git push', $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
 }
