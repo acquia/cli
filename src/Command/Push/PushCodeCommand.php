@@ -112,9 +112,7 @@ class PushCodeCommand extends PullCommandBase {
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
-      ->ignoreVCSIgnored(TRUE)
-      // Ignore .gitignore files (everything should be committed to the artifact).
-      ->notName('.gitignore');
+      ->ignoreVCSIgnored(TRUE);
     $targetFinder = Finder::create();
     $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
@@ -183,7 +181,16 @@ class PushCodeCommand extends PullCommandBase {
 
   protected function push(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $this->logger->info('Adding and committing changed files');
+    $force_add = [
+      'vendor',
+      'docroot/core',
+      'docroot/modules/contrib',
+      'docroot/themes/contrib',
+      'docroot/profiles/contrib',
+      'docroot/libraries'
+    ];
     $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->executeFromCmd('git add -f ' . implode(' ', $force_add), $output_callback, $artifact_dir, $this->output->isVerbose());
     $this->localMachineHelper->executeFromCmd('git commit -m "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"', $output_callback, $artifact_dir, $this->output->isVerbose());
 
     $this->logger->info('Pushing changes to Acquia Git');
