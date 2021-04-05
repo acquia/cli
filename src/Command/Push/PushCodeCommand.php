@@ -34,7 +34,9 @@ class PushCodeCommand extends PullCommandBase {
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->acceptEnvironmentId()
-    ->setHelp('This command builds a sanitized deploy artifact by running composer install and removing common sensitive files. To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events');
+    ->setHelp("This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.\n\n"
+      . "The following vendor directories are committed to the build artifact even if they are ignored in the source repository: " . implode(', ', self::vendorDirectories()) . "\n\n"
+      . "To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events");
   }
 
   /**
@@ -204,6 +206,7 @@ class PushCodeCommand extends PullCommandBase {
     $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
     foreach (self::vendorDirectories() as $vendor_directory) {
       // This will fatally error if the directory doesn't exist. Suppress error output.
+      $this->logger->debug("Forcibly adding $vendor_directory");
       $this->localMachineHelper->executeFromCmd('git add -f ' . $vendor_directory, NULL, $artifact_dir, FALSE);
     }
     $this->localMachineHelper->executeFromCmd('git commit -m "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"', $output_callback, $artifact_dir, $this->output->isVerbose());
