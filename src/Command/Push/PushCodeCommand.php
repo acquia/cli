@@ -30,7 +30,8 @@ class PushCodeCommand extends PullCommandBase {
   protected function configure(): void {
     $this->setDescription('Push local code to a Cloud Platform environment')
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
-      ->acceptEnvironmentId();
+      ->acceptEnvironmentId()
+    ->setHelp('This command builds a sanitized deploy artifact by running composer install and removing common sensitive files. To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events');
   }
 
   /**
@@ -105,9 +106,6 @@ class PushCodeCommand extends PullCommandBase {
   protected function build(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
-
-    // @todo support user-defined scripts such as npm build, or recommend how to run them via Composer
-
     $this->logger->info("Mirroring source files from {$this->dir} to $artifact_dir");
     $originFinder = Finder::create();
     $originFinder->files()->in($this->dir)
