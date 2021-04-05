@@ -32,6 +32,7 @@ class PushCodeCommand extends PullCommandBase {
     $this->setDescription('Push local code to a Cloud Platform environment')
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
+      ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->acceptEnvironmentId()
     ->setHelp('This command builds a sanitized deploy artifact by running composer install and removing common sensitive files. To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events');
   }
@@ -73,9 +74,18 @@ class PushCodeCommand extends PullCommandBase {
       $this->checklist->completePreviousItem();
     }
 
-    $this->checklist->addItem("Pushing changes to {$environment->vcs->path} branch in the {$environment->name} environment");
-    $this->push($output_callback, $artifact_dir, $commit_hash);
+    $this->checklist->addItem("Committing changes (commit hash: $commit_hash)");
+    $this->commit($output_callback, $artifact_dir, $commit_hash);
     $this->checklist->completePreviousItem();
+
+    if (!$input->getOption('dry-run')) {
+      $this->checklist->addItem("Pushing changes to {$environment->vcs->path} branch in the {$environment->name} environment");
+      $this->push($output_callback, $artifact_dir);
+      $this->checklist->completePreviousItem();
+    }
+    else {
+      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at $artifact_dir");
+    }
 
     return 0;
   }
@@ -189,7 +199,7 @@ class PushCodeCommand extends PullCommandBase {
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
 
-  protected function push(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
+  protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $this->logger->info('Adding and committing changed files');
     $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
     foreach (self::vendorDirectories() as $vendor_directory) {
@@ -197,7 +207,9 @@ class PushCodeCommand extends PullCommandBase {
       $this->localMachineHelper->executeFromCmd('git add -f ' . $vendor_directory, NULL, $artifact_dir, FALSE);
     }
     $this->localMachineHelper->executeFromCmd('git commit -m "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"', $output_callback, $artifact_dir, $this->output->isVerbose());
+  }
 
+  protected function push(Closure $output_callback, string $artifact_dir):void {
     $this->logger->info('Pushing changes to Acquia Git');
     $this->localMachineHelper->executeFromCmd('git push', $output_callback, $artifact_dir, $this->output->isVerbose());
   }
