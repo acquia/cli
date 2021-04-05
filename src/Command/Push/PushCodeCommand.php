@@ -177,7 +177,6 @@ class PushCodeCommand extends PullCommandBase {
       $sanitizeFinder->append($textFileFinder);
     }
 
-    // @todo support custom sanitization as with BLT?
     $this->logger->info("Removing sanitized files from build");
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
