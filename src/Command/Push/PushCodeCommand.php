@@ -58,7 +58,12 @@ class PushCodeCommand extends PullCommandBase {
     $this->checklist = new Checklist($output);
 
     // @todo handle environments with tags deployed
-    $environment = $this->determineEnvironment($input, $output, FALSE);
+    $this->logger->warning('You must select an environment with a Git branch deployed');
+    $environment = $this->determineEnvironment($input, $output, TRUE);
+    if (strpos($environment->vcs->path, 'tags') === 0) {
+      $this->logger->alert("Environments with Git tags are not supported. Environment {$environment->name} has {$environment->vcs->path} deployed.");
+      return 1;
+    }
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
