@@ -35,7 +35,7 @@ class PushCodeCommand extends PullCommandBase {
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->acceptEnvironmentId()
     ->setHelp("This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.\n\n"
-      . "The following vendor directories are committed to the build artifact even if they are ignored in the source repository: " . implode(', ', self::vendorDirectories()) . "\n\n"
+      . "The following vendor files and directories are committed to the build artifact even if they are ignored in the source repository: " . implode(', ', self::vendorFiles()) . "\n\n"
       . "To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events");
   }
 
@@ -124,7 +124,7 @@ class PushCodeCommand extends PullCommandBase {
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
     $this->logger->info('Removing vendor directories');
-    foreach (self::vendorDirectories() as $vendor_directory) {
+    foreach (self::vendorFiles() as $vendor_directory) {
       $fs->remove(Path::join($artifact_dir, $vendor_directory));
     }
   }
@@ -208,7 +208,7 @@ class PushCodeCommand extends PullCommandBase {
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $this->logger->info('Adding and committing changed files');
     $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
-    foreach (self::vendorDirectories() as $vendor_directory) {
+    foreach (self::vendorFiles() as $vendor_directory) {
       // This will fatally error if the directory doesn't exist. Suppress error output.
       $this->logger->debug("Forcibly adding $vendor_directory");
       $this->localMachineHelper->executeFromCmd('git add -f ' . $vendor_directory, NULL, $artifact_dir, FALSE);
@@ -221,7 +221,7 @@ class PushCodeCommand extends PullCommandBase {
     $this->localMachineHelper->executeFromCmd('git push', $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
-  private static function vendorDirectories(): array {
+  private static function vendorFiles(): array {
     return [
       'vendor',
       'docroot/core',
@@ -229,7 +229,13 @@ class PushCodeCommand extends PullCommandBase {
       'docroot/themes/contrib',
       'docroot/profiles/contrib',
       'docroot/libraries',
-      'drush/Commands'
+      'drush/Commands',
+      'docroot/index.php',
+      'docroot/.htaccess',
+      'docroot/autoload.php',
+      'docroot/robots.txt',
+      'docroot/update.php',
+      'docroot/web.config'
     ];
   }
 
