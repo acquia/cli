@@ -281,7 +281,8 @@ abstract class PullCommandBase extends CommandBase {
     if ($response->getStatusCode() !== 200) {
       throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
     }
-    $backup_file = $response->getBody()->getContents();
+    // Get the response body as a stream to avoid ludicrous memory usage.
+    $backup_file = $response->getBody();
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
     return $local_filepath;
