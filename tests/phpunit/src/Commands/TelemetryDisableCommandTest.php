@@ -16,25 +16,9 @@ use Webmozart\PathUtil\Path;
  * @property \Acquia\Cli\Command\TelemetryDisableCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class TelemetryDisableCommandTest extends CommandTestBase {
+class TelemetryDisableCommandTest extends TelemetryCommandTestBase {
 
   /**
-   * @var string
-   */
-  protected $legacyAcliConfigFilepath;
-
-  public function setUp($output = NULL): void {
-    parent::setUp($output);
-    $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
-
-  /**b
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
@@ -53,7 +37,6 @@ class TelemetryDisableCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('Telemetry has been disabled.', $output);
 
-    // @todo Don't actually change the fixture during the test! Copy to temp dir.
     $settings = json_decode(file_get_contents($this->cloudConfigFilepath), TRUE);
     $this->assertFalse($settings['send_telemetry']);
   }

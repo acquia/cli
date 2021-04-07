@@ -17,23 +17,7 @@ use Webmozart\PathUtil\Path;
  * @property \Acquia\Cli\Command\TelemetryEnableCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class TelemetryEnableCommandTest extends CommandTestBase {
-
-  /**
-   * @var string
-   */
-  protected $legacyAcliConfigFilepath;
-
-  public function setUp($output = NULL): void {
-    parent::setUp($output);
-    $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
+class TelemetryEnableCommandTest extends TelemetryCommandTestBase {
 
   /**b
    * {@inheritdoc}
@@ -54,7 +38,6 @@ class TelemetryEnableCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('Telemetry has been enabled.', $output);
 
-    // @todo Don't actually change the fixture during the test! Copy to temp dir.
     $settings = json_decode(file_get_contents($this->cloudConfigFilepath), TRUE);
     $this->assertTrue($settings['send_telemetry']);
   }

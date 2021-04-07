@@ -15,23 +15,7 @@ use Webmozart\PathUtil\Path;
  * @property \Acquia\Cli\Command\TelemetryCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class TelemetryCommandTest extends CommandTestBase {
-
-  /**
-   * @var string
-   */
-  protected $legacyAcliConfigFilepath;
-
-  public function setUp($output = NULL): void {
-    parent::setUp($output);
-    $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
+class TelemetryCommandTest extends TelemetryCommandTestBase {
 
   /**b
    * {@inheritdoc}
