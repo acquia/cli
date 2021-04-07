@@ -41,14 +41,14 @@ class TelemetryCommand extends CommandBase {
     $datastore = $this->datastoreCloud;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-      $this->output->writeln('<info>Telemetry has been disabled.</info>');
+      $this->io->success('Telemetry has been disabled.');
     }
     else {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
-      $this->output->writeln('<info>Telemetry has been enabled.</info>');
+      $this->io->success('Telemetry has been enabled.');
     }
     $opposite_verb = $datastore->get(DataStoreContract::SEND_TELEMETRY) ? 'disable' : 'enable';
-    $this->output->writeln("<info>Run this command again to $opposite_verb telemetry</info>");
+    $this->io->writeln("Run this command again to $opposite_verb telemetry");
 
     return 0;
   }

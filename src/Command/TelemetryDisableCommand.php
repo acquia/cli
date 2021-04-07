@@ -39,7 +39,7 @@ class TelemetryDisableCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $datastore = $this->datastoreCloud;
     $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-    $this->io->success('<info>Telemetry has been disabled.</info>');
+    $this->io->success('Telemetry has been disabled.');
 
     return 0;
   }

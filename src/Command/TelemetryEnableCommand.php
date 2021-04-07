@@ -39,7 +39,7 @@ class TelemetryEnableCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $datastore = $this->datastoreCloud;
     $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
-    $this->io->success('<info>Telemetry has been enabled.</info>');
+    $this->io->success('Telemetry has been enabled.');
 
     return 0;
   }
