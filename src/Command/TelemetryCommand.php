@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class TelemetryCommand extends CommandBase {
 
-  protected static $defaultName = 'telemetry';
+  protected static $defaultName = 'telemetry:toggle';
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -26,7 +26,8 @@ class TelemetryCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Toggle anonymous sharing of usage and performance data');
+    $this->setDescription('Toggle anonymous sharing of usage and performance data')
+      ->setAliases(['telemetry']);
   }
 
   /**
