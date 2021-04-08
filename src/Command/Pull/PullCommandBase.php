@@ -112,13 +112,18 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment);
+
     if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
     }
-    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+    if ($input->hasOption('on-demand') && !$input->getOption('on-demand')) {
+      $this->printDatabaseBackupInfo($backup_response, $source_environment);
+    }
+
+    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
     $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
 
@@ -276,7 +281,8 @@ abstract class PullCommandBase extends CommandBase {
     if ($response->getStatusCode() !== 200) {
       throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
     }
-    $backup_file = $response->getBody()->getContents();
+    // Get the response body as a stream to avoid ludicrous memory usage.
+    $backup_file = $response->getBody();
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
 
     return $local_filepath;
@@ -621,22 +627,27 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineCloneProject(OutputInterface $output): bool {
+    $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
+
+    // If we are in an IDE, assume we should pull into /home/ide/project.
+    if ($this->dir === '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$finder->hasResults()) {
+      $output->writeln('Cloning into current directory.');
+      return TRUE;
+    }
+
+    // If $this->repoRoot is set, pull into that dir rather than cloning.
     if ($this->repoRoot) {
       return FALSE;
     }
-    // @todo Don't show this message when a the 'dir' argument is specified.
-    $output->writeln('Could not find a local Drupal project. Looked for <options=bold>docroot/index.php</> in current and parent directories');
 
+    // If ./.git exists, assume we pull into that dir rather than cloning.
     if (file_exists(Path::join($this->dir, '.git'))) {
       return FALSE;
     }
     $output->writeln('Could not find a git repository in the current directory');
 
-    $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
-    if (!$finder->hasResults()) {
-      if ($this->io->confirm('Would you like to clone a project into the current directory?')) {
-        return TRUE;
-      }
+    if (!$finder->hasResults() && $this->io->confirm('Would you like to clone a project into the current directory?')) {
+      return TRUE;
     }
 
     $output->writeln('Could not clone into the current directory because it is not empty');
@@ -718,6 +729,15 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   */
+  protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
+    if (!$this->environmentPhpVersionMatches($environment)) {
+      $this->io->warning("You are using PHP version {$this->getCurrentPhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
+    }
+  }
+
+  /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    *
@@ -727,8 +747,7 @@ abstract class PullCommandBase extends CommandBase {
     OutputInterface $output,
     EnvironmentResponse $chosen_environment
   ): void {
-    $current_php_version = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
-    if ($chosen_environment->configuration->php->version !== $current_php_version && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->environmentPhpVersionMatches($chosen_environment)) {
       $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
@@ -736,6 +755,23 @@ abstract class PullCommandBase extends CommandBase {
           $output);
       }
     }
+  }
+
+  /**
+   * @param $environment
+   *
+   * @return bool
+   */
+  protected function environmentPhpVersionMatches($environment): bool {
+    $current_php_version = $this->getCurrentPhpVersion();
+    return $environment->configuration->php->version === $current_php_version;
+  }
+
+  /**
+   * @return string
+   */
+  protected function getCurrentPhpVersion(): string {
+    return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**
@@ -916,11 +952,35 @@ abstract class PullCommandBase extends CommandBase {
     }
     $backup_response = $backups_response[0];
     $this->logger->debug('Using database backup (id #' . $backup_response->id . ') generated at ' . $backup_response->completedAt);
-    $interval = time() - strtotime($backup_response->completedAt);
-    if ($interval > 24 * 60 * 60) {
-      $this->logger->warning('Using database backup generated at ' . $backup_response->completedAt . ', which is more than 24 hours old. To generate a new backup, re-run this command with the <options=bold>--on-demand</> option.');
-    }
+
     return $backup_response;
+  }
+
+  /**
+   * Print information to the console about the selected database backup.
+   *
+   * @param BackupResponse $backup_response
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
+   */
+  protected function printDatabaseBackupInfo(
+    BackupResponse $backup_response,
+    EnvironmentResponse $source_environment
+  ): void {
+    $interval = time() - strtotime($backup_response->completedAt);
+    $hours_interval = floor($interval / 60 / 60);
+    $date_formatted = date("D M j G:i:s T Y", strtotime($backup_response->completedAt));
+    $web_link = "https://cloud.acquia.com/a/environments/{$source_environment->uuid}/databases";
+    $messages = [
+      "Using a database backup that is $hours_interval hours old. Backup #{$backup_response->id} was created at {$date_formatted}.",
+      "You can view your backups here: {$web_link}",
+      "To generate a new backup, re-run this command with the --on-demand or --od option."
+    ];
+    if ($hours_interval > 24) {
+      $this->io->warning($messages);
+    }
+    else {
+      $this->io->info($messages);
+    }
   }
 
 }

@@ -1369,7 +1369,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $command = ['ls', $this->getCloudSitesPath($cloud_environment, $sitegroup)];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
-      return explode("\n", trim($process->getOutput()));
+      return array_filter(explode("\n", trim($process->getOutput())));
     }
 
     throw new AcquiaCliException("Could not get Cloud sites");
@@ -1465,7 +1465,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ) {
       $value = Serializer::unserialize($this->datastoreCloud->get('keys'));
       $this->datastoreCloud->set('keys', $value);
-      $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret());
+      $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri());
     }
   }
 
@@ -1483,15 +1483,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $api_key
    * @param string $api_secret
+   * @param $base_uri
    */
-  protected function reAuthenticate(string $api_key, string $api_secret): void {
+  protected function reAuthenticate(string $api_key, string $api_secret, $base_uri): void {
     // Client service needs to be reinitialized with new credentials in case
     // this is being run as a sub-command.
     // @see https://github.com/acquia/cli/issues/403
     $this->cloudApiClientService->setConnector(new Connector([
       'key' => $api_key,
       'secret' => $api_secret
-    ]));
+    ]), $base_uri);
   }
 
 }
