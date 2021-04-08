@@ -15,7 +15,23 @@ use Webmozart\PathUtil\Path;
  * @property \Acquia\Cli\Command\TelemetryCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class TelemetryCommandTest extends TelemetryCommandTestBase {
+class TelemetryCommandTest extends CommandTestBase {
+
+  /**
+   * @var string
+   */
+  protected $legacyAcliConfigFilepath;
+
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->legacyAcliConfigFilepath = Path::join($this->dataDir, 'acquia-cli.json');
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+  }
+
+  public function tearDown(): void {
+    parent::tearDown();
+    $this->fs->remove($this->legacyAcliConfigFilepath);
+  }
 
   /**b
    * {@inheritdoc}
@@ -28,10 +44,7 @@ class TelemetryCommandTest extends TelemetryCommandTestBase {
    * Tests the 'telemetry' command.
    */
   public function testTelemetryCommand(): void {
-    $account = json_decode(file_get_contents(Path::join($this->fixtureDir, '/account.json')));
-    $this->clientProphecy->request('get', '/account')
-      ->willReturn($account);
-
+    $this->mockAccountRequest();
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Telemetry has been enabled.', $output);
