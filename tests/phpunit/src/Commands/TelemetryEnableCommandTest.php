@@ -2,14 +2,9 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\LinkCommand;
-use Acquia\Cli\Command\TelemetryCommand;
-use Acquia\Cli\Command\TelemetryDisableCommand;
 use Acquia\Cli\Command\TelemetryEnableCommand;
-use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class TelemetryEnableCommandTest.
@@ -27,7 +22,7 @@ class TelemetryEnableCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'telemetry:disable' command.
+   * Tests the 'telemetry:enable' command.
    */
   public function testTelemetryEnableCommand(): void {
     $this->executeCommand();
