@@ -987,7 +987,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return string
    */
-  public static function validateEnvironmentAlias($alias): string {
+  public static function validateEnvironmentAlias(string $alias): string {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -1298,7 +1298,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       try {
         self::validateUuid($application_uuid);
       } catch (ValidatorException $validator_exception) {
-        $this->logger->debug("$application_uuid is not a valid application UUID. Checking to see if $env_uuid_argument is a valid environment alias.");
+        $this->logger->debug("$application_uuid is not a valid application UUID. Checking to see if $env_uuid_argument is a valid environment alias...");
         try {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
           $alias = $env_uuid_argument;
@@ -1306,7 +1306,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $alias = self::validateEnvironmentAlias($alias);
           $environment = $this->getEnvironmentFromAliasArg($alias);
           $input->setArgument($argument_name, $environment->uuid);
-        } catch (AcquiaCliException $exception) {
+        } catch (ValidatorException $exception) {
           throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
         }
       }
