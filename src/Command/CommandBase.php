@@ -1089,12 +1089,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function doGetApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $possible_hosting_prefixes = ['prod', 'devcloud', 'network', 'enterprise-g1', 'gardens'];
-    $filter_values = [];
-    foreach ($possible_hosting_prefixes as $hosting_prefix) {
-      $filter_values[] = $hosting_prefix . ':' . $application_alias;
-    }
-    $filter_value =  implode(',', $filter_values);
+    $filter_value = self::createHostingIdParamValue($application_alias);
     $acquia_cloud_client->addQuery('filter', 'hosting=' . $filter_value);
     // Allow Cloud users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
@@ -1499,6 +1494,26 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'key' => $api_key,
       'secret' => $api_secret
     ]), $base_uri);
+  }
+
+  /**
+   * @param $application_alias
+   *
+   * @return string
+   */
+  public static function createHostingIdParamValue($application_alias): string {
+    $possible_hosting_prefixes = [
+      'prod',
+      'devcloud',
+      'network',
+      'enterprise-g1',
+      'gardens'
+    ];
+    $filter_values = [];
+    foreach ($possible_hosting_prefixes as $hosting_prefix) {
+      $filter_values[] = $hosting_prefix . ':' . $application_alias;
+    }
+    return implode(',', $filter_values);
   }
 
 }
