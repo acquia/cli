@@ -34,7 +34,7 @@ class ClearCacheCommandTest extends CommandTestBase {
       // Ensure this is only called once, even though we execute the command twice.
       ->shouldBeCalledTimes(1);
 
-    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
     $this->mockAccountRequest();
