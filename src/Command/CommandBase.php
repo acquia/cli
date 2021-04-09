@@ -855,7 +855,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         'value' => 36,
       ]),
       new Regex([
-        'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
+        'pattern' => '/^[0-9A-Z]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
         'message' => 'This is not a valid UUID.',
       ]),
     ]);
