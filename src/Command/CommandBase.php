@@ -1290,14 +1290,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function convertEnvironmentAliasToUuid(InputInterface $input, $argument_name): void {
     if ($input->hasArgument($argument_name) && $input->getArgument($argument_name)) {
       $env_uuid_argument = $input->getArgument($argument_name);
+      // Environment IDs take the form of [env-num]-[app-uuid].
+      $uuid_parts = explode('-', $env_uuid_argument);
+      $env_id = $uuid_parts[0];
+      unset($uuid_parts[0]);
+      $application_uuid = implode('-', $uuid_parts);
       try {
-        // Environment IDs take the form of [env-num]-[app-uuid].
-        $uuid_parts = explode('-', $env_uuid_argument);
-        $env_id = $uuid_parts[0];
-        unset($uuid_parts[0]);
-        $application_uuid = implode('-', $uuid_parts);
         self::validateUuid($application_uuid);
       } catch (ValidatorException $validator_exception) {
+        $this->logger->debug("$application_uuid is not a valid application UUID. Checking to see if $env_uuid_argument is a valid environment alias.");
         try {
           // Since this isn't a valid environment ID, let's see if it's a valid alias.
           $alias = $env_uuid_argument;
