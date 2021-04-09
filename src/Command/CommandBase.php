@@ -1089,7 +1089,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function doGetApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=@*' . $application_alias);
+    $acquia_cloud_client->addQuery('filter', 'hosting=prod:' . $application_alias);
     // Allow Cloud users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
@@ -1272,7 +1272,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         try {
           $customer_application = $this->getApplicationFromAlias($alias);
           $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (AcquiaCliException $exception) {
+        } catch (ValidatorException $exception) {
           throw new AcquiaCliException("{applicationUuid} must be a valid UUID or application alias.");
         }
       }
