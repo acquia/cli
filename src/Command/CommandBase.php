@@ -1089,7 +1089,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function doGetApplicationFromAlias($application_alias) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=prod:' . $application_alias);
+    $possible_hosting_prefixes = ['prod', 'devcloud', 'network', 'enterprise-g1', 'gardens'];
+    $filter_values = [];
+    foreach ($possible_hosting_prefixes as $hosting_prefix) {
+      $filter_values[] = $hosting_prefix . ':' . $application_alias;
+    }
+    $filter_value =  implode(',', $filter_values);
+    $acquia_cloud_client->addQuery('filter', 'hosting=' . $filter_value);
     // Allow Cloud users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
