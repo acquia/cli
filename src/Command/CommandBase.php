@@ -1273,7 +1273,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         try {
           $customer_application = $this->getApplicationFromAlias($alias);
           $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (ValidatorException $exception) {
+        } catch (AcquiaCliException $exception) {
           throw new AcquiaCliException("{applicationUuid} must be a valid UUID or application alias.");
         }
       }
