@@ -8,6 +8,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\PathUtil\Path;
 
@@ -194,7 +195,7 @@ class ApiCommandTest extends CommandTestBase {
     try {
       $this->executeCommand(['environmentId' => $alias], []);
     }
-    catch (AcquiaCliException $exception) {
+    catch (ValidatorException $exception) {
       $this->assertEquals('{environmentId} must be a valid UUID or site alias.', $exception->getMessage());
     }
     $this->prophet->checkPredictions();
