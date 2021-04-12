@@ -34,7 +34,7 @@ jobs:
         # Warm the symfony cache so it gets bundled with phar.
         - ./bin/acli
       script: composer box-compile
-      after_script: curl --upload-file build/acli.phar https://transfer.sh/acli.phar
+      after_script: echo "$(curl --upload-file build/acli.phar https://transfer.sh/acli.phar)"
       deploy:
         provider: releases
         api_key:
