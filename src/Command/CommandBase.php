@@ -1170,11 +1170,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (strpos($input->getArgument('command'), 'api:') !== FALSE) {
       return;
     }
-    // Bale for development builds.
+    // Bail for development builds.
     if ($this->getApplication()->getVersion() == '@package_version@') {
       return;
     }
-    // Bale in Cloud IDEs to avoid hitting Github API rate limits.
+    // Bail in Cloud IDEs to avoid hitting Github API rate limits.
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       return;
     }
