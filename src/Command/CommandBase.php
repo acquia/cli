@@ -1170,16 +1170,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if (strpos($input->getArgument('command'), 'api:') !== FALSE) {
       return;
     }
-    // Bale for development builds.
+    // Bail for development builds.
     if ($this->getApplication()->getVersion() == '@package_version@') {
       return;
     }
-    // Bale in Cloud IDEs to avoid hitting Github API rate limits.
-    if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+    // Bail in Cloud IDEs to avoid hitting Github API rate limits.
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       return;
     }
     try {
-      if ($this->hasUpdate()) {
+      if (@$this->hasUpdate()) {
         $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
       }
     } catch (\Exception $e) {
