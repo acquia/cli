@@ -392,8 +392,7 @@ class LocalMachineHelper {
     }
     if ($browser) {
       $this->logger->info('Opening browser !browser at !uri', ['!browser' => $browser, '!uri' => $uri]);
-      $process = new Process([$browser, $uri]);
-      $process->run();
+      $this->executeFromCmd("$browser $uri");
 
       return TRUE;
     }
