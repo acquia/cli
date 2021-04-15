@@ -61,7 +61,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->logger->warning('You must select an environment with a Git branch deployed');
     $environment = $this->determineEnvironment($input, $output, TRUE);
     if (strpos($environment->vcs->path, 'tags') === 0) {
-      throw new AcquiaCliException("Environments with Git tags are not supported. Environment {$environment->name} has {$environment->vcs->path} deployed.");
+      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
     }
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
