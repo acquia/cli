@@ -85,7 +85,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      $this->checklist->addItem("Pushing changes to {$environment->vcs->path} branch in the {$environment->name} environment");
+      $this->checklist->addItem("Pushing changes to <options=bold>{$environment->vcs->path}</> branch in the <options=bold>{$environment->name}</> environment");
       $this->push($output_callback, $artifact_dir);
       $this->checklist->completePreviousItem();
     }
