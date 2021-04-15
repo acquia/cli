@@ -90,7 +90,7 @@ class PushArtifactCommand extends PullCommandBase {
       $this->checklist->completePreviousItem();
     }
     else {
-      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at $artifact_dir");
+      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifact_dir</>");
     }
 
     return 0;
