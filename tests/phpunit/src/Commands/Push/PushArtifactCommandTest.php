@@ -89,7 +89,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    */
   protected function mockLocalGitConfig(ObjectProphecy $local_machine_helper, $artifact_dir): void {
     $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $local_machine_helper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], Argument::type('callable'), $artifact_dir, TRUE)
@@ -102,7 +101,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    */
   protected function mockComposerInstall(ObjectProphecy $local_machine_helper, $artifact_dir): void {
     $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $local_machine_helper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
@@ -113,7 +111,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    */
   protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash): void {
     $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core/index.php'], NULL, $artifact_dir, FALSE)
