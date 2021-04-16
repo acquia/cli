@@ -8,6 +8,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -35,15 +36,18 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->mockGetFilesystem($local_machine_helper);
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->vendorDirs = ['vendor'];
 
+    $commit_hash = 'abc123';
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
-    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir);
+    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir, $commit_hash);
     $this->mockCloneShallow($local_machine_helper, $environments_response->vcs->path, $environments_response->vcs->url, $artifact_dir);
     $this->mockLocalGitConfig($local_machine_helper, $artifact_dir);
     $this->mockComposerInstall($local_machine_helper, $artifact_dir);
+    $this->mockReadComposerJson($local_machine_helper, $artifact_dir);
+    $this->mockGitAddCommitPush($local_machine_helper, $artifact_dir, $commit_hash);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -107,17 +111,44 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $artifact_dir
    */
-  protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir): void {
+  protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'add', '-f'], NULL, $artifact_dir, TRUE)
+    $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core/index.php'], NULL, $artifact_dir, FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'commit', '-m', 'Automated commit by Acquia CLI (source commit: abc123)'], Argument::type('callable'), $artifact_dir, TRUE)
+    $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core'], NULL, $artifact_dir, FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $local_machine_helper->execute(['git', 'add', '-f', 'vendor'], NULL, $artifact_dir, FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $local_machine_helper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'push'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param string $artifact_dir
+   */
+  protected function mockReadComposerJson(ObjectProphecy $local_machine_helper, string $artifact_dir): void {
+    $composer_json = json_encode([
+      'extra' => [
+        'installer-paths' => [
+          'docroot/core' => []
+        ],
+        'drupal-scaffold' => [
+          'file-mapping' => [
+            '[web-root]/index.php' => []
+          ]
+        ]
+      ]
+    ]);
+    $local_machine_helper->readFile(Path::join($artifact_dir, 'composer.json'))
+      ->willReturn($composer_json);
+    $local_machine_helper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json'))
+      ->willReturn($composer_json);
   }
 
 }

@@ -200,11 +200,12 @@ abstract class PullCommandTestBase extends CommandTestBase {
    */
   protected function mockGetLocalCommitHash(
     ObjectProphecy $local_machine_helper,
-    $cwd
+    $cwd,
+    $commit_hash
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
-    $process->getOutput()->willReturn('abc123')->shouldBeCalled();
+    $process->getOutput()->willReturn($commit_hash)->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
       'rev-parse',
@@ -219,8 +220,15 @@ abstract class PullCommandTestBase extends CommandTestBase {
     $finder = $this->prophet->prophesize(Finder::class);
     $finder->files()->willReturn($finder);
     $finder->in(Argument::type('string'))->willReturn($finder);
+    $finder->in(Argument::type('array'))->willReturn($finder);
     $finder->ignoreDotFiles(FALSE)->willReturn($finder);
+    $finder->ignoreVCS(FALSE)->willReturn($finder);
+    $finder->ignoreVCSIgnored(TRUE)->willReturn($finder);
     $finder->hasResults()->willReturn($finder);
+    $finder->name(Argument::type('string'))->willReturn($finder);
+    $finder->notName(Argument::type('string'))->willReturn($finder);
+    $finder->directories()->willReturn($finder);
+    $finder->append(Argument::type(Finder::class))->willReturn($finder);
 
     return $finder;
   }

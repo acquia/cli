@@ -149,13 +149,13 @@ class PushArtifactCommand extends PullCommandBase {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
     $output_callback('out', "Mirroring source files from {$this->dir} to $artifact_dir");
-    $originFinder = Finder::create();
+    $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
       ->ignoreVCSIgnored(TRUE);
-    $targetFinder = Finder::create();
+    $targetFinder = $this->localMachineHelper->getFinder();
     $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
@@ -165,14 +165,14 @@ class PushArtifactCommand extends PullCommandBase {
 
   protected function sanitize(Closure $output_callback, string $artifact_dir):void {
     $output_callback('out', 'Finding Drupal core text files');
-    $sanitizeFinder = Finder::create()
+    $sanitizeFinder = $this->localMachineHelper->getFinder()
       ->files()
       ->name('*.txt')
       ->notName('LICENSE.txt')
       ->in("$artifact_dir/docroot/core");
 
     $output_callback('out', 'Finding VCS directories');
-    $vcsFinder = Finder::create()
+    $vcsFinder = $this->localMachineHelper->getFinder()
       ->ignoreDotFiles(FALSE)
       ->ignoreVCS(FALSE)
       ->directories()
@@ -189,7 +189,7 @@ class PushArtifactCommand extends PullCommandBase {
     }
 
     $output_callback('out', 'Finding INSTALL database text files');
-    $dbInstallFinder = Finder::create()
+    $dbInstallFinder = $this->localMachineHelper->getFinder()
       ->files()
       ->in([$artifact_dir])
       ->name('/INSTALL\.[a-z]+\.(md|txt)$/');
@@ -209,7 +209,7 @@ class PushArtifactCommand extends PullCommandBase {
       'TESTING',
       'UPDATE',
     ];
-    $textFileFinder = Finder::create()
+    $textFileFinder = $this->localMachineHelper->getFinder()
       ->files()
       ->in(["$artifact_dir/docroot"])
       ->name('/(' . implode('|', $filenames) . ')\.(md|txt)$/');
@@ -229,7 +229,7 @@ class PushArtifactCommand extends PullCommandBase {
       $this->logger->debug("Forcibly adding $file");
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
     }
-    $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
   protected function push(Closure $output_callback, string $artifact_dir):void {
@@ -252,7 +252,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->vendorDirs = [
       'vendor',
     ];
-    $composer_json = json_decode(file_get_contents(Path::join($artifact_dir, 'composer.json')), TRUE);
+    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'composer.json')), TRUE);
     foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
       $this->vendorDirs[] = str_replace('/{$name}', '', $path);
     }
@@ -272,10 +272,10 @@ class PushArtifactCommand extends PullCommandBase {
     }
 
     $this->scaffoldFiles = [];
-    $composer_json = json_decode(file_get_contents(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE);
+    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE);
     foreach ($composer_json['extra']['drupal-scaffold']['file-mapping'] as $file => $asset_path) {
       if (strpos($file, '[web-root]') === 0) {
-        $this->scaffoldFiles[] = str_replace('[web-root]/', '', $file);
+        $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot/core', $file);
       }
     }
     return $this->scaffoldFiles;
