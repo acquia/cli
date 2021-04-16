@@ -173,4 +173,56 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ]);
   }
 
+  /**
+   * @param $failed
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $cwd
+   */
+  protected function mockExecuteGitStatus(
+    $failed,
+    ObjectProphecy $local_machine_helper,
+    $cwd
+  ): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(!$failed)->shouldBeCalled();
+    $process->getOutput()->willReturn('')->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'status',
+      '--short',
+    ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @param $failed
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param $cwd
+   */
+  protected function mockGetLocalCommitHash(
+    ObjectProphecy $local_machine_helper,
+    $cwd
+  ): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
+    $process->getOutput()->willReturn('abc123')->shouldBeCalled();
+    $local_machine_helper->execute([
+      'git',
+      'rev-parse',
+      'HEAD',
+    ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+  }
+
+  /**
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockFinder(): ObjectProphecy {
+    $finder = $this->prophet->prophesize(Finder::class);
+    $finder->files()->willReturn($finder);
+    $finder->in(Argument::type('string'))->willReturn($finder);
+    $finder->ignoreDotFiles(FALSE)->willReturn($finder);
+    $finder->hasResults()->willReturn($finder);
+
+    return $finder;
+  }
+
 }
