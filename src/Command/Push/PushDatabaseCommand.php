@@ -103,7 +103,8 @@ class PushDatabaseCommand extends PullCommandBase {
     string $local_filepath,
     $output_callback
   ): string {
-    $remote_filepath = '/mnt/tmp/' . $this->getNameFromDatabaseResponse($database) . '/' . basename($local_filepath);;
+    $sitegroup = self::getSiteGroupFromSshUrl($environment->sshUrl);
+    $remote_filepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($local_filepath);
     $this->logger->debug("Uploading database dump to $remote_filepath on remote machine");
     $command = [
       'rsync',
@@ -135,6 +136,18 @@ class PushDatabaseCommand extends PullCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
     }
+  }
+
+  /**
+   * @param $database
+   *
+   * @return string
+   */
+  protected function getNameFromDatabaseResponse($database): string {
+     $db_url_parts = explode('/', $database->url);
+     $db_name = end($db_url_parts);
+
+     return $db_name;
   }
 
 }

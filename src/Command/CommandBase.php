@@ -1313,12 +1313,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $cloud_environment
+   * @param string $ssh_url
+   *   The SSH URL to the server.
    *
    * @return string
+   *   The sitegroup. E.g., eemgrasmick.
    */
-  public static function getSiteGroupFromSshUrl($cloud_environment): string {
-    $ssh_url_parts = explode('.', $cloud_environment->sshUrl);
+  public static function getSiteGroupFromSshUrl(string $ssh_url): string {
+    $ssh_url_parts = explode('.', $ssh_url);
     $sitegroup = reset($ssh_url_parts);
 
     return $sitegroup;
@@ -1349,7 +1351,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getAcsfSites($cloud_environment): array {
-    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment->sshUrl);
     $command = ['cat', "/var/www/site-php/$sitegroup.{$cloud_environment->name}/multisite-config.json"];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
@@ -1365,7 +1367,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getCloudSites($cloud_environment): array {
-    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment);
+    $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment->sshUrl);
     $command = ['ls', $this->getCloudSitesPath($cloud_environment, $sitegroup)];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
     if ($process->isSuccessful()) {
