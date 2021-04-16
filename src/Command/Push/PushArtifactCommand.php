@@ -22,16 +22,22 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * @var string
+   *
+   * Drupal project directory.
    */
   protected $dir;
 
   /**
    * @var array
+   *
+   * Composer vendor directories.
    */
   protected $vendorDirs;
 
   /**
    * @var array
+   *
+   * Composer scaffold files.
    */
   protected $scaffoldFiles;
 
@@ -231,7 +237,14 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
-  private function vendorDirs(string $artifact_dir): array {
+  /**
+   * Get a list of Composer vendor directories from the root composer.json.
+   *
+   * @param string $artifact_dir
+   *
+   * @return array|string[]
+   */
+  protected function vendorDirs(string $artifact_dir): array {
     if (!empty($this->vendorDirs)) {
       return $this->vendorDirs;
     }
@@ -246,7 +259,14 @@ class PushArtifactCommand extends PullCommandBase {
     return $this->vendorDirs;
   }
 
-  private function scaffoldFiles(string $artifact_dir): array {
+  /**
+   * Get a list of scaffold files from Drupal core's composer.json.
+   *
+   * @param string $artifact_dir
+   *
+   * @return array
+   */
+  protected function scaffoldFiles(string $artifact_dir): array {
     if (!empty($this->scaffoldFiles)) {
       return $this->scaffoldFiles;
     }
