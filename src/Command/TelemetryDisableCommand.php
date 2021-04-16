@@ -7,11 +7,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class TelemetryCommand.
+ * Class TelemetryDisableCommand.
  */
-class TelemetryCommand extends CommandBase {
+class TelemetryDisableCommand extends CommandBase {
 
-  protected static $defaultName = 'telemetry:toggle';
+  protected static $defaultName = 'telemetry:disable';
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -26,8 +26,7 @@ class TelemetryCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Toggle anonymous sharing of usage and performance data')
-      ->setAliases(['telemetry']);
+    $this->setDescription('Disable anonymous sharing of usage and performance data');
   }
 
   /**
@@ -39,16 +38,8 @@ class TelemetryCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $datastore = $this->datastoreCloud;
-    if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
-      $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-      $this->io->success('Telemetry has been disabled.');
-    }
-    else {
-      $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
-      $this->io->success('Telemetry has been enabled.');
-    }
-    $opposite_verb = $datastore->get(DataStoreContract::SEND_TELEMETRY) ? 'disable' : 'enable';
-    $this->io->writeln("Run this command again to $opposite_verb telemetry");
+    $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
+    $this->io->success('Telemetry has been disabled.');
 
     return 0;
   }

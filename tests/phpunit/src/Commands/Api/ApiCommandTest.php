@@ -41,7 +41,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->clientProphecy->request('get', '/applications/' . $invalid_uuid)->willThrow(new ApiErrorException($mock_body))->shouldBeCalled();
 
     // ApiCommandBase::convertApplicationAliastoUuid() will try to convert the invalid string to a uuid:
-    $this->clientProphecy->addQuery('filter', 'hosting=@*' . $invalid_uuid);
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:' . $invalid_uuid);
     $this->clientProphecy->request('get', '/applications')->willReturn([]);
 
     $this->executeCommand(['applicationUuid' => $invalid_uuid], [
@@ -118,7 +118,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertApplicationAliasToUuidArgument($support): void {
     $applications_response = $this->mockApplicationsRequest();
-    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
@@ -142,7 +142,7 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testConvertInvalidApplicationAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
-    $this->clientProphecy->addQuery('filter', 'hosting=@*invalidalias')->shouldBeCalled();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:invalidalias')->shouldBeCalled();
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'invalidalias';
@@ -157,7 +157,7 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
-    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockAccountRequest();
@@ -185,7 +185,7 @@ class ApiCommandTest extends CommandTestBase {
 
   public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest();
-    $this->clientProphecy->addQuery('filter', 'hosting=@*devcloud2')->shouldBeCalled();
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockAccountRequest();

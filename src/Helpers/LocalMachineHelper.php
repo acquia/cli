@@ -36,6 +36,11 @@ class LocalMachineHelper {
   }
 
   /**
+   * Check if a command exists.
+   *
+   * This won't find aliases or shell built-ins, so use it mindfully (e.g. only
+   * for commands that you _know_ to be system commands).
+   *
    * @param $command
    *
    * @return bool
@@ -366,18 +371,20 @@ class LocalMachineHelper {
     if ($browser === NULL) {
       // See if we can find an OS helper to open URLs in default browser.
       if ($this->commandExists('xdg-open')) {
+        // Linux.
         $browser = 'xdg-open';
       }
       else {
         if ($this->commandExists('open')) {
+          // Darwin.
           $browser = 'open';
         }
         else {
-          if ($this->commandExists('start')) {
+          if (OsInfo::isWindows()) {
             $browser = 'start';
           }
           else {
-            $this->logger->warning('Could not find a browser on your local machine.');
+            $this->logger->warning('Could not find a browser on your local machine. Check that one of <options=bold>xdg-open</>, <options=bold>open</>, or <options=bold>start</> are installed.');
             return FALSE;
           }
         }
@@ -385,8 +392,7 @@ class LocalMachineHelper {
     }
     if ($browser) {
       $this->logger->info('Opening browser !browser at !uri', ['!browser' => $browser, '!uri' => $uri]);
-      $process = new Process([$browser, $uri]);
-      $process->run();
+      $this->executeFromCmd("$browser $uri");
 
       return TRUE;
     }

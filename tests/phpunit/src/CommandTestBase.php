@@ -377,7 +377,7 @@ abstract class CommandTestBase extends TestBase {
     $backup_id
   ) {
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $stream->getContents()->willReturn('backupfilecontents');
+    $stream->__toString()->willReturn('backupfilecontents');
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getBody()->willReturn($stream->reveal());
     $response->getStatusCode()->willReturn(200);
