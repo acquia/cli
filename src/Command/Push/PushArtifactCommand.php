@@ -76,7 +76,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     if (!$input->getOption('no-sanitize')) {
       $this->checklist->addItem('Sanitizing build artifact');
-      $this->sanitize($artifact_dir);
+      $this->sanitize($output_callback, $artifact_dir);
       $this->checklist->completePreviousItem();
     }
 
@@ -109,21 +109,21 @@ class PushArtifactCommand extends PullCommandBase {
   protected function prepareDir(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
-    $this->logger->info("Removing $artifact_dir if it exists");
+    $output_callback('out', "Removing $artifact_dir if it exists");
     $fs->remove($artifact_dir);
 
-    $this->logger->info("Initializing Git in $artifact_dir");
+    $output_callback('out', "Initializing Git in $artifact_dir");
     $process = $this->localMachineHelper->executeFromCmd("git clone --depth 1 --branch $vcs_path $vcs_url $artifact_dir", $output_callback, NULL, $this->output->isVerbose());
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
 
-    $this->logger->info('Global .gitignore file is temporarily disabled during artifact builds.');
+    $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
     $this->localMachineHelper->executeFromCmd('git config --local core.excludesFile false', $output_callback, $artifact_dir, $this->output->isVerbose());
     $this->localMachineHelper->executeFromCmd('git config --local core.fileMode true', $output_callback, $artifact_dir, $this->output->isVerbose());
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
-    $this->logger->info('Removing vendor directories');
+    $output_callback('out', 'Removing vendor directories');
     foreach (self::vendorFiles() as $vendor_directory) {
       $fs->remove(Path::join($artifact_dir, $vendor_directory));
     }
@@ -132,7 +132,7 @@ class PushArtifactCommand extends PullCommandBase {
   protected function build(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
-    $this->logger->info("Mirroring source files from {$this->dir} to $artifact_dir");
+    $output_callback('out', "Mirroring source files from {$this->dir} to $artifact_dir");
     $originFinder = Finder::create();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
@@ -143,19 +143,19 @@ class PushArtifactCommand extends PullCommandBase {
     $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
-    $this->logger->info('Installing Composer production dependencies');
+    $output_callback('out', 'Installing Composer production dependencies');
     $this->localMachineHelper->executeFromCmd('composer install --no-dev --no-interaction --optimize-autoloader', $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
-  protected function sanitize(string $artifact_dir):void {
-    $this->logger->info('Finding Drupal core text files');
+  protected function sanitize(Closure $output_callback, string $artifact_dir):void {
+    $output_callback('out', 'Finding Drupal core text files');
     $sanitizeFinder = Finder::create()
       ->files()
       ->name('*.txt')
       ->notName('LICENSE.txt')
       ->in("$artifact_dir/docroot/core");
 
-    $this->logger->info('Finding VCS directories');
+    $output_callback('out', 'Finding VCS directories');
     $vcsFinder = Finder::create()
       ->ignoreDotFiles(FALSE)
       ->ignoreVCS(FALSE)
@@ -172,7 +172,7 @@ class PushArtifactCommand extends PullCommandBase {
       $sanitizeFinder->append($vcsFinder);
     }
 
-    $this->logger->info('Finding INSTALL database text files');
+    $output_callback('out', 'Finding INSTALL database text files');
     $dbInstallFinder = Finder::create()
       ->files()
       ->in([$artifact_dir])
@@ -181,7 +181,7 @@ class PushArtifactCommand extends PullCommandBase {
       $sanitizeFinder->append($dbInstallFinder);
     }
 
-    $this->logger->info('Finding other common text files');
+    $output_callback('out', 'Finding other common text files');
     $filenames = [
       'AUTHORS',
       'CHANGELOG',
@@ -201,12 +201,12 @@ class PushArtifactCommand extends PullCommandBase {
       $sanitizeFinder->append($textFileFinder);
     }
 
-    $this->logger->info("Removing sanitized files from build");
+    $output_callback('out', "Removing sanitized files from build");
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
 
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
-    $this->logger->info('Adding and committing changed files');
+    $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->executeFromCmd('git add -A', $output_callback, $artifact_dir, $this->output->isVerbose());
     foreach (self::vendorFiles() as $vendor_directory) {
       // This will fatally error if the directory doesn't exist. Suppress error output.
@@ -217,7 +217,7 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   protected function push(Closure $output_callback, string $artifact_dir):void {
-    $this->logger->info('Pushing changes to Acquia Git');
+    $output_callback('out', 'Pushing changes to Acquia Git');
     $this->localMachineHelper->executeFromCmd('git push', $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
