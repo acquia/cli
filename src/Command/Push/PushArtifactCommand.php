@@ -58,7 +58,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist = new Checklist($output);
 
     // @todo handle environments with tags deployed
-    $this->logger->warning('You must select an environment with a Git branch deployed');
+    $output->writeln('<info>You must select an environment with a Git branch deployed</info>');
     $environment = $this->determineEnvironment($input, $output, TRUE);
     if (strpos($environment->vcs->path, 'tags') === 0) {
       throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
