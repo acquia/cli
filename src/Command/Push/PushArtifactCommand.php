@@ -26,6 +26,16 @@ class PushArtifactCommand extends PullCommandBase {
   protected $dir;
 
   /**
+   * @var array
+   */
+  protected $vendorDirs;
+
+  /**
+   * @var array
+   */
+  protected $scaffoldFiles;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -35,7 +45,7 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->acceptEnvironmentId()
     ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
-      . 'The following vendor files and directories are committed to the build artifact even if they are ignored in the source repository: ' . implode(', ', self::vendorFiles()) . PHP_EOL . PHP_EOL
+      . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events');
   }
 
@@ -124,7 +134,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
     $output_callback('out', 'Removing vendor directories');
-    foreach (self::vendorFiles() as $vendor_directory) {
+    foreach ($this->vendorDirs($artifact_dir) as $vendor_directory) {
       $fs->remove(Path::join($artifact_dir, $vendor_directory));
     }
   }
@@ -208,10 +218,10 @@ class PushArtifactCommand extends PullCommandBase {
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, $this->output->isVerbose());
-    foreach (self::vendorFiles() as $vendor_directory) {
-      // This will fatally error if the directory doesn't exist. Suppress error output.
-      $this->logger->debug("Forcibly adding $vendor_directory");
-      $this->localMachineHelper->execute(['git', 'add', '-f', $vendor_directory], NULL, $artifact_dir, FALSE);
+    foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
+      // This will fatally error if the file doesn't exist. Suppress error output.
+      $this->logger->debug("Forcibly adding $file");
+      $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
     }
     $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: ' . $commit_hash . ')"], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
@@ -221,22 +231,34 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
-  private static function vendorFiles(): array {
-    return [
+  private function vendorDirs(string $artifact_dir): array {
+    if (!empty($this->vendorDirs)) {
+      return $this->vendorDirs;
+    }
+
+    $this->vendorDirs = [
       'vendor',
-      'docroot/core',
-      'docroot/modules/contrib',
-      'docroot/themes/contrib',
-      'docroot/profiles/contrib',
-      'docroot/libraries',
-      'drush/Commands',
-      'docroot/index.php',
-      'docroot/.htaccess',
-      'docroot/autoload.php',
-      'docroot/robots.txt',
-      'docroot/update.php',
-      'docroot/web.config'
     ];
+    $composer_json = json_decode(file_get_contents(Path::join($artifact_dir, 'composer.json')), TRUE);
+    foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
+      $this->vendorDirs[] = str_replace('/{$name}', '', $path);
+    }
+    return $this->vendorDirs;
+  }
+
+  private function scaffoldFiles(string $artifact_dir): array {
+    if (!empty($this->scaffoldFiles)) {
+      return $this->scaffoldFiles;
+    }
+
+    $this->scaffoldFiles = [];
+    $composer_json = json_decode(file_get_contents(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE);
+    foreach ($composer_json['extra']['drupal-scaffold']['file-mapping'] as $file => $asset_path) {
+      if (strpos($file, '[web-root]') === 0) {
+        $this->scaffoldFiles[] = str_replace('[web-root]/', '', $file);
+      }
+    }
+    return $this->scaffoldFiles;
   }
 
 }
