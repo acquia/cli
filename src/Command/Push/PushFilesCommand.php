@@ -70,7 +70,7 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/files/';
-    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
+    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
     if ($this->isAcsfEnv($chosen_environment)) {
       $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
