@@ -1,134 +1,134 @@
 {
-  "name": "acquia/cli",
-  "description": "Acquia CLI",
-  "type": "library",
-  "license": "GPL-2.0-only",
-  "authors": [
-    {
-      "name": "Matthew Grasmick",
-      "email": "matthew.grasmick@acquia.com"
-    }
-  ],
-  "minimum-stability": "dev",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/danepowell/self-update.git"
-    }
-  ],
-  "require": {
-    "php": "^7.3 | ^8.0",
-    "ext-json": "*",
-    "acquia/drupal-environment-detector": "^1.2.0",
-    "composer/semver": "^3.2",
-    "consolidation/self-update": "dev-allow-unstable as 1.1",
-    "cweagans/composer-patches": "^1.7",
-    "doctrine/cache": "^1.10",
-    "drupol/phposinfo": "^1.6.5",
-    "kevinrob/guzzle-cache-middleware": "^3.3",
-    "psr/log": "^1.1",
-    "ramsey/uuid": "^4.1",
-    "react/event-loop": "^1.1",
-    "symfony/cache": "^5.1",
-    "symfony/config": "^5.1",
-    "symfony/console": "^5.1",
-    "symfony/dependency-injection": "^5.1",
-    "symfony/dotenv": "^5.1",
-    "symfony/event-dispatcher": "^5.1",
-    "symfony/expression-language": "^5.1",
-    "symfony/filesystem": "^5.1@dev",
-    "symfony/finder": "^5.1",
-    "symfony/flex": "^1.7",
-    "symfony/http-kernel": "^5.1",
-    "symfony/process": "^5.1",
-    "symfony/validator": "^5.1",
-    "symfony/yaml": "^5.1@dev",
-    "typhonius/acquia-logstream": "^0.0.8",
-    "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.15",
-    "violuke/rsa-ssh-key-fingerprint": "^1.1",
-    "webmozart/json": "^1.2",
-    "webmozart/key-value-store": "^1.0",
-    "zumba/amplitude-php": "^1.0"
-  },
-  "require-dev": {
-    "acquia/coding-standards": "*",
-    "phpro/grumphp": "^1.2",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-    "phpspec/prophecy": "^1.10",
-    "phpunit/phpunit": "^9.1",
-    "php-coveralls/php-coveralls": "^2.2",
-    "squizlabs/php_codesniffer": "^3.5",
-    "webmozart/path-util": "^2.3"
-  },
-  "autoload": {
-    "psr-4": {
-      "Acquia\\Cli\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Acquia\\Cli\\Tests\\": "tests/phpunit/src/"
-    }
-  },
-  "bin": [
-    "bin/acli"
-  ],
-  "config": {
-    "platform": {
-      "php": "7.3"
+    "name": "acquia/cli",
+    "description": "Acquia CLI",
+    "type": "library",
+    "license": "GPL-2.0-only",
+    "authors": [
+        {
+            "name": "Matthew Grasmick",
+            "email": "matthew.grasmick@acquia.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/danepowell/self-update.git"
+        }
+    ],
+    "require": {
+        "php": "^7.3 | ^8.0",
+        "ext-json": "*",
+        "acquia/drupal-environment-detector": "^1.2.0",
+        "composer/semver": "^3.2",
+        "consolidation/self-update": "dev-allow-unstable as 1.1",
+        "cweagans/composer-patches": "^1.7",
+        "doctrine/cache": "^1.10",
+        "drupol/phposinfo": "^1.6.5",
+        "kevinrob/guzzle-cache-middleware": "^3.3",
+        "psr/log": "^1.1",
+        "ramsey/uuid": "^4.1",
+        "react/event-loop": "^1.1",
+        "symfony/cache": "^5.1",
+        "symfony/config": "^5.1",
+        "symfony/console": "^5.1",
+        "symfony/dependency-injection": "^5.1",
+        "symfony/dotenv": "^5.1",
+        "symfony/event-dispatcher": "^5.1",
+        "symfony/expression-language": "^5.1",
+        "symfony/filesystem": "^5.1@dev",
+        "symfony/finder": "^5.1",
+        "symfony/flex": "^1.7",
+        "symfony/http-kernel": "^5.1",
+        "symfony/process": "^5.1",
+        "symfony/validator": "^5.1",
+        "symfony/yaml": "^5.1@dev",
+        "typhonius/acquia-logstream": "^0.0.8",
+        "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.15",
+        "violuke/rsa-ssh-key-fingerprint": "^1.1",
+        "webmozart/json": "^1.2",
+        "webmozart/key-value-store": "^1.0",
+        "zumba/amplitude-php": "^1.0"
     },
-    "process-timeout": 3600,
-    "optimize-autoloader": true,
-    "preferred-install": "dist",
-    "sort-packages": true
-  },
-  "extra": {
-    "branch-alias": {
-      "dev-master": "1.x-dev"
+    "require-dev": {
+        "acquia/coding-standards": "*",
+        "phpro/grumphp": "^1.2",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "phpspec/prophecy": "^1.10",
+        "phpunit/phpunit": "^9.1",
+        "php-coveralls/php-coveralls": "^2.2",
+        "squizlabs/php_codesniffer": "^3.5",
+        "webmozart/path-util": "^2.3"
     },
-    "patches": {
-      "symfony/console": [
-        "https://github.com/symfony/symfony/commit/57910d696b1a3b8573cd562d438880854ba4328e.patch"
-      ],
-      "symfony/filesystem": [
-        "symfony-fs-mirror.patch"
-      ]
+    "autoload": {
+        "psr-4": {
+            "Acquia\\Cli\\": "src/"
+        }
     },
-    "patchLevel": {
-      "symfony/console": "-p5",
-      "symfony/filesystem": "-p5"
+    "autoload-dev": {
+        "psr-4": {
+            "Acquia\\Cli\\Tests\\": "tests/phpunit/src/"
+        }
+    },
+    "bin": [
+        "bin/acli"
+    ],
+    "config": {
+        "platform": {
+            "php": "7.3"
+        },
+        "process-timeout": 3600,
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        },
+        "patches": {
+            "symfony/console": [
+                "https://github.com/symfony/symfony/commit/57910d696b1a3b8573cd562d438880854ba4328e.patch"
+            ],
+            "symfony/filesystem": [
+                "symfony-fs-mirror.patch"
+            ]
+        },
+        "patchLevel": {
+            "symfony/console": "-p5",
+            "symfony/filesystem": "-p5"
+        }
+    },
+    "prefer-stable": true,
+    "scripts": {
+        "update-cloud-api-spec": [
+            "rm -rf cx-api-spec",
+            "git clone git@github.com:acquia/cx-api-spec.git",
+            "npm install -g npm@6.6",
+            "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && cd cx-api-spec && nvm install && nvm use && npm install && make install && make spec",
+            "cp cx-api-spec/dist/spec/acquia-spec.yaml assets/",
+            "rm -rf cx-api-spec"
+        ],
+        "box-install": [
+            "curl -f -L https://github.com/box-project/box/releases/download/3.11.1/box.phar -o build/box.phar"
+        ],
+        "box-compile": [
+            "php build/box.phar compile"
+        ],
+        "cs": "phpcs",
+        "cbf": "phpcbf",
+        "unit": "phpunit tests/phpunit -vvv",
+        "lint": [
+            "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+            "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+        ],
+        "test": [
+            "@lint",
+            "@cs",
+            "@unit"
+        ],
+        "coveralls": [
+            "php-coveralls -vvv"
+        ]
     }
-  },
-  "prefer-stable": true,
-  "scripts": {
-    "update-cloud-api-spec": [
-      "rm -rf cx-api-spec",
-      "git clone git@github.com:acquia/cx-api-spec.git",
-      "npm install -g npm@6.6",
-      "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && cd cx-api-spec && nvm install && nvm use && npm install && make install && make spec",
-      "cp cx-api-spec/dist/spec/acquia-spec.yaml assets/",
-      "rm -rf cx-api-spec"
-    ],
-    "box-install": [
-      "curl -f -L https://github.com/box-project/box/releases/download/3.11.1/box.phar -o build/box.phar"
-    ],
-    "box-compile": [
-      "php build/box.phar compile"
-    ],
-    "cs": "phpcs",
-    "cbf": "phpcbf",
-    "unit": "phpunit tests/phpunit -vvv",
-    "lint": [
-      "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
-      "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
-    ],
-    "test": [
-      "@lint",
-      "@cs",
-      "@unit"
-    ],
-    "coveralls": [
-      "php-coveralls -vvv"
-    ]
-  }
 }

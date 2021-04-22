@@ -584,7 +584,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
-    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment);
+    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
     if ($this->isAcsfEnv($chosen_environment)) {
       $site = $this->promptChooseAcsfSite($chosen_environment);
@@ -886,18 +886,6 @@ abstract class PullCommandBase extends CommandBase {
       throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
         ['message' => $process->getErrorOutput()]);
     }
-  }
-
-  /**
-   * @param $database
-   *
-   * @return array
-   */
-  protected function getNameFromDatabaseResponse($database): string {
-    $db_url_parts = explode('/', $database->url);
-    $db_name = end($db_url_parts);
-
-    return $db_name;
   }
 
   /**

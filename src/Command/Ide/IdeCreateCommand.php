@@ -13,6 +13,7 @@ use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Factory;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 
@@ -44,6 +45,7 @@ class IdeCreateCommand extends IdeCommandBase {
   protected function configure() {
     $this->setDescription('Create a Cloud IDE for development');
     $this->acceptApplicationUuid();
+    $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }
 
   /**
@@ -61,7 +63,12 @@ class IdeCreateCommand extends IdeCommandBase {
     $account = $account_resource->get();
     $default = "{$account->first_name} {$account->last_name}'s IDE";
     $question = new Question("Please enter a label for your Cloud IDE. Press enter to use default", $default);
-    $ide_label = $this->io->askQuestion($question);
+    if ($input->getOption('label')) {
+      $ide_label = $input->getOption('label');
+    }
+    else {
+      $ide_label = $this->io->askQuestion($question);
+    }
 
     // Create it.
     $this->checklist->addItem('Creating your Cloud IDE');
