@@ -113,7 +113,7 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * Prepares a directory to build the artifact.
+   * Prepare a directory to build the artifact.
    *
    * @param \Closure $output_callback
    * @param string $artifact_dir
@@ -145,6 +145,12 @@ class PushArtifactCommand extends PullCommandBase {
     }
   }
 
+  /**
+   * Build the artifact.
+   *
+   * @param \Closure $output_callback
+   * @param string $artifact_dir
+   */
   protected function build(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
@@ -163,6 +169,12 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
+  /**
+   * Sanitize the artifact.
+   *
+   * @param \Closure $output_callback
+   * @param string $artifact_dir
+   */
   protected function sanitize(Closure $output_callback, string $artifact_dir):void {
     $output_callback('out', 'Finding Drupal core text files');
     $sanitizeFinder = $this->localMachineHelper->getFinder()
@@ -221,6 +233,13 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
 
+  /**
+   * Commit the artifact.
+   *
+   * @param \Closure $output_callback
+   * @param string $artifact_dir
+   * @param string $commit_hash
+   */
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, $this->output->isVerbose());
@@ -232,6 +251,12 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
+  /**
+   * Push the artifact.
+   *
+   * @param \Closure $output_callback
+   * @param string $artifact_dir
+   */
   protected function push(Closure $output_callback, string $artifact_dir):void {
     $output_callback('out', 'Pushing changes to Acquia Git');
     $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
