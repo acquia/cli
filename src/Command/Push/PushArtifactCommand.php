@@ -230,7 +230,7 @@ class PushArtifactCommand extends PullCommandBase {
       $sanitizeFinder->append($textFileFinder);
     }
 
-    $output_callback('out', "Removing sanitized files from build");
+    $output_callback('out', "Removing sensitive files from build");
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
 
