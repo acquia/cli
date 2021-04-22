@@ -103,7 +103,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     if (!$input->getOption('dry-run')) {
       $this->checklist->addItem("Pushing changes to <options=bold>{$environment->vcs->path}</> branch in the <options=bold>{$environment->name}</> environment");
-      $this->push($output_callback, $artifact_dir);
+      $this->push($output_callback, $artifact_dir, $environment->vcs->url);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -258,8 +258,8 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function push(Closure $output_callback, string $artifact_dir):void {
-    $output_callback('out', 'Pushing changes to Acquia Git');
+  protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url):void {
+    $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
