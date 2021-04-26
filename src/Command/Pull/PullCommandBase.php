@@ -511,6 +511,8 @@ abstract class PullCommandBase extends CommandBase {
     foreach ($application_environments as $key => $environment) {
       if (!$allow_production && $environment->flags->production) {
         unset($application_environments[$key]);
+        // Re-index array so keys match those in $choices.
+        $application_environments = array_values($application_environments);
         continue;
       }
       $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
