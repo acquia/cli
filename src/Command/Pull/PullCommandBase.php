@@ -108,10 +108,10 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+    //$this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment);
+    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
 
     if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
@@ -143,7 +143,7 @@ abstract class PullCommandBase extends CommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
-    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
+    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $input->getArgument('site'));
     $this->checklist->completePreviousItem();
   }
 
@@ -581,19 +581,20 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param $chosen_environment
-   * @param callable $output_callback
+   * @param \Closure|null $output_callback
+   * @param string|null $site
    *
-   * @throws \Exception
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesFromCloud($chosen_environment, $output_callback = NULL): void {
+  protected function rsyncFilesFromCloud($chosen_environment, \Closure $output_callback = NULL, string $site = NULL): void {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
     if ($this->isAcsfEnv($chosen_environment)) {
-      $site = $this->promptChooseAcsfSite($chosen_environment);
+      $site = $site ?: $this->promptChooseAcsfSite($chosen_environment);
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $site = $this->promptChooseCloudSite($chosen_environment);
+      $site = $site ?: $this->promptChooseCloudSite($chosen_environment);
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
@@ -621,19 +622,23 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment): \stdClass {
+  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment, $site = NULL): \stdClass {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
     );
+
     if (count($databases) > 1) {
-      $database = $this->promptChooseDatabase($chosen_environment, $databases);
-    }
-    else {
-      $database = reset($databases);
+      if ($site) {
+        if ($site === 'default') {
+          $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
+        }
+        return $databases[array_search($site, array_column($databases, 'name'))];
+      }
+      return $this->promptChooseDatabase($chosen_environment, $databases);
     }
 
-    return $database;
+    return reset($databases);
   }
 
   /**

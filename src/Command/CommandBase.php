@@ -446,6 +446,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * Add site argument.
+   *
+   * Only call this after acceptEnvironmentId() to keep arguments in the expected order.
+   *
+   * @return $this
+   */
+  protected function acceptSite() {
+    // Do not set a default site in order to force a user prompt.
+    $this->addArgument('site', InputArgument::OPTIONAL, 'For a multisite application, the directory name of the site')
+      ->addUsage(self::getDefaultName() . ' myapp.dev default');
+
+    return $this;
+  }
+
+  /**
    * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
    *
    * @param $input
