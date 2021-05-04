@@ -108,7 +108,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    //$this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+    $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
