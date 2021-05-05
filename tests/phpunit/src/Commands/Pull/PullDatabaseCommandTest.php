@@ -5,11 +5,8 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\SshHelper;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
@@ -154,9 +151,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockDatabasesResponse($environments_response);
     $this->mockDatabaseBackupsResponse($environments_response, 'profserv2', 1);
     $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
-
+    $ssh_helper = $this->mockSshHelper();
     if ($mock_get_acsf_sites) {
-      $ssh_helper = $this->mockSshHelper();
       $this->mockGetAcsfSites($ssh_helper);
     }
 
