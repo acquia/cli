@@ -23,6 +23,7 @@ class PullDatabaseCommand extends PullCommandBase {
       ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->setAliases(['pull:db'])
       ->acceptEnvironmentId()
+      ->acceptSite()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
       ->addOption('on-demand', 'od', InputOption::VALUE_NONE,

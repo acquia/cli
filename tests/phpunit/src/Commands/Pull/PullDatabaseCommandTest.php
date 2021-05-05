@@ -5,11 +5,8 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\SshHelper;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
@@ -66,6 +63,24 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Choose a database', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
     $this->assertStringContainsString('profserv2 (default)', $output);
+  }
+
+  public function testPullDatabasesSiteArgument(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
+    $inputs = $this->getInputs();
+
+    $this->executeCommand([
+      'site' => 'default',
+      '--no-scripts' => TRUE,
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Please select a Cloud Platform application', $output);
+    $this->assertStringContainsString('[0] Sample application 1', $output);
+    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
+    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringNotContainsString('Choose a database', $output);
   }
 
   /**
@@ -128,7 +143,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE): void {
+  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -137,7 +152,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockDatabaseBackupsResponse($environments_response, 'profserv2', 1);
     $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
     $ssh_helper = $this->mockSshHelper();
-    $this->mockGetAcsfSites($ssh_helper);
+    if ($mock_get_acsf_sites) {
+      $this->mockGetAcsfSites($ssh_helper);
+    }
 
     if ($on_demand) {
       $this->mockDatabaseBackupCreateResponse($environments_response, 'profserv2');

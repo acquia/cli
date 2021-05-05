@@ -29,6 +29,7 @@ class PushFilesCommand extends PullCommandBase {
   protected function configure() {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->acceptEnvironmentId()
+      ->acceptSite()
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
@@ -42,11 +43,14 @@ class PushFilesCommand extends PullCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->setDirAndRequireProjectCwd($input);
     $destination_environment = $this->determineEnvironment($input, $output, FALSE);
-    if ($this->isAcsfEnv($destination_environment)) {
-      $chosen_site = $this->promptChooseAcsfSite($destination_environment);
-    }
-    else {
-      $chosen_site = $this->promptChooseCloudSite($destination_environment);
+    $chosen_site = $input->getArgument('site');
+    if (!$chosen_site) {
+      if ($this->isAcsfEnv($destination_environment)) {
+        $chosen_site = $this->promptChooseAcsfSite($destination_environment);
+      }
+      else {
+        $chosen_site = $this->promptChooseCloudSite($destination_environment);
+      }
     }
     $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?");
     if (!$answer) {
