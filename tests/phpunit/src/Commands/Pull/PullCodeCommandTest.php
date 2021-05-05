@@ -278,14 +278,12 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $dir
   ): void {
     $command = [
-      'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
       'git',
       'clone',
       $environments_response->vcs->url,
       $dir,
     ];
-    $command = implode(' ', $command);
-    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE, NULL)
+    $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
