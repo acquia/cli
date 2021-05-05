@@ -72,6 +72,14 @@ class LocalMachineHelper {
   }
 
   /**
+   * Executes a command directly in a shell (without additional parsing).
+   *
+   * Use `execute()` instead whenever possible. `executeFromCmd()` does not
+   * automatically escape arguments and should only be used for commands with
+   * pipes or redirects not supported by `execute()`.
+   *
+   * Windows does not support prepending commands with environment variables.
+   *
    * @param string $cmd
    * @param callable $callback
    * @param string $cwd

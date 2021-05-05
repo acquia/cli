@@ -684,14 +684,12 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function cloneFromCloud(EnvironmentResponse $chosen_environment, \Closure $output_callback): void {
     $command = [
-      'GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=no"',
       'git',
       'clone',
       $chosen_environment->vcs->url,
       $this->dir,
     ];
-    $command = implode(' ', $command);
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, $this->output->isVerbose(), NULL, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no']);
     $this->checkoutBranchFromEnv($chosen_environment, $output_callback);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
