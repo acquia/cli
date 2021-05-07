@@ -147,17 +147,18 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
-    $this->mockDatabasesResponse($environments_response);
-    $this->mockDatabaseBackupsResponse($environments_response, 'profserv2', 1);
-    $this->mockDownloadBackupResponse($environments_response, 'profserv2', 1);
+    $this->mockDatabasesResponse($selected_environment);
+    $this->mockDatabaseBackupsResponse($selected_environment, 'profserv2', 1);
+    $this->mockDownloadBackupResponse($selected_environment, 'profserv2', 1);
     $ssh_helper = $this->mockSshHelper();
     if ($mock_get_acsf_sites) {
       $this->mockGetAcsfSites($ssh_helper);
     }
 
     if ($on_demand) {
-      $this->mockDatabaseBackupCreateResponse($environments_response, 'profserv2');
+      $this->mockDatabaseBackupCreateResponse($selected_environment, 'profserv2');
       // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
       $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     }

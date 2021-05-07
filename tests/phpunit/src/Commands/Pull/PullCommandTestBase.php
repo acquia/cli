@@ -42,14 +42,13 @@ abstract class PullCommandTestBase extends CommandTestBase {
   public function mockEnvironmentsRequest(
     $applications_response
   ) {
-    $response = $this->getMockEnvironmentResponse();
-    $response->sshUrl = $response->ssh_url;
+    $environments_response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$response])
+      ->willReturn($environments_response->_embedded->items)
       ->shouldBeCalled();
 
-    return $response;
+    return $environments_response;
   }
 
   /**

@@ -545,6 +545,22 @@ abstract class TestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
+  protected function getMockEnvironmentsResponse() {
+    $environments_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
+      'get', 200);
+    // These keys are missing from the Acquia spec (CXAPI-8435).
+    // @todo remove after the spec is fixed and updated.
+    foreach ($environments_response->_embedded->items as $item) {
+      $item->platform = 'cloud';
+      $item->balancer = 'balancers';
+    }
+    return $environments_response;
+  }
+
+  /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   protected function mockIdeListRequest() {
     $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides',
       'get', '200');

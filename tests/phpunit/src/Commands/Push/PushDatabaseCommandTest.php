@@ -29,8 +29,9 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
-    $this->mockDatabasesResponse($environments_response);
+    $this->mockDatabasesResponse($selected_environment);
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $process = $this->mockProcess();
@@ -38,9 +39,9 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     // Database.
-    $this->mockCreateMySqlDumpOnLocal($local_machine_helper, $environments_response);
+    $this->mockCreateMySqlDumpOnLocal($local_machine_helper, $selected_environment);
     $this->mockUploadDatabaseDump($local_machine_helper, $process);
-    $this->mockImportDatabaseDumpOnRemote($ssh_helper, $environments_response, $process);
+    $this->mockImportDatabaseDumpOnRemote($ssh_helper, $selected_environment, $process);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();

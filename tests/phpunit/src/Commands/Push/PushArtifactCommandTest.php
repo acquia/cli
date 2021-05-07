@@ -31,6 +31,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -43,7 +44,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $commit_hash = 'abc123';
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
     $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir, $commit_hash);
-    $this->mockCloneShallow($local_machine_helper, $environments_response->vcs->path, $environments_response->vcs->url, $artifact_dir);
+    $this->mockCloneShallow($local_machine_helper, $selected_environment->vcs->path, $selected_environment->vcs->url, $artifact_dir);
     $this->mockLocalGitConfig($local_machine_helper, $artifact_dir);
     $this->mockComposerInstall($local_machine_helper, $artifact_dir);
     $this->mockReadComposerJson($local_machine_helper, $artifact_dir);

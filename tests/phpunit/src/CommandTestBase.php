@@ -233,17 +233,17 @@ abstract class CommandTestBase extends TestBase {
   ) {
     // Request for Environments data. This isn't actually the endpoint we should
     // be using, but we do it due to CXAPI-7209.
-    $response = $this->getMockEnvironmentResponse();
-    $acsf_env_response = $this->getAcsfEnvResponse();
-    $response->sshUrl = $acsf_env_response->sshUrl;
-    $response->ssh_url = $acsf_env_response->sshUrl;
-    $response->domains = $acsf_env_response->domains;
+    $environments_response = $this->getMockEnvironmentsResponse();
+    foreach ($environments_response->_embedded->items as $environment) {
+      $environment->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
+      $environment->domains = ["profserv201dev.enterprise-g1.acquia-sites.com"];
+    }
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$response])
+      ->willReturn($environments_response->_embedded->items)
       ->shouldBeCalled();
 
-    return $response;
+    return $environments_response;
   }
 
   /**
@@ -266,13 +266,6 @@ abstract class CommandTestBase extends TestBase {
       ->shouldBeCalled();
 
     return $response;
-  }
-
-  /**
-   * @return object
-   */
-  protected function getAcsfEnvResponse() {
-    return json_decode(file_get_contents(Path::join($this->fixtureDir, 'acsf_env_response.json')));
   }
 
   /**
