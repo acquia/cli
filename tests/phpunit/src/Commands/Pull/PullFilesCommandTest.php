@@ -2,22 +2,13 @@
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
-use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
-use Acquia\Cli\Command\Pull\PullCodeCommand;
-use Acquia\Cli\Command\Pull\PullCommand;
-use Acquia\Cli\Command\Pull\PullDatabaseCommand;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
-use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Finder\Finder;
-use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class PullDatabaseCommandTest.
@@ -77,16 +68,17 @@ class PullFilesCommandTest extends PullCommandTestBase {
   public function testRefreshCloudFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockCloudEnvironmentsRequest($applications_response);
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $ssh_helper = $this->mockSshHelper();
-    $this->mockGetCloudSites($ssh_helper);
+    $this->mockGetCloudSites($ssh_helper, $selected_environment);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper
       ->getFilesystem()
       ->willReturn($this->fs)
       ->shouldBeCalled();
     $process = $this->mockProcess();
-    $this->mockExecuteCloudRsync($local_machine_helper, $environments_response, $process);
+    $this->mockExecuteCloudRsync($local_machine_helper, $process, $selected_environment);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -156,14 +148,15 @@ class PullFilesCommandTest extends PullCommandTestBase {
    */
   protected function mockExecuteCloudRsync(
     ObjectProphecy $local_machine_helper,
-    $environments_response,
-    ObjectProphecy $process
+    ObjectProphecy $process,
+    $environment
   ): void {
+    $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $command = [
       'rsync',
       '-rltDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      'something.dev@somethingdev.ssh.prod.acquia-sites.com:/mnt/files/something.dev/sites/bar/files',
+      $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
       $this->projectFixtureDir . '/docroot/sites/bar/',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)

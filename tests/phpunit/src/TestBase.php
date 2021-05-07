@@ -498,10 +498,10 @@ abstract class TestBase extends TestCase {
   public function mockEnvironmentsRequest(
     $applications_response
   ) {
-    $response = $this->getMockEnvironmentResponse();
+    $response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$response])
+      ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
     return $response;
@@ -531,12 +531,12 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getMockEnvironmentResponse($method = 'get', $http_code = '200') {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209. It should be
-    // applications/{applicationUuid}/environments.
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $http_code);
+    // These keys are missing from the Acquia spec (CXAPI-8435).
+    // @todo remove after the spec is fixed and updated.
     $response->platform = 'cloud';
+    $response->balancer = 'balancers';
 
     return $response;
   }

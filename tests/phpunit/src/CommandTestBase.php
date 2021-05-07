@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Exception;
@@ -231,8 +232,6 @@ abstract class CommandTestBase extends TestBase {
   public function mockAcsfEnvironmentsRequest(
     $applications_response
   ) {
-    // Request for Environments data. This isn't actually the endpoint we should
-    // be using, but we do it due to CXAPI-7209.
     $environments_response = $this->getMockEnvironmentsResponse();
     foreach ($environments_response->_embedded->items as $environment) {
       $environment->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
@@ -244,35 +243,6 @@ abstract class CommandTestBase extends TestBase {
       ->shouldBeCalled();
 
     return $environments_response;
-  }
-
-  /**
-   * @param object $applications_response
-   *
-   * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function mockCloudEnvironmentsRequest(
-    $applications_response
-  ) {
-    $response = $this->getMockEnvironmentResponse();
-    $cloud_env_response = $this->getCloudEnvResponse();
-    $response->sshUrl = $cloud_env_response->ssh_url;
-    $response->ssh_url = $cloud_env_response->ssh_url;
-    $response->domains = $cloud_env_response->domains;
-    $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$response])
-      ->shouldBeCalled();
-
-    return $response;
-  }
-
-  /**
-   * @return object
-   */
-  protected function getCloudEnvResponse() {
-    return json_decode(file_get_contents(Path::join($this->fixtureDir, 'cloud_env_response.json')));
   }
 
   /**
@@ -296,12 +266,13 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return void
    */
-  protected function mockGetCloudSites($ssh_helper) {
+  protected function mockGetCloudSites($ssh_helper, $environment) {
     $cloud_multisite_fetch_process = $this->mockProcess();
     $cloud_multisite_fetch_process->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
+    $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $ssh_helper->executeCommand(
       Argument::type('object'),
-      ['ls', '/mnt/files/something.dev/sites'],
+      ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
       FALSE
     )->willReturn($cloud_multisite_fetch_process->reveal())->shouldBeCalled();
   }
