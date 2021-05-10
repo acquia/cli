@@ -41,12 +41,13 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
     $dir = Path::join($this->fixtureDir, 'empty-dir');
     $this->fs->mkdir([$dir]);
-    $this->mockExecuteGitClone($local_machine_helper, $environments_response, $process, $dir);
-    $this->mockExecuteGitCheckout($local_machine_helper, $environments_response->vcs->path, $dir, $process);
+    $this->mockExecuteGitClone($local_machine_helper, $selected_environment, $process, $dir);
+    $this->mockExecuteGitCheckout($local_machine_helper, $selected_environment->vcs->path, $dir, $process);
     $local_machine_helper->getFinder()->willReturn(new Finder());
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -72,6 +73,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -80,7 +82,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
 
     $inputs = [
@@ -110,6 +112,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -118,7 +121,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
 
     $inputs = [
@@ -145,6 +148,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -153,7 +157,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
 
     $inputs = [
@@ -181,6 +185,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -189,7 +194,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $environments_response->vcs->path);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
     $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
     $process = $this->mockProcess();
     $this->mockExecuteComposerExists($local_machine_helper);

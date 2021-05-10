@@ -134,6 +134,14 @@ components:
       schema:
         type: string
       example: example.com
+    DomainRegistrationUuid:
+      name: domainRegistrationUuid
+      in: path
+      description: The Domain Registration universally unique identifier.
+      required: true
+      schema:
+        type: string
+      example: da1c0a8e-ff69-45db-88fc-acd6d2affbb7
     DrushVersion:
       name: version
       in: query
@@ -499,6 +507,14 @@ components:
       schema:
         type: string
       example: '-7d'
+    FromNoDefault:
+      name: from
+      in: query
+      description: An ISO-8601 formatted date retrieve results from.
+      required: false
+      schema:
+        type: string
+      example: '2021-01-29T22:45:21+00:00'
     To:
       name: to
       in: query
@@ -507,6 +523,14 @@ components:
       schema:
         type: string
       example: '-1d'
+    ToNoDefault:
+      name: to
+      in: query
+      description: An ISO-8601 formatted date retrieve results to.
+      required: false
+      schema:
+        type: string
+      example: '2021-01-29T23:55:21+00:00'
     Sort:
       name: sort
       in: query
@@ -1172,6 +1196,106 @@ components:
           description: A collection of tags matching the request parameters.
           items:
             $ref: '#/components/schemas/ResourceTag'
+    DomainRegistration:
+      type: object
+      required:
+        - uuid
+        - domain_name
+        - health
+        - dns_records
+        - _links
+      description: The Domain Registration.
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The UUID of the domain registration.
+        domain_name:
+          type: string
+          format: uri
+          description: The domain name.
+        health:
+          $ref: '#/components/schemas/DomainRegistrationHealth'
+        dns_records:
+          $ref: '#/components/schemas/DomainRegistrationDnsRecords'
+        _links:
+          $ref: '#/components/schemas/Links'
+    DomainRegistrations:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of domain registrations.
+          items:
+            $ref: '#/components/schemas/DomainRegistration'
+    DomainRegistrationHealth:
+      type: object
+      description: Health information for this domain registration.
+      properties:
+        code:
+          type: string
+          description: The status code for this domain registration.
+        details:
+          type: string
+          description: The details regarding the health of this domain registration.
+        summary:
+          type: string
+          description: A brief summary that explains why an error code is present.
+    DomainRegistrationDnsRecord:
+      type: object
+      description: A DNS record.
+      required:
+        - type
+        - value
+      properties:
+        type:
+          type: string
+          description: The type of DNS record.
+          enum:
+            - TXT
+            - MX
+            - CNAME
+        name:
+          type: string
+          description: The name of the DNS record
+        value:
+          type: string
+          description: The DNS record value.
+        health:
+          $ref: '#/components/schemas/DomainRegistrationDnsHealth'
+    DomainRegistrationDnsRecords:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of DNS records
+          items:
+            $ref: '#/components/schemas/DomainRegistrationDnsRecord'
+    DomainRegistrationDnsHealth:
+      type: object
+      description: Health information for this DNS record.
+      properties:
+        code:
+          type: string
+          description: The status code for this DNS record.
+        details:
+          type: string
+          description: The details regarding the health of this DNS record.
+        summary:
+          type: string
+          description: A brief summary that explains why an error code is present.
     Distribution:
       type: object
       required:
@@ -1266,6 +1390,62 @@ components:
           description: A collection of distributions.
           items:
             $ref: '#/components/schemas/Distribution'
+    Email:
+      type: object
+      required:
+        - status
+        - _links
+      description: The Email status.
+      properties:
+        status:
+          type: string
+          description: The status of Platform Email for the environment
+          enum:
+            - active
+            - inactive
+        _links:
+          $ref: '#/components/schemas/Links'
+    EmailDomain:
+      type: object
+      required:
+        - uuid
+        - domain_name
+        - flags
+        - health
+      description: The Email Domain
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The UUID of the email domain.
+        domain_name:
+          type: string
+          format: uri
+          description: The domain name.
+        flags:
+          type: object
+          description: Additional Email Domain information.
+          properties:
+            associated:
+              type: boolean
+              description: Whether or not Platform Email has been associated with the application.
+        health:
+          $ref: '#/components/schemas/DomainRegistrationHealth'
+    EmailDomains:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: array
+          description: A collection of email domains.
+          items:
+            $ref: '#/components/schemas/EmailDomain'
     Entitlements:
       type: object
       description: Entitlements collection.
@@ -2259,6 +2439,9 @@ components:
           cdn:
             type: boolean
             description: Determines if the environment has Platform CDN enabled.
+          email:
+            type: boolean
+            description: Determines if the environment has Platform Email enabled.
           hsd:
             type: boolean
             description: Determines if the environment is under high-site density.
@@ -2866,6 +3049,7 @@ components:
       required:
         - uuid
         - label
+        - status
         - _links
       properties:
         uuid:
@@ -2875,6 +3059,17 @@ components:
         label:
           type: string
           description: The human-friendly label of the Cloud IDE.
+        status:
+          type: string
+          description: The current provisioning status of the Cloud IDE.
+          enum:
+            - active
+            - provisioning
+            - deleting
+            - updating
+            - provision-failed
+            - update-failed
+            - delete-failed
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
@@ -6593,6 +6788,7 @@ paths:
                   items:
                     - uuid: 9a83c081-ef78-4dbd-8852-11cc3eb248f7
                       label: IDE Label 1
+                      status: active
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/ides/9a83c081-ef78-4dbd-8852-11cc3eb248f7'
@@ -6604,6 +6800,7 @@ paths:
                           href: 'https://cloud.acquia.com/api/applications/461fe350-7988-42b3-a73e-cffcdbb94199'
                     - uuid: feea197a-9503-4441-9f49-b4d420b0ecf8
                       label: IDE Label 2
+                      status: active
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/ides/feea197a-9503-4441-9f49-b4d420b0ecf8'
@@ -8814,6 +9011,238 @@ paths:
                   value:
                     error: not_found
                     message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+  '/applications/{applicationUuid}/email/domains':
+    get:
+      tags:
+        - Applications
+      summary: Returns a list of email domains associated with the application.
+      description: Returns a list of email domains associated with the application and domains that have been verified at the subscription level.
+      operationId: getApplicationEmailDomains
+      x-cli-name: 'applications:email-domains-list'
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDomains'
+              example:
+                total: 2
+                pagination:
+                  total: 2
+                  limit: 2
+                  offset: 0
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/email/domains'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/email'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/email/domains{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/applications123e4567-e89b-12d3-a456-426614174000/email/domains{?offset}'
+                    templated: true
+                  sort:
+                    href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/email/domains{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/email/domains{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - uuid: 123e4567-e89b-12d3-a456-426614174000
+                      domain_name: example.com
+                      flags:
+                        associated: true
+                      health:
+                        code: '200'
+                        details: ''
+                        summary: OK
+                    - uuid: 123e4567-e89b-12d3-a456-426614174000
+                      domain_name: example2.com
+                      flags:
+                        associated: true
+                      health:
+                        code: '200'
+                        details: ''
+                        summary: OK
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage email domains for this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No data or permission:
+                  value:
+                    error: not_found
+                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
+  '/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate':
+    post:
+      tags:
+        - Applications
+      summary: Associates an email domain with an Application.
+      description: Associates an email domain with an Application.
+      operationId: postApplicationAssociateEmailDomain
+      x-cli-name: 'applications:post-associate-email-domain'
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+        - $ref: '#/components/parameters/DomainRegistrationUuid'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Associate Domain:
+                  value:
+                    message: The domain has been associated with the application.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/domains//123e4567-e89b-12d3-a456-426614174000/actions/associate'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/domains//123e4567-e89b-12d3-a456-426614174000'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to associate domains with this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Application not found:
+                  value:
+                    error: not_found
+                    message: The application you are trying to associate a domain registration with does not exist or you do not have permission to access it.
+                Domain not found:
+                  value:
+                    error: not_found
+                    message: The domain registration you are trying to associate does not exist or you do not have permission to access it.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Already associated:
+                  value:
+                    error: conflict
+                    message: The domain example.com is already associated with this application.
+  '/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/disassociate':
+    post:
+      tags:
+        - Applications
+      summary: Disassociates an email domain with an Application.
+      description: Disassociates an email domain with an Application.
+      operationId: postApplicationDisassociateEmailDomain
+      x-cli-name: 'applications:post-disassociate-email-domains'
+      parameters:
+        - $ref: '#/components/parameters/ApplicationUuid'
+        - $ref: '#/components/parameters/DomainRegistrationUuid'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              examples:
+                Disassociate Domain:
+                  value:
+                    message: The domain has been disassociated from the application.
+                    _links:
+                      self:
+                        href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000/actions/dissasociate'
+                      parent:
+                        href: 'https://cloud.acquia.com/api/applications/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                      notification:
+                        href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Insufficient permissions:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to disassociate domains from this application.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Application not found:
+                  value:
+                    error: not_found
+                    message: The application you are trying to disassociate a domain registration from does not exist or you do not have permission to access it.
+                Domain not found:
+                  value:
+                    error: not_found
+                    message: The domain registration you are trying to disassociate does not exist or you do not have permission to access it.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Domain minimum:
+                  value:
+                    error: conflict
+                    message: The application must have at least one associated domain while Platform Email is enabled on an environment.
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Not associated:
+                  value:
+                    error: conflict
+                    message: The domain example.com is not associated with this application.
   '/applications/{applicationUuid}/ides':
     get:
       tags:
@@ -9760,10 +10189,14 @@ paths:
           multipart/form-data:
             schema:
               type: object
+              required:
+                - archive
+              description: The archive file binary.
               properties:
                 archive:
                   format: binary
                   type: string
+                  description: A binary file response
       responses:
         '202':
           description: OK
@@ -12515,6 +12948,7 @@ paths:
                 flags:
                   cde: false
                   cdn: false
+                  email: false
                   hsd: false
                   livedev: false
                   migration: false
@@ -12752,7 +13186,7 @@ paths:
       tags:
         - Environments
       summary: Clears the caches for one or more domains attached to this environment.
-      description: Clears the caches for one or more domains attached to this environment.
+      description: Clear caches for Varnish and Platform CDN (if Platform CDN is enabled).
       operationId: postEnvironmentsClearCaches
       x-cli-name: 'environments:clear-caches'
       parameters:
@@ -13458,7 +13892,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageWithLinks'
               example:
-                message: Enabling Platform CDN.
+                message: Provisioning Platform CDN.
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4/cdn'
@@ -13522,7 +13956,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/MessageWithLinks'
               example:
-                message: Disabling Platform CDN.
+                message: Deprovisioning Platform CDN.
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/8237-8675-93b8-4f45-cf515fec-e016647b53d4/cdn'
@@ -15842,7 +16276,7 @@ paths:
       tags:
         - Environments
       summary: Clears the caches for the specified domain.
-      description: Clears the caches for the specified domain.
+      description: Clear caches for Varnish and Platform CDN (if Platform CDN is enabled).
       operationId: postEnvironmentsDomainClearCaches
       x-cli-name: 'environments:domain-clear-caches'
       parameters:
@@ -16033,6 +16467,177 @@ paths:
                   value:
                     error: not_found
                     message: Unable to determine status for this domain.
+  '/environments/{environmentId}/email':
+    get:
+      tags:
+        - Email
+      summary: Returns the status of Platform Email for an Environment.
+      description: Returns the status of Platform Email for an Environment.
+      operationId: getEmailStatus
+      x-cli-name: 'environments:email-status'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
+              example:
+                status: active
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/email'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/email/actions/disable':
+    post:
+      tags:
+        - Environments
+      summary: Disables email for an environment.
+      description: Disables email for an environment.
+      operationId: postEnvironmentEmailDisable
+      x-cli-name: 'environments:email-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Platform Email is being disabled
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions/disable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to disable email for this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment mismatch:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Not a legacy entitlement:
+                  value:
+                    error: null
+                    message: Platform Email cannot be disabled for this subscription.
+  '/environments/{environmentId}/email/actions/enable':
+    post:
+      tags:
+        - Environments
+      summary: Enables email for an environment.
+      description: Enables email for an environment.
+      operationId: postEnvironmentEmailEnable
+      x-cli-name: 'environments:email-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Platform Email is being enabled
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/email/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-a027502b-ad6c-a48e-a7e8-aa0def7d25e1/actions/email'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to enable email for this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No Entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Already enabled:
+                  value:
+                    error: conflict
+                    message: Platform Email is already enabled on this environment.
+                No Associated domains:
+                  value:
+                    error: conflict
+                    message: There are no associated domains for this environment's application.
   '/environments/{environmentId}/files':
     post:
       tags:
@@ -16442,6 +17047,8 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EnvironmentId'
         - $ref: '#/components/parameters/LogType'
+        - $ref: '#/components/parameters/FromNoDefault'
+        - $ref: '#/components/parameters/ToNoDefault'
       responses:
         '201':
           description: Created
@@ -16460,6 +17067,18 @@ paths:
                         href: 'https://cloud.acquia.com/api/environments/123-ea9060c5-1ed8-46ec-87d5-2ce2a0861577/logs'
                       notification:
                         href: 'https://cloud.acquia.com/api/notifications/8b790313-8830-4810-baef-3b41b3786e9d'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Invalid range:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Log snapshots must cover no more than 24 hours and can only be retrieved up to 30 days in the past.
         '403':
           description: Forbidden
           content:
@@ -16486,6 +17105,25 @@ paths:
                   value:
                     error: not_found
                     message: Logs cannot be accessed on non-hosted environments.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Date range not supported:
+                  value:
+                    error: conflict
+                    message: Date ranges for log file snapshots are not supported on this environment.
+                Log snapshot not supported:
+                  value:
+                    error: conflict
+                    message: Log snapshots are not supported on this environment.
+                Log type not supported:
+                  value:
+                    error: conflict
+                    message: Log file snapshot for mysql-slow-query is not available on this environment.
   '/environments/{environmentId}/logstream':
     get:
       tags:
@@ -21116,6 +21754,7 @@ paths:
               example:
                 uuid: 215824ff-272a-4a8c-9027-df32ed1d68a9
                 label: Example IDE
+                status: active
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/ides/215824ff-272a-4a8c-9027-df32ed1d68a9'
@@ -26343,6 +26982,518 @@ paths:
               example:
                 error: not_found
                 message: You do not have permission to view applications.
+  '/subscriptions/{subscriptionUuid}/domains':
+    get:
+      tags:
+        - Subscriptions
+      summary: Returns a list of Domains registered with this subscription.
+      description: Returns a list of Domains registered with this subscription.
+      operationId: getSubscriptionDomainRegistrations
+      x-cli-name: 'subscriptions:domain-registrations-list'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainRegistrations'
+              example:
+                total: 2
+                pagination:
+                  total: 2
+                  limit: 2
+                  offset: 0
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains{?offset}'
+                    templated: true
+                  sort:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - uuid: 123e4567-e89b-12d3-a456-426614174000
+                      domain_name: example.com
+                      health:
+                        code: '404'
+                        details: Acquia could not verify the presence of the required DKIM/SPF/TXT DNS record.
+                        summary: Missing DNS record
+                      dns_records:
+                        - type: TXT
+                          name: _amazonses.example.com
+                          value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required TXT DNS record
+                            summary: Missing DNS record
+                        - type: TXT
+                          name: _acquiaplatform.example.com
+                          value: 'aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43='
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required TXT DNS record
+                            summary: Missing DNS record
+                        - type: MX
+                          name: mail.example.com
+                          value: 10 feedback-smtp.us-east-1.amazonses.com
+                          health:
+                            code: '202'
+                            details: Acquia is in the process of verifying SPF DNS records.
+                            summary: Verification pending
+                        - type: TXT
+                          name: mail.example.com
+                          value: 'v=spf1 include:amazonses.com ~all'
+                          health:
+                            code: '202'
+                            details: Acquia is in the process of verifying SPF DNS records.
+                            summary: Verification pending
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+                    - uuid: 123e4567-e89b-12d3-a456-426614174000
+                      domain_name: example2.com
+                      health:
+                        code: '404'
+                        details: Acquia could not verify the presence of the required DKIM/SPF/TXT DNS record.
+                        summary: Missing DNS record
+                      dns_records:
+                        - type: TXT
+                          name: _amazonses.example2.com
+                          value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required TXT DNS record
+                            summary: Missing DNS record
+                        - type: TXT
+                          name: _acquiaplatform.example2.com
+                          value: 'aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43='
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required TXT DNS record
+                            summary: Missing DNS record
+                        - type: MX
+                          name: mail.example2.com
+                          value: 10 feedback-smtp.us-east-1.amazonses.com
+                          health:
+                            code: '202'
+                            details: Acquia is in the process of verifying SPF DNS records.
+                            summary: Verification pending
+                        - type: TXT
+                          name: mail.example2.com
+                          value: 'v=spf1 include:amazonses.com ~all'
+                          health:
+                            code: '202'
+                            details: Acquia is in the process of verifying SPF DNS records.
+                            summary: Verification pending
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example2.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example2.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                        - type: CNAME
+                          name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example2.com
+                          value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                          health:
+                            code: '404'
+                            details: Acquia could not verify the presence of the required DKIM DNS record
+                            summary: Missing DNS record
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage domain registrations for this subscription.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+    post:
+      tags:
+        - Subscriptions
+      summary: Registers a Domain with this subscription.
+      description: Registers a Domain with this subscription.
+      operationId: postSubscriptionDomainRegistration
+      x-cli-name: 'subscriptions:post-domain-registration'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                  format: uri
+                  description: The domain name to add.
+                  minLength: 3
+                  maxLength: 253
+            example:
+              hostname: example.com
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                hostname:
+                  type: string
+                  description: The domain name to add.
+                  minLength: 3
+                  maxLength: 253
+            example:
+              hostname: example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The domain has been registered.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage domain registrations for this subscription.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+                No domain or permission:
+                  value:
+                    error: not_found
+                    message: 'The domain registration you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Domain limit:
+                  value:
+                    error: conflict
+                    message: The maximum number of domains for Platform Email have been registered.
+  '/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}':
+    get:
+      tags:
+        - Subscriptions
+      summary: Returns a speicific Domain registered with this subscription.
+      description: Returns a speicific Domain registered with this subscription.
+      operationId: getSubscriptionDomainRegistration
+      x-cli-name: 'subscriptions:get-domain-registration'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/DomainRegistrationUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DomainRegistration'
+              example:
+                uuid: 123e4567-e89b-12d3-a456-426614174000
+                domain_name: example.com
+                health:
+                  code: '404'
+                  details: Acquia could not verify the presence of the required DKIM/SPF/TXT DNS record.
+                  summary: Missing DNS record
+                dns_records:
+                  - type: TXT
+                    name: _amazonses.example.com
+                    value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=
+                    health:
+                      code: '404'
+                      details: Acquia could not verify the presence of the required TXT DNS record
+                      summary: Missing DNS record
+                  - type: TXT
+                    name: _acquiaplatform.example.com
+                    value: 'aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43='
+                    health:
+                      code: '404'
+                      details: Acquia could not verify the presence of the required TXT DNS record
+                      summary: Missing DNS record
+                  - type: MX
+                    name: mail.example.com
+                    value: 10 feedback-smtp.us-east-1.amazonses.com
+                    health:
+                      code: '202'
+                      details: Acquia is in the process of verifying SPF DNS records.
+                      summary: Verification pending
+                  - type: TXT
+                    name: mail.example.com
+                    value: 'v=spf1 include:amazonses.com ~all'
+                    health:
+                      code: '202'
+                      details: Acquia is in the process of verifying SPF DNS records.
+                      summary: Verification pending
+                  - type: CNAME
+                    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                    health:
+                      code: '404'
+                      details: Acquia could not verify the presence of the required DKIM DNS record
+                      summary: Missing DNS record
+                  - type: CNAME
+                    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                    health:
+                      code: '404'
+                      details: Acquia could not verify the presence of the required DKIM DNS record
+                      summary: Missing DNS record
+                  - type: CNAME
+                    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com
+                    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com
+                    health:
+                      code: '404'
+                      details: Acquia could not verify the presence of the required DKIM DNS record
+                      summary: Missing DNS record
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+                No domain or permission:
+                  value:
+                    error: not_found
+                    message: 'The domain registration you are trying to access does not exist, or you do not have permission to access it.'
+    delete:
+      tags:
+        - Subscriptions
+      summary: Unregisters a Domain registered with this subscription.
+      description: Unregisters a Domain registered with this subscription.
+      operationId: deleteSubscriptionDomainRegistration
+      x-cli-name: 'subscriptions:delete-domain-registration'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/DomainRegistrationUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The domain has been unregistered from the subscription.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to remove domains from this subscription.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: 'The subscription you are trying to access does not exist, or you do not have permission to access it.'
+                No domain or permission:
+                  value:
+                    error: not_found
+                    message: 'The domain you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Domain not registered:
+                  value:
+                    error: conflict
+                    message: example.com is not registered with this subscription.
+  '/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify':
+    post:
+      tags:
+        - Subscriptions
+      summary: Triggers re-verification and update to the domain verification status.
+      description: Triggers re-verification and update to the domain verification status.
+      operationId: postSubscriptionVerifyDomainRegistration
+      x-cli-name: 'subscriptions:post-verify-domain-registration'
+      parameters:
+        - $ref: '#/components/parameters/SubscriptionUuid'
+        - $ref: '#/components/parameters/DomainRegistrationUuid'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: The domain status is being verified.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000/actions/verify'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/subscriptions/123e4567-e89b-12d3-a456-426614174000/domains/123e4567-e89b-12d3-a456-426614174000'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No domain or permission:
+                  value:
+                    error: not_found
+                    message: 'The domain registration you are trying to access does not exist, or you do not have permission to access it.'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No subscription or permission:
+                  value:
+                    error: not_found
+                    message: The subscription with UUID 123e4567-e89b-12d3-a456-426614174000 does not exist.
+                No domain or permission:
+                  value:
+                    error: not_found
+                    message: 'The domain registration you are trying to access does not exist, or you do not have permission to access it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No entitlement:
+                  value:
+                    error: conflict
+                    message: Platform Email is not available for this subscription.
+                Verification already pending:
+                  value:
+                    error: conflict
+                    message: This domain cannot be reverified at this time.
   '/subscriptions/{subscriptionUuid}/entitlements':
     get:
       tags:

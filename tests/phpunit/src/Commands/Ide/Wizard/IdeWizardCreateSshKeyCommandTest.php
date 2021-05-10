@@ -44,14 +44,15 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreate(): void {
-    $environments_response = $this->getMockEnvironmentResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $environments_response = $this->getMockEnvironmentsResponse();
+    $selected_environment = $environments_response->_embedded->items[0];
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+    $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
     $this->mockSshAgent();
@@ -95,14 +96,15 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
       ->willReturn($delete_response->reveal())
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockEnvironmentResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn([$environments_response])->shouldBeCalled();
+    $environments_response = $this->getMockEnvironmentsResponse();
+    $selected_environment = $environments_response->_embedded->items[0];
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
 
     // List uploaded keys.
     $this->mockUploadSshKey();
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+    $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
     $this->mockSshAgent();
