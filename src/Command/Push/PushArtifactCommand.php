@@ -160,10 +160,8 @@ class PushArtifactCommand extends PullCommandBase {
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
-      // Ignore VCS files, like .git.
-      ->ignoreVCSIgnored(TRUE)
-      // Ignore vendor to speed up the mirror (Composer can restore them later).
-      ->exclude(['vendor']);
+      // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
+      ->ignoreVCSIgnored(TRUE);
     $targetFinder = $this->localMachineHelper->getFinder();
     $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
