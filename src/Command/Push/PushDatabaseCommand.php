@@ -66,30 +66,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   * @param string $db_host
-   * @param string $db_user
-   * @param string $db_name
-   * @param string $db_password
-   * @param callable $output_callback
-   *
-   * @return string
-   * @throws \Exception
-   */
-  protected function createMySqlDumpOnLocal($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): string {
-    $filename = "acli-mysql-dump-{$db_name}.sql.gz";
-    $local_temp_dir = '/tmp';
-    $local_filepath = $local_temp_dir . '/' . $filename;
-    $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
-    $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose());
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
-    }
-
-    return $local_filepath;
-  }
-
-  /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param \AcquiaCloudApi\Response\DatabaseResponse $database
    * @param string $local_filepath
