@@ -635,6 +635,7 @@ abstract class PullCommandBase extends CommandBase {
         }
         return $databases[array_search($site, array_column($databases, 'name'))];
       }
+      $this->io->writeln("This is a multisite application. Drupal will load the default site unless you've configured sites.php for this environment: https://docs.acquia.com/cloud-platform/develop/drupal/multisite/");
       return $this->promptChooseDatabase($chosen_environment, $databases);
     }
 

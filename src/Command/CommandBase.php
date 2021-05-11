@@ -1434,6 +1434,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $site = reset($sites);
       return $site;
     }
+    $this->io->writeln("This is a multisite application. Drupal will load the default site unless you've configured sites.php for this environment: https://docs.acquia.com/cloud-platform/develop/drupal/multisite/");
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
 
