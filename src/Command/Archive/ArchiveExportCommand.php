@@ -30,11 +30,6 @@ class ArchiveExportCommand extends PullCommandBase {
   protected $checklist;
 
   /**
-   *
-   */
-  public const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
-
-  /**
    * @var \Symfony\Component\Filesystem\Filesystem
    */
   private $fs;
@@ -44,14 +39,16 @@ class ArchiveExportCommand extends PullCommandBase {
    */
   private $destinationDir;
 
+  private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
+
   /**
    * {inheritdoc}.
    */
   protected function configure(): void {
     $this->setName('archive:export');
     $this->setDescription('Generate an archive of the Drupal application')
-      ->addOption('source-dir', 'dir', InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
-      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The destination directory for the archive file')
+      ->addArgument('destination-dir', InputArgument::REQUIRED, 'The destination directory for the archive file')
+      ->addOption('source-dir', 'dir', InputOption::VALUE_REQUIRED, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-files', NULL, InputOption::VALUE_NONE, 'Exclude public files directory from archive')
       ->addOption('no-database', 'no-db', InputOption::VALUE_NONE, 'Exclude database dump from archive')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv())
@@ -80,14 +77,15 @@ class ArchiveExportCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    $this->determineDestinationDir($input);
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
-    $temp_dir_name = 'acli-archive-' . time();
+    $temp_dir_name = 'acli-archive-' . basename($this->dir) . '-' . time();
     $archive_temp_dir = Path::join(sys_get_temp_dir(), $temp_dir_name);
-    $this->determineDestinationDir($input);
     $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>. Do you want to continue?");
 
     $this->checklist->addItem('Removing temporary artifact directory');
+    $output_callback('out', "Removing $archive_temp_dir");
     $this->fs->remove($archive_temp_dir);
     $this->fs->mkdir([$archive_temp_dir, $archive_temp_dir . '/repository']);
     $this->checklist->completePreviousItem();
@@ -104,9 +102,11 @@ class ArchiveExportCommand extends PullCommandBase {
 
     $this->checklist->addItem('Compressing archive into a tarball');
     $destination_filepath = $this->compressArchiveDirectory($archive_temp_dir, $this->destinationDir, $output_callback);
+    $output_callback('out', "Removing $archive_temp_dir");
+    $this->fs->remove($archive_temp_dir);
     $this->checklist->completePreviousItem();
 
-    $this->printSuccessMessage($destination_filepath, $input);
+    $this->io->success("An archive of your Drupal application was created at $destination_filepath");
 
     return 0;
   }
@@ -117,14 +117,9 @@ class ArchiveExportCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineDestinationDir(InputInterface $input): void {
-    if ($input->getOption('destination-dir')) {
-      $this->destinationDir = $input->getOption('destination-dir');
-      if (!$this->fs->exists($this->destinationDir)) {
-        throw new AcquiaCliException("The destination directory {$this->destinationDir} does not exist!");
-      }
-    }
-    else {
-      $this->destinationDir = Path::join([$this->dir, self::PUBLIC_FILES_DIR]);
+    $this->destinationDir = $input->getArgument('destination-dir');
+    if (!$this->fs->exists($this->destinationDir)) {
+      throw new AcquiaCliException("The destination directory {$this->destinationDir} does not exist!");
     }
   }
 
@@ -140,10 +135,8 @@ class ArchiveExportCommand extends PullCommandBase {
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
-      // Ignore VCS files, like .git.
-      ->ignoreVCSIgnored(TRUE)
-      // Ignore vendor to speed up the mirror (Composer can restore them later).
-      ->exclude(['vendor']);
+      // Ignore VCS files, like .git and vendor.
+      ->ignoreVCSIgnored(TRUE);
     if ($this->input->getOption('no-files')) {
       $output_callback('out', 'Skipping ' . self::PUBLIC_FILES_DIR);
       $originFinder->exclude([self::PUBLIC_FILES_DIR]);
@@ -194,25 +187,6 @@ class ArchiveExportCommand extends PullCommandBase {
       throw new AcquiaCliException('Unable to create tarball: {message}', ['message' => $process->getErrorOutput()]);
     }
     return $destination_filepath;
-  }
-
-  /**
-   * @param string $destination_filepath
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   */
-  protected function printSuccessMessage(
-    string $destination_filepath,
-    InputInterface $input
-  ): void {
-    $url = getenv('REMOTEIDE_WEB_HOST') . str_replace($this->dir . '/docroot',
-        '', $destination_filepath);
-    if ($input->getOption('destination-dir')) {
-      $this->io->success("An archive of your Drupal application was created at $destination_filepath");
-    }
-    else {
-      $this->io->success("An archive of your Drupal application was created and placed in a publicly accessible location at $url");
-      $this->io->warning("This file is publicly accessible. After you download it, delete it by running: \nrm $destination_filepath");
-    }
   }
 
 }
