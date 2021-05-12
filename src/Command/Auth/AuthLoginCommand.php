@@ -172,10 +172,8 @@ class AuthLoginCommand extends CommandBase {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
       $this->output->writeln("You will need a Cloud Platform API token from <href=$token_url>$token_url</>");
 
-      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        if ($this->io->confirm('Do you want to open this page to generate a token now?')) {
-          $this->localMachineHelper->startBrowser($token_url);
-        }
+      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $this->io->confirm('Do you want to open this page to generate a token now?')) {
+        $this->localMachineHelper->startBrowser($token_url);
       }
     }
   }

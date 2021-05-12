@@ -15,11 +15,6 @@ class CloudCredentials {
   private $datastoreCloud;
 
   /**
-   * The file path to the refresh token.
-   */
-  public const REFRESH_TOKEN_FILE_PATH = '/usr/local/share/ide/.refreshtoken';
-
-  /**
    * CloudCredentials constructor.
    *
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
@@ -36,9 +31,6 @@ class CloudCredentials {
       return getenv('ACLI_REFRESH_TOKEN');
     }
 
-    if (file_exists(self::REFRESH_TOKEN_FILE_PATH)) {
-      return trim(file_get_contents(self::REFRESH_TOKEN_FILE_PATH));
-    }
     return NULL;
   }
 
