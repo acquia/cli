@@ -21,11 +21,11 @@ class ConnectorFactory {
   }
 
   /**
-   * @return \Acquia\Cli\RefreshConnector|\AcquiaCloudApi\Connector\Connector
+   * @return \Acquia\Cli\RefreshTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
   public function createConnector() {
     if ($this->config['refreshToken']) {
-      return new RefreshConnector($this->config, $this->baseUri);
+      return new RefreshTokenConnector($this->config, $this->baseUri);
     }
 
     return new Connector($this->config, $this->baseUri);

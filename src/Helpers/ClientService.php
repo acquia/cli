@@ -4,7 +4,6 @@ namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 
 /**

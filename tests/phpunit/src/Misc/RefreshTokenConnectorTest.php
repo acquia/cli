@@ -3,13 +3,13 @@
 namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\ConnectorFactory;
-use Acquia\Cli\RefreshConnector;
+use Acquia\Cli\RefreshTokenConnector;
 use Acquia\Cli\Tests\TestBase;
 
 /**
  * Class RefreshTokenTest.
  */
-class RefreshTokenTest extends TestBase {
+class RefreshTokenConnectorTest extends TestBase {
 
   /**
    * @var string
@@ -37,7 +37,7 @@ class RefreshTokenTest extends TestBase {
       ],
       $this->cloudCredentials->getBaseUri());
     $connector = $connector_factory->createConnector();
-    self::assertInstanceOf(RefreshConnector::class, $connector);
+    self::assertInstanceOf(RefreshTokenConnector::class, $connector);
   }
 
 }

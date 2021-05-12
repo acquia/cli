@@ -12,7 +12,7 @@ use Webmozart\PathUtil\Path;
 /**
  * Class RefreshConnector
  */
-class RefreshConnector implements ConnectorInterface {
+class RefreshTokenConnector implements ConnectorInterface {
 
   /**
    * @var string The base URI for Acquia Cloud API.
