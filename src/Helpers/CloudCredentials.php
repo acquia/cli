@@ -2,8 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
@@ -16,6 +15,9 @@ class CloudCredentials {
    */
   private $datastoreCloud;
 
+  //public const IDE_REFRESH_TOKEN_FILE_PATH = '/usr/local/share/ide/.refreshtoken';
+  public const IDE_REFRESH_TOKEN_FILE_PATH = '/tmp/.refreshtoken';
+
   /**
    * CloudCredentials constructor.
    *
@@ -23,6 +25,16 @@ class CloudCredentials {
    */
   public function __construct(JsonFileStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getCloudRefreshToken(): ?string {
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && file_exists(self::IDE_REFRESH_TOKEN_FILE_PATH)) {
+      return trim(file_get_contents(self::IDE_REFRESH_TOKEN_FILE_PATH));
+    }
+    return NULL;
   }
 
   /**

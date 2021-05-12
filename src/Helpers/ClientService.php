@@ -2,8 +2,10 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
+use AcquiaCloudApi\Connector\ConnectorInterface;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -18,11 +20,11 @@ class ClientService {
 
   private $connector;
 
-  public function __construct(Connector $connector) {
-    $this->setConnector($connector);
+  public function __construct(ConnectorFactory $connector_factory) {
+    $this->setConnector($connector_factory->createConnector());
   }
 
-  public function setConnector(Connector $connector) {
+  public function setConnector(ConnectorInterface $connector): void {
     $this->connector = $connector;
   }
 
@@ -32,4 +34,5 @@ class ClientService {
   public function getClient(): Client {
     return Client::factory($this->connector);
   }
+
 }

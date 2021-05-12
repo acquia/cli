@@ -25,7 +25,12 @@ services:
 
   # Register nearly all Acquia CLI classes as services.
   Acquia\Cli\:
-    exclude: [../../src/Kernel.php, ../../src/Command/Api/ApiCommandBase.php, ../../src/Command/Api/ApiListCommandBase.php, ../../src/DataStore/YamlStore.php]
+    exclude:
+      - ../../src/Kernel.php
+      - ../../src/Command/Api/ApiCommandBase.php
+      - ../../src/Command/Api/ApiListCommandBase.php
+      - ../../src/DataStore/YamlStore.php
+      - ../../src/RefreshConnector.php
     public: true
     resource: ../../src
 
@@ -61,15 +66,18 @@ services:
 
   # AcquiaCloudApi services.
   AcquiaCloudApi\Connector\Client: ~
-  AcquiaCloudApi\Connector\Connector:
+  Acquia\Cli\ConnectorFactory:
     arguments:
       $config:
         # @see https://symfony.com/doc/current/service_container/expression_language.html
         key: '@=service("cloud.credentials").getCloudKey()'
         secret: '@=service("cloud.credentials").getCloudSecret()'
+        refreshToken: '@=service("cloud.credentials").getCloudRefreshToken()'
       $base_uri: '@=service("cloud.credentials").getBaseUri()'
   AcquiaCloudApi\Connector\ConnectorInterface:
-    alias: AcquiaCloudApi\Connector\Connector
+    alias: Acquia\Cli\ConnectorFactory
+  AcquiaCloudApi\Connector\Connector:
+    alias: Acquia\Cli\ConnectorFactory
   AcquiaLogstream\LogstreamManager: ~
 
   # Symfony services.
