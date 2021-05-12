@@ -34,6 +34,9 @@ class RefreshConnector implements ConnectorInterface {
    */
   protected $accessToken;
 
+  /**
+   * @var mixed|string
+   */
   protected $refreshToken;
 
   /**

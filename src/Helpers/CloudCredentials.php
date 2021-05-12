@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Helpers;
 
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
@@ -15,8 +14,10 @@ class CloudCredentials {
    */
   private $datastoreCloud;
 
-  //public const IDE_REFRESH_TOKEN_FILE_PATH = '/usr/local/share/ide/.refreshtoken';
-  public const IDE_REFRESH_TOKEN_FILE_PATH = '/tmp/.refreshtoken';
+  /**
+   * The file path to the refresh token.
+   */
+  public const REFRESH_TOKEN_FILE_PATH = '/usr/local/share/ide/.refreshtoken';
 
   /**
    * CloudCredentials constructor.
@@ -31,8 +32,12 @@ class CloudCredentials {
    * @return string|null
    */
   public function getCloudRefreshToken(): ?string {
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && file_exists(self::IDE_REFRESH_TOKEN_FILE_PATH)) {
-      return trim(file_get_contents(self::IDE_REFRESH_TOKEN_FILE_PATH));
+    if (getenv('ACLI_REFRESH_TOKEN')) {
+      return getenv('ACLI_REFRESH_TOKEN');
+    }
+
+    if (file_exists(self::REFRESH_TOKEN_FILE_PATH)) {
+      return trim(file_get_contents(self::REFRESH_TOKEN_FILE_PATH));
     }
     return NULL;
   }
