@@ -1,9 +1,9 @@
 <?php
 
-namespace Acquia\Cli\Tests\Misc;
+namespace Acquia\Cli\Tests\CloudApi;
 
-use Acquia\Cli\ConnectorFactory;
-use Acquia\Cli\RefreshTokenConnector;
+use Acquia\Cli\CloudApi\ConnectorFactory;
+use Acquia\Cli\CloudApi\RefreshTokenConnector;
 use Acquia\Cli\Tests\TestBase;
 
 /**

@@ -2,10 +2,10 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ListCommand;
 use Acquia\Cli\DataStore\YamlStore;
-use Acquia\Cli\Helpers\ClientService;
-use Acquia\Cli\Helpers\CloudCredentials;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
@@ -58,7 +58,7 @@ class ApiCommandHelper {
   protected $datastoreAcli;
 
   /**
-   * @var \Acquia\Cli\Helpers\CloudCredentials
+   * @var \Acquia\Cli\CloudApi\CloudCredentials
    */
   protected $cloudCredentials;
 
@@ -75,7 +75,7 @@ class ApiCommandHelper {
   protected $repoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \Acquia\Cli\CloudApi\ClientService
    */
   protected $cloudApiClientService;
 
@@ -101,11 +101,11 @@ class ApiCommandHelper {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Acquia\Cli\Helpers\CloudCredentials $cloudCredentials
+   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
+   * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir

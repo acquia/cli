@@ -2,11 +2,11 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\ClientService;
-use Acquia\Cli\Helpers\CloudCredentials;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -112,7 +112,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $datastoreAcli;
 
   /**
-   * @var \Acquia\Cli\Helpers\CloudCredentials
+   * @var \Acquia\Cli\CloudApi\CloudCredentials
    */
   protected $cloudCredentials;
 
@@ -132,7 +132,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $repoRoot;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \Acquia\Cli\CloudApi\ClientService
    */
   protected $cloudApiClientService;
 
@@ -168,11 +168,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Acquia\Cli\Helpers\CloudCredentials $cloudCredentials
+   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\Helpers\ClientService $cloudApiClientService
+   * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir

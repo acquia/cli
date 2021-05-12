@@ -3,11 +3,11 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
-use Acquia\Cli\Helpers\ClientService;
-use Acquia\Cli\Helpers\CloudCredentials;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -130,7 +130,7 @@ abstract class TestBase extends TestCase {
   protected $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\Helpers\CloudCredentials
+   * @var \Acquia\Cli\CloudApi\CloudCredentials
    */
   protected $cloudCredentials;
 

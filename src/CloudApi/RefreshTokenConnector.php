@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli;
+namespace Acquia\Cli\CloudApi;
 
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client as GuzzleClient;

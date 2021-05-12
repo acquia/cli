@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Helpers;
+namespace Acquia\Cli\CloudApi;
 
 use Webmozart\KeyValueStore\JsonFileStore;
 

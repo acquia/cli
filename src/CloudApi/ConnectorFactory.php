@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli;
+namespace Acquia\Cli\CloudApi;
 
 use AcquiaCloudApi\Connector\Connector;
 
@@ -21,7 +21,7 @@ class ConnectorFactory {
   }
 
   /**
-   * @return \Acquia\Cli\RefreshTokenConnector|\AcquiaCloudApi\Connector\Connector
+   * @return \Acquia\Cli\CloudApi\RefreshTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
   public function createConnector() {
     if ($this->config['refreshToken']) {

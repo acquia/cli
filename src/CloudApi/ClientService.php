@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Helpers;
+namespace Acquia\Cli\CloudApi;
 
-use Acquia\Cli\ConnectorFactory;
+use Acquia\Cli\CloudApi\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 

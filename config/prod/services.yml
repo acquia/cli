@@ -30,7 +30,7 @@ services:
       - ../../src/Command/Api/ApiCommandBase.php
       - ../../src/Command/Api/ApiListCommandBase.php
       - ../../src/DataStore/YamlStore.php
-      - ../../src/RefreshConnector.php
+      - ../../src/CloudApi/RefreshTokenConnector.php
     public: true
     resource: ../../src
 
@@ -60,13 +60,13 @@ services:
       $path: '%app.acli_config_filepath%'
 
   cloud.credentials:
-    class: Acquia\Cli\Helpers\CloudCredentials
+    class: Acquia\Cli\CloudApi\CloudCredentials
     arguments:
       $datastoreCloud: '@datastore.cloud'
 
   # AcquiaCloudApi services.
   AcquiaCloudApi\Connector\Client: ~
-  Acquia\Cli\ConnectorFactory:
+  Acquia\Cli\CloudApi\ConnectorFactory:
     arguments:
       $config:
         # @see https://symfony.com/doc/current/service_container/expression_language.html
@@ -75,9 +75,9 @@ services:
         refreshToken: '@=service("cloud.credentials").getCloudRefreshToken()'
       $base_uri: '@=service("cloud.credentials").getBaseUri()'
   AcquiaCloudApi\Connector\ConnectorInterface:
-    alias: Acquia\Cli\ConnectorFactory
+    alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaCloudApi\Connector\Connector:
-    alias: Acquia\Cli\ConnectorFactory
+    alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaLogstream\LogstreamManager: ~
 
   # Symfony services.
