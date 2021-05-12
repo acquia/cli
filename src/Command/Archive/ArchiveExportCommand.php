@@ -80,7 +80,8 @@ class ArchiveExportCommand extends PullCommandBase {
     $this->determineDestinationDir($input);
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
-    $temp_dir_name = 'acli-archive-' . basename($this->dir) . '-' . time();
+    $random_string = (string) random_int(10000, 100000);
+    $temp_dir_name = 'acli-archive-' . basename($this->dir) . '-' . time() . '-' . $random_string;
     $archive_temp_dir = Path::join(sys_get_temp_dir(), $temp_dir_name);
     $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>.\n Do you want to continue?");
 
