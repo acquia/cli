@@ -39,7 +39,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     // Database.
-    $this->mockCreateMySqlDumpOnLocal($local_machine_helper, $selected_environment);
+    $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
     $this->mockUploadDatabaseDump($local_machine_helper, $process);
     $this->mockImportDatabaseDumpOnRemote($ssh_helper, $selected_environment, $process);
 
@@ -77,21 +77,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param object $environments_response
-   */
-  protected function mockCreateMySqlDumpOnLocal(
-    ObjectProphecy $local_machine_helper,
-    $environments_response
-  ): void {
-    $process = $this->mockProcess(TRUE);
-    $local_machine_helper->executeFromCmd(
-      'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > /tmp/acli-mysql-dump-drupal.sql.gz',
-      NULL, NULL, TRUE)->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockUploadDatabaseDump(
@@ -102,7 +87,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
       'rsync',
       '-tDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      '/tmp/acli-mysql-dump-drupal.sql.gz',
+      sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)

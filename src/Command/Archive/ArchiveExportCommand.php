@@ -82,10 +82,10 @@ class ArchiveExportCommand extends PullCommandBase {
 
     $temp_dir_name = 'acli-archive-' . basename($this->dir) . '-' . time();
     $archive_temp_dir = Path::join(sys_get_temp_dir(), $temp_dir_name);
-    $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>. Do you want to continue?");
+    $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>.\n Do you want to continue?");
 
     $this->checklist->addItem('Removing temporary artifact directory');
-    $output_callback('out', "Removing $archive_temp_dir");
+    $this->checklist->updateProgressBar("Removing $archive_temp_dir");
     $this->fs->remove($archive_temp_dir);
     $this->fs->mkdir([$archive_temp_dir, $archive_temp_dir . '/repository']);
     $this->checklist->completePreviousItem();
@@ -106,6 +106,7 @@ class ArchiveExportCommand extends PullCommandBase {
     $this->fs->remove($archive_temp_dir);
     $this->checklist->completePreviousItem();
 
+    $this->io->newLine();
     $this->io->success("An archive of your Drupal application was created at $destination_filepath");
 
     return 0;
@@ -130,7 +131,7 @@ class ArchiveExportCommand extends PullCommandBase {
    * @param string $artifact_dir
    */
   protected function createArchiveDirectory(\Closure $output_callback, string $artifact_dir): void {
-    $output_callback('out', "Mirroring source files from {$this->dir} to {$artifact_dir}");
+    $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
@@ -138,7 +139,7 @@ class ArchiveExportCommand extends PullCommandBase {
       // Ignore VCS files, like .git and vendor.
       ->ignoreVCSIgnored(TRUE);
     if ($this->input->getOption('no-files')) {
-      $output_callback('out', 'Skipping ' . self::PUBLIC_FILES_DIR);
+      $this->checklist->updateProgressBar( 'Skipping ' . self::PUBLIC_FILES_DIR);
       $originFinder->exclude([self::PUBLIC_FILES_DIR]);
     }
     $targetFinder = $this->localMachineHelper->getFinder();
@@ -168,8 +169,8 @@ class ArchiveExportCommand extends PullCommandBase {
       $output_callback
     );
     $dump_filepath = Path::join($archive_temp_dir, basename($dump_temp_filepath));
-    $output_callback('out', "Moving MySQL dump to $dump_filepath");
-    rename($dump_temp_filepath, $dump_filepath);
+    $this->checklist->updateProgressBar("Moving MySQL dump to $dump_filepath");
+    $this->fs->rename($dump_temp_filepath, $dump_filepath);
   }
 
   /**

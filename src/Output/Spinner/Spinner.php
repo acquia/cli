@@ -137,7 +137,6 @@ class Spinner {
     $this->progressBar->setEmptyBarCharacter('⌛');
     $this->progressBar->setFormat($this->indentString . "%bar% %message%\n%detail%");
     $this->progressBar->setBarWidth(1);
-    $this->progressBar->setRedrawFrequency($this->interval());
     $this->progressBar->setMessage('', 'detail');
   }
 
@@ -202,7 +201,6 @@ class Spinner {
         $message .= $suffix;
       }
     }
-
     $this->progressBar->setMessage($message, $name);
   }
 

@@ -89,6 +89,11 @@ class Checklist {
         $spinner->advance();
       }
     }
+    // Ensure that the new message is displayed at least once. Sometimes it is
+    // not displayed if the minimum redraw frequency is not met.
+    if ($this->useSpinner() && $item['spinner']) {
+      $spinner->getProgressBar()->display();
+    }
   }
 
   /**
