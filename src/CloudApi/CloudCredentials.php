@@ -1,9 +1,7 @@
 <?php
 
-namespace Acquia\Cli\Helpers;
+namespace Acquia\Cli\CloudApi;
 
-use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
 use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
@@ -23,6 +21,17 @@ class CloudCredentials {
    */
   public function __construct(JsonFileStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
+  }
+
+  /**
+   * @return string|null
+   */
+  public function getCloudAccessToken(): ?string {
+    if (getenv('ACLI_ACCESS_TOKEN')) {
+      return getenv('ACLI_ACCESS_TOKEN');
+    }
+
+    return NULL;
   }
 
   /**

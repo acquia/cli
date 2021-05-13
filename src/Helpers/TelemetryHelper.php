@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -31,7 +32,7 @@ class TelemetryHelper {
   private $acliDatastore;
 
   /**
-   * @var \Acquia\Cli\Helpers\ClientService
+   * @var \Acquia\Cli\CloudApi\ClientService
    */
   private $cloudApi;
 
@@ -45,7 +46,7 @@ class TelemetryHelper {
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Acquia\Cli\Helpers\ClientService $cloud_api
+   * @param \Acquia\Cli\CloudApi\ClientService $cloud_api
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    */

@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Application;
-use Acquia\Cli\Helpers\ClientService;
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Input\ArrayInput;
