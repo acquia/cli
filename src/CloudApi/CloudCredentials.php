@@ -26,9 +26,9 @@ class CloudCredentials {
   /**
    * @return string|null
    */
-  public function getCloudRefreshToken(): ?string {
-    if (getenv('ACLI_REFRESH_TOKEN')) {
-      return getenv('ACLI_REFRESH_TOKEN');
+  public function getCloudAccessToken(): ?string {
+    if (getenv('ACLI_ACCESS_TOKEN')) {
+      return getenv('ACLI_ACCESS_TOKEN');
     }
 
     return NULL;

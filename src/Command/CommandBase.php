@@ -345,6 +345,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore): bool {
+    if (getenv('ACLI_ACCESS_TOKEN')) {
+      return TRUE;
+    }
+
     if ($cloud_datastore === NULL) {
       return FALSE;
     }

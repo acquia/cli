@@ -30,7 +30,7 @@ services:
       - ../../src/Command/Api/ApiCommandBase.php
       - ../../src/Command/Api/ApiListCommandBase.php
       - ../../src/DataStore/YamlStore.php
-      - ../../src/CloudApi/RefreshTokenConnector.php
+      - ../../src/CloudApi/AccessTokenConnector.php
     public: true
     resource: ../../src
 
@@ -72,7 +72,7 @@ services:
         # @see https://symfony.com/doc/current/service_container/expression_language.html
         key: '@=service("cloud.credentials").getCloudKey()'
         secret: '@=service("cloud.credentials").getCloudSecret()'
-        refreshToken: '@=service("cloud.credentials").getCloudRefreshToken()'
+        accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
       $base_uri: '@=service("cloud.credentials").getBaseUri()'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
