@@ -109,6 +109,9 @@ class ArchiveExportCommand extends PullCommandBase {
 
     $this->io->newLine();
     $this->io->success("An archive of your Drupal application was created at $destination_filepath");
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $this->io->note('You can download the archive through the Cloud IDE user interface by right-clicking the file in your IDE workspace file browser and selecting "Download."');
+    }
 
     return 0;
   }
