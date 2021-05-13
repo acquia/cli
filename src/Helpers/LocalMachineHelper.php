@@ -88,9 +88,9 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL): Process {
+  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout);
+    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
 
     return $this->executeProcess($process, $callback);
   }

@@ -350,7 +350,7 @@ abstract class PullCommandBase extends CommandBase {
           $this->output->writeln('');
           $this->output->writeln('<info>Database backup is ready!</info>');
         }
-      } catch (Exception $e) {
+      } catch (\Exception $e) {
         $this->logger->debug($e->getMessage());
       }
     });
@@ -800,13 +800,12 @@ abstract class PullCommandBase extends CommandBase {
    * @return \Closure
    */
   protected function getOutputCallback(OutputInterface $output, Checklist $checklist): \Closure {
-    $output_callback = static function ($type, $buffer) use ($checklist, $output) {
+    return static function ($type, $buffer) use ($checklist, $output) {
       if (!$output->isVerbose() && $checklist->getItems()) {
         $checklist->updateProgressBar($buffer);
       }
       $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
     };
-    return $output_callback;
   }
 
   /**
@@ -988,6 +987,33 @@ abstract class PullCommandBase extends CommandBase {
     else {
       $this->io->info($messages);
     }
+  }
+
+  /**
+   * @param string $db_host
+   * @param string $db_user
+   * @param string $db_name
+   * @param string $db_password
+   * @param null $output_callback
+   *
+   * @return string
+   * @throws \Exception
+   */
+  protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
+    $filename = "acli-mysql-dump-{$db_name}.sql.gz";
+    $local_temp_dir = sys_get_temp_dir();
+    $local_filepath = $local_temp_dir . '/' . $filename;
+    $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
+    if ($output_callback) {
+      $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
+    }
+    $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose());
+    if (!$process->isSuccessful() || $process->getOutput()) {
+      throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
+
+    return $local_filepath;
   }
 
 }
