@@ -36,6 +36,7 @@ class RefreshTokenConnectorTest extends TestBase {
   }
 
   public function testRefreshToken() {
+    // Ensure that ACLI_REFRESH_TOKEN was used to populate the refresh token.
     self::assertEquals($this->refreshToken, $this->cloudCredentials->getCloudRefreshToken());
     $connector_factory = new ConnectorFactory(
       [
@@ -55,6 +56,7 @@ class RefreshTokenConnectorTest extends TestBase {
     $mock_client->send(Argument::type(RequestInterface::class), Argument::type('array'))->shouldBeCalled();
     $connector->setClient($mock_client->reveal());
 
+    // Make sure that new access tokens are fetched using the refresh token.
     $mock_provider = $this->prophet->prophesize(GenericProvider::class);
     $mock_provider->getAccessToken('refresh_token', ['refresh_token' => $this->refreshToken])
       ->willReturn($this->prophet->prophesize(AccessTokenInterface::class)->reveal())
@@ -64,8 +66,8 @@ class RefreshTokenConnectorTest extends TestBase {
       ->shouldBeCalled();
     $connector->setProvider($mock_provider->reveal());
 
+    // Set cache to Null.
     $connector->setCache(new NullAdapter());
-
     $connector->sendRequest($verb, $path, $options);
 
     $this->prophet->checkPredictions();

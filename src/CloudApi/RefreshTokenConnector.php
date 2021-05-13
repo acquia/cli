@@ -58,6 +58,8 @@ class RefreshTokenConnector implements ConnectorInterface {
 
     $this->refreshToken = $config['refreshToken'];
     $this->provider = new GenericProvider([
+      'clientId' => $config['key'],
+      'clientSecret' => $config['secret'],
       'urlAuthorize' => '',
       'urlAccessToken' => self::URL_ACCESS_TOKEN,
       'urlResourceOwnerDetails' => '',
