@@ -635,6 +635,7 @@ abstract class PullCommandBase extends CommandBase {
         }
         return $databases[array_search($site, array_column($databases, 'name'))];
       }
+      $this->warnMultisite();
       return $this->promptChooseDatabase($chosen_environment, $databases);
     }
 
