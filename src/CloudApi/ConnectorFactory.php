@@ -31,7 +31,11 @@ class ConnectorFactory {
         'expires' => $this->config['accessTokenExpiry'],
       ]);
       if (!$access_token->hasExpired()) {
-        return new AccessTokenConnector($this->config, $this->baseUri);
+        return new AccessTokenConnector([
+          'access_token' => $access_token,
+          'key' => NULL,
+          'secret' => NULL,
+        ], $this->baseUri);
       }
     }
 
