@@ -37,6 +37,17 @@ class CloudCredentials {
   /**
    * @return string|null
    */
+  public function getCloudAccessTokenExpiry(): ?string {
+    if (getenv('ACLI_ACCESS_TOKEN_EXPIRY')) {
+      return getenv('ACLI_ACCESS_TOKEN_EXPIRY');
+    }
+
+    return NULL;
+  }
+
+  /**
+   * @return string|null
+   */
   public function getCloudKey(): ?string {
     if ($this->datastoreCloud->get('acli_key')) {
       return $this->datastoreCloud->get('acli_key');

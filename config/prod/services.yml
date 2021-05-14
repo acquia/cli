@@ -73,6 +73,7 @@ services:
         key: '@=service("cloud.credentials").getCloudKey()'
         secret: '@=service("cloud.credentials").getCloudSecret()'
         accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
+        accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
       $base_uri: '@=service("cloud.credentials").getBaseUri()'
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory

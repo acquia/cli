@@ -22,7 +22,9 @@ class AccessTokenConnector extends Connector {
   public function __construct(array $config, string $base_uri = NULL) {
     $this->accessToken = new AccessToken([
       'access_token' => $config['accessToken'],
+      'expires' => $config['accessTokenExpiry'],
     ]);
+
     parent::__construct($config, $base_uri);
   }
 
