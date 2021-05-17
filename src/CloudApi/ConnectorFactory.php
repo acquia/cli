@@ -3,6 +3,7 @@
 namespace Acquia\Cli\CloudApi;
 
 use AcquiaCloudApi\Connector\Connector;
+use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory {
 
@@ -25,7 +26,17 @@ class ConnectorFactory {
    */
   public function createConnector() {
     if ($this->config['accessToken']) {
-      return new AccessTokenConnector($this->config, $this->baseUri);
+      $access_token = new AccessToken([
+        'access_token' => $this->config['accessToken'],
+        'expires' => $this->config['accessTokenExpiry'],
+      ]);
+      if (!$access_token->hasExpired()) {
+        return new AccessTokenConnector([
+          'access_token' => $access_token,
+          'key' => NULL,
+          'secret' => NULL,
+        ], $this->baseUri);
+      }
     }
 
     return new Connector($this->config, $this->baseUri);

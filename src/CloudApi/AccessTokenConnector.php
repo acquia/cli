@@ -20,9 +20,7 @@ class AccessTokenConnector extends Connector {
    * @inheritdoc
    */
   public function __construct(array $config, string $base_uri = NULL) {
-    $this->accessToken = new AccessToken([
-      'access_token' => $config['accessToken'],
-    ]);
+    $this->accessToken = $config['access_token'];
     parent::__construct($config, $base_uri);
   }
 

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Tests\TestBase;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Request;
@@ -24,15 +25,23 @@ class AccessTokenConnectorTest extends TestBase {
    */
   private $accessToken;
 
+  /**
+   * @var int
+   */
+  private $accessTokenExpiry;
+
   public function setUp($output = NULL): void {
     parent::setUp();
     $this->accessToken = 'testaccesstoken';
+    $this->accessTokenExpiry = time() + 300;
     putenv('ACLI_ACCESS_TOKEN=' . $this->accessToken);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY=' . $this->accessTokenExpiry);
   }
 
   protected function tearDown(): void {
     parent::tearDown();
     putenv('ACLI_ACCESS_TOKEN');
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY');
   }
 
   public function testAccessToken() {
@@ -43,6 +52,7 @@ class AccessTokenConnectorTest extends TestBase {
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
+        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(AccessTokenConnector::class, $connector);
@@ -60,6 +70,19 @@ class AccessTokenConnectorTest extends TestBase {
     $connector->createRequest($verb, $path);
 
     $this->prophet->checkPredictions();
+  }
+
+  public function testExpiredAccessToken() {
+    $this->accessTokenExpiry = time() - 300;
+    $connector_factory = new ConnectorFactory(
+      [
+        'key' => $this->cloudCredentials->getCloudKey(),
+        'secret' => $this->cloudCredentials->getCloudSecret(),
+        'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
+        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
+      ]);
+    $connector = $connector_factory->createConnector();
+    self::assertInstanceOf(Connector::class, $connector);
   }
 
 }
