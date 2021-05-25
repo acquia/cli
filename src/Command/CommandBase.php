@@ -1211,7 +1211,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
    * @todo unify with consolidation/self-update and support unstable channels
-   *
    */
   protected function hasUpdate() {
     $client = $this->getUpdateClient();

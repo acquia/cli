@@ -57,14 +57,7 @@ abstract class CommandTestBase extends TestBase {
     if (!isset($this->command)) {
       $this->command = $this->createCommand();
     }
-    // Mock guzzle requests for update checks so we don't actually hit Github.
-    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
-    $guzzle_response = $this->prophet->prophesize(Response::class);
-    $guzzle_response->getBody()->willReturn();
-    $guzzle_response->getStatusCode()->willReturn(200);
-    $guzzle_client = $this->prophet->prophesize(Client::class);
-    $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')->willReturn($guzzle_response->reveal());
-    $this->command->setUpdateClient($guzzle_client->reveal());
+    $this->setUpdateClient();
     $this->printTestName();
   }
 
@@ -386,6 +379,22 @@ abstract class CommandTestBase extends TestBase {
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
     $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
       ->shouldBeCalled();
+  }
+
+  /**
+   * Mock guzzle requests for update checks so we don't actually hit Github.
+   *
+   * @param int $status_code
+   */
+  protected function setUpdateClient($status_code = 200): void {
+    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
+    $guzzle_response = $this->prophet->prophesize(Response::class);
+    $guzzle_response->getBody()->willReturn();
+    $guzzle_response->getStatusCode()->willReturn($status_code);
+    $guzzle_client = $this->prophet->prophesize(Client::class);
+    $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
+      ->willReturn($guzzle_response->reveal());
+    $this->command->setUpdateClient($guzzle_client->reveal());
   }
 
 }
