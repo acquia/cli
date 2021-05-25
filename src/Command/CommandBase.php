@@ -1209,17 +1209,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Check if an update is available.
    *
+   * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
    * @todo unify with consolidation/self-update and support unstable channels
    *
-   * @throws \Exception
    */
   protected function hasUpdate() {
     $client = $this->getUpdateClient();
     $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
-    $releases = json_decode($response->getBody());
+    if ($response->getStatusCode() !== 200) {
+      $this->logger->debug('Encountered ' . $response->getStatusCode() . ' error when attempting to check for new ACLI releases on GitHub: ' . $response->getReasonPhrase());
+      return FALSE;
+    }
 
+    $releases = json_decode($response->getBody());
     if (!isset($releases[0])) {
-      throw new \Exception('API error - no release found at GitHub repository acquia/cli');
+      $this->logger->debug('No releases found at GitHub repository acquia/cli');
+      return FALSE;
     }
 
     $version = $releases[0]->tag_name;
