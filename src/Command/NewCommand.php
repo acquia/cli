@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -45,7 +46,9 @@ class NewCommand extends CommandBase {
       $dir = Path::canonicalize($input->getArgument('directory'));
       $dir = Path::makeAbsolute($dir, getcwd());
     }
-    else {
+    else if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      $dir = '/home/ide/project';
+    } else {
       $dir = Path::makeAbsolute('drupal', getcwd());
     }
 
