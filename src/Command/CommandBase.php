@@ -336,7 +336,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
-    $this->checkForNewVersion($input, $output);
+    if ($latest = $this->checkForNewVersion()) {
+      $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
+    }
   }
 
   /**
@@ -1180,13 +1182,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  protected function checkForNewVersion(InputInterface $input, OutputInterface $output): void {
+  public function checkForNewVersion() {
     // Running on API commands would corrupt JSON output.
-    if (strpos($input->getArgument('command'), 'api:') !== FALSE) {
+    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE) {
       return;
     }
     // Bail for development builds.
@@ -1198,12 +1196,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return;
     }
     try {
-      if (@$this->hasUpdate()) {
-        $output->writeln("A newer version of Acquia CLI is available. Run <options=bold>acli self-update</> to update.");
+      if ($latest = $this->hasUpdate()) {
+        return $latest;
       }
     } catch (\Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
+    return FALSE;
   }
 
   /**
@@ -1230,7 +1229,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $versionStability = VersionParser::parseStability($version);
     $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
     if ($versionStability === 'stable' && $versionIsNewer) {
-      return TRUE;
+      return $version;
     }
 
     return FALSE;
