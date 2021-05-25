@@ -124,20 +124,15 @@ class ExceptionListener {
   protected function writeUpdateHelp(ConsoleErrorEvent $event): void {
     try {
       $command = $event->getCommand();
-      if ($command) {
-        /** @var \SelfUpdate\SelfUpdateCommand $self_update_command */
-        $self_update_command = $command->getApplication()->find('self-update');
-        [$latest, $downloadUrl] = $self_update_command->getLatest(FALSE);
-        // This will always be TRUE during dev because the package version is set to '@package_version@'.
-        $current_version = $event->getCommand()->getApplication()->getVersion();
-        if ($latest !== $current_version && !AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      if ($command
+        && method_exists($command, 'checkForNewVersion')
+        && $latest = $command->checkForNewVersion()
+      ) {
           $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli self-update</> and then run the command again.";
           $this->helpMessages[] = $message;
-        }
       }
       // This command may not exist during some testing.
     } catch (CommandNotFoundException $exception) {
-
     }
   }
 
