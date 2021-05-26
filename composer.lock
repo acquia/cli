@@ -199,12 +199,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/danepowell/self-update.git",
-                "reference": "2fea58bedd5e32e161ca765572352d7687285348"
+                "reference": "e3c4ce3290ac165fed97f6711e90c9550307e2d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/danepowell/self-update/zipball/2fea58bedd5e32e161ca765572352d7687285348",
-                "reference": "2fea58bedd5e32e161ca765572352d7687285348",
+                "url": "https://api.github.com/repos/danepowell/self-update/zipball/e3c4ce3290ac165fed97f6711e90c9550307e2d1",
+                "reference": "e3c4ce3290ac165fed97f6711e90c9550307e2d1",
                 "shasum": ""
             },
             "require": {
@@ -249,7 +249,7 @@
             "support": {
                 "source": "https://github.com/danepowell/self-update/tree/allow-unstable"
             },
-            "time": "2021-05-25T19:12:50+00:00"
+            "time": "2021-05-26T12:32:45+00:00"
         },
         {
             "name": "cweagans/composer-patches",
