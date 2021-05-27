@@ -1,0 +1,8 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    # Look for `composer.json` and `lock` files in the `root` directory
+    directory: "/"
+    # Check the composer registry for updates every day (weekdays)
+    schedule:
+      interval: "daily"
