@@ -93,6 +93,20 @@
         },
         "patchLevel": {
             "symfony/filesystem": "-p5"
+        },
+        "violinist": {
+            "allow_updates_beyond_constraint": 1,
+            "assignees": [],
+            "blacklist": [],
+            "bundled_packages": [],
+            "default_branch": "master",
+            "number_of_concurrent_updates": 1,
+            "one_pull_request_per_package": 0,
+            "security_updates_only": 0,
+            "timeframe_disallowed": "0",
+            "timezone": "+0000",
+            "update_dev_dependencies": 1,
+            "update_with_dependencies": 1
         }
     },
     "prefer-stable": true,
