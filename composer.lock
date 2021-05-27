@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
-            "version": "v1.3.0",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/drupal-environment-detector.git",
-                "reference": "7bd7903feeff29e37b239e65db8b0f1612a887b8"
+                "reference": "63b1bd0fd393c5e96e45042e2d7922682aaed6e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/7bd7903feeff29e37b239e65db8b0f1612a887b8",
-                "reference": "7bd7903feeff29e37b239e65db8b0f1612a887b8",
+                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/63b1bd0fd393c5e96e45042e2d7922682aaed6e4",
+                "reference": "63b1bd0fd393c5e96e45042e2d7922682aaed6e4",
                 "shasum": ""
             },
             "require-dev": {
@@ -52,9 +52,9 @@
             "description": "Provides common methods for detecting the current Acquia environment",
             "support": {
                 "issues": "https://github.com/acquia/drupal-environment-detector/issues",
-                "source": "https://github.com/acquia/drupal-environment-detector/tree/v1.3.0"
+                "source": "https://github.com/acquia/drupal-environment-detector/tree/v1.4.0"
             },
-            "time": "2021-02-20T01:48:44+00:00"
+            "time": "2021-04-15T17:44:09+00:00"
         },
         {
             "name": "brick/math",
