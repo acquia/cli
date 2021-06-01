@@ -1,0 +1,10 @@
+# @see https://github.com/marketplace/actions/auto-labeler
+comment: |
+  👍 Thanks for this!
+  🏷 I have applied any labels matching special text in your issue.
+
+  Please review the labels and make any necessary changes.
+
+labels:
+  'dependencies':
+    - 'This is an automated pull request from \[Violinist\]'
