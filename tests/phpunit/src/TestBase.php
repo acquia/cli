@@ -32,6 +32,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
@@ -202,8 +203,7 @@ abstract class TestBase extends TestCase {
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
-    $this->clientProphecy->getQuery()->willReturn([]);
-    $this->clientProphecy->getOptions()->willReturn([]);
+    $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);

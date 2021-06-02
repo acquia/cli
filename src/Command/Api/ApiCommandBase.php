@@ -98,13 +98,9 @@ class ApiCommandBase extends CommandBase {
     ]);
 
     try {
-      $this->output->writeln([
-        'Making API Request...',
-        'method: ' . $this->method,
-        'path: ' . $path,
-        'query: ' . print_r($acquia_cloud_client->getQuery(), TRUE),
-        'options: ' . print_r($acquia_cloud_client->getOptions(), TRUE),
-      ], OutputInterface::VERBOSITY_DEBUG);
+      if ($this->output->isVeryVerbose()) {
+        $acquia_cloud_client->addOption('debug', $this->output);
+      }
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;
     }
