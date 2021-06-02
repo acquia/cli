@@ -204,6 +204,8 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
+    $this->clientServiceProphecy->getQuery()->willReturn([]);
+    $this->clientServiceProphecy->getOptions()->willReturn([]);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);
