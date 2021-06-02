@@ -140,8 +140,8 @@ class ArchiveExportCommand extends PullCommandBase {
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
       ->ignoreDotFiles(FALSE)
-      // Ignore VCS files, like .git and vendor.
-      ->ignoreVCSIgnored(TRUE);
+      // If .gitignore exists, ignore VCS files like vendor.
+      ->ignoreVCSIgnored(file_exists(Path::join($this->dir, '.gitignore')));
     if ($this->input->getOption('no-files')) {
       $this->checklist->updateProgressBar( 'Skipping ' . self::PUBLIC_FILES_DIR);
       $originFinder->exclude([self::PUBLIC_FILES_DIR]);
