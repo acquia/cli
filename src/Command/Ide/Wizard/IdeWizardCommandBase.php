@@ -78,7 +78,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    * @return string
    */
   public function getSshKeyFilename(string $ide_uuid): string {
-    return 'id_rsa_acquia_ide_' . $ide_uuid;
+    return 'id_rsa';
   }
 
 }

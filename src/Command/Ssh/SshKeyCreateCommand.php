@@ -128,18 +128,21 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input, OutputInterface $output): string {
+    $password = "";
     if ($input->getOption('password')) {
       $password = $input->getOption('password');
       $this->validatePassword($password);
     }
     else {
-      $question = new Question('Enter a password for your SSH key');
-      $question->setHidden($this->localMachineHelper->useTty());
-      $question->setNormalizer(static function ($value) {
-        return $value ? trim($value) : '';
-      });
-      $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
-      $password = $this->io->askQuestion($question);
+      if ($input->getOption('password') !== "") {
+        $question = new Question('Enter a password for your SSH key');
+        $question->setHidden($this->localMachineHelper->useTty());
+        $question->setNormalizer(static function ($value) {
+          return $value ? trim($value) : '';
+        });
+        $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
+        $password = $this->io->askQuestion($question);
+      }
     }
 
     return $password;
@@ -152,8 +155,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    */
   protected function validatePassword($password) {
     $violations = Validation::createValidator()->validate($password, [
-      new Length(['min' => 5]),
-      new NotBlank(),
+      new Length(['min' => 0])
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());

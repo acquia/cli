@@ -67,7 +67,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $key_was_uploaded = FALSE;
 
     // Create local SSH key.
-    if (!$this->localIdeSshKeyExists() || !$this->passPhraseFileExists()) {
+    if (!$this->localIdeSshKeyExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalIdeSshKey();
       // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
@@ -76,9 +76,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $this->checklist->addItem('Creating a local SSH key');
 
       // Create SSH key.
-      $password = md5(random_bytes(10));
-      $this->savePassPhraseToFile($password);
-      $this->createLocalSshKey($this->privateSshKeyFilename, $password);
+      $this->createLocalSshKey($this->privateSshKeyFilename);
 
       $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
@@ -107,7 +105,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     // Add SSH key to local keychain.
     if (!$this->sshKeyIsAddedToKeychain()) {
       $this->checklist->addItem('Adding the SSH key to local keychain');
-      $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
+      $this->addSshKeyToAgent($this->publicSshKeyFilepath);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -140,10 +138,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function addSshKeyToAgent($filepath, $password): void {
+  protected function addSshKeyToAgent($filepath,$password = ""): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
     $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
@@ -215,16 +214,16 @@ EOT
   protected function userHasUploadedIdeKeyToCloud(): bool {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-      foreach ($cloud_keys as $index => $cloud_key) {
-        if (
-          $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
-          // Assert that a corresponding local key exists.
-          && $this->localIdeSshKeyExists()
-          // Assert local public key contents match Cloud public key contents.
-          && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
-        ) {
-          return TRUE;
-        }
+    foreach ($cloud_keys as $index => $cloud_key) {
+      if (
+        $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
+        // Assert that a corresponding local key exists.
+        && $this->localIdeSshKeyExists()
+        // Assert local public key contents match Cloud public key contents.
+        && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
+      ) {
+        return TRUE;
+      }
     }
     return FALSE;
   }
@@ -295,8 +294,8 @@ EOT
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
-     $return_code = $this->executeAcliCommand('ssh-key:create', [
+  protected function createLocalSshKey(string $private_ssh_key_filename, string $password = ""): int {
+    $return_code = $this->executeAcliCommand('ssh-key:create', [
        '--filename' => $private_ssh_key_filename,
        '--password' => $password,
      ]);
