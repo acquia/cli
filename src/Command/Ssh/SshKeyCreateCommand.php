@@ -27,7 +27,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   protected function configure() {
     $this->setDescription('Create an SSH key on your local machine')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
-      ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
+      ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
+      ->addOption('is-wizard', FALSE, InputOption::VALUE_REQUIRED, 'The flag for IDE wizard');
   }
 
   /**
@@ -128,13 +129,14 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input, OutputInterface $output): string {
-    $password = "";
-    if ($input->getOption('password')) {
-      $password = $input->getOption('password');
-      $this->validatePassword($password);
+    if ($input->getOption('is-wizard')) {
+      $password = "";
     }
     else {
-      if ($input->getOption('password') !== "") {
+      if ($input->getOption('password')) {
+        $password = $input->getOption('password');
+        $this->validatePassword($password);
+      } else {
         $question = new Question('Enter a password for your SSH key');
         $question->setHidden($this->localMachineHelper->useTty());
         $question->setNormalizer(static function ($value) {
@@ -155,7 +157,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    */
   protected function validatePassword($password) {
     $violations = Validation::createValidator()->validate($password, [
-      new Length(['min' => 0])
+      new Length(['min' => 5]),
+      new NotBlank(),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());

@@ -298,6 +298,7 @@ EOT
     $return_code = $this->executeAcliCommand('ssh-key:create', [
        '--filename' => $private_ssh_key_filename,
        '--password' => $password,
+       '--is-wizard' => TRUE,
      ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
