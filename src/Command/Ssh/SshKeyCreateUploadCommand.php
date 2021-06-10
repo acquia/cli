@@ -21,7 +21,8 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
     $this->setDescription('Create an SSH key on your local machine and upload it to the Cloud Platform')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key')
-    ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
+      ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform")
+      ->addOption('is-wizard', FALSE, InputOption::VALUE_REQUIRED, 'The flag for IDE wizard');
   }
 
   /**
