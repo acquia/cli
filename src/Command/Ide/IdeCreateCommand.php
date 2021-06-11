@@ -16,6 +16,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class IdeCreateCommand.
@@ -62,12 +67,12 @@ class IdeCreateCommand extends IdeCommandBase {
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
     $default = "{$account->first_name} {$account->last_name}'s IDE";
-    $question = new Question("Please enter a label for your Cloud IDE. Press enter to use default", $default);
     if ($input->getOption('label')) {
       $ide_label = $input->getOption('label');
+      $this->validateIdeLabel($ide_label);
     }
     else {
-      $ide_label = $this->io->askQuestion($question);
+      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, \Closure::fromCallable([$this, 'validateIdeLabel']));
     }
 
     // Create it.
@@ -84,6 +89,21 @@ class IdeCreateCommand extends IdeCommandBase {
 
     // Wait!
     return $this->waitForDnsPropagation($ide_url);
+  }
+
+  /**
+   * @param string $label
+   *
+   * @return string
+   */
+  protected function validateIdeLabel(string $label): string {
+    $violations = Validation::createValidator()->validate($label, [
+      new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Please use only letters, numbers, and spaces']),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+    return $label;
   }
 
   /**
