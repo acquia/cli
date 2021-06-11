@@ -91,12 +91,6 @@ class ApiCommandBase extends CommandBase {
     }
 
     $path = $this->getRequestPath($input);
-    $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
-    $acquia_cloud_client->addOption('headers', [
-      'User-Agent' => $user_agent,
-      'Accept'     => 'application/json',
-    ]);
-
     try {
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;

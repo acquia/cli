@@ -31,7 +31,14 @@ class ClientService {
    * @return \AcquiaCloudApi\Connector\Client
    */
   public function getClient(): Client {
-    return Client::factory($this->connector);
+    $client = Client::factory($this->connector);
+    $user_agent = sprintf("acli/%s", $this->getApplication()->getVersion());
+    $client->addOption('headers', [
+      'User-Agent' => $user_agent,
+      'Accept'     => 'application/json',
+    ]);
+
+    return $client;
   }
 
 }
