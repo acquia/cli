@@ -92,6 +92,9 @@ class ApiCommandBase extends CommandBase {
 
     $path = $this->getRequestPath($input);
     try {
+      if ($this->output->isVeryVerbose()) {
+        $acquia_cloud_client->addOption('debug', $this->output);
+      }
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;
     }
