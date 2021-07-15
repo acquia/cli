@@ -20,17 +20,15 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
-use AcquiaCloudApi\Response\ApplicationsResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
-use ArrayObject;
 use Composer\Semver\VersionParser;
 use Doctrine\Common\Cache\FilesystemCache;
-use drupol\phposinfo\OsInfo;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
+use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -434,9 +432,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptApplicationUuid() {
     $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias')
-    ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
-    ->addUsage(self::getDefaultName() . ' myapp')
-    ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
+      ->addUsage(self::getDefaultName() . ' myapp')
+      ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
   }
 
   /**
@@ -444,9 +442,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptEnvironmentId() {
     $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias')
-    ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
-    ->addUsage(self::getDefaultName() . ' myapp.dev')
-    ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
+      ->addUsage(self::getDefaultName() . ' myapp.dev')
+      ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
   }
