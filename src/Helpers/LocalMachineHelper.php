@@ -2,9 +2,8 @@
 
 namespace Acquia\Cli\Helpers;
 
-use drupol\phposinfo\OsInfo;
+use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
