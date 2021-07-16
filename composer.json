@@ -125,7 +125,7 @@
         "box-compile": [
             "php build/box.phar compile"
         ],
-        "cs": "phpcs",
+        "cs": "phpcs -v",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",
         "lint": [
