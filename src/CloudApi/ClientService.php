@@ -41,7 +41,7 @@ class ClientService {
     $client = Client::factory($this->connector);
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
     $client->addOption('headers', [
-      'User-Agent' => $user_agent,
+      'User-Agent' => [$user_agent],
       'Accept'     => 'application/json',
     ]);
 
