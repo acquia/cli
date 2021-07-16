@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Pull;
 
+ini_set('memory_limit', '256M');
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
@@ -108,7 +109,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+    //$this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
@@ -264,27 +265,15 @@ abstract class PullCommandBase extends CommandBase {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
-    if ($this->output instanceof ConsoleOutput) {
-      $output = $this->output->section();
-    }
-    else {
-      $output = $this->output;
-    }
-    $options = [
-      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
-        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
-      },
-    ];
-    $url = parse_url($backup_response->links->download->href, PHP_URL_PATH);
-    $url = str_replace('/api', '', $url);
-    $response = $acquia_cloud_client->makeRequest('get', $url, $options);
-    if ($response->getStatusCode() !== 200) {
-      throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
-    }
-    // Get the response body as a stream to avoid ludicrous memory usage.
-    $backup_file = $response->getBody();
+    $acquia_cloud_client->addOption('sink', $local_filepath);
+    $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
+    // Careful mister!
+    $database_backups = new DatabaseBackups($acquia_cloud_client);
+    $database_backups->download($environment->uuid, $database->name, $backup_response->id);
+    $output_callback('out', 'mem2: ' . memory_get_peak_usage());
+    exit;
     $this->localMachineHelper->writeFile($local_filepath, $backup_file);
-
+    exit;
     return $local_filepath;
   }
 
