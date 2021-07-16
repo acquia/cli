@@ -56,8 +56,9 @@ install:
   - composer install --prefer-dist --no-interaction --optimize-autoloader
 
 script:
-  - which phpcs
   - ./vendor/bin/phpcs --version
+  - ./vendor/bin/phpcs
+  - ./vendor/bin/phpcs -vvv
   - composer test
   # Run coveralls here instead of after_success because it should break the build if it fails to report.
   # Only run once per build so Coveralls doesn't get confused.
