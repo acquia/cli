@@ -19,7 +19,7 @@ before_install:
 install:
   # Load composer dependencies.
   - composer validate --no-check-all --ansi
-  - composer install --prefer-dist --no-interaction --optimize-autoloader
+  - composer install
 
 script:
   - ls -al
