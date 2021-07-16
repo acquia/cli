@@ -10,15 +10,8 @@ services:
 env:
   global: ACLI_PRINT_COMMAND_OUTPUT=1
 
-before_install:
-  # Tests for the SSH key commands rely on ssh-agent running.
-  - eval "$(ssh-agent -s)"
-  - echo " xdebug.mode=coverage" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-  - composer self-update --preview
-
 install:
   # Load composer dependencies.
-  - composer validate --no-check-all --ansi
   - composer install
 
 script:
