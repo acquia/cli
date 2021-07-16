@@ -103,23 +103,27 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param bool $on_demand Force on-demand backup.
+   * @param bool $download Skip import.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
-  protected function pullDatabase(InputInterface $input, OutputInterface $output): void {
-    $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand, bool $download): void {
+    if (!$download) {
+      // Verify database connection.
+      $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+    }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
 
-    if ($input->hasOption('on-demand') && $input->getOption('on-demand')) {
+    if ($on_demand) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
       $this->createBackup($source_environment, $database, $acquia_cloud_client);
       $this->checklist->completePreviousItem();
     }
     $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
-    if ($input->hasOption('on-demand') && !$input->getOption('on-demand')) {
+    if (!$on_demand) {
       $this->printDatabaseBackupInfo($backup_response, $source_environment);
     }
 
@@ -127,10 +131,15 @@ abstract class PullCommandBase extends CommandBase {
     $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
 
-    $this->checklist->addItem('Importing Drupal database download');
-    $this->importRemoteDatabase($local_filepath,
-      $this->getOutputCallback($output, $this->checklist));
-    $this->checklist->completePreviousItem();
+    if ($download) {
+      $output->writeln('Database backup downloaded to ' . $local_filepath);
+    }
+    if (!$download) {
+      $this->checklist->addItem('Importing Drupal database download');
+      $this->importRemoteDatabase($local_filepath,
+        $this->getOutputCallback($output, $this->checklist));
+      $this->checklist->completePreviousItem();
+    }
   }
 
   /**
