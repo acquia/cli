@@ -24,7 +24,7 @@
         "consolidation/self-update": "dev-allow-unstable as 1.1",
         "cweagans/composer-patches": "^1.7",
         "doctrine/cache": "^1.10",
-        "drupol/phposinfo": "^1.6.5",
+        "loophp/phposinfo": "^1.7.2",
         "kevinrob/guzzle-cache-middleware": "^3.3",
         "psr/log": "^1.1",
         "ramsey/uuid": "^4.1",

@@ -56,9 +56,6 @@
     "drupal/coder": {
         "version": "8.3.9"
     },
-    "drupol/phposinfo": {
-        "version": "1.6.5"
-    },
     "evenement/evenement": {
         "version": "v3.0.1"
     },
@@ -82,6 +79,9 @@
     },
     "league/oauth2-client": {
         "version": "2.4.1"
+    },
+    "loophp/phposinfo": {
+        "version": "1.7.2"
     },
     "monolog/monolog": {
         "version": "2.2.0"
