@@ -606,7 +606,7 @@ class ApiCommandHelper {
    */
   protected function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
     if (array_key_exists($parameter_definition->getName(), $request_body_schema['properties'])) {
-     return $request_body_schema['properties'][$parameter_definition->getName()];
+      return $request_body_schema['properties'][$parameter_definition->getName()];
     }
 
     return NULL;
