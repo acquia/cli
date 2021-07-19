@@ -104,12 +104,13 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param bool $on_demand Force on-demand backup.
-   * @param bool $download Skip import.
+   * @param bool $no_import Skip import.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
-  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand, bool $download): void {
-    if (!$download) {
+  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand, bool $no_import): void {
+    if (!$no_import) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
@@ -131,10 +132,9 @@ abstract class PullCommandBase extends CommandBase {
     $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
     $this->checklist->completePreviousItem();
 
-    if ($download) {
+    if ($no_import) {
       $output->writeln('Database backup downloaded to ' . $local_filepath);
-    }
-    if (!$download) {
+    } else {
       $this->checklist->addItem('Importing Drupal database download');
       $this->importRemoteDatabase($local_filepath,
         $this->getOutputCallback($output, $this->checklist));
