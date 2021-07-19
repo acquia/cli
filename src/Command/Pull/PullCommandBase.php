@@ -133,7 +133,7 @@ abstract class PullCommandBase extends CommandBase {
     $this->checklist->completePreviousItem();
 
     if ($no_import) {
-      $output->writeln('Database backup downloaded to ' . $local_filepath);
+      $this->io->success('Database backup downloaded to ' . $local_filepath);
     } else {
       $this->checklist->addItem('Importing Drupal database download');
       $this->importRemoteDatabase($local_filepath,
