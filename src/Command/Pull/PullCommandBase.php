@@ -271,7 +271,7 @@ abstract class PullCommandBase extends CommandBase {
       $output_callback('out', "Downloading backup {$backup_response->id}");
     }
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
-    $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
+    $filename = implode('-', [$environment->name, $database->name, trim(parse_url($database->url, PHP_URL_PATH), '/'), $backup_response->completedAt]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
     if ($this->output instanceof ConsoleOutput) {
       $output = $this->output->section();

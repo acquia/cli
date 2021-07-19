@@ -44,7 +44,7 @@ class PullDatabaseCommand extends PullCommandBase {
     parent::execute($input, $output);
     $no_scripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
     $on_demand = $input->hasOption('on-demand') && $input->getOption('on-demand');
-    $no_import = $input->hasOption('no_import') && $input->getOption('no_import');
+    $no_import = $input->hasOption('no-import') && $input->getOption('no-import');
     // $no_import implies $no_scripts.
     $no_scripts = $no_import || $no_scripts;
     $this->pullDatabase($input, $output, $on_demand, $no_import);
