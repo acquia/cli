@@ -38,6 +38,7 @@ jobs:
       deploy:
         provider: releases
         api_key:
+          # @see https://github.com/acquia/blt-launcher/pull/1
           secure: "kdx58d2ar7501f0sMAigIE5kC3LS3WVSsPG/fyVLN1O2zzI4c4tMVF5evqOAZ0UEz4va/2Y4ooyntH+hQl3sdQvKpoO4tZuvQkheso1UpUZETQE5gn3LyvQe5JNz2cik0OavUZczU6TjDyjBQufw8NnSJwONpthw5Km07wmZN7WgvScArpV5GtT9arXAtJf++R0VZXiY6sFsi5+aIfciWJpupGRK4rdztGzvoUgYsyQukr2rF+JmvPNB7VBanCfwaOILWlr8QJ0WpTIrIagY3O/BYgg5Rbe8XFmPAGIYnS4WA3nVsd2NWf1O5d0k0zJuvxLQW0wecMwKeJ42EL/cFdjrQQDv2eMOrcg7VYRUwgFhNyHiltidlLBLS+yT+XqeMCYrgNrbO6sxwCr+N58VfS9UFrNM8pjktS5J0wMgYKGFYqlFBFbe9NYrNSIaX8Yo/CZMxa9S4k45DGM8KlVhM3o/C2r0OD5TYpsdewNiudoqoA3sAfoYhPWeXiPWYkrCr8/yJTlUAqEF752G1CQWyUTy6mTWVokAL2433FRenia6WcKrIvmBixdT0Ptb33zboWso/i5MRe8XwZu2OyQ+eHdRUHY1XeGLE8ITvfMRf0CSkG8WOgOL7AVWvivbFwGc/Xg1Pq2fSVXqDDb2Z08k2SqULjFXeobBqSDACOUjcSg="
         file: build/acli.phar
         skip_cleanup: true
