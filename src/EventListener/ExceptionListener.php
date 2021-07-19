@@ -128,8 +128,8 @@ class ExceptionListener {
         && method_exists($command, 'checkForNewVersion')
         && $latest = $command->checkForNewVersion()
       ) {
-          $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli self-update</> and then run the command again.";
-          $this->helpMessages[] = $message;
+        $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli self-update</> and then run the command again.";
+        $this->helpMessages[] = $message;
       }
       // This command may not exist during some testing.
     } catch (CommandNotFoundException $exception) {

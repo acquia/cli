@@ -136,7 +136,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     ];
 
     try {
-    $this->executeCommand([
+      $this->executeCommand([
       '--no-scripts' => TRUE,
     ], $inputs);
     } catch (AcquiaCliException $exception) {
