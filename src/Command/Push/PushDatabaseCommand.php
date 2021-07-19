@@ -125,10 +125,10 @@ class PushDatabaseCommand extends PullCommandBase {
    * @return string
    */
   protected function getNameFromDatabaseResponse($database): string {
-     $db_url_parts = explode('/', $database->url);
-     $db_name = end($db_url_parts);
+    $db_url_parts = explode('/', $database->url);
+    $db_name = end($db_url_parts);
 
-     return $db_name;
+    return $db_name;
   }
 
 }
