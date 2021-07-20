@@ -38,7 +38,8 @@ jobs:
       deploy:
         provider: releases
         api_key:
-          secure: iKpG9x/P8xhJtlo/Dr43mg9sB0/5Gl7AuTwbRokV/OTYIo+BHRZNLQQeUbX/ZzemJC9Y9b2PFOkBOcq7y8uf0ZbXR0+MEbdYh+UZiMt1f+/cQqRU1WMlq/+1TMETWwxHFML9MB2aATK+qqt40RIF19Pog3s4b07oXdcpD1rzRnaovmDKsJA7bby+R8CXUqgdt2hYwk8S4J5p9rkOj8isYeJEnrxsfk2dcVey8NHBeHots3W3DPPOzav16+XeqnofbAOHOncsUcWbjxLFpFWJdvrd5M9paFo0jcn8PaFVqsfBaJqs3MFJ/tU/nLv5fEO7r3inmUIZnbOK+nybi355KD+kX/tHwttSRbssp0nrmC22NeUk0jAnyFgKuf4K2mGVCXtDqFz5jfjxZIMdajxIGexaX/zJyd78KuIIfe7vOygHgSzgVHJ98/JfgK/l29rBdvZhDeRKU1wE1l3mhBIuF4YCwmvpDcB9fL4GKbJMru4gL3wMj1c9f07Cb9sJq1l1PUO70RAIhxMKc+Ps5jOtjcxS3JiF1e0Evqcdzldxnev/erLRZRlnztqjdUVyVh+t3bUROUxCtGUZlsxFSRwxfkXtoNoeFc+JS5YqYQjgbsxB7vj8X7cRbiJT1y7eewP/KOAJMaqRWWevgabB1bozcTscB6AGQbwZLBKH+w+A26k=
+          # @see https://github.com/acquia/blt-launcher/pull/1
+          secure: "kdx58d2ar7501f0sMAigIE5kC3LS3WVSsPG/fyVLN1O2zzI4c4tMVF5evqOAZ0UEz4va/2Y4ooyntH+hQl3sdQvKpoO4tZuvQkheso1UpUZETQE5gn3LyvQe5JNz2cik0OavUZczU6TjDyjBQufw8NnSJwONpthw5Km07wmZN7WgvScArpV5GtT9arXAtJf++R0VZXiY6sFsi5+aIfciWJpupGRK4rdztGzvoUgYsyQukr2rF+JmvPNB7VBanCfwaOILWlr8QJ0WpTIrIagY3O/BYgg5Rbe8XFmPAGIYnS4WA3nVsd2NWf1O5d0k0zJuvxLQW0wecMwKeJ42EL/cFdjrQQDv2eMOrcg7VYRUwgFhNyHiltidlLBLS+yT+XqeMCYrgNrbO6sxwCr+N58VfS9UFrNM8pjktS5J0wMgYKGFYqlFBFbe9NYrNSIaX8Yo/CZMxa9S4k45DGM8KlVhM3o/C2r0OD5TYpsdewNiudoqoA3sAfoYhPWeXiPWYkrCr8/yJTlUAqEF752G1CQWyUTy6mTWVokAL2433FRenia6WcKrIvmBixdT0Ptb33zboWso/i5MRe8XwZu2OyQ+eHdRUHY1XeGLE8ITvfMRf0CSkG8WOgOL7AVWvivbFwGc/Xg1Pq2fSVXqDDb2Z08k2SqULjFXeobBqSDACOUjcSg="
         file: build/acli.phar
         skip_cleanup: true
         on:
