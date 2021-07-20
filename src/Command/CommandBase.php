@@ -1181,17 +1181,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   public function checkForNewVersion() {
+    // Input not set if called from an exception listener.
+    if (!isset($this->input)) {
+      return FALSE;
+    }
     // Running on API commands would corrupt JSON output.
     if (strpos($this->input->getArgument('command'), 'api:') !== FALSE) {
-      return;
+      return FALSE;
     }
     // Bail for development builds.
-    if ($this->getApplication()->getVersion() == '@package_version@') {
-      return;
+    if ($this->getApplication()->getVersion() === '@package_version@') {
+      return FALSE;
     }
     // Bail in Cloud IDEs to avoid hitting Github API rate limits.
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      return;
+      return FALSE;
     }
     try {
       if ($latest = $this->hasUpdate()) {
@@ -1223,6 +1227,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
 
+    /**
+     * @var $version string
+     */
     $version = $releases[0]->tag_name;
     $versionStability = VersionParser::parseStability($version);
     $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
