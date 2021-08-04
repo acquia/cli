@@ -614,12 +614,6 @@ components:
           - week
           - month
   schemas:
-    Embedded:
-      type: array
-      description: A collection of entities matching the request parameters.
-      items:
-        type: object
-        description: An entity matching the request parameters.
     Error:
       type: object
       required:
@@ -637,17 +631,21 @@ components:
       description: A binary file response.
       format: binary
     Links:
-      type: array
-      description: An array of HAL links about the current resource.
-      items:
-        type: object
-        description: A link to this page.
-        required:
-          - href
-        properties:
-          href:
-            type: string
-            description: A URI to this page.
+      type: object
+      required:
+        - self
+      description: HAL links about the current resource.
+      properties:
+        self:
+          type: object
+          description: A link to this page.
+          required:
+            - href
+          properties:
+            href:
+              type: string
+              format: uri
+              description: The URI for this page.
     Message:
       type: object
       required:
@@ -719,6 +717,27 @@ components:
           description: The validation error message keyed by its field or group name.
           additionalProperties:
             type: string
+    AccountInvites:
+      type: object
+      description: A collection of invites.
+      required:
+        - total
+        - _links
+        - _embedded
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of invites matching the request parameters.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Invite'
     Agreement:
       type: object
       required:
@@ -793,10 +812,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of agreements matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Agreement'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Agreement'
     Invitees:
       type: object
       required:
@@ -810,10 +832,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of invitees matching the request parameters.
-          items:
-            $ref: '#/components/schemas/UserStub'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserStub'
     Application:
       type: object
       required:
@@ -878,7 +903,17 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          $ref: '#/components/schemas/Embedded'
+          type: object
+          description: Entities related to the application.
+          properties:
+            subscription:
+              $ref: '#/components/schemas/SubscriptionStubEmbedded'
+            organization:
+              $ref: '#/components/schemas/OrganizationStubEmbedded'
+            tags:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceTagEmbedded'
     ApplicationFlags:
       type: object
       description: An array of various flags that indicate functionality associated with applications.
@@ -897,10 +932,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of applications.
-          items:
-            $ref: '#/components/schemas/Application'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Application'
     ApplicationFeature:
       type: object
       required:
@@ -926,10 +964,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of application feature flags.
-          items:
-            $ref: '#/components/schemas/ApplicationFeature'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationFeature'
     ApplicationMetadata:
       type: object
       description: Application metadata.
@@ -954,10 +995,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of notifications matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Notification'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Notification'
     ApplicationsPermissions:
       type: object
       required:
@@ -983,10 +1027,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of permissions matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Permission'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
     ApplicationStub:
       type: object
       required:
@@ -1013,10 +1060,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of tasks matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Task'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
     ApplicationsTeams:
       type: object
       required:
@@ -1030,10 +1080,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of teams matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Team'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Team'
     ApplicationDatabases:
       type: object
       description: Collection of application databases.
@@ -1048,10 +1101,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of database names matching the request parameters.
-          items:
-            $ref: '#/components/schemas/ApplicationDatabaseName'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationDatabaseName'
     ApplicationDatabaseName:
       type: object
       description: Application database name.
@@ -1062,7 +1118,7 @@ components:
           type: string
           description: The database name.
           minLength: 1
-          maxLength: 64
+          maxLength: 63
     Artifact:
       type: object
       required:
@@ -1103,10 +1159,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of artifacts.
-          items:
-            $ref: '#/components/schemas/Artifact'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Artifact'
     Code:
       type: object
       properties:
@@ -1116,19 +1175,22 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of branch and tag information.
-          items:
-            type: object
-            required:
-              - name
-              - flags
-            properties:
-              name:
-                type: string
-                description: The name of the branch or tag.
-              flags:
-                $ref: '#/components/schemas/CodeFlags'
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - flags
+                properties:
+                  name:
+                    type: string
+                    description: The name of the branch or tag.
+                  flags:
+                    $ref: '#/components/schemas/CodeFlags'
     CodeFlags:
       type: object
       description: An array of various flags that indicate functionality associated with code branches and tags on applications.
@@ -1179,6 +1241,22 @@ components:
                     description: The application UUID.
         _links:
           $ref: '#/components/schemas/Links'
+    ResourceTagEmbedded:
+      type: object
+      description: An associated tag.
+      required:
+        - name
+        - color
+        - _links
+      properties:
+        name:
+          type: string
+          description: The name of the tag.
+        color:
+          type: string
+          description: The color of the tag.
+        _links:
+          $ref: '#/components/schemas/Links'
     ResourceTags:
       type: object
       required:
@@ -1192,10 +1270,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of tags matching the request parameters.
-          items:
-            $ref: '#/components/schemas/ResourceTag'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceTag'
     DomainRegistration:
       type: object
       required:
@@ -1231,10 +1312,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of domain registrations.
-          items:
-            $ref: '#/components/schemas/DomainRegistration'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/DomainRegistration'
     DomainRegistrationHealth:
       type: object
       description: Health information for this domain registration.
@@ -1279,10 +1363,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of DNS records
-          items:
-            $ref: '#/components/schemas/DomainRegistrationDnsRecord'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/DomainRegistrationDnsRecord'
     DomainRegistrationDnsHealth:
       type: object
       description: Health information for this DNS record.
@@ -1386,10 +1473,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of distributions.
-          items:
-            $ref: '#/components/schemas/Distribution'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Distribution'
     Email:
       type: object
       required:
@@ -1442,10 +1532,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of email domains.
-          items:
-            $ref: '#/components/schemas/EmailDomain'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EmailDomain'
     Entitlements:
       type: object
       description: Entitlements collection.
@@ -1453,17 +1546,20 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of entitlements.
-          items:
-            anyOf:
-              - $ref: '#/components/schemas/EntitlementPipelines'
-              - $ref: '#/components/schemas/EntitlementCde'
-              - $ref: '#/components/schemas/EntitlementConsumptionBasedPricing'
-              - $ref: '#/components/schemas/EntitlementLogForwarding'
-              - $ref: '#/components/schemas/EntitlementShield'
-              - $ref: '#/components/schemas/EntitlementDefaultNewRelic'
-              - $ref: '#/components/schemas/EntitlementMigrate'
+          properties:
+            items:
+              type: array
+              items:
+                anyOf:
+                  - $ref: '#/components/schemas/EntitlementPipelines'
+                  - $ref: '#/components/schemas/EntitlementCde'
+                  - $ref: '#/components/schemas/EntitlementConsumptionBasedPricing'
+                  - $ref: '#/components/schemas/EntitlementLogForwarding'
+                  - $ref: '#/components/schemas/EntitlementShield'
+                  - $ref: '#/components/schemas/EntitlementDefaultNewRelic'
+                  - $ref: '#/components/schemas/EntitlementMigrate'
     EntitlementPipelines:
       type: object
       description: Pipelines entitlement.
@@ -1599,7 +1695,17 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          $ref: '#/components/schemas/Embedded'
+          type: object
+          description: Entities related to the APM settings.
+          properties:
+            environment:
+              type: array
+              description: An array of links to related environments.
+              items:
+                type: object
+                properties:
+                  _links:
+                    $ref: '#/components/schemas/Links'
     ArtifactStub:
       type: object
       required:
@@ -1668,7 +1774,33 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          $ref: '#/components/schemas/Embedded'
+          type: object
+          description: Related entities.
+          properties:
+            environment:
+              type: object
+              description: The related environment.
+              properties:
+                id:
+                  type: string
+                  description: The environment ID.
+                name:
+                  type: string
+                  description: The environment name.
+                _links:
+                  $ref: '#/components/schemas/Links'
+            database:
+              type: object
+              description: The related database.
+              properties:
+                id:
+                  type: integer
+                  description: The database ID.
+                name:
+                  type: string
+                  description: The database name.
+                _links:
+                  $ref: '#/components/schemas/Links'
     Backups:
       type: object
       description: A collection of database backups.
@@ -1683,10 +1815,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of database backups matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Backup'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Backup'
     BackupFlags:
       type: object
       description: Response schema for database backup flags.
@@ -1798,10 +1933,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of certificates.
-          items:
-            $ref: '#/components/schemas/Certificate'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Certificate'
     CertificateSigningRequest:
       type: object
       description: A certificate signing request.
@@ -1945,10 +2083,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of cron jobs.
-          items:
-            $ref: '#/components/schemas/Cron'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Cron'
     Database:
       type: object
       description: Response schema for a database.
@@ -2008,10 +2149,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of databases matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Database'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Database'
     DatabaseFlags:
       type: object
       description: Response schema for database flags.
@@ -2155,10 +2299,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of domains matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Domain'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Domain'
     DomainFlags:
       type: object
       required:
@@ -2243,12 +2390,13 @@ components:
         - ssh_url
         - ips
         - region
+        - balancer
+        - platform
         - status
         - type
         - size
         - weight
         - vcs
-        - insight
         - flags
         - configuration
         - artifact
@@ -2307,6 +2455,17 @@ components:
             - balancers
             - elb
             - cluster
+        platform:
+          type: string
+          description: |
+            The platform type.
+            - cloud: The environment is hosted on a Cloud Classic Platform.
+            - cloud-next: The environment is hosted on a Cloud Next Platform.
+            - unknown:  The host information is not available for the environment.
+          enum:
+            - cloud
+            - cloud-next
+            - unknown
         status:
           type: string
           description: The status of this environment.
@@ -2334,40 +2493,6 @@ components:
           description: The environment weight for display purposes.
         vcs:
           $ref: '#/components/schemas/Vcs'
-        insight:
-          type: object
-          nullable: true
-          description: A collection of Insight scores.
-          properties:
-            status:
-              type: string
-              description: The status of the Insight connection with the application.
-              enum:
-                - ok
-                - not-found
-                - not-processed
-                - no-data
-                - error
-            scores:
-              type: object
-              description: An array of Insight scores for various categories.
-              additionalProperties:
-                type: object
-                properties:
-                  insight:
-                    type: integer
-                  seo:
-                    type: integer
-            counts:
-              type: object
-              description: An array of Insight scores data.
-              properties:
-                best_practices:
-                  $ref: '#/components/schemas/InsightScoreCounts'
-                performance:
-                  $ref: '#/components/schemas/InsightScoreCounts'
-                security:
-                  $ref: '#/components/schemas/InsightScoreCounts'
         flags:
           $ref: '#/components/schemas/EnvironmentFlags'
         configuration:
@@ -2494,10 +2619,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of environments matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Environment'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Environment'
     EnvironmentSettings:
       type: object
       description: A collection of links to environment settings.
@@ -2554,10 +2682,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of variables matching the request parameters.
-          items:
-            $ref: '#/components/schemas/EnvironmentVariable'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EnvironmentVariable'
     FileDownload:
       type: object
       description: A JSON response containing the url and url expiration.
@@ -2609,10 +2740,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of logs matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Log'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Log'
     Logstream:
       type: object
       description: Connection details for Logstream backend.
@@ -2727,10 +2861,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of log forwarding destinations matching the request parameters.
-          items:
-            $ref: '#/components/schemas/LogForwardingDestination'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LogForwardingDestination'
     LogForwardingDestinationCredentials:
       type: object
       required:
@@ -2813,9 +2950,6 @@ components:
         label:
           type: string
           description: The label for this cron.
-        server_id:
-          type: integer
-          description: 'The ID of the server the cron will run on. If not provided, cron will be run on the lowest numbered web server for this environment.'
     PostCsr:
       type: object
       description: Certificate signing request POST schema.
@@ -2863,9 +2997,6 @@ components:
         label:
           type: string
           description: The label for this cron.
-        server_id:
-          type: integer
-          description: 'The ID of the server the cron will run on. If not provided, cron will be run on the lowest numbered web server for this environment.'
     RemoteAdministration:
       type: object
       required:
@@ -2976,6 +3107,38 @@ components:
           format: date-time
           description: The date time for the last monitoring scan.
           deprecated: true
+    UptimeAlerts:
+      type: object
+      description: Response schema for environment uptime alerts status.
+      required:
+        - emails
+        - flags
+      properties:
+        emails:
+          type: array
+          description: Emails that will receive uptime alerts.
+          items:
+            type: string
+            format: email
+        flags:
+          $ref: '#/components/schemas/UptimeAlertsFlags'
+        _links:
+          $ref: '#/components/schemas/Links'
+    UptimeAlertsFlags:
+      type: object
+      description: Various flags related to environment uptime alerts.
+      properties:
+        enabled:
+          type: boolean
+          description: Whether uptime alerts are enabled for this environment.
+    UptimeTraversal:
+      type: object
+      description: A collection of links that provides traversal of uptime endpoints.
+      required:
+        - _links
+      properties:
+        _links:
+          $ref: '#/components/schemas/Links'
     Vcs:
       type: object
       required:
@@ -3040,10 +3203,15 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of Cloud IDEs matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Ide'
+          required:
+            - items
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Ide'
     Ide:
       type: object
       required:
@@ -3131,10 +3299,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of identity providers matching the request parameters.
-          items:
-            $ref: '#/components/schemas/IdentityProvider'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/IdentityProvider'
     Insight:
       type: object
       required:
@@ -3293,10 +3464,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of Insight alerts.
-          items:
-            $ref: '#/components/schemas/InsightAlert'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InsightAlert'
     InsightDataBySites:
       type: object
       required:
@@ -3310,10 +3484,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of insight data by site matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Insight'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Insight'
     InsightFlags:
       type: object
       description: An array of various flags that indicate functionality associated with Insight.
@@ -3337,10 +3514,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of this site's historical connections to Acquia.
-          items:
-            $ref: '#/components/schemas/InsightHistoryItem'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InsightHistoryItem'
     InsightHistoryItem:
       type: object
       required:
@@ -3436,10 +3616,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of modules installed on a site.
-          items:
-            $ref: '#/components/schemas/InsightModule'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InsightModule'
     InsightScore:
       type: object
       required:
@@ -3515,10 +3698,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of Insight scores.
-          items:
-            $ref: '#/components/schemas/InsightScore'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/InsightScore'
     ApplicationUsageMetric:
       type: object
       description: Provides details about views and visits for an application.
@@ -3573,10 +3759,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of application metric items matching the request parameters.
-          items:
-            $ref: '#/components/schemas/ApplicationUsageMetric'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApplicationUsageMetric'
     EnvironmentUsageMetric:
       type: object
       description: Provides details about views and visits for an environment.
@@ -3631,10 +3820,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of environment metric items matching the request parameters.
-          items:
-            $ref: '#/components/schemas/EnvironmentUsageMetric'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EnvironmentUsageMetric'
     Metrics:
       type: object
       description: A collection of links that provides traversal of metrics endpoints.
@@ -3657,10 +3849,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of StackMetrics items matching the request parameters.
-          items:
-            $ref: '#/components/schemas/StackMetricsMetric'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/StackMetricsMetric'
     StackMetricsMetric:
       type: object
       description: An object containing StackMetrics datapoints.
@@ -3783,10 +3978,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of Uptime scan metric items matching the request parameters.
-          items:
-            $ref: '#/components/schemas/UptimeScanMetric'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/UptimeScanMetric'
     SubscriptionUsageMetric:
       type: object
       description: Provides details about views and visits for a subscription.
@@ -3841,10 +4039,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of subscription metric items matching the request parameters.
-          items:
-            $ref: '#/components/schemas/SubscriptionUsageMetric'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/SubscriptionUsageMetric'
     Usage:
       type: object
       description: A collection of traversal links for an entity.
@@ -3945,10 +4146,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of tasks matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Task'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Task'
     Organization:
       type: object
       description: Organization information.
@@ -4002,7 +4206,11 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          $ref: '#/components/schemas/Embedded'
+          type: object
+          description: Entities related to the organization.
+          properties:
+            owner:
+              $ref: '#/components/schemas/UserStubEmbedded'
     OrganizationAdminInvite:
       type: object
       description: An invitation to become an organization administrator.
@@ -4053,10 +4261,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of organization admin invites.
-          items:
-            $ref: '#/components/schemas/OrganizationAdminInvite'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationAdminInvite'
     OrganizationAdminUserProfile:
       type: object
       description: An organization admin user profile.
@@ -4121,10 +4332,29 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of organization admin user profiles.
-          items:
-            $ref: '#/components/schemas/OrganizationAdminUserProfile'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationAdminUserProfile'
+    OrganizationApplications:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of applications.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Application'
     OrganizationAvailableTags:
       type: object
       description: A collection of organization members.
@@ -4139,10 +4369,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of tags associated with the organization.
-          items:
-            $ref: '#/components/schemas/ResourceTag'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ResourceTag'
     OrganizationMembers:
       type: object
       description: A collection of organization members.
@@ -4157,10 +4390,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of organization member profiles.
-          items:
-            $ref: '#/components/schemas/OrganizationUserProfile'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationUserProfile'
     Organizations:
       type: object
       description: A collection of all organizations the current user has access to.
@@ -4171,10 +4407,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of organizations.
-          items:
-            $ref: '#/components/schemas/Organization'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Organization'
     OrganizationStub:
       type: object
       required:
@@ -4188,6 +4427,22 @@ components:
         name:
           type: string
           description: The human-readable organization name.
+    OrganizationStubEmbedded:
+      type: object
+      description: A related organization.
+      required:
+        - uuid
+        - name
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The organization's UUID.
+        name:
+          type: string
+          description: The human-readable organization name.
+        _links:
+          $ref: '#/components/schemas/Links'
     OrganizationTeamInvite:
       type: object
       required:
@@ -4252,10 +4507,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of organization team invites.
-          items:
-            $ref: '#/components/schemas/OrganizationTeamInvite'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationTeamInvite'
     OrganizationTeamStub:
       type: object
       description: A team within an organization.
@@ -4359,10 +4617,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of CDE sizes.
-          items:
-            $ref: '#/components/schemas/CdeSize'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/CdeSize'
     LogForwardingSource:
       type: object
       description: Response schema for a Log forwarding source.
@@ -4396,10 +4657,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of Log forwarding sources.
-          items:
-            $ref: '#/components/schemas/LogForwardingSource'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LogForwardingSource'
     LogForwardingConsumer:
       type: object
       description: Response schema for a Log forwarding consumer.
@@ -4426,10 +4690,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of Log forwarding consumers.
-          items:
-            $ref: '#/components/schemas/LogForwardingConsumer'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/LogForwardingConsumer'
     Color:
       type: object
       description: Response schema for a color.
@@ -4452,10 +4719,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: The collection of colors.
-          items:
-            $ref: '#/components/schemas/Color'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Color'
     ConfigurationSet:
       type: object
       description: An Acquia Search configuration set.
@@ -4500,10 +4770,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of configuration sets.
-          items:
-            $ref: '#/components/schemas/ConfigurationSet'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConfigurationSet'
     Index:
       type: object
       description: An Acquia Search index.
@@ -4559,10 +4832,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of indexes.
-          items:
-            $ref: '#/components/schemas/Index'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Index'
     Search:
       type: object
       description: A collection of links that provides traversal of search endpoints.
@@ -4648,6 +4924,7 @@ components:
         - total
         - _links
         - _embedded
+      description: A collection of servers.
       properties:
         total:
           type: integer
@@ -4655,10 +4932,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of servers matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Server'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Server'
     ServerConfiguration:
       type: object
       description: An array of various configuration settings for the server.
@@ -4872,10 +5152,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of Shield ACL rules.
-          items:
-            $ref: '#/components/schemas/ShieldAcl'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ShieldAcl'
     ShieldAcl:
       type: object
       description: Shield ACL rule.
@@ -4962,10 +5245,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of APM types matching the request parameters.
-          items:
-            $ref: '#/components/schemas/ApmType'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ApmType'
     Subscription:
       type: object
       description: |
@@ -5049,10 +5335,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of resources related to the subscription.
-          items:
-            $ref: '#/components/schemas/OrganizationStub'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/OrganizationStub'
     SubscriptionFlags:
       type: object
       description: An array of various flags that indicate functionality associated with subscription.
@@ -5088,10 +5377,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of subscriptions.
-          items:
-            $ref: '#/components/schemas/Subscription'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Subscription'
     SubscriptionStub:
       type: object
       description: The subscription this application belongs to.
@@ -5106,6 +5398,23 @@ components:
         name:
           type: string
           description: The name of the subscription.
+    SubscriptionStubEmbedded:
+      type: object
+      description: A related subscription.
+      required:
+        - uuid
+        - name
+        - _links
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The UUID of the subscription.
+        name:
+          type: string
+          description: The name of the subscription.
+        _links:
+          $ref: '#/components/schemas/Links'
     Task:
       type: object
       required:
@@ -5230,29 +5539,9 @@ components:
     InviteFlags:
       type: object
       description: An array of various flags providing more context for the Invite response object.
-      additionalProperties:
-        type: object
-        properties:
-          declined:
-            type: boolean
-    Invites:
-      type: object
-      description: A collection of invites.
-      required:
-        - total
-        - _links
-        - _embedded
       properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: array
-          description: A collection of invites matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Invite'
+        declined:
+          type: boolean
     Permission:
       type: object
       required:
@@ -5293,10 +5582,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of permissions.
-          items:
-            $ref: '#/components/schemas/Permission'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Permission'
     PostInvite:
       type: object
       required:
@@ -5360,10 +5652,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of roles.
-          items:
-            $ref: '#/components/schemas/Role'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Role'
     RoleStub:
       type: object
       required:
@@ -5406,6 +5701,27 @@ components:
           $ref: '#/components/schemas/OrganizationStub'
         _links:
           $ref: '#/components/schemas/Links'
+    TeamInvites:
+      type: object
+      description: A collection of invites.
+      required:
+        - total
+        - _links
+        - _embedded
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of invites matching the request parameters.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Invite'
     Teams:
       type: object
       description: A collection of teams.
@@ -5420,10 +5736,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of teams matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Team'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Team'
     TeamMembers:
       type: object
       description: A collection of team members.
@@ -5438,10 +5757,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of team member profiles.
-          items:
-            $ref: '#/components/schemas/TeamUserProfile'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/TeamUserProfile'
     TeamStub:
       type: object
       required:
@@ -5581,10 +5903,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of SSH keys matching the request parameters.
-          items:
-            $ref: '#/components/schemas/SshKey'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/SshKey'
     Token:
       type: object
       required:
@@ -5653,10 +5978,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of tokens matching the request parameters.
-          items:
-            $ref: '#/components/schemas/Token'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Token'
     User:
       type: object
       required:
@@ -6164,6 +6492,41 @@ components:
         username:
           type: string
           description: The user's internal user name.
+    UserStubEmbedded:
+      type: object
+      description: A related user.
+      required:
+        - uuid
+        - first_name
+        - last_name
+        - mail
+        - picture_url
+        - username
+        - _links
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: The user's UUID.
+        first_name:
+          type: string
+          description: The user's first name.
+        last_name:
+          type: string
+          description: The user's last name.
+        mail:
+          type: string
+          format: email
+          description: The user's email address.
+        picture_url:
+          type: string
+          format: uri
+          description: The URI for the user's picture.
+        username:
+          type: string
+          description: The user's internal user name.
+        _links:
+          $ref: '#/components/schemas/Links'
     PasswordRequest:
       type: object
       required:
@@ -6209,10 +6572,13 @@ components:
         _links:
           $ref: '#/components/schemas/Links'
         _embedded:
-          type: array
+          type: object
           description: A collection of application messages matching the request parameters.
-          items:
-            $ref: '#/components/schemas/UxMessage'
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/UxMessage'
     UxMessage:
       type: object
       required:
@@ -6855,7 +7221,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invites'
+                $ref: '#/components/schemas/AccountInvites'
               example:
                 total: 2
                 _links:
@@ -8136,7 +8502,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Applications'
               example:
                 total: 2
@@ -8167,10 +8532,10 @@ paths:
                         type: acp
                         id: 'devcloud:devcloud2'
                       subscription:
-                        uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                         name: Sample subscription
                       organization:
-                        uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                         name: Sample organization
                       flags:
                         remote_admin: true
@@ -8184,16 +8549,16 @@ paths:
                           color: blue
                           _links:
                             self:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-1
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-1'
                             parent:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags'
                         - name: tag-2
                           color: green
                           _links:
                             self:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-2
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-2'
                             parent:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags'
                     - id: 954291
                       uuid: a47ac10b-58cc-4372-a567-0e02b2c3d471
                       name: Sample application 2
@@ -8201,10 +8566,10 @@ paths:
                         type: free
                         id: 'devcloud:devcloud2'
                       subscription:
-                        uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                         name: Sample subscription
                       organization:
-                        uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                         name: Sample organization
                       type: node
                       flags:
@@ -8218,16 +8583,16 @@ paths:
                           color: blue
                           _links:
                             self:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-1
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-1'
                             parent:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags'
                         - name: tag-2
                           color: green
                           _links:
                             self:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-2
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags/tag-2'
                             parent:
-                              href: /api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags
+                              href: 'https://cloud.acquia.com/api/applications/957bec0e-30c1-4971-ae2a-2ec4071cdd4e/tags'
         '403':
           description: Forbidden
           content:
@@ -8266,10 +8631,10 @@ paths:
                   type: acp
                   id: 'devcloud:devcloud2'
                 subscription:
-                  uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                  uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                   name: Sample subscription
                 organization:
-                  uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                  uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                   name: Sample organization
                 flags:
                   remote_admin: true
@@ -8306,17 +8671,17 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications'
                 _embedded:
                   subscription:
-                    uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                    uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                     name: Sample subscription
                     _links:
                       self:
-                        href: 'https://cloud.acquia.com/api/subscriptions/s47ac10b-58cc-4372-a567-0e02b2c3d470'
+                        href: 'https://cloud.acquia.com/api/subscriptions/f47ac10b-58cc-4372-a567-0e02b2c3d470'
                   organization:
-                    uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                    uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                     name: Sample organization
                     _links:
                       self:
-                        href: 'https://cloud.acquia.com/api/organizations/g47ac10b-58cc-4372-a567-0e02b2c3d470'
+                        href: 'https://cloud.acquia.com/api/organizations/6a907396-abfd-4d01-9da6-64c8efc04519'
                   tags:
                     - name: tag-1
                       color: blue
@@ -8469,7 +8834,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Artifacts'
               example:
                 total: 3
@@ -8479,13 +8843,13 @@ paths:
                   parent:
                     href: 'https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470'
                   sort:
-                    href: '{baserUri}/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?sort}'
+                    href: 'https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?sort}'
                     templated: true
                   filter:
-                    href: '{baserUri}/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?filter}'
+                    href: 'https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?filter}'
                     templated: true
                   limit:
-                    href: '{baserUri}/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?limit}'
+                    href: 'https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/artifacts{?limit}'
                     templated: true
                 _embedded:
                   items:
@@ -8604,7 +8968,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Code'
               example:
                 total: 4
@@ -8728,7 +9091,7 @@ paths:
                   type: string
                   description: The database name.
                   minLength: 1
-                  maxLength: 64
+                  maxLength: 63
             example:
               name: my_db_name
           application/x-www-form-urlencoded:
@@ -8742,7 +9105,7 @@ paths:
                   type: string
                   description: The database name.
                   minLength: 1
-                  maxLength: 64
+                  maxLength: 63
             example:
               name: my_db_name
       responses:
@@ -8793,6 +9156,11 @@ paths:
                     error: validation_failed
                     message:
                       name: The database name can only contain alphanumeric characters and underscores.
+                Name cannot exceed 63 characters in length:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: The database name cannot exceed 63 characters in length.
                 Name already in use:
                   value:
                     error: validation_failed
@@ -12210,7 +12578,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Distributions'
               example:
                 total: 2
@@ -12373,6 +12740,7 @@ paths:
                         - 10.0.1.5
                       region: us-east-1
                       balancer: balancers
+                      platform: cloud
                       status: normal
                       type: drupal
                       size: null
@@ -12381,30 +12749,6 @@ paths:
                         type: git
                         path: master
                         url: 'site@svn-3.hosted.acquia-sites.com:site.git'
-                      insight:
-                        status: ok
-                        scores:
-                          insight: 87
-                          seo: 56
-                        counts:
-                          best_practices:
-                            pass: 7
-                            fail: 0
-                            ignored: 0
-                            total: 7
-                            percent: 100
-                          performance:
-                            pass: 22
-                            fail: 0
-                            ignored: 0
-                            total: 22
-                            percent: 100
-                          security:
-                            pass: 23
-                            fail: 0
-                            ignored: 0
-                            total: 23
-                            percent: 100
                       flags:
                         cde: false
                         cdn: false
@@ -12913,6 +13257,7 @@ paths:
                   - 10.0.1.5
                 region: us-east-1
                 balancer: balancers
+                platform: cloud
                 status: normal
                 type: drupal
                 size: null
@@ -12921,30 +13266,6 @@ paths:
                   type: git
                   path: master
                   url: 'site@svn-3.hosted.acquia-sites.com:site.git'
-                insight:
-                  status: ok
-                  scores:
-                    insight: 87
-                    seo: 56
-                  counts:
-                    best_practices:
-                      pass: 7
-                      fail: 0
-                      ignored: 0
-                      total: 7
-                      percent: 100
-                    performance:
-                      pass: 22
-                      fail: 0
-                      ignored: 0
-                      total: 22
-                      percent: 100
-                    security:
-                      pass: 23
-                      fail: 0
-                      ignored: 0
-                      total: 23
-                      percent: 100
                 flags:
                   cde: false
                   cdn: false
@@ -13853,7 +14174,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Cdn'
               example:
                 status: active
@@ -14332,7 +14652,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Crons'
               example:
                 total: 2
@@ -14415,7 +14734,6 @@ paths:
               command: /usr/local/bin/drush cc all
               frequency: '*/30 * * * *'
               label: My New Cron
-              server_id: null
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/PostCron'
@@ -16004,6 +16322,10 @@ paths:
                   value:
                     error: forbidden
                     message: 'The domain name cannot be used, as it already exists within this application''s environments.'
+                Error adding domain name:
+                  value:
+                    error: forbidden
+                    message: 'This domain cannot be added to this environment. For more details, contact Acquia Support.'
   '/environments/{environmentId}/domains/actions/clear-varnish':
     post:
       tags:
@@ -16059,7 +16381,7 @@ paths:
                     message: Varnish is being cleared for the selected domains.
                     _links:
                       self:
-                        href: /environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/actions/clear-varnish
+                        href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93/domains/actions/clear-varnish'
                       notification:
                         href: 'https://cloud.acquia.com/api/notifications/42b56cff-0b55-4bdf-a949-1fd0fca61c6c'
         '403':
@@ -16109,7 +16431,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Domains'
+                $ref: '#/components/schemas/Domain'
               example:
                 hostname: example.com
                 cdn:
@@ -17072,7 +17394,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Invalid range:
                   value:
@@ -17179,7 +17501,6 @@ paths:
     post:
       tags:
         - Environments
-      deprecated: true
       summary: Disable Live Development on this environment.
       description: Disable Live Development on this environment.
       operationId: postEnvironmentsDisableLiveDev
@@ -17223,7 +17544,7 @@ paths:
               examples:
                 Disabling LiveDev:
                   value:
-                    example: Disabling LiveDev.
+                    message: Disabling LiveDev.
         '400':
           description: Bad Request
           content:
@@ -17289,7 +17610,6 @@ paths:
     post:
       tags:
         - Environments
-      deprecated: true
       summary: Enable Live Development on this environment.
       description: Enable Live Development on this environment.
       operationId: postEnvironmentsEnableLiveDev
@@ -18453,6 +18773,7 @@ paths:
         - Environments
       summary: 'Returns StackMetrics data for the metric (e.g., apache-access).'
       description: 'Returns StackMetrics data for the metric (e.g., apache-access).'
+      deprecated: true
       operationId: getEnvironmentsStackMetricsMetric
       x-cli-name: 'environments:stack-metrics-data-metric'
       parameters:
@@ -18756,7 +19077,6 @@ paths:
     post:
       tags:
         - Environments
-      deprecated: true
       summary: Disables production mode for an environment.
       description: 'Removes protection from a production environment, taking it out of production mode.'
       operationId: postEnvironmentsDisableProductionMode
@@ -18775,7 +19095,7 @@ paths:
               examples:
                 Production mode disabled:
                   value:
-                    example: Production mode has been disabled for this environment.
+                    message: Production mode has been disabled for this environment.
         '400':
           description: Bad Request
           content:
@@ -18833,7 +19153,6 @@ paths:
     post:
       tags:
         - Environments
-      deprecated: true
       summary: Enables production mode for an environment.
       description: 'Enables production mode for an environment. While production mode is enabled, files and databases cannot be copied to the production environment.'
       operationId: postEnvironmentsEnableProductionMode
@@ -18852,7 +19171,7 @@ paths:
               examples:
                 Production mode enabled:
                   value:
-                    example: Production mode has been enabled for this environment.
+                    message: Production mode has been enabled for this environment.
         '400':
           description: Bad Request
           content:
@@ -19193,7 +19512,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Indexes'
+                $ref: '#/components/schemas/Index'
               example:
                 id: ABCDE-1234.test.example
                 environment_id: 123-3f6d06a9-9236-411e-9dcc-44f0003a5905
@@ -19283,7 +19602,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Indexes'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The search index ABCDE-1234.test.example is being updated.
                 _links:
@@ -19424,7 +19743,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Servers'
               example:
                 total: 2
@@ -19546,7 +19864,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Server'
               example:
                 id: '6'
@@ -19655,7 +19972,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Message'
               examples:
                 Server configuration being updated:
@@ -19738,7 +20054,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Message'
               examples:
                 Server is being rebooted:
@@ -19831,7 +20146,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Message'
               examples:
                 Server is being relaunched:
@@ -19924,7 +20238,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Message'
               examples:
                 Server is being suspended:
@@ -20017,7 +20330,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/Message'
               examples:
                 Server is being upgraded:
@@ -20487,7 +20799,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
+                $ref: '#/components/schemas/Error'
               examples:
                 Cannot install:
                   value:
@@ -20528,7 +20840,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Invalid country code:
                   value:
@@ -20660,7 +20972,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Not on Acquia Cloud Free:
                   value:
@@ -20770,7 +21082,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Legacy certificate:
                   value:
@@ -21034,7 +21346,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Legacy certificate:
                   value:
@@ -21241,6 +21553,456 @@ paths:
                   value:
                     error: not_found
                     message: 'This certificate signing request does not belong to the environment, and cannot be removed.'
+  '/environments/{environmentId}/uptime':
+    get:
+      tags:
+        - Environments
+      summary: Returns a traversal endpoint for uptime alerts for the environment.
+      description: Does not return any data. Allows traversal to uptime alert endpoint.
+      operationId: getUptime
+      x-cli-name: 'environments:uptime-find'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      security:
+        - OAuth2: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UptimeTraversal'
+              example:
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime'
+                  alerts:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_found
+                    message: Uptime is not available on Node.js applications.
+  '/environments/{environmentId}/uptime/actions/disable':
+    post:
+      tags:
+        - Environments
+      summary: Disables uptime for the active domain on an environment.
+      description: Disables uptime for the active domain on an environment.
+      operationId: postEnvironmentUptimeDisable
+      x-cli-name: 'environments:uptime-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Uptime disabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions/disable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to disable Uptime for domains on this environment.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Uptime cannot be disabled on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not enabled:
+                  value:
+                    error: conflict
+                    message: This environment does not have Uptime enabled.
+  '/environments/{environmentId}/uptime/actions/enable':
+    post:
+      tags:
+        - Environments
+      summary: Enables uptime for the active domain on an environment.
+      description: Enables uptime for the active domain on an environment.
+      operationId: postEnvironmentUptimeEnable
+      x-cli-name: 'environments:uptime-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Uptime enabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                No active domain:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This environment does not have an active domain. Uptime cannot be enabled.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to enable Uptime for domains on this environment.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Uptime cannot be enabled on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Currently enabled:
+                  value:
+                    error: conflict
+                    message: This environment already has Uptime enabled.
+                Cannot be wildcard domain:
+                  value:
+                    error: conflict
+                    message: The active domain is a wildcard domain. Wildcard domains are not supported by Uptime.
+  '/environments/{environmentId}/uptime/alerts':
+    get:
+      tags:
+        - Environments
+      summary: Returns the uptime alerts status for an environment.
+      description: Returns the uptime alerts status including whether it is enabled for an environment and the email that will receive alerts.
+      operationId: getEnvironmentUptimeAlerts
+      x-cli-name: 'environments:uptime:alerts-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UptimeAlerts'
+              example:
+                emails:
+                  - alerts@example.com
+                flags:
+                  enabled: true
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Not available on Node.js:
+                  value:
+                    error: not_found
+                    message: Uptime is not available on Node.js applications.
+  '/environments/{environmentId}/uptime/alerts/actions/disable':
+    post:
+      tags:
+        - Environments
+      summary: Disables uptime email alerts for the active domain on an environment.
+      description: Disables uptime email alerts for the active domain on an environment.
+      operationId: postEnvironmentUptimeAlertsDisable
+      x-cli-name: 'environments:uptime-alerts-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: array
+                  description: The emails that should no longer receive uptime alerts.
+                  items:
+                    type: string
+                    description: An email address that should no longer receive alerts.
+                    format: email
+            example:
+              emails:
+                - user1@example.com
+                - user2@example.com
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: array
+                  description: The emails that should no longer receive uptime alerts.
+                  items:
+                    type: string
+                    description: An email address that should no longer receive alerts.
+                    format: email
+            example:
+              emails:
+                - user1@example.com
+                - user2@example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Uptime E-mail alerts disabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions/disable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                No active domain:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This environment does not have an active domain. Uptime alerts cannot be disabled.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to disable Uptime alerts for domains on this environment.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Uptime alerts cannot be disabled on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+  '/environments/{environmentId}/uptime/alerts/actions/enable':
+    post:
+      tags:
+        - Environments
+      summary: Enables uptime email alerts for the active domain on an environment.
+      description: Enables uptime email alerts for the active domain on an environment.
+      operationId: postEnvironmentUptimeAlertsEnable
+      x-cli-name: 'environments:uptime-alerts-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: array
+                  description: The emails that should receive uptime alerts.
+                  items:
+                    type: string
+                    description: An email address that should receive alerts.
+                    format: email
+            example:
+              emails:
+                - user1@example.com
+                - user2@example.com
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                emails:
+                  type: array
+                  description: The emails that should receive uptime alerts.
+                  items:
+                    type: string
+                    description: An email address that should receive alerts.
+                    format: email
+            example:
+              emails:
+                - user1@example.com
+                - user2@example.com
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+              example:
+                message: Uptime E-mail alerts enabled.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+              examples:
+                No active domain:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: This environment does not have an active domain. Uptime alerts cannot be enabled.
+                Missing email:
+                  value:
+                    error: validation_failed
+                    message:
+                      general: Uptime alerts cannot be enabled without any e-mail addresses.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to enable Uptime alerts for domains on this environment.
+                Node.js application:
+                  value:
+                    error: forbidden
+                    message: Uptime alerts cannot be enabled on Node.js applications.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Environment not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not enabled:
+                  value:
+                    error: conflict
+                    message: This environment does not have Uptime enabled and thus cannot have alerts enabled.
+                Cannot be wildcard domain:
+                  value:
+                    error: conflict
+                    message: The active domain is a wildcard domain. Wildcard domains are not supported by Uptime.
   '/environments/{environmentId}/variables':
     get:
       tags:
@@ -22287,7 +23049,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Insight'
               example:
-                uuid: abcdefgh-1234-ijkl-5678-mnopqrstuvwx
+                uuid: 3bb226da-9808-42df-bded-41a348b25314
                 label: 'Test Site: prod'
                 hostname: test.example.com
                 status: ok
@@ -23083,7 +23845,7 @@ paths:
               examples:
                 Accepted invite:
                   value:
-                    example: The invite has been accepted.
+                    message: The invite has been accepted.
         '404':
           description: Not Found
           content:
@@ -23128,7 +23890,7 @@ paths:
               examples:
                 Declined invite:
                   value:
-                    example: The invite has been declined.
+                    message: The invite has been declined.
         '404':
           description: Not Found
           content:
@@ -23173,7 +23935,7 @@ paths:
               examples:
                 Declined invite:
                   value:
-                    example: Resent invitation.
+                    message: Resent invitation.
         '404':
           description: Not Found
           content:
@@ -24435,7 +25197,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Applications'
+                $ref: '#/components/schemas/OrganizationApplications'
               example:
                 total: 2
                 pagination:
@@ -24669,7 +25431,7 @@ paths:
               context:
                 application:
                   uuids:
-                    - u47ac10b-58cc-4372-a567-0e02b2c3d470
+                    - 96e10bfb-1e4f-41c3-9d07-fffe8aba50d5
           application/x-www-form-urlencoded:
             schema:
               type: object
@@ -24725,7 +25487,7 @@ paths:
               context:
                 application:
                   uuids:
-                    - u47ac10b-58cc-4372-a567-0e02b2c3d470
+                    - 96e10bfb-1e4f-41c3-9d07-fffe8aba50d5
       security:
         - OAuth2: []
       responses:
@@ -24827,7 +25589,7 @@ paths:
               context:
                 application:
                   uuids:
-                    - u47ac10b-58cc-4372-a567-0e02b2c3d470
+                    - 96e10bfb-1e4f-41c3-9d07-fffe8aba50d5
           application/x-www-form-urlencoded:
             schema:
               type: object
@@ -24877,7 +25639,7 @@ paths:
               context:
                 application:
                   uuids:
-                    - u47ac10b-58cc-4372-a567-0e02b2c3d470
+                    - 96e10bfb-1e4f-41c3-9d07-fffe8aba50d5
       security:
         - OAuth2: []
       responses:
@@ -24936,7 +25698,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Applications'
+                $ref: '#/components/schemas/IdentityProvider'
               example:
                 uuid: 1bc5dbb4-6d59-403b-afc7-777e520aaa40
                 label: Test identity provider
@@ -25228,6 +25990,17 @@ paths:
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/organizations/d4e44648-8780-4105-905c-43a1eb486481/members/48b8085f-defd-423b-96ca-0f634bcf07de/applications'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/organizations/d4e44648-8780-4105-905c-43a1eb486481/members/48b8085f-defd-423b-96ca-0f634bcf07de/applications{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/organizations/d4e44648-8780-4105-905c-43a1eb486481/members/48b8085f-defd-423b-96ca-0f634bcf07de/applications{?filter}'
+                    templated: true
+                  limit:
+                    href: 'https://cloud.acquia.com/api/organizations/d4e44648-8780-4105-905c-43a1eb486481/members/48b8085f-defd-423b-96ca-0f634bcf07de/applications{?limit}'
+                    templated: true
+                  parent:
+                    href: 'https://cloud.acquia.com/api/organizations/d4e44648-8780-4105-905c-43a1eb486481/members/48b8085f-defd-423b-96ca-0f634bcf07de'
                 _embedded:
                   items:
                     - id: 241643
@@ -26690,7 +27463,7 @@ paths:
               examples:
                 Subscription updated:
                   value:
-                    example: Subscription updated.
+                    message: Subscription updated.
         '404':
           description: Not Found
           content:
@@ -26942,10 +27715,10 @@ paths:
                         type: acp
                         id: 'devcloud:devcloud2'
                       subscription:
-                        uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                         name: Sample subscription
                       organization:
-                        uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                         name: Sample organization
                       flags:
                         remote_admin: true
@@ -26961,10 +27734,10 @@ paths:
                         type: free
                         id: 'devcloud:devcloud2'
                       subscription:
-                        uuid: s47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: f47ac10b-58cc-4372-a567-0e02b2c3d470
                         name: Sample subscription
                       organization:
-                        uuid: g47ac10b-58cc-4372-a567-0e02b2c3d470
+                        uuid: 6a907396-abfd-4d01-9da6-64c8efc04519
                         name: Sample organization
                       flags:
                         remote_admin: false
@@ -28327,7 +29100,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Shield ACL updates in progress:
                   value:
@@ -28555,7 +29328,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Shield ACL updates in progress:
                   value:
@@ -28630,7 +29403,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: '#/components/schemas/ValidationError'
               examples:
                 Shield ACL updates in progress:
                   value:
@@ -29167,7 +29940,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Invites'
+                $ref: '#/components/schemas/TeamInvites'
               example:
                 total: 2
                 _links:
@@ -29219,7 +29992,7 @@ paths:
                     - applications:
                         - uuid: 88dc87db-1169-4908-9384-2328a7bd5cc1
                           name: Main Application
-                        - uuid: a234567-58cc-4372-a567-0e02b2c3d470
+                        - uuid: a2345672-58cc-4372-a567-0e02b2c3d470
                           name: Secondary Application
                       author:
                         uuid: 80363753-76dc-486c-b942-57ff9fc131ee
