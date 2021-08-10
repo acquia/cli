@@ -2519,24 +2519,32 @@ components:
           type: integer
           description: Limits PHP request memory usage in megabytes.
           default: 128
-          minimum: 30
-          maximum: 384
+          minimum: 128
+          maximum: 1024
         opcache:
           type: integer
           description: This is the total amount of memory available for caching precompiled script bytecode per PHP/FPM process.
           default: 96
+          minimum: 96
+          maximum: 512
         apcu:
           type: integer
           description: APCu shared memory size per web server.
-          default: 96
-          minimum: 15
-          maximum: 256
+          default: 32
+          minimum: 32
+          maximum: 512
         interned_strings_buffer:
           type: integer
           description: Sets PHP Opcache key count per server.
+          default: 8
+          minimum: 8
+          maximum: 32
         max_execution_time:
           type: integer
           description: Limits PHP request time in seconds.
+          default: 300
+          minimum: 1
+          maximum: 300
         max_post_size:
           type: integer
           description: Sets the PHP limit on POST body size.
@@ -2548,7 +2556,7 @@ components:
           description: Limits the number of various request items in PHP.
           default: 1000
           minimum: 500
-          maximum: 2500
+          maximum: 20000
         sendmail_path:
           type: string
           description: 'Sets the PHP sendmail_path, usually to manage the "From" address or disable mail.'
@@ -12752,6 +12760,7 @@ paths:
                       flags:
                         cde: false
                         cdn: false
+                        email: false
                         hsd: false
                         livedev: false
                         migration: false
@@ -12791,12 +12800,15 @@ paths:
                         site-update: prod.example.com/admin/gardens/site-update
                         multi-site: prod.example.com/admin/gardens/staging
                       active_domain: example.com
+                      default_domain: siteprod.hosted.acquia-sites.com
                       image_url: null
                       ssh_url: site.prod@siteprod.ssh.hosted.acquia-sites.com
                       ips:
                         - 10.0.1.1
                         - 10.0.1.2
                       region: us-east-1
+                      balancer: balancers
+                      platform: cloud
                       status: normal
                       type: drupal
                       size: null
@@ -12805,10 +12817,10 @@ paths:
                         type: git
                         path: tags/01-01-2015
                         url: 'site@svn-3.hosted.acquia-sites.com:site.git'
-                      insight: null
                       flags:
                         cde: false
                         cdn: false
+                        email: false
                         hsd: false
                         livedev: false
                         migration: false
@@ -12834,10 +12846,13 @@ paths:
                         - sitetest.hosted.acquia-sites.com
                         - test.example.com
                       active_domain: test.example.com
+                      default_domain: sitetest.hosted.acquia-sites.com
                       image_url: null
                       ssh_url: site.test@sitetest.ssh.hosted.acquia-sites.com
                       ips: []
                       region: us-east-1
+                      balancer: balancers
+                      platform: cloud
                       status: normal
                       type: node
                       size: medium
@@ -12846,13 +12861,10 @@ paths:
                         type: git
                         path: null
                         url: 'qa10@svn-3.networkdev.ahserversdev.com:qa10.git'
-                      insight:
-                        status: not-found
-                        scores: null
-                        counts: null
                       flags:
                         cde: false
                         cdn: false
+                        email: false
                         hsd: false
                         livedev: false
                         migration: false
