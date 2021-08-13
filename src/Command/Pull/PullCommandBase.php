@@ -989,7 +989,7 @@ abstract class PullCommandBase extends CommandBase {
     $messages = [
       "Using a database backup that is $hours_interval hours old. Backup #{$backup_response->id} was created at {$date_formatted}.",
       "You can view your backups here: {$web_link}",
-      "To generate a new backup, re-run this command with the --on-demand or --od option."
+      "To generate a new backup, re-run this command with the --on-demand option."
     ];
     if ($hours_interval > 24) {
       $this->io->warning($messages);

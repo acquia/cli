@@ -26,7 +26,7 @@ class PullDatabaseCommand extends PullCommandBase {
       ->acceptSite()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
-      ->addOption('on-demand', 'od', InputOption::VALUE_NONE,
+      ->addOption('on-demand', NULL, InputOption::VALUE_NONE,
         'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)')
       ->addOption('no-import', NULL, InputOption::VALUE_NONE,
       'Download the backup but do not import it (implies --no-scripts)')
