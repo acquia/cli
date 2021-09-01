@@ -1,5 +1,5 @@
 name: "Pull Request Labeler"
-on: [pull_request, push]
+on: [pull_request_target, push]
 jobs:
   triage:
     runs-on: ubuntu-latest
