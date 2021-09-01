@@ -28,18 +28,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
-  protected function mockExecutePvExists(
-        ObjectProphecy $local_machine_helper
-    ): void {
-    $local_machine_helper
-            ->commandExists('pv')
-            ->willReturn(TRUE)
-            ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   */
   protected function mockExecuteDrushExists(
     ObjectProphecy $local_machine_helper
   ): void {
