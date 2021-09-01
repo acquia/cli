@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
 use Symfony\Component\Console\Input\InputInterface;
@@ -48,6 +49,18 @@ class LocalMachineHelper {
     $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
     // phpcs:ignore
     return $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
+  }
+
+  /**
+   * @param array $binaries
+   * @throws AcquiaCliException
+   */
+  public function checkRequiredBinariesExist(array $binaries = []) {
+    foreach ($binaries as $binary) {
+      if (!$this->commandExists($binary)) {
+        throw new AcquiaCliException("The required binary `$binary` does not exist. Please install in and ensure in exists in a location listed in your system \$PATH");
+      }
+    }
   }
 
   /**

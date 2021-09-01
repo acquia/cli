@@ -60,6 +60,7 @@ class NewCommand extends CommandBase {
     }
 
     // We've deferred all installation until now.
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->localMachineHelper->execute([
       'composer',
       'update',
@@ -89,6 +90,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function requireDrush(string $dir): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->localMachineHelper->execute([
       'composer',
       'require',
@@ -105,6 +107,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',
@@ -127,6 +130,7 @@ class NewCommand extends CommandBase {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');
       return;
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'init',

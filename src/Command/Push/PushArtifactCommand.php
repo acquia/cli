@@ -130,6 +130,7 @@ class PushArtifactCommand extends PullCommandBase {
     $fs->remove($artifact_dir);
 
     $output_callback('out', "Initializing Git in $artifact_dir");
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, $this->output->isVerbose());
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);

@@ -479,6 +479,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function isLocalGitRepoDirty(): bool {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',
       'status',
@@ -493,6 +494,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   protected function getLocalGitCommitHash(): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',
       'rev-parse',
@@ -584,7 +586,7 @@ abstract class PullCommandBase extends CommandBase {
       $this->checklist->completePreviousItem();
     }
     else {
-      $this->logger->notice('No composer.json file found. Skipping composer install.');
+      $this->logger->notice('composer or composer.json file not found. Skipping composer install.');
     }
   }
 
@@ -607,6 +609,7 @@ abstract class PullCommandBase extends CommandBase {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
@@ -693,6 +696,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function cloneFromCloud(EnvironmentResponse $chosen_environment, \Closure $output_callback): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $command = [
       'git',
       'clone',
@@ -891,6 +895,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function composerInstall($output_callback): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $process = $this->localMachineHelper->execute([
       'composer',
       'install',
@@ -1010,6 +1015,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
     $filename = "acli-mysql-dump-{$db_name}.sql.gz";
     $local_temp_dir = sys_get_temp_dir();
     $local_filepath = $local_temp_dir . '/' . $filename;
