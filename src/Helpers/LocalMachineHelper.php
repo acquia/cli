@@ -60,6 +60,9 @@ class LocalMachineHelper {
       if (!$this->commandExists($binary)) {
         throw new AcquiaCliException("The required binary `$binary` does not exist. Please install in and ensure in exists in a location listed in your system \$PATH");
       }
+      else {
+        $installed_binaries['']
+      }
     }
   }
 

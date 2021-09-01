@@ -82,6 +82,7 @@ class PushFilesCommand extends PullCommandBase {
     else {
       $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
       '-rltDvPhe',

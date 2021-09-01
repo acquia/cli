@@ -212,6 +212,7 @@ abstract class PullCommandBase extends CommandBase {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     // @todo Validate that an Acquia remote is configured for this repository.
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'fetch',
@@ -227,6 +228,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param null $output_callback
    */
   protected function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'checkout',
@@ -382,6 +384,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Connecting to database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -409,6 +412,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Dropping database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -437,6 +441,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Creating new empty database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -467,6 +472,7 @@ abstract class PullCommandBase extends CommandBase {
       $output_callback('out', "Importing downloaded file to database $db_name");
     }
     $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
+    $this->localMachineHelper->checkRequiredBinariesExist(['pv', 'gunzip', 'mysql']);
     $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
@@ -1023,6 +1029,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'pv', 'gzip']);
     $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose());
     if (!$process->isSuccessful() || $process->getOutput()) {
