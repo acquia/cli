@@ -29,6 +29,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $file_system = $this->mockFileSystem($destination_dir);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+    $this->mockExecutePvExists($local_machine_helper);
     $this->mockExecuteDrushExists($local_machine_helper);
     $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectFixtureDir);
     $this->mockCreateMySqlDumpOnLocal($local_machine_helper);

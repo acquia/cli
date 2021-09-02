@@ -1026,11 +1026,18 @@ abstract class PullCommandBase extends CommandBase {
     $local_temp_dir = sys_get_temp_dir();
     $local_filepath = $local_temp_dir . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
     if ($output_callback) {
       $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
     }
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'pv', 'gzip']);
-    $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
+    if ($this->localMachineHelper->commandExists('pv')) {
+      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
+    }
+    else {
+      $this->io->warning('Please install `pv` to see progress bar');
+      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | gzip -9 > $local_filepath";
+    }
+
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose());
     if (!$process->isSuccessful() || $process->getOutput()) {
       throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);

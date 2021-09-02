@@ -39,6 +39,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     // Database.
+    $this->mockExecutePvExists($local_machine_helper);
     $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
     $this->mockUploadDatabaseDump($local_machine_helper, $process);
     $this->mockImportDatabaseDumpOnRemote($ssh_helper, $selected_environment, $process);
