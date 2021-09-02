@@ -193,6 +193,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -215,6 +216,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -238,6 +240,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
