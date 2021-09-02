@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\CloudApi;
 
+use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -18,20 +19,33 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
 class ClientService {
 
   private $connector;
+  private $application;
 
-  public function __construct(ConnectorFactory $connector_factory) {
+  public function __construct(ConnectorFactory $connector_factory, Application $application) {
     $this->setConnector($connector_factory->createConnector());
+    $this->setApplication($application);
   }
 
   public function setConnector(ConnectorInterface $connector): void {
     $this->connector = $connector;
   }
 
+  public function setApplication(Application $application): void {
+    $this->application = $application;
+  }
+
   /**
    * @return \AcquiaCloudApi\Connector\Client
    */
   public function getClient(): Client {
-    return Client::factory($this->connector);
+    $client = Client::factory($this->connector);
+    $user_agent = sprintf("acli/%s", $this->application->getVersion());
+    $client->addOption('headers', [
+      'User-Agent' => [$user_agent],
+      'Accept'     => 'application/json',
+    ]);
+
+    return $client;
   }
 
 }

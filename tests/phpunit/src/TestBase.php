@@ -535,10 +535,6 @@ abstract class TestBase extends TestCase {
   protected function getMockEnvironmentResponse($method = 'get', $http_code = '200') {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $http_code);
-    // These keys are missing from the Acquia spec (CXAPI-8435).
-    // @todo remove after the spec is fixed and updated.
-    $response->platform = 'cloud';
-    $response->balancer = 'balancers';
 
     return $response;
   }
@@ -550,12 +546,7 @@ abstract class TestBase extends TestCase {
   protected function getMockEnvironmentsResponse() {
     $environments_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'get', 200);
-    // These keys are missing from the Acquia spec (CXAPI-8435).
-    // @todo remove after the spec is fixed and updated.
-    foreach ($environments_response->_embedded->items as $item) {
-      $item->platform = 'cloud';
-      $item->balancer = 'balancers';
-    }
+
     return $environments_response;
   }
 

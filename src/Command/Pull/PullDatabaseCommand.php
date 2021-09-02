@@ -26,8 +26,10 @@ class PullDatabaseCommand extends PullCommandBase {
       ->acceptSite()
       ->addOption('no-scripts', NULL, InputOption::VALUE_NONE,
         'Do not run any additional scripts after the database is pulled. E.g., drush cache-rebuild, drush sql-sanitize, etc.')
-      ->addOption('on-demand', 'od', InputOption::VALUE_NONE,
+      ->addOption('on-demand', NULL, InputOption::VALUE_NONE,
         'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)')
+      ->addOption('no-import', NULL, InputOption::VALUE_NONE,
+      'Download the backup but do not import it (implies --no-scripts)')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
@@ -40,8 +42,13 @@ class PullDatabaseCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     parent::execute($input, $output);
-    $this->pullDatabase($input, $output);
-    if (!$input->getOption('no-scripts')) {
+    $no_scripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
+    $on_demand = $input->hasOption('on-demand') && $input->getOption('on-demand');
+    $no_import = $input->hasOption('no-import') && $input->getOption('no-import');
+    // $no_import implies $no_scripts.
+    $no_scripts = $no_import || $no_scripts;
+    $this->pullDatabase($input, $output, $on_demand, $no_import);
+    if (!$no_scripts) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
     }
 

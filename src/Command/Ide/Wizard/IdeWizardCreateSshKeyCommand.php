@@ -215,16 +215,16 @@ EOT
   protected function userHasUploadedIdeKeyToCloud(): bool {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-      foreach ($cloud_keys as $index => $cloud_key) {
-        if (
-          $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
-          // Assert that a corresponding local key exists.
-          && $this->localIdeSshKeyExists()
-          // Assert local public key contents match Cloud public key contents.
-          && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
-        ) {
-          return TRUE;
-        }
+    foreach ($cloud_keys as $index => $cloud_key) {
+      if (
+        $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
+        // Assert that a corresponding local key exists.
+        && $this->localIdeSshKeyExists()
+        // Assert local public key contents match Cloud public key contents.
+        && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
+      ) {
+        return TRUE;
+      }
     }
     return FALSE;
   }
@@ -296,7 +296,7 @@ EOT
    * @throws \Exception
    */
   protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
-     $return_code = $this->executeAcliCommand('ssh-key:create', [
+    $return_code = $this->executeAcliCommand('ssh-key:create', [
        '--filename' => $private_ssh_key_filename,
        '--password' => $password,
      ]);
