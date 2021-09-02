@@ -129,6 +129,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $environments_response,
     ObjectProphecy $process
   ): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
       '-rltDvPhe',

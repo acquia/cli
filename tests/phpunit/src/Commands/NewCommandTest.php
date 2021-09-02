@@ -58,6 +58,7 @@ class NewCommandTest extends CommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
     $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);

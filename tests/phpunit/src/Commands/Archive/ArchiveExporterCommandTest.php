@@ -29,11 +29,11 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $file_system = $this->mockFileSystem($destination_dir);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $this->mockExecutePvExists($local_machine_helper);
     $this->mockExecuteDrushExists($local_machine_helper);
     $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectFixtureDir);
     $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
+    $local_machine_helper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
     $local_machine_helper->execute(Argument::type('array'), Argument::type('callable'), NULL, TRUE)->willReturn($this->mockProcess())->shouldBeCalled();
 
     $finder = $this->mockFinder();

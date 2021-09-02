@@ -472,8 +472,15 @@ abstract class PullCommandBase extends CommandBase {
       $output_callback('out', "Importing downloaded file to database $db_name");
     }
     $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
-    $this->localMachineHelper->checkRequiredBinariesExist(['pv', 'gunzip', 'mysql']);
-    $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    $this->localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql']);
+    if ($this->localMachineHelper->commandExists('pv')) {
+      $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    }
+    else {
+      $this->io->warning('Please install `pv` to see progress bar');
+      $command = "gunzip $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    }
+
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);

@@ -53,6 +53,7 @@ class NewCommand extends CommandBase {
     }
 
     $output->writeln('<info>Creating project. This may take a few minutes</info>');
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->createProject($project, $dir);
 
     if (strpos($project, 'acquia/drupal-minimal-project') !== FALSE) {
@@ -60,7 +61,6 @@ class NewCommand extends CommandBase {
     }
 
     // We've deferred all installation until now.
-    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->localMachineHelper->execute([
       'composer',
       'update',
@@ -107,7 +107,6 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function createProject($project, string $dir): void {
-    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',

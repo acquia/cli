@@ -374,6 +374,7 @@ abstract class CommandTestBase extends TestBase {
    * @param ObjectProphecy $local_machine_helper
    */
   protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $local_machine_helper): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess(TRUE);
     $process->getOutput()->willReturn('');
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';

@@ -186,7 +186,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlConnect(
@@ -209,7 +209,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlDropDb(
@@ -233,7 +233,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlCreateDb(
@@ -257,13 +257,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql']);
     $process = $this->mockProcess($success);
     // MySQL import command.
     $local_machine_helper
@@ -274,7 +275,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
     $process = $this->mockProcess($success);
