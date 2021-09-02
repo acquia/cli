@@ -908,7 +908,6 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function composerInstall($output_callback): void {
-    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $process = $this->localMachineHelper->execute([
       'composer',
       'install',
