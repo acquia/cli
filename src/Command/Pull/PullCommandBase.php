@@ -265,15 +265,11 @@ abstract class PullCommandBase extends CommandBase {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', ['backup', $backup_response->completedAt, $database->name]) . '.sql.gz';
     $local_filepath = Path::join(sys_get_temp_dir(), $filename);
+    // These options tell curl to stream the file to disk rather than loading it into memory.
     $acquia_cloud_client->addOption('sink', $local_filepath);
     $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
-    // Careful mister!
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $database_backups->download($environment->uuid, $database->name, $backup_response->id);
-    $output_callback('out', 'mem2: ' . memory_get_peak_usage());
-    exit;
-    $this->localMachineHelper->writeFile($local_filepath, $backup_file);
-    exit;
     return $local_filepath;
   }
 
