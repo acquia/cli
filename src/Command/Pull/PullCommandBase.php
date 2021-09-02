@@ -282,9 +282,9 @@ abstract class PullCommandBase extends CommandBase {
     // These options tell curl to stream the file to disk rather than loading it into memory.
     $acquia_cloud_client->addOption('sink', $local_filepath);
     $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
-    /*    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
-    self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
-    });*/
+    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
+      self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
+    });
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $database_backups->download($environment->uuid, $database->name, $backup_response->id);
     return $local_filepath;

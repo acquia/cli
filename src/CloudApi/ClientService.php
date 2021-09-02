@@ -40,10 +40,11 @@ class ClientService {
   public function getClient(): Client {
     $client = Client::factory($this->connector);
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
-    $client->addOption('headers', [
+    // This breaks curl streaming to disk. Why??
+/*    $client->addOption('headers', [
       'User-Agent' => [$user_agent],
       'Accept'     => 'application/json',
-    ]);
+    ]);*/
 
     return $client;
   }
