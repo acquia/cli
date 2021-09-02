@@ -326,8 +326,6 @@ abstract class CommandTestBase extends TestBase {
    * @param $environments_response
    * @param $db_name
    * @param $backup_id
-   *
-   * @return \Prophecy\Prophecy\ObjectProphecy|ResponseInterface
    */
   protected function mockDownloadBackupResponse(
     $environments_response,
@@ -335,17 +333,8 @@ abstract class CommandTestBase extends TestBase {
     $backup_id
   ) {
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $stream->__toString()->willReturn('backupfilecontents');
-    $response = $this->prophet->prophesize(ResponseInterface::class);
-    $response->getBody()->willReturn($stream->reveal());
-    $response->getStatusCode()->willReturn(200);
-    $this->clientProphecy
-      ->makeRequest(
-        'get',
-        "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download",
-          Argument::type('array')
-      )
-      ->willReturn($response->reveal())
+    $this->clientProphecy->stream('get', "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download")
+      ->willReturn($stream->reveal())
       ->shouldBeCalled();
   }
 

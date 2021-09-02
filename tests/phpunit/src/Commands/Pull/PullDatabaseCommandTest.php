@@ -152,6 +152,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->mockDatabasesResponse($selected_environment);
     $this->mockDatabaseBackupsResponse($selected_environment, 'profserv2', 1);
     $this->mockDownloadBackupResponse($selected_environment, 'profserv2', 1);
+    $this->clientProphecy->addOption('sink', '/tmp/dev-profserv2-profserv201dev-something.sql.gz');
+    $this->clientProphecy->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => '/tmp/dev-profserv2-profserv201dev-something.sql.gz']);
+    $this->clientProphecy->addOption('progress', Argument::type('Closure'));
     $ssh_helper = $this->mockSshHelper();
     if ($mock_get_acsf_sites) {
       $this->mockGetAcsfSites($ssh_helper);
@@ -176,7 +179,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
 
     // Database.
-    $this->mockDownloadMySqlDump($local_machine_helper, $mysql_dl_successful);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $mysql_drop_successful);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
     $this->mockExecuteMySqlImport($local_machine_helper, $mysql_import_successful);
@@ -267,18 +269,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   */
-  protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
-    $process = $this->mockProcess($success);
-    $local_machine_helper->writeFile(
-      Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),
-      'backupfilecontents'
-    )
       ->shouldBeCalled();
   }
 
