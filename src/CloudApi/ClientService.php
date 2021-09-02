@@ -41,9 +41,9 @@ class ClientService {
     $client = Client::factory($this->connector);
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
     // This breaks curl streaming to disk. Why??
-/*    $client->addOption('headers', [
-      'User-Agent' => [$user_agent],
-      'Accept'     => 'application/json',
+    /*    $client->addOption('headers', [
+    'User-Agent' => [$user_agent],
+    'Accept'     => 'application/json',
     ]);*/
 
     return $client;
