@@ -382,6 +382,18 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   */
+  protected function mockExecutePvExists(
+        ObjectProphecy $local_machine_helper
+    ): void {
+    $local_machine_helper
+            ->commandExists('pv')
+            ->willReturn(TRUE)
+            ->shouldBeCalled();
+  }
+
+  /**
    * Mock guzzle requests for update checks so we don't actually hit Github.
    *
    * @param int $status_code
