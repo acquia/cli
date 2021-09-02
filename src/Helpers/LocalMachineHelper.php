@@ -48,7 +48,7 @@ class LocalMachineHelper {
    */
   public function commandExists($command): bool {
     if (array_key_exists($command, $this->installedBinaries)) {
-      return $this->installedBinaries[$command];
+      return (bool) $this->installedBinaries[$command];
     }
     $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
     // phpcs:ignore
