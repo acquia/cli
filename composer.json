@@ -44,7 +44,7 @@
         "symfony/validator": "^5.1",
         "symfony/yaml": "^5.1@dev",
         "typhonius/acquia-logstream": "^0.0.8",
-        "typhonius/acquia-php-sdk-v2": "dev-fix-185-leaky-db-download as 2.0.15",
+        "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.15",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
         "webmozart/json": "^1.2",
         "webmozart/key-value-store": "^1.0",
@@ -89,7 +89,10 @@
         "patches": {
             "symfony/filesystem": [
                 "symfony-fs-mirror.patch"
-            ]
+            ],
+            "typhonius/acquia-php-sdk-v2": {
+                "API memory usage": "https://patch-diff.githubusercontent.com/raw/typhonius/acquia-php-sdk-v2/pull/191.patch"
+            }
         },
         "patchLevel": {
             "symfony/filesystem": "-p5"
