@@ -48,6 +48,24 @@ abstract class PullCommandBase extends CommandBase {
   protected $drushHasActiveDatabaseConnection;
 
   /**
+   * @param $environment
+   * @param $database
+   * @param $backup_response
+   *
+   * @return string
+   */
+  public static function getBackupPath($environment, $database, $backup_response): string {
+    // Filename roughly matches what you'd get with a manual download from Cloud UI.
+    $filename = implode('-', [
+        $environment->name,
+        $database->name,
+        trim(parse_url($database->url, PHP_URL_PATH), '/'),
+        $backup_response->completedAt
+      ]) . '.sql.gz';
+    return Path::join(sys_get_temp_dir(), $filename);
+  }
+
+  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -270,9 +288,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Downloading backup {$backup_response->id}");
     }
-    // Filename roughly matches what you'd get with a manual download from Cloud UI.
-    $filename = implode('-', [$environment->name, $database->name, trim(parse_url($database->url, PHP_URL_PATH), '/'), $backup_response->completedAt]) . '.sql.gz';
-    $local_filepath = Path::join(sys_get_temp_dir(), $filename);
+    $local_filepath = self::getBackupPath($environment, $database, $backup_response);
     if ($this->output instanceof ConsoleOutput) {
       $output = $this->output->section();
     }
