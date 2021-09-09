@@ -89,7 +89,7 @@ class PushFilesCommand extends PullCommandBase {
       $source,
       $chosen_environment->sshUrl . ':' . $dest_dir,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files to Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }

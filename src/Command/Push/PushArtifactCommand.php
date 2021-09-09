@@ -130,14 +130,14 @@ class PushArtifactCommand extends PullCommandBase {
     $fs->remove($artifact_dir);
 
     $output_callback('out', "Initializing Git in $artifact_dir");
-    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, $this->output->isVerbose());
+    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
 
     $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
-    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], $output_callback, $artifact_dir, $this->output->isVerbose());
-    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
     $output_callback('out', 'Removing vendor directories');
@@ -167,7 +167,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
     $output_callback('out', 'Installing Composer production dependencies');
-    $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**
@@ -243,13 +243,13 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
-    $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
       // This will fatally error if the file doesn't exist. Suppress error output.
       $this->logger->debug("Forcibly adding $file");
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
     }
-    $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**
@@ -260,7 +260,7 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
-    $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
+    $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**

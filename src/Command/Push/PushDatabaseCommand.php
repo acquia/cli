@@ -94,7 +94,7 @@ class PushDatabaseCommand extends PullCommandBase {
       $local_filepath,
       $environment->sshUrl . ':' . $remote_filepath,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, $this->output->isVerbose(), NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not upload local database dump: {message}',
         ['message' => $process->getOutput()]);
@@ -113,7 +113,7 @@ class PushDatabaseCommand extends PullCommandBase {
   protected function importDatabaseDumpOnRemote($environment, $remote_dump_filepath, $database): void {
     $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
     $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
-    $process = $this->sshHelper->executeCommand($environment, [$command], $this->output->isVerbose(), NULL);
+    $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
     }
