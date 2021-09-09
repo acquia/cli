@@ -55,7 +55,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockSshAgent();
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockSshAgent($local_machine_helper);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     // Remove SSH key if it exists.
     $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
@@ -107,7 +109,9 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockSshAgent();
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockSshAgent($local_machine_helper);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $this->createLocalSshKey($mock_request_args['public_key']);
     try {
@@ -154,8 +158,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     return $ssh_helper;
   }
 
-  protected function mockSshAgent(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
+  protected function mockSshAgent($local_machine_helper): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -172,7 +175,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
     $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
 }
