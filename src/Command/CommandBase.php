@@ -995,6 +995,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function executeAcliCommand($command_name, $arguments = []): int {
     $command = $this->getApplication()->find($command_name);
+    // This is necessary for injecting mocked localMachineHelper to subcommands.
+    $command->localMachineHelper = $this->localMachineHelper;
     array_unshift($arguments, ['command' => $command_name]);
     $create_input = new ArrayInput($arguments);
 

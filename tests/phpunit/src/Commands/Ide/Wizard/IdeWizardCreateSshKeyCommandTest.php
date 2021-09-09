@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
+use PhpParser\Node\Arg;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
@@ -55,13 +56,16 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockSshAgent($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-
     // Remove SSH key if it exists.
     $ssh_key_filename = $this->command->getSshKeyFilename($this::$remote_ide_uuid);
     $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockSshAgent($local_machine_helper);
+    $this->mockSshKeygen($local_machine_helper);
+    $tmp_file = $this->fs->tempnam(sys_get_temp_dir(), 'acli_passphrase_test', '.pub');
+    $local_machine_helper->getLocalFilepath(Argument::type('string'))->willReturn($tmp_file);
+    $local_machine_helper->readFile($tmp_file)->willReturn('string');
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     // Set properties and execute.
     $this->executeCommand([], [
@@ -166,8 +170,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)
       ->shouldBeCalled()
       ->willReturn($process->reveal());
-    $local_machine_helper->getLocalFilepath('~/.passphrase')
-      ->willReturn('/tmp/.passphrase');
+    $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('/tmp/.passphrase');
     $local_machine_helper->getFilesystem()->willReturn($this->fs);
     $local_machine_helper->execute([
       'ssh-add',
@@ -175,6 +178,14 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
     $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
       ->shouldBeCalled();
+  }
+
+  protected function mockSshKeygen($local_machine_helper): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $process->getOutput()->willReturn(NULL);
+    $local_machine_helper->execute(Argument::containing('ssh-keygen'), NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
 }
