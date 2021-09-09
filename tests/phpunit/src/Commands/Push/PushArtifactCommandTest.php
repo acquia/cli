@@ -80,6 +80,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   protected function mockCloneShallow(ObjectProphecy $local_machine_helper, $vcs_path, $vcs_url, $artifact_dir): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
+    $local_machine_helper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
     $local_machine_helper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
@@ -101,6 +102,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param $artifact_dir
    */
   protected function mockComposerInstall(ObjectProphecy $local_machine_helper, $artifact_dir): void {
+    $local_machine_helper->checkRequiredBinariesExist(['composer'])->shouldBeCalled();
     $process = $this->prophet->prophesize(Process::class);
     $local_machine_helper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();

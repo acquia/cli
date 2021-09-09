@@ -29,6 +29,7 @@ class SshCommandTest extends SshCommandTestBase {
   public function testRemoteAliasesDownloadCommand(): void {
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
+    $local_machine_helper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
     $ssh_command = [
       'ssh',
       'site.dev@sitedev.ssh.hosted.acquia-sites.com',

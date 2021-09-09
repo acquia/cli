@@ -51,7 +51,7 @@ class DrushCommandTest extends SshCommandTestBase {
   public function testRemoteDrushCommand($args): void {
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
-
+    $local_machine_helper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
     $ssh_command = [
       'ssh',
       'site.dev@sitedev.ssh.hosted.acquia-sites.com',

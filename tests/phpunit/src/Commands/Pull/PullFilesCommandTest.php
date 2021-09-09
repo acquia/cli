@@ -129,7 +129,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $environments_response,
     ObjectProphecy $process
   ): void {
-    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
+    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
       '-rltDvPhe',
@@ -152,6 +152,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     ObjectProphecy $process,
     $environment
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $command = [
       'rsync',
