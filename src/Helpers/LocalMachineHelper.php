@@ -50,9 +50,10 @@ class LocalMachineHelper {
     if (array_key_exists($command, $this->installedBinaries)) {
       return (bool) $this->installedBinaries[$command];
     }
-    $os_command = OsInfo::isWindows() ? ['where', $command] : ['command -v', $command];
+    $os_command = OsInfo::isWindows() ? ['where', $command] : ['command', '-v', $command];
     // phpcs:ignore
-    $exists = $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
+    $process = $this->execute($os_command, NULL, NULL, FALSE);
+    $exists = $process->isSuccessful();
     $this->installedBinaries[$command] = $exists;
     return $exists;
   }
