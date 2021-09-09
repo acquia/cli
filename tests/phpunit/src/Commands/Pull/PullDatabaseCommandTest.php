@@ -264,7 +264,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql']);
+    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
     $this->mockExecutePvExists($local_machine_helper);
     $process = $this->mockProcess($success);
     // MySQL import command.
