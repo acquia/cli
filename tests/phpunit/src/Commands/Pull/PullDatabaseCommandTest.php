@@ -191,13 +191,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlConnect(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -213,13 +214,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlDropDb(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -236,13 +238,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlCreateDb(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -259,19 +262,33 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
+    $this->mockExecutePvExists($local_machine_helper);
     $process = $this->mockProcess($success);
     // MySQL import command.
     $local_machine_helper
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  /**
+   * @param ObjectProphecy $local_machine_helper
+   */
+  protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
+    $process = $this->mockProcess($success);
+    $local_machine_helper->writeFile(
+      Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),
+      'backupfilecontents'
+    )
       ->shouldBeCalled();
   }
 

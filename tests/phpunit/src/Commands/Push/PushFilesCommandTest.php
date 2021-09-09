@@ -110,6 +110,7 @@ class PushFilesCommandTest extends CommandTestBase {
     ObjectProphecy $process,
     $environment
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $command = [
       'rsync',
@@ -131,6 +132,7 @@ class PushFilesCommandTest extends CommandTestBase {
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
       '-rltDvPhe',

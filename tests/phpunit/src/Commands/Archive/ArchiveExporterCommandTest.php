@@ -33,6 +33,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $this->mockExecuteDrushExists($local_machine_helper);
     $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectFixtureDir);
     $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
+    $local_machine_helper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
     $local_machine_helper->execute(Argument::type('array'), Argument::type('callable'), NULL, TRUE)->willReturn($this->mockProcess())->shouldBeCalled();
 
     $finder = $this->mockFinder();

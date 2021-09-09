@@ -197,7 +197,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * Create a mock LocalMachineHelper.
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @return ObjectProphecy|LocalMachineHelper
    */
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
@@ -209,9 +209,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @return ObjectProphecy
    */
-  protected function mockSshHelper(): \Prophecy\Prophecy\ObjectProphecy {
+  protected function mockSshHelper(): ObjectProphecy {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
     $ssh_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     return $ssh_helper;
@@ -274,7 +274,7 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param bool $success
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @return ObjectProphecy
    */
   protected function mockProcess($success = TRUE): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
@@ -331,6 +331,8 @@ abstract class CommandTestBase extends TestBase {
    * @param $environments_response
    * @param $db_name
    * @param $backup_id
+   *
+   * @return ObjectProphecy|ResponseInterface
    */
   protected function mockDownloadBackupResponse(
     $environments_response,
@@ -365,9 +367,10 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $local_machine_helper): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess(TRUE);
     $process->getOutput()->willReturn('');
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
@@ -376,7 +379,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockExecutePvExists(
         ObjectProphecy $local_machine_helper
@@ -393,7 +396,7 @@ abstract class CommandTestBase extends TestBase {
    * @param int $status_code
    */
   protected function setUpdateClient($status_code = 200): void {
-    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
+    /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
     $guzzle_response->getBody()->willReturn();
     $guzzle_response->getStatusCode()->willReturn($status_code);

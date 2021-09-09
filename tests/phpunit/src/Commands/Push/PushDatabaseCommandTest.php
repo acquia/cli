@@ -84,6 +84,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
       '-tDvPhe',

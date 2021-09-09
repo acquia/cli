@@ -130,6 +130,7 @@ class PushArtifactCommand extends PullCommandBase {
     $fs->remove($artifact_dir);
 
     $output_callback('out', "Initializing Git in $artifact_dir");
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, $this->output->isVerbose());
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
@@ -166,6 +167,7 @@ class PushArtifactCommand extends PullCommandBase {
     $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $output_callback('out', 'Installing Composer production dependencies');
     $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
@@ -243,6 +245,7 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, $this->output->isVerbose());
     foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
       // This will fatally error if the file doesn't exist. Suppress error output.
@@ -260,6 +263,7 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, $this->output->isVerbose());
   }
 
