@@ -91,6 +91,10 @@ class ApiCommandBase extends CommandBase {
     }
 
     $path = $this->getRequestPath($input);
+    $acquia_cloud_client->addOption('headers', [
+      'Accept' => 'application/json',
+    ]);
+
     try {
       if ($this->output->isVeryVerbose()) {
         $acquia_cloud_client->addOption('debug', $this->output);

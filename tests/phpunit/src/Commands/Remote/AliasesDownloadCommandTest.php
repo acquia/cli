@@ -4,11 +4,11 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\AliasesDownloadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use GuzzleHttp\Psr7\Utils;
 use Phar;
 use PharData;
 use Symfony\Component\Console\Command\Command;
 use Webmozart\PathUtil\Path;
-use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * Class AliasesDownloadCommandTest.
@@ -48,12 +48,12 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $archive_fixture->buildFromDirectory($drush_aliases_fixture);
     $archive_fixture->compress(Phar::GZ);
 
-    $stream = stream_for(file_get_contents($drush_aliases_tarball_fixture_filepath . '.tar.gz'));
+    $stream = Utils::streamFor(file_get_contents($drush_aliases_tarball_fixture_filepath . '.tar.gz'));
     $this->clientProphecy->addQuery('version', $alias_version);
-    $this->clientProphecy->request('get', '/account/drush-aliases/download')->willReturn($stream);
+    $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
     $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
-    if ($alias_version == 9) {
+    if ($alias_version === 9) {
       $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
     }
     $this->command->setDrushAliasesDir($drush_aliases_dir);
