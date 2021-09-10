@@ -6,6 +6,9 @@ on:
     - cron: "0 2 * * *"
 defaults:
   run:
+    # Run Git Bash on Windows. Otherwise it uses PowerShell Core and we'd need
+    # to install more dependencies. Ubuntu default shell is already Bash.
+    # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash
 jobs:
   test:
@@ -18,11 +21,13 @@ jobs:
         php: [ "7.3", "7.4", "8.0"]
         coverage: [ none ]
         include:
+          # Add a Coveralls job to the build matrix.
           - os: ubuntu-latest
             php: "8.0"
             coverage: xdebug
     steps:
       - name: Prepare Git
+        # Windows corrupts line endings on checkout, causing test failures.
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
@@ -31,9 +36,8 @@ jobs:
           coverage: ${{ matrix.coverage }}
       - name: Check dependencies on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          # Tests for the SSH key commands rely on ssh-agent running.
-          eval "$(ssh-agent -s)"
+        # Tests for the SSH key commands rely on ssh-agent running.
+        run: eval "$(ssh-agent -s)"
       - name: Run tests
         run: |
           composer validate --no-check-all --ansi
