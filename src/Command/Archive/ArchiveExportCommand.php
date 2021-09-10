@@ -188,7 +188,7 @@ class ArchiveExportCommand extends PullCommandBase {
     $destination_filename = basename($archive_dir) . '.tar.gz';
     $destination_filepath = Path::join([$destination_dir, $destination_filename]);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);
-    $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destination_filepath, '--directory', $archive_dir, '.'], $output_callback, NULL, $this->output->isVerbose());
+    $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destination_filepath, '--directory', $archive_dir, '.'], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to create tarball: {message}', ['message' => $process->getErrorOutput()]);
     }
