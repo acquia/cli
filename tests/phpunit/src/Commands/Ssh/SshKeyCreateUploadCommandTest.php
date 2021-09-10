@@ -10,6 +10,7 @@ use Acquia\Cli\Command\Ssh\SshKeyCreateUploadCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class SshKeyCreateUploadCommandTest
@@ -42,7 +43,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    */
   public function testCreateUpload(): void {
     $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = $this->sshDir . '/' . $ssh_key_filename;
+    $ssh_key_filepath = Path::join($this->sshDir, $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
 
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
