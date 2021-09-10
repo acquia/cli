@@ -149,16 +149,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
-    $this->mockDatabasesResponse($selected_environment);
-    $this->mockDatabaseBackupsResponse($selected_environment, 'profserv2', 1);
-    $this->mockDownloadBackupResponse($selected_environment, 'profserv2', 1);
+    $databases_response = $this->mockDatabasesResponse($selected_environment);
+    $selected_database = $databases_response[array_search('profserv2', array_column($databases_response, 'name'))];
+    $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
+    $selected_backup = $database_backups_response->_embedded->items[0];
+    $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
+    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
+    $this->clientProphecy->addOption('sink', $local_filepath);
+    $this->clientProphecy->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
+    $this->clientProphecy->addOption('progress', Argument::type('Closure'));
     $ssh_helper = $this->mockSshHelper();
     if ($mock_get_acsf_sites) {
       $this->mockGetAcsfSites($ssh_helper);
     }
 
     if ($on_demand) {
-      $this->mockDatabaseBackupCreateResponse($selected_environment, 'profserv2');
+      $this->mockDatabaseBackupCreateResponse($selected_environment, $selected_database->name);
       // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
       $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     }
@@ -176,7 +182,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
 
     // Database.
-    $this->mockDownloadMySqlDump($local_machine_helper, $mysql_dl_successful);
     $this->mockExecuteMySqlDropDb($local_machine_helper, $mysql_drop_successful);
     $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
     $this->mockExecuteMySqlImport($local_machine_helper, $mysql_import_successful);
@@ -186,13 +191,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlConnect(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -208,13 +214,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlDropDb(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -231,13 +238,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlCreateDb(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
       ->execute([
@@ -254,13 +262,15 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    * @param $success
    */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
     $success
   ): void {
+    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
+    $this->mockExecutePvExists($local_machine_helper);
     $process = $this->mockProcess($success);
     // MySQL import command.
     $local_machine_helper
@@ -271,7 +281,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
     $process = $this->mockProcess($success);

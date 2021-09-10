@@ -53,6 +53,7 @@ class NewCommand extends CommandBase {
     }
 
     $output->writeln('<info>Creating project. This may take a few minutes</info>');
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->createProject($project, $dir);
 
     if (strpos($project, 'acquia/drupal-minimal-project') !== FALSE) {
@@ -89,6 +90,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function requireDrush(string $dir): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->localMachineHelper->execute([
       'composer',
       'require',
@@ -127,6 +129,7 @@ class NewCommand extends CommandBase {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');
       return;
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'init',

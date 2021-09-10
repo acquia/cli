@@ -46,6 +46,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $process = $this->mockProcess();
     $dir = Path::join($this->fixtureDir, 'empty-dir');
     $this->fs->mkdir([$dir]);
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $this->mockExecuteGitClone($local_machine_helper, $selected_environment, $process, $dir);
     $this->mockExecuteGitCheckout($local_machine_helper, $selected_environment->vcs->path, $dir, $process);
     $local_machine_helper->getFinder()->willReturn(new Finder());
@@ -77,6 +78,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -189,6 +191,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -237,6 +240,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();

@@ -202,7 +202,7 @@ abstract class TestBase extends TestCase {
     $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
-    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN', 'Accept' => 'application/json']);
+    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
@@ -246,6 +246,11 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * Returns a mock response from acquia-spec.yaml.
+   *
+   * This assumes you want a JSON or HTML response. If you want something less
+   * common (i.e. an octet-stream for file downloads), don't use this method.
+   *
    * @param $path
    * @param $method
    * @param $http_code

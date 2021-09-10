@@ -48,6 +48,24 @@ abstract class PullCommandBase extends CommandBase {
   protected $drushHasActiveDatabaseConnection;
 
   /**
+   * @param $environment
+   * @param $database
+   * @param $backup_response
+   *
+   * @return string
+   */
+  public static function getBackupPath($environment, $database, $backup_response): string {
+    // Filename roughly matches what you'd get with a manual download from Cloud UI.
+    $filename = implode('-', [
+        $environment->name,
+        $database->name,
+        trim(parse_url($database->url, PHP_URL_PATH), '/'),
+        $backup_response->completedAt
+      ]) . '.sql.gz';
+    return Path::join(sys_get_temp_dir(), $filename);
+  }
+
+  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -212,6 +230,7 @@ abstract class PullCommandBase extends CommandBase {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     // @todo Validate that an Acquia remote is configured for this repository.
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'fetch',
@@ -227,6 +246,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param null $output_callback
    */
   protected function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
       'checkout',
@@ -270,30 +290,21 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Downloading backup {$backup_response->id}");
     }
-    // Filename roughly matches what you'd get with a manual download from Cloud UI.
-    $filename = implode('-', [$environment->name, $database->name, trim(parse_url($database->url, PHP_URL_PATH), '/'), $backup_response->completedAt]) . '.sql.gz';
-    $local_filepath = Path::join(sys_get_temp_dir(), $filename);
+    $local_filepath = self::getBackupPath($environment, $database, $backup_response);
     if ($this->output instanceof ConsoleOutput) {
       $output = $this->output->section();
     }
     else {
       $output = $this->output;
     }
-    $options = [
-      'progress' => static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
-        self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
-      },
-    ];
-    $url = parse_url($backup_response->links->download->href, PHP_URL_PATH);
-    $url = str_replace('/api', '', $url);
-    $response = $acquia_cloud_client->makeRequest('get', $url, $options);
-    if ($response->getStatusCode() !== 200) {
-      throw new AcquiaCliException("Unable to download database copy from {$url}. {$response->getStatusCode()}: {$response->getReasonPhrase()}");
-    }
-    // Get the response body as a stream to avoid ludicrous memory usage.
-    $backup_file = $response->getBody();
-    $this->localMachineHelper->writeFile($local_filepath, $backup_file);
-
+    // These options tell curl to stream the file to disk rather than loading it into memory.
+    $acquia_cloud_client->addOption('sink', $local_filepath);
+    $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
+    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
+      self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
+    });
+    $database_backups = new DatabaseBackups($acquia_cloud_client);
+    $database_backups->download($environment->uuid, $database->name, $backup_response->id);
     return $local_filepath;
   }
 
@@ -382,6 +393,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Connecting to database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -409,6 +421,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Dropping database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -437,6 +450,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Creating new empty database $db_name");
     }
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysql']);
     $command = [
       'mysql',
       '--host',
@@ -467,7 +481,15 @@ abstract class PullCommandBase extends CommandBase {
       $output_callback('out', "Importing downloaded file to database $db_name");
     }
     $this->logger->debug("Importing $local_dump_filepath to MySQL on local machine");
-    $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    $this->localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql']);
+    if ($this->localMachineHelper->commandExists('pv')) {
+      $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    }
+    else {
+      $this->io->warning('Please install `pv` to see progress bar');
+      $command = "gunzip $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
+    }
+
     $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
@@ -479,6 +501,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function isLocalGitRepoDirty(): bool {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',
       'status',
@@ -493,6 +516,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   protected function getLocalGitCommitHash(): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',
       'rev-parse',
@@ -584,7 +608,7 @@ abstract class PullCommandBase extends CommandBase {
       $this->checklist->completePreviousItem();
     }
     else {
-      $this->logger->notice('No composer.json file found. Skipping composer install.');
+      $this->logger->notice('composer or composer.json file not found. Skipping composer install.');
     }
   }
 
@@ -607,6 +631,7 @@ abstract class PullCommandBase extends CommandBase {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
@@ -693,6 +718,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function cloneFromCloud(EnvironmentResponse $chosen_environment, \Closure $output_callback): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $command = [
       'git',
       'clone',
@@ -1010,10 +1036,12 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
     $filename = "acli-mysql-dump-{$db_name}.sql.gz";
     $local_temp_dir = sys_get_temp_dir();
     $local_filepath = $local_temp_dir . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
     if ($output_callback) {
       $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
     }

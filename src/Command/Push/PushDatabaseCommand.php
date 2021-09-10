@@ -87,6 +87,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $sitegroup = self::getSiteGroupFromSshUrl($environment->sshUrl);
     $remote_filepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($local_filepath);
     $this->logger->debug("Uploading database dump to $remote_filepath on remote machine");
+    $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
       '-tDvPhe',
