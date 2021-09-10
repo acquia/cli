@@ -20,10 +20,13 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: ${{ matrix.coverage }}
-      - name: Tests
+      - name: Ubuntu pre-install
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           # Tests for the SSH key commands rely on ssh-agent running.
           eval "$(ssh-agent -s)"
+      - name: Tests
+        run: |
           composer self-update --preview
           composer validate --no-check-all --ansi
           composer install --prefer-dist --no-interaction --optimize-autoloader
