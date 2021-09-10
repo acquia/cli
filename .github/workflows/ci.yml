@@ -20,18 +20,20 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: ${{ matrix.coverage }}
-      - name: Ubuntu pre-install
+      - name: Check dependencies on Ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
         run: |
           # Tests for the SSH key commands rely on ssh-agent running.
           eval "$(ssh-agent -s)"
-      - name: Tests
+      - name: Run tests
         run: |
           composer validate --no-check-all --ansi
           composer install --prefer-dist --no-interaction --optimize-autoloader
           composer test
-      - name: Coveralls
+      - name: Upload coverage results to Coveralls
         if: ${{ matrix.coverage == 'xdebug' }}
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: composer coveralls
   build-release:
     needs: test
