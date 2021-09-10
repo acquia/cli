@@ -27,7 +27,6 @@ jobs:
           eval "$(ssh-agent -s)"
       - name: Tests
         run: |
-          composer self-update --preview
           composer validate --no-check-all --ansi
           composer install --prefer-dist --no-interaction --optimize-autoloader
           composer test
@@ -44,7 +43,6 @@ jobs:
           coverage: none
       - name: Build
         run: |
-          composer self-update --preview
           composer install --no-dev --optimize-autoloader
           composer box-install
           # Generate .env.local.php
