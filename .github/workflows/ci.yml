@@ -1,0 +1,57 @@
+name: CI
+on: [ push, pull_request]
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    env:
+      ACLI_PRINT_COMMAND_OUTPUT: 1
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        php: [ "7.3", "7.4", "8.0"]
+        coverage: [ none ]
+        include:
+          - os: ubuntu-latest
+            php: "8.0"
+            coverage: xdebug
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: ${{ matrix.coverage }}
+      - name: Tests
+        run: |
+          # Tests for the SSH key commands rely on ssh-agent running.
+          eval "$(ssh-agent -s)"
+          composer self-update --preview
+          composer validate --no-check-all --ansi
+          composer install --prefer-dist --no-interaction --optimize-autoloader
+          composer test
+      - name: Coveralls
+        if: ${{ matrix.coverage == 'xdebug' }}
+        run: composer coveralls
+  build-release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+      - name: Build
+        run: |
+          composer self-update --preview
+          composer install --no-dev --optimize-autoloader
+          composer box-install
+          # Generate .env.local.php
+          composer dump-env prod
+          # Warm the symfony cache so it gets bundled with phar.
+          ./bin/acli
+          composer box-compile
+          echo "$(curl -s --upload-file build/acli.phar https://transfer.sh/acli.phar)"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/acli.phar
