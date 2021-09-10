@@ -252,7 +252,9 @@ class LocalMachineHelper {
    * @return string
    */
   private function fixFilename($filename): string {
-    return str_replace('~', self::getHomeDir(), $filename);
+    // '~' is only an alias for $HOME if it's at the start of the path.
+    // On Windows, '~' (not as an alias) can appear other places in the path.
+    return preg_replace('/^~/', self::getHomeDir(), $filename);
   }
 
   /**
