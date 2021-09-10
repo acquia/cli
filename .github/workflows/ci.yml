@@ -4,6 +4,9 @@ on:
   pull_request:
   schedule:
     - cron: "0 2 * * *"
+defaults:
+  run:
+    shell: bash
 jobs:
   test:
     runs-on: ${{ matrix.os }}
