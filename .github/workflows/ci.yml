@@ -15,6 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       ACLI_PRINT_COMMAND_OUTPUT: 1
+      COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.0') && 'xdebug' || 'none' }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -24,12 +25,11 @@ jobs:
         # Windows corrupts line endings on checkout, causing test failures.
         run: git config --global core.autocrlf false
       - uses: actions/checkout@v2
-      - id: setup-php
-        uses: shivammathur/setup-php@v2
+      - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           # Only report coverage once
-          coverage: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.0') && 'xdebug' || 'none' }}
+          coverage: ${{ env.COVERAGE }}
       - name: Check dependencies on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         # Tests for the SSH key commands rely on ssh-agent running.
@@ -40,7 +40,7 @@ jobs:
           composer install --prefer-dist --no-interaction --optimize-autoloader
           composer test
       - name: Upload coverage results to Coveralls
-        if: steps.setup-php.outputs.coverage == 'xdebug'
+        if: env.COVERAGE == 'xdebug'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: composer coveralls
