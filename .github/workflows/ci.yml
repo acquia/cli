@@ -1,0 +1,69 @@
+name: CI
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 2 * * *"
+defaults:
+  run:
+    # Run Git Bash on Windows. Otherwise it uses PowerShell Core and we'd need
+    # to install more dependencies. Ubuntu default shell is already Bash.
+    # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
+    shell: bash
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    env:
+      ACLI_PRINT_COMMAND_OUTPUT: 1
+      COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.0') && 'xdebug' || 'none' }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+        php: [ "7.3", "7.4", "8.0"]
+    steps:
+      - name: Prepare Git
+        # Windows corrupts line endings on checkout, causing test failures.
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          # Only report coverage once
+          coverage: ${{ env.COVERAGE }}
+      - name: Check dependencies on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        # Tests for the SSH key commands rely on ssh-agent running.
+        run: eval "$(ssh-agent -s)"
+      - name: Run tests
+        run: |
+          composer validate --no-check-all --ansi
+          composer install --prefer-dist --no-interaction --optimize-autoloader
+          composer test
+      - name: Upload coverage results to Coveralls
+        if: env.COVERAGE == 'xdebug'
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: composer coveralls
+  build-release:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: shivammathur/setup-php@v2
+        with:
+          coverage: none
+      - name: Build
+        run: |
+          composer install --no-dev --optimize-autoloader
+          composer box-install
+          # Generate .env.local.php
+          composer dump-env prod
+          # Warm the symfony cache so it gets bundled with phar.
+          ./bin/acli
+          composer box-compile
+          echo "$(curl -s --upload-file build/acli.phar https://transfer.sh/acli.phar)"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/acli.phar
