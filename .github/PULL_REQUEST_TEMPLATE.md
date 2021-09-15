@@ -12,7 +12,7 @@ Fixes #NNN
 <!-- How can we replicate the issue and verify that this PR fixes it? -->
 
 1. Follow the [contribution guide](https://github.com/acquia/cli/blob/master/CONTRIBUTING.md#building-and-testing) to set up your development environment.
-2. Clear the kernel cache to pick up new and changed commands: `acli ckc`
+2. Clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
 3. (add specific steps for this pr)
 
 **Merge requirements**
