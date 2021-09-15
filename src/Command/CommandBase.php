@@ -211,6 +211,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->repoRoot = $repoRoot;
   }
 
+  /**
+   * @return string
+   */
+  public function getRepoRoot(): string {
+    return $this->repoRoot;
+  }
+
   protected function setLocalDbUser(): void {
     $this->localDbUser = 'drupal';
     if ($lando_info = self::getLandoInfo()) {

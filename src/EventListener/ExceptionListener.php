@@ -2,13 +2,17 @@
 
 namespace Acquia\Cli\EventListener;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
+use Symfony\Component\Console\Event\ConsoleTerminateEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\PathUtil\Path;
 
 class ExceptionListener {
 
@@ -133,6 +137,28 @@ class ExceptionListener {
       }
       // This command may not exist during some testing.
     } catch (CommandNotFoundException $exception) {
+    }
+  }
+
+  /**
+   * When a console command terminates, execute a corresponding script from a local composer.json.
+   */
+  public function onConsoleTerminate(ConsoleTerminateEvent $event): void {
+    /** @var CommandBase $command */
+    $command = $event->getCommand();
+    if (is_a($command, CommandBase::class)) {
+      $composer_json_filepath = Path::join($command->getRepoRoot(), 'composer.json');
+      if (file_exists($composer_json_filepath)) {
+        $composer_json = json_decode($command->localMachineHelper->readFile($composer_json_filepath), TRUE);
+        if ($composer_json) {
+          $command_name = $command->getName();
+          $script_name = 'post-acli-' . $command_name;
+          $event->getOutput()->writeln("Executing $script_name from $composer_json_filepath if it exists", OutputInterface::VERBOSITY_VERBOSE);
+          if (array_key_exists('scripts', $composer_json) && array_key_exists($script_name, $composer_json['scripts'])) {
+            $command->localMachineHelper->execute(['composer', 'run-script', $script_name]);
+          }
+        }
+      }
     }
   }
 
