@@ -146,6 +146,9 @@ class ExceptionListener {
   public function onConsoleTerminate(ConsoleTerminateEvent $event): void {
     /** @var CommandBase $command */
     $command = $event->getCommand();
+    if ($event->getInput()->hasOption('no-script') && $event->getInput()->getOption('no-scripts')) {
+      return;
+    }
     if (is_a($command, CommandBase::class)) {
       $composer_json_filepath = Path::join($command->getRepoRoot(), 'composer.json');
       if (file_exists($composer_json_filepath)) {
@@ -153,9 +156,12 @@ class ExceptionListener {
         if ($composer_json) {
           $command_name = $command->getName();
           $script_name = 'post-acli-' . $command_name;
-          $event->getOutput()->writeln("Executing $script_name from $composer_json_filepath if it exists", OutputInterface::VERBOSITY_VERBOSE);
           if (array_key_exists('scripts', $composer_json) && array_key_exists($script_name, $composer_json['scripts'])) {
+            $event->getOutput()->writeln("Executing composer script `$script_name` defined in `$composer_json_filepath`", OutputInterface::VERBOSITY_VERBOSE);
             $command->localMachineHelper->execute(['composer', 'run-script', $script_name]);
+          }
+          else {
+            $event->getOutput()->writeln("Composer script `$script_name` does not exist in `$composer_json_filepath`, skipping.", OutputInterface::VERBOSITY_VERBOSE);
           }
         }
       }
