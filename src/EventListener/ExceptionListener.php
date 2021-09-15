@@ -158,6 +158,7 @@ class ExceptionListener {
           $script_name = 'post-acli-' . $command_name;
           if (array_key_exists('scripts', $composer_json) && array_key_exists($script_name, $composer_json['scripts'])) {
             $event->getOutput()->writeln("Executing composer script `$script_name` defined in `$composer_json_filepath`", OutputInterface::VERBOSITY_VERBOSE);
+            $event->getOutput()->writeln($script_name);
             $command->localMachineHelper->execute(['composer', 'run-script', $script_name]);
           }
           else {

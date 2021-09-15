@@ -4,8 +4,10 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
+use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -45,6 +47,15 @@ class ExceptionApplicationTest extends TestBase {
     $input = new ArrayInput($args);
     $input->setInteractive(FALSE);
     $this->kernel->getContainer()->set(InputInterface::class, $input);
+  }
+
+  public function testPostScripts(): void {
+    $this->mockAccountRequest();
+    $this->setInput([
+          'command' => 'hello-world',
+      ]);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('post-acli-hello-world', $buffer);
   }
 
   public function testInvalidApiCreds(): void {
@@ -115,8 +126,10 @@ class ExceptionApplicationTest extends TestBase {
    * @return string
    */
   protected function runApp(): string {
+    putenv("ACLI_REPO_ROOT=" . $this->projectFixtureDir);
     $input = $this->kernel->getContainer()->get(InputInterface::class);
     $output = $this->kernel->getContainer()->get(OutputInterface::class);
+    /** @var Application $application */
     $application = $this->kernel->getContainer()->get(Application::class);
     $application->setAutoExit(FALSE);
     // Set column width to prevent wrapping and string assertion failures.
