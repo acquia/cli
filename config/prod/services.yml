@@ -46,6 +46,10 @@ services:
     tags:
       # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.error, method: onConsoleError}
+
+  Acquia\Cli\EventListener\TerminateListener:
+    tags:
+      # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate}
 
   # We have multiple datastores using the same class, just different arguments.
