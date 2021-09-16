@@ -49,6 +49,15 @@ class ExceptionApplicationTest extends TestBase {
     $this->kernel->getContainer()->set(InputInterface::class, $input);
   }
 
+  public function testPreScripts(): void {
+    $this->mockAccountRequest();
+    $this->setInput([
+          'command' => 'hello-world',
+      ]);
+    $buffer = $this->runApp();
+    self::assertStringContainsString('pre-acli-hello-world', $buffer);
+  }
+
   public function testPostScripts(): void {
     $this->mockAccountRequest();
     $this->setInput([

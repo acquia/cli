@@ -47,10 +47,11 @@ services:
       # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.error, method: onConsoleError}
 
-  Acquia\Cli\EventListener\TerminateListener:
+  Acquia\Cli\EventListener\ComposerScriptsListener:
     tags:
       # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate}
+      - { name: kernel.event_listener, event: console.command, method: onConsoleCommand}
 
   # We have multiple datastores using the same class, just different arguments.
   datastore.cloud:
