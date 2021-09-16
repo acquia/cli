@@ -26,12 +26,15 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testPullDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
-      '--no-scripts' => TRUE,
+    '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();

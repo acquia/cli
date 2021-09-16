@@ -3,7 +3,6 @@
 namespace Acquia\Cli\EventListener;
 
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;

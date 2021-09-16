@@ -15,6 +15,7 @@ use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\KeyValueStore\JsonFileStore;
 
@@ -38,7 +39,7 @@ class ApiCommandHelper {
   protected $formatter;
 
   /**
-   * @var \Acquia\Cli\Helpers\TelemetryHelper
+   * @var TelemetryHelper
    */
   protected $telemetryHelper;
 
@@ -53,12 +54,12 @@ class ApiCommandHelper {
   protected $datastoreCloud;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var JsonFileStore
    */
   protected $datastoreAcli;
 
   /**
-   * @var \Acquia\Cli\CloudApi\CloudCredentials
+   * @var CloudCredentials
    */
   protected $cloudCredentials;
 
@@ -75,17 +76,17 @@ class ApiCommandHelper {
   protected $repoRoot;
 
   /**
-   * @var \Acquia\Cli\CloudApi\ClientService
+   * @var ClientService
    */
   protected $cloudApiClientService;
 
   /**
-   * @var \AcquiaLogstream\LogstreamManager
+   * @var LogstreamManager
    */
   protected $logstreamManager;
 
   /**
-   * @var \Acquia\Cli\Helpers\SshHelper
+   * @var SshHelper
    */
   public $sshHelper;
 
@@ -95,20 +96,26 @@ class ApiCommandHelper {
   protected $sshDir;
 
   /**
+   * @var ConsoleLogger
+   */
+  private $logger;
+
+  /**
    * CommandBase constructor.
    *
    * @param string $cloudConfigFilepath
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
-   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
-   * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
+   * @param LocalMachineHelper $localMachineHelper
+   * @param JsonFileStore $datastoreCloud
+   * @param YamlStore $datastoreAcli
+   * @param CloudCredentials $cloudCredentials
+   * @param TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
-   * @param \AcquiaLogstream\LogstreamManager $logstreamManager
-   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
+   * @param ClientService $cloudApiClientService
+   * @param LogstreamManager $logstreamManager
+   * @param SshHelper $sshHelper
    * @param string $sshDir
+   * @param ConsoleLogger $logger
    */
   public function __construct(
     string $cloudConfigFilepath,
@@ -122,7 +129,8 @@ class ApiCommandHelper {
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
-    string $sshDir
+    string $sshDir,
+    ConsoleLogger $logger
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
@@ -136,6 +144,7 @@ class ApiCommandHelper {
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
+    $this->logger = $logger;
   }
 
   /**
@@ -498,7 +507,8 @@ class ApiCommandHelper {
           $this->cloudApiClientService,
           $this->logstreamManager,
           $this->sshHelper,
-          $this->sshDir
+          $this->sshDir,
+          $this->logger
         );
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
@@ -665,12 +675,21 @@ class ApiCommandHelper {
       }
       $namespace = $command_name_parts[1];
       if (!array_key_exists($namespace, $api_list_commands)) {
-        $command = new ApiListCommandBase($this->cloudConfigFilepath,
-          $this->localMachineHelper, $this->datastoreCloud,
-          $this->datastoreAcli, $this->cloudCredentials, $this->telemetryHelper,
-          $this->acliConfigFilepath, $this->repoRoot,
-          $this->cloudApiClientService, $this->logstreamManager,
-          $this->sshHelper, $this->sshDir);
+        $command = new ApiListCommandBase(
+            $this->cloudConfigFilepath,
+            $this->localMachineHelper,
+            $this->datastoreCloud,
+            $this->datastoreAcli,
+            $this->cloudCredentials,
+            $this->telemetryHelper,
+            $this->acliConfigFilepath,
+            $this->repoRoot,
+            $this->cloudApiClientService,
+            $this->logstreamManager,
+            $this->sshHelper,
+            $this->sshDir,
+            $this->logger
+        );
         $name = 'api:' . $namespace;
         $command->setName($name);
         $command->setNamespace($name);

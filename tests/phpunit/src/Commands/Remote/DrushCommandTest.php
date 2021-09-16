@@ -68,7 +68,7 @@ class DrushCommandTest extends SshCommandTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal());
+    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal(), $this->logger);
     $this->executeCommand($args);
 
     // Assert.

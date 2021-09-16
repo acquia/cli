@@ -1,4 +1,12 @@
 {
+  "scripts":{
+    "pre-acli-hello-world": [
+      "echo \"good morning world\""
+    ],
+    "post-acli-hello-world": [
+      "echo \"goodbye world\""
+    ]
+  },
   "extra": {
     "drupal-scaffold": {
       "locations": {

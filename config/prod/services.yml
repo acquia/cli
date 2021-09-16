@@ -47,6 +47,12 @@ services:
       # @see Symfony\Component\Console\ConsoleEvents
       - { name: kernel.event_listener, event: console.error, method: onConsoleError}
 
+  Acquia\Cli\EventListener\ComposerScriptsListener:
+    tags:
+      # @see Symfony\Component\Console\ConsoleEvents
+      - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate}
+      - { name: kernel.event_listener, event: console.command, method: onConsoleCommand}
+
   # We have multiple datastores using the same class, just different arguments.
   datastore.cloud:
     class: Webmozart\KeyValueStore\JsonFileStore
@@ -90,6 +96,9 @@ services:
   Symfony\Component\Console\Output\OutputInterface:
     alias: Symfony\Component\Console\Output\ConsoleOutput
   Symfony\Component\EventDispatcher\EventDispatcher: ~
+  Symfony\Component\Console\Logger\ConsoleLogger: ~
+  Psr\Log\LoggerInterface:
+    alias: Symfony\Component\Console\Logger\ConsoleLogger
 
   # Amplitude service.
   Zumba\Amplitude\Amplitude: ~
