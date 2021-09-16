@@ -364,7 +364,8 @@ class ApiCommandTest extends CommandTestBase {
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
-      $this->sshDir
+      $this->sshDir,
+      $this->logger
     );
     $api_commands = $api_command_helper->getApiCommands();
     foreach ($api_commands as $api_command) {

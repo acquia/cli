@@ -27,6 +27,7 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param OutputInterface $output
    * @param LocalMachineHelper $localMachineHelper
+   * @param LoggerInterface $logger
    */
   public function __construct(
       OutputInterface $output,
@@ -35,7 +36,7 @@ class SshHelper implements LoggerAwareInterface {
   ) {
     $this->output = $output;
     $this->localMachineHelper = $localMachineHelper;
-    $this->setLogger($logger);;
+    $this->setLogger($logger);
   }
 
   /**
