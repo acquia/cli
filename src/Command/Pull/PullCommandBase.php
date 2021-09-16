@@ -48,12 +48,17 @@ abstract class PullCommandBase extends CommandBase {
   protected $drushHasActiveDatabaseConnection;
 
   /**
-   * @param $environment
-   * @param $database
-   * @param $backup_response
-   *
-   * @return string
+   * @var string
    */
+  private $site;
+
+  /**
+ * @param $environment
+ * @param $database
+ * @param $backup_response
+ *
+ * @return string
+ */
   public static function getBackupPath($environment, $database, $backup_response): string {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', [
@@ -134,7 +139,8 @@ abstract class PullCommandBase extends CommandBase {
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
+    $site = $this->determineSite($source_environment, $input);
+    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $site);
 
     if ($on_demand) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
@@ -170,7 +176,8 @@ abstract class PullCommandBase extends CommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
-    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $input->getArgument('site'));
+    $site= $this->determineSite($source_environment, $input);
+    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $site);
     $this->checklist->completePreviousItem();
   }
 
@@ -613,23 +620,45 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param $environment
+   * @return mixed
+   * @throws AcquiaCliException
+   */
+  protected function determineSite($environment, InputInterface $input) {
+    if (isset($this->site)) {
+      return $this->site;
+    }
+    if ($input->hasArgument('site') && $input->getArgument('site')) {
+      return $input->getArgument('site');
+    }
+    if ($this->isAcsfEnv($environment)) {
+      $site = $this->promptChooseAcsfSite($environment);
+    }
+    else {
+      $site = $this->promptChooseCloudSite($environment);
+    }
+
+    $this->site = $site;
+
+    return $site;
+  }
+
+  /**
    * @param $chosen_environment
    * @param \Closure|null $output_callback
    * @param string|null $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesFromCloud($chosen_environment, \Closure $output_callback = NULL, string $site = NULL): void {
+  protected function rsyncFilesFromCloud($chosen_environment, \Closure $output_callback = NULL, string $site): void {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
-
     if ($this->isAcsfEnv($chosen_environment)) {
-      $site = $site ?: $this->promptChooseAcsfSite($chosen_environment);
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $site = $site ?: $this->promptChooseCloudSite($chosen_environment);
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
+    $this->site = $site;
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
