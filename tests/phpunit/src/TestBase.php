@@ -313,7 +313,7 @@ abstract class TestBase extends TestCase {
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir,
-        $this->logger
+      $this->logger
     );
   }
 

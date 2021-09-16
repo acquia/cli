@@ -201,7 +201,6 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockLocalMachineHelper(): ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
 
@@ -213,7 +212,6 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockSshHelper(): ObjectProphecy {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    $ssh_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     return $ssh_helper;
   }
 

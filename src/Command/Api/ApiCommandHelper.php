@@ -677,16 +677,16 @@ class ApiCommandHelper {
       if (!array_key_exists($namespace, $api_list_commands)) {
         $command = new ApiListCommandBase(
             $this->cloudConfigFilepath,
-          $this->localMachineHelper,
+            $this->localMachineHelper,
             $this->datastoreCloud,
-          $this->datastoreAcli,
+            $this->datastoreAcli,
             $this->cloudCredentials,
             $this->telemetryHelper,
-          $this->acliConfigFilepath,
+            $this->acliConfigFilepath,
             $this->repoRoot,
-          $this->cloudApiClientService,
+            $this->cloudApiClientService,
             $this->logstreamManager,
-          $this->sshHelper,
+            $this->sshHelper,
             $this->sshDir,
             $this->logger
         );
