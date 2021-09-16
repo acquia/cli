@@ -20,6 +20,8 @@ use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Dotenv\Dotenv;
 use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\Filesystem\Filesystem;
@@ -58,7 +60,6 @@ if ($_SERVER['APP_DEBUG']) {
 if (!getenv('HOME')) {
     putenv('HOME=' . LocalMachineHelper::getHomeDir());
 }
-
 $kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
 
 // Handle a clear-kernel-cache pseudo command. This isn't implemented as a true console
@@ -78,10 +79,12 @@ $container = $kernel->getContainer();
 putenv("ACLI_REPO_ROOT=" . LocalMachineHelper::getProjectRoot());
 /** @var Application $application */
 $application = $container->get(Application::class);
+/** @var OutputInterface $output */
+$output = $container->get(OutputInterface::class);
 $application->setName('Acquia CLI');
 $application->setVersion('@package_version@');
-/** @var \Acquia\Cli\Command\Api\ApiCommandHelper $helper */
+/** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
-$application->run();
+$application->run($input, $output);

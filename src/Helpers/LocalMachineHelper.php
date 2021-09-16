@@ -5,6 +5,7 @@ namespace Acquia\Cli\Helpers;
 use Acquia\Cli\Exception\AcquiaCliException;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -28,12 +29,17 @@ class LocalMachineHelper {
   private $installedBinaries = [];
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param InputInterface $input
+   * @param OutputInterface $output
    */
-  public function __construct(InputInterface $input, OutputInterface $output) {
+  public function __construct(
+      InputInterface $input,
+      OutputInterface $output,
+      LoggerInterface $logger
+  ) {
     $this->input = $input;
     $this->output = $output;
+    $this->setLogger($logger);
   }
 
   /**

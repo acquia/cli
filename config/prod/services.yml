@@ -96,6 +96,9 @@ services:
   Symfony\Component\Console\Output\OutputInterface:
     alias: Symfony\Component\Console\Output\ConsoleOutput
   Symfony\Component\EventDispatcher\EventDispatcher: ~
+  Symfony\Component\Console\Logger\ConsoleLogger: ~
+  Psr\Log\LoggerInterface:
+    alias: Symfony\Component\Console\Logger\ConsoleLogger
 
   # Amplitude service.
   Zumba\Amplitude\Amplitude: ~

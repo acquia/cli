@@ -14,23 +14,28 @@ class SshHelper implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
-  /** @var \Symfony\Component\Console\Output\OutputInterface */
+  /** @var OutputInterface */
   private $output;
 
   /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
+   * @var LocalMachineHelper
    */
   private $localMachineHelper;
 
   /**
    * SshHelper constructor.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
+   * @param OutputInterface $output
+   * @param LocalMachineHelper $localMachineHelper
    */
-  public function __construct(OutputInterface $output, LocalMachineHelper $localMachineHelper) {
+  public function __construct(
+      OutputInterface $output,
+      LocalMachineHelper $localMachineHelper,
+      LoggerInterface $logger
+  ) {
     $this->output = $output;
     $this->localMachineHelper = $localMachineHelper;
+    $this->setLogger($logger);;
   }
 
   /**
