@@ -35,7 +35,6 @@ abstract class SshCommandTestBase extends CommandTestBase {
     $process->getExitCode()->willReturn(0);
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE)->shouldBeCalled();
-    $local_machine_helper->setLogger(Argument::type(ConsoleLogger::class))->shouldBeCalled();
     return [$process, $local_machine_helper];
   }
 
