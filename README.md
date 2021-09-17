@@ -57,6 +57,20 @@ $ acli ssh myapp.dev
 $ acli drush myapp.dev cache-rebuild
 ```
 
+### Hook into ACLI commands
+
+You may define scripts that will automatically run before and/or after any ACLI command. To do so, add a script to your root composer.json file following the naming pattern `(pre|post)-acli-(command name with dashes)`. E.g., `pre-acli-push-db` or `post-acli-pull-files`. The script must be named correctly in order to be executed. See examples below:
+```
+"scripts": {
+        "pre-acli-pull-db": [
+            "echo \"I'm pulling the database now!\""
+        ],
+        "post-acli-pull-db": [
+            "echo \"I'm done pulling the database!\""
+        ],
+    }
+```
+
 ## Similar tools
 Several tools compliment or duplicate Acquia CLI functionality. Acquia CLI can safely be used with any of these tools, although some functionality may be duplicated.
 - [Acquia BLT](https://github.com/acquia/blt): Provides an automation framework for setting up and managing Drupal applications. Acquia BLT is installed in a Drupal application and provides support for just that application, while Acquia CLI should be installed globally and allows you to interact with any Acquia service. Acquia CLI is not an automation framework like Acquia BLT.
