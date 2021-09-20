@@ -5,7 +5,7 @@
 3. Ensure that release notes are accurate and issues are correctly labeled.
 4. Ensure that release has been approved by maintainers and any other required stakeholders.
 5. Validate that testing has passed on the commit to be released.
-6. In the GitHub UI, publish the release. This will trigger a GitHub actions build that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
+6. In the GitHub UI, publish the release. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
 
 
 ## If the build fails...
