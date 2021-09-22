@@ -27,7 +27,11 @@ use Doctrine\Common\Cache\FilesystemCache;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Storage\FlysystemStorage;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
+use Kevinrob\GuzzleCache\Strategy\PublicCacheStrategy;
+use League\Flysystem\Local\LocalFilesystemAdapter;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -1257,16 +1261,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getUpdateClient(): \GuzzleHttp\Client {
     if (!isset($this->updateClient)) {
-      $stack = HandlerStack::create();
-      $stack->push(new CacheMiddleware(
-        new PrivateCacheStrategy(
-          new DoctrineCacheStorage(
-            new FilesystemCache(sys_get_temp_dir())
-          )
-        )
-      ),
-        'cache');
-      $client = new \GuzzleHttp\Client(['handler' => $stack]);
+      // Cloud API does not send any cache headers, so we won't add any
+      // cache middleware to Guzzle. It wouldn't do anything.
+      $client = new \GuzzleHttp\Client();
       $this->setUpdateClient($client);
     }
     return $this->updateClient;

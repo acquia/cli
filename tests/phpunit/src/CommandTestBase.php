@@ -329,7 +329,7 @@ abstract class CommandTestBase extends TestBase {
    * @param $db_name
    * @param $backup_id
    *
-   * @return ObjectProphecy|ResponseInterface
+   * @return void
    */
   protected function mockDownloadBackupResponse(
     $environments_response,
