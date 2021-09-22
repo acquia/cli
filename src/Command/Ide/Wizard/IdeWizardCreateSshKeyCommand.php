@@ -6,11 +6,10 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -256,7 +255,7 @@ EOT
     OutputInterface $output
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.

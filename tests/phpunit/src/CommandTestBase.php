@@ -10,7 +10,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\Output;

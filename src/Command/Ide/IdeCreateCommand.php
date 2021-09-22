@@ -11,13 +11,10 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
 use Exception;
 use GuzzleHttp\Client;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
@@ -116,7 +113,7 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
 
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be ready. This can take up to 15 minutes...', $this->output);
 
     $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {

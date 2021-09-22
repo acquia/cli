@@ -6,7 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use AcquiaCloudApi\Connector\Client;
 use Closure;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -171,7 +171,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     string $public_key
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for SSH key to become available on the Cloud Platform...', $output);
 
     // Poll Cloud every 5 seconds.

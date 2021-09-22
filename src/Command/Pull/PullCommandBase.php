@@ -13,7 +13,7 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -357,7 +357,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param $acquia_cloud_client
    */
   protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
     $notifications = new Notifications($acquia_cloud_client);
 
