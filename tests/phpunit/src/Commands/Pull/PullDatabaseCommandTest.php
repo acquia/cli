@@ -43,9 +43,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a database', $output);
+    $this->assertStringContainsString('Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-    $this->assertStringContainsString('profserv2 (default)', $output);
   }
 
   public function testPullDatabasesOnDemand(): void {
@@ -63,9 +62,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-    $this->assertStringContainsString('Choose a database', $output);
+    $this->assertStringContainsString('Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:', $output);
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
-    $this->assertStringContainsString('profserv2 (default)', $output);
   }
 
   public function testPullDatabasesSiteArgument(): void {
@@ -73,7 +71,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $inputs = $this->getInputs();
 
     $this->executeCommand([
-      'site' => 'default',
+      'site' => 'jxr5000596dev',
       '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
@@ -153,7 +151,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
     $databases_response = $this->mockDatabasesResponse($selected_environment);
-    $selected_database = $databases_response[array_search('profserv2', array_column($databases_response, 'name'))];
+    $selected_database = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'))];
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
     $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
