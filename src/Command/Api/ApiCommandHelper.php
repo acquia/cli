@@ -4,7 +4,6 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
-use Acquia\Cli\Command\ListCommand;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;

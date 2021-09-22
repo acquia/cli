@@ -4,8 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Argument;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Process\Process;
 
 /**

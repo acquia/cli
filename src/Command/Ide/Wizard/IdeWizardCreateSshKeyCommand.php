@@ -147,7 +147,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function addSshKeyToAgent($filepath, $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+    $temp_filepath = $this->localMachineHelper->getFilesystem()
+      ->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
@@ -211,7 +212,8 @@ EOT
   }
 
   /**
-   * Assert whether ANY local key exists that has a corresponding key on the Cloud Platform.
+   * Assert whether ANY local key exists that has a corresponding key on the
+   * Cloud Platform.
    *
    * @return bool
    * @throws \Exception
@@ -250,7 +252,8 @@ EOT
   }
 
   /**
-   * Polls the Cloud Platform until a successful SSH request is made to the dev environment.
+   * Polls the Cloud Platform until a successful SSH request is made to the dev
+   * environment.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -279,8 +282,7 @@ EOT
         else {
           $this->logger->debug($process->getOutput() . $process->getErrorOutput());
         }
-      }
-      catch (AcquiaCliException $exception) {
+      } catch (AcquiaCliException $exception) {
         // Do nothing. Keep waiting and looping and logging.
         $this->logger->debug($exception->getMessage());
       }
@@ -301,9 +303,9 @@ EOT
    */
   protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
     $return_code = $this->executeAcliCommand('ssh-key:create', [
-       '--filename' => $private_ssh_key_filename,
-       '--password' => $password,
-     ]);
+      '--filename' => $private_ssh_key_filename,
+      '--password' => $password,
+    ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }

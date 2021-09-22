@@ -4,11 +4,8 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IdeCommandBase.

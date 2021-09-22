@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\NewCommand;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;

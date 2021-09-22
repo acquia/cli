@@ -9,6 +9,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
+use Closure;
 use Exception;
 use GuzzleHttp\Client;
 use React\EventLoop\Loop;
@@ -69,7 +70,7 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->validateIdeLabel($ide_label);
     }
     else {
-      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, \Closure::fromCallable([$this, 'validateIdeLabel']));
+      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, Closure::fromCallable([$this, 'validateIdeLabel']));
     }
 
     // Create it.

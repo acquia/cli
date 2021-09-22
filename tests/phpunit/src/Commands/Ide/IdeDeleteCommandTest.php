@@ -3,11 +3,9 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeDeleteCommand;
-use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\IdeResponse;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**

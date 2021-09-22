@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeServiceRestartCommand;
+use Exception;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -49,7 +50,7 @@ class IdeServiceRestartCommandTest extends IdeRequiredTestBase {
     try {
       $this->executeCommand(['service' => 'rambulator'], []);
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->assertStringContainsString('Please specify a valid service name', $exception->getMessage());
     }
   }

@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

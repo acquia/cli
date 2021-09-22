@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\Push\PushArtifactCommand;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
-use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;

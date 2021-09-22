@@ -13,7 +13,10 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Closure;
+use Exception;
 use React\EventLoop\Loop;
+use stdClass;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -342,7 +345,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param \stdClass $database
    * @param $acquia_cloud_client
    */
-  protected function createBackup(EnvironmentResponse $environment, \stdClass $database, $acquia_cloud_client): void {
+  protected function createBackup(EnvironmentResponse $environment, stdClass $database, $acquia_cloud_client): void {
     $backups = new DatabaseBackups($acquia_cloud_client);
     $response = $backups->create($environment->uuid, $database->name);
     $url_parts = explode('/', $response->links->notification->href);
@@ -370,7 +373,7 @@ abstract class PullCommandBase extends CommandBase {
           $this->output->writeln('');
           $this->output->writeln('<info>Database backup is ready!</info>');
         }
-      } catch (\Exception $e) {
+      } catch (Exception $e) {
         $this->logger->debug($e->getMessage());
       }
     });
@@ -619,7 +622,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesFromCloud($chosen_environment, \Closure $output_callback = NULL, string $site = NULL): void {
+  protected function rsyncFilesFromCloud($chosen_environment, Closure $output_callback = NULL, string $site = NULL): void {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
     if ($this->isAcsfEnv($chosen_environment)) {
@@ -656,7 +659,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment, $site = NULL): \stdClass {
+  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment, $site = NULL): stdClass {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
@@ -717,7 +720,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function cloneFromCloud(EnvironmentResponse $chosen_environment, \Closure $output_callback): void {
+  protected function cloneFromCloud(EnvironmentResponse $chosen_environment, Closure $output_callback): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $command = [
       'git',
@@ -835,7 +838,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return \Closure
    */
-  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): \Closure {
+  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
     return static function ($type, $buffer) use ($checklist, $output) {
       if (!$output->isVerbose() && $checklist->getItems()) {
         $checklist->updateProgressBar($buffer);
@@ -851,7 +854,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function executeAllScripts($input, \Closure $output_callback): void {
+  protected function executeAllScripts($input, Closure $output_callback): void {
     $this->setDirAndRequireProjectCwd($input);
     $this->runComposerScripts($output_callback);
     $this->runDrushCacheClear($output_callback);
@@ -863,7 +866,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function runDrushCacheClear(\Closure $output_callback): void {
+  protected function runDrushCacheClear(Closure $output_callback): void {
     if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
       $this->checklist->addItem('Clearing Drupal caches via Drush');
       // @todo Add support for Drush 8.
@@ -889,7 +892,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function runDrushSqlSanitize(\Closure $output_callback): void {
+  protected function runDrushSqlSanitize(Closure $output_callback): void {
     if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
       $this->checklist->addItem('Sanitizing database via Drush');
       $process = $this->localMachineHelper->execute([

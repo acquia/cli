@@ -4,12 +4,11 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class IdePhpVersionCommandTest.
@@ -89,7 +88,7 @@ class IdePhpVersionCommandTest extends IdeRequiredTestBase {
         'version' => $version,
       ], []);
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->assertEquals($exception_class, get_class($exception));
     }
   }

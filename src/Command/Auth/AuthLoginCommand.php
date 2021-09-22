@@ -4,7 +4,7 @@ namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Connector\Connector;
+use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -94,7 +94,7 @@ class AuthLoginCommand extends CommandBase {
       $this->validateApiKey($api_key);
     }
     else {
-      $api_key = $this->io->ask('Please enter your API Key', NULL, \Closure::fromCallable([$this, 'validateApiKey']));
+      $api_key = $this->io->ask('Please enter your API Key', NULL, Closure::fromCallable([$this, 'validateApiKey']));
     }
 
     return $api_key;
@@ -133,7 +133,7 @@ class AuthLoginCommand extends CommandBase {
       $question = new Question('Please enter your API Secret (input will be hidden)');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setHiddenFallback(TRUE);
-      $question->setValidator(\Closure::fromCallable([$this, 'validateApiKey']));
+      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
       $api_secret = $this->io->askQuestion($question);
     }
 

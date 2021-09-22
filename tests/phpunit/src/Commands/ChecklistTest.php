@@ -6,7 +6,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
-use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;

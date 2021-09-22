@@ -3,7 +3,6 @@
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
-use Acquia\Cli\CloudApi\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 

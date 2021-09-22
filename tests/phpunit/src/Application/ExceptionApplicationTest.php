@@ -4,10 +4,8 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
