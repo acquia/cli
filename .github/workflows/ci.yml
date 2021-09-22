@@ -47,6 +47,8 @@ jobs:
   build-release:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
