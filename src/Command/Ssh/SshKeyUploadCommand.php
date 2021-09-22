@@ -147,7 +147,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
    * @param string $chosen_local_key
    *
-   * @return false|string
+   * @return string
    * @throws \Exception
    */
   protected function getLocalSshKeyContents($local_keys, string $chosen_local_key) {

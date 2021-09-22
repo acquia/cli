@@ -103,7 +103,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Gets $this->xDebugEnabled.
    *
-   * @return mixed
+   * @return bool|null
    *   $this->xDebugEnabled.
    */
   protected function getXDebugStatus() {

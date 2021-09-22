@@ -221,9 +221,9 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $chosen_environment
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    *
-   * @param callable $output_callback
+   * @param null $output_callback
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -245,8 +245,9 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * Checks out the matching branch from a source environment.
    *
-   * @param $environment
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param null $output_callback
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
@@ -274,14 +275,13 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $environment
+* @param $environment
    * @param $database
-   * @param $backup_response
+   * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param callable|null $output_callback
    *
    * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function downloadDatabaseDump(
     $environment,
@@ -715,10 +715,10 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $chosen_environment
+* @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    * @param \Closure $output_callback
    *
-   * @throws \Exception
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function cloneFromCloud(EnvironmentResponse $chosen_environment, Closure $output_callback): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
@@ -737,10 +737,9 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
+* @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $acquia_cloud_client
-   *
+   * @param bool $allow_production
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
    * @throws \Exception
    */

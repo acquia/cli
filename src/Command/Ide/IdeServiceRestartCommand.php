@@ -69,7 +69,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
   /**
    * @param string $service
    *
-   * @return mixed
+   * @return string
    */
   protected function validateService($service) {
     $violations = Validation::createValidator()->validate($service, [

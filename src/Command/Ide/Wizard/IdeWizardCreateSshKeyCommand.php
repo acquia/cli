@@ -39,7 +39,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
-   * @return int|void
+   * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
@@ -313,11 +313,10 @@ EOT
   }
 
   /**
-   * @param $ide
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
    * @param string $public_ssh_key_filepath
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
     $return_code = $this->executeAcliCommand('ssh-key:upload', [

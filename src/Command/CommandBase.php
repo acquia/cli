@@ -471,7 +471,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
    *
-   * @param $input
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
@@ -870,7 +870,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $uuid
    *
-   * @return mixed
+   * @return string
    */
   public static function validateUuid($uuid) {
     $violations = Validation::createValidator()->validate($uuid, [

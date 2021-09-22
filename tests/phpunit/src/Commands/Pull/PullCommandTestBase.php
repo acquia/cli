@@ -167,9 +167,9 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param $failed
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $cwd
+   * @param $commit_hash
    */
   protected function mockGetLocalCommitHash(
     ObjectProphecy $local_machine_helper,

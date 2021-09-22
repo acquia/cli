@@ -103,7 +103,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @param string $version
    *
-   * @return mixed
+   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validatePhpVersion($version) {

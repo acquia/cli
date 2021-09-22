@@ -71,7 +71,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param $cwd
    * @param $vcs_path
    * @param $vcs_url
    * @param $artifact_dir
