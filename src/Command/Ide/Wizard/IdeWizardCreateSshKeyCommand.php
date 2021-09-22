@@ -22,6 +22,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
   /**
+   * @var \Acquia\Cli\Output\Checklist
+   */
+  private $checklist;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
