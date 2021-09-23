@@ -53,11 +53,11 @@ Be sure to validate and test your code locally using the provided Composer test 
 
 ### Building acli.phar
 
-To test changes in production mode, build and run acli.phar using this process. You can verify that the "Build PHAR" stage of .travis.yml follows a similar process.
+To test changes in production mode, build and run `acli.phar` using this process. The _build-release_ stage of [`.github/workflows/ci.yml`](.github/workflows/ci.yml) follows a similar process.
 
 1. Install Composer production dependencies: `composer install --no-dev --optimize-autoloader`
-1. Clear and rebuild your Symfony cache: `./bin/acli ckc && ./bin/acli`
-1. Install Box and dump env vars (only need to do this once): `composer box-install && composer dump-env prod`
+1. Clear and rebuild your Symfony caches: `./bin/acli ckc && ./bin/acli cc`
+1. Install Box (only need to do this once): `composer box-install`
 1. Compile phar: `composer box-compile`
 
 ### Testing changes to consolidation/self-update
