@@ -23,9 +23,11 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use Composer\Semver\VersionParser;
-use Doctrine\Common\Cache\FilesystemCache;
 use Exception;
-use League\Flysystem\Local\LocalFilesystemAdapter;
+use GuzzleHttp\HandlerStack;
+use Kevinrob\GuzzleCache\CacheMiddleware;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
+use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -481,11 +483,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Prompts the user to choose from a list of available Cloud Platform applications.
+   * Prompts the user to choose from a list of available Cloud Platform
+   * applications.
    *
    * @param Client $acquia_cloud_client
    *
    * @return null|object|array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptChooseApplication(
     Client $acquia_cloud_client
@@ -1256,9 +1260,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function getUpdateClient(): \GuzzleHttp\Client {
     if (!isset($this->updateClient)) {
-      // Cloud API does not send any cache headers, so we won't add any
-      // cache middleware to Guzzle. It wouldn't do anything.
-      $client = new \GuzzleHttp\Client();
+      $stack = HandlerStack::create();
+      $stack->push(new CacheMiddleware(
+        new PrivateCacheStrategy(
+          new Psr6CacheStorage(
+            new FilesystemAdapter('acli')
+          )
+        )
+      ),
+        'cache');
+      $client = new \GuzzleHttp\Client(['handler' => $stack]);
       $this->setUpdateClient($client);
     }
     return $this->updateClient;
@@ -1284,6 +1295,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param InputInterface $input
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
