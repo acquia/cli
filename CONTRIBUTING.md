@@ -57,7 +57,7 @@ To test changes in production mode, build and run `acli.phar` using this process
 
 1. Install Composer production dependencies: `composer install --no-dev --optimize-autoloader`
 1. Clear and rebuild your Symfony caches: `./bin/acli ckc && ./bin/acli cc`
-1. Install Box and dump env vars (only need to do this once): `composer box-install && composer dump-env prod`
+1. Install Box (only need to do this once): `composer box-install`
 1. Compile phar: `composer box-compile`
 
 ### Testing changes to consolidation/self-update

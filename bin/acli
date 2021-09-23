@@ -20,10 +20,7 @@ use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
-use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Dotenv\Dotenv;
-use Symfony\Component\ErrorHandler\Debug;
 use Symfony\Component\Filesystem\Filesystem;
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
@@ -38,29 +35,12 @@ $loader = require dirname(__DIR__).'/vendor/autoload.php';
 $loader->loadClass('Symfony\Component\Console\Event\ConsoleTerminateEvent');
 
 $input = new ArgvInput();
-if (null !== $env = $input->getParameterOption(['--env', '-e'], null, true)) {
-  putenv('APP_ENV='.$_SERVER['APP_ENV'] = $_ENV['APP_ENV'] = $env);
-}
-
-if ($input->hasParameterOption('--no-debug', true)) {
-  putenv('APP_DEBUG='.$_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] = '0');
-}
-
-(new Dotenv())->bootEnv(dirname(__DIR__).'/.env');
-
-if ($_SERVER['APP_DEBUG']) {
-  umask(0000);
-
-  if (class_exists(Debug::class)) {
-    Debug::enable();
-  }
-}
 
 // On some environments (looking at you, Windows), HOME may not be set.
 if (!getenv('HOME')) {
     putenv('HOME=' . LocalMachineHelper::getHomeDir());
 }
-$kernel = new Kernel($_SERVER['APP_ENV'], (bool) $_SERVER['APP_DEBUG']);
+$kernel = new Kernel('prod', false);
 
 // Handle a clear-kernel-cache pseudo command. This isn't implemented as a true console
 // command because a stale or corrupted cache would render it unusable--

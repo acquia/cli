@@ -58,8 +58,6 @@ jobs:
         run: |
           composer install --no-dev --optimize-autoloader
           composer box-install
-          # Generate .env.local.php
-          composer dump-env prod
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
           composer box-compile
