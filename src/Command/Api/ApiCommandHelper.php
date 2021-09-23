@@ -11,6 +11,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaLogstream\LogstreamManager;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -151,8 +152,7 @@ class ApiCommandHelper {
    * @return \Symfony\Component\Cache\Adapter\PhpArrayAdapter
    */
   protected static function getCommandCache(): PhpArrayAdapter {
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/ApiCommands.cache', new FilesystemAdapter());
-    return $cache;
+    return new PhpArrayAdapter(__DIR__ . '/../../../var/cache/ApiCommands.cache', new NullAdapter());
   }
 
   /**
@@ -436,6 +436,10 @@ class ApiCommandHelper {
    */
   protected function isApiSpecChecksumCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
     $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
+    // If the spec file doesn't exist, assume cache is valid.
+    if ($api_spec_checksum_item->isHit() && !$acquia_cloud_spec_file_checksum) {
+      return TRUE;
+    }
     // If there's an invalid entry OR there's no entry, return false.
     if (!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit() && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum)) {
       return FALSE;
