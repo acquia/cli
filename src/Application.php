@@ -6,6 +6,7 @@ use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Throwable;
 
 class Application extends \Symfony\Component\Console\Application {
 
@@ -33,7 +34,7 @@ class Application extends \Symfony\Component\Console\Application {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   public function renderThrowable(
-    \Throwable $e,
+    Throwable $e,
     OutputInterface $output
   ): void {
     parent::renderThrowable($e, $output);

@@ -9,15 +9,13 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
+use Closure;
 use Exception;
 use GuzzleHttp\Client;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
@@ -72,7 +70,7 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->validateIdeLabel($ide_label);
     }
     else {
-      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, \Closure::fromCallable([$this, 'validateIdeLabel']));
+      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, Closure::fromCallable([$this, 'validateIdeLabel']));
     }
 
     // Create it.
@@ -116,7 +114,7 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
 
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be ready. This can take up to 15 minutes...', $this->output);
 
     $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {

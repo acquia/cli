@@ -181,6 +181,8 @@ class Spinner {
     if (Color::COLOR_16 === $this->colorLevel) {
       return "\033[96m{$char}\033[0m";
     }
+
+    return NULL;
   }
 
   /**
@@ -193,7 +195,7 @@ class Spinner {
     }
     if ($name === 'detail') {
       $terminal_width = (new Terminal())->getWidth();
-      $message_length = Helper::strlen($message) + ($this->indentLength * 2);
+      $message_length = Helper::length($message) + ($this->indentLength * 2);
       if ($message_length > $terminal_width) {
         $suffix = '...';
         $new_message_len = ($terminal_width - ($this->indentLength * 2) - strlen($suffix));

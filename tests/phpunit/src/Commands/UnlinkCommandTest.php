@@ -3,8 +3,8 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\UnlinkCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use Exception;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -51,7 +51,7 @@ class UnlinkCommandTest extends CommandTestBase {
     try {
       $this->executeCommand([], []);
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       $this->assertStringContainsString('There is no Cloud Platform application linked to', $exception->getMessage());
     }
   }

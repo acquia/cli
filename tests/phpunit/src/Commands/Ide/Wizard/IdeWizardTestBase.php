@@ -17,7 +17,6 @@ abstract class IdeWizardTestBase extends IdeRequiredTestBase {
    *
    * @param null $output
    *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function setUp($output = NULL): void {
     parent::setUp();

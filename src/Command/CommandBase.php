@@ -23,15 +23,16 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
 use Composer\Semver\VersionParser;
-use Doctrine\Common\Cache\FilesystemCache;
+use Exception;
 use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
-use Kevinrob\GuzzleCache\Storage\DoctrineCacheStorage;
+use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -472,7 +473,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
    *
-   * @param $input
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
@@ -482,11 +483,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Prompts the user to choose from a list of available Cloud Platform applications.
+   * Prompts the user to choose from a list of available Cloud Platform
+   * applications.
    *
    * @param Client $acquia_cloud_client
    *
    * @return null|object|array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptChooseApplication(
     Client $acquia_cloud_client
@@ -871,7 +874,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $uuid
    *
-   * @return mixed
+   * @return string
    */
   public static function validateUuid($uuid) {
     $violations = Validation::createValidator()->validate($uuid, [
@@ -1156,7 +1159,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return \stdClass|null
    */
-  protected function findIdeSshKeyOnCloud($ide_uuid): ?\stdClass {
+  protected function findIdeSshKeyOnCloud($ide_uuid): ?stdClass {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $ides_resource = new Ides($acquia_cloud_client);
@@ -1176,7 +1179,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    * @throws \Exception
    */
-  protected function deleteSshKeyFromCloud(\stdClass $cloud_key): void {
+  protected function deleteSshKeyFromCloud(stdClass $cloud_key): void {
     $return_code = $this->executeAcliCommand('ssh-key:delete', [
       '--cloud-key-uuid' => $cloud_key->uuid,
     ]);
@@ -1206,7 +1209,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       if ($latest = $this->hasUpdate()) {
         return $latest;
       }
-    } catch (\Exception $e) {
+    } catch (Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
     return FALSE;
@@ -1260,8 +1263,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $stack = HandlerStack::create();
       $stack->push(new CacheMiddleware(
         new PrivateCacheStrategy(
-          new DoctrineCacheStorage(
-            new FilesystemCache(sys_get_temp_dir())
+          new Psr6CacheStorage(
+            new FilesystemAdapter('acli')
           )
         )
       ),
@@ -1292,6 +1295,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param InputInterface $input
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {

@@ -2,12 +2,8 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Response\IdeResponse;
-use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

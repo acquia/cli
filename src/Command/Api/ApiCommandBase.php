@@ -171,6 +171,7 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param $param_name
+   * @param $value
    */
   public function addPostParameter($param_name, $value): void {
     $this->postParams[$param_name] = $value;
@@ -178,6 +179,7 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param $param_name
+   * @param $value
    */
   public function addQueryParameter($param_name, $value): void {
     $this->queryParams[$param_name] = $value;
@@ -192,6 +194,7 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param $param_name
+   * @param $value
    */
   public function addPathParameter($param_name, $value): void {
     $this->pathParams[$param_name] = $value;

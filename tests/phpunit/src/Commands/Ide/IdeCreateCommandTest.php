@@ -7,7 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class IdeCreateCommandTest.

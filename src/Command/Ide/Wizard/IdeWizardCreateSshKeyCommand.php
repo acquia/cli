@@ -6,11 +6,10 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,6 +20,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
+
+  /**
+   * @var \Acquia\Cli\Output\Checklist
+   */
+  private $checklist;
 
   /**
    * {inheritdoc}.
@@ -35,7 +39,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
-   * @return int|void
+   * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
@@ -143,7 +147,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   protected function addSshKeyToAgent($filepath, $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+    $temp_filepath = $this->localMachineHelper->getFilesystem()
+      ->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
@@ -207,7 +212,8 @@ EOT
   }
 
   /**
-   * Assert whether ANY local key exists that has a corresponding key on the Cloud Platform.
+   * Assert whether ANY local key exists that has a corresponding key on the
+   * Cloud Platform.
    *
    * @return bool
    * @throws \Exception
@@ -246,7 +252,8 @@ EOT
   }
 
   /**
-   * Polls the Cloud Platform until a successful SSH request is made to the dev environment.
+   * Polls the Cloud Platform until a successful SSH request is made to the dev
+   * environment.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -256,7 +263,7 @@ EOT
     OutputInterface $output
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
-    $loop = Factory::create();
+    $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.
@@ -275,8 +282,7 @@ EOT
         else {
           $this->logger->debug($process->getOutput() . $process->getErrorOutput());
         }
-      }
-      catch (AcquiaCliException $exception) {
+      } catch (AcquiaCliException $exception) {
         // Do nothing. Keep waiting and looping and logging.
         $this->logger->debug($exception->getMessage());
       }
@@ -297,9 +303,9 @@ EOT
    */
   protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
     $return_code = $this->executeAcliCommand('ssh-key:create', [
-       '--filename' => $private_ssh_key_filename,
-       '--password' => $password,
-     ]);
+      '--filename' => $private_ssh_key_filename,
+      '--password' => $password,
+    ]);
     if ($return_code !== 0) {
       throw new AcquiaCliException('Unable to generate a local SSH key.');
     }
@@ -307,11 +313,10 @@ EOT
   }
 
   /**
-   * @param $ide
+   * @param \AcquiaCloudApi\Response\IdeResponse $ide
    * @param string $public_ssh_key_filepath
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
     $return_code = $this->executeAcliCommand('ssh-key:upload', [

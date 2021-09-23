@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
@@ -25,7 +24,6 @@ class IdeXdebugToggleCommandTest extends IdeRequiredTestBase {
    *
    * @param null $output
    *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function setUp($output = NULL): void {
     parent::setUp();

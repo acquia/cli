@@ -6,7 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
-use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\ConsoleOutput;
 
@@ -42,17 +42,20 @@ class ChecklistTest extends TestBase {
   }
 
   public function testLoopTimeout(): void {
-    $loop = Factory::create();
+    $loop = Loop::get();
     $output = new BufferedOutput();
     $message = 'Waiting for the IDE to be ready. This can take up to 15 minutes...';
     $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $output);
-    LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
+    $timer = LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
     try {
       $loop->run();
     }
     catch (AcquiaCliException $exception) {
       $this->assertEquals('Timed out after 0.01 minutes!', $exception->getMessage());
     }
+    // $loop is statically cached by Loop::get();. We don't want the 0.01 minute timer
+    // persisting into other tests so we must use Factory::create().
+    $loop->cancelTimer($timer);
   }
 
 }

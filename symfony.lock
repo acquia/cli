@@ -44,9 +44,6 @@
     "dealerdirect/phpcodesniffer-composer-installer": {
         "version": "v0.6.2"
     },
-    "doctrine/cache": {
-        "version": "1.10.1"
-    },
     "doctrine/collections": {
         "version": "1.6.7"
     },
@@ -131,8 +128,17 @@
     "phpspec/prophecy": {
         "version": "v1.10.3"
     },
+    "phpstan/extension-installer": {
+        "version": "1.1.0"
+    },
     "phpstan/phpdoc-parser": {
         "version": "0.3.5"
+    },
+    "phpstan/phpstan": {
+        "version": "0.12.99"
+    },
+    "phpstan/phpstan-deprecation-rules": {
+        "version": "0.12.6"
     },
     "phpunit/php-code-coverage": {
         "version": "8.0.2"

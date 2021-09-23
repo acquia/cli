@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Auth;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
-use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Webmozart\KeyValueStore\JsonFileStore;

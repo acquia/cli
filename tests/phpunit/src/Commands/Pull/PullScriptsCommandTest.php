@@ -2,14 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
-use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Command\Pull\PullScriptsCommand;
-use Acquia\Cli\Helpers\SshHelper;
-use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Process\Process;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class PullScriptsCommandTest.

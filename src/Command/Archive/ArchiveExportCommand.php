@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Closure;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -134,7 +135,7 @@ class ArchiveExportCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function createArchiveDirectory(\Closure $output_callback, string $artifact_dir): void {
+  protected function createArchiveDirectory(Closure $output_callback, string $artifact_dir): void {
     $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
@@ -159,7 +160,7 @@ class ArchiveExportCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function exportDatabaseToArchiveDir(
-    \Closure $output_callback,
+    Closure $output_callback,
     string $archive_temp_dir
   ): void {
     if (!$this->getDrushDatabaseConnectionStatus($output_callback)) {

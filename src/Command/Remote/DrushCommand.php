@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Acquia\Cli\Commands\Remote
  */
-class DrushCommand extends SSHBaseCommand {
+class DrushCommand extends SshBaseCommand {
 
   protected static $defaultName = 'remote:drush';
 

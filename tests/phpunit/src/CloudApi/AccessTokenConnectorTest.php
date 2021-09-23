@@ -7,13 +7,10 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessTokenInterface;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
-use Symfony\Component\Cache\Adapter\NullAdapter;
 
 /**
  * Class RefreshTokenTest.

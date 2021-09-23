@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -70,7 +69,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
   /**
    * @param string $service
    *
-   * @return mixed
+   * @return string
    */
   protected function validateService($service) {
     $violations = Validation::createValidator()->validate($service, [

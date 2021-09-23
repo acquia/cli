@@ -144,8 +144,8 @@ class PullFilesCommandTest extends PullCommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param object $environments_response
    * @param \Prophecy\Prophecy\ObjectProphecy $process
+   * @param $environment
    */
   protected function mockExecuteCloudRsync(
     ObjectProphecy $local_machine_helper,

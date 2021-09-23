@@ -107,7 +107,7 @@ class ExceptionListener {
   }
 
   /**
-   * @param $event
+   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
   protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
