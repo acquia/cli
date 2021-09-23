@@ -51,6 +51,11 @@ abstract class PullCommandBase extends CommandBase {
   protected $drushHasActiveDatabaseConnection;
 
   /**
+   * @var string
+   */
+  private $site;
+
+  /**
    * @param $environment
    * @param $database
    * @param $backup_response
@@ -137,7 +142,8 @@ abstract class PullCommandBase extends CommandBase {
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $input->getArgument('site'));
+    $site = $this->determineSite($source_environment, $input);
+    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $site);
 
     if ($on_demand) {
       $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
@@ -173,7 +179,8 @@ abstract class PullCommandBase extends CommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $this->checklist->addItem('Copying Drupal\'s public files from the Cloud Platform');
-    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $input->getArgument('site'));
+    $site = $this->determineSite($source_environment, $input);
+    $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $site);
     $this->checklist->completePreviousItem();
   }
 
@@ -600,11 +607,11 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param callable $output_callback
+   * @param callable|null $output_callback
    *
    * @throws \Exception
    */
-  protected function runComposerScripts($output_callback = NULL): void {
+  protected function runComposerScripts(callable $output_callback = NULL): void {
     if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
       $this->checklist->addItem("Installing Composer dependencies");
       $this->composerInstall($output_callback);
@@ -616,21 +623,44 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param $environment
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return mixed|string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function determineSite($environment, InputInterface $input) {
+    if (isset($this->site)) {
+      return $this->site;
+    }
+
+    if ($input->hasArgument('site') && $input->getArgument('site')) {
+      return $input->getArgument('site');
+    }
+    elseif ($this->isAcsfEnv($environment)) {
+      $site = $this->promptChooseAcsfSite($environment);
+    }
+    else {
+      $site = $this->promptChooseCloudSite($environment);
+    }
+    $this->site = $site;
+
+    return $site;
+  }
+
+  /**
    * @param $chosen_environment
    * @param \Closure|null $output_callback
    * @param string|null $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesFromCloud($chosen_environment, Closure $output_callback = NULL, string $site = NULL): void {
+  protected function rsyncFilesFromCloud($chosen_environment, Closure $output_callback = NULL, string $site): void {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
-
     if ($this->isAcsfEnv($chosen_environment)) {
-      $site = $site ?: $this->promptChooseAcsfSite($chosen_environment);
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $site = $site ?: $this->promptChooseCloudSite($chosen_environment);
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
@@ -986,8 +1016,7 @@ abstract class PullCommandBase extends CommandBase {
     $database
   ) {
     $database_backups = new DatabaseBackups($acquia_cloud_client);
-    $backups_response = $database_backups->getAll($environment->uuid,
-      $database->name);
+    $backups_response = $database_backups->getAll($environment->uuid, $database->name);
     if (!count($backups_response)) {
       $this->logger->warning('No existing backups found, creating an on-demand backup now. This will take some time depending on the size of the database.');
       $this->createBackup($environment, $database, $acquia_cloud_client);

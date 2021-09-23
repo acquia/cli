@@ -61,7 +61,6 @@ class InferApplicationTest extends CommandTestBase {
    *
    */
   public function testInferFailure(): void {
-
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
