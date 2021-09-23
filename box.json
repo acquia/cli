@@ -1,7 +1,4 @@
 {
-    "files-bin":[
-        ".env.local.php"
-    ],
     "directories":[
         "config",
         "var"
