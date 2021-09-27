@@ -48,11 +48,14 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
+      ->addOption('git-url', NULL, InputOption::VALUE_NONE, 'The URL of your git repository.')
+      ->addOption('git-branch', NULL, InputOption::VALUE_NONE, 'The git source branch to generate an artifact from')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
-      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push');
+      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
+      ->addUsage('--vcs-url=example@svn-1.prod.hosting.acquia.com:example.git --branch=feature-source-branch');
   }
 
   /**
@@ -68,31 +71,41 @@ class PushArtifactCommand extends PullCommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
+    // @todo Check if local repository is up to date. Given that this command uses the remote code as the source for a build,
+    // we should ensure that the local repo is in sync with remote.
     if ($is_dirty) {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
 
-    // @todo handle environments with tags deployed
-    $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
-    $environment = $this->determineEnvironment($input, $output, TRUE);
-    if (strpos($environment->vcs->path, 'tags') === 0) {
-      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
+    if (!$input->getOption('git-url') && !$input->getOption('git-branch')) {
+      $git_url = $input->getOption('git-url');
+      $git_branch = $input->getOption('git-branch');
     }
+    else {
+      $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
+      $environment = $this->determineEnvironment($input, $output, TRUE);
+      if (strpos($environment->vcs->path, 'tags') === 0) {
+        throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
+      }
+      $git_url = $environment->vcs->url;
+      $git_branch = $environment->vcs->path;
+    }
+
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    $this->prepareDir($output_callback, $artifact_dir, $environment->vcs->url, $environment->vcs->path);
+    $this->cloneUpstreamBranch($output_callback, $artifact_dir, $git_url, $git_branch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
-    $this->build($output_callback, $artifact_dir);
+    $this->buildArtifact($output_callback, $artifact_dir);
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('no-sanitize')) {
       $this->checklist->addItem('Sanitizing build artifact');
-      $this->sanitize($output_callback, $artifact_dir);
+      $this->sanitizeArtifact($output_callback, $artifact_dir);
       $this->checklist->completePreviousItem();
     }
 
@@ -101,8 +114,8 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      $this->checklist->addItem("Pushing changes to <options=bold>{$environment->vcs->path}</> branch in the <options=bold>{$environment->name}</> environment");
-      $this->push($output_callback, $artifact_dir, $environment->vcs->url);
+      $this->checklist->addItem("Pushing changes to <options=bold>{$git_branch}</> branch.");
+      $this->push($output_callback, $artifact_dir, $git_url);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -122,7 +135,7 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function prepareDir(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
+  protected function cloneUpstreamBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
     $output_callback('out', "Removing $artifact_dir if it exists");
@@ -152,7 +165,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function build(Closure $output_callback, string $artifact_dir): void {
+  protected function buildArtifact(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
     $output_callback('out', "Mirroring source files from {$this->dir} to $artifact_dir");
@@ -177,7 +190,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function sanitize(Closure $output_callback, string $artifact_dir):void {
+  protected function sanitizeArtifact(Closure $output_callback, string $artifact_dir):void {
     $output_callback('out', 'Finding Drupal core text files');
     $sanitizeFinder = $this->localMachineHelper->getFinder()
       ->files()
