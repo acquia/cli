@@ -283,7 +283,7 @@ class PushArtifactCommand extends PullCommandBase {
   protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url, string $git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $this->localMachineHelper->execute(['git', 'push', $vcs_url, $git_branch . '-branch'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $this->localMachineHelper->execute(['git', 'push', $vcs_url, $git_branch . '-build'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**
