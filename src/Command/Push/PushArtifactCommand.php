@@ -49,13 +49,13 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->addOption('dest-git-url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed')
-      ->addOption('git-branch', NULL, InputOption::VALUE_REQUIRED, 'The git source branch to generate an artifact from')
+      ->addOption('dest-branch', NULL, InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
       ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
-      ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --git-branch=main-build');
+      ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --dest-branch=main-build');
   }
 
   /**
@@ -70,8 +70,6 @@ class PushArtifactCommand extends PullCommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
-    // @todo Check if local repository is up to date. Given that this command uses the remote code as the source for a build,
-    // we should ensure that the local repo is in sync with remote.
     if ($is_dirty) {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
@@ -80,7 +78,7 @@ class PushArtifactCommand extends PullCommandBase {
     // @todo If only one of these options is set, throw an error.
     if ($input->getOption('dest-git-url') && $input->getOption('git-branch')) {
       $dest_git_url = $input->getOption('dest-git-url');
-      $git_branch = $input->getOption('git-branch');
+      $git_branch = $input->getOption('dest-branch');
     }
     else {
       $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
