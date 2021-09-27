@@ -79,7 +79,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
     $local_machine_helper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], Argument::type('callable'), NULL, TRUE)
+    $local_machine_helper->execute(['git', 'clone', '--depth=1', '--branch', $vcs_path, $vcs_url, $artifact_dir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 

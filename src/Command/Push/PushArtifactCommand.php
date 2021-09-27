@@ -88,7 +88,7 @@ class PushArtifactCommand extends PullCommandBase {
       $dest_git_url = $environment->vcs->url;
       $dest_git_branch = $environment->vcs->path;
     }
-    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch on the ${dest_git_url} git remote");
+    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch on the $dest_git_url git remote");
 
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
@@ -113,7 +113,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     if (!$input->getOption('dry-run')) {
       $this->checklist->addItem("Pushing changes to <options=bold>{$dest_git_branch}</> branch.");
-      $this->push($output_callback, $artifact_dir, $dest_git_url, $dest_git_branch);
+      $this->pushArtifact($output_callback, $artifact_dir, $dest_git_url, $dest_git_branch);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -141,9 +141,17 @@ class PushArtifactCommand extends PullCommandBase {
 
     $output_callback('out', "Initializing Git in $artifact_dir");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
+    }
+    $process = $this->localMachineHelper->execute(['git', 'fetch', 'depth=1', 'origin', $vcs_path], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      // Remote branch does not exist. just create it locally.
+      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput()]);
+      }
     }
 
     $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
@@ -162,6 +170,8 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @param \Closure $output_callback
    * @param string $artifact_dir
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function buildArtifact(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
@@ -252,6 +262,8 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    * @param string $commit_hash
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
@@ -275,7 +287,7 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url, string $dest_git_branch):void {
+  protected function pushArtifact(Closure $output_callback, string $artifact_dir, string $vcs_url, string $dest_git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
