@@ -76,7 +76,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist = new Checklist($output);
 
     // @todo If only one of these options is set, throw an error.
-    if ($input->getOption('dest-git-url') && $input->getOption('git-branch')) {
+    if ($input->getOption('dest-git-url') && $input->getOption('dest-branch')) {
       $dest_git_url = $input->getOption('dest-git-url');
       $git_branch = $input->getOption('dest-branch');
     }
@@ -89,6 +89,7 @@ class PushArtifactCommand extends PullCommandBase {
       $dest_git_url = $environment->vcs->url;
       $git_branch = $environment->vcs->path;
     }
+    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $git_branch on the ${dest_git_url} git remote");
 
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
