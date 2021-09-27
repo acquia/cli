@@ -48,8 +48,9 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
-      ->addOption('git-url', NULL, InputOption::VALUE_NONE, 'The URL of your git repository.')
-      ->addOption('git-branch', NULL, InputOption::VALUE_NONE, 'The git source branch to generate an artifact from')
+      ->addOption('source-git-url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your git repository from where the source branch will be pulled')
+      ->addOption('dest-git-url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed')
+      ->addOption('git-branch', NULL, InputOption::VALUE_REQUIRED, 'The git source branch to generate an artifact from')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
@@ -66,7 +67,6 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    // @todo change deploy strategy depending on whether this is a "source" repo (requiring building) or not
     // @todo handle if Git user name/email is missing
     $this->setDirAndRequireProjectCwd($input);
     $is_dirty = $this->isLocalGitRepoDirty();
@@ -78,8 +78,10 @@ class PushArtifactCommand extends PullCommandBase {
     }
     $this->checklist = new Checklist($output);
 
-    if (!$input->getOption('git-url') && !$input->getOption('git-branch')) {
-      $git_url = $input->getOption('git-url');
+    // @todo If only one of these options is set, throw an error.
+    if (!$input->getOption('source-git-url') && !$input->getOption('git-branch') &&  $input->getOption('dest-git-url')) {
+      $source_git_url = $input->getOption('source-git-url');
+      $dest_git_url = $input->getOption('dest-git-url');
       $git_branch = $input->getOption('git-branch');
     }
     else {
@@ -88,7 +90,8 @@ class PushArtifactCommand extends PullCommandBase {
       if (strpos($environment->vcs->path, 'tags') === 0) {
         throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
       }
-      $git_url = $environment->vcs->url;
+      $source_git_url = $environment->vcs->url;
+      $dest_git_url = $environment->vcs->url;
       $git_branch = $environment->vcs->path;
     }
 
@@ -96,7 +99,7 @@ class PushArtifactCommand extends PullCommandBase {
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    $this->cloneUpstreamBranch($output_callback, $artifact_dir, $git_url, $git_branch);
+    $this->cloneUpstreamBranch($output_callback, $artifact_dir, $source_git_url, $git_branch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
@@ -115,7 +118,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     if (!$input->getOption('dry-run')) {
       $this->checklist->addItem("Pushing changes to <options=bold>{$git_branch}</> branch.");
-      $this->push($output_callback, $artifact_dir, $git_url);
+      $this->push($output_callback, $artifact_dir, $dest_git_url, $git_branch);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -272,11 +275,15 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @param \Closure $output_callback
    * @param string $artifact_dir
+   * @param string $vcs_url
+   * @param string $git_branch
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url):void {
+  protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url, string $git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $this->localMachineHelper->execute(['git', 'push', $vcs_url, $git_branch . '-branch'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**
