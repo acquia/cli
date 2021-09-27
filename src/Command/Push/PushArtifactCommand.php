@@ -111,7 +111,7 @@ class PushArtifactCommand extends PullCommandBase {
       $dest_git_url = $environment->vcs->url;
       $dest_git_branch = $environment->vcs->path;
     }
-    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch on the $dest_git_url git remote");
+    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch branch on the $dest_git_url git remote");
 
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
@@ -174,7 +174,7 @@ class PushArtifactCommand extends PullCommandBase {
       // the new branch off of the current commit.
       $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
       if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput()]);
+        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
       }
     }
 
@@ -213,7 +213,10 @@ class PushArtifactCommand extends PullCommandBase {
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $output_callback('out', 'Installing Composer production dependencies');
-    $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to install composer dependencies: {message}", ['message' => $process->getOutput()]);
+    }
   }
 
   /**
@@ -292,12 +295,15 @@ class PushArtifactCommand extends PullCommandBase {
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    // @todo Throw error if process fails.
     $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
       // This will fatally error if the file doesn't exist. Suppress error output.
       $this->logger->debug("Forcibly adding $file");
+      // @todo Throw error if process fails.
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
     }
+    // @todo Throw error if process fails.
     $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
@@ -314,6 +320,7 @@ class PushArtifactCommand extends PullCommandBase {
   protected function pushArtifact(Closure $output_callback, string $artifact_dir, string $vcs_url, string $dest_git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    // @todo Throw error if process fails.
     $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
