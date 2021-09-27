@@ -55,7 +55,7 @@ class PushArtifactCommand extends PullCommandBase {
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
       ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
-      ->addUsage('--dest-git-url=./git --dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --git-branch=main-build');
+      ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --git-branch=main-build');
   }
 
   /**
