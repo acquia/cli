@@ -41,6 +41,16 @@ class PushArtifactCommand extends PullCommandBase {
   protected $scaffoldFiles;
 
   /**
+   * @var string
+   */
+  private $composerJsonPath;
+
+  /**
+   * @var string
+   */
+  private $drupalCorePath;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -67,6 +77,19 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
+    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $this->composerJsonPath = Path::join($this->dir, 'composer.json');
+    $this->drupalCorePath = Path::join($this->dir, 'docroot', 'core');
+    $required_paths = [
+      $this->composerJsonPath,
+      $this->drupalCorePath
+    ];
+    foreach ($required_paths as $required_path) {
+      if (!file_exists($required_path)) {
+        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
+      }
+    }
+
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
     if ($is_dirty) {
@@ -90,7 +113,6 @@ class PushArtifactCommand extends PullCommandBase {
     }
     $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch on the $dest_git_url git remote");
 
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
@@ -146,11 +168,11 @@ class PushArtifactCommand extends PullCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
-    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       // Remote branch does not exist. Just create it locally. This will create
       // the new branch off of the current commit.
-      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput()]);
       }
@@ -310,11 +332,15 @@ class PushArtifactCommand extends PullCommandBase {
     $this->vendorDirs = [
       'vendor',
     ];
-    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'composer.json')), TRUE);
-    foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
-      $this->vendorDirs[] = str_replace('/{$name}', '', $path);
+    if (file_exists($this->composerJsonPath)) {
+      $composer_json = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE);
+
+      foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
+        $this->vendorDirs[] = str_replace('/{$name}', '', $path);
+      }
+      return $this->vendorDirs;
     }
-    return $this->vendorDirs;
+    return [];
   }
 
   /**
