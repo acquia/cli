@@ -41,6 +41,16 @@ class PushArtifactCommand extends PullCommandBase {
   protected $scaffoldFiles;
 
   /**
+   * @var string
+   */
+  private $composerJsonPath;
+
+  /**
+   * @var string
+   */
+  private $drupalCorePath;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -48,11 +58,14 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
+      ->addOption('dest-git-url', NULL, InputOption::VALUE_REQUIRED, 'The URL of your git repository to which the artifact branch will be pushed')
+      ->addOption('dest-git-branch', NULL, InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
-      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push');
+      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
+      ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --dest-branch=main-build');
   }
 
   /**
@@ -63,9 +76,12 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    // @todo change deploy strategy depending on whether this is a "source" repo (requiring building) or not
-    // @todo handle if Git user name/email is missing
     $this->setDirAndRequireProjectCwd($input);
+    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $this->composerJsonPath = Path::join($this->dir, 'composer.json');
+    $this->drupalCorePath = Path::join($this->dir, 'docroot', 'core');
+    $this->validateSourceCode();
+
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
     if ($is_dirty) {
@@ -73,26 +89,38 @@ class PushArtifactCommand extends PullCommandBase {
     }
     $this->checklist = new Checklist($output);
 
-    // @todo handle environments with tags deployed
-    $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
-    $environment = $this->determineEnvironment($input, $output, TRUE);
-    if (strpos($environment->vcs->path, 'tags') === 0) {
-      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
+    if ($input->getOption('dest-git-url') && !$input->getOption('dest-git-branch') ||
+      !$input->getOption('dest-git-url') && $input->getOption('dest-git-branch')) {
+      throw new AcquiaCliException('You must set both --dest-git-url and --dest-git-branch or neither.');
     }
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    if ($input->getOption('dest-git-url') && $input->getOption('dest-git-branch')) {
+      $dest_git_url = $input->getOption('dest-git-url');
+      $dest_git_branch = $input->getOption('dest-git-branch');
+    }
+    else {
+      $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
+      $environment = $this->determineEnvironment($input, $output, TRUE);
+      if (strpos($environment->vcs->path, 'tags') === 0) {
+        throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
+      }
+      $dest_git_url = $environment->vcs->url;
+      $dest_git_branch = $environment->vcs->path;
+    }
+    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $dest_git_branch branch on the $dest_git_url git remote");
+
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    $this->prepareDir($output_callback, $artifact_dir, $environment->vcs->url, $environment->vcs->path);
+    $this->cloneDestinationBranch($output_callback, $artifact_dir, $dest_git_url, $dest_git_branch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
-    $this->build($output_callback, $artifact_dir);
+    $this->buildArtifact($output_callback, $artifact_dir);
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('no-sanitize')) {
       $this->checklist->addItem('Sanitizing build artifact');
-      $this->sanitize($output_callback, $artifact_dir);
+      $this->sanitizeArtifact($output_callback, $artifact_dir);
       $this->checklist->completePreviousItem();
     }
 
@@ -101,8 +129,8 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      $this->checklist->addItem("Pushing changes to <options=bold>{$environment->vcs->path}</> branch in the <options=bold>{$environment->name}</> environment");
-      $this->push($output_callback, $artifact_dir, $environment->vcs->url);
+      $this->checklist->addItem("Pushing changes to <options=bold>{$dest_git_branch}</> branch.");
+      $this->pushArtifact($output_callback, $artifact_dir, $dest_git_url, $dest_git_branch);
       $this->checklist->completePreviousItem();
     }
     else {
@@ -122,7 +150,7 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function prepareDir(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
+  protected function cloneDestinationBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
     $output_callback('out', "Removing $artifact_dir if it exists");
@@ -130,9 +158,19 @@ class PushArtifactCommand extends PullCommandBase {
 
     $output_callback('out', "Initializing Git in $artifact_dir");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth', '1', '--branch', $vcs_path, $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    // @todo Don't fetch anything? Start with bare repo?
+    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
+    }
+    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      // Remote branch does not exist. Just create it locally. This will create
+      // the new branch off of the current commit.
+      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
+      }
     }
 
     $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
@@ -151,8 +189,10 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @param \Closure $output_callback
    * @param string $artifact_dir
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function build(Closure $output_callback, string $artifact_dir): void {
+  protected function buildArtifact(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
     $output_callback('out', "Mirroring source files from {$this->dir} to $artifact_dir");
@@ -168,7 +208,10 @@ class PushArtifactCommand extends PullCommandBase {
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $output_callback('out', 'Installing Composer production dependencies');
-    $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to install composer dependencies: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
+    }
   }
 
   /**
@@ -177,7 +220,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function sanitize(Closure $output_callback, string $artifact_dir):void {
+  protected function sanitizeArtifact(Closure $output_callback, string $artifact_dir):void {
     $output_callback('out', 'Finding Drupal core text files');
     $sanitizeFinder = $this->localMachineHelper->getFinder()
       ->files()
@@ -241,16 +284,21 @@ class PushArtifactCommand extends PullCommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    * @param string $commit_hash
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    // @todo Throw error if process fails.
     $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
       // This will fatally error if the file doesn't exist. Suppress error output.
       $this->logger->debug("Forcibly adding $file");
+      // @todo Throw error if process fails.
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
     }
+    // @todo Throw error if process fails.
     $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
@@ -259,11 +307,16 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @param \Closure $output_callback
    * @param string $artifact_dir
+   * @param string $vcs_url
+   * @param string $dest_git_branch
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function push(Closure $output_callback, string $artifact_dir, string $vcs_url):void {
+  protected function pushArtifact(Closure $output_callback, string $artifact_dir, string $vcs_url, string $dest_git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $this->localMachineHelper->execute(['git', 'push'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    // @todo Throw error if process fails.
+    $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 
   /**
@@ -281,11 +334,15 @@ class PushArtifactCommand extends PullCommandBase {
     $this->vendorDirs = [
       'vendor',
     ];
-    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'composer.json')), TRUE);
-    foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
-      $this->vendorDirs[] = str_replace('/{$name}', '', $path);
+    if (file_exists($this->composerJsonPath)) {
+      $composer_json = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE);
+
+      foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
+        $this->vendorDirs[] = str_replace('/{$name}', '', $path);
+      }
+      return $this->vendorDirs;
     }
-    return $this->vendorDirs;
+    return [];
   }
 
   /**
@@ -308,6 +365,21 @@ class PushArtifactCommand extends PullCommandBase {
       }
     }
     return $this->scaffoldFiles;
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateSourceCode(): void {
+    $required_paths = [
+      $this->composerJsonPath,
+      $this->drupalCorePath
+    ];
+    foreach ($required_paths as $required_path) {
+      if (!file_exists($required_path)) {
+        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
+      }
+    }
   }
 
 }
