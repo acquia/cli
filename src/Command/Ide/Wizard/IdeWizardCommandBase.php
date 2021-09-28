@@ -43,7 +43,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
@@ -61,7 +61,7 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   /**
    *
    */
-  protected function deleteLocalIdeSshKey(): void {
+  protected function deleteLocalSshKey(): void {
     $this->localMachineHelper->getFilesystem()->remove([
       $this->publicSshKeyFilepath,
       $this->privateSshKeyFilepath,
@@ -69,12 +69,12 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
   }
 
   /**
-   * @param string $ide_uuid
+   * @param string $app_uuid
    *
    * @return string
    */
-  public function getSshKeyFilename(string $ide_uuid): string {
-    return 'id_rsa_acquia_ide_' . $ide_uuid;
+  public function getSshKeyFilename(string $app_uuid): string {
+    return 'id_rsa_acquia_ide_' . $app_uuid;
   }
 
 }

@@ -8,7 +8,6 @@ use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
-use AcquiaCloudApi\Response\IdeResponse;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -58,6 +57,13 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
   }
 
   /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateEnvironment() {
+    $this->requireCloudIdeEnvironment();
+  }
+
+  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
@@ -66,16 +72,16 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->requireCloudIdeEnvironment();
+    $this->validateEnvironment();
     $this->checklist = new Checklist($output);
     $key_was_uploaded = FALSE;
 
     // Create local SSH key.
-    if (!$this->localIdeSshKeyExists() || !$this->passPhraseFileExists()) {
+    if (!$this->localSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
-      $this->deleteLocalIdeSshKey();
+      $this->deleteLocalSshKey();
       // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
-      $this->deleteIdeSshKeyFromCloud();
+      $this->deleteThisSshKeyFromCloud();
 
       $this->checklist->addItem('Creating a local SSH key');
 
@@ -93,12 +99,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     }
 
     // Upload SSH key to the Cloud Platform.
-    if (!$this->userHasUploadedIdeKeyToCloud()) {
+    if (!$this->userHasUploadedThisKeyToCloud($this->getSshKeyLabel())) {
       $this->checklist->addItem('Uploading the local key to the Cloud Platform');
 
       // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
-      $this->deleteIdeSshKeyFromCloud();
-      $this->uploadSshKeyToCloud($this->ide, $this->publicSshKeyFilepath);
+      $this->deleteThisSshKeyFromCloud();
+      $this->uploadSshKeyToCloud($this->getSshKeyLabel(), $this->publicSshKeyFilepath);
 
       $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
@@ -112,12 +118,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     if (!$this->sshKeyIsAddedToKeychain()) {
       $this->checklist->addItem('Adding the SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
-      $this->checklist->completePreviousItem();
     }
     else {
       $this->checklist->addItem('Already added the SSH key to local keychain');
-      $this->checklist->completePreviousItem();
     }
+    $this->checklist->completePreviousItem();
 
     // Wait for the key to register on the Cloud Platform.
     if ($key_was_uploaded) {
@@ -127,24 +132,37 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     return 0;
   }
 
+  /**
+   * @return string
+   */
+  protected function getSshKeyLabel() {
+    return $this::getIdeSshKeyLabel($this->ide);
+  }
+
+  /**
+   * @return bool
+   */
   protected function passPhraseFileExists() {
     return file_exists($this->passphraseFilepath);
   }
 
-  protected function localIdeSshKeyExists(): bool {
+  /**
+   * @return bool
+   */
+  protected function localSshKeyExists(): bool {
     return file_exists($this->publicSshKeyFilepath) && file_exists($this->privateSshKeyFilepath);
   }
 
   /**
    * Adds a given password protected local SSH key to the local keychain.
    *
-   * @param $filepath
+   * @param string $filepath
    *   The filepath of the private SSH key.
-   * @param $password
+   * @param string $password
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function addSshKeyToAgent($filepath, $password): void {
+  protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
     $temp_filepath = $this->localMachineHelper->getFilesystem()
@@ -183,7 +201,7 @@ EOT
   /**
    * Normalizes public SSH key by trimming and removing user and machine suffix.
    *
-   * @param $public_key
+   * @param string $public_key
    *
    * @return string
    */
@@ -200,7 +218,7 @@ EOT
    *
    * @return bool|int
    */
-  protected function savePassPhraseToFile($passphrase) {
+  protected function savePassPhraseToFile(string $passphrase) {
     return file_put_contents($this->passphraseFilepath, $passphrase);
   }
 
@@ -215,17 +233,18 @@ EOT
    * Assert whether ANY local key exists that has a corresponding key on the
    * Cloud Platform.
    *
+   * @param string $label
+   *
    * @return bool
-   * @throws \Exception
    */
-  protected function userHasUploadedIdeKeyToCloud(): bool {
+  protected function userHasUploadedThisKeyToCloud(string $label): bool {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     foreach ($cloud_keys as $index => $cloud_key) {
       if (
-        $cloud_key->label === $this::getIdeSshKeyLabel($this->ide)
+        $cloud_key->label === $label
         // Assert that a corresponding local key exists.
-        && $this->localIdeSshKeyExists()
+        && $this->localSshKeyExists()
         // Assert local public key contents match Cloud public key contents.
         && $this->normalizePublicSshKey($cloud_key->public_key) === $this->normalizePublicSshKey(file_get_contents($this->publicSshKeyFilepath))
       ) {
@@ -313,14 +332,14 @@ EOT
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\IdeResponse $ide
+   * @param string $label
    * @param string $public_ssh_key_filepath
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function uploadSshKeyToCloud(IdeResponse $ide, string $public_ssh_key_filepath): void {
+  protected function uploadSshKeyToCloud(string $label, string $public_ssh_key_filepath): void {
     $return_code = $this->executeAcliCommand('ssh-key:upload', [
-      '--label' => $this::getIdeSshKeyLabel($ide),
+      '--label' => $label,
       '--filepath' => $public_ssh_key_filepath,
       '--no-wait' => '',
     ]);
@@ -329,7 +348,10 @@ EOT
     }
   }
 
-  protected function deleteIdeSshKeyFromCloud(): void {
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function deleteThisSshKeyFromCloud(): void {
     if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($cloud_key);
     }
