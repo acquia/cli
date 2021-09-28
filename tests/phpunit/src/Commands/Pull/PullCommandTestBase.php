@@ -158,11 +158,16 @@ abstract class PullCommandTestBase extends CommandTestBase {
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(!$failed)->shouldBeCalled();
-    $process->getOutput()->willReturn('')->shouldBeCalled();
     $local_machine_helper->execute([
       'git',
-      'status',
-      '--short',
+      'add',
+      '.',
+      '&&',
+      'git',
+      'diff-index',
+      '--cached',
+      '--quiet',
+      'HEAD',
     ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
   }
 
