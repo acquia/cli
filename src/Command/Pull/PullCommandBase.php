@@ -512,19 +512,11 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function isLocalGitRepoDirty(): bool {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute([
+    $process = $this->localMachineHelper->executeFromCmd(
       // Problem with this is that it stages changes for the user. They may
       // not want that.
-      'git',
-      'add',
-      '.',
-      '&&',
-      'git',
-      'diff-index',
-      '--cached',
-      '--quiet',
-      'HEAD',
-    ], NULL, $this->dir, FALSE);
+      'git add . && git diff-index --cached --quiet HEAD',
+     NULL, $this->dir, FALSE);
 
     return !$process->isSuccessful();
   }
