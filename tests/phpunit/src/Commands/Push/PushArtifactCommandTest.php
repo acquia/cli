@@ -81,7 +81,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
     $local_machine_helper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], Argument::type('callable'), NULL, TRUE)
+    $local_machine_helper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], Argument::type('callable'), Argument::type('string'), TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
@@ -104,6 +104,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   protected function mockComposerInstall(ObjectProphecy $local_machine_helper, $artifact_dir): void {
     $local_machine_helper->checkRequiredBinariesExist(['composer'])->shouldBeCalled();
     $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
     $local_machine_helper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
@@ -148,7 +149,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
         ]
       ]
     ]);
-    $local_machine_helper->readFile(Path::join($artifact_dir, 'composer.json'))
+    $local_machine_helper->readFile(Path::join($this->projectFixtureDir, 'composer.json'))
       ->willReturn($composer_json);
     $local_machine_helper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json'))
       ->willReturn($composer_json);

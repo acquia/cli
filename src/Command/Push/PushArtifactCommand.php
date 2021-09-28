@@ -215,7 +215,7 @@ class PushArtifactCommand extends PullCommandBase {
     $output_callback('out', 'Installing Composer production dependencies');
     $process = $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Unable to install composer dependencies: {message}", ['message' => $process->getOutput()]);
+      throw new AcquiaCliException("Unable to install composer dependencies: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
     }
   }
 
