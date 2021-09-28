@@ -80,15 +80,7 @@ class PushArtifactCommand extends PullCommandBase {
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
     $this->drupalCorePath = Path::join($this->dir, 'docroot', 'core');
-    $required_paths = [
-      $this->composerJsonPath,
-      $this->drupalCorePath
-    ];
-    foreach ($required_paths as $required_path) {
-      if (!file_exists($required_path)) {
-        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
-      }
-    }
+    $this->validateSourceCode();
 
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
@@ -97,7 +89,10 @@ class PushArtifactCommand extends PullCommandBase {
     }
     $this->checklist = new Checklist($output);
 
-    // @todo If only one of these options is set, throw an error.
+    if ($input->getOption('dest-git-url') && !$input->getOption('dest-git-branch') ||
+      !$input->getOption('dest-git-url') && $input->getOption('dest-git-branch')) {
+      throw new AcquiaCliException('You must set both --dest-git-url and --dest-git-branch or neither.');
+    }
     if ($input->getOption('dest-git-url') && $input->getOption('dest-git-branch')) {
       $dest_git_url = $input->getOption('dest-git-url');
       $dest_git_branch = $input->getOption('dest-git-branch');
@@ -370,6 +365,21 @@ class PushArtifactCommand extends PullCommandBase {
       }
     }
     return $this->scaffoldFiles;
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateSourceCode(): void {
+    $required_paths = [
+      $this->composerJsonPath,
+      $this->drupalCorePath
+    ];
+    foreach ($required_paths as $required_path) {
+      if (!file_exists($required_path)) {
+        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
+      }
+    }
   }
 
 }
