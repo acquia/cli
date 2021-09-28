@@ -455,13 +455,19 @@ class ApiCommandHelper {
     // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
     // by running `composer update-cloud-api-spec`.
     $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
-    $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
     $cache = self::getCommandCache();
 
-    if (
-      $this->useCloudApiSpecCache()
-      && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)
-    ) {
+    // When running the phar, the original file may not exist. In that case, always use the cache.
+    if (!file_exists($acquia_cloud_spec_file)) {
+      $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
+      if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
+        return $acquia_cloud_spec_yaml_item->get();
+      }
+    }
+
+    // Otherwise, only use cache when it is valid.
+    $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
+    if ($this->useCloudApiSpecCache() && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)) {
       $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
       if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
         return $acquia_cloud_spec_yaml_item->get();
