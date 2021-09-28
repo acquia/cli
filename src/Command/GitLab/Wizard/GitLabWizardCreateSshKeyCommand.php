@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\GitLab\Wizard;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use stdClass;
@@ -10,19 +11,21 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
 
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilename;
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilepath;
+  protected static $defaultName = 'gitlab:wizard:ssh-key:create-upload';
 
   /**
    * @var array|false|string
    */
   private $appUuid;
+
+  /**
+   * {inheritdoc}.
+   */
+  protected function configure() {
+    $this->setDescription('Wizard to perform first time setup tasks within an IDE')
+      ->setAliases(['ide:wizard'])
+      ->setHidden(!CommandBase::isAcquiaCloudIde());
+  }
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -96,4 +99,5 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
   protected function getSshKeyLabel(): string {
     return $this::getGitLabSshKeyLabel($this->appUuid);
   }
+
 }
