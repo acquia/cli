@@ -24,7 +24,7 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
   protected function configure() {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
       ->setAliases(['ide:wizard'])
-      ->setHidden(!CommandBase::isAcquiaCloudIde());
+      ->setHidden(!$this->isGitLabEnv());
   }
 
   /**
@@ -62,8 +62,18 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
     }
   }
 
+  /**
+   * @return bool
+   */
+  protected function isGitLabEnv() {
+    return (bool) getenv('GITLAB_CI');
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function validateEnvironment() {
-    if (!getenv('GITLAB_CI')) {
+    if (!$this->isGitLabEnv()) {
       throw new AcquiaCliException('This command can only be run inside of a GitLab CI job');
     }
   }
