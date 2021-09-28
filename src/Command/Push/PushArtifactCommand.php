@@ -51,6 +51,11 @@ class PushArtifactCommand extends PullCommandBase {
   private $drupalCorePath;
 
   /**
+   * @var string
+   */
+  private $docrootPath;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -79,7 +84,8 @@ class PushArtifactCommand extends PullCommandBase {
     $this->setDirAndRequireProjectCwd($input);
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
-    $this->drupalCorePath = Path::join($this->dir, 'docroot', 'core');
+    $this->docrootPath = Path::join($this->dir, 'docroot');
+    $this->drupalCorePath = Path::join($this->docrootPath, 'core');
     $this->validateSourceCode();
 
     $is_dirty = $this->isLocalGitRepoDirty();
@@ -373,7 +379,7 @@ class PushArtifactCommand extends PullCommandBase {
   protected function validateSourceCode(): void {
     $required_paths = [
       $this->composerJsonPath,
-      $this->drupalCorePath
+      $this->docrootPath
     ];
     foreach ($required_paths as $required_path) {
       if (!file_exists($required_path)) {

@@ -512,17 +512,13 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function isLocalGitRepoDirty(): bool {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute([
-      'git',
-      'status',
-      '--short',
-    ], NULL, $this->dir, FALSE);
+    $process = $this->localMachineHelper->executeFromCmd(
+      // Problem with this is that it stages changes for the user. They may
+      // not want that.
+      'git add . && git diff-index --cached --quiet HEAD',
+     NULL, $this->dir, FALSE);
 
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Unable to determine if local git repository is dirty.");
-    }
-
-    return (bool) $process->getOutput();
+    return !$process->isSuccessful();
   }
 
   protected function getLocalGitCommitHash(): string {
