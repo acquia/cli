@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
 use Symfony\Component\Console\Input\InputInterface;
@@ -89,9 +90,13 @@ class AuthLoginCommand extends CommandBase {
    * @return string
    */
   protected function determineApiKey(InputInterface $input, OutputInterface $output): string {
-    if ($input->getOption('key')) {
+    if (!is_null($input->getOption('key'))) {
       $api_key = $input->getOption('key');
       $this->validateApiKey($api_key);
+    }
+
+    if (!$input->isInteractive()) {
+      throw new AcquiaCliException('You must either pass --key or run acli in interactive mode.');
     }
     else {
       $api_key = $this->io->ask('Please enter your API Key', NULL, Closure::fromCallable([$this, 'validateApiKey']));
@@ -125,9 +130,12 @@ class AuthLoginCommand extends CommandBase {
    * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input, OutputInterface $output): string {
-    if ($input->getOption('secret')) {
+    if (!is_null($input->getOption('secret'))) {
       $api_secret = $input->getOption('secret');
       $this->validateApiKey($api_secret);
+    }
+    if (!$input->isInteractive()) {
+      throw new AcquiaCliException('You must either pass --secret or run acli in interactive mode.');
     }
     else {
       $question = new Question('Please enter your API Secret (input will be hidden)');
@@ -168,7 +176,7 @@ class AuthLoginCommand extends CommandBase {
         InputInterface $input,
         OutputInterface $output
     ): void {
-    if (!$input->getOption('key') || !$input->getOption('secret')) {
+    if ($input->isInteractive() && (!is_null($input->getOption('key')) || !is_null($input->getOption('secret')))) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
       $this->output->writeln("You will need a Cloud Platform API token from <href=$token_url>$token_url</>");
 
