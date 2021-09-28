@@ -23,7 +23,7 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
    */
   protected function configure() {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
-      ->setAliases(['ide:wizard'])
+      ->setAliases(['gitlab:wizard'])
       ->setHidden(!$this->isGitLabEnv());
   }
 
