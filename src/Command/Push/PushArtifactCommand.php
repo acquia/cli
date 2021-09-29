@@ -320,10 +320,10 @@ class PushArtifactCommand extends PullCommandBase {
   protected function pushArtifact(Closure $output_callback, string $artifact_dir, string $vcs_url, string $dest_git_branch):void {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    // @todo Throw error if process fails.
-    // @todo Change to:
-    // git push origin source-branch:dest-branch
-    $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch . ':' . $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to push artifact: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
+    }
   }
 
   /**

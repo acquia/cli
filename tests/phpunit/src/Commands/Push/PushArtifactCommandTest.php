@@ -128,7 +128,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'push', $git_url, $git_branch], Argument::type('callable'), $artifact_dir, TRUE)
+    $local_machine_helper->execute(['git', 'push', $git_url, $git_branch . ':' . $git_branch], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
