@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeShareCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
@@ -12,7 +13,9 @@ use Symfony\Component\Console\Command\Command;
  * @property IdeShareCommand $command
  * @package Acquia\Cli\Tests\Ide
  */
-class IdeShareCommandTest extends IdeRequiredTestBase {
+class IdeShareCommandTest extends CommandTestBase {
+
+  use IdeRequiredTestTrait;
 
   /**
    * @var array

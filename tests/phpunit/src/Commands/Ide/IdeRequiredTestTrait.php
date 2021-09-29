@@ -2,12 +2,10 @@
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Cli\Tests\CommandTestBase;
-
 /**
- * Class IdeTestBase.
+ * Class IdeRequiredTestBase.
  */
-abstract class IdeRequiredTestBase extends CommandTestBase {
+trait IdeRequiredTestTrait {
 
   /**
    * @var string

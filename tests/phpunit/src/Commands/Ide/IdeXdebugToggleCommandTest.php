@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeXdebugToggleCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
@@ -12,7 +13,9 @@ use Symfony\Component\Process\Process;
  * @property \Acquia\Cli\Command\Ide\IdeXdebugToggleCommand $command
  * @package Acquia\Cli\Tests\Ide
  */
-class IdeXdebugToggleCommandTest extends IdeRequiredTestBase {
+class IdeXdebugToggleCommandTest extends CommandTestBase {
+
+  use IdeRequiredTestTrait;
 
   /**
    * @var string

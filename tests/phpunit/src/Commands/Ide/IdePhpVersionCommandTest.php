@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -16,7 +17,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * @property \Acquia\Cli\Command\Ide\IdePhpVersionCommand $command
  * @package Acquia\Cli\Tests\Ide
  */
-class IdePhpVersionCommandTest extends IdeRequiredTestBase {
+class IdePhpVersionCommandTest extends CommandTestBase {
+
+  use IdeRequiredTestTrait;
 
   /**
    * {@inheritdoc}
