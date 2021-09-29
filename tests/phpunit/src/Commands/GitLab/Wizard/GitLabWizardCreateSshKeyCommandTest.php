@@ -3,11 +3,8 @@
 namespace Acquia\Cli\Tests\Commands\GitLab\Wizard;
 
 use Acquia\Cli\Command\GitLab\Wizard\GitLabWizardCreateSshKeyCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class GitLabWizardCreateSshKeyCommandTest.
@@ -17,11 +14,6 @@ use Webmozart\PathUtil\Path;
  * @requires OS linux|darwin
  */
 class GitLabWizardCreateSshKeyCommandTest extends WizardTestBase {
-
-  /**
-   * @var string
-   */
-  public static $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   public function setUp($output = NULL): void {
     parent::setUp($output);

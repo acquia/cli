@@ -22,6 +22,11 @@ use Webmozart\PathUtil\Path;
 abstract class WizardTestBase extends CommandTestBase {
 
   /**
+   * @var string
+   */
+  public static $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+
+  /**
    * This method is called before each test.
    *
    * @param null $output

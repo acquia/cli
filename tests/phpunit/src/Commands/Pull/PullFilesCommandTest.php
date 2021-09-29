@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestBase;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
