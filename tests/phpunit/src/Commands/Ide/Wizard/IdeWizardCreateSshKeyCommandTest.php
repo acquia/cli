@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use AcquiaCloudApi\Response\IdeResponse;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
@@ -30,6 +31,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();
     $this->ide = $this->mockIdeRequest();
+    $this->sshKeyFileName = IdeWizardCreateSshKeyCommand::getSshKeyFilename(IdeRequiredTestTrait::$remote_ide_uuid);
   }
 
   /**
@@ -51,11 +53,11 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   }
 
   public function testCreate(): void {
-    parent::testCreate();
+    parent::runTestCreate();
   }
 
   public function testSshKeyAlreadyUploaded(): void {
-    parent::testSshKeyAlreadyUploaded();
+    parent::runTestSshKeyAlreadyUploaded();
   }
 
 }

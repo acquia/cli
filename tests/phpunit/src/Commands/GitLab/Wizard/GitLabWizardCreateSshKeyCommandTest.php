@@ -21,6 +21,7 @@ class GitLabWizardCreateSshKeyCommandTest extends WizardTestBase {
     $this->mockListSshKeysRequest();
     putenv('GITLAB_CI=true');
     putenv('ACQUIA_APPLICATION_UUID=' . self::$application_uuid);
+    $this->sshKeyFileName = GitLabWizardCreateSshKeyCommand::getSshKeyFilename(self::$application_uuid);
   }
 
   public function tearDown(): void {
@@ -37,11 +38,11 @@ class GitLabWizardCreateSshKeyCommandTest extends WizardTestBase {
   }
 
   public function testCreate(): void {
-    parent::testCreate();
+    parent::runTestCreate();
   }
 
   public function testSshKeyAlreadyUploaded(): void {
-    parent::testSshKeyAlreadyUploaded();
+    parent::runTestSshKeyAlreadyUploaded();
   }
 
 }

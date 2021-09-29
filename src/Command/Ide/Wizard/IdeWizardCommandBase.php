@@ -41,11 +41,11 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   }
 
   /**
-   * @param string $ide_uuid
+   * @param $ide_uuid
    *
    * @return string
    */
-  public function getSshKeyFilename(string $ide_uuid): string {
+  public static function getSshKeyFilename($ide_uuid): string {
     return 'id_rsa_acquia_ide_' . $ide_uuid;
   }
 

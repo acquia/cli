@@ -45,7 +45,7 @@ class GitLabWizardCreateSshKeyCommand extends WizardCommandBase {
    *
    * @return string
    */
-  public function getSshKeyFilename(string $app_uuid): string {
+  public static function getSshKeyFilename(string $app_uuid): string {
     return 'id_rsa_acquia_gitlab_' . $app_uuid;
   }
 

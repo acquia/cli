@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -27,12 +28,18 @@ abstract class WizardTestBase extends CommandTestBase {
   public static $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   /**
+   * @var string
+   */
+  protected $sshKeyFileName;
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
    *
    */
   public function setUp($output = NULL): void {
+    TestBase::setEnvVars(self::getEnvVars());
     parent::setUp();
     $this->getCommandTester();
     $this->application->addCommands([
@@ -42,12 +49,23 @@ abstract class WizardTestBase extends CommandTestBase {
     ]);
   }
 
+  protected function tearDown(): void {
+    parent::tearDown();
+    TestBase::unsetEnvVars(self::getEnvVars());
+  }
+
+  public static function getEnvVars(): array {
+    return [
+      'ACQUIA_APPLICATION_UUID' => self::$application_uuid,
+    ];
+  }
+
   /**
    * Tests the 'gitlab:wizard:ssh-key:create' command.
    *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testCreate(): void {
+  protected function runTestCreate(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
@@ -58,12 +76,10 @@ abstract class WizardTestBase extends CommandTestBase {
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
-
     $this->mockSshAgent();
 
     // Remove SSH key if it exists.
-    $ssh_key_filename = $this->command->getSshKeyFilename($this::$application_uuid);
-    $this->fs->remove(Path::join(sys_get_temp_dir(), $ssh_key_filename));
+    $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
 
     // Set properties and execute.
     $this->executeCommand([], [
@@ -73,14 +89,14 @@ abstract class WizardTestBase extends CommandTestBase {
 
     // Assertions.
     $this->prophet->checkPredictions();
-    $this->assertFileExists($this->sshDir . '/' . $ssh_key_filename);
-    $this->assertFileExists($this->sshDir . '/' . str_replace('.pub', '', $ssh_key_filename));
+    $this->assertFileExists($this->sshDir . '/' . $this->sshKeyFileName);
+    $this->assertFileExists($this->sshDir . '/' . str_replace('.pub', '', $this->sshKeyFileName));
   }
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testSshKeyAlreadyUploaded(): void {
+  protected function runTestSshKeyAlreadyUploaded(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     // Make the uploaded key match the created one.
