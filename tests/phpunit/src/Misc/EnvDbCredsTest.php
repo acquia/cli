@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -37,32 +38,21 @@ class EnvDbCredsTest extends CommandTestBase {
     $this->dbPassword = 'mypasswordisgreat';
     $this->dbName = 'mynameisgrand';
     $this->dbHost = 'myhostismeh';
-    self::setEnvVars($this->dbUser, $this->dbPassword, $this->dbName, $this->dbHost);
+    TestBase::setEnvVars($this->getEnvVars());
   }
 
-  protected function tearDown(): void {
+  public function tearDown(): void {
     parent::tearDown();
-    self::unsetEnvVars();
+    TestBase::unsetEnvVars($this->getEnvVars());
   }
 
-  /**
-   * @param $db_user
-   * @param $db_password
-   * @param $db_name
-   * @param $db_host
-   */
-  public static function setEnvVars($db_user, $db_password, $db_name, $db_host): void {
-    putenv('ACLI_DB_USER=' . $db_user);
-    putenv('ACLI_DB_PASSWORD=' . $db_password);
-    putenv('ACLI_DB_NAME=' . $db_name);
-    putenv('ACLI_DB_HOST=' . $db_host);
-  }
-
-  public static function unsetEnvVars() {
-    putenv('ACLI_DB_USER');
-    putenv('ACLI_DB_PASSWORD');
-    putenv('ACLI_DB_NAME');
-    putenv('ACLI_DB_HOST');
+  protected function getEnvVars() {
+    return [
+      'ACLI_DB_USER' => $this->dbUser,
+      'ACLI_DB_PASSWORD' => $this->dbPassword,
+      'ACLI_DB_NAME' => $this->dbName,
+      'ACLI_DB_HOST' => $this->dbHost,
+    ];
   }
 
   /**

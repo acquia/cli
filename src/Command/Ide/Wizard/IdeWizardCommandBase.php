@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
+use Acquia\Cli\Command\WizardCommandBase;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,26 +10,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class IdeWizardCommandBase.
  */
-abstract class IdeWizardCommandBase extends SshKeyCommandBase {
-
-  /** @var string */
-  protected $passphraseFilepath;
+abstract class IdeWizardCommandBase extends WizardCommandBase {
   /**
    * @var false|string
    */
   protected $ideUuid;
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilename;
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilepath;
-  /**
-   * @var string
-   */
-  protected $publicSshKeyFilepath;
   /**
    * @var \AcquiaCloudApi\Response\IdeResponse
    */
@@ -43,38 +28,47 @@ abstract class IdeWizardCommandBase extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
-    $this->ideUuid = $this::getThisCloudIdeUuid();
-    $this->privateSshKeyFilename = $this->getSshKeyFilename($this->ideUuid);
-    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
-    $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
 
+    $this->ideUuid = $this::getThisCloudIdeUuid();
+    $this->setSshKeyFilepath($this->getSshKeyFilename($this->ideUuid));
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $this->ide = $ides_resource->get($this->ideUuid);
   }
 
   /**
-   *
-   */
-  protected function deleteLocalIdeSshKey(): void {
-    $this->localMachineHelper->getFilesystem()->remove([
-      $this->publicSshKeyFilepath,
-      $this->privateSshKeyFilepath,
-    ]);
-  }
-
-  /**
-   * @param string $ide_uuid
+   * @param $ide_uuid
    *
    * @return string
    */
-  public function getSshKeyFilename(string $ide_uuid): string {
+  public static function getSshKeyFilename($ide_uuid): string {
     return 'id_rsa_acquia_ide_' . $ide_uuid;
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateEnvironment() {
+    $this->requireCloudIdeEnvironment();
+  }
+
+  /**
+   * @return string
+   */
+  protected function getSshKeyLabel() {
+    return $this::getIdeSshKeyLabel($this->ide);
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function deleteThisSshKeyFromCloud(): void {
+    if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
+      $this->deleteSshKeyFromCloud($cloud_key);
+    }
+  }
 }

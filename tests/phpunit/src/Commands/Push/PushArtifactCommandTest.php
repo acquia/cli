@@ -81,7 +81,9 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(['git'])->shouldBeCalled();
     $local_machine_helper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], Argument::type('callable'), Argument::type('string'), TRUE)
+    $local_machine_helper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path . ':' . $vcs_path], Argument::type('callable'), Argument::type('string'), TRUE)
+      ->willReturn($process->reveal())->shouldBeCalled();
+    $local_machine_helper->execute(['git', 'checkout', $vcs_path], Argument::type('callable'), Argument::type('string'), TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
@@ -117,7 +119,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param $git_branch
    */
   protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash, $git_url, $git_branch): void {
-    $process = $this->prophet->prophesize(Process::class);
+    $process =  $this->mockProcess();
     $local_machine_helper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core/index.php'], NULL, $artifact_dir, FALSE)
@@ -128,7 +130,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'push', $git_url, $git_branch], Argument::type('callable'), $artifact_dir, TRUE)
+    $local_machine_helper->execute(['git', 'push', $git_url, $git_branch . ':' . $git_branch], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
@@ -20,7 +21,6 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testDelete(): void {
-
     // Request for IDE data.
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . $this::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();

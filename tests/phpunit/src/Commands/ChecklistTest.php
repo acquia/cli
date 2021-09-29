@@ -24,6 +24,7 @@ class ChecklistTest extends TestBase {
   }
 
   public function testSpinner(): void {
+    putenv('PHPUNIT_RUNNING=1');
     $checklist = new Checklist($this->output);
     $checklist->addItem('Testing!');
 
@@ -39,6 +40,8 @@ class ChecklistTest extends TestBase {
     /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
     $progress_bar = $items[0]['spinner']->getProgressBar();
     $this->assertEquals('Testing!', $progress_bar->getMessage());
+
+    putenv('PHPUNIT_RUNNING');
   }
 
   public function testLoopTimeout(): void {

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeServiceRestartCommand;
+use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
 use Symfony\Component\Console\Command\Command;
 
@@ -12,7 +13,9 @@ use Symfony\Component\Console\Command\Command;
  * @property IdeServiceRestartCommandTest $command
  * @package Acquia\Cli\Tests\Ide
  */
-class IdeServiceRestartCommandTest extends IdeRequiredTestBase {
+class IdeServiceRestartCommandTest extends CommandTestBase {
+
+  use IdeRequiredTestTrait;
 
   /**
    * {@inheritdoc}
