@@ -158,16 +158,21 @@ class PushArtifactCommand extends PullCommandBase {
 
     $output_callback('out', "Initializing Git in $artifact_dir");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    // @todo Don't fetch anything? Start with bare repo?
     $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
-    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path . ':' . $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       // Remote branch does not exist. Just create it locally. This will create
       // the new branch off of the current commit.
       $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      if (!$process->isSuccessful()) {
+        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
+      }
+    }
+    else {
+      $process = $this->localMachineHelper->execute(['git', 'checkout', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
       }
@@ -316,6 +321,8 @@ class PushArtifactCommand extends PullCommandBase {
     $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     // @todo Throw error if process fails.
+    // @todo Change to:
+    // git push origin source-branch:dest-branch
     $this->localMachineHelper->execute(['git', 'push', $vcs_url, $dest_git_branch], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
   }
 

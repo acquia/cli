@@ -21,8 +21,8 @@ class SshCommand extends SshBaseCommand {
    */
   protected function configure() {
     $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
+      ->acceptEnvironmentId()
       ->setAliases(['ssh'])
-      ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
       ->addArgument('ssh_command', InputArgument::IS_ARRAY, 'Command to run via SSH (if not provided, opens a shell in the site directory)')
       ->addUsage("myapp.dev # open a shell in the myapp.dev environment")
       ->addUsage("myapp.dev -- ls -al # list files in the myapp.dev environment and return");

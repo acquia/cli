@@ -243,7 +243,7 @@ class Spinner {
    *
    */
   protected function spinnerIsSupported(): bool {
-    return $this->output instanceof ConsoleOutput;
+    return $this->output instanceof ConsoleOutput && getenv('CI') !== 'true';
   }
 
   /**
