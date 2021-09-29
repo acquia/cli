@@ -30,6 +30,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    */
   public function setUp($output = NULL): void {
     parent::setUp();
+    self::setCloudIdeEnvVars();
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
     $this->fs->copy($this->fixtureDir . '/xdebug.ini', $this->xdebugFilePath, TRUE);
     $this->command->setXdebugIniFilepath($this->xdebugFilePath);
