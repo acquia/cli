@@ -2,14 +2,13 @@
 
 namespace Acquia\Cli\Command\GitLab\Wizard;
 
-use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
+use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
+class GitLabWizardCreateSshKeyCommand extends WizardCommandBase {
 
   protected static $defaultName = 'gitlab:wizard:ssh-key:create-upload';
 
@@ -35,12 +34,10 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    $this->appUuid = getenv('ACQUIA_APPLICATION_UUID');
-    $this->privateSshKeyFilename = $this->getSshKeyFilename($this->appUuid);
-    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
-    $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
-
     parent::initialize($input, $output);
+
+    $this->appUuid = getenv('ACQUIA_APPLICATION_UUID');
+    $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
   }
 
   /**
@@ -65,7 +62,7 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
   /**
    * @return bool
    */
-  protected function isGitLabEnv() {
+  protected function isGitLabEnv(): bool {
     return (bool) getenv('GITLAB_CI');
   }
 
@@ -75,6 +72,9 @@ class GitLabWizardCreateSshKeyCommand extends IdeWizardCreateSshKeyCommand {
   protected function validateEnvironment() {
     if (!$this->isGitLabEnv()) {
       throw new AcquiaCliException('This command can only be run inside of a GitLab CI job');
+    }
+    if (!getenv('ACQUIA_APPLICATION_UUID')) {
+      throw new AcquiaCliException('The environmental variable ACQUIA_APPLICATION_UUID is not set');
     }
   }
 
