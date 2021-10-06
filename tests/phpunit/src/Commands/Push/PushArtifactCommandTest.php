@@ -124,6 +124,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core/index.php'], NULL, $artifact_dir, FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
+    $local_machine_helper->execute(['git', 'add', '-f', 'docroot/autoload.php'], NULL, $artifact_dir, FALSE)
+      ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'docroot/core'], NULL, $artifact_dir, FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'vendor'], NULL, $artifact_dir, FALSE)
