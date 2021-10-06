@@ -306,7 +306,6 @@ class PushArtifactCommand extends PullCommandBase {
       throw new AcquiaCliException("Could not add files to artifact via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
     foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
-
       $this->logger->debug("Forcibly adding $file");
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
       if (!$process->isSuccessful()) {
@@ -384,6 +383,8 @@ class PushArtifactCommand extends PullCommandBase {
         $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot/core', $file);
       }
     }
+    $this->scaffoldFiles[] = 'docroot/autoload.php';
+
     return $this->scaffoldFiles;
   }
 
