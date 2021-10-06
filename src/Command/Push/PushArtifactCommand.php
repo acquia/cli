@@ -104,7 +104,7 @@ class PushArtifactCommand extends PullCommandBase {
       $dest_git_branch = $input->getOption('dest-git-branch');
     }
     else {
-      $this->io->writeln('<info>You must select an environment with a Git branch deployed</info>');
+      // @todo Make sure that only environments with build branches are available?
       $environment = $this->determineEnvironment($input, $output, TRUE);
       if (strpos($environment->vcs->path, 'tags') === 0) {
         throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
@@ -301,16 +301,23 @@ class PushArtifactCommand extends PullCommandBase {
   protected function commit(Closure $output_callback, string $artifact_dir, string $commit_hash):void {
     $output_callback('out', 'Adding and committing changed files');
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    // @todo Throw error if process fails.
-    $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-    foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
-      // This will fatally error if the file doesn't exist. Suppress error output.
-      $this->logger->debug("Forcibly adding $file");
-      // @todo Throw error if process fails.
-      $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
+    $process = $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Could not add files to artifact via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
-    // @todo Throw error if process fails.
+    foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
+
+      $this->logger->debug("Forcibly adding $file");
+      $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
+      if (!$process->isSuccessful()) {
+        // This will fatally error if the file doesn't exist. Suppress error output.
+        $this->io->warning("Unable to forcibly add $file to new branch");
+      }
+    }
     $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Could not commit via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
+    }
   }
 
   /**
