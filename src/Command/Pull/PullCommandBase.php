@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -116,11 +117,11 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param bool $on_demand Force on-demand backup.
    * @param bool $no_import Skip import.
+   * @param bool $multiple_dbs
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
-  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE): void {
+  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
     if (!$no_import) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
@@ -128,29 +129,35 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $site = $this->determineSite($source_environment, $input);
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $site);
+    $databases = $this->determineCloudDatabases($acquia_cloud_client, $source_environment, $site, $multiple_dbs);
 
-    if ($on_demand) {
-      $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
-      $this->createBackup($source_environment, $database, $acquia_cloud_client);
+    foreach ($databases as $database) {
+      if ($on_demand) {
+        $this->checklist->addItem("Creating an on-demand database(s) backup on Cloud Platform");
+        $this->createBackup($source_environment, $database, $acquia_cloud_client);
+        $this->checklist->completePreviousItem();
+      }
+      $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+      if (!$on_demand) {
+        $this->printDatabaseBackupInfo($backup_response, $source_environment);
+      }
+
+      $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
+      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
-    }
-    $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
-    if (!$on_demand) {
-      $this->printDatabaseBackupInfo($backup_response, $source_environment);
-    }
 
-    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
-    $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
-    $this->checklist->completePreviousItem();
-
-    if ($no_import) {
-      $this->io->success('Database backup downloaded to ' . $local_filepath);
-    } else {
-      $this->checklist->addItem('Importing Drupal database download');
-      $this->importRemoteDatabase($local_filepath,
-        $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
+      if ($no_import) {
+        $this->io->success("{$database->name} database backup downloaded to $local_filepath");
+      } else {
+        $this->checklist->addItem("Importing {$database->name} database download");
+        if ($site === 'default') {
+          $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+        }
+        else {
+          $this->importRemoteDatabase($database->name, $local_filepath, $this->getOutputCallback($output, $this->checklist));
+        }
+        $this->checklist->completePreviousItem();
+      }
     }
   }
 
@@ -208,18 +215,20 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param string $database_name
    * @param string $local_filepath
    * @param null $output_callback
    *
    * @throws \Exception
    */
   protected function importRemoteDatabase(
-    $local_filepath,
+    string $database_name,
+    string $local_filepath,
     $output_callback = NULL
   ): void {
-    $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
-    $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
-    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
+    $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
+    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
   }
 
@@ -514,9 +523,13 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function promptChooseDatabase(
     $cloud_environment,
-    $environment_databases
+    $environment_databases,
+    $multiple_dbs
   ) {
     $choices = [];
+    if ($multiple_dbs) {
+      $choices['all'] = 'All';
+    }
     $default_database_index = 0;
     if ($this->isAcsfEnv($cloud_environment)) {
       $acsf_sites = $this->getAcsfSites($cloud_environment);
@@ -538,10 +551,23 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $database->name . $suffix;
     }
 
-    $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
-    $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
+    $question = new ChoiceQuestion(
+      $multiple_dbs ? 'Choose databases. You may choose multiple.' : 'Choose a database.',
+      $choices,
+      $default_database_index
+    );
+    $question->setMultiselect($multiple_dbs);
+    $chosen_database_keys = $this->io->askQuestion($question);
+    $chosen_databases = [];
 
-    return $environment_databases[$chosen_database_index];
+    if (count($chosen_database_keys) === 1 && $chosen_database_keys[0] === 'all') {
+      return $environment_databases;
+    }
+    foreach ($chosen_database_keys as $chosen_database_key) {
+      $chosen_databases[] = $environment_databases[$chosen_database_key];
+    }
+
+    return $chosen_databases;
   }
 
   /**
@@ -654,21 +680,23 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param $chosen_environment
    *
-   * @return \stdClass
+   * @return \stdClass|array
    *   The database instance. This is not a DatabaseResponse, since it's
    *   specific to the environment.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment, $site = NULL): stdClass {
+  protected function determineCloudDatabases(Client $acquia_cloud_client, $chosen_environment, $site = NULL, $multiple_dbs) {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
     );
 
     if (count($databases) > 1) {
-      if ($site) {
+      $this->logger->debug('Multiple databases detected on Cloud');
+      if ($site && !$multiple_dbs) {
         if ($site === 'default') {
+          $this->logger->debug('Site is set to default. Assuming default database');
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
         $database_names = array_column($databases, 'name');
@@ -676,8 +704,10 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
           return $databases[$database_key];
         }
       }
-      $this->warnMultisite();
-      return $this->promptChooseDatabase($chosen_environment, $databases);
+      return $this->promptChooseDatabase($chosen_environment, $databases, $multiple_dbs);
+    }
+    else {
+      $this->logger->debug('Only a single database detected on Cloud');
     }
 
     return reset($databases);

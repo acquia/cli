@@ -1469,8 +1469,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $sites = $this->getCloudSites($cloud_environment);
     if (count($sites) === 1) {
       $site = reset($sites);
+      $this->logger->debug("Only a single Cloud site was detected. Assuming site is $site");
       return $site;
     }
+    $this->logger->debug("Multisite detected");
     $this->warnMultisite();
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }

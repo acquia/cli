@@ -29,6 +29,8 @@ class PullDatabaseCommand extends PullCommandBase {
         'Force creation of an on-demand backup. This takes much longer than using an existing backup (when one is available)')
       ->addOption('no-import', NULL, InputOption::VALUE_NONE,
       'Download the backup but do not import it (implies --no-scripts)')
+      ->addOption('multiple-dbs', NULL, InputOption::VALUE_NONE,
+        'Download multiple dbs')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
@@ -44,9 +46,10 @@ class PullDatabaseCommand extends PullCommandBase {
     $no_scripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
     $on_demand = $input->hasOption('on-demand') && $input->getOption('on-demand');
     $no_import = $input->hasOption('no-import') && $input->getOption('no-import');
+    $multiple_dbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
     // $no_import implies $no_scripts.
     $no_scripts = $no_import || $no_scripts;
-    $this->pullDatabase($input, $output, $on_demand, $no_import);
+    $this->pullDatabase($input, $output, $on_demand, $no_import, $multiple_dbs);
     if (!$no_scripts) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
     }
