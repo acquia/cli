@@ -73,7 +73,7 @@ You may define scripts that will automatically run before and/or after any ACLI 
 
 ### Authentication
 
-The preferred way to authenticate with Acquia Cloud Platform API is to run `acli login`. However, ACLI supports other methods of authenication. In priority order, ACLI will accept the following:
+The preferred way to authenticate with Acquia Cloud Platform API is to run `acli login`. However, ACLI supports other methods of authentication. In priority order, ACLI will accept the following:
 
 1. A valid (unexpired) access token stored in `$ACLI_ACCESS_TOKEN` with corresponding `$ACLI_ACCESS_TOKEN_EXPIRY`.
 2. A key stored in `$ACLI_KEY` and corresponding `$ACLI_SECRET`.
