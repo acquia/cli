@@ -503,6 +503,11 @@ class ApiCommandHelper {
           continue;
         }
 
+        // Skip deprecated endpoints.
+        if (array_key_exists('deprecated', $schema) && $schema['deprecated']) {
+          continue;
+        }
+
         $command_name = 'api:' . $schema['x-cli-name'];
         $command = new ApiCommandBase(
           $this->cloudConfigFilepath,
