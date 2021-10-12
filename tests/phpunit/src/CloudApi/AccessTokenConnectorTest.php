@@ -13,7 +13,7 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 
 /**
- * Class RefreshTokenTest.
+ * Class AccessTokenConnectorTest.
  */
 class AccessTokenConnectorTest extends TestBase {
 
