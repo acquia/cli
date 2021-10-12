@@ -49,6 +49,10 @@ class CloudCredentials {
    * @return string|null
    */
   public function getCloudKey(): ?string {
+    if (getenv('ACLI_KEY')) {
+      return getenv('ACLI_KEY');
+    }
+
     if ($this->datastoreCloud->get('acli_key')) {
       return $this->datastoreCloud->get('acli_key');
     }
@@ -66,6 +70,10 @@ class CloudCredentials {
    * @return string|null
    */
   public function getCloudSecret(): ?string {
+    if (getenv('ACLI_SECRET')) {
+      return getenv('ACLI_SECRET');
+    }
+
     $acli_key = $this->getCloudKey();
     if ($this->datastoreCloud->get('keys')) {
       $keys = $this->datastoreCloud->get('keys');

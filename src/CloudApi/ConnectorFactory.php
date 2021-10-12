@@ -25,6 +25,7 @@ class ConnectorFactory {
    * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
   public function createConnector() {
+    // If an access token is already defined, use it.
     if ($this->config['accessToken']) {
       $access_token = new AccessToken([
         'access_token' => $this->config['accessToken'],
@@ -39,6 +40,7 @@ class ConnectorFactory {
       }
     }
 
+    // Otherwise, use a key and secret.
     return new Connector($this->config, $this->baseUri);
   }
 
