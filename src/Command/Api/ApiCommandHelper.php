@@ -497,6 +497,10 @@ class ApiCommandHelper {
       if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
         continue;
       }
+      // Skip deprecated endpoints.
+      if (array_key_exists('deprecated', $endpoint) && $endpoint['deprecated']) {
+        continue;
+      }
 
       foreach ($endpoint as $method => $schema) {
         if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), TRUE)) {
