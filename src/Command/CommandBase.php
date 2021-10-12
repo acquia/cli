@@ -355,6 +355,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return TRUE;
     }
 
+    if (getenv('ACLI_KEY') && getenv('ACLI_SECRET') ) {
+      return TRUE;
+    }
+
     if ($cloud_datastore === NULL) {
       return FALSE;
     }
