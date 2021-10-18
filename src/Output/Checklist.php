@@ -82,7 +82,7 @@ class Checklist {
 
     $message_lines = explode(PHP_EOL, $update_message);
     foreach ($message_lines as $line) {
-      if ($this->useSpinner() && $item['spinner']) {
+      if (isset($spinner) && $item['spinner']) {
         if (trim($line)) {
           $spinner->setMessage(str_repeat(' ', $this->indentLength * 2) . $line, 'detail');
         }
@@ -91,7 +91,7 @@ class Checklist {
     }
     // Ensure that the new message is displayed at least once. Sometimes it is
     // not displayed if the minimum redraw frequency is not met.
-    if ($this->useSpinner() && $item['spinner']) {
+    if (isset($spinner) && $item['spinner']) {
       $spinner->getProgressBar()->display();
     }
   }
