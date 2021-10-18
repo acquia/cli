@@ -263,7 +263,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
         $this->logger->debug($exception->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 15, $spinner, $output);
+    LoopHelper::addTimeoutToLoop($loop, 15, $spinner);
     $loop->run();
   }
 

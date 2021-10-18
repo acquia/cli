@@ -37,17 +37,17 @@ class LoopHelper {
 
   /**
    * @param \React\EventLoop\LoopInterface $loop
-   * @param int $minutes
+   * @param float $minutes
    * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return \React\EventLoop\TimerInterface
    */
   public static function addTimeoutToLoop(
     LoopInterface $loop,
-    $minutes,
-    Spinner $spinner,
-    OutputInterface $output
+    float $minutes,
+    Spinner $spinner
   ): TimerInterface {
-    return $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner, $output) {
+    return $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
       self::finishSpinner($spinner);
       $loop->stop();
       throw new AcquiaCliException("Timed out after $minutes minutes!");

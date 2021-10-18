@@ -49,7 +49,7 @@ class ChecklistTest extends TestBase {
     $output = new BufferedOutput();
     $message = 'Waiting for the IDE to be ready. This can take up to 15 minutes...';
     $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $output);
-    $timer = LoopHelper::addTimeoutToLoop($loop, .01, $spinner, $output);
+    $timer = LoopHelper::addTimeoutToLoop($loop, .01, $spinner);
     try {
       $loop->run();
     }

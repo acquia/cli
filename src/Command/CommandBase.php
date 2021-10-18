@@ -1136,6 +1136,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $parts = explode(':', $site_id);
       $site_prefix = $parts[1];
     }
+    else {
+      throw new AcquiaCliException("No applications found");
+    }
 
     if ($site_prefix !== $application_alias) {
       throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);

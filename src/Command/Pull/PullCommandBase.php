@@ -384,7 +384,7 @@ abstract class PullCommandBase extends CommandBase {
         $this->logger->debug($e->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner, $this->output);
+    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
 
     // Start the loop.
     $loop->run();

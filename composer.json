@@ -135,7 +135,7 @@
             "@unit"
         ],
         "stan": [
-            "phpstan analyze src tests bin"
+            "phpstan analyze"
         ],
         "coveralls": [
             "php-coveralls -vvv"
