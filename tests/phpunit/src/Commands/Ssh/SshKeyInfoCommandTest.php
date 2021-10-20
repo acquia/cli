@@ -39,4 +39,5 @@ class SshKeyInfoCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Fingerprint        8d:13:fb:50:50:da:cf:c5:bf:ca:31:33:ed:51:27:24', $output);
     $this->assertStringContainsString('Created at         2017-05-09T20:30:35+00:00', $output);
   }
+
 }
