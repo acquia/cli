@@ -744,18 +744,6 @@ abstract class TestBase extends TestCase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
-  protected function mockRestartBash(ObjectProphecy $local_machine_helper): void {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $local_machine_helper->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   */
   protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
   }
