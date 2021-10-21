@@ -698,12 +698,15 @@ abstract class PullCommandBase extends CommandBase {
     $local_free_space = explode("\n", $process->getOutput())[1];
     // Apply a 10% safety margin.
     if ($delta * 1.1 > $local_free_space) {
-      throw new AcquiaCliException(
-        sprintf('Not enough free space in destination directory.
-Transfer requires %d Kb free space, but only %d Kb are available.
-Delete files locally or in your Cloud environment to free disk space, then try again.',
-        $delta,
-        $local_free_space)
+      throw new AcquiaCliException('Not enough free space to pull files from the {environment} environment.
+Transfer requires {required_space} Kb free space, but only {free_space} Kb are available.
+Delete files locally or in your Cloud environment to free disk space, then try again.
+Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
+        [
+          'environment' => $environment->name,
+          'required_space' => $delta,
+          'free_space' => $local_free_space,
+        ]
       );
     }
   }
