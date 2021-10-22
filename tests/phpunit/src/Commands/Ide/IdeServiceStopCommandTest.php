@@ -38,7 +38,7 @@ class IdeServiceStopCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Stopping PHP', $output);
+    $this->assertStringContainsString('Stopping php', $output);
   }
 
   /**
