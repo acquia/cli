@@ -38,7 +38,7 @@ class IdeServiceStopCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('php-fpm: stopped', $output);
+    $this->assertStringContainsString('Stopping PHP', $output);
   }
 
   /**
