@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class SshKeyDeleteCommand.
  */
-class SshKeyDeleteCommand extends SshKeyCommandBase {
+class SshKeyDeleteCommand extends CommandBase {
 
   protected static $defaultName = 'ssh-key:delete';
 
@@ -32,9 +32,9 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output): int {
+  protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $cloud_key = $this->determineCloudKey($acquia_cloud_client, 'Choose an SSH key to delete from the Cloud Platform');
+    $cloud_key = $this->determineCloudKey($acquia_cloud_client);
 
     $response = $acquia_cloud_client->makeRequest('delete', '/account/ssh-keys/' . $cloud_key->uuid);
     if ($response->getStatusCode() === 202) {
@@ -43,6 +43,23 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
     }
 
     throw new AcquiaCliException($response->getBody()->getContents());
+  }
+
+  protected function determineCloudKey($acquia_cloud_client) {
+    if ($this->input->getOption('cloud-key-uuid')) {
+      $cloud_key_uuid = self::validateUuid($this->input->getOption('cloud-key-uuid'));
+      $cloud_key = $acquia_cloud_client->request('get', '/account/ssh-keys/' . $cloud_key_uuid);
+      return $cloud_key;
+    }
+
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
+    $cloud_key = $this->promptChooseFromObjectsOrArrays(
+      $cloud_keys,
+      'uuid',
+      'label',
+      'Choose an SSH key to delete from the Cloud Platform'
+    );
+    return $cloud_key;
   }
 
 }

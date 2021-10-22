@@ -42,21 +42,4 @@ abstract class SshKeyCommandBase extends CommandBase {
     return $label;
   }
 
-  protected function determineCloudKey($acquia_cloud_client, string $question_text) {
-    if ($this->input->getOption('cloud-key-uuid')) {
-      $cloud_key_uuid = self::validateUuid($this->input->getOption('cloud-key-uuid'));
-      $cloud_key = $acquia_cloud_client->request('get', '/account/ssh-keys/' . $cloud_key_uuid);
-      return $cloud_key;
-    }
-
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $cloud_key = $this->promptChooseFromObjectsOrArrays(
-      $cloud_keys,
-      'uuid',
-      'label',
-      $question_text
-    );
-    return $cloud_key;
-  }
-
 }
