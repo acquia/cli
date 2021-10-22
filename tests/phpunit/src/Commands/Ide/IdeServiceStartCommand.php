@@ -38,7 +38,7 @@ class IdeServiceStartCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Started php', $output);
+    $this->assertStringContainsString('php-fpm: started', $output);
   }
 
   /**
