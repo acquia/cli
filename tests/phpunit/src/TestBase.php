@@ -729,6 +729,40 @@ abstract class TestBase extends TestCase {
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
+  protected function mockStartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->execute([
+      'supervisorctl',
+      'start',
+      'php-fpm',
+    ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+    return $process;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockStopPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $local_machine_helper->execute([
+      'supervisorctl',
+      'stop',
+      'php-fpm',
+    ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+    return $process;
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
   protected function mockRestartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
