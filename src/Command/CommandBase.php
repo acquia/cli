@@ -19,6 +19,8 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
+use AcquiaCloudApi\Endpoints\Organizations;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
@@ -343,6 +345,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
+    $this->addOrgScopeIfRequired();
   }
 
   /**
@@ -404,6 +407,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Ok, no data will be collected and shared with us.');
         $this->output->writeln('We take privacy seriously.');
         $this->output->writeln('If you change your mind, run <options=bold>acli telemetry</>.');
+      }
+    }
+  }
+
+  /**
+   * Add scope=organization:[org-uuid] to Cloud API requests if required.
+   *
+   * This is a requirement for Acquia Cloud organizations that have SSO enabled.
+   */
+  protected function addOrgScopeIfRequired() {
+    if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
+      try {
+        // @todo Cache this! It adds 2 extra requests for every command.
+        $application = $this->getCloudApplication($application_uuid);
+        $organizations_endpoint = new Organizations($this->cloudApiClientService->getClient());
+        $organization_applications = $organizations_endpoint->getApplications($application->organization->uuid);
+      } catch (ApiErrorException $e) {
+        // If a 403 is returned, then the organization scope is required.
+        if ($e->getCode() === 403) {
+          // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
+          // @todo Validate that application will actually be set if the scope is required. Prompt?
+          $this->cloudApiClientService->getClient()->addQuery('scope', 'organization:' . $application->organization->uuid);
+        }
       }
     }
   }
