@@ -37,6 +37,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -59,10 +60,28 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     // Wait for the key to register on the Cloud Platform.
     if ($input->getOption('no-wait') === FALSE) {
       $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
-      $this->pollAcquiaCloud($output, $acquia_cloud_client, $public_key);
+      if ($this->keyHasUploaded($acquia_cloud_client, $public_key)) {
+        $this->pollAcquiaCloudUntilSshSuccess($output);
+      }
     }
 
     return 0;
+  }
+
+  /**
+   * @param $acquia_cloud_client
+   * @param $public_key
+   *
+   * @return bool
+   */
+  protected function keyHasUploaded($acquia_cloud_client, $public_key): bool {
+    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
+    foreach ($cloud_keys as $cloud_key) {
+      if (trim($cloud_key->public_key) === trim($public_key)) {
+        return TRUE;
+      }
+    }
+    return FALSE;
   }
 
   /**
@@ -158,37 +177,6 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       }
     }
     return $this->localMachineHelper->readFile($filepath);
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string $public_key
-   */
-  protected function pollAcquiaCloud(
-    OutputInterface $output,
-    Client $acquia_cloud_client,
-    string $public_key
-  ): void {
-    // Create a loop to periodically poll the Cloud Platform.
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for SSH key to become available on the Cloud Platform...', $output);
-
-    // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, $acquia_cloud_client, $public_key, $spinner) {
-      // @todo Change this to test an actual ssh connection, not just Cloud API.
-      // But which server do we check a connection to?
-      $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-      foreach ($cloud_keys as $cloud_key) {
-        if (trim($cloud_key->public_key) === trim($public_key)) {
-          LoopHelper::finishSpinner($spinner);
-          $output->writeln("\n<info>Your SSH key is ready for use.</info>");
-          $loop->stop();
-        }
-      }
-    });
-    LoopHelper::addTimeoutToLoop($loop, 10, $spinner, $output);
-    $loop->run();
   }
 
 }

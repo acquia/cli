@@ -22,6 +22,21 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   protected static $defaultName = 'ssh-key:create';
 
   /**
+   * @var string
+   */
+  private $filename;
+
+  /**
+   * @var string
+   */
+  private $password;
+
+  /**
+   * @var string
+   */
+  private $filepath;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -36,10 +51,15 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $key_file_path = $this->createSshKey($input, $output);
     $output->writeln('<info>Created new SSH key.</info> ' . $key_file_path);
+
+    if (!$this->sshKeyIsAddedToKeychain()) {
+      $this->addSshKeyToAgent($this->filepath . '.pub', $this->password);
+    }
 
     return 0;
   }
@@ -53,11 +73,11 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function createSshKey($input, OutputInterface $output): string {
-    $filename = $this->determineFilename($input, $output);
-    $password = $this->determinePassword($input, $output);
+    $this->filename = $this->determineFilename($input, $output);
+    $this->password = $this->determinePassword($input, $output);
 
-    $filepath = $this->sshDir . '/' . $filename;
-    if (file_exists($filepath)) {
+    $this->filepath = $this->sshDir . '/' . $this->filename;
+    if (file_exists($this->filepath)) {
       throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filepath]);
     }
 
@@ -67,16 +87,15 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       '-b',
       '4096',
       '-f',
-      $filepath,
+      $this->filepath,
       '-N',
-      $password,
+      $this->password,
     ], NULL, NULL, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
     }
-    // @todo Validate or set file permissions.
 
-    return $filepath;
+    return $this->filepath;
   }
 
   /**
