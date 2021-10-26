@@ -17,11 +17,6 @@ class PushDatabaseCommand extends PullCommandBase {
   protected static $defaultName = 'push:database';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {

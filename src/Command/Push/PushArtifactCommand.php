@@ -20,13 +20,6 @@ class PushArtifactCommand extends PullCommandBase {
   protected static $defaultName = 'push:artifact';
 
   /**
-   * @var string
-   *
-   * Drupal project directory.
-   */
-  protected $dir;
-
-  /**
    * @var array
    *
    * Composer vendor directories.

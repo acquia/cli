@@ -2,11 +2,13 @@
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Webmozart\PathUtil\Path;
 
 /**
  * Class DrushCommand
@@ -41,6 +43,14 @@ class AliasesDownloadCommand extends SshCommand {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $alias_version = $this->promptChooseDrushAliasVersion();
+    $site_prefix = '';
+    if ($alias_version === 9) {
+      $this->setDirAndRequireProjectCwd($input);
+      $cloud_application_uuid = $this->determineCloudApplication();
+      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+      $parts = explode(':', $cloud_application->hosting->id);
+      $site_prefix = $parts[1];
+    }
     $acquia_cloud_client->addQuery('version', $alias_version);
     $account_adapter = new Account($acquia_cloud_client);
     $aliases = $account_adapter->getDrushAliases();
@@ -59,21 +69,24 @@ class AliasesDownloadCommand extends SshCommand {
     $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
     // Tarball may have many subdirectories, only extract this one.
-    $base_dir = $alias_version == 8 ? '.drush' : 'sites';
+    $base_dir = $alias_version === 8 ? '.drush' : 'sites';
     $archive = new PharData($drush_archive_filepath . '/' . $base_dir);
     $drushFiles = [];
+
     foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+      if ($alias_version === 9 && $file->getFileName() !== $site_prefix . '.site.yml') {
+        continue;
+      }
       $drushFiles[] = $base_dir . '/' . $file->getFileName();
+    }
+    if (empty($drushFiles)) {
+      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
     }
     $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
     $this->output->writeln(sprintf(
       'Cloud Platform Drush aliases installed into <options=bold>%s</>',
       $drush_aliases_dir
     ));
-    if ($alias_version == 9) {
-      $this->output->writeln('Drush 9+ does not automatically read aliases from this directory. Run <comment>drush core:init</comment> to ensure these aliases are discovered.');
-      $this->output->writeln('For more details, see https://github.com/drush-ops/drush/blob/master/examples/example.site.yml');
-    }
     unlink($drush_archive_filepath);
 
     return 0;
@@ -83,7 +96,7 @@ class AliasesDownloadCommand extends SshCommand {
    * Prompts the user for their preferred Drush alias version.
    */
   protected function promptChooseDrushAliasVersion() {
-    $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based, while Drush 9+ aliases are YAML-based.');
+    $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based and stored in your home directory, while Drush 9+ aliases are YAML-based and stored with your project.');
     $question = 'Choose your preferred alias compatibility:';
     $choices = [
       8 => 'Drush 8 / Drupal 7 (PHP)',
@@ -117,10 +130,16 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function getDrushAliasesDir($version): string {
     if (!isset($this->drushAliasesDir)) {
-      $this->drushAliasesDir = $this->localMachineHelper
-          ->getLocalFilepath('~') . '/.drush';
-      if ($version == 9) {
-        $this->drushAliasesDir .= '/sites';
+      switch ($version) {
+        case 8:
+          $this->drushAliasesDir = $this->localMachineHelper
+              ->getLocalFilepath('~') . '/.drush';
+          break;
+        case 9:
+          $this->drushAliasesDir = Path::join($this->dir, 'drush', 'sites');
+          break;
+        default:
+          throw new AcquiaCliException("Unknown Drush version");
       }
     }
 

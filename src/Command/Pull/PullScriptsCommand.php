@@ -15,11 +15,6 @@ class PullScriptsCommand extends PullCommandBase {
   protected static $defaultName = 'pull:run-scripts';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
