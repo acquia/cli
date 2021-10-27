@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Archive;
 
-use Acquia\Cli\Command\Pull\PullCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -16,14 +16,7 @@ use Webmozart\PathUtil\Path;
 /**
  * Class ArchiveExportCommand.
  */
-class ArchiveExportCommand extends PullCommandBase {
-
-  /**
-   * @var string
-   *
-   * Drupal project directory.
-   */
-  protected $dir;
+class ArchiveExportCommand extends CommandBase {
 
   /**
    * @var Checklist

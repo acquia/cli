@@ -43,16 +43,6 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @var string
    */
-  protected $dir;
-
-  /**
-   * @var bool
-   */
-  protected $drushHasActiveDatabaseConnection;
-
-  /**
-   * @var string
-   */
   private $site;
 
   /**
@@ -177,49 +167,6 @@ abstract class PullCommandBase extends CommandBase {
     $site = $this->determineSite($source_environment, $input);
     $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $site);
     $this->checklist->completePreviousItem();
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function setDirAndRequireProjectCwd(InputInterface $input): void {
-    $this->determineDir($input);
-    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
-    }
-  }
-
-  /**
-   * @param null $output_callback
-   *
-   * @return bool
-   */
-  protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
-    if (!is_null($this->drushHasActiveDatabaseConnection)) {
-      return $this->drushHasActiveDatabaseConnection;
-    }
-    if ($this->localMachineHelper->commandExists('drush')) {
-      $process = $this->localMachineHelper->execute([
-        'drush',
-        'status',
-        '--fields=db-status,drush-version',
-        '--format=json',
-        '--no-interaction',
-      ], $output_callback, $this->dir, FALSE);
-      if ($process->isSuccessful()) {
-        $drush_status_return_output = json_decode($process->getOutput(), TRUE);
-        if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
-          $this->drushHasActiveDatabaseConnection = TRUE;
-          return $this->drushHasActiveDatabaseConnection;
-        }
-      }
-    }
-
-    $this->drushHasActiveDatabaseConnection = FALSE;
-
-    return $this->drushHasActiveDatabaseConnection;
   }
 
   /**
@@ -824,25 +771,6 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   */
-  protected function determineDir(InputInterface $input): void {
-    if (isset($this->dir)) {
-      return;
-    }
-
-    if ($input->hasOption('dir') && $dir = $input->getOption('dir')) {
-      $this->dir = $dir;
-    }
-    elseif ($this->repoRoot) {
-      $this->dir = $this->repoRoot;
-    }
-    else {
-      $this->dir = getcwd();
-    }
-  }
-
-  /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
@@ -886,21 +814,6 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
    */
   protected function getCurrentPhpVersion(): string {
     return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Acquia\Cli\Output\Checklist $checklist
-   *
-   * @return \Closure
-   */
-  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
-    return static function ($type, $buffer) use ($checklist, $output) {
-      if (!$output->isVerbose() && $checklist->getItems()) {
-        $checklist->updateProgressBar($buffer);
-      }
-      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
-    };
   }
 
   /**
@@ -1074,42 +987,6 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
     else {
       $this->io->info($messages);
     }
-  }
-
-  /**
-   * @param string $db_host
-   * @param string $db_user
-   * @param string $db_name
-   * @param string $db_password
-   * @param null $output_callback
-   *
-   * @return string
-   * @throws \Exception
-   */
-  protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
-    $filename = "acli-mysql-dump-{$db_name}.sql.gz";
-    $local_temp_dir = sys_get_temp_dir();
-    $local_filepath = $local_temp_dir . '/' . $filename;
-    $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
-    if ($output_callback) {
-      $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
-    }
-    if ($this->localMachineHelper->commandExists('pv')) {
-      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
-    }
-    else {
-      $this->io->warning('Please install `pv` to see progress bar');
-      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | gzip -9 > $local_filepath";
-    }
-
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-    if (!$process->isSuccessful() || $process->getOutput()) {
-      throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
-    }
-
-    return $local_filepath;
   }
 
 }

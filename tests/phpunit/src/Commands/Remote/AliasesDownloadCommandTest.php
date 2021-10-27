@@ -55,6 +55,9 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
     if ($alias_version === 9) {
       $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
+      $applications = $this->mockApplicationsRequest();
+      $this->mockEnvironmentsRequest($applications);
+      $this->mockApplicationRequest();
     }
     $this->command->setDrushAliasesDir($drush_aliases_dir);
 

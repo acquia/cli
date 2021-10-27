@@ -17,11 +17,6 @@ class PushFilesCommand extends PullCommandBase {
   protected static $defaultName = 'push:files';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
