@@ -30,6 +30,7 @@ use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -417,19 +418,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * This is a requirement for Acquia Cloud organizations that have SSO enabled.
    */
   protected function addOrgScopeIfRequired() {
+    // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
     if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
       try {
-        // @todo Cache this! It adds 2 extra requests for every command.
+        // @todo Cache this!
         $application = $this->getCloudApplication($application_uuid);
-        $organizations_endpoint = new Organizations($this->cloudApiClientService->getClient());
-        $organization_applications = $organizations_endpoint->getApplications($application->organization->uuid);
-      } catch (ApiErrorException $e) {
-        // If a 403 is returned, then the organization scope is required.
-        if ($e->getCode() === 403) {
-          // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
-          // @todo Validate that application will actually be set if the scope is required. Prompt?
-          $this->cloudApiClientService->getClient()->addQuery('scope', 'organization:' . $application->organization->uuid);
-        }
+      } catch (IdentityProviderException $e) {
+        // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
+        $organization_uuid = $this->io->ask("Enter the organization uuid");
+        $this->cloudApiClientService->setOrganizationUuid($organization_uuid);
+        $application = $this->getCloudApplication($application_uuid);
       }
     }
   }
