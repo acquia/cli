@@ -61,7 +61,7 @@ class AuthLoginCommand extends CommandBase {
     if ($input->isInteractive() && $keys = $this->datastoreCloud->get('keys')) {
       $keys['create_new'] = [
         'uuid' => 'create_new',
-        'label' => 'Create a new API key',
+        'label' => 'Enter a new API key',
       ];
       $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
       if ($selected_key['uuid'] !== 'create_new') {
