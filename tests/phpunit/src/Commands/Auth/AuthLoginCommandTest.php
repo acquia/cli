@@ -55,7 +55,7 @@ class AuthLoginCommandTest extends CommandTestBase {
           // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
           'yes',
           // Choose which API key to use:
-          "Create a new API key",
+          "Enter a new API key",
           // Do you want to open this page to generate a token now?
           'no',
           // Please enter your API Key:
