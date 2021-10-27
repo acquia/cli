@@ -42,7 +42,43 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
-   * Restart Apache inside IDE.
+   * Start service inside IDE.
+   *
+   * @param string $service
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function startService($service): void {
+    $process = $this->localMachineHelper->execute([
+      'supervisorctl',
+      'start',
+      $service,
+    ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to start ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
+    }
+  }
+
+  /**
+   * Stop service inside IDE.
+   *
+   * @param string $service
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function stopService($service): void {
+    $process = $this->localMachineHelper->execute([
+      'supervisorctl',
+      'stop',
+      $service,
+    ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Unable to stop ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
+    }
+  }
+
+  /**
+   * Restart service inside IDE.
    *
    * @param string $service
    *
