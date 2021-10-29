@@ -16,6 +16,24 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class SshKeyCommandBase extends CommandBase {
 
+  /** @var string */
+  protected $passphraseFilepath;
+
+  /**
+   * @var string
+   */
+  protected $privateSshKeyFilename;
+
+  /**
+   * @var string
+   */
+  protected $privateSshKeyFilepath;
+
+  /**
+   * @var string
+   */
+  protected $publicSshKeyFilepath;
+
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
    * @throws \Exception
@@ -37,15 +55,28 @@ abstract class SshKeyCommandBase extends CommandBase {
   }
 
   /**
-   * @param $label
+   * @param string $label
+   *   The label to normalize.
    *
    * @return string|string[]|null
    */
   public static function normalizeSshKeyLabel($label) {
-    // It may only contain letters, numbers and underscores,.
-    $label = preg_replace('/[^A-Za-z0-9_]/', '', $label);
+    // It may only contain letters, numbers and underscores.
+    return preg_replace('/[^A-Za-z0-9_]/', '', $label);
+  }
 
-    return $label;
+  /**
+   * Normalizes public SSH key by trimming and removing user and machine suffix.
+   *
+   * @param string $public_key
+   *
+   * @return string
+   */
+  protected function normalizePublicSshKey($public_key): string {
+    $parts = explode('== ', $public_key);
+    $key = $parts[0];
+
+    return trim($key);
   }
 
   /**
@@ -129,7 +160,7 @@ EOT
         $this->logger->debug($exception->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 15, $spinner, $output);
+    LoopHelper::addTimeoutToLoop($loop, 15, $spinner);
     $loop->run();
   }
 

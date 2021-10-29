@@ -18,24 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class WizardCommandBase extends SshKeyCommandBase {
 
-  /** @var string */
-  protected $passphraseFilepath;
-
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilename;
-
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilepath;
-
-  /**
-   * @var string
-   */
-  protected $publicSshKeyFilepath;
-
   /**
    * @var \Acquia\Cli\Output\Checklist
    */
@@ -156,20 +138,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
       $this->publicSshKeyFilepath,
       $this->privateSshKeyFilepath,
     ]);
-  }
-
-  /**
-   * Normalizes public SSH key by trimming and removing user and machine suffix.
-   *
-   * @param string $public_key
-   *
-   * @return string
-   */
-  protected function normalizePublicSshKey($public_key): string {
-    $parts = explode('== ', $public_key);
-    $key = $parts[0];
-
-    return trim($key);
   }
 
   /**
