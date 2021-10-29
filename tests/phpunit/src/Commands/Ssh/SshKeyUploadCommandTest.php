@@ -31,7 +31,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
-    $application_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest();
+    $application_response = $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($application_response);
 
     // Choose a local SSH key to upload to the Cloud Platform.

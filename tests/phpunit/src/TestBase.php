@@ -515,17 +515,17 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param object $applications_response
+   * @param object $application_response
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
-    $applications_response
+    $application_response
   ) {
     $response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$application_response->uuid}/environments")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
