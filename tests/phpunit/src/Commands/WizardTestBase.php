@@ -73,10 +73,15 @@ abstract class WizardTestBase extends CommandTestBase {
     // List uploaded keys.
     $this->mockUploadSshKey();
 
+    $local_machine_helper = $this->mockLocalMachineHelper();
+
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
-    $this->mockSshAgent();
+    $this->mockSshAgentListAdd($local_machine_helper);
+    $this->mockSshAgentList($local_machine_helper);
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     // Remove SSH key if it exists.
     $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
@@ -126,7 +131,8 @@ abstract class WizardTestBase extends CommandTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockSshAgent();
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockSshAgentList($local_machine_helper);
 
     $this->createLocalSshKey($mock_request_args['public_key']);
     try {
@@ -153,8 +159,15 @@ abstract class WizardTestBase extends CommandTestBase {
     return $ssh_helper;
   }
 
-  protected function mockSshAgent(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
+  protected function mockSshAgentListAdd($local_machine_helper) {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)
+      ->shouldBeCalled()
+      ->willReturn($process->reveal());
+  }
+
+  protected function mockSshAgentList($local_machine_helper): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -171,7 +184,6 @@ abstract class WizardTestBase extends CommandTestBase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
     $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
 }
