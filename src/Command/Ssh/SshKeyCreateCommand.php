@@ -78,7 +78,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
 
     $this->filepath = $this->sshDir . '/' . $this->filename;
     if (file_exists($this->filepath)) {
-      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filepath]);
+      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $this->filename]);
     }
 
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh-keygen']);
