@@ -78,10 +78,10 @@ abstract class WizardTestBase extends CommandTestBase {
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
-    $this->mockSshAgentListAdd($local_machine_helper);
     $this->mockSshAgentList($local_machine_helper);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->application->find(SshKeyCreateCommand::class)->localMachineHelper = $this->command->localMachineHelper;
 
     // Remove SSH key if it exists.
     $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
@@ -157,14 +157,6 @@ abstract class WizardTestBase extends CommandTestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;
-  }
-
-  protected function mockSshAgentListAdd($local_machine_helper) {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)
-      ->shouldBeCalled()
-      ->willReturn($process->reveal());
   }
 
   protected function mockSshAgentList($local_machine_helper): void {
