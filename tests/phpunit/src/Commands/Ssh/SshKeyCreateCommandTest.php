@@ -28,6 +28,12 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $ssh_key_filename = 'id_rsa_acli_test';
     $ssh_key_filepath = Path::join($this->sshDir, '/' . $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+    $this->mockSshAgentList($local_machine_helper);
+    $this->mockGenerateSshKey($local_machine_helper);
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $inputs = [
         // Please enter a filename for your new local SSH key:
@@ -36,8 +42,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
       'acli123',
     ];
     $this->executeCommand([], $inputs);
-    $this->assertFileExists($ssh_key_filepath);
-    $this->assertFileExists($ssh_key_filepath . '.pub');
   }
 
 }

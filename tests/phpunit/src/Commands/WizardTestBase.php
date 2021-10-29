@@ -172,17 +172,4 @@ abstract class WizardTestBase extends CommandTestBase {
     return $ssh_helper;
   }
 
-  protected function mockSshAgentList($local_machine_helper): void {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $process->getOutput()->willReturn('thekey!');
-    $local_machine_helper->getLocalFilepath('~/.passphrase')
-      ->willReturn('/tmp/.passphrase');
-    $local_machine_helper->execute([
-      'ssh-add',
-      '-L',
-    ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
-  }
-
 }

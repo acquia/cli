@@ -672,10 +672,6 @@ abstract class TestBase extends TestCase {
     return $mock_body;
   }
 
-  protected function mockAddSshKeyToAgent($local_machine_helper) {
-
-  }
-
   protected function mockGenerateSshKey($local_machine_helper) {
     $key_contents = 'thekey!';
     $public_key_path = 'id_rsa.pub';
@@ -698,6 +694,19 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled()
       ->willReturn($public_key_path);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+  }
+
+  protected function mockSshAgentList($local_machine_helper): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $process->getOutput()->willReturn('thekey!');
+    $local_machine_helper->getLocalFilepath('~/.passphrase')
+      ->willReturn('/tmp/.passphrase');
+    $local_machine_helper->execute([
+      'ssh-add',
+      '-L',
+    ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
   /**
