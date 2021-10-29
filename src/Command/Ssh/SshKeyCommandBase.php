@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
+use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
@@ -33,6 +34,16 @@ abstract class SshKeyCommandBase extends CommandBase {
    * @var string
    */
   protected $publicSshKeyFilepath;
+
+  /**
+   * @param string $private_ssh_key_filename
+   */
+  protected function setSshKeyFilepath(string $private_ssh_key_filename) {
+    $this->privateSshKeyFilename = $private_ssh_key_filename;
+    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
+    $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
+    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
+  }
 
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
@@ -140,7 +151,8 @@ EOT
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.
-    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
+    // We could actually use _any_ application here.
+    $cloud_app_uuid = $this->getAnyAhApplication();
     $environment = $this->getAnyAhEnvironment($cloud_app_uuid);
 
     // Poll Cloud every 5 seconds.
@@ -165,7 +177,25 @@ EOT
   }
 
   /**
-   * Get the development environment for a given Cloud application.
+   * Get the first Cloud application available.
+   *
+   * @return false|mixed|string|null
+   * @throws \Exception
+   */
+  protected function getAnyAhApplication() {
+    if ($app_uuid = $this->determineCloudApplication()) {
+      return $app_uuid;
+    }
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $applications_resource = new Applications($acquia_cloud_client);
+    $applications = iterator_to_array($applications_resource->getAll());
+    $first_application = reset($applications);
+
+    return $first_application->uuid;
+  }
+
+  /**
+   * Get the first environment for a given Cloud application.
    *
    * @param string $cloud_app_uuid
    *

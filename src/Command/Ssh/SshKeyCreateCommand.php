@@ -56,7 +56,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $key_file_path = $this->createSshKey($input, $output);
     $output->writeln('<info>Created new SSH key.</info> ' . $key_file_path);
-
+    $this->setSshKeyFilepath(basename($key_file_path));
     if (!$this->sshKeyIsAddedToKeychain()) {
       $this->addSshKeyToAgent($this->filepath . '.pub', $this->password);
     }

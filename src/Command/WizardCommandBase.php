@@ -4,11 +4,7 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
-use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\EnvironmentResponse;
-use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -118,16 +114,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     }
 
     return 0;
-  }
-
-  /**
-   * @param string $private_ssh_key_filename
-   */
-  protected function setSshKeyFilepath(string $private_ssh_key_filename) {
-    $this->privateSshKeyFilename = $private_ssh_key_filename;
-    $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
-    $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
   }
 
   /**
