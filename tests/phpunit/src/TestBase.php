@@ -18,6 +18,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PhpParser\Node\Arg;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -669,6 +670,34 @@ abstract class TestBase extends TestCase {
       ->willReturn($mock_body->{'_embedded'}->items)
       ->shouldBeCalled();
     return $mock_body;
+  }
+
+  protected function mockAddSshKeyToAgent($local_machine_helper) {
+
+  }
+
+  protected function mockGenerateSshKey($local_machine_helper) {
+    $key_contents = 'thekey!';
+    $public_key_path = 'id_rsa.pub';
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getOutput()->willReturn($key_contents);
+    $local_machine_helper->checkRequiredBinariesExist(["ssh-keygen"])->shouldBeCalled();
+    $local_machine_helper->execute(Argument::withEntry(0, 'ssh-keygen'), NULL, NULL, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    $local_machine_helper->readFile($public_key_path)->willReturn($key_contents);
+    $local_machine_helper->readFile(Argument::containingString('id_rsa'))->willReturn($key_contents);
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $file_system->exists($public_key_path)
+      ->shouldBeCalled()
+      ->willReturn(TRUE);
+    $file_system->remove(Argument::size(2))->shouldBeCalled();
+    $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))
+      ->shouldBeCalled()
+      ->willReturn($public_key_path);
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
   }
 
   /**

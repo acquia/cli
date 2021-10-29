@@ -93,7 +93,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
     if ($this->input->getOption('filepath')) {
       $filepath = $this->localMachineHelper
         ->getLocalFilepath($this->input->getOption('filepath'));
-      if (!file_exists($filepath)) {
+      if (!$this->localMachineHelper->getFilesystem()->exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
       }
       if (strpos($filepath, '.pub') === FALSE) {
