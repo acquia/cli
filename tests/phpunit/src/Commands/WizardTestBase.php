@@ -134,6 +134,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockSshAgentList($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->application->find(SshKeyCreateCommand::class)->localMachineHelper = $this->command->localMachineHelper;
 
     $this->createLocalSshKey($mock_request_args['public_key']);
     try {
