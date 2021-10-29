@@ -11,6 +11,7 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
@@ -22,6 +23,7 @@ use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
+use Closure;
 use Composer\Semver\VersionParser;
 use Exception;
 use GuzzleHttp\HandlerStack;
@@ -151,10 +153,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $sshDir;
 
+  protected $dir;
+
   protected $localDbUser;
   protected $localDbPassword;
   protected $localDbName;
   protected $localDbHost;
+
+  /**
+   * @var bool
+   */
+  protected $drushHasActiveDatabaseConnection;
 
   /**
    * @var \GuzzleHttp\Client
@@ -1136,6 +1145,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $parts = explode(':', $site_id);
       $site_prefix = $parts[1];
     }
+    else {
+      throw new AcquiaCliException("No applications found");
+    }
 
     if ($site_prefix !== $application_alias) {
       throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);
@@ -1540,6 +1552,119 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function warnMultisite(): void {
     $this->io->note("This is a multisite application. Drupal will load the default site unless you've configured sites.php for this environment: https://docs.acquia.com/cloud-platform/develop/drupal/multisite/");
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function setDirAndRequireProjectCwd(InputInterface $input): void {
+    $this->determineDir($input);
+    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   */
+  protected function determineDir(InputInterface $input): void {
+    if (isset($this->dir)) {
+      return;
+    }
+
+    if ($input->hasOption('dir') && $dir = $input->getOption('dir')) {
+      $this->dir = $dir;
+    }
+    elseif ($this->repoRoot) {
+      $this->dir = $this->repoRoot;
+    }
+    else {
+      $this->dir = getcwd();
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Acquia\Cli\Output\Checklist $checklist
+   *
+   * @return \Closure
+   */
+  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
+    return static function ($type, $buffer) use ($checklist, $output) {
+      if (!$output->isVerbose() && $checklist->getItems()) {
+        $checklist->updateProgressBar($buffer);
+      }
+      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
+    };
+  }
+
+  /**
+   * @param null $output_callback
+   *
+   * @return bool
+   */
+  protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
+    if (!is_null($this->drushHasActiveDatabaseConnection)) {
+      return $this->drushHasActiveDatabaseConnection;
+    }
+    if ($this->localMachineHelper->commandExists('drush')) {
+      $process = $this->localMachineHelper->execute([
+        'drush',
+        'status',
+        '--fields=db-status,drush-version',
+        '--format=json',
+        '--no-interaction',
+      ], $output_callback, $this->dir, FALSE);
+      if ($process->isSuccessful()) {
+        $drush_status_return_output = json_decode($process->getOutput(), TRUE);
+        if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
+          $this->drushHasActiveDatabaseConnection = TRUE;
+          return $this->drushHasActiveDatabaseConnection;
+        }
+      }
+    }
+
+    $this->drushHasActiveDatabaseConnection = FALSE;
+
+    return $this->drushHasActiveDatabaseConnection;
+  }
+
+  /**
+   * @param string $db_host
+   * @param string $db_user
+   * @param string $db_name
+   * @param string $db_password
+   * @param null $output_callback
+   *
+   * @return string
+   * @throws \Exception
+   */
+  protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
+    $filename = "acli-mysql-dump-{$db_name}.sql.gz";
+    $local_temp_dir = sys_get_temp_dir();
+    $local_filepath = $local_temp_dir . '/' . $filename;
+    $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
+    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
+    if ($output_callback) {
+      $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
+    }
+    if ($this->localMachineHelper->commandExists('pv')) {
+      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
+    }
+    else {
+      $this->io->warning('Please install `pv` to see progress bar');
+      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | gzip -9 > $local_filepath";
+    }
+
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful() || $process->getOutput()) {
+      throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
+    }
+
+    return $local_filepath;
   }
 
 }

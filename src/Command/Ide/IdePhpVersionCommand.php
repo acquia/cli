@@ -61,7 +61,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
     $this->restartService('php-fpm');
-    $this->restartBash();
 
     return 0;
   }
@@ -122,17 +121,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     }
 
     return $version;
-  }
-
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function restartBash(): void {
-    $this->logger->notice('Restarting bash...');
-    $process = $this->localMachineHelper->executeFromCmd('exec bash -l', NULL, NULL, TRUE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Could not restart Bash');
-    }
   }
 
 }

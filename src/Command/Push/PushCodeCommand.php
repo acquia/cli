@@ -15,11 +15,6 @@ class PushCodeCommand extends PullCommandBase {
   protected static $defaultName = 'push:code';
 
   /**
-   * @var string
-   */
-  protected $dir;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {

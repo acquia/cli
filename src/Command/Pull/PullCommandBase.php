@@ -43,16 +43,6 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @var string
    */
-  protected $dir;
-
-  /**
-   * @var bool
-   */
-  protected $drushHasActiveDatabaseConnection;
-
-  /**
-   * @var string
-   */
   private $site;
 
   /**
@@ -94,11 +84,6 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // Generate settings and files in case we need them later.
-    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      $this->ideDrupalSettingsRefresh();
-    }
-
     return 0;
   }
 
@@ -182,49 +167,6 @@ abstract class PullCommandBase extends CommandBase {
     $site = $this->determineSite($source_environment, $input);
     $this->rsyncFilesFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist), $site);
     $this->checklist->completePreviousItem();
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function setDirAndRequireProjectCwd(InputInterface $input): void {
-    $this->determineDir($input);
-    if ($this->dir !== '/home/ide/project' && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      throw new AcquiaCliException('Please run this command from the {dir} directory', ['dir' => '/home/ide/project']);
-    }
-  }
-
-  /**
-   * @param null $output_callback
-   *
-   * @return bool
-   */
-  protected function getDrushDatabaseConnectionStatus($output_callback = NULL): bool {
-    if (!is_null($this->drushHasActiveDatabaseConnection)) {
-      return $this->drushHasActiveDatabaseConnection;
-    }
-    if ($this->localMachineHelper->commandExists('drush')) {
-      $process = $this->localMachineHelper->execute([
-        'drush',
-        'status',
-        '--fields=db-status,drush-version',
-        '--format=json',
-        '--no-interaction',
-      ], $output_callback, $this->dir, FALSE);
-      if ($process->isSuccessful()) {
-        $drush_status_return_output = json_decode($process->getOutput(), TRUE);
-        if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
-          $this->drushHasActiveDatabaseConnection = TRUE;
-          return $this->drushHasActiveDatabaseConnection;
-        }
-      }
-    }
-
-    $this->drushHasActiveDatabaseConnection = FALSE;
-
-    return $this->drushHasActiveDatabaseConnection;
   }
 
   /**
@@ -384,7 +326,7 @@ abstract class PullCommandBase extends CommandBase {
         $this->logger->debug($e->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner, $this->output);
+    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
 
     // Start the loop.
     $loop->run();
@@ -660,6 +602,7 @@ abstract class PullCommandBase extends CommandBase {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
+    $this->checkDiskSpace($chosen_environment, $destination . 'files', $source_dir);
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
@@ -672,6 +615,41 @@ abstract class PullCommandBase extends CommandBase {
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
+    }
+  }
+
+  /**
+   * Check if enough free space exists locally to perform a file transfer.
+   *
+   * This works by finding the delta between local and remote file directory
+   * usage and ensuring that this is greater than available local disk space.
+   *
+   * @param $environment
+   * @param $destination_directory
+   * @param $source_directory
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  private function checkDiskSpace($environment, $destination_directory, $source_directory): void {
+    $process = $this->localMachineHelper->execute(['du', '-s', $destination_directory], NULL, NULL, FALSE);
+    $local_size = explode("\t", $process->getOutput())[0];
+    $process = $this->sshHelper->executeCommand($environment, ['du', '-s', $source_directory], FALSE);
+    $remote_size = explode("\t", $process->getOutput())[0];
+    $delta = $remote_size - $local_size;
+    $process = $this->localMachineHelper->execute(['df', '--output=avail', '-k', $destination_directory], NULL, NULL, FALSE);
+    $local_free_space = explode("\n", $process->getOutput())[1];
+    // Apply a 10% safety margin.
+    if ($delta * 1.1 > $local_free_space) {
+      throw new AcquiaCliException('Not enough free space to pull files from the {environment} environment.
+Transfer requires {required_space} Kb free space, but only {free_space} Kb are available.
+Delete files locally or in your Cloud environment to free disk space, then try again.
+Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
+        [
+          'environment' => $environment->name,
+          'required_space' => $delta,
+          'free_space' => $local_free_space,
+        ]
+      );
     }
   }
 
@@ -793,25 +771,6 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   */
-  protected function determineDir(InputInterface $input): void {
-    if (isset($this->dir)) {
-      return;
-    }
-
-    if ($input->hasOption('dir') && $dir = $input->getOption('dir')) {
-      $this->dir = $dir;
-    }
-    elseif ($this->repoRoot) {
-      $this->dir = $this->repoRoot;
-    }
-    else {
-      $this->dir = getcwd();
-    }
-  }
-
-  /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
@@ -855,21 +814,6 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function getCurrentPhpVersion(): string {
     return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Acquia\Cli\Output\Checklist $checklist
-   *
-   * @return \Closure
-   */
-  protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
-    return static function ($type, $buffer) use ($checklist, $output) {
-      if (!$output->isVerbose() && $checklist->getItems()) {
-        $checklist->updateProgressBar($buffer);
-      }
-      $output->writeln($buffer, OutputInterface::VERBOSITY_VERY_VERBOSE);
-    };
   }
 
   /**
@@ -993,13 +937,6 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * Setup files and directories for multisite applications.
-   */
-  protected function ideDrupalSettingsRefresh() {
-    $this->localMachineHelper->execute(['/ide/drupal-setup.sh']);
-  }
-
-  /**
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param $environment
    * @param $database
@@ -1050,42 +987,6 @@ abstract class PullCommandBase extends CommandBase {
     else {
       $this->io->info($messages);
     }
-  }
-
-  /**
-   * @param string $db_host
-   * @param string $db_user
-   * @param string $db_name
-   * @param string $db_password
-   * @param null $output_callback
-   *
-   * @return string
-   * @throws \Exception
-   */
-  protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
-    $filename = "acli-mysql-dump-{$db_name}.sql.gz";
-    $local_temp_dir = sys_get_temp_dir();
-    $local_filepath = $local_temp_dir . '/' . $filename;
-    $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
-    $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
-    if ($output_callback) {
-      $output_callback('out', "Dumping MySQL database to $local_filepath on this machine");
-    }
-    if ($this->localMachineHelper->commandExists('pv')) {
-      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | pv --rate --bytes | gzip -9 > $local_filepath";
-    }
-    else {
-      $this->io->warning('Please install `pv` to see progress bar');
-      $command = "MYSQL_PWD={$db_password} mysqldump --host={$db_host} --user={$db_user} {$db_name} | gzip -9 > $local_filepath";
-    }
-
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-    if (!$process->isSuccessful() || $process->getOutput()) {
-      throw new AcquiaCliException('Unable to create a dump of the local database. {message}', ['message' => $process->getErrorOutput()]);
-    }
-
-    return $local_filepath;
   }
 
 }

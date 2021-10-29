@@ -250,11 +250,9 @@ class ApiCommandHelper {
       $input_definition = array_merge($input_definition, $body_input_definition);
     }
 
-    if (isset($input_definition)) {
-      $command->setDefinition(new InputDefinition($input_definition));
-      $command->addUsage(rtrim($usage));
-      $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
-    }
+    $command->setDefinition(new InputDefinition($input_definition));
+    $command->addUsage(rtrim($usage));
+    $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
   }
 
   /**
@@ -316,6 +314,7 @@ class ApiCommandHelper {
    * @return string
    */
   protected function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
+    $request_body_schema = [];
     if (array_key_exists('application/x-www-form-urlencoded', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
     }
@@ -600,6 +599,7 @@ class ApiCommandHelper {
    * @return array
    */
   protected function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
+    $request_body_schema = [];
     if (array_key_exists('application/json', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
     }

@@ -87,6 +87,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   /**
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function determinePublicSshKey(): array {
     if ($this->input->getOption('filepath')) {
@@ -169,7 +170,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @return string
    * @throws \Exception
    */
-  protected function getLocalSshKeyContents($local_keys, string $chosen_local_key) {
+  protected function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
+    $filepath = '';
     foreach ($local_keys as $local_key) {
       if ($local_key->getFilename() === $chosen_local_key) {
         $filepath = $local_key->getRealPath();

@@ -50,7 +50,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   public function testIdePhpVersionCommand($version): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($local_machine_helper);
-    $this->mockRestartBash($local_machine_helper);
     $this->mockGetFilesystem($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
@@ -126,18 +125,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
         'php-fpm',
       ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
     return $process;
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   */
-  protected function mockRestartBash(ObjectProphecy $local_machine_helper): void {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $local_machine_helper->executeFromCmd('exec bash -l', NULL, NULL, TRUE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
   }
 
   /**
