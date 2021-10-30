@@ -814,7 +814,9 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|LocalMachineHelper $local_machine_helper
+   *
+   * @return Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -400,6 +401,22 @@ abstract class CommandTestBase extends TestBase {
     $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
       ->willReturn($guzzle_response->reveal());
     $this->command->setUpdateClient($guzzle_client->reveal());
+  }
+
+  /**
+   * @param object $environment_response
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockPollCloudViaSsh($environment_response): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $ssh_helper = $this->mockSshHelper();
+    $ssh_helper->executeCommand(new EnvironmentResponse($environment_response), ['ls'], FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    return $ssh_helper;
   }
 
 }

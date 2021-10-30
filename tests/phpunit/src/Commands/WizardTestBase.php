@@ -156,20 +156,4 @@ abstract class WizardTestBase extends CommandTestBase {
     }
   }
 
-  /**
-   * @param object $environments_response
-   *
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function mockPollCloudViaSsh($environments_response): ObjectProphecy {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $ssh_helper = $this->mockSshHelper();
-    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    return $ssh_helper;
-  }
-
 }

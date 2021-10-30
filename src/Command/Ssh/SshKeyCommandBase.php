@@ -158,6 +158,7 @@ EOT
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
       try {
+        // @todo  Mock this! Return successfully.
         $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
