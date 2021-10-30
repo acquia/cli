@@ -36,7 +36,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
     $applications_response = $this->mockApplicationsRequest();
-    $application_response = $applications_response->{'_embedded'}->items[0];
+    $this->mockApplicationRequest();
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
@@ -58,7 +58,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
     $local_machine_helper->getFinder()->willReturn($finder);
 
-    $this->mockEnvironmentsRequest($application_response);
+    $this->mockEnvironmentsRequest($applications_response);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->getMockEnvironmentsResponse();
