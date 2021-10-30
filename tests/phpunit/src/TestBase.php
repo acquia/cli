@@ -698,7 +698,7 @@ abstract class TestBase extends TestCase {
 
   protected function mockSshAgentList($local_machine_helper): void {
     $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
+    $process->isSuccessful()->willReturn(FALSE);
     $process->getExitCode()->willReturn(0);
     $process->getOutput()->willReturn('thekey!');
     $local_machine_helper->getLocalFilepath('~/.passphrase')
