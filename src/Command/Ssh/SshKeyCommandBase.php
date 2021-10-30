@@ -103,8 +103,11 @@ abstract class SshKeyCommandBase extends CommandBase {
       '-L',
     ], NULL, NULL, FALSE);
 
-    $key_contents = $this->normalizePublicSshKey($this->localMachineHelper->readFile($this->publicSshKeyFilepath));
-    return strpos($process->getOutput(), $key_contents) !== FALSE;
+    if ($process->isSuccessful()) {
+      $key_contents = $this->normalizePublicSshKey($this->localMachineHelper->readFile($this->publicSshKeyFilepath));
+      return strpos($process->getOutput(), $key_contents) !== FALSE;
+    }
+    return FALSE;
   }
 
   /**

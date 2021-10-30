@@ -30,6 +30,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $this->fs->remove($ssh_key_filepath);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+    $this->mockAddSshKeyToAgent($local_machine_helper);
     $this->mockSshAgentList($local_machine_helper);
     $this->mockGenerateSshKey($local_machine_helper);
 

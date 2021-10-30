@@ -696,10 +696,16 @@ abstract class TestBase extends TestCase {
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
   }
 
+  protected function mockAddSshKeyToAgent($local_machine_helper) {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
+  }
+
   protected function mockSshAgentList($local_machine_helper): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(FALSE);
-    $process->getExitCode()->willReturn(0);
+    $process->getExitCode()->willReturn(1);
     $process->getOutput()->willReturn('thekey!');
     $local_machine_helper->getLocalFilepath('~/.passphrase')
       ->willReturn('/tmp/.passphrase');
