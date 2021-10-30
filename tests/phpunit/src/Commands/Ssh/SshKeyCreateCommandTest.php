@@ -4,7 +4,10 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -30,10 +33,12 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $this->fs->remove($ssh_key_filepath);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
-    $this->mockAddSshKeyToAgent($local_machine_helper);
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
-    $this->mockGenerateSshKey($local_machine_helper);
-
+    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $inputs = [

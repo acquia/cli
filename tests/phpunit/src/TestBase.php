@@ -672,7 +672,11 @@ abstract class TestBase extends TestCase {
     return $mock_body;
   }
 
-  protected function mockGenerateSshKey($local_machine_helper) {
+  /**
+   * @param $local_machine_helper
+   * @param $file_system
+   */
+  protected function mockGenerateSshKey($local_machine_helper, $file_system) {
     $key_contents = 'thekey!';
     $public_key_path = 'id_rsa.pub';
     $process = $this->prophet->prophesize(Process::class);
@@ -684,8 +688,6 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
     $local_machine_helper->readFile($public_key_path)->willReturn($key_contents);
     $local_machine_helper->readFile(Argument::containingString('id_rsa'))->willReturn($key_contents);
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_system->exists($public_key_path)
       ->shouldBeCalled()
       ->willReturn(TRUE);
@@ -693,15 +695,24 @@ abstract class TestBase extends TestCase {
     $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))
       ->shouldBeCalled()
       ->willReturn($public_key_path);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
   }
 
-  protected function mockAddSshKeyToAgent($local_machine_helper) {
+  /**
+   * @param $local_machine_helper
+   */
+  protected function mockAddSshKeyToAgent($local_machine_helper, $file_system) {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
+    $file_system->tempnam(Argument::type('string'), 'acli')->willReturn('something');
+    $file_system->chmod('something', 493)->shouldBeCalled();
+    $file_system->remove('something')->shouldBeCalled();
+    $local_machine_helper->writeFile('something', Argument::type('string'))->shouldBeCalled();
   }
 
+  /**
+   * @param $local_machine_helper
+   */
   protected function mockSshAgentList($local_machine_helper): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(FALSE);
@@ -716,6 +727,7 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   *
    */
   protected function mockUploadSshKey(): void {
     /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */

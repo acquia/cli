@@ -12,6 +12,7 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -77,9 +78,12 @@ abstract class WizardTestBase extends CommandTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockGenerateSshKey($local_machine_helper);
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
-
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
@@ -133,7 +137,10 @@ abstract class WizardTestBase extends CommandTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockGenerateSshKey($local_machine_helper);
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->mockSshAgentList($local_machine_helper);
     $process = $this->mockProcess();
     $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)

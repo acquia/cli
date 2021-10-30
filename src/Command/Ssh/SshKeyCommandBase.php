@@ -122,8 +122,8 @@ abstract class SshKeyCommandBase extends CommandBase {
   protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-    $temp_filepath = $this->localMachineHelper->getFilesystem()
-      ->tempnam(sys_get_temp_dir(), 'acli');
+    // @todo Actually mock a non-null response to this.
+    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
