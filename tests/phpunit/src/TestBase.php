@@ -711,12 +711,13 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $local_machine_helper
+   * @param LocalMachineHelper|ObjectProphecy $local_machine_helper
+   * @param bool $success
    */
-  protected function mockSshAgentList($local_machine_helper): void {
+  protected function mockSshAgentList($local_machine_helper, $success = FALSE): void {
     $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(FALSE);
-    $process->getExitCode()->willReturn(1);
+    $process->isSuccessful()->willReturn($success);
+    $process->getExitCode()->willReturn($success ? 0 : 1);
     $process->getOutput()->willReturn('thekey!');
     $local_machine_helper->getLocalFilepath('~/.passphrase')
       ->willReturn('/tmp/.passphrase');

@@ -24,10 +24,19 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyCreateCommand::class);
   }
 
+  public function providerTestCreate(): array {
+    return [
+      [TRUE],
+      [FALSE],
+    ];
+  }
+
   /**
    * Tests the 'ssh-key:create' command.
+   *
+   * @dataProvider providerTestCreate
    */
-  public function testCreate(): void {
+  public function testCreate($ssh_add_success): void {
     $ssh_key_filename = 'id_rsa_acli_test';
     $ssh_key_filepath = Path::join($this->sshDir, '/' . $ssh_key_filename);
     $this->fs->remove($ssh_key_filepath);
@@ -36,7 +45,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $this->mockSshAgentList($local_machine_helper);
+    $this->mockSshAgentList($local_machine_helper, $ssh_add_success);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
