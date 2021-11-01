@@ -122,7 +122,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-    // @todo Actually mock a non-null response to this.
     $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
 #!/usr/bin/env bash
@@ -154,14 +153,12 @@ EOT
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.
-    // We could actually use _any_ application here.
     $cloud_app_uuid = $this->getAnyAhApplication();
     $environment = $this->getAnyAhEnvironment($cloud_app_uuid);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
       try {
-        // @todo  Mock this! Return successfully.
         $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
         if ($process->isSuccessful()) {
           LoopHelper::finishSpinner($spinner);
@@ -187,7 +184,7 @@ EOT
    * @throws \Exception
    */
   protected function getAnyAhApplication() {
-    if ($app_uuid = $this->determineCloudApplication()) {
+    if ($app_uuid = $this->determineCloudApplication(FALSE, FALSE)) {
       return $app_uuid;
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
