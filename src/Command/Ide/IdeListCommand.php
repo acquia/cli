@@ -13,13 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeListCommand extends IdeCommandBase {
 
-  protected static $defaultName = 'ide:list';
+  protected static $defaultName = 'ide:list-app';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('List available Cloud IDEs');
+    $this->setDescription('List available Cloud IDEs belonging to a given application');
+    $this->setAliases(['ide:list']);
     $this->acceptApplicationUuid();
   }
 

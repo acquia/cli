@@ -46,7 +46,7 @@ class IdeCreateCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Create a Cloud IDE for development');
+    $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }
