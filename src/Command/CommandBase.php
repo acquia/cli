@@ -833,7 +833,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array|false|mixed|string|null
    * @throws \Exception
    */
-  protected function doDetermineCloudApplication($prompt = TRUE) {
+  protected function doDetermineCloudApplication($prompt_user = TRUE) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
 
     if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
@@ -858,12 +858,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Try to guess based on local git url config.
-    if ($prompt && $cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
+    if ($prompt_user && $cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
       return $cloud_application->uuid;
     }
 
     // Finally, just ask.
-    if ($this->input->isInteractive() && $prompt && $application = $this->promptChooseApplication($acquia_cloud_client)) {
+    if ($this->input->isInteractive() && $prompt_user && $application = $this->promptChooseApplication($acquia_cloud_client)) {
       return $application->uuid;
     }
 

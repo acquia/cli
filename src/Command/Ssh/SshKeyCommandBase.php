@@ -178,24 +178,6 @@ EOT
   }
 
   /**
-   * Get the first Cloud application available.
-   *
-   * @return false|mixed|string|null
-   * @throws \Exception
-   */
-  protected function getAnyAhApplication() {
-    if ($app_uuid = $this->determineCloudApplication(FALSE)) {
-      return $app_uuid;
-    }
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $applications_resource = new Applications($acquia_cloud_client);
-    $applications = iterator_to_array($applications_resource->getAll());
-    $first_application = reset($applications);
-
-    return $first_application->uuid;
-  }
-
-  /**
    * Get the first environment for a given Cloud application.
    *
    * @param string $cloud_app_uuid
