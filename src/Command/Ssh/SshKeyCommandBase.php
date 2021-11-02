@@ -153,7 +153,7 @@ EOT
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
 
     // Wait for SSH key to be available on a web.
-    $cloud_app_uuid = $this->getAnyAhApplication();
+    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $environment = $this->getAnyAhEnvironment($cloud_app_uuid);
 
     // Poll Cloud every 5 seconds.

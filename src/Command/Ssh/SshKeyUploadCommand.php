@@ -59,8 +59,17 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
     // Wait for the key to register on the Cloud Platform.
     if ($input->getOption('no-wait') === FALSE) {
-      $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
+      if ($this->input->isInteractive()) {
+        $this->io->note("It may take some time before the SSH key is installed on all of your application's web servers.");
+        $answer = $this->io->confirm("Would you like to wait until Cloud Platform is ready?");
+        if (!$answer) {
+          $this->io->success('Your SSH key cas been successfully uploaded to Cloud Platform.');
+          return 0;
+        }
+      }
+
       if ($this->keyHasUploaded($acquia_cloud_client, $public_key)) {
+        $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
         $this->pollAcquiaCloudUntilSshSuccess($output);
       }
     }

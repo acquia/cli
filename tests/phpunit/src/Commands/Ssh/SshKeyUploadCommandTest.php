@@ -36,7 +36,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
     $applications_response = $this->mockApplicationsRequest();
-    // $this->mockApplicationRequest();
+    $this->mockApplicationRequest();
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
@@ -70,6 +70,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
       '0',
       // Please enter a Cloud Platform label for this SSH key:
       $mock_request_args['label'],
+      // Would you like to wait until Cloud Platform is ready? (yes/no)
+      'y',
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
+      'y',
     ];
     $this->executeCommand([], $inputs);
 
