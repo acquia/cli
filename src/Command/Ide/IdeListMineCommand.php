@@ -46,8 +46,10 @@ class IdeListMineCommand extends IdeCommandBase {
         $application_url = str_replace('/api', '/a', $application->links->self->href);
 
         $table->addRows([
-          ["<comment>{$ide->label}</comment> {$ide->uuid}"],
-          ["<href={$application_url}>{$application->name}</> ({$application->subscription->name})"],
+          ["<comment>{$ide->label}</comment>"],
+          ["UUID: {$ide->uuid}"],
+          ["Application: <href={$application_url}>{$application->name}</>"],
+          ["Subscription: {$application->subscription->name}"],
           ["IDE URL: <href={$ide->_links->ide->href}>{$ide->_links->ide->href}</>"],
           ["Web URL: <href={$ide->_links->web->href}>{$ide->_links->web->href}</>"],
           new TableSeparator(),

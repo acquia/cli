@@ -53,12 +53,17 @@ class IdeListCommandMineTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('IDE Label 1 9a83c081-ef78-4dbd-8852-11cc3eb248f7', $output);
-    $this->assertStringContainsString('Sample application 1 (Sample subscription)', $output);
+    $this->assertStringContainsString('IDE Label 1', $output);
+    $this->assertStringContainsString('UUID: 9a83c081-ef78-4dbd-8852-11cc3eb248f7', $output);
+    $this->assertStringContainsString('Application: Sample application 1', $output);
+    $this->assertStringContainsString('Subscription: Sample subscription', $output);
     $this->assertStringContainsString('IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ide.ahdev.cloud', $output);
     $this->assertStringContainsString('Web URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);
-    $this->assertStringContainsString('IDE Label 2 feea197a-9503-4441-9f49-b4d420b0ecf8', $output);
-    $this->assertStringContainsString('Sample application 1 (Sample subscription)', $output);
+
+    $this->assertStringContainsString('IDE Label 2', $output);
+    $this->assertStringContainsString('UUID: 9a83c081-ef78-4dbd-8852-11cc3eb248f7', $output);
+    $this->assertStringContainsString('Application: Sample application 2', $output);
+    $this->assertStringContainsString('Subscription: Sample subscription', $output);
     $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ide.ahdev.cloud', $output);
     $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
   }
