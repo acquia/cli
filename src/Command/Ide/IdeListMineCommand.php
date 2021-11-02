@@ -2,10 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Response\IdesResponse;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,7 +56,7 @@ class IdeListMineCommand extends IdeCommandBase {
       $table->render();
     }
     else {
-      $output->writeln('No IDE exists for this application.');
+      $output->writeln('No IDE exists for your account.');
     }
 
     return 0;
