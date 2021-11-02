@@ -547,6 +547,7 @@ class ApiCommandHelper {
       'accounts:drush-aliases',
       // Skip any command that has a duplicative corresponding ACLI command.
       'ide:create',
+      'ide:delete',
       'log:tail',
       'ssh-key:create',
       'ssh-key:create-upload',

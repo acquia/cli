@@ -184,7 +184,7 @@ EOT
    * @throws \Exception
    */
   protected function getAnyAhApplication() {
-    if ($app_uuid = $this->determineCloudApplication(FALSE, FALSE)) {
+    if ($app_uuid = $this->determineCloudApplication(FALSE)) {
       return $app_uuid;
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

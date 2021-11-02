@@ -68,7 +68,6 @@ class ExceptionListener {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
           $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
-          // @todo
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
