@@ -81,6 +81,7 @@ abstract class WizardTestBase extends CommandTestBase {
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
@@ -140,6 +141,7 @@ abstract class WizardTestBase extends CommandTestBase {
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $file_system->remove(Argument::size(2))->shouldBeCalled();
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->mockSshAgentList($local_machine_helper);
     $process = $this->mockProcess();

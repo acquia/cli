@@ -691,7 +691,6 @@ abstract class TestBase extends TestCase {
     $file_system->exists($public_key_path)
       ->shouldBeCalled()
       ->willReturn(TRUE);
-    $file_system->remove(Argument::size(2))->shouldBeCalled();
     $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))
       ->shouldBeCalled()
       ->willReturn($public_key_path);

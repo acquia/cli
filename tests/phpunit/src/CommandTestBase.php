@@ -17,6 +17,9 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -417,6 +420,31 @@ abstract class CommandTestBase extends TestBase {
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;
+  }
+
+  /**
+   * @param $local_machine_helper
+   * @param $public_key
+   *
+   * @return string
+   */
+  protected function mockGetLocalSshKey($local_machine_helper, $file_system, $public_key): string {
+    $file_system->exists(Argument::type('string'))->willReturn(TRUE);
+    /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
+    $finder = $this->prophet->prophesize(Finder::class);
+    $finder->files()->willReturn($finder);
+    $finder->in(Argument::type('string'))->willReturn($finder);
+    $finder->name(Argument::type('string'))->willReturn($finder);
+    $finder->ignoreUnreadableDirs()->willReturn($finder);
+    $file = $this->prophet->prophesize(SplFileInfo::class);
+    $file_name = 'id_rsa.pub';
+    $file->getFileName()->willReturn($file_name);
+    $file->getRealPath()->willReturn('somepath');
+    $local_machine_helper->readFile('somepath')->willReturn($public_key);
+    $finder->getIterator()->willReturn(new \ArrayIterator([$file->reveal()]));
+    $local_machine_helper->getFinder()->willReturn($finder);
+
+    return $file_name;
   }
 
 }

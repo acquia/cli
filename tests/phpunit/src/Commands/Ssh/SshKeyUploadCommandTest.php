@@ -38,26 +38,12 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $local_machine_helper = $this->mockLocalMachineHelper();
-
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $file_system->exists(Argument::type('string'))->willReturn(TRUE);
-
-    /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
-    $finder = $this->prophet->prophesize(Finder::class);
-    $finder->files()->willReturn($finder);
-    $finder->in(Argument::type('string'))->willReturn($finder);
-    $finder->name(Argument::type('string'))->willReturn($finder);
-    $finder->ignoreUnreadableDirs()->willReturn($finder);
-    $file = $this->prophet->prophesize(SplFileInfo::class);
-    $file_name = 'id_rsa.pub';
-    $file->getFileName()->willReturn($file_name);
-    $file->getRealPath()->willReturn('somepath');
-    $local_machine_helper->readFile('somepath')->willReturn($mock_request_args['public_key']);
-    $finder->getIterator()->willReturn(new \ArrayIterator([$file->reveal()]));
-
-    $local_machine_helper->getFinder()->willReturn($finder);
+    $file_name = $this->mockGetLocalSshKey($local_machine_helper, $file_system, $mock_request_args['public_key']);
     $this->mockEnvironmentsRequest($applications_response);
+
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->getMockEnvironmentsResponse();

@@ -65,8 +65,9 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
-  protected function createSshKey($input, $output) {
+  protected function createSshKey(InputInterface $input, OutputInterface $output) {
     $key_file_path = $this->doCreateSshKey($input, $output);
     $this->setSshKeyFilepath(basename($key_file_path));
     if (!$this->sshKeyIsAddedToKeychain()) {
@@ -75,14 +76,14 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   }
 
   /**
-   * @param $input
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function doCreateSshKey($input, OutputInterface $output): string {
+  protected function doCreateSshKey(InputInterface $input, OutputInterface $output): string {
     $this->filename = $this->determineFilename($input, $output);
     $this->password = $this->determinePassword($input, $output);
 
