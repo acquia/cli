@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeListMineCommand extends IdeCommandBase {
 
-  protected static $defaultName = 'ide:list-mine';
+  protected static $defaultName = 'ide:list:mine';
 
   /**
    * {inheritdoc}.
