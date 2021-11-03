@@ -805,18 +805,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Determine the Cloud application.
    *
-   * @param bool $link_app
+   * @param bool $prompt_link_app
    *
    * @return string|null
    * @throws \Exception
    */
-  protected function determineCloudApplication($link_app = FALSE): ?string {
+  protected function determineCloudApplication($prompt_link_app = FALSE): ?string {
     $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
       // No point in trying to link a directory that's not a repo.
       if (!empty($this->repoRoot) && !$this->getCloudUuidFromDatastore()) {
-        if ($link_app) {
+        if ($prompt_link_app) {
           $this->saveCloudUuidToDatastore($application);
         }
         elseif (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->getCloudApplicationUuidFromBltYaml()) {

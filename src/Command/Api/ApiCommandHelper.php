@@ -548,7 +548,6 @@ class ApiCommandHelper {
       // Skip any command that has a duplicative corresponding ACLI command.
       'ide:create',
       'ide:delete',
-      'ide:list',
       'log:tail',
       'ssh-key:create',
       'ssh-key:create-upload',

@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\HelloWorldCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
@@ -13,7 +12,7 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -73,10 +72,23 @@ abstract class WizardTestBase extends CommandTestBase {
     // List uploaded keys.
     $this->mockUploadSshKey();
 
+    $local_machine_helper = $this->mockLocalMachineHelper();
+
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
-    $this->mockSshAgent();
+
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $file_system->remove(Argument::size(2))->shouldBeCalled();
+    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
+    $this->mockSshAgentList($local_machine_helper);
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+    $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+    $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
     // Remove SSH key if it exists.
     $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
@@ -89,8 +101,6 @@ abstract class WizardTestBase extends CommandTestBase {
 
     // Assertions.
     $this->prophet->checkPredictions();
-    $this->assertFileExists($this->sshDir . '/' . $this->sshKeyFileName);
-    $this->assertFileExists($this->sshDir . '/' . str_replace('.pub', '', $this->sshKeyFileName));
   }
 
   /**
@@ -119,6 +129,8 @@ abstract class WizardTestBase extends CommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
 
+    $local_machine_helper = $this->mockLocalMachineHelper();
+
     // List uploaded keys.
     $this->mockUploadSshKey();
 
@@ -126,7 +138,23 @@ abstract class WizardTestBase extends CommandTestBase {
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
     $this->command->sshHelper = $ssh_helper->reveal();
 
-    $this->mockSshAgent();
+    /** @var Filesystem|ObjectProphecy $file_system */
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $file_system->remove(Argument::size(2))->shouldBeCalled();
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+    $this->mockSshAgentList($local_machine_helper);
+    $process = $this->mockProcess();
+    $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)
+      ->shouldBeCalled()
+      ->willReturn($process->reveal());
+    $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
+      ->shouldBeCalled();
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+    $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
+    $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
     $this->createLocalSshKey($mock_request_args['public_key']);
     try {
@@ -135,43 +163,6 @@ abstract class WizardTestBase extends CommandTestBase {
     catch (AcquiaCliException $exception) {
       $this->assertEquals('You have already uploaded a local key to the Cloud Platform. You don\'t need to create a new one.', $exception->getMessage());
     }
-  }
-
-  /**
-   * @param object $environments_response
-   *
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function mockPollCloudViaSsh($environments_response): ObjectProphecy {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $ssh_helper = $this->mockSshHelper();
-    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response), ['ls'], FALSE)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-    return $ssh_helper;
-  }
-
-  protected function mockSshAgent(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $process->getOutput()->willReturn(NULL);
-    $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)
-      ->shouldBeCalled()
-      ->willReturn($process->reveal());
-    $local_machine_helper->getLocalFilepath('~/.passphrase')
-      ->willReturn('/tmp/.passphrase');
-    $local_machine_helper->getFilesystem()->willReturn($this->fs);
-    $local_machine_helper->execute([
-      'ssh-add',
-      '-L',
-    ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
-    $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
-      ->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
 }

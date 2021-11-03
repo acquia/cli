@@ -18,6 +18,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PhpParser\Node\Arg;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -672,6 +673,61 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * @param $local_machine_helper
+   * @param $file_system
+   */
+  protected function mockGenerateSshKey($local_machine_helper, $file_system) {
+    $key_contents = 'thekey!';
+    $public_key_path = 'id_rsa.pub';
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getOutput()->willReturn($key_contents);
+    $local_machine_helper->checkRequiredBinariesExist(["ssh-keygen"])->shouldBeCalled();
+    $local_machine_helper->execute(Argument::withEntry(0, 'ssh-keygen'), NULL, NULL, FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    $local_machine_helper->readFile($public_key_path)->willReturn($key_contents);
+    $local_machine_helper->readFile(Argument::containingString('id_rsa'))->willReturn($key_contents);
+    $file_system->exists($public_key_path)
+      ->shouldBeCalled()
+      ->willReturn(TRUE);
+    $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))
+      ->shouldBeCalled()
+      ->willReturn($public_key_path);
+  }
+
+  /**
+   * @param $local_machine_helper
+   */
+  protected function mockAddSshKeyToAgent($local_machine_helper, $file_system) {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
+    $file_system->tempnam(Argument::type('string'), 'acli')->willReturn('something');
+    $file_system->chmod('something', 493)->shouldBeCalled();
+    $file_system->remove('something')->shouldBeCalled();
+    $local_machine_helper->writeFile('something', Argument::type('string'))->shouldBeCalled();
+  }
+
+  /**
+   * @param LocalMachineHelper|ObjectProphecy $local_machine_helper
+   * @param bool $success
+   */
+  protected function mockSshAgentList($local_machine_helper, $success = FALSE): void {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn($success);
+    $process->getExitCode()->willReturn($success ? 0 : 1);
+    $process->getOutput()->willReturn('thekey!');
+    $local_machine_helper->getLocalFilepath('~/.passphrase')
+      ->willReturn('/tmp/.passphrase');
+    $local_machine_helper->execute([
+      'ssh-add',
+      '-L',
+    ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
+  }
+
+  /**
+   *
    */
   protected function mockUploadSshKey(): void {
     /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
@@ -776,7 +832,9 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|LocalMachineHelper $local_machine_helper
+   *
+   * @return Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();

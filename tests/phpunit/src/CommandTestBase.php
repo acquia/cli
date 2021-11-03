@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
@@ -16,6 +17,9 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 use Webmozart\PathUtil\Path;
 
@@ -400,6 +404,47 @@ abstract class CommandTestBase extends TestBase {
     $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
       ->willReturn($guzzle_response->reveal());
     $this->command->setUpdateClient($guzzle_client->reveal());
+  }
+
+  /**
+   * @param object $environment_response
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockPollCloudViaSsh($environment_response): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $ssh_helper = $this->mockSshHelper();
+    $ssh_helper->executeCommand(new EnvironmentResponse($environment_response), ['ls'], FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    return $ssh_helper;
+  }
+
+  /**
+   * @param $local_machine_helper
+   * @param $public_key
+   *
+   * @return string
+   */
+  protected function mockGetLocalSshKey($local_machine_helper, $file_system, $public_key): string {
+    $file_system->exists(Argument::type('string'))->willReturn(TRUE);
+    /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
+    $finder = $this->prophet->prophesize(Finder::class);
+    $finder->files()->willReturn($finder);
+    $finder->in(Argument::type('string'))->willReturn($finder);
+    $finder->name(Argument::type('string'))->willReturn($finder);
+    $finder->ignoreUnreadableDirs()->willReturn($finder);
+    $file = $this->prophet->prophesize(SplFileInfo::class);
+    $file_name = 'id_rsa.pub';
+    $file->getFileName()->willReturn($file_name);
+    $file->getRealPath()->willReturn('somepath');
+    $local_machine_helper->readFile('somepath')->willReturn($public_key);
+    $finder->getIterator()->willReturn(new \ArrayIterator([$file->reveal()]));
+    $local_machine_helper->getFinder()->willReturn($finder);
+
+    return $file_name;
   }
 
 }
