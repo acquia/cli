@@ -48,7 +48,6 @@ class SshKeyDeleteCommandTest extends CommandTestBase
     $output = $this->getDisplay();
     $this->assertStringContainsString('Choose an SSH key to delete from the Cloud Platform', $output);
     $this->assertStringContainsString($ssh_key_list_response->_embedded->items[0]->label, $output);
-    $this->assertStringContainsString('Do you also want to delete the corresponding local key files', $output);
   }
 
 }
