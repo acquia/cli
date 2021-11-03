@@ -19,7 +19,7 @@ class IdeListMineCommand extends IdeCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('List available Cloud IDEs belonging to you');
+    $this->setDescription('List Cloud IDEs belonging to you');
     $this->acceptApplicationUuid();
   }
 
