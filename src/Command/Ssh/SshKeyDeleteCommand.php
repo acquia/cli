@@ -2,12 +2,10 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 /**
  * Class SshKeyDeleteCommand.
@@ -44,13 +42,14 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
       foreach ($local_keys as $local_file) {
         if (trim($local_file->getContents()) === trim($cloud_key->public_key)) {
           $private_key_path = str_replace('.pub', '', $local_file->getRealPath());
+          $public_key_path = $local_file->getRealPath();
           $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$local_file->getRealPath()} and $private_key_path ?", FALSE);
           if ($answer) {
             $this->localMachineHelper->getFilesystem()->remove([
               $local_file->getRealPath(),
               $private_key_path,
             ]);
-            $this->io->success("Deleted {$local_file->getRealPath()} and $private_key_path");
+            $this->io->success("Deleted $public_key_path and $private_key_path");
             return 0;
           }
         }
