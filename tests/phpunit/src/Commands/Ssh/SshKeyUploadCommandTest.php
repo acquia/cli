@@ -83,7 +83,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->assertStringContainsString('Choose a local SSH key to upload to the Cloud Platform', $output);
     $this->assertStringContainsString('Please enter a Cloud Platform label for this SSH key:', $output);
     $this->assertStringContainsString("Uploaded $file_name to the Cloud Platform with label " . $mock_request_args['label'], $output);
-    $this->assertStringContainsString('Waiting for new key to be provisioned on the Cloud Platform...', $output);
+    $this->assertStringContainsString('Would you like to wait until Cloud Platform is ready?', $output);
     $this->assertStringContainsString('Your SSH key is ready for use!', $output);
   }
 
