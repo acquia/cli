@@ -154,7 +154,7 @@ EOT
 
     // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $environment = $this->getAnyAhEnvironment($cloud_app_uuid);
+    $environment = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
 
     // Poll Cloud every 5 seconds.
     $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
@@ -185,12 +185,17 @@ EOT
    * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
    * @throws \Exception
    */
-  protected function getAnyAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
+  protected function getAnyNonProdAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $environment_resource = new Environments($acquia_cloud_client);
+    /** @var EnvironmentResponse[] $application_environments */
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
-    $first_environment = reset($application_environments);
-    return $first_environment;
+    foreach ($application_environments as $environment) {
+      if (!$environment->flags->production) {
+        return $environment;
+      }
+    }
+    return NULL;
   }
 
 }
