@@ -201,6 +201,8 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
+    $local_machine_helper->getFreeSpace(Argument::any())->willReturn(12345);
+    $local_machine_helper->getDirectoryUsage(Argument::any())->willReturn(123);
 
     return $local_machine_helper;
   }
@@ -210,6 +212,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockSshHelper(): ObjectProphecy {
     $ssh_helper = $this->prophet->prophesize(SshHelper::class);
+    $ssh_helper->getDirectoryUsage(Argument::any(), Argument::any())->willReturn(123);
     return $ssh_helper;
   }
 
