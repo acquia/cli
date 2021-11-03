@@ -33,6 +33,15 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    return TRUE;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
@@ -50,6 +59,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         'public_key' => $public_key,
       ],
     ];
+
+    // @todo If a key with this label already exists, let the user try again.
     $response = $acquia_cloud_client->makeRequest('post', '/account/ssh-keys', $options);
     if ($response->getStatusCode() !== 202) {
       throw new AcquiaCliException($response->getBody()->getContents());
@@ -69,7 +80,6 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       }
 
       if ($this->keyHasUploaded($acquia_cloud_client, $public_key)) {
-        $this->output->write('Waiting for new key to be provisioned on the Cloud Platform...');
         $this->pollAcquiaCloudUntilSshSuccess($output);
       }
     }

@@ -29,7 +29,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   /**
    * @var string
    */
-  private $password;
+  protected $password;
 
   /**
    * @var string
@@ -54,14 +54,25 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $key_file_path = $this->createSshKey($input, $output);
-    $output->writeln('<info>Created new SSH key.</info> ' . $key_file_path);
-    $this->setSshKeyFilepath(basename($key_file_path));
-    if (!$this->sshKeyIsAddedToKeychain()) {
-      $this->addSshKeyToAgent($this->filepath . '.pub', $this->password);
-    }
+    $this->createSshKey($input, $output);
+    $output->writeln('<info>Created new SSH key.</info> ' . $this->publicSshKeyFilepath);
 
     return 0;
+  }
+
+  /**
+   * @param $input
+   * @param $output
+   *
+   * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function createSshKey($input, $output) {
+    $key_file_path = $this->doCreateSshKey($input, $output);
+    $this->setSshKeyFilepath(basename($key_file_path));
+    if (!$this->sshKeyIsAddedToKeychain()) {
+      $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->password);
+    }
   }
 
   /**
@@ -72,7 +83,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function createSshKey($input, OutputInterface $output): string {
+  protected function doCreateSshKey($input, OutputInterface $output): string {
     $this->filename = $this->determineFilename($input, $output);
     $this->password = $this->determinePassword($input, $output);
 

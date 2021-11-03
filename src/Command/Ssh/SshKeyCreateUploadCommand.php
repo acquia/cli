@@ -26,19 +26,26 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    return TRUE;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $private_ssh_key_filepath = $this->createSshKey($input, $output);
-    $public_ssh_key_filepath = $private_ssh_key_filepath . '.pub';
-
+    $this->createSshKey($input, $output);
     $command = $this->getApplication()->find('ssh-key:upload');
     $arguments = [
       'command' => 'ssh-key:upload',
-      '--filepath' => $public_ssh_key_filepath,
+      '--filepath' => $this->publicSshKeyFilepath,
       '--no-wait' => $input->getOption('no-wait'),
     ];
     $list_input = new ArrayInput($arguments);
