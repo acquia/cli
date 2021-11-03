@@ -678,7 +678,9 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
 
   /**
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param $chosen_environment
+   * @param EnvironmentResponse $chosen_environment
+   * @param string|null $site
+   * @param bool $multiple_dbs
    *
    * @return \stdClass|array
    *   The database instance. This is not a DatabaseResponse, since it's
@@ -686,7 +688,7 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudDatabases(Client $acquia_cloud_client, $chosen_environment, $site = NULL, $multiple_dbs) {
+  protected function determineCloudDatabases(Client $acquia_cloud_client, $chosen_environment, $site = NULL, $multiple_dbs = FALSE) {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
