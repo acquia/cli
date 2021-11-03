@@ -42,8 +42,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_name = $this->mockGetLocalSshKey($local_machine_helper, $file_system, $mock_request_args['public_key']);
     $this->mockEnvironmentsRequest($applications_response);
-
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->getMockEnvironmentsResponse();
