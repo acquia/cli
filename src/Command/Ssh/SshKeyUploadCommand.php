@@ -63,7 +63,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
         $this->io->note("It may take some time before the SSH key is installed on all of your application's web servers.");
         $answer = $this->io->confirm("Would you like to wait until Cloud Platform is ready?");
         if (!$answer) {
-          $this->io->success('Your SSH key cas been successfully uploaded to Cloud Platform.');
+          $this->io->success('Your SSH key has been successfully uploaded to Cloud Platform.');
           return 0;
         }
       }
