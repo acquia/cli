@@ -32,6 +32,7 @@ class ConnectorFactory {
         'expires' => $this->config['accessTokenExpiry'],
       ]);
       if (!$access_token->hasExpired()) {
+        // @todo Add debug log entry indicating that access token is being used.
         return new AccessTokenConnector([
           'access_token' => $access_token,
           'key' => NULL,

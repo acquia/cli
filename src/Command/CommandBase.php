@@ -806,13 +806,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Determine the Cloud application.
    *
    * @param bool $prompt_link_app
-   * @param bool $prompt_app
    *
    * @return string|null
    * @throws \Exception
    */
-  protected function determineCloudApplication($prompt_link_app = FALSE, $prompt_app = TRUE): ?string {
-    $application_uuid = $this->doDetermineCloudApplication($prompt_app);
+  protected function determineCloudApplication($prompt_link_app = FALSE): ?string {
+    $application_uuid = $this->doDetermineCloudApplication();
     if (isset($application_uuid)) {
       $application = $this->getCloudApplication($application_uuid);
       // No point in trying to link a directory that's not a repo.
@@ -833,7 +832,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array|false|mixed|string|null
    * @throws \Exception
    */
-  protected function doDetermineCloudApplication($prompt_user = TRUE) {
+  protected function doDetermineCloudApplication() {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
 
     if ($this->input->hasArgument('applicationUuid') && $this->input->getArgument('applicationUuid')) {
@@ -858,12 +857,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     // Try to guess based on local git url config.
-    if ($prompt_user && $cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
+    if ($cloud_application = $this->inferCloudAppFromLocalGitConfig($acquia_cloud_client)) {
       return $cloud_application->uuid;
     }
 
     // Finally, just ask.
-    if ($this->input->isInteractive() && $prompt_user && $application = $this->promptChooseApplication($acquia_cloud_client)) {
+    if ($this->input->isInteractive() && $application = $this->promptChooseApplication($acquia_cloud_client)) {
       return $application->uuid;
     }
 
