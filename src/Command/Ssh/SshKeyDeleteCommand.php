@@ -41,10 +41,16 @@ class SshKeyDeleteCommand extends CommandBase {
       $output->writeln("<info>Successfully deleted SSH key <options=bold>{$cloud_key->label}</> from the Cloud Platform.</info>");
       return 0;
     }
+    // @todo Prompt to delete the same key locally.
 
     throw new AcquiaCliException($response->getBody()->getContents());
   }
 
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   *
+   * @return array|object|null
+   */
   protected function determineCloudKey($acquia_cloud_client) {
     if ($this->input->getOption('cloud-key-uuid')) {
       $cloud_key_uuid = self::validateUuid($this->input->getOption('cloud-key-uuid'));
@@ -59,6 +65,7 @@ class SshKeyDeleteCommand extends CommandBase {
       'label',
       'Choose an SSH key to delete from the Cloud Platform'
     );
+
     return $cloud_key;
   }
 

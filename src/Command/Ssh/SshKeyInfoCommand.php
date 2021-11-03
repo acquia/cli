@@ -54,6 +54,9 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     return 0;
   }
 
+  /**
+   * @throws \violuke\RsaSshKeyFingerprint\InvalidInputException
+   */
   protected function determineSshKey($acquia_cloud_client): array {
     $cloudKeysResponse = new SshKeys($acquia_cloud_client);
     $cloudKeys = (array) $cloudKeysResponse->getAll();

@@ -96,7 +96,6 @@ abstract class SshKeyCommandBase extends CommandBase {
    * @return bool
    * @throws \Exception
    */
-
   protected function sshKeyIsAddedToKeychain(): bool {
     $process = $this->localMachineHelper->execute([
       'ssh-add',
