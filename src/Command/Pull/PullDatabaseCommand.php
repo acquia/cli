@@ -30,7 +30,7 @@ class PullDatabaseCommand extends PullCommandBase {
       ->addOption('no-import', NULL, InputOption::VALUE_NONE,
       'Download the backup but do not import it (implies --no-scripts)')
       ->addOption('multiple-dbs', NULL, InputOption::VALUE_NONE,
-        'Download multiple dbs')
+        'Download multiple dbs. Defaults to FALSE.')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 

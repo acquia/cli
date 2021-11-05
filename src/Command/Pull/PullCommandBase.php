@@ -69,7 +69,6 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function initialize(InputInterface $input, OutputInterface $output) {
@@ -103,13 +102,12 @@ abstract class PullCommandBase extends CommandBase {
     if ($clone) {
       $this->checklist->addItem('Cloning git repository from the Cloud Platform');
       $this->cloneFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
     }
     else {
       $this->checklist->addItem('Pulling code from the Cloud Platform');
       $this->pullCodeFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
     }
+    $this->checklist->completePreviousItem();
   }
 
   /**
@@ -120,6 +118,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param bool $multiple_dbs
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
     if (!$no_import) {
@@ -143,17 +142,20 @@ abstract class PullCommandBase extends CommandBase {
       }
 
       $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
-      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
+      // Create new client to wipe old options.
+      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
 
       if ($no_import) {
         $this->io->success("{$database->name} database backup downloaded to $local_filepath");
       } else {
         $this->checklist->addItem("Importing {$database->name} database download");
-        if ($site === 'default') {
+        if ($database->flags->default) {
+          $this->io->note("Acquia CLI assumes that the local database name for the default database is {$this->getLocalDbName()}");
           $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         else {
+          $this->io->note("Acquia CLI assumes that the local database name for the {$database->name} database is also {$database->name}");
           $this->importRemoteDatabase($database->name, $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         $this->checklist->completePreviousItem();
@@ -233,10 +235,9 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-* @param $environment
+   * @param $environment
    * @param $database
    * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param callable|null $output_callback
    *
    * @return string
@@ -245,7 +246,6 @@ abstract class PullCommandBase extends CommandBase {
     $environment,
     $database,
     BackupResponse $backup_response,
-    Client $acquia_cloud_client,
     $output_callback = NULL
   ): string {
     if ($output_callback) {
@@ -259,6 +259,7 @@ abstract class PullCommandBase extends CommandBase {
       $output = $this->output;
     }
     // These options tell curl to stream the file to disk rather than loading it into memory.
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addOption('sink', $local_filepath);
     $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
@@ -365,7 +366,13 @@ abstract class PullCommandBase extends CommandBase {
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to connect to local database. {message}', ['message' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Unable to connect to local database using credentials mysql:://{user}:{password}@{host}/{database}. {message}', [
+        'message' => $process->getErrorOutput(),
+        'host' => $db_host,
+        'user' => $db_user,
+        'password' => $db_password,
+        'database' => $db_name,
+      ]);
     }
   }
 
@@ -552,7 +559,7 @@ abstract class PullCommandBase extends CommandBase {
     }
 
     $question = new ChoiceQuestion(
-      $multiple_dbs ? 'Choose databases. You may choose multiple.' : 'Choose a database.',
+      $multiple_dbs ? 'Choose databases. You may choose multiple. Use commas to separate choices.' : 'Choose a database.',
       $choices,
       $default_database_index
     );

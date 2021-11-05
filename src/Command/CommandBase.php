@@ -842,7 +842,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try local project info.
     if ($application_uuid = $this->getCloudUuidFromDatastore()) {
-      $this->logger->debug("Using Cloud application UUID: $application_uuid from .acquia.yml");
+      $this->logger->debug("Using Cloud application UUID: $application_uuid from .acquia-cli.yml");
       return $application_uuid;
     }
 
