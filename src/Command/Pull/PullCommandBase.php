@@ -150,7 +150,8 @@ abstract class PullCommandBase extends CommandBase {
         $this->io->success("{$database->name} database backup downloaded to $local_filepath");
       } else {
         $this->checklist->addItem("Importing {$database->name} database download");
-        if ($database->flags->default) {
+        // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
+        if ($database->flags->default || AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
           $this->io->note("Acquia CLI assumes that the local database name for the default database is {$this->getLocalDbName()}");
           $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
@@ -689,7 +690,7 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
    * @param string|null $site
    * @param bool $multiple_dbs
    *
-   * @return \stdClass|array
+   * @return \stdClass[]
    *   The database instance. This is not a DatabaseResponse, since it's
    *   specific to the environment.
    *
@@ -719,7 +720,7 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
       $this->logger->debug('Only a single database detected on Cloud');
     }
 
-    return reset($databases);
+    return [reset($databases)];
   }
 
   /**

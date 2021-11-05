@@ -215,25 +215,19 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param ObjectProphecy $local_machine_helper
-   * @param $success
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $local_machine_helper
+   * @param bool $success
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlDropDb(
     ObjectProphecy $local_machine_helper,
-    $success
+    bool $success
   ): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
-      ->execute([
-        'mysql',
-        '--host',
-        'localhost',
-        '--user',
-        'drupal',
-        '-e',
-        'DROP DATABASE IF EXISTS drupal',
-      ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
+      ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -256,7 +250,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
         '--user',
         'drupal',
         '-e',
-        'create database drupal',
+        //'create database drupal',
+        'create database jxr5000596dev',
       ], Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
