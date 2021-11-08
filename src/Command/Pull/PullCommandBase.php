@@ -500,7 +500,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $cloud_application_uuid
    * @param bool $allow_production
    *
-   * @return mixed
+   * @return array|string
    */
   protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
     $environment_resource = new Environments($acquia_cloud_client);
@@ -526,10 +526,10 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param $environment_databases
    *
-   * @return mixed
+   * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function promptChooseDatabase(
+  protected function promptChooseDatabases(
     $cloud_environment,
     $environment_databases,
     $multiple_dbs
@@ -565,17 +565,23 @@ abstract class PullCommandBase extends CommandBase {
       $default_database_index
     );
     $question->setMultiselect($multiple_dbs);
-    $chosen_database_keys = $this->io->askQuestion($question);
-    $chosen_databases = [];
+    if ($multiple_dbs) {
+      $chosen_database_keys = $this->io->askQuestion($question);
+      $chosen_databases = [];
+      if (count($chosen_database_keys) === 1 && $chosen_database_keys[0] === 'all') {
+        return $environment_databases;
+      }
+      foreach ($chosen_database_keys as $chosen_database_key) {
+        $chosen_databases[] = $environment_databases[$chosen_database_key];
+      }
 
-    if (count($chosen_database_keys) === 1 && $chosen_database_keys[0] === 'all') {
-      return $environment_databases;
+      return $chosen_databases;
     }
-    foreach ($chosen_database_keys as $chosen_database_key) {
-      $chosen_databases[] = $environment_databases[$chosen_database_key];
+    else {
+      $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
+      $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
+      return [$environment_databases[$chosen_database_index]];
     }
-
-    return $chosen_databases;
   }
 
   /**
@@ -714,7 +720,7 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
           return $databases[$database_key];
         }
       }
-      return $this->promptChooseDatabase($chosen_environment, $databases, $multiple_dbs);
+      return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
     }
     else {
       $this->logger->debug('Only a single database detected on Cloud');
