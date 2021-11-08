@@ -47,6 +47,38 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
   }
 
+  /**
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testPullMultipleDatabases(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      //  Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
+      0,
+      //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
+      0,
+      // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
+      '10,27'
+    ];
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+      '--multiple-dbs' => TRUE,
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabasesOnDemand(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -66,6 +98,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
@@ -88,6 +124,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * Test that settings files are created for multisite DBs in IDEs.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseSettingsFiles(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
@@ -100,6 +137,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     putenv('AH_SITE_ENVIRONMENT');
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabaseWithMySqlDownloadError(): void {
     $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -111,6 +152,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase( TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -122,6 +167,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabaseWithMySqlCreateError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
@@ -133,6 +182,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
@@ -144,21 +197,26 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
   }
 
-  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE): void {
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function setupPullDatabase($mysql_dl_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
+
     $databases_response = $this->mockDatabasesResponse($selected_environment);
-    $selected_database = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'))];
-    $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
-    $selected_backup = $database_backups_response->_embedded->items[0];
-    $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
-    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
-    $this->clientProphecy->addOption('sink', $local_filepath);
-    $this->clientProphecy->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
-    $this->clientProphecy->addOption('progress', Argument::type('Closure'));
+    $database_response = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'))];
+    $selected_database = $this->mockDownloadBackup($database_response, $selected_environment);
+
+    if ($multidb) {
+      $database_response_2 = $databases_response[array_search('profserv2', array_column($databases_response, 'name'))];
+      $selected_database_2 = $this->mockDownloadBackup($database_response_2, $selected_environment);
+    }
+
     $ssh_helper = $this->mockSshHelper();
     if ($mock_get_acsf_sites) {
       $this->mockGetAcsfSites($ssh_helper);
@@ -324,6 +382,27 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     PullCommandBase::displayDownloadProgress(100, 100, $progress, $output);
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
+  }
+
+  /**
+   * @param $databases_response
+   * @param $selected_environment
+   *
+   * @return mixed
+   */
+  protected function mockDownloadBackup($databases_response, $selected_environment) {
+    $selected_database = $databases_response;
+    $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
+    $selected_backup = $database_backups_response->_embedded->items[0];
+    $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
+    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
+    $this->clientProphecy->addOption('sink', $local_filepath);
+    $this->clientProphecy->addOption('curl.options', [
+      'CURLOPT_RETURNTRANSFER' => FALSE,
+      'CURLOPT_FILE' => $local_filepath
+    ]);
+    $this->clientProphecy->addOption('progress', Argument::type('Closure'));
+    return $selected_database;
   }
 
 }
