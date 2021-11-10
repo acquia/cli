@@ -1012,7 +1012,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return ApplicationResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApplication(string $application_uuid, bool $use_cache): ApplicationResponse {
+  protected function getCloudApplication(string $application_uuid, bool $use_cache = FALSE): ApplicationResponse {
     if ($use_cache) {
       $cache = self::getApplicationCache();
       return $cache->get($application_uuid, function (ItemInterface $item) use ($application_uuid) {
