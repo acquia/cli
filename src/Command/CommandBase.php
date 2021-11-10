@@ -346,7 +346,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
-    $this->addOrgScopeIfRequired();
+    if ($this->commandRequiresAuthentication($this->input)) {
+      $this->addOrgScopeIfRequired();
+    }
   }
 
   /**
