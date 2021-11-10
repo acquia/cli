@@ -416,6 +416,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Add scope=organization:[org-uuid] to Cloud API requests if required.
    *
    * This is a requirement for Acquia Cloud organizations that have SSO enabled.
+   *
+   * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
    */
   protected function addOrgScopeIfRequired() {
     // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
@@ -425,9 +427,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $application = $this->getCloudApplication($application_uuid);
       } catch (IdentityProviderException $e) {
         // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
-        $organization_uuid = $this->io->ask("Enter the organization uuid");
-        $this->cloudApiClientService->setOrganizationUuid($organization_uuid);
-        $application = $this->getCloudApplication($application_uuid);
+        if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
+          $this->logger->debug("Setting scope to organization:$organization_uuid");
+          $this->cloudApiClientService->setOrganizationUuid($organization_uuid);
+        }
+        else {
+          throw $e;
+        }
       }
     }
   }
