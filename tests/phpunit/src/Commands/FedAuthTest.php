@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\GoodByeWorldCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
@@ -85,6 +87,26 @@ class FedAuthTest extends CommandTestBase {
       '0'
     ]);
     self::assertEquals(0, $this->getStatusCode());
+    $this->prophet->checkPredictions();
+  }
+
+  public function testSetOrgUuid() {
+    $connector_factory = new ConnectorFactory(
+      [
+        'key' => $this->cloudCredentials->getCloudKey(),
+        'secret' => $this->cloudCredentials->getCloudSecret(),
+        'accessToken' => NULL,
+      ]);
+    $clientService = new ClientService($connector_factory, $this->application);
+    $clientService->setOrganizationUuid($this->orgUuid);
+    $client = $clientService->getClient();
+    $options = $client->getOptions();
+    $this->assertArrayHasKey('headers', $options);
+    $this->assertArrayHasKey('User-Agent', $options['headers']);
+    $query = $client->getQuery();
+    $this->assertArrayHasKey('scope', $query);
+    $this->assertEquals('organization:' . $this->orgUuid, $query['scope']);
+
     $this->prophet->checkPredictions();
   }
 
