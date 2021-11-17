@@ -121,6 +121,9 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
+    if ($multiple_dbs && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('The --multiple-dbs option is not supported in Cloud IDE.');
+    }
     if (!$no_import) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
@@ -150,13 +153,17 @@ abstract class PullCommandBase extends CommandBase {
         $this->io->success("{$database->name} database backup downloaded to $local_filepath");
       } else {
         $this->checklist->addItem("Importing {$database->name} database download");
+        if ($database->flags->default) {
+          $this->io->note("Acquia CLI assumes that the local database name for the DEFAULT database {$database->name} is {$this->getLocalDbName()}");
+          $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+        }
         // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
-        if ($database->flags->default || AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-          $this->io->note("Acquia CLI assumes that the local database name for the default database is {$this->getLocalDbName()}");
+        elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+          $this->io->note("Because you are running this command inside of Cloud IDE, Acquia CLI assumes that the local database name for the NON-DEFAULT database {$database->name} is {$this->getLocalDbName()}");
           $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         else {
-          $this->io->note("Acquia CLI assumes that the local database name for the {$database->name} database is also {$database->name}");
+          $this->io->note("Acquia CLI assumes that the local database name for the NON-DEFAULT {$database->name} database is also {$database->name}");
           $this->importRemoteDatabase($database->name, $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         $this->checklist->completePreviousItem();
@@ -569,6 +576,9 @@ abstract class PullCommandBase extends CommandBase {
       $chosen_database_keys = $this->io->askQuestion($question);
       $chosen_databases = [];
       if (count($chosen_database_keys) === 1 && $chosen_database_keys[0] === 'all') {
+        if (count($environment_databases) > 10) {
+          $this->io->warning('You have chosen to pull down more than 10 databases. This could exhaust your disk space.');
+        }
         return $environment_databases;
       }
       foreach ($chosen_database_keys as $chosen_database_key) {
