@@ -156,16 +156,32 @@ abstract class PullCommandBase extends CommandBase {
         $this->checklist->addItem("Importing {$database->name} database download");
         if ($database->flags->default) {
           $this->io->note("Acquia CLI assumes that the local database name for the DEFAULT database {$database->name} is {$this->getLocalDbName()}");
-          $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
           // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
           $this->io->note("Because you are running this command inside of Cloud IDE, Acquia CLI assumes that the local database name for the NON-DEFAULT database {$database->name} is {$this->getLocalDbName()}");
-          $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+        }
+        elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
+          $lando_info = AcquiaDrupalEnvironmentDetector::getLandoInfo();
+          // We look for a Lando service with the same name as the database.
+          if (array_key_exists($database->name, $lando_info)) {
+            $lando_database_info = $lando_info->{$database->name};
+            $this->importRemoteDatabase($lando_database_info->hostnames[0], $lando_database_info->creds->user, $database->name, $lando_database_info->creds->password, $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          }
+          else {
+            $this->io->error([
+              "You will need to manually add this extra database to your .lando.yml configuration.",
+              "Name your MySQL service with the database name, {$database->name}.",
+              "See https://docs.lando.dev/config/mysql.html#configuration",
+            ]);
+            throw new AcquiaCliException('Please correct your Lando configuration.');
+          }
         }
         else {
           $this->io->note("Acquia CLI assumes that the local database name for the NON-DEFAULT {$database->name} database is also {$database->name}");
-          $this->importRemoteDatabase($database->name, $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database->name, $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         $this->checklist->completePreviousItem();
       }
@@ -226,20 +242,26 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param string $database_host
+   * @param string $database_user
    * @param string $database_name
+   * @param string $database_password
    * @param string $local_filepath
    * @param null $output_callback
    *
    * @throws \Exception
    */
   protected function importRemoteDatabase(
+    string $database_host,
+    string $database_user,
     string $database_name,
+    string $database_password,
     string $local_filepath,
-    $output_callback = NULL
+           $output_callback = NULL
   ): void {
-    $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
-    $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
-    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $database_name, $this->getLocalDbPassword(), $output_callback);
+    $this->dropLocalDatabase($database_host, $database_user, $database_name, $database_password, $output_callback);
+    $this->createLocalDatabase($database_host, $database_user, $database_name, $database_password, $output_callback);
+    $this->importDatabaseDump($local_filepath, $database_host, $database_user, $database_name, $database_password, $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
   }
 
