@@ -671,7 +671,10 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
         if ($site === 'default') {
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
-        return $databases[array_search($site, array_column($databases, 'name'))];
+        $database_names = array_column($databases, 'name');
+        if ($database_key = array_search($site, $database_names)) {
+          return $databases[$database_key];
+        }
       }
       $this->warnMultisite();
       return $this->promptChooseDatabase($chosen_environment, $databases);
