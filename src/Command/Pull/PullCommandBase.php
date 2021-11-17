@@ -166,7 +166,7 @@ abstract class PullCommandBase extends CommandBase {
         elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
           $lando_info = AcquiaDrupalEnvironmentDetector::getLandoInfo();
           // We look for a Lando service with the same name as the database.
-          if (property_exists($database->name, $lando_info)) {
+          if (property_exists($lando_info, $database->name)) {
             $lando_database_info = $lando_info->{$database->name};
             $this->importRemoteDatabase($lando_database_info->hostnames[0], $lando_database_info->creds->user, $database->name, $lando_database_info->creds->password, $local_filepath, $this->getOutputCallback($output, $this->checklist));
           }
