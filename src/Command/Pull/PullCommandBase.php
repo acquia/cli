@@ -151,14 +151,15 @@ abstract class PullCommandBase extends CommandBase {
 
       if ($no_import) {
         $this->io->success("{$database->name} database backup downloaded to $local_filepath");
-      } else {
+      }
+      else {
         $this->checklist->addItem("Importing {$database->name} database download");
         if ($database->flags->default) {
           $this->io->note("Acquia CLI assumes that the local database name for the DEFAULT database {$database->name} is {$this->getLocalDbName()}");
           $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
-        // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
         elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+          // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
           $this->io->note("Because you are running this command inside of Cloud IDE, Acquia CLI assumes that the local database name for the NON-DEFAULT database {$database->name} is {$this->getLocalDbName()}");
           $this->importRemoteDatabase($this->getLocalDbName(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
