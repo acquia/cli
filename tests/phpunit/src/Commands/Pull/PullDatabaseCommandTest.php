@@ -83,24 +83,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   /**
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testPullDatabasesIntoLandoFailure(): void {
-    $lando_info = LandoInfoTrait::getLandoInfo();
-    LandoInfoTrait::setLandoInfo($lando_info);
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-    try {
-      $this->executeCommand([
-        '--no-scripts' => TRUE,
-      ], $inputs);
-    } catch (\Exception $e) {
-      $this->assertStringContainsString('Please correct your Lando configuration', $e->getMessage());
-    }
-    LandoInfoTrait::unsetLandoInfo();
-  }
-
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   */
   public function testPullMultipleDatabasesInCloudIde(): void {
     IdeRequiredTestTrait::setCloudIdeEnvVars();
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
