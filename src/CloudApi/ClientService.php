@@ -43,6 +43,15 @@ class ClientService {
    */
   public function getClient(): Client {
     $client = Client::factory($this->connector);
+    $this->configureClient($client);
+
+    return $client;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $client
+   */
+  protected function configureClient(Client $client): void {
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
     $client->addOption('headers', [
       'User-Agent' => [$user_agent],
@@ -51,8 +60,6 @@ class ClientService {
     if (isset($this->organizationUuid)) {
       $client->addQuery('scope', 'organization:' . $this->organizationUuid);
     }
-
-    return $client;
   }
 
 }
