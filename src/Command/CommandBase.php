@@ -1527,7 +1527,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   public static function getLandoInfo() {
-    if ($lando_info = getenv('LANDO_INFO')) {
+    if ($lando_info = AcquiaDrupalEnvironmentDetector::getLandoInfo()) {
       return json_decode($lando_info);
     }
     return NULL;
