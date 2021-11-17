@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -30,7 +31,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -48,11 +49,58 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   */
+  public function testPullDatabasesLocalConnectionFailure(): void {
+    $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+
+    try {
+      $this->executeCommand([
+        '--no-scripts' => TRUE,
+      ], $inputs);
+    } catch (\Exception $e) {
+      $this->assertStringContainsString('Unable to connect', $e->getMessage());
+    }
+  }
+
+  /**
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   */
+  public function testPullMultipleDatabasesInCloudIde(): void {
+    IdeRequiredTestTrait::setCloudIdeEnvVars();
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
+    $inputs = [
+      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+      'n',
+      // Please select a Cloud Platform application:
+      0,
+      // Would you like to link the project at ... ?
+      'n',
+      //  Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
+      0,
+      //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
+      0,
+      // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
+      '10,27'
+    ];
+    try {
+      $this->executeCommand([
+      '--no-scripts' => TRUE,
+      '--multiple-dbs' => TRUE,
+    ], $inputs);
+    } catch (\Exception $e) {
+      $this->assertEquals('The --multiple-dbs option is not supported in Cloud IDE.', $e->getMessage());
+    }
+    IdeRequiredTestTrait::unsetCloudIdeEnvVars();
+  }
+
+  /**
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullMultipleDatabases(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -80,7 +128,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabasesOnDemand(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -103,7 +151,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabasesSiteArgument(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
@@ -127,7 +175,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseSettingsFiles(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
     // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
     // IdeRequiredTestBase sets other env vars (such as application ID) that
@@ -142,7 +190,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseWithMySqlDownloadError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -157,7 +205,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseWithMySqlDropError(): void {
-    $this->setupPullDatabase(FALSE, TRUE, TRUE);
+    $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -172,7 +220,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseWithMySqlCreateError(): void {
-    $this->setupPullDatabase(TRUE, FALSE, TRUE);
+    $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
 
     try {
@@ -187,7 +235,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabaseWithMySqlImportError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, FALSE);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
 
     try {
@@ -198,10 +246,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
+   * @param $mysql_connect_successful *
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function setupPullDatabase($mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE): void {
+  protected function setupPullDatabase($mysql_connect_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -230,7 +280,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $fs = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockExecuteMySqlConnect($local_machine_helper, TRUE);
+    $this->mockExecuteMySqlConnect($local_machine_helper, $mysql_connect_successful);
     // Set up file system.
     $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
