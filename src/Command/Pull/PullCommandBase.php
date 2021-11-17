@@ -728,7 +728,7 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
         }
         $database_names = array_column($databases, 'name');
         if ($database_key = array_search($site, $database_names)) {
-          return $databases[$database_key];
+          return [$databases[$database_key]];
         }
       }
       return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
