@@ -1062,7 +1062,8 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
         "If this database does not exist, you must create it manually using:",
         "`lando mysql -e \"CREATE DATABASE {$database->name};\"`",
       ]);
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+      // Must use root in Lando!
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, NULL, $local_filepath, $this->getOutputCallback($output, $this->checklist));
     }
     else {
       $this->io->note("Acquia CLI assumes that the local database name for the {$database->name} database is also {$database->name}");
