@@ -7,17 +7,6 @@ namespace Acquia\Cli\Tests\Misc;
  */
 trait LandoInfoTrait {
 
-  public function setUp($output = NULL): void {
-    parent::setUp();
-    $lando_info = self::getLandoInfo();
-    self::setLandoInfo($lando_info);
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-    self::unsetLandoInfo();
-  }
-
   public static function setLandoInfo($lando_info) {
     putenv('LANDO_INFO=' . json_encode($lando_info));
     putenv('LANDO=ON');
