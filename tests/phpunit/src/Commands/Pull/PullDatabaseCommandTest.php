@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
+use Acquia\Cli\Tests\Misc\LandoInfoTrait;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -62,6 +63,39 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     } catch (\Exception $e) {
       $this->assertStringContainsString('Unable to connect', $e->getMessage());
     }
+  }
+
+  /**
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   */
+  public function testPullDatabasesIntoLando(): void {
+    $lando_info = LandoInfoTrait::getLandoInfo();
+    $lando_info->jxr5000596dev = $lando_info->database;
+    LandoInfoTrait::setLandoInfo($lando_info);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], $inputs);
+    LandoInfoTrait::unsetLandoInfo();
+  }
+
+  /**
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   */
+  public function testPullDatabasesIntoLandoFailure(): void {
+    $lando_info = LandoInfoTrait::getLandoInfo();
+    LandoInfoTrait::setLandoInfo($lando_info);
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
+    $inputs = $this->getInputs();
+    try {
+      $this->executeCommand([
+        '--no-scripts' => TRUE,
+      ], $inputs);
+    } catch (\Exception $e) {
+      $this->assertStringContainsString('Please correct your Lando configuration', $e->getMessage());
+    }
+    LandoInfoTrait::unsetLandoInfo();
   }
 
   /**

@@ -174,6 +174,7 @@ abstract class PullCommandBase extends CommandBase {
             $this->io->error([
               "You will need to manually add this extra database to your .lando.yml configuration.",
               "Name your MySQL service with the database name, {$database->name}.",
+              "You will then need to rebulid your lando container.",
               "See https://docs.lando.dev/config/mysql.html#configuration",
             ]);
             throw new AcquiaCliException('Please correct your Lando configuration.');
