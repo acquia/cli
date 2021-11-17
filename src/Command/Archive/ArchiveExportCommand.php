@@ -160,10 +160,10 @@ class ArchiveExportCommand extends CommandBase {
       throw new AcquiaCliException("Could not connect to local database.");
     }
     $dump_temp_filepath = $this->createMySqlDumpOnLocal(
-      $this->getLocalDbHost(),
-      $this->getLocalDbUser(),
-      $this->getLocalDbName(),
-      $this->getLocalDbPassword(),
+      $this->getDefaultLocalDbHost(),
+      $this->getDefaultLocalDbUser(),
+      $this->getDefaultLocalDbName(),
+      $this->getDefaultLocalDbPassword(),
       $output_callback
     );
     $dump_filepath = Path::join($archive_temp_dir, basename($dump_temp_filepath));

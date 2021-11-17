@@ -242,7 +242,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  public function getLocalDbUser() {
+  public function getDefaultLocalDbUser() {
     if (!isset($this->localDbUser)) {
       $this->setLocalDbUser();
     }
@@ -263,7 +263,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbPassword() {
+  public function getDefaultLocalDbPassword() {
     if (!isset($this->localDbPassword)) {
       $this->setLocalDbPassword();
     }
@@ -284,7 +284,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbName() {
+  public function getDefaultLocalDbName() {
     if (!isset($this->localDbName)) {
       $this->setLocalDbName();
     }
@@ -305,7 +305,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbHost() {
+  public function getDefaultLocalDbHost() {
     if (!isset($this->localDbHost)) {
       $this->setLocalDbHost();
     }

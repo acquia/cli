@@ -126,7 +126,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     if (!$no_import) {
       // Verify database connection.
-      $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+      $this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
@@ -155,18 +155,19 @@ abstract class PullCommandBase extends CommandBase {
       else {
         $this->checklist->addItem("Importing {$database->name} database download");
         if ($database->flags->default) {
-          $this->io->note("Acquia CLI assumes that the local database name for the DEFAULT database {$database->name} is {$this->getLocalDbName()}");
-          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->io->note("Acquia CLI assumes that the local database name for the DEFAULT database {$database->name} is {$this->getDefaultLocalDbName()}");
+          $this->importRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
           // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
-          $this->io->note("Because you are running this command inside of Cloud IDE, Acquia CLI assumes that the local database name for the NON-DEFAULT database {$database->name} is {$this->getLocalDbName()}");
-          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->io->note("Because you are running this command inside of Cloud IDE, Acquia CLI assumes that the local database name for the NON-DEFAULT database {$database->name} is {$this->getDefaultLocalDbName()}");
+          $this->importRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
           $lando_info = CommandBase::getLandoInfo();
           // We look for a Lando service with the same name as the database.
           if (property_exists($lando_info, $database->name)) {
+            $this->io->note("Acquia CLI uses the \$LANDO_INFO environmental variable to determine the database credentials for {$database->name}.");
             $lando_database_info = $lando_info->{$database->name};
             $this->importRemoteDatabase($lando_database_info->hostnames[0], $lando_database_info->creds->user, $database->name, $lando_database_info->creds->password, $local_filepath, $this->getOutputCallback($output, $this->checklist));
           }
@@ -182,7 +183,7 @@ abstract class PullCommandBase extends CommandBase {
         }
         else {
           $this->io->note("Acquia CLI assumes that the local database name for the NON-DEFAULT {$database->name} database is also {$database->name}");
-          $this->importRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database->name, $this->getLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+          $this->importRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
         }
         $this->checklist->completePreviousItem();
       }
