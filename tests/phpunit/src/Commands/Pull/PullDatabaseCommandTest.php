@@ -21,6 +21,11 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {
 
+  protected $dbUser = 'drupal';
+  protected $dbPassword = 'drupal';
+  protected $dbHost = 'localhost';
+  protected $dbName = 'drupal';
+
   /**
    * {@inheritdoc}
    */
@@ -70,8 +75,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    */
   public function testPullDatabasesIntoLando(): void {
     $lando_info = LandoInfoTrait::getLandoInfo();
-    $lando_info->jxr5000596dev = $lando_info->database;
     LandoInfoTrait::setLandoInfo($lando_info);
+    $this->dbUser = 'root';
+    $this->dbPassword = '';
+    $this->dbHost = $lando_info->database->hostnames[0];
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
     $this->executeCommand([
@@ -331,7 +338,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->execute([
         'mysql',
         '--host',
-        'localhost',
+        $this->dbHost,
         '--user',
         'drupal',
         'drupal',
@@ -353,7 +360,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
     $local_machine_helper
-      ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => 'drupal'])
+      ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -374,9 +381,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->execute([
         'mysql',
         '--host',
-        'localhost',
+        $this->dbHost,
         '--user',
-        'drupal',
+        $this->dbUser,
         '-e',
         //'create database drupal',
         'create database jxr5000596dev',
