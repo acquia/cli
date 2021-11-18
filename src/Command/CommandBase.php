@@ -20,6 +20,8 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
+use AcquiaCloudApi\Endpoints\Organizations;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaLogstream\LogstreamManager;
@@ -30,6 +32,7 @@ use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -352,6 +355,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
+    if ($this->commandRequiresAuthentication($this->input)) {
+      $this->addOrgScopeIfRequired();
+    }
   }
 
   /**
@@ -413,6 +419,31 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('Ok, no data will be collected and shared with us.');
         $this->output->writeln('We take privacy seriously.');
         $this->output->writeln('If you change your mind, run <options=bold>acli telemetry</>.');
+      }
+    }
+  }
+
+  /**
+   * Add scope=organization:[org-uuid] to Cloud API requests if required.
+   *
+   * This is a requirement for Acquia Cloud organizations that have SSO enabled.
+   *
+   * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+   */
+  protected function addOrgScopeIfRequired() {
+    // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
+    if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
+      try {
+        $application = $this->getCloudApplication($application_uuid, TRUE);
+      } catch (IdentityProviderException $e) {
+        // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
+        if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
+          $this->logger->debug("Setting scope to organization:$organization_uuid");
+          $this->cloudApiClientService->setOrganizationUuid($organization_uuid);
+        }
+        else {
+          throw $e;
+        }
       }
     }
   }
@@ -975,7 +1006,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the UUID from a Cloud IDE's environmental variable.
    *
-   * This command assumes it is being run inside of a Cloud IDE.
+   * This command assumes it is being run inside a Cloud IDE.
    *
    * @return false|string
    */
@@ -984,24 +1015,50 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $application_uuid
+   * @param string $application_uuid
+   * @param bool $use_cache
    *
    * @return ApplicationResponse
-   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApplication($application_uuid): ApplicationResponse {
-    $applications_resource = new Applications($this->cloudApiClientService->getClient());
+  protected function getCloudApplication(string $application_uuid, bool $use_cache = FALSE): ApplicationResponse {
+    if ($use_cache) {
+      $cache = self::getApplicationCache();
+      return $cache->get($application_uuid, function (ItemInterface $item) use ($application_uuid) {
+        return $this->doGetCloudApplication($application_uuid);
+      });
+    }
 
+    return $this->doGetCloudApplication($application_uuid);
+  }
+
+  /**
+   * @param string $application_uuid
+   *
+   * @return \AcquiaCloudApi\Response\ApplicationResponse
+   */
+  protected function doGetCloudApplication(string $application_uuid): ApplicationResponse {
+    $applications_resource = new Applications($this->cloudApiClientService->getClient());
     return $applications_resource->get($application_uuid);
   }
 
   /**
-   * @param $environment_id
+   * Return the ACLI application cache.
+   * @return FilesystemAdapter
+   */
+  public static function getApplicationCache(): FilesystemAdapter {
+    // 1 min cache TTL.
+    $lifetime = 60 * 1000;
+    return new FilesystemAdapter('acli_application', $lifetime);
+  }
+
+  /**
+   * @param string $environment_id
    *
    * @return EnvironmentResponse
    * @throws \Exception
    */
-  protected function getCloudEnvironment($environment_id): EnvironmentResponse {
+  protected function getCloudEnvironment(string $environment_id): EnvironmentResponse {
     $environment_resource = new Environments($this->cloudApiClientService->getClient());
 
     return $environment_resource->get($environment_id);
