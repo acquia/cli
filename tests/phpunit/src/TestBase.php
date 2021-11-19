@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;
@@ -208,6 +209,7 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
+    $this->clientServiceProphecy->getConnector()->willReturn(new AccessTokenConnector(['access_token' => 'test', 'key' => NULL, 'secret' => NULL]));
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);

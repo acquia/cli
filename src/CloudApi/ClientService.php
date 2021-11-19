@@ -84,10 +84,6 @@ class ClientService {
     $client->addOption('headers', [
       'User-Agent' => [$user_agent],
     ]);
-
-    if (isset($this->organizationUuid)) {
-      $client->addQuery('scope', 'organization:' . $this->organizationUuid);
-    }
   }
 
 }

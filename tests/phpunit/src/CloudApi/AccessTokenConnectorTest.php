@@ -17,33 +17,11 @@ use Psr\Http\Message\RequestInterface;
  */
 class AccessTokenConnectorTest extends TestBase {
 
-  /**
-   * @var string
-   */
-  private $accessToken;
-
-  /**
-   * @var int
-   */
-  private $accessTokenExpiry;
-
-  public function setUp($output = NULL): void {
-    parent::setUp();
-    $this->accessToken = 'testaccesstoken';
-    $this->accessTokenExpiry = time() + 300;
-    putenv('ACLI_ACCESS_TOKEN=' . $this->accessToken);
-    putenv('ACLI_ACCESS_TOKEN_EXPIRY=' . $this->accessTokenExpiry);
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-    putenv('ACLI_ACCESS_TOKEN');
-    putenv('ACLI_ACCESS_TOKEN_EXPIRY');
-  }
+  use AccessTokenConnectorTrait;
 
   public function testAccessToken() {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
-    self::assertEquals($this->accessToken, $this->cloudCredentials->getCloudAccessToken());
+    self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
       [
         'key' => $this->cloudCredentials->getCloudKey(),
@@ -53,7 +31,7 @@ class AccessTokenConnectorTest extends TestBase {
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(AccessTokenConnector::class, $connector);
-    self::assertEquals($this->accessToken, $connector->getAccessToken()->getToken());
+    self::assertEquals(self::$accessToken, $connector->getAccessToken()->getToken());
 
     $verb = 'get';
     $path = 'api';

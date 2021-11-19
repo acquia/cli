@@ -6,9 +6,11 @@ use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\GoodByeWorldCommand;
+use Acquia\Cli\Tests\CloudApi\AccessTokenConnectorTrait;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Prophecy\Argument\ArgumentsWildcard;
 use Symfony\Component\Console\Command\Command;
@@ -23,27 +25,6 @@ class FedAuthTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  protected $orgUuid = 'org_uuid';
-  protected $appUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-
-  public function setUp($output = NULL): void {
-    parent::setUp();
-    self::setCloudIdeEnvVars();
-    TestBase::setEnvVars([
-      'AH_ORGANIZATION_UUID' => $this->orgUuid,
-      'AH_APPLICATION_UUID' => $this->appUuid,
-    ]);
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    self::unsetCloudIdeEnvVars();
-    TestBase::unsetEnvVars([
-      'AH_ORGANIZATION_UUID' => $this->orgUuid,
-      'AH_APPLICATION_UUID' => $this->appUuid,
-    ]);
-  }
-
   /**
    * {@inheritdoc}
    */
@@ -52,10 +33,11 @@ class FedAuthTest extends CommandTestBase {
   }
 
   public function testFedAuth() {
+    AccessTokenConnectorTrait::setAccessTokenEnvVars();
+    TestBase::setEnvVars(['AH_APPLICATION_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470']);
     $cache = CommandBase::getApplicationCache();
     $cache->clear();
-    $applications_response = $this->getMockResponseFromSpec('/applications',
-      'get', '200');
+    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
     $application_response = $applications_response->{'_embedded'}->items[0];
 
     // We use this tricky code bit because we need this method to throw an
@@ -71,16 +53,15 @@ class FedAuthTest extends CommandTestBase {
         );
         // First time, throw error.
         if (count($methodCalls) === 0) {
-          throw new IdentityProviderException('Problem', 403, 'yikes');
+          throw new ApiErrorException((object) ['message' => 'yikes', 'error' => 'yikes'], 'yikes', 403);
         }
         // Second time, return response.
         else {
           return $application_response;
         }
       });
-
-    $this->clientServiceProphecy->setOrganizationUuid($this->orgUuid)->shouldBeCalled();
     $this->mockApplicationsRequest();
+    $this->clientServiceProphecy->recreateConnector()->ShouldBeCalled();
 
     $this->executeCommand([], [
       // Select application.
@@ -88,6 +69,8 @@ class FedAuthTest extends CommandTestBase {
     ]);
     self::assertEquals(0, $this->getStatusCode());
     $this->prophet->checkPredictions();
+    AccessTokenConnectorTrait::unsetAccessTokenEnvVars();
+    TestBase::unsetEnvVars(['AH_APPLICATION_UUID' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470']);
   }
 
   public function testSetOrgUuid() {
@@ -98,14 +81,11 @@ class FedAuthTest extends CommandTestBase {
         'accessToken' => NULL,
       ]);
     $clientService = new ClientService($connector_factory, $this->application);
-    $clientService->recreateConnectorWithOrganizationScope($this->orgUuid);
+    $clientService->recreateConnector();
     $client = $clientService->getClient();
     $options = $client->getOptions();
     $this->assertArrayHasKey('headers', $options);
     $this->assertArrayHasKey('User-Agent', $options['headers']);
-    $query = $client->getQuery();
-    $this->assertArrayHasKey('scope', $query);
-    $this->assertEquals('organization:' . $this->orgUuid, $query['scope']);
 
     $this->prophet->checkPredictions();
   }

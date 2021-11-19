@@ -419,9 +419,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function validateAccessToken() {
     // If we are using the AccessTokenConnector (only should occur in Cloud IDE) then validate
     // The token before proceeding.
-    if (is_a($this->cloudApiClientService->getConnector(), AccessTokenConnector::class) &&
-      $application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()
-    ) {
+    if (
+        is_a($this->cloudApiClientService->getConnector(), AccessTokenConnector::class) &&
+        $application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()
+      ) {
       try {
         $application = $this->getCloudApplication($application_uuid, TRUE);
       }
