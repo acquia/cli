@@ -338,7 +338,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
     if ($this->commandRequiresAuthentication($this->input)) {
-      $this->validateAccessToken();
+      $this->validateCloudIdeAccessToken();
     }
 
     $this->convertApplicationAliasToUuid($input);
@@ -414,23 +414,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Validate that the access token is valid. If not, force getting new one.
+   * Validate that the Cloud IDE's access token is valid. If not, fall back to API token.
    */
-  protected function validateAccessToken() {
+  protected function validateCloudIdeAccessToken() {
     // If we are using the AccessTokenConnector (only should occur in Cloud IDE) then validate
-    // The token before proceeding.
+    // the token before proceeding.
     if (
         is_a($this->cloudApiClientService->getConnector(), AccessTokenConnector::class) &&
         $application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()
       ) {
       try {
+        // @todo Find a way to test this that doesn't require knowing the application uuid.
         $application = $this->getCloudApplication($application_uuid, TRUE);
       }
       // If the above request failed, then our Access Token is insufficient to access the required resources.
       // This is likely due to Federated Authentication. We need a new access token, which we can only get
       // via an API key & secret pair.
       catch (ApiErrorException $e) {
-        $this->logger->debug("This action requires access to a resource protected by Federated Authentication. A new access token is required.");
+        $this->logger->debug("The access token provided via ACLI_ACCESS_TOKEN is invalid. This may be due to a requirement for Federated Authentication. Falling back to an access token generated via API key & secret.");
         $this->cloudApiClientService->recreateConnector();
       }
     }
