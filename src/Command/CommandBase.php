@@ -20,7 +20,6 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
-use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -31,7 +30,6 @@ use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
@@ -348,7 +346,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
     if ($this->commandRequiresAuthentication($this->input)) {
-      $this->addOrgScopeIfRequired();
+      $this->validateAccessToken();
     }
   }
 
