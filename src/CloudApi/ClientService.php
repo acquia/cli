@@ -36,16 +36,6 @@ class ClientService {
   }
 
   /**
-   * This recreates the connector as Connector rather than an AccessTokenConnector.
-   */
-  public function recreateConnector() {
-    $connector_config = $this->connectorFactory->getConfig();
-    $connector_config['accessToken'] = NULL;
-    $this->connectorFactory->setConfig($connector_config);
-    $this->setConnector($this->connectorFactory->createConnector());
-  }
-
-  /**
    * @return \AcquiaCloudApi\Connector\ConnectorInterface
    */
   public function getConnector(): ConnectorInterface {
