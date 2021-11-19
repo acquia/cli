@@ -40,11 +40,10 @@ class ConnectorFactory {
    */
   public function createConnector() {
     // If an access token is already defined, use it.
+    // Unless a special scope is required.
+    //if ($this->config['accessToken'] && !array_key_exists('scope', $this->config)) {
     if ($this->config['accessToken']) {
-      $access_token = new AccessToken([
-        'access_token' => $this->config['accessToken'],
-        'expires' => $this->config['accessTokenExpiry'],
-      ]);
+      $access_token = $this->createAccessToken();
       if (!$access_token->hasExpired()) {
         return new AccessTokenConnector([
           'access_token' => $access_token,
@@ -56,6 +55,15 @@ class ConnectorFactory {
 
     // Otherwise, use a key and secret.
     return new Connector($this->config, $this->baseUri);
+  }
+
+  private function createAccessToken() {
+    $options = [
+      'access_token' => $this->config['accessToken'],
+      'expires' => $this->config['accessTokenExpiry'],
+    ];
+
+    return new AccessToken($options);
   }
 
 }

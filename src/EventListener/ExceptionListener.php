@@ -69,8 +69,8 @@ class ExceptionListener {
         case "There are no available Cloud IDEs for this application.\n":
           $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           break;
-        case "Cloud Platform API returned an error: This resource requires additional authentication.\n":
-          $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization.";
+        case "This resource requires additional authentication.":
+          $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization. Please run `acli login` to authenticate and then try again.";
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;

@@ -425,11 +425,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
     if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
       try {
-        $application = $this->getCloudApplication($application_uuid, TRUE);
+        $application = $this->getCloudApplication($application_uuid, FALSE);
       } catch (ApiErrorException $e) {
         // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
         if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
-          $this->logger->debug("This action requires access to a resource protected by Federated Authentication. Requesting access to the resource from organization $organization_uuid");
+          $this->logger->debug("This action requires access to a resource protected by Federated Authentication. Requiring manual login via API token.");
           $this->cloudApiClientService->recreateConnectorWithOrganizationScope($organization_uuid);
         }
         else {
@@ -1039,7 +1039,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public static function getApplicationCache(): FilesystemAdapter {
     // 1 min cache TTL.
-    $lifetime = 60 * 1000;
+    $lifetime = 60;
     return new FilesystemAdapter('acli_application', $lifetime);
   }
 

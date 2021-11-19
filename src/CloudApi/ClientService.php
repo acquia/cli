@@ -42,7 +42,7 @@ class ClientService {
   public function recreateConnectorWithOrganizationScope($organization_uuid) {
     $this->organizationUuid = $organization_uuid;
     $connector_config = $this->connectorFactory->getConfig();
-    $connector_config['organization'] = $organization_uuid;
+    $connector_config['accessToken'] = NULL;
     $this->connectorFactory->setConfig($connector_config);
     $this->setConnector($this->connectorFactory->createConnector());
   }
