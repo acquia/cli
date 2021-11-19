@@ -13,26 +13,12 @@ class ConnectorFactory {
   /**
    * ConnectorFactory constructor.
    *
-   * @param $config
-   * @param $base_uri
+   * @param array $config
+   * @param string $base_uri
    */
   public function __construct($config, $base_uri = NULL) {
-    $this->setConfig($config);
-    $this->baseUri = $base_uri;
-  }
-
-  /**
-   * @param mixed $config
-   */
-  public function setConfig($config): void {
     $this->config = $config;
-  }
-
-  /**
-   * @return mixed
-   */
-  public function getConfig() {
-    return $this->config;
+    $this->baseUri = $base_uri;
   }
 
   /**
@@ -60,7 +46,10 @@ class ConnectorFactory {
     return new Connector($this->config, $this->baseUri);
   }
 
-  private function createAccessToken() {
+  /**
+   * @return \League\OAuth2\Client\Token\AccessToken
+   */
+  private function createAccessToken(): AccessToken {
     return new AccessToken([
       'access_token' => $this->config['accessToken'],
       'expires' => $this->config['accessTokenExpiry'],
