@@ -337,6 +337,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
+    if ($this->commandRequiresAuthentication($this->input)) {
+      $this->validateAccessToken();
+    }
 
     $this->convertApplicationAliasToUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
@@ -344,9 +347,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->convertEnvironmentAliasToUuid($input, 'source');
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
-    }
-    if ($this->commandRequiresAuthentication($this->input)) {
-      $this->validateAccessToken();
     }
   }
 
