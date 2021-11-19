@@ -4,6 +4,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 
 /**
@@ -23,8 +24,6 @@ class ClientService {
   private $connectorFactory;
   /** @var Application */
   private $application;
-  /** @var string */
-  private $organizationUuid;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
@@ -37,14 +36,20 @@ class ClientService {
   }
 
   /**
-   * @param $organization_uuid
+   * This recreates the connector as Connector rather than an AccessTokenConnector.
    */
-  public function recreateConnectorWithOrganizationScope($organization_uuid) {
-    $this->organizationUuid = $organization_uuid;
+  public function recreateConnector() {
     $connector_config = $this->connectorFactory->getConfig();
     $connector_config['accessToken'] = NULL;
     $this->connectorFactory->setConfig($connector_config);
     $this->setConnector($this->connectorFactory->createConnector());
+  }
+
+  /**
+   * @return \AcquiaCloudApi\Connector\ConnectorInterface
+   */
+  public function getConnector(): ConnectorInterface {
+    return $this->connector;
   }
 
   /**

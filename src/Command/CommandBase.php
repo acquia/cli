@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
@@ -415,26 +416,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Add scope=organization:[org-uuid] to Cloud API requests if required.
-   *
-   * This is a requirement for Acquia Cloud organizations that have SSO enabled.
-   *
-   * @throws \AcquiaCloudApi\Exception\ApiErrorException
+   * Validate that the access token is valid. If not, force getting new one.
    */
-  protected function addOrgScopeIfRequired() {
-    // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
-    if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
+  protected function validateAccessToken() {
+    // If we are using the AccessTokenConnector (only should occur in Cloud IDE) then validate
+    // The token before proceeding.
+    if (is_a($this->cloudApiClientService->getConnector(), AccessTokenConnector::class) &&
+      $application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()
+    ) {
       try {
-        $application = $this->getCloudApplication($application_uuid, FALSE);
-      } catch (ApiErrorException $e) {
-        // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
-        if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
-          $this->logger->debug("This action requires access to a resource protected by Federated Authentication. Requiring manual login via API token.");
-          $this->cloudApiClientService->recreateConnectorWithOrganizationScope($organization_uuid);
-        }
-        else {
-          throw $e;
-        }
+        $application = $this->getCloudApplication($application_uuid, TRUE);
+      }
+      // If the above request failed, then our Access Token is insufficient to access the required resources.
+      // This is likely due to Federated Authentication. We need a new access token, which we can only get
+      // via an API key & secret pair.
+      catch (ApiErrorException $e) {
+        $this->logger->debug("This action requires access to a resource protected by Federated Authentication. A new access token is required.");
+        $this->cloudApiClientService->recreateConnector();
       }
     }
   }
