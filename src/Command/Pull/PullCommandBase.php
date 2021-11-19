@@ -145,7 +145,6 @@ abstract class PullCommandBase extends CommandBase {
       }
 
       $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
-      // Create new client to wipe old options.
       $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
 
@@ -154,7 +153,7 @@ abstract class PullCommandBase extends CommandBase {
       }
       else {
         $this->checklist->addItem("Importing {$database->name} database download");
-        $this->importRemoteDatabase($database, $local_filepath, $output);
+        $this->importRemoteDatabase($database, $local_filepath, $this->getOutputCallback($output, $this->checklist));
         $this->checklist->completePreviousItem();
       }
     }
@@ -1043,27 +1042,27 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
   /**
    * @param \stdClass $database
    * @param string $local_filepath
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param callable|null $output_callback
    *
    * @throws \Exception
    */
-  protected function importRemoteDatabase(stdClass $database, string $local_filepath, OutputInterface $output): void {
+  protected function importRemoteDatabase(stdClass $database, string $local_filepath, callable $output_callback = NULL): void {
     if ($database->flags->default) {
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }
     elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
       $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getDefaultLocalDbName()}");
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }
     elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
       $this->io->note("Acquia CLI assumes that the Lando database name for the {$database->name} database is also {$database->name}");
       // Must use root user in Lando.
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, '', $local_filepath, $this->getOutputCallback($output, $this->checklist));
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, '', $local_filepath, $output_callback);
     }
     else {
       $this->io->note("Acquia CLI assumes that the local database name for the {$database->name} database is also {$database->name}");
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $local_filepath, $this->getOutputCallback($output, $this->checklist));
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }
   }
 
