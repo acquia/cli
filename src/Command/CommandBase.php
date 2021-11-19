@@ -419,14 +419,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * This is a requirement for Acquia Cloud organizations that have SSO enabled.
    *
-   * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+   * @throws \AcquiaCloudApi\Exception\ApiErrorException
    */
   protected function addOrgScopeIfRequired() {
     // AH_APPLICATION_UUID will be set in Acquia environments, including Cloud IDE.
     if ($application_uuid = AcquiaDrupalEnvironmentDetector::getAhApplicationUuid()) {
       try {
         $application = $this->getCloudApplication($application_uuid, TRUE);
-      } catch (IdentityProviderException $e) {
+      } catch (ApiErrorException $e) {
         // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
         if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
           $this->logger->debug("This action requires access to a resource protected by Federated Authentication. Requesting access to the resource from organization $organization_uuid");
