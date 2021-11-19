@@ -48,7 +48,6 @@ class AccessTokenConnectorTest extends TestBase {
   }
 
   public function testExpiredAccessToken() {
-    $this->accessTokenExpiry = time() - 300;
     $connector_factory = new ConnectorFactory(
       [
         'key' => $this->cloudCredentials->getCloudKey(),
