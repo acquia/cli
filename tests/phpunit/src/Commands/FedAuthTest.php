@@ -98,7 +98,7 @@ class FedAuthTest extends CommandTestBase {
         'accessToken' => NULL,
       ]);
     $clientService = new ClientService($connector_factory, $this->application);
-    $clientService->setOrganizationUuid($this->orgUuid);
+    $clientService->recreateConnectorWithOrganizationScope($this->orgUuid);
     $client = $clientService->getClient();
     $options = $client->getOptions();
     $this->assertArrayHasKey('headers', $options);

@@ -17,8 +17,22 @@ class ConnectorFactory {
    * @param $base_uri
    */
   public function __construct($config, $base_uri = NULL) {
-    $this->config = $config;
+    $this->setConfig($config);
     $this->baseUri = $base_uri;
+  }
+
+  /**
+   * @param mixed $config
+   */
+  public function setConfig($config): void {
+    $this->config = $config;
+  }
+
+  /**
+   * @return mixed
+   */
+  public function getConfig() {
+    return $this->config;
   }
 
   /**

@@ -429,8 +429,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       } catch (IdentityProviderException $e) {
         // @see https://docs.acquia.com/cloud-platform/develop/api/auth/#making-api-calls-through-single-sign-on
         if ($organization_uuid = getenv('AH_ORGANIZATION_UUID')) {
-          $this->logger->debug("Setting scope to organization:$organization_uuid");
-          $this->cloudApiClientService->setOrganizationUuid($organization_uuid);
+          $this->logger->debug("This action requires access to a resource protected by Federated Authentication. Requesting access to the resource from organization $organization_uuid");
+          $this->cloudApiClientService->recreateConnectorWithOrganizationScope($organization_uuid);
         }
         else {
           throw $e;
