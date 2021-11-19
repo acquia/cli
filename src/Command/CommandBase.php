@@ -978,40 +978,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param string $application_uuid
-   * @param bool $use_cache
    *
    * @return ApplicationResponse
-   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApplication(string $application_uuid, bool $use_cache = FALSE): ApplicationResponse {
-    if ($use_cache) {
-      $cache = self::getApplicationCache();
-      return $cache->get($application_uuid, function (ItemInterface $item) use ($application_uuid) {
-        return $this->doGetCloudApplication($application_uuid);
-      });
-    }
-
-    return $this->doGetCloudApplication($application_uuid);
-  }
-
-  /**
-   * @param string $application_uuid
-   *
-   * @return \AcquiaCloudApi\Response\ApplicationResponse
-   */
-  protected function doGetCloudApplication(string $application_uuid): ApplicationResponse {
+  protected function getCloudApplication(string $application_uuid): ApplicationResponse {
     $applications_resource = new Applications($this->cloudApiClientService->getClient());
     return $applications_resource->get($application_uuid);
-  }
-
-  /**
-   * Return the ACLI application cache.
-   * @return FilesystemAdapter
-   */
-  public static function getApplicationCache(): FilesystemAdapter {
-    // 1 min cache TTL.
-    $lifetime = 60;
-    return new FilesystemAdapter('acli_application', $lifetime);
   }
 
   /**
