@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;

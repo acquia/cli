@@ -13,8 +13,8 @@ class ConnectorFactory {
   /**
    * ConnectorFactory constructor.
    *
-   * @param $config
-   * @param $base_uri
+   * @param array $config
+   * @param string $base_uri
    */
   public function __construct($config, $base_uri = NULL) {
     $this->config = $config;
@@ -25,12 +25,14 @@ class ConnectorFactory {
    * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
   public function createConnector() {
-    // If an access token is already defined, use it.
+    // A defined key & secret takes priority.
+    if ($this->config['key'] && $this->config['secret']) {
+      return new Connector($this->config, $this->baseUri);
+    }
+
+    // Fall back to a valid access token.
     if ($this->config['accessToken']) {
-      $access_token = new AccessToken([
-        'access_token' => $this->config['accessToken'],
-        'expires' => $this->config['accessTokenExpiry'],
-      ]);
+      $access_token = $this->createAccessToken();
       if (!$access_token->hasExpired()) {
         // @todo Add debug log entry indicating that access token is being used.
         return new AccessTokenConnector([
@@ -41,8 +43,18 @@ class ConnectorFactory {
       }
     }
 
-    // Otherwise, use a key and secret.
+    // Fall back to an unauthenticated request.
     return new Connector($this->config, $this->baseUri);
+  }
+
+  /**
+   * @return \League\OAuth2\Client\Token\AccessToken
+   */
+  private function createAccessToken(): AccessToken {
+    return new AccessToken([
+      'access_token' => $this->config['accessToken'],
+      'expires' => $this->config['accessTokenExpiry'],
+    ]);
   }
 
 }

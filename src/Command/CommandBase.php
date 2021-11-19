@@ -975,7 +975,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the UUID from a Cloud IDE's environmental variable.
    *
-   * This command assumes it is being run inside of a Cloud IDE.
+   * This command assumes it is being run inside a Cloud IDE.
    *
    * @return false|string
    */
@@ -984,24 +984,22 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $application_uuid
+   * @param string $application_uuid
    *
    * @return ApplicationResponse
-   * @throws \Exception
    */
-  protected function getCloudApplication($application_uuid): ApplicationResponse {
+  protected function getCloudApplication(string $application_uuid): ApplicationResponse {
     $applications_resource = new Applications($this->cloudApiClientService->getClient());
-
     return $applications_resource->get($application_uuid);
   }
 
   /**
-   * @param $environment_id
+   * @param string $environment_id
    *
    * @return EnvironmentResponse
    * @throws \Exception
    */
-  protected function getCloudEnvironment($environment_id): EnvironmentResponse {
+  protected function getCloudEnvironment(string $environment_id): EnvironmentResponse {
     $environment_resource = new Environments($this->cloudApiClientService->getClient());
 
     return $environment_resource->get($environment_id);
