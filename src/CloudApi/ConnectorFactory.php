@@ -39,10 +39,12 @@ class ConnectorFactory {
    * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
   public function createConnector() {
+    // A defined key & secret takes priority.
     if ($this->config['key'] && $this->config['secret']) {
       return new Connector($this->config, $this->baseUri);
     }
 
+    // Fall back to a valid access token.
     if ($this->config['accessToken']) {
       $access_token = $this->createAccessToken();
       if (!$access_token->hasExpired()) {
@@ -54,7 +56,7 @@ class ConnectorFactory {
       }
     }
 
-    // Otherwise, use a key and secret.
+    // Fall back to an unauthenticated request.
     return new Connector($this->config, $this->baseUri);
   }
 

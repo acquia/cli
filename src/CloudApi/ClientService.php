@@ -36,13 +36,6 @@ class ClientService {
   }
 
   /**
-   * @return \AcquiaCloudApi\Connector\ConnectorInterface
-   */
-  public function getConnector(): ConnectorInterface {
-    return $this->connector;
-  }
-
-  /**
    * @param \AcquiaCloudApi\Connector\ConnectorInterface $connector
    */
   public function setConnector(ConnectorInterface $connector): void {

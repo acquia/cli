@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\CloudApi\AccessTokenConnector;
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
@@ -17,15 +18,44 @@ use Psr\Http\Message\RequestInterface;
  */
 class AccessTokenConnectorTest extends TestBase {
 
-  use AccessTokenConnectorTrait;
+  /**
+   * @var string
+   */
+  private static $accessToken = 'testaccesstoken';
+
+  public function setUp($output = NULL): void {
+    parent::setUp();
+    self::setAccessTokenEnvVars();
+  }
+
+  protected function tearDown(): void {
+    parent::tearDown();
+    self::unsetAccessTokenEnvVars();
+  }
+
+  public static function setAccessTokenEnvVars($expired = FALSE) {
+    if ($expired) {
+      $accessTokenExpiry = time() - 300;
+    }
+    else {
+      $accessTokenExpiry = time() + 300;
+    }
+    putenv('ACLI_ACCESS_TOKEN=' . self::$accessToken);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY=' . $accessTokenExpiry);
+  }
+
+  public static function unsetAccessTokenEnvVars() {
+    putenv('ACLI_ACCESS_TOKEN');
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY');
+  }
 
   public function testAccessToken() {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
       [
-        'key' => $this->cloudCredentials->getCloudKey(),
-        'secret' => $this->cloudCredentials->getCloudSecret(),
+        'key' => NULL,
+        'secret' => NULL,
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
       ]);
@@ -47,7 +77,13 @@ class AccessTokenConnectorTest extends TestBase {
     $this->prophet->checkPredictions();
   }
 
-  public function testExpiredAccessToken() {
+  /**
+   * Validate that if both an access token and API key/secret pair are present,
+   * the pair is used.
+   */
+  public function testConnector() {
+    // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
+    self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
       [
         'key' => $this->cloudCredentials->getCloudKey(),
@@ -57,6 +93,35 @@ class AccessTokenConnectorTest extends TestBase {
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
+  }
+
+  public function testExpiredAccessToken() {
+    self::setAccessTokenEnvVars(TRUE);
+    $connector_factory = new ConnectorFactory(
+      [
+        'key' => NULL,
+        'secret' => NULL,
+        'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
+        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
+      ]);
+    $connector = $connector_factory->createConnector();
+    self::assertInstanceOf(Connector::class, $connector);
+  }
+
+  public function testConnectorConfig() {
+    $connector_factory = new ConnectorFactory(
+      [
+        'key' => $this->cloudCredentials->getCloudKey(),
+        'secret' => $this->cloudCredentials->getCloudSecret(),
+        'accessToken' => NULL,
+      ]);
+    $clientService = new ClientService($connector_factory, $this->application);
+    $client = $clientService->getClient();
+    $options = $client->getOptions();
+    $this->assertArrayHasKey('headers', $options);
+    $this->assertArrayHasKey('User-Agent', $options['headers']);
+
+    $this->prophet->checkPredictions();
   }
 
 }
