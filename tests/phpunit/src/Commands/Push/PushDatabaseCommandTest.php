@@ -25,6 +25,10 @@ class PushDatabaseCommandTest extends CommandTestBase {
     return $this->injectCommand(PushDatabaseCommand::class);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPushDatabase(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

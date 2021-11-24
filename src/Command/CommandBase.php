@@ -242,7 +242,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  public function getLocalDbUser() {
+  public function getDefaultLocalDbUser() {
     if (!isset($this->localDbUser)) {
       $this->setLocalDbUser();
     }
@@ -263,7 +263,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbPassword() {
+  public function getDefaultLocalDbPassword() {
     if (!isset($this->localDbPassword)) {
       $this->setLocalDbPassword();
     }
@@ -284,7 +284,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbName() {
+  public function getDefaultLocalDbName() {
     if (!isset($this->localDbName)) {
       $this->setLocalDbName();
     }
@@ -305,7 +305,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @return mixed
    */
-  public function getLocalDbHost() {
+  public function getDefaultLocalDbHost() {
     if (!isset($this->localDbHost)) {
       $this->setLocalDbHost();
     }
@@ -842,7 +842,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try local project info.
     if ($application_uuid = $this->getCloudUuidFromDatastore()) {
-      $this->logger->debug("Using Cloud application UUID: $application_uuid from .acquia.yml");
+      $this->logger->debug("Using Cloud application UUID: $application_uuid from .acquia-cli.yml");
       return $application_uuid;
     }
 
@@ -1467,8 +1467,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $sites = $this->getCloudSites($cloud_environment);
     if (count($sites) === 1) {
       $site = reset($sites);
+      $this->logger->debug("Only a single Cloud site was detected. Assuming site is $site");
       return $site;
     }
+    $this->logger->debug("Multisite detected");
     $this->warnMultisite();
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
@@ -1523,7 +1525,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   public static function getLandoInfo() {
-    if ($lando_info = getenv('LANDO_INFO')) {
+    if ($lando_info = AcquiaDrupalEnvironmentDetector::getLandoInfo()) {
       return json_decode($lando_info);
     }
     return NULL;

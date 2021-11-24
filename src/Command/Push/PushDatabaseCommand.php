@@ -37,8 +37,9 @@ class PushDatabaseCommand extends PullCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $destination_environment = $this->determineEnvironment($input, $output, FALSE);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $destination_environment, $input->getArgument('site'));
-
+    $databases = $this->determineCloudDatabases($acquia_cloud_client, $destination_environment, $input->getArgument('site'), FALSE);
+    // We only support pushing a single database.
+    $database = $databases[0];
     $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
       return 0;
@@ -48,7 +49,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Creating local database dump');
-    $local_dump_filepath = $this->createMySqlDumpOnLocal($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $local_dump_filepath = $this->createMySqlDumpOnLocal($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $output_callback);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Uploading database dump to remote machine');

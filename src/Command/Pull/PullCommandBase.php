@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use Webmozart\PathUtil\Path;
 
 /**
@@ -68,7 +69,6 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function initialize(InputInterface $input, OutputInterface $output) {
@@ -102,13 +102,12 @@ abstract class PullCommandBase extends CommandBase {
     if ($clone) {
       $this->checklist->addItem('Cloning git repository from the Cloud Platform');
       $this->cloneFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
     }
     else {
       $this->checklist->addItem('Pulling code from the Cloud Platform');
       $this->pullCodeFromCloud($source_environment, $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
     }
+    $this->checklist->completePreviousItem();
   }
 
   /**
@@ -116,41 +115,47 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param bool $on_demand Force on-demand backup.
    * @param bool $no_import Skip import.
+   * @param bool $multiple_dbs
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE): void {
+  protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
+    if ($multiple_dbs && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      throw new AcquiaCliException('The --multiple-dbs option is not supported in Cloud IDE.');
+    }
     if (!$no_import) {
       // Verify database connection.
-      $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+      $this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
     $site = $this->determineSite($source_environment, $input);
-    $database = $this->determineCloudDatabase($acquia_cloud_client, $source_environment, $site);
+    $databases = $this->determineCloudDatabases($acquia_cloud_client, $source_environment, $site, $multiple_dbs);
 
-    if ($on_demand) {
-      $this->checklist->addItem("Creating an on-demand database backup on Cloud Platform");
-      $this->createBackup($source_environment, $database, $acquia_cloud_client);
+    foreach ($databases as $database) {
+      if ($on_demand) {
+        $this->checklist->addItem("Creating an on-demand database(s) backup on Cloud Platform");
+        $this->createBackup($source_environment, $database, $acquia_cloud_client);
+        $this->checklist->completePreviousItem();
+      }
+      $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
+      if (!$on_demand) {
+        $this->printDatabaseBackupInfo($backup_response, $source_environment);
+      }
+
+      $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
+      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
-    }
-    $backup_response = $this->getDatabaseBackup($acquia_cloud_client, $source_environment, $database);
-    if (!$on_demand) {
-      $this->printDatabaseBackupInfo($backup_response, $source_environment);
-    }
 
-    $this->checklist->addItem('Downloading Drupal database copy from the Cloud Platform');
-    $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $acquia_cloud_client, $this->getOutputCallback($output, $this->checklist));
-    $this->checklist->completePreviousItem();
-
-    if ($no_import) {
-      $this->io->success('Database backup downloaded to ' . $local_filepath);
-    } else {
-      $this->checklist->addItem('Importing Drupal database download');
-      $this->importRemoteDatabase($local_filepath,
-        $this->getOutputCallback($output, $this->checklist));
-      $this->checklist->completePreviousItem();
+      if ($no_import) {
+        $this->io->success("{$database->name} database backup downloaded to $local_filepath");
+      }
+      else {
+        $this->checklist->addItem("Importing {$database->name} database download");
+        $this->importRemoteDatabase($database, $local_filepath, $this->getOutputCallback($output, $this->checklist));
+        $this->checklist->completePreviousItem();
+      }
     }
   }
 
@@ -208,26 +213,33 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param string $database_host
+   * @param string $database_user
+   * @param string $database_name
+   * @param string $database_password
    * @param string $local_filepath
    * @param null $output_callback
    *
    * @throws \Exception
    */
-  protected function importRemoteDatabase(
-    $local_filepath,
-    $output_callback = NULL
+  protected function doImportRemoteDatabase(
+    string $database_host,
+    string $database_user,
+    string $database_name,
+    string $database_password,
+    string $local_filepath,
+           $output_callback = NULL
   ): void {
-    $this->dropLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
-    $this->createLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
-    $this->importDatabaseDump($local_filepath, $this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $output_callback);
+    $this->dropLocalDatabase($database_host, $database_user, $database_name, $database_password, $output_callback);
+    $this->createLocalDatabase($database_host, $database_user, $database_name, $database_password, $output_callback);
+    $this->importDatabaseDump($local_filepath, $database_host, $database_user, $database_name, $database_password, $output_callback);
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
   }
 
   /**
-* @param $environment
+   * @param $environment
    * @param $database
    * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param callable|null $output_callback
    *
    * @return string
@@ -236,7 +248,6 @@ abstract class PullCommandBase extends CommandBase {
     $environment,
     $database,
     BackupResponse $backup_response,
-    Client $acquia_cloud_client,
     $output_callback = NULL
   ): string {
     if ($output_callback) {
@@ -250,6 +261,7 @@ abstract class PullCommandBase extends CommandBase {
       $output = $this->output;
     }
     // These options tell curl to stream the file to disk rather than loading it into memory.
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addOption('sink', $local_filepath);
     $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
@@ -356,7 +368,13 @@ abstract class PullCommandBase extends CommandBase {
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to connect to local database. {message}', ['message' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Unable to connect to local database using credentials mysql:://{user}:{password}@{host}/{database}. {message}', [
+        'message' => $process->getErrorOutput(),
+        'host' => $db_host,
+        'user' => $db_user,
+        'password' => $db_password,
+        'database' => $db_name,
+      ]);
     }
   }
 
@@ -483,7 +501,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $cloud_application_uuid
    * @param bool $allow_production
    *
-   * @return mixed
+   * @return array|string
    */
   protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
     $environment_resource = new Environments($acquia_cloud_client);
@@ -509,14 +527,18 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param $environment_databases
    *
-   * @return mixed
+   * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function promptChooseDatabase(
+  protected function promptChooseDatabases(
     $cloud_environment,
-    $environment_databases
+    $environment_databases,
+    $multiple_dbs
   ) {
     $choices = [];
+    if ($multiple_dbs) {
+      $choices['all'] = 'All';
+    }
     $default_database_index = 0;
     if ($this->isAcsfEnv($cloud_environment)) {
       $acsf_sites = $this->getAcsfSites($cloud_environment);
@@ -538,10 +560,32 @@ abstract class PullCommandBase extends CommandBase {
       $choices[] = $database->name . $suffix;
     }
 
-    $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
-    $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
+    $question = new ChoiceQuestion(
+      $multiple_dbs ? 'Choose databases. You may choose multiple. Use commas to separate choices.' : 'Choose a database.',
+      $choices,
+      $default_database_index
+    );
+    $question->setMultiselect($multiple_dbs);
+    if ($multiple_dbs) {
+      $chosen_database_keys = $this->io->askQuestion($question);
+      $chosen_databases = [];
+      if (count($chosen_database_keys) === 1 && $chosen_database_keys[0] === 'all') {
+        if (count($environment_databases) > 10) {
+          $this->io->warning('You have chosen to pull down more than 10 databases. This could exhaust your disk space.');
+        }
+        return $environment_databases;
+      }
+      foreach ($chosen_database_keys as $chosen_database_key) {
+        $chosen_databases[] = $environment_databases[$chosen_database_key];
+      }
 
-    return $environment_databases[$chosen_database_index];
+      return $chosen_databases;
+    }
+    else {
+      $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
+      $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
+      return [$environment_databases[$chosen_database_index]];
+    }
   }
 
   /**
@@ -652,35 +696,41 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
 
   /**
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param $chosen_environment
+   * @param EnvironmentResponse $chosen_environment
+   * @param string|null $site
+   * @param bool $multiple_dbs
    *
-   * @return \stdClass
+   * @return \stdClass[]
    *   The database instance. This is not a DatabaseResponse, since it's
    *   specific to the environment.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloudDatabase(Client $acquia_cloud_client, $chosen_environment, $site = NULL): stdClass {
+  protected function determineCloudDatabases(Client $acquia_cloud_client, $chosen_environment, $site = NULL, $multiple_dbs = FALSE) {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
     );
 
     if (count($databases) > 1) {
-      if ($site) {
+      $this->logger->debug('Multiple databases detected on Cloud');
+      if ($site && !$multiple_dbs) {
         if ($site === 'default') {
+          $this->logger->debug('Site is set to default. Assuming default database');
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
         $database_names = array_column($databases, 'name');
         if ($database_key = array_search($site, $database_names)) {
-          return $databases[$database_key];
+          return [$databases[$database_key]];
         }
       }
-      $this->warnMultisite();
-      return $this->promptChooseDatabase($chosen_environment, $databases);
+      return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
+    }
+    else {
+      $this->logger->debug('Only a single database detected on Cloud');
     }
 
-    return reset($databases);
+    return [reset($databases)];
   }
 
   /**
@@ -986,6 +1036,33 @@ Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
     }
     else {
       $this->io->info($messages);
+    }
+  }
+
+  /**
+   * @param \stdClass $database
+   * @param string $local_filepath
+   * @param callable|null $output_callback
+   *
+   * @throws \Exception
+   */
+  protected function importRemoteDatabase(stdClass $database, string $local_filepath, callable $output_callback = NULL): void {
+    if ($database->flags->default) {
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
+    }
+    elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
+      $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getDefaultLocalDbName()}");
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
+    }
+    elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
+      $this->io->note("Acquia CLI assumes that the Lando database name for the {$database->name} database is also {$database->name}");
+      // Must use root user in Lando.
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, '', $local_filepath, $output_callback);
+    }
+    else {
+      $this->io->note("Acquia CLI assumes that the local database name for the {$database->name} database is also {$database->name}");
+      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }
   }
 
