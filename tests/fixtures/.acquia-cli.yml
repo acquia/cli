@@ -1,3 +1,4 @@
+cloud_app_uuid: test
 push:
   artifact:
     destination-git-url:

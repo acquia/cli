@@ -44,6 +44,9 @@
     "dealerdirect/phpcodesniffer-composer-installer": {
         "version": "v0.6.2"
     },
+    "dflydev/dot-access-data": {
+        "version": "v1.1.0"
+    },
     "doctrine/collections": {
         "version": "1.6.7"
     },
@@ -58,6 +61,9 @@
     },
     "gitonomy/gitlib": {
         "version": "v1.2.2"
+    },
+    "grasmash/expander": {
+        "version": "1.0.0"
     },
     "guzzlehttp/guzzle": {
         "version": "6.5.4"
