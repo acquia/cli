@@ -62,17 +62,27 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     ]);
     $this->datastoreAcli->set('push.artifact.destination-git-branch', 'master');
     $this->setUpPushArtifact('master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Please select a Cloud Platform application:
-      0,
-      // Would you like to link the project at ... ?
-      'n',
-      // Please choose an Acquia environment:
-      0,
+    $this->executeCommand([], []);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('The contents of /Users/matt.grasmick/Sites/acquia/cli/tests/fixtures/project will be compiled into an artifact', $output);
+    $this->assertStringContainsString('and pushed to the master branch on the https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
+  }
+
+  /**
+   * @throws \Exception
+   */
+  public function testPushArtifactWithArgs() {
+    $destination_git_urls = [
+      'https://github.com/example1/cli.git',
+      'https://github.com/example2/cli.git',
     ];
-    $this->executeCommand([], $inputs);
+    $this->setUpPushArtifact('master', $destination_git_urls);
+    $this->executeCommand([
+      '--destination-git-urls' => $destination_git_urls,
+      '--destination-git-branch' => 'master',
+    ], []);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
