@@ -1,0 +1,6 @@
+push:
+  artifact:
+    destination-git-url:
+      - https://github.com/example/cli.git
+      - https://github.com/example2/cli.git
+    destination-git-branch: master
