@@ -66,8 +66,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('The contents of /Users/matt.grasmick/Sites/acquia/cli/tests/fixtures/project will be compiled into an artifact', $output);
-    $this->assertStringContainsString('and pushed to the master branch on the https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
+    $this->assertStringContainsString('will be compiled into an artifact', $output);
+    $this->assertStringContainsString('https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
   }
 
   /**
@@ -86,8 +86,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('The contents of /Users/matt.grasmick/Sites/acquia/cli/tests/fixtures/project will be compiled into an artifact', $output);
-    $this->assertStringContainsString('and pushed to the master branch on the https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
+    $this->assertStringContainsString('will be compiled into an artifact', $output);
+    $this->assertStringContainsString('https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
   }
 
   /**
