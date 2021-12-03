@@ -53,6 +53,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
   public function testPushArtifactWithAcquiaCliFile() {
@@ -66,8 +67,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('will be compiled into an artifact', $output);
-    $this->assertStringContainsString('https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
   }
 
   /**
@@ -86,8 +87,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('will be compiled into an artifact', $output);
-    $this->assertStringContainsString('https://github.com/example1/cli.git,https://github.com/example2/cli.git', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
   }
 
   /**
