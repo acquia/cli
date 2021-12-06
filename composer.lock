@@ -6540,16 +6540,16 @@
         },
         {
             "name": "php-coveralls/php-coveralls",
-            "version": "v2.5.1",
+            "version": "v2.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-coveralls/php-coveralls.git",
-                "reference": "a54881adfb9bb3a01ca72e2832131b33f02da4e4"
+                "reference": "007e13afdcdba2cd0efcc5f72c3b7efb356a8bd4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-coveralls/php-coveralls/zipball/a54881adfb9bb3a01ca72e2832131b33f02da4e4",
-                "reference": "a54881adfb9bb3a01ca72e2832131b33f02da4e4",
+                "url": "https://api.github.com/repos/php-coveralls/php-coveralls/zipball/007e13afdcdba2cd0efcc5f72c3b7efb356a8bd4",
+                "reference": "007e13afdcdba2cd0efcc5f72c3b7efb356a8bd4",
                 "shasum": ""
             },
             "require": {
@@ -6617,9 +6617,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-coveralls/php-coveralls/issues",
-                "source": "https://github.com/php-coveralls/php-coveralls/tree/v2.5.1"
+                "source": "https://github.com/php-coveralls/php-coveralls/tree/v2.5.2"
             },
-            "time": "2021-11-10T16:53:56+00:00"
+            "time": "2021-12-06T17:05:08+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
@@ -8860,21 +8860,21 @@
         },
         {
             "name": "symfony/stopwatch",
-            "version": "v5.3.4",
+            "version": "v5.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/stopwatch.git",
-                "reference": "b24c6a92c6db316fee69e38c80591e080e41536c"
+                "reference": "208ef96122bfed82a8f3a61458a07113a08bdcfe"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/b24c6a92c6db316fee69e38c80591e080e41536c",
-                "reference": "b24c6a92c6db316fee69e38c80591e080e41536c",
+                "url": "https://api.github.com/repos/symfony/stopwatch/zipball/208ef96122bfed82a8f3a61458a07113a08bdcfe",
+                "reference": "208ef96122bfed82a8f3a61458a07113a08bdcfe",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.5",
-                "symfony/service-contracts": "^1.0|^2"
+                "symfony/service-contracts": "^1|^2|^3"
             },
             "type": "library",
             "autoload": {
@@ -8902,7 +8902,7 @@
             "description": "Provides a way to profile code",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/stopwatch/tree/v5.3.4"
+                "source": "https://github.com/symfony/stopwatch/tree/v5.4.0"
             },
             "funding": [
                 {
@@ -8918,7 +8918,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-07-10T08:58:57+00:00"
+            "time": "2021-11-23T10:19:22+00:00"
         },
         {
             "name": "theseer/tokenizer",
