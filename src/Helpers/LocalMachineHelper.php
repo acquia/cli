@@ -269,6 +269,7 @@ class LocalMachineHelper {
    * Adapted from Ads Package Manager by Ed Reel.
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @author Ed Reel <@uberhacker>
    * @url https://github.com/uberhacker/tpm
    */
@@ -282,6 +283,11 @@ class LocalMachineHelper {
       if ($system !== 'MING') {
         $home = getenv('HOMEPATH');
       }
+    }
+
+    $home = getenv('HOME');
+    if (!$home) {
+      throw new AcquiaCliException('Set $HOME in your shell.');
     }
 
     return $home;
