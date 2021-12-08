@@ -68,6 +68,7 @@ class ExceptionApplicationTest extends TestBase {
   public function testInvalidApiCreds(): void {
     $this->setInput([
       'command' => 'aliases',
+      'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
     ]);
     $this->mockUnauthorizedRequest();
     $buffer = $this->runApp();
@@ -78,6 +79,7 @@ class ExceptionApplicationTest extends TestBase {
   public function testApiError(): void {
     $this->setInput([
       'command' => 'aliases',
+      'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
     ]);
     $this->mockApiError();
     $buffer = $this->runApp();
@@ -87,6 +89,7 @@ class ExceptionApplicationTest extends TestBase {
   public function testNoAvailableIdes(): void {
     $this->setInput([
       'command' => 'aliases',
+      'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
     ]);
     $this->mockNoAvailableIdes();
     $buffer = $this->runApp();
@@ -116,7 +119,7 @@ class ExceptionApplicationTest extends TestBase {
       'command' => 'ide:open',
     ]);
     $buffer = $this->runApp();
-    self::assertStringContainsString('can also be an application alias.', $buffer);
+    self::assertStringContainsString('Could not determine Cloud Application.', $buffer);
   }
 
   public function testInvalidApplicationUuid(): void {

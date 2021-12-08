@@ -46,9 +46,6 @@ class ExceptionListener {
         case 'Not enough arguments (missing: "environmentUuid").':
           $this->writeSiteAliasHelp();
           break;
-        case 'Not enough arguments (missing: "applicationUuid").':
-          $this->writeApplicationAliasHelp();
-          break;
       }
     }
 

@@ -35,9 +35,6 @@ class IdeOpenCommand extends IdeCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_application_uuid = $this->determineCloudApplication();
-    if (!$cloud_application_uuid && !$input->isInteractive()) {
-      throw new RuntimeException('Not enough arguments (missing: "applicationUuid").');
-    }
     $ides_resource = new Ides($acquia_cloud_client);
     $ide = $this->promptIdeChoice("Please select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
 
