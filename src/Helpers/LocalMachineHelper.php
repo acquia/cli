@@ -285,7 +285,6 @@ class LocalMachineHelper {
       }
     }
 
-    $home = getenv('HOME');
     if (!$home) {
       throw new AcquiaCliException('Set $HOME in your shell.');
     }
