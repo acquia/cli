@@ -78,7 +78,7 @@ class PushFilesCommand extends PullCommandBase {
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
-      '-rltDvPhe',
+      '-avPhekz',
       'ssh -o StrictHostKeyChecking=no',
       $source,
       $chosen_environment->sshUrl . ':' . $dest_dir,
