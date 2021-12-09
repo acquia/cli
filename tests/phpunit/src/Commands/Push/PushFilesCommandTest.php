@@ -114,7 +114,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $command = [
       'rsync',
-      '-rltDvPhe',
+      '-avPhekz',
       'ssh -o StrictHostKeyChecking=no',
       $this->projectFixtureDir . '/docroot/sites/default/files/',
       $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
