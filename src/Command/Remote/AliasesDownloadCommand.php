@@ -7,6 +7,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Webmozart\PathUtil\Path;
 
@@ -32,7 +33,8 @@ class AliasesDownloadCommand extends SshCommand {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Download Drush aliases for the Cloud Platform');
+    $this->setDescription('Download Drush aliases for the Cloud Platform')
+      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded');
   }
 
   /**
@@ -125,11 +127,16 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
+   * @param string $version
+   *
    * @return string
-   * @throws \Exception
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getDrushAliasesDir($version): string {
-    if (!isset($this->drushAliasesDir)) {
+  protected function getDrushAliasesDir(string $version): string {
+    if ($this->input->getOption('destination-dir')) {
+      $this->drushAliasesDir = $this->input->getOption('destination-dir');
+    }
+    elseif (!isset($this->drushAliasesDir)) {
       switch ($version) {
         case 8:
           $this->drushAliasesDir = $this->localMachineHelper
