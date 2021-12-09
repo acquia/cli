@@ -70,25 +70,6 @@ class SshHelper implements LoggerAwareInterface {
   }
 
   /**
-   * @param $environment
-   * @param $directory
-   *
-   * @return int
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  public function getDirectoryUsage($environment, $directory): int {
-    $process = $this->executeCommand($environment, [
-      'du',
-      '-s',
-      $directory
-    ], FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Failed to get usage of remote files directory: {error}', ['error' => $process->getErrorOutput()]);
-    }
-    return explode("\t", $process->getOutput())[0];
-  }
-
-  /**
    * Sends a command to an environment via SSH.
    *
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment

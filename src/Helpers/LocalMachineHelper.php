@@ -438,43 +438,4 @@ class LocalMachineHelper {
     return FALSE;
   }
 
-  /**
-   * @param $directory
-   *
-   * @return int
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  public function getFreeSpace($directory): int {
-    $this->getFilesystem()->mkdir($directory);
-    $process = $this->execute([
-      'df',
-      '--output=avail',
-      '-k',
-      $directory
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Failed to get local free space: {error}', ['error' => $process->getErrorOutput()]);
-    }
-    return explode("\n", $process->getOutput())[1];
-  }
-
-  /**
-   * @param $directory
-   *
-   * @return int
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  public function getDirectoryUsage($directory): int {
-    $this->getFilesystem()->mkdir($directory);
-    $process = $this->execute([
-      'du',
-      '-s',
-      $directory
-    ], NULL, NULL, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Failed to get usage of local files directory: {error}', ['error' => $process->getErrorOutput()]);
-    }
-    return explode("\t", $process->getOutput())[0];
-  }
-
 }

@@ -133,9 +133,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     string $source_dir,
     string $destination_dir
   ): void {
-    // @todo restore these methods
-    // @see https://github.com/acquia/cli/issues/714
-    /**
     $process = $this->mockProcess();
     $process->getOutput()->willReturn("123\tfiles")->shouldBeCalled();
     $local_machine_helper->execute(['du', '-s', $destination_dir . 'files'], NULL, NULL, FALSE)
@@ -148,10 +145,8 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $process->getOutput()->willReturn("\tAvail\n12345")->shouldBeCalled();
     $local_machine_helper->execute(['df', '--output=avail', '-k', $destination_dir . 'files'], NULL, NULL, FALSE)
       ->willReturn($process->reveal())->shouldBeCalled();
-     **/
 
     $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
-    $process = $this->mockProcess();
     $command = [
       'rsync',
       '-rltDvPhe',
