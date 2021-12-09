@@ -2,15 +2,17 @@
 
 namespace Acquia\Cli\DataStore;
 
+use Dflydev\DotAccessData\Data;
+use Grasmash\Expander\Expander;
+use Grasmash\Expander\Stringifier;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\KeyValueStore\ArrayStore;
 
 /**
  * Class YamlStore
  * @package Acquia\Cli\DataStore
  */
-class YamlStore extends ArrayStore
+class YamlStore
 {
 
   /**
@@ -24,30 +26,48 @@ class YamlStore extends ArrayStore
   private $filepath;
 
   /**
+   * @var \Grasmash\Expander\Expander
+   */
+  private $expander;
+
+  /**
+   * @var \Dflydev\DotAccessData\Data
+   */
+  private $data;
+
+  /**
    * Creates a new store.
    *
    * @param string $path
-   * @param int $flags
    */
-  public function __construct($path, $flags = 0) {
+  public function __construct(string $path) {
     $this->fileSystem = new Filesystem();
     $this->filepath = $path;
-
+    $this->expander = new Expander();
+    $this->expander->setStringifier(new Stringifier());
+    $this->data = new Data();
     if ($this->fileSystem->exists($path)) {
       $array = Yaml::parseFile($path);
-      parent::__construct($array, $flags);
-    }
-    else {
-      parent::__construct([], $flags);
+      $array = $this->expander->expandArrayProperties($array);
+      $this->data->import($array);
     }
   }
 
   /**
-   * {@inheritdoc}
+   * @param string $key
+   * @param $value
    */
-  public function set($key, $value) {
-    parent::set($key, $value);
-    $this->fileSystem->dumpFile($this->filepath, Yaml::dump($this->toArray()));
+  public function set(string $key, $value) {
+    $this->data->set($key, $value);
+    $this->dump();
+  }
+
+  public function get($key) {
+    return $this->data->get($key);
+  }
+
+  private function dump() {
+    $this->fileSystem->dumpFile($this->filepath, Yaml::dump($this->data->export()));
   }
 
 }

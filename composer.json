@@ -17,6 +17,7 @@
         "composer/semver": "^3.2",
         "consolidation/self-update": "2.0.0-alpha1 as 1.1",
         "cweagans/composer-patches": "^1.7",
+        "grasmash/expander": "^1.0",
         "kevinrob/guzzle-cache-middleware": "^3.3",
         "loophp/phposinfo": "^1.7.2",
         "psr/log": "^1.1",

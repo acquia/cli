@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\Push\PushArtifactCommand;
+use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -25,30 +26,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PushArtifactCommand::class);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testPushArtifact(): void {
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $selected_environment = $environments_response->_embedded->items[0];
-    $this->createMockGitConfigFile();
-
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $fs = $this->prophet->prophesize(Filesystem::class);
-    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-
-    $commit_hash = 'abc123';
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
-    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir, $commit_hash);
-    $this->mockCloneShallow($local_machine_helper, $selected_environment->vcs->path, $selected_environment->vcs->url, $artifact_dir);
-    $this->mockLocalGitConfig($local_machine_helper, $artifact_dir);
-    $this->mockComposerInstall($local_machine_helper, $artifact_dir);
-    $this->mockReadComposerJson($local_machine_helper, $artifact_dir);
-    $this->mockGitAddCommitPush($local_machine_helper, $artifact_dir, $commit_hash, $selected_environment->vcs->url, $selected_environment->vcs->path);
-
+    $this->setUpPushArtifact($selected_environment->vcs->path, [$selected_environment->vcs->url]);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
@@ -67,6 +53,67 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
+  }
+
+  public function testPushArtifactWithAcquiaCliFile() {
+    $this->datastoreAcli->set('push.artifact.destination-git-urls', [
+      'https://github.com/example1/cli.git',
+      'https://github.com/example2/cli.git',
+    ]);
+    $this->datastoreAcli->set('push.artifact.destination-git-branch', 'master');
+    $this->setUpPushArtifact('master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
+    $this->executeCommand([], []);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
+  }
+
+  /**
+   * @throws \Exception
+   */
+  public function testPushArtifactWithArgs() {
+    $destination_git_urls = [
+      'https://github.com/example1/cli.git',
+      'https://github.com/example2/cli.git',
+    ];
+    $this->setUpPushArtifact('master', $destination_git_urls);
+    $this->executeCommand([
+      '--destination-git-urls' => $destination_git_urls,
+      '--destination-git-branch' => 'master',
+    ], []);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example1/cli.git)', $output);
+    $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
+  }
+
+  /**
+   * @param $vcs_path
+   * @param $vcs_url
+   */
+  protected function setUpPushArtifact($vcs_path, $vcs_urls) {
+    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $this->createMockGitConfigFile();
+
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $finder = $this->mockFinder();
+    $local_machine_helper->getFinder()->willReturn($finder->reveal());
+    $fs = $this->prophet->prophesize(Filesystem::class);
+    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+
+    $commit_hash = 'abc123';
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir, $commit_hash);
+    $this->mockCloneShallow($local_machine_helper, $vcs_path, $vcs_urls[0], $artifact_dir);
+    $this->mockLocalGitConfig($local_machine_helper, $artifact_dir);
+    $this->mockComposerInstall($local_machine_helper, $artifact_dir);
+    $this->mockReadComposerJson($local_machine_helper, $artifact_dir);
+    $this->mockGitAddCommitPush($local_machine_helper, $artifact_dir, $commit_hash, $vcs_urls, $vcs_path);
   }
 
   /**
@@ -118,7 +165,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param $git_url
    * @param $git_branch
    */
-  protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash, $git_url, $git_branch): void {
+  protected function mockGitAddCommitPush(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash, $git_urls, $git_branch): void {
     $process =  $this->mockProcess();
     $local_machine_helper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
@@ -132,8 +179,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
-    $local_machine_helper->execute(['git', 'push', $git_url, $git_branch . ':' . $git_branch], Argument::type('callable'), $artifact_dir, TRUE)
-      ->willReturn($process->reveal())->shouldBeCalled();
+    foreach ($git_urls as $git_url) {
+      $local_machine_helper->execute([
+        'git',
+        'push',
+        $git_url,
+        $git_branch . ':' . $git_branch
+      ], Argument::type('callable'), $artifact_dir, TRUE)
+          ->willReturn($process->reveal())->shouldBeCalled();
+    }
   }
 
   /**
