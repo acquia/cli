@@ -675,10 +675,13 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function checkDiskSpace($environment, $destination_directory, $source_directory): void {
-    $local_size = $this->localMachineHelper->getDirectoryUsage($destination_directory);
-    $remote_size = $this->sshHelper->getDirectoryUsage($environment, $source_directory);
+    $process = $this->localMachineHelper->execute(['du', '-s', $destination_directory], NULL, NULL, FALSE);
+    $local_size = explode("\t", $process->getOutput())[0];
+    $process = $this->sshHelper->executeCommand($environment, ['du', '-s', $source_directory], FALSE);
+    $remote_size = explode("\t", $process->getOutput())[0];
     $delta = $remote_size - $local_size;
-    $local_free_space = $this->localMachineHelper->getFreeSpace($destination_directory);
+    $process = $this->localMachineHelper->execute(['df', '--output=avail', '-k', $destination_directory], NULL, NULL, FALSE);
+    $local_free_space = explode("\n", $process->getOutput())[1];
     // Apply a 10% safety margin.
     if ($delta * 1.1 > $local_free_space) {
       throw new AcquiaCliException('Not enough free space to pull files from the {environment} environment.
