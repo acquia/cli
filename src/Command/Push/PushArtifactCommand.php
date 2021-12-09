@@ -62,7 +62,7 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->addOption('destination-git-urls', 'dest-git-urls', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
-      ->addOption('destination-git-branch', 'destination-git-branch', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('destination-git-branch', 'dest-git-branch', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
