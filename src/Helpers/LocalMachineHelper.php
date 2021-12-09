@@ -286,7 +286,7 @@ class LocalMachineHelper {
     }
 
     if (!$home) {
-      throw new AcquiaCliException('Set $HOME in your shell.');
+      throw new AcquiaCliException('Could not determine $HOME directory. Ensure $HOME is set in your shell.');
     }
 
     return $home;
