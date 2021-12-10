@@ -655,10 +655,9 @@ abstract class PullCommandBase extends CommandBase {
       // -z compress file data during the transfer.
       // -v increase verbosity.
       // -P show progress during transfer.
-      // -k transform symlink to a dir into referent dir.
       // -h output numbers in a human-readable format.
       // -e specify the remote shell to use.
-      '-avPhkze',
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':' . $source_dir,
       $destination,
