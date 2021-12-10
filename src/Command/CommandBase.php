@@ -1431,7 +1431,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function getCloudSitesPath($cloud_environment, $sitegroup) {
     if ($cloud_environment->platform === 'cloud-next') {
-      $path = "/mnt/gfs/$sitegroup.{$cloud_environment->name}/sites";
+      $path = "/mnt/data/{$cloud_environment->uuid}-real-shared/sites";
     }
     else {
       $path = "/mnt/files/$sitegroup.{$cloud_environment->name}/sites";
