@@ -1422,11 +1422,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $sitegroup = self::getSiteGroupFromSshUrl($cloud_environment->sshUrl);
     $command = ['ls', $this->getCloudSitesPath($cloud_environment, $sitegroup)];
     $process = $this->sshHelper->executeCommand($cloud_environment, $command, FALSE);
-    if ($process->isSuccessful()) {
-      return array_filter(explode("\n", trim($process->getOutput())));
+    $sites = array_filter(explode("\n", trim($process->getOutput())));
+    if ($process->isSuccessful() && $sites) {
+      return $sites;
     }
 
-    throw new AcquiaCliException("Could not get Cloud sites");
+    throw new AcquiaCliException("Could not get Cloud sites for " . $cloud_environment->name);
   }
 
   protected function getCloudSitesPath($cloud_environment, $sitegroup) {
@@ -1466,7 +1467,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    */
   protected function promptChooseCloudSite($cloud_environment) {
-    // @todo Handle no sites.
     $sites = $this->getCloudSites($cloud_environment);
     if (count($sites) === 1) {
       $site = reset($sites);
