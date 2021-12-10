@@ -69,6 +69,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     }
     else {
       $this->command->setDrushAliasesDir($drush_aliases_dir);
+      $destination_dir = $drush_aliases_dir;
       $args = [];
     }
 
@@ -80,8 +81,8 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
 
     $this->assertFileDoesNotExist($drush_archive_filepath);
-    $this->assertFileExists($drush_aliases_dir);
-    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $drush_aliases_dir, $output);
+    $this->assertFileExists($destination_dir);
+    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destination_dir, $output);
 
   }
 
