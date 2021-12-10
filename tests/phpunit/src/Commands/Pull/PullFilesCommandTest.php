@@ -134,18 +134,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     string $destination_dir
   ): void {
     $process = $this->mockProcess();
-    $process->getOutput()->willReturn("123\tfiles")->shouldBeCalled();
-    $local_machine_helper->execute(['du', '-s', $destination_dir . 'files'], NULL, NULL, FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn("123\tsomething")->shouldBeCalled();
-    $ssh_helper->executeCommand(Argument::any(), ['du', '-s', $source_dir], FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn("\tAvail\n12345")->shouldBeCalled();
-    $local_machine_helper->execute(['df', '--output=avail', '-k', $destination_dir . 'files'], NULL, NULL, FALSE)
-      ->willReturn($process->reveal())->shouldBeCalled();
-
     $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
