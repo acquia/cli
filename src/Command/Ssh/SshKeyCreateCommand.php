@@ -162,18 +162,19 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
     if ($input->getOption('password')) {
       $password = $input->getOption('password');
       $this->validatePassword($password);
+      return $password;
     }
-    else {
+    if ($input->isInteractive()) {
       $question = new Question('Enter a password for your SSH key');
       $question->setHidden($this->localMachineHelper->useTty());
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
       $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
-      $password = $this->io->askQuestion($question);
+      return $this->io->askQuestion($question);
     }
 
-    return $password;
+    throw new AcquiaCliException('Could not determine the SSH key password. Either use the --password option or else run this command in an interactive shell.');
   }
 
   /**
