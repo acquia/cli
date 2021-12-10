@@ -149,7 +149,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
-      '-avPhekz',
+      '-avPhkze',
       'ssh -o StrictHostKeyChecking=no',
       $environment->ssh_url . ':' . $source_dir,
       $destination_dir

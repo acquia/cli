@@ -658,7 +658,7 @@ abstract class PullCommandBase extends CommandBase {
       // -k transform symlink to a dir into referent dir.
       // -h output numbers in a human-readable format.
       // -e specify the remote shell to use.
-      '-avPhekz',
+      '-avPhkze',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':' . $source_dir,
       $destination,

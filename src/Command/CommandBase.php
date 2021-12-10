@@ -1466,6 +1466,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    */
   protected function promptChooseCloudSite($cloud_environment) {
+    // @todo Handle no sites.
     $sites = $this->getCloudSites($cloud_environment);
     if (count($sites) === 1) {
       $site = reset($sites);

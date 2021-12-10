@@ -39,7 +39,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    *
    * Tests the 'remote:aliases:download' commands.
    *
-   * @throws \Exception
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesDownloadCommand($alias_version): void {
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
