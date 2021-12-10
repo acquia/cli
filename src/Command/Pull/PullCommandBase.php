@@ -646,7 +646,6 @@ abstract class PullCommandBase extends CommandBase {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
-    $this->checkDiskSpace($chosen_environment, $destination . 'files', $source_dir);
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
@@ -665,41 +664,6 @@ abstract class PullCommandBase extends CommandBase {
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, 60 * 60);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
-    }
-  }
-
-  /**
-   * Check if enough free space exists locally to perform a file transfer.
-   *
-   * This works by finding the delta between local and remote file directory
-   * usage and ensuring that this is greater than available local disk space.
-   *
-   * @param $environment
-   * @param $destination_directory
-   * @param $source_directory
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  private function checkDiskSpace($environment, $destination_directory, $source_directory): void {
-    $process = $this->localMachineHelper->execute(['du', '-s', $destination_directory], NULL, NULL, FALSE);
-    $local_size = explode("\t", $process->getOutput())[0];
-    $process = $this->sshHelper->executeCommand($environment, ['du', '-s', $source_directory], FALSE);
-    $remote_size = explode("\t", $process->getOutput())[0];
-    $delta = $remote_size - $local_size;
-    $process = $this->localMachineHelper->execute(['df', '--output=avail', '-k', $destination_directory], NULL, NULL, FALSE);
-    $local_free_space = explode("\n", $process->getOutput())[1];
-    // Apply a 10% safety margin.
-    if ($delta * 1.1 > $local_free_space) {
-      throw new AcquiaCliException('Not enough free space to pull files from the {environment} environment.
-Transfer requires {required_space} Kb free space, but only {free_space} Kb are available.
-Delete files locally or in your Cloud environment to free disk space, then try again.
-Run `acli list pull` to see all pull commands or `acli pull --help` for help.',
-        [
-          'environment' => $environment->name,
-          'required_space' => $delta,
-          'free_space' => $local_free_space,
-        ]
-      );
     }
   }
 
