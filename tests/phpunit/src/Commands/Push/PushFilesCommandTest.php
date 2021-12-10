@@ -114,7 +114,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
     $command = [
       'rsync',
-      '-rltDvPhe',
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $this->projectFixtureDir . '/docroot/sites/default/files/',
       $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
@@ -135,7 +135,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
-      '-rltDvPhe',
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $this->projectFixtureDir . '/docroot/sites/default/files/',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',

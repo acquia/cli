@@ -78,7 +78,13 @@ class PushFilesCommand extends PullCommandBase {
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
-      '-rltDvPhe',
+      // -a archive mode; same as -rlptgoD.
+      // -z compress file data during the transfer.
+      // -v increase verbosity.
+      // -P show progress during transfer.
+      // -h output numbers in a human-readable format.
+      // -e specify the remote shell to use.
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $source,
       $chosen_environment->sshUrl . ':' . $dest_dir,

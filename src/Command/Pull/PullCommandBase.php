@@ -651,7 +651,13 @@ abstract class PullCommandBase extends CommandBase {
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
-      '-rltDvPhe',
+      // -a archive mode; same as -rlptgoD.
+      // -z compress file data during the transfer.
+      // -v increase verbosity.
+      // -P show progress during transfer.
+      // -h output numbers in a human-readable format.
+      // -e specify the remote shell to use.
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $chosen_environment->sshUrl . ':' . $source_dir,
       $destination,
