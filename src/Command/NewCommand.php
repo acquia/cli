@@ -20,9 +20,9 @@ class NewCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Create a new Drupal project')
-      ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, 'The composer package name of the Drupal distribution to download')
+      ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, 'The Composer package name of the Drupal distribution to download')
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory');
   }
 
@@ -33,7 +33,7 @@ class NewCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</>, which includes useful utilities such as Acquia Connector.');
     $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal application that will run on the Cloud Platform.');
     $distros = [
@@ -52,21 +52,10 @@ class NewCommand extends CommandBase {
       $dir = Path::makeAbsolute('drupal', getcwd());
     }
 
-    $output->writeln('<info>Creating project. This may take a few minutes</info>');
+    $output->writeln('<info>Creating project. This may take a few minutes.</info>');
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $this->createProject($project, $dir);
 
-    if (strpos($project, 'acquia/drupal-minimal-project') !== FALSE) {
-      $this->requireDrush($dir);
-    }
-
-    // We've deferred all installation until now.
-    $this->localMachineHelper->execute([
-      'composer',
-      'update',
-    ], NULL, $dir);
-
-    // @todo Add a .gitignore and other recommended default files.
     $this->initializeGitRepository($dir);
 
     $output->writeln('');
@@ -85,22 +74,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   * @param string $dir
-   *
-   * @throws \Exception
-   */
-  protected function requireDrush(string $dir): void {
-    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-    $this->localMachineHelper->execute([
-      'composer',
-      'require',
-      'drush/drush',
-      '--no-update',
-    ], NULL, $dir);
-    // @todo Check that this was successful!
-  }
-
-  /**
    * @param $project
    * @param string $dir
    *
@@ -110,7 +83,6 @@ class NewCommand extends CommandBase {
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',
-      '--no-install',
       $project,
       $dir,
     ]);

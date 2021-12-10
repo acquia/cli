@@ -26,7 +26,7 @@ class NewCommandTest extends CommandTestBase {
     return $this->injectCommand(NewCommand::class);
   }
 
-  public function provideTestNewCommand() {
+  public function provideTestNewCommand(): array {
     return [
       ['acquia/drupal-recommended-project'],
       ['acquia/drupal-minimal-project'],
@@ -44,7 +44,7 @@ class NewCommandTest extends CommandTestBase {
    *
    * @throws \Exception
    */
-  public function testNewCommand($project, $directory = 'drupal'): void {
+  public function testNewCommand(string $project, string $directory = 'drupal'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
 
     $process = $this->prophet->prophesize(Process::class);
@@ -56,23 +56,10 @@ class NewCommandTest extends CommandTestBase {
     $this->mockGetFilesystem($local_machine_helper);
     $local_machine_helper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
-    $this->mockExecuteComposerUpdate($local_machine_helper, $this->newProjectDir, $process);
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
     $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
-
-    if ($project === 'acquia/drupal-minimal-project') {
-      $local_machine_helper
-        ->execute([
-          'composer',
-          'require',
-          'drush/drush',
-          '--no-update',
-        ], NULL, $this->newProjectDir)
-        ->willReturn($process->reveal())
-        ->shouldBeCalled();
-    }
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $inputs = [
@@ -107,34 +94,11 @@ class NewCommandTest extends CommandTestBase {
     $command = [
       'composer',
       'create-project',
-      '--no-install',
       $project,
       $project_dir,
     ];
     $local_machine_helper
       ->execute($command)
-      ->willReturn($process->reveal())
-      ->shouldBeCalled();
-  }
-
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   *
-   * @return void
-  */
-  protected function mockExecuteComposerUpdate(
-    ObjectProphecy $local_machine_helper,
-    string $project_dir,
-    ObjectProphecy $process
-  ) {
-    $command = [
-      'composer',
-      'update',
-    ];
-    $local_machine_helper
-      ->execute($command, NULL, $project_dir)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -172,7 +136,7 @@ class NewCommandTest extends CommandTestBase {
     ObjectProphecy $local_machine_helper,
     string $project_dir,
     ObjectProphecy $process
-  ) {
+  ): void {
     $command = [
       'git',
       'add',
