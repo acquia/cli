@@ -29,7 +29,11 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * Test all Drush alias versions.
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
-    return [[8], [9]];
+    return [
+      [8, NULL],
+      [9, NULL],
+      [9, 'testdir'],
+    ];
   }
 
   /**
@@ -41,7 +45,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    *
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testRemoteAliasesDownloadCommand($alias_version): void {
+  public function testRemoteAliasesDownloadCommand($alias_version, $destination_dir): void {
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
     $archive_fixture = new PharData($drush_aliases_tarball_fixture_filepath . '.tar');
@@ -59,18 +63,26 @@ class AliasesDownloadCommandTest extends CommandTestBase {
       $this->mockEnvironmentsRequest($applications);
       $this->mockApplicationRequest();
     }
-    $this->command->setDrushAliasesDir($drush_aliases_dir);
+    if ($destination_dir) {
+      $this->command->setDrushAliasesDir($destination_dir);
+      $args = ['--destination-dir' => $destination_dir];
+    }
+    else {
+      $this->command->setDrushAliasesDir($drush_aliases_dir);
+      $destination_dir = $drush_aliases_dir;
+      $args = [];
+    }
 
     $inputs = [$alias_version];
-    $this->executeCommand([], $inputs);
+    $this->executeCommand($args, $inputs);
 
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
     $this->assertFileDoesNotExist($drush_archive_filepath);
-    $this->assertFileExists($drush_aliases_dir);
-    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $drush_aliases_dir, $output);
+    $this->assertFileExists($destination_dir);
+    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destination_dir, $output);
 
   }
 
