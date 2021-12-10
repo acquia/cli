@@ -84,7 +84,7 @@ class PushFilesCommand extends PullCommandBase {
       // -P show progress during transfer.
       // -h output numbers in a human-readable format.
       // -e specify the remote shell to use.
-      '-avPhkze',
+      '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $source,
       $chosen_environment->sshUrl . ':' . $dest_dir,
