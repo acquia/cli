@@ -59,7 +59,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         '--fields=db-status,drush-version',
         '--format=json',
         '--no-interaction',
-      ], Argument::type('callable'), $dir, FALSE)
+      ], Argument::any(), $dir, FALSE)
       ->willReturn($drush_status_process->reveal())
       ->shouldBeCalled();
   }
