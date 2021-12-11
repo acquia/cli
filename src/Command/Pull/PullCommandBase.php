@@ -859,7 +859,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function runDrushCacheClear(Closure $output_callback): void {
-    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
+    if ($this->getDrushDatabaseConnectionStatus()) {
       $this->checklist->addItem('Clearing Drupal caches via Drush');
       // @todo Add support for Drush 8.
       $process = $this->localMachineHelper->execute([
@@ -885,7 +885,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function runDrushSqlSanitize(Closure $output_callback): void {
-    if ($this->getDrushDatabaseConnectionStatus($output_callback)) {
+    if ($this->getDrushDatabaseConnectionStatus()) {
       $this->checklist->addItem('Sanitizing database via Drush');
       $process = $this->localMachineHelper->execute([
         'drush',
