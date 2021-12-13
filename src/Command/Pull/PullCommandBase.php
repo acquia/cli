@@ -643,7 +643,7 @@ abstract class PullCommandBase extends CommandBase {
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files";
+      $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files/";
     }
     $destination = $this->dir . '/docroot/sites/' . $site . '/';
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
