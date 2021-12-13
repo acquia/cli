@@ -57,7 +57,7 @@ class ComposerScriptsListener {
             $command->localMachineHelper->execute(['composer', 'run-script', $script_name]);
           }
           else {
-            $event->getOutput()->writeln("Composer script `$script_name` does not exist in `$composer_json_filepath`, skipping.", OutputInterface::VERBOSITY_VERBOSE);
+            $event->getOutput()->writeln("Notice: Composer script `$script_name` does not exist in `$composer_json_filepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
           }
         }
       }
