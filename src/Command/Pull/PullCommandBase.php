@@ -641,11 +641,12 @@ abstract class PullCommandBase extends CommandBase {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
     if ($this->isAcsfEnv($chosen_environment)) {
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
+      $destination = $this->dir . '/docroot/sites/' . $site . '/';
     }
     else {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files/";
+      $destination = $this->dir . '/docroot/sites/' . $site . '/files';
     }
-    $destination = $this->dir . '/docroot/sites/' . $site . '/';
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [

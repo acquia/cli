@@ -78,7 +78,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       ->willReturn($this->fs)
       ->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($selected_environment->ssh_url);
-    $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/' . $sitegroup . '.' . $selected_environment->name . '/sites/bar/files/', $this->projectFixtureDir . '/docroot/sites/bar/');
+    $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/' . $sitegroup . '.' . $selected_environment->name . '/sites/bar/files/', $this->projectFixtureDir . '/docroot/sites/bar/files');
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
