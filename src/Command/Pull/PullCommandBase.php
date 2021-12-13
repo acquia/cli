@@ -645,7 +645,7 @@ abstract class PullCommandBase extends CommandBase {
     else {
       $source_dir = $this->getCloudSitesPath($chosen_environment, $sitegroup) . "/$site/files/";
     }
-    $destination = $this->dir . '/docroot/sites/' . $site . '/';
+    $destination = $this->dir . '/docroot/sites/' . $site . '/files';
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
