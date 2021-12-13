@@ -1432,7 +1432,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected function getCloudSitesPath($cloud_environment, $sitegroup) {
     if ($cloud_environment->platform === 'cloud-next') {
-      $path = "/mnt/data/{$cloud_environment->uuid}-real-shared/sites";
+      $path = "/home/clouduser/{$cloud_environment->name}/sites";
     }
     else {
       $path = "/mnt/files/$sitegroup.{$cloud_environment->name}/sites";
