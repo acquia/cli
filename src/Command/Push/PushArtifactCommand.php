@@ -138,6 +138,9 @@ class PushArtifactCommand extends PullCommandBase {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
+      return $env_var;
+    }
     if ($this->datastoreAcli->get('push.artifact.destination-git-urls')) {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
     }
@@ -419,6 +422,9 @@ class PushArtifactCommand extends PullCommandBase {
   protected function determineDestinationGitBranch() {
     if ($this->input->getOption('destination-git-branch')) {
       return $this->input->getOption('destination-git-branch');
+    }
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
+      return $env_var;
     }
     if ($this->datastoreAcli->get('push.artifact.destination-git-branch')) {
       return $this->datastoreAcli->get('push.artifact.destination-git-branch');
