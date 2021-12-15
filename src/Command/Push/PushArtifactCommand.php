@@ -317,10 +317,24 @@ class PushArtifactCommand extends PullCommandBase {
         $this->io->warning("Unable to forcibly add $file to new branch");
       }
     }
-    $this->localMachineHelper->execute(['git', 'commit', '-m', "Automated commit by Acquia CLI (source commit: $commit_hash)"], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $commit_message = $this->generateCommitMessage($commit_hash);
+    $this->localMachineHelper->execute(['git', 'commit', '-m', $commit_message], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not commit via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
+  }
+
+  /**
+   * @param string $commit_hash
+   *
+   * @return array|false|string
+   */
+  public function generateCommitMessage(string $commit_hash) {
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
+      return $env_var;
+    }
+
+    return "Automated commit by Acquia CLI (source commit: $commit_hash)";
   }
 
   /**
