@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Tests\Misc;
 
 use PHPUnit\Framework\TestCase;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class ApiSpecTest

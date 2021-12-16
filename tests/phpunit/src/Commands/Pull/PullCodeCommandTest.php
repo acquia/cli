@@ -9,8 +9,8 @@ use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
-use Webmozart\PathUtil\Path;
 
 /**
  * Class PullCodeCommandTest.

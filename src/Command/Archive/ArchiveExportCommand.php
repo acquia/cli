@@ -11,7 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class ArchiveExportCommand.
@@ -180,7 +180,7 @@ class ArchiveExportCommand extends CommandBase {
    */
   protected function compressArchiveDirectory($archive_dir, $destination_dir, $output_callback = NULL): string {
     $destination_filename = basename($archive_dir) . '.tar.gz';
-    $destination_filepath = Path::join([$destination_dir, $destination_filename]);
+    $destination_filepath = Path::join($destination_dir, $destination_filename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);
     $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destination_filepath, '--directory', $archive_dir, '.'], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {

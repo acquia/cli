@@ -8,7 +8,7 @@ use GuzzleHttp\Psr7\Utils;
 use Phar;
 use PharData;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class AliasesDownloadCommandTest.
