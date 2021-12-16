@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use GuzzleHttp\Psr7\Utils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -85,7 +86,17 @@ class ApiCommandBase extends CommandBase {
           if ($param_spec) {
             $param = $this->castParamType($param_spec, $param);
           }
-          $acquia_cloud_client->addOption('json', [$param_name => $param]);
+          if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
+            $acquia_cloud_client->addOption('multipart', [
+              [
+                'name'     => $param_name,
+                'contents' => Utils::tryFopen($param, 'r'),
+              ],
+            ]);
+          }
+          else {
+            $acquia_cloud_client->addOption('json', [$param_name => $param]);
+          }
         }
       }
     }
