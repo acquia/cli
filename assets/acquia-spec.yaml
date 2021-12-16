@@ -12774,7 +12774,7 @@ paths:
                       configuration:
                         operating_system: precise
                         php:
-                          version: '7.3'
+                          version: '8.0'
                           memory_limit: 128
                           opcache: 96
                           apcu: 32
@@ -13092,6 +13092,7 @@ paths:
         - Applications
       summary: Returns Insight data for all sites associated with the application by its UUID.
       description: Returns Insight data for all sites associated with the application.
+      deprecated: true
       operationId: getInsightDataBySites
       x-cli-name: 'applications:insight-data-find'
       parameters:
@@ -13295,7 +13296,7 @@ paths:
                 configuration:
                   operating_system: precise
                   php:
-                    version: '7.3'
+                    version: '8.0'
                     memory_limit: 128
                     opcache: 96
                     apcu: 64
@@ -13381,7 +13382,7 @@ paths:
             schema:
               $ref: '#/components/schemas/EnvironmentConfigurations'
             example:
-              version: '7.3'
+              version: '8.0'
               max_execution_time: 10
               memory_limit: 192
               apcu: 8
@@ -13401,9 +13402,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Message'
+                $ref: '#/components/schemas/MessageWithLinks'
               example:
                 message: The environment configuration is being updated.
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/12-d314739e-296f-11e9-b210-d663bd873d93'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/737a97a4-4c02-47e4-9924-d008de1aa7e5'
         '400':
           description: Bad Request
           content:
@@ -14142,8 +14148,8 @@ paths:
               example:
                 runtime: php
                 versions:
-                  - '7.3'
                   - '7.4'
+                  - '8.0'
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/24-8fc7d3c6-2a53-11e9-b210-d663bd873d93/available-runtimes'
@@ -16670,6 +16676,7 @@ paths:
         - Environments
       summary: Retrieves Uptime scan data for a specific domain.
       description: Retrieves the scan data for a domain name that is part of this environment.
+      deprecated: true
       operationId: getEnvironmentsDomainsUptimeScans
       x-cli-name: 'environments:domain-uptime-scan-find'
       parameters:
@@ -17105,6 +17112,7 @@ paths:
         Sortable fields:
         * `label`
         * `hostname`
+      deprecated: true
       operationId: getInsightForEnvironment
       x-cli-name: 'environments:insight-data-list'
       parameters:
@@ -21571,6 +21579,7 @@ paths:
         - Environments
       summary: Returns a traversal endpoint for uptime alerts for the environment.
       description: Does not return any data. Allows traversal to uptime alert endpoint.
+      deprecated: true
       operationId: getUptime
       x-cli-name: 'environments:uptime-find'
       parameters:
@@ -21613,6 +21622,7 @@ paths:
         - Environments
       summary: Disables uptime for the active domain on an environment.
       description: Disables uptime for the active domain on an environment.
+      deprecated: true
       operationId: postEnvironmentUptimeDisable
       x-cli-name: 'environments:uptime-disable'
       security:
@@ -21678,6 +21688,7 @@ paths:
         - Environments
       summary: Enables uptime for the active domain on an environment.
       description: Enables uptime for the active domain on an environment.
+      deprecated: true
       operationId: postEnvironmentUptimeEnable
       x-cli-name: 'environments:uptime-enable'
       security:
@@ -21759,6 +21770,7 @@ paths:
         - Environments
       summary: Returns the uptime alerts status for an environment.
       description: Returns the uptime alerts status including whether it is enabled for an environment and the email that will receive alerts.
+      deprecated: true
       operationId: getEnvironmentUptimeAlerts
       x-cli-name: 'environments:uptime:alerts-find'
       security:
@@ -21803,6 +21815,7 @@ paths:
         - Environments
       summary: Disables uptime email alerts for the active domain on an environment.
       description: Disables uptime email alerts for the active domain on an environment.
+      deprecated: true
       operationId: postEnvironmentUptimeAlertsDisable
       x-cli-name: 'environments:uptime-alerts-disable'
       security:
@@ -21902,6 +21915,7 @@ paths:
         - Environments
       summary: Enables uptime email alerts for the active domain on an environment.
       description: Enables uptime email alerts for the active domain on an environment.
+      deprecated: true
       operationId: postEnvironmentUptimeAlertsEnable
       x-cli-name: 'environments:uptime-alerts-enable'
       security:
@@ -23047,6 +23061,7 @@ paths:
       tags:
         - Insight
       summary: Returns insight data for a particular site.
+      deprecated: true
       operationId: findInsightDataBySiteId
       x-cli-name: 'insights:alert-find'
       security:
@@ -23119,6 +23134,7 @@ paths:
       tags:
         - Insight
       summary: Revokes an Insight install so it can no longer submit data using the Acquia Connector module.
+      deprecated: true
       operationId: postRevokeInsight
       x-cli-name: 'insights:revoke'
       parameters:
@@ -23165,6 +23181,7 @@ paths:
       tags:
         - Insight
       summary: Un-revokes an Insight site so it can once again submit data using the Acquia Connector module. Note that the site must also be unblocked using the Acquia Connector module.
+      deprecated: true
       operationId: postUnrevokeInsight
       x-cli-name: 'insights:unrevoke'
       security:
@@ -23223,6 +23240,7 @@ paths:
         * name
         * severity
         * severity_label
+      deprecated: true
       operationId: getFindInsightAlertsForSite
       x-cli-name: 'insights:alert-list'
       parameters:
@@ -23329,6 +23347,7 @@ paths:
       tags:
         - Insight
       summary: Returns a specific Insight alert for this site.
+      deprecated: true
       operationId: getInsightByUuid
       x-cli-name: 'insights:find'
       security:
@@ -23391,6 +23410,7 @@ paths:
       tags:
         - Insight
       summary: Ignores an alert. An ignored alert will not be counted in the Insight score calculation.
+      deprecated: true
       operationId: postIgnoreInsightAlert
       x-cli-name: 'insights:alert-ignore'
       security:
@@ -23438,6 +23458,7 @@ paths:
       tags:
         - Insight
       summary: Restores an alert. A restored alert will be included in the calculation of the Insight score.
+      deprecated: true
       operationId: postRestoreInsightAlert
       x-cli-name: 'insights:alert-restore'
       security:
@@ -23489,6 +23510,7 @@ paths:
         Sortable fields:
         * code_examined
         * site_examined
+      deprecated: true
       operationId: getConnectionHistoryForSite
       x-cli-name: 'insights:connection-history-list'
       security:
@@ -23564,6 +23586,7 @@ paths:
         * project
         * release_date
         * version
+      deprecated: true
       operationId: getDrupalModulesForSite
       x-cli-name: 'insights:drupal-module-list'
       parameters:
@@ -23658,6 +23681,7 @@ paths:
 
         Sortable fields:
         * time
+      deprecated: true
       operationId: getScoreHistoryForSite
       x-cli-name: 'insights:score-list'
       security:
