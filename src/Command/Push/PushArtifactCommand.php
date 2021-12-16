@@ -440,9 +440,6 @@ class PushArtifactCommand extends PullCommandBase {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
       return $env_var;
     }
-    if ($this->datastoreAcli->get('push.artifact.destination-git-branch')) {
-      return $this->datastoreAcli->get('push.artifact.destination-git-branch');
-    }
     if (strpos($this->environment->vcs->path, 'tags') === 0) {
       throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$this->environment->name} has {$this->environment->vcs->path} deployed. Please select a different environment.");
     }
