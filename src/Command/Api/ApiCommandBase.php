@@ -86,7 +86,7 @@ class ApiCommandBase extends CommandBase {
           if ($param_spec) {
             $param = $this->castParamType($param_spec, $param);
           }
-          if ($param_spec["format"] === 'binary') {
+          if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
             $acquia_cloud_client->addOption('multipart', [
               [
                 'name'     => $param_name,
