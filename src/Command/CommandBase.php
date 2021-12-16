@@ -48,6 +48,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Terminal;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -57,7 +58,6 @@ use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\ItemInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 use Webmozart\KeyValueStore\Util\Serializer;
-use Webmozart\PathUtil\Path;
 use Zumba\Amplitude\Amplitude;
 
 /**

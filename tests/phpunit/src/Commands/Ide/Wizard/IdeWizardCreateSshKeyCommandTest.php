@@ -8,7 +8,7 @@ use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use AcquiaCloudApi\Response\IdeResponse;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\PathUtil\Path;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class IdeWizardCreateSshKeyCommandTest.
