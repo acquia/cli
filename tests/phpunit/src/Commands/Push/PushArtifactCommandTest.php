@@ -61,9 +61,10 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
     ]);
-    $this->datastoreAcli->set('push.artifact.destination-git-branch', 'master');
     $this->setUpPushArtifact('master', $this->datastoreAcli->get('push.artifact.destination-git-urls'));
-    $this->executeCommand([], []);
+    $this->executeCommand([
+      '--destination-git-branch' => 'master',
+    ], []);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
