@@ -1325,7 +1325,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
           $customer_application = $this->getApplicationFromAlias($alias);
           $input->setArgument('applicationUuid', $customer_application->uuid);
         } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("No applications found using `$alias`. The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
+          throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
         }
       }
     }
