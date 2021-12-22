@@ -318,7 +318,7 @@ class PushArtifactCommand extends PullCommandBase {
       }
     }
     $commit_message = $this->generateCommitMessage($commit_hash);
-    $this->localMachineHelper->execute(['git', 'commit', '-m', $commit_message], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'commit', '-m', $commit_message], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not commit via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
