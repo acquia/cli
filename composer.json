@@ -76,7 +76,14 @@
         "process-timeout": 3600,
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true,
+            "cweagans/composer-patches": true,
+            "phpro/grumphp": true,
+            "symfony/flex": true
+        }
     },
     "extra": {
         "branch-alias": {
