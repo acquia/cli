@@ -33,8 +33,8 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    */
   public function providerTestIdePhpVersionCommand(): array {
     return [
-      ['7.2'],
-      ['7.3'],
+      ['7.4'],
+      ['8.0'],
     ];
   }
 

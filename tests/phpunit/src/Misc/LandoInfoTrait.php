@@ -35,7 +35,7 @@ trait LandoInfoTrait {
             (object) [
               'php' => '/Users/matthew.grasmick/.lando/config/drupal9/php.ini',
             ],
-          'version' => '7.3',
+          'version' => '7.4',
           'meUser' => 'www-data',
           'hasCerts' => TRUE,
           'hostnames' =>

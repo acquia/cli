@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "eb51104c773c3d968b72b17826961fab",
+    "content-hash": "496f231ca5f6ec3243a5b2ccb6b1a2cb",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -934,16 +934,16 @@
         },
         {
             "name": "league/oauth2-client",
-            "version": "2.6.0",
+            "version": "2.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/oauth2-client.git",
-                "reference": "badb01e62383430706433191b82506b6df24ad98"
+                "reference": "2334c249907190c132364f5dae0287ab8666aa19"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/badb01e62383430706433191b82506b6df24ad98",
-                "reference": "badb01e62383430706433191b82506b6df24ad98",
+                "url": "https://api.github.com/repos/thephpleague/oauth2-client/zipball/2334c249907190c132364f5dae0287ab8666aa19",
+                "reference": "2334c249907190c132364f5dae0287ab8666aa19",
                 "shasum": ""
             },
             "require": {
@@ -952,9 +952,9 @@
                 "php": "^5.6 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "mockery/mockery": "^1.3",
-                "php-parallel-lint/php-parallel-lint": "^1.2",
-                "phpunit/phpunit": "^5.7 || ^6.0 || ^9.3",
+                "mockery/mockery": "^1.3.5",
+                "php-parallel-lint/php-parallel-lint": "^1.3.1",
+                "phpunit/phpunit": "^5.7 || ^6.0 || ^9.5",
                 "squizlabs/php_codesniffer": "^2.3 || ^3.0"
             },
             "type": "library",
@@ -998,9 +998,9 @@
             ],
             "support": {
                 "issues": "https://github.com/thephpleague/oauth2-client/issues",
-                "source": "https://github.com/thephpleague/oauth2-client/tree/2.6.0"
+                "source": "https://github.com/thephpleague/oauth2-client/tree/2.6.1"
             },
-            "time": "2020-10-28T02:03:40+00:00"
+            "time": "2021-12-22T16:42:49+00:00"
         },
         {
             "name": "loophp/phposinfo",
@@ -1165,20 +1165,20 @@
         },
         {
             "name": "psr/container",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/container.git",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf"
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/container/zipball/8622567409010282b7aeebe4bb841fe98b58dcaf",
-                "reference": "8622567409010282b7aeebe4bb841fe98b58dcaf",
+                "url": "https://api.github.com/repos/php-fig/container/zipball/513e0666f7216c7459170d56df27dfcefe1689ea",
+                "reference": "513e0666f7216c7459170d56df27dfcefe1689ea",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.0"
+                "php": ">=7.4.0"
             },
             "type": "library",
             "autoload": {
@@ -1207,9 +1207,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-fig/container/issues",
-                "source": "https://github.com/php-fig/container/tree/1.1.1"
+                "source": "https://github.com/php-fig/container/tree/1.1.2"
             },
-            "time": "2021-03-05T17:36:06+00:00"
+            "time": "2021-11-05T16:50:12+00:00"
         },
         {
             "name": "psr/event-dispatcher",
@@ -1825,16 +1825,16 @@
         },
         {
             "name": "react/dns",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/dns.git",
-                "reference": "2a5a74ab751e53863b45fb87e1d3913884f88248"
+                "reference": "6d38296756fa644e6cb1bfe95eff0f9a4ed6edcb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/dns/zipball/2a5a74ab751e53863b45fb87e1d3913884f88248",
-                "reference": "2a5a74ab751e53863b45fb87e1d3913884f88248",
+                "url": "https://api.github.com/repos/reactphp/dns/zipball/6d38296756fa644e6cb1bfe95eff0f9a4ed6edcb",
+                "reference": "6d38296756fa644e6cb1bfe95eff0f9a4ed6edcb",
                 "shasum": ""
             },
             "require": {
@@ -1842,7 +1842,7 @@
                 "react/cache": "^1.0 || ^0.6 || ^0.5",
                 "react/event-loop": "^1.2",
                 "react/promise": "^3.0 || ^2.7 || ^1.2.1",
-                "react/promise-timer": "^1.2"
+                "react/promise-timer": "^1.8"
             },
             "require-dev": {
                 "clue/block-react": "^1.2",
@@ -1889,7 +1889,7 @@
             ],
             "support": {
                 "issues": "https://github.com/reactphp/dns/issues",
-                "source": "https://github.com/reactphp/dns/tree/v1.8.0"
+                "source": "https://github.com/reactphp/dns/tree/v1.9.0"
             },
             "funding": [
                 {
@@ -1901,7 +1901,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-07-11T12:40:34+00:00"
+            "time": "2021-12-20T08:46:54+00:00"
         },
         {
             "name": "react/event-loop",
@@ -5676,16 +5676,16 @@
         },
         {
             "name": "amphp/process",
-            "version": "v1.1.2",
+            "version": "v1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/amphp/process.git",
-                "reference": "3d36327bf9b4c158cf3010f8f65c00854ec3a8b7"
+                "reference": "f09e3ed3b0a953ccbfff1140f12be4a884f0aa83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/amphp/process/zipball/3d36327bf9b4c158cf3010f8f65c00854ec3a8b7",
-                "reference": "3d36327bf9b4c158cf3010f8f65c00854ec3a8b7",
+                "url": "https://api.github.com/repos/amphp/process/zipball/f09e3ed3b0a953ccbfff1140f12be4a884f0aa83",
+                "reference": "f09e3ed3b0a953ccbfff1140f12be4a884f0aa83",
                 "shasum": ""
             },
             "require": {
@@ -5729,7 +5729,7 @@
             "homepage": "https://github.com/amphp/process",
             "support": {
                 "issues": "https://github.com/amphp/process/issues",
-                "source": "https://github.com/amphp/process/tree/v1.1.2"
+                "source": "https://github.com/amphp/process/tree/v1.1.3"
             },
             "funding": [
                 {
@@ -5737,7 +5737,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-10-08T15:55:53+00:00"
+            "time": "2021-12-17T19:09:33+00:00"
         },
         {
             "name": "amphp/serialization",
@@ -6301,9 +6301,6 @@
             },
             "require": {
                 "php": "^7.1 || ^8.0"
-            },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
             },
             "require-dev": {
                 "doctrine/collections": "^1.0",
@@ -9102,12 +9099,12 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3 | ^8.0",
+        "php": "^7.4 | ^8.0",
         "ext-json": "*"
     },
     "platform-dev": [],
     "platform-overrides": {
-        "php": "7.3"
+        "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.2.0"
 }
