@@ -3166,7 +3166,6 @@ components:
         url:
           type: string
           description: The VCS url.
-          format: uri
     DeployCodeRequest:
       type: object
       required:
