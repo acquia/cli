@@ -74,7 +74,6 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    //$this->requireCloudIdeEnvironment();
     parent::initialize($input, $output);
     $this->checklist = new Checklist($output);
     $this->appUuid = $this->determineCloudApplication();
@@ -136,7 +135,7 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
   /**
    */
   protected function validateEnvironment(): bool {
-    return TRUE;
+    return AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && getenv('GITLAB_HOST');
   }
 
   /**
