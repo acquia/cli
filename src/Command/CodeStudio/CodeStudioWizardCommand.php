@@ -82,18 +82,18 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
 
     $this->checklist = new Checklist($output);
-    $this->appUuid = $cloud_application_uuid = $this->determineCloudApplication();
+    $this->appUuid = $this->determineCloudApplication();
     $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
     $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio-passphrase');
 
     // Get Cloud application.
-    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+    $cloud_application = $this->getCloudApplication($this->appUuid);
 
     // Get Cloud account.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $account = $account_adapter->get();
-    $this->validateRequiredCloudPermissions($acquia_cloud_client, $cloud_application_uuid, $account);
+    $this->validateRequiredCloudPermissions($acquia_cloud_client, $this->appUuid, $account);
     $this->getGitLabClient();
 
     try {
@@ -109,13 +109,13 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       return 1;
     }
 
-    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
+    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$this->appUuid</comment>";
     $project = $this->determineGitLabProject($cloud_application);
 
     $this->io->writeln([
       "",
       "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$cloud_application_uuid</comment>)",
+      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$this->appUuid</comment>)",
       "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
       "",
       "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
@@ -133,9 +133,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $project_access_token_name = 'acquia-codestudio';
     $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
     $this->updateGitLabProject($project);
-    $this->setGitLabCiCdVariables($project, $cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
+    $this->setGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $this->createScheduledPipeline($project);
-    $this->pushCodeToGitLab($cloud_application_uuid, $output, $project);
+    $this->pushCodeToGitLab($this->appUuid, $output, $project);
 
     $this->io->success([
       "Successfully configured the Code Studio project!",

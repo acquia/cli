@@ -126,6 +126,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ], [
       // Would you like to link the project at ... ?
       'y',
+      // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+      'y',
     ]);
 
     // Assertions.
