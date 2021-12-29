@@ -50,7 +50,7 @@ class AuthLoginCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
-    if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
+    if (CommandBase::isMachineAuthenticated($this->datastoreCloud, $input)) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
         return 0;

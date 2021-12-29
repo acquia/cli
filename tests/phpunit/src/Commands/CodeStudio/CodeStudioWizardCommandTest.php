@@ -79,11 +79,16 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
           'y',
         ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ]
       ],
       // Two projects.
       [
         [$this->getMockedGitLabProject(), $this->getMockedGitLabProject()],
-        // Inputs
+        // Inputs.
         [
           //  Found multiple projects that could match the Sample application 1 application. Please choose which one to configure.
           '0',
@@ -91,13 +96,17 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'y',
           // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
           'y',
-
         ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ]
       ],
       [
         // No projects.
         [],
-        // Inputs
+        // Inputs.
         [
           // 'Would you like to create a new Code Studio project?
           'y',
@@ -106,6 +115,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
           'y',
         ],
+        // Args.
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ]
       ],
       [
         // No projects.
@@ -114,23 +128,48 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           // 'Would you like to create a new Code Studio project?
           'n',
-          // @todo Choose!
+          // Choose project.
           '0',
           // Do you want to continue?
           'y',
         ],
+        // Args
+        [
+          '--key' => $this->key,
+          '--secret' => $this->secret,
+        ]
       ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Enter Cloud Key
+          $this->key,
+          // Enter Cloud secret,
+          $this->secret,
+          // Do you want to continue?
+          'y',
+        ],
+        // Args
+        []
+      ]
     ];
   }
 
   /**
    * @dataProvider providerTestCommand
+   *
    * @param $mocked_gitlab_projects
+   * @param $args
+   * @param $inputs
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testCommand($mocked_gitlab_projects, $inputs) {
+  public function testCommand($mocked_gitlab_projects, $inputs, $args) {
     $environments_response = $this->getMockEnvironmentsResponse();
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
@@ -192,10 +231,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
 
     // Set properties and execute.
-    $this->executeCommand([
-      '--key' => $this->key,
-      '--secret' => $this->secret,
-    ], $inputs);
+    $this->executeCommand($args, $inputs);
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
