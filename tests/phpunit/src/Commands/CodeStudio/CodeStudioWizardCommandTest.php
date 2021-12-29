@@ -302,9 +302,34 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $projects
    */
   protected function mockGitLabVariables($application_uuid, ObjectProphecy $projects): void {
-    $variables = [];
-    $projects->variables($this->gitLabProjectId)->willReturn($variables);
+    $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
     $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
+  }
+
+  /**
+   * @return array[]
+   */
+  protected function getMockGitLabVariables(): array {
+    return [
+      0 =>
+        [
+          'variable_type' => 'env_var',
+          'key' => 'ACQUIA_APPLICATION_UUID',
+          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
+          'protected' => FALSE,
+          'masked' => FALSE,
+          'environment_scope' => '*',
+        ],
+      1 =>
+        [
+          'variable_type' => 'env_var',
+          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
+          'protected' => FALSE,
+          'masked' => FALSE,
+          'environment_scope' => '*',
+        ],
+    ];
   }
 
   /**
