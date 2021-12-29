@@ -43,6 +43,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
         throw new AcquiaCliException("Unable to authenticate with the Cloud Platform.");
       }
     }
+    $this->validateEnvironment();
 
     parent::initialize($input, $output);
   }
@@ -56,7 +57,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->validateEnvironment();
     $this->checklist = new Checklist($output);
     $key_was_uploaded = FALSE;
 

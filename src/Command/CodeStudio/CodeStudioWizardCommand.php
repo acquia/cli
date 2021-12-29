@@ -72,6 +72,20 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->getGitLabClient();
+    try {
+      $this->gitLabAccount = $this->gitLabClient->users()->me();
+    }
+    catch (RuntimeException $exception) {
+      $this->io->error([
+        "Unable to authenticate with Code Studio",
+        "Did you set a valid token with the api and write_repository scopes?",
+        "Try running `glab auth login` to re-authenticate.",
+        "Then try again.",
+      ]);
+      return 1;
+    }
+
     // Get Cloud access tokens.
     $this->promptOpenBrowserToCreateToken($input, $output);
     $cloud_key = $this->determineApiKey($input, $output);
@@ -94,20 +108,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $account_adapter = new Account($acquia_cloud_client);
     $account = $account_adapter->get();
     $this->validateRequiredCloudPermissions($acquia_cloud_client, $this->appUuid, $account);
-    $this->getGitLabClient();
-
-    try {
-      $this->gitLabAccount = $this->gitLabClient->users()->me();
-    }
-    catch (RuntimeException $exception) {
-      $this->io->error([
-        "Unable to authenticate with Code Studio",
-        "Did you set a valid token with the api and write_repository scopes?",
-        "Try running `glab auth login` to re-authenticate.",
-        "Then try again.",
-      ]);
-      return 1;
-    }
 
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$this->appUuid</comment>";
     $project = $this->determineGitLabProject($cloud_application);
