@@ -173,6 +173,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     ]);
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
+    putenv("ACLI_KEY");
+    putenv("ACLI_SECRET");
     return 0;
   }
 
