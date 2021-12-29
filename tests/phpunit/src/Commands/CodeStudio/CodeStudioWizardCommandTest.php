@@ -62,7 +62,73 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     return $this->injectCommand(CodeStudioWizardCommand::class);
   }
 
-  public function testCommand() {
+  /**
+   * @return array
+   */
+  public function providerTestCommand() {
+    return [
+      [
+        // One project.
+        [$this->getMockedGitLabProject()],
+        // Inputs
+        [
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+      ],
+      // Two projects.
+      [
+        [$this->getMockedGitLabProject(), $this->getMockedGitLabProject()],
+        // Inputs
+        [
+          //  Found multiple projects that could match the Sample application 1 application. Please choose which one to configure.
+          '0',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'y',
+          // Do you want to continue?
+          'y',
+          // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
+          'y',
+        ],
+      ],
+      [
+        // No projects.
+        [],
+        // Inputs
+        [
+          // 'Would you like to create a new Code Studio project?
+          'n',
+          // @todo Choose!
+          '0',
+          // Do you want to continue?
+          'y',
+        ],
+      ],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestCommand
+   * @param $mocked_gitlab_projects
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testCommand($mocked_gitlab_projects, $inputs) {
     $environments_response = $this->getMockEnvironmentsResponse();
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
@@ -81,7 +147,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlab_client = $this->prophet->prophesize(Client::class);
     $this->mockGitLabUsersMe($gitlab_client);
     $projects = $this->prophet->prophesize(Projects::class);
-    $this->mockGitLabProjectsAll($this::$application_uuid, $projects);
+    $projects->all(['search' => $this::$application_uuid])->willReturn($mocked_gitlab_projects);
+    $projects->all()->willReturn([$this->getMockedGitLabProject()]);
+    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject());
     $this->mockGitLabProjectsTokens($projects);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $this->mockGitLabVariables($this::$application_uuid, $projects);
@@ -125,12 +193,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->executeCommand([
       '--key' => $this->key,
       '--secret' => $this->secret,
-    ], [
-      // Would you like to link the project at ... ?
-      'y',
-      // Would you like to perform a one time push of code from Acquia Cloud to Code Studio now? (yes/no) [yes]:
-      'y',
-    ]);
+    ], $inputs);
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
@@ -166,29 +229,24 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param $application_uuid
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   * @return array
    */
-  protected function mockGitLabProjectsAll($application_uuid, $projects): void {
-    $all = [
-      0 =>
+  protected function getMockedGitLabProject() {
+    return [
+      'id' => $this->gitLabProjectId,
+      'description' => '',
+      'name' => 'codestudiodemo',
+      'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
+      'path' => 'codestudiodemo',
+      'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
+      'default_branch' => 'master',
+      'topics' =>
         [
-          'id' => $this->gitLabProjectId,
-          'description' => '',
-          'name' => 'codestudiodemo',
-          'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
-          'path' => 'codestudiodemo',
-          'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
-          'default_branch' => 'master',
-          'topics' =>
-            [
-              0 => 'Acquia Cloud Application',
-            ],
-          'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
-          'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
-        ]
+          0 => 'Acquia Cloud Application',
+        ],
+      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
+      'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
     ];
-    $projects->all(['search' => $this::$application_uuid])->willReturn($all);
   }
 
   /**

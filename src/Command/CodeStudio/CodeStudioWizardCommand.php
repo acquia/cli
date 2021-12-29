@@ -268,7 +268,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       }
       else {
         return $this->promptChooseFromObjectsOrArrays(
-          $this->gitLabClient->projects()->all(),
+          $projects,
           'id',
           'path_with_namespace',
           "Found multiple projects that could match the {$cloud_application->name} application. Please choose which one to configure.",
@@ -283,7 +283,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
         "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
       ]);
-      $create_project = $this->io->confirm('Would you like to created a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
+      $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
       if ($create_project) {
         $project = $this->gitLabClient->projects()->create($cloud_application->name, [
           'description' => $this->gitLabProjectDescription,
@@ -412,44 +412,21 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function createProjectAccessToken(array $project, string $project_access_token_name) {
     $this->io->writeln("Creating project access token...");
-    try {
-      if ($existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
-        $this->checklist->addItem("Deleting access token named <comment>$project_access_token_name</comment>");
-        $this->gitLabClient->projects()
+
+    if ($existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
+      $this->checklist->addItem("Deleting access token named <comment>$project_access_token_name</comment>");
+      $this->gitLabClient->projects()
             ->deleteProjectAccessToken($project['id'], $existing_token['id']);
-        $this->checklist->completePreviousItem();
-      }
-      $this->checklist->addItem("Creating access token named <comment>$project_access_token_name</comment>");
-      $project_access_token = $this->gitLabClient->projects()
+      $this->checklist->completePreviousItem();
+    }
+    $this->checklist->addItem("Creating access token named <comment>$project_access_token_name</comment>");
+    $project_access_token = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
           'name' => $project_access_token_name,
           'scopes' => ['api', 'write_repository'],
         ]);
-      $this->checklist->completePreviousItem();
-      return $project_access_token['token'];
-    } catch (\Exception $exception) {
-      $this->io->warning("Since you're a GitLab admin, we tried to create the project access token automatically. That didn't work, probably because the access token you're using doesn't have the sudo scope. Let's try to do this manually.");
-    }
-
-    $existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name);
-    $this->io->writeln([
-      "Next, you need to create a project access token for <comment>{$project['path_with_namespace']}</comment>:",
-      "* Visit {$project['web_url']}/-/settings/access_tokens",
-    ]);
-    if ($existing_token) {
-      $this->io->writeln(["* Revoke the existing access token named <comment>$project_access_token_name</comment>"]);
-    }
-    $this->io->writeln([
-      "* Name it <comment>$project_access_token_name</comment> and grant it both <comment>api</comment> and <comment>write repository</comment> scopes",
-      "* Copy the token to your clipboard so that you can paste it below"
-    ]);
-    $project_access_token = $this->io->ask('Enter the project access token');
-    if (!$this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
-      $this->io->warning(["Oops! That didn't work. Did you name the access token correctly? Let's try again..."]);
-      $this->createProjectAccessToken($project, $project_access_token_name);
-    }
-
-    return $project_access_token;
+    $this->checklist->completePreviousItem();
+    return $project_access_token['token'];
   }
 
   /**
