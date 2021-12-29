@@ -26,6 +26,8 @@ use Symfony\Component\Process\Process;
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
  * @package Acquia\Cli\Tests\Commands
+ *
+ * @requires OS linux|darwin
  */
 class CodeStudioWizardCommandTest extends WizardTestBase {
 
