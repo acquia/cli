@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -33,7 +34,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication($input) && !$this::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication($input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];

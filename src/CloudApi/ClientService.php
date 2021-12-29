@@ -6,6 +6,7 @@ use Acquia\Cli\Application;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -24,6 +25,8 @@ class ClientService {
   private $connectorFactory;
   /** @var Application */
   private $application;
+  /** @var bool */
+  private $machineIsAuthenticated = NULL;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
@@ -67,6 +70,37 @@ class ClientService {
     $client->addOption('headers', [
       'User-Agent' => [$user_agent],
     ]);
+  }
+
+  /**
+   * @param JsonFileStore $cloud_datastore
+   *
+   * @return bool
+   */
+  public function isMachineAuthenticated(JsonFileStore $cloud_datastore): ?bool {
+    if ($this->machineIsAuthenticated) {
+      return $this->machineIsAuthenticated;
+    }
+
+    if (getenv('ACLI_ACCESS_TOKEN')) {
+      $this->machineIsAuthenticated = TRUE;
+      return $this->machineIsAuthenticated;
+    }
+
+    if (getenv('ACLI_KEY') && getenv('ACLI_SECRET') ) {
+      $this->machineIsAuthenticated = TRUE;
+      return $this->machineIsAuthenticated;
+    }
+
+    $acli_key = $cloud_datastore->get('acli_key');
+    $keys = $cloud_datastore->get('keys');
+    if ($acli_key && $keys && array_key_exists($acli_key, $keys)) {
+      $this->machineIsAuthenticated = TRUE;
+      return $this->machineIsAuthenticated;
+    }
+
+    $this->machineIsAuthenticated = FALSE;
+    return $this->machineIsAuthenticated;
   }
 
 }

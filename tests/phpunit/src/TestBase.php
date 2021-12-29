@@ -212,6 +212,7 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
     $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
     $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(TRUE);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);
