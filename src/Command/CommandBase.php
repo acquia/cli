@@ -342,7 +342,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->migrateLegacyApiKey();
     $this->telemetryHelper->initializeAmplitude();
 
-    if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud, $this->input)) {
+    if ($this->commandRequiresAuthentication($this->input) && !self::isMachineAuthenticated($this->datastoreCloud, $this->cloudApiClientService)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
@@ -357,13 +357,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param JsonFileStore $cloud_datastore
+   * @param \Acquia\Cli\CloudApi\ClientService|null $cloud_api_client_service
    *
    * @return bool
    */
-  public static function isMachineAuthenticated(JsonFileStore $cloud_datastore, InputInterface $input): bool {
-    if ($input->hasOption('key') && $input->getOption('key') && $input->hasOption('secret') && $input->getOption('secret')) {
-      return TRUE;
+  public static function isMachineAuthenticated(JsonFileStore $cloud_datastore, ClientService $cloud_api_client_service = NULL): bool {
+    if ($cloud_api_client_service) {
+      try {
+        $cloud_api_client_service->getClient()->request('get', 'account');
+        return TRUE;
+      } catch (\Exception $exception) {
+      }
     }
+
     if (getenv('ACLI_ACCESS_TOKEN')) {
       return TRUE;
     }

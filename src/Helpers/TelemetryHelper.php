@@ -144,7 +144,7 @@ class TelemetryHelper {
    */
   protected function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);
-    if (!$user && CommandBase::isMachineAuthenticated($this->datastoreCloud, $this->input)) {
+    if (!$user && CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
       $this->setDefaultUserData();
       $user = $this->datastoreCloud->get(DataStoreContract::USER);
     }

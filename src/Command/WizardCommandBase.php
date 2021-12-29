@@ -33,7 +33,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication($input) && !$this::isMachineAuthenticated($this->datastoreCloud, $input)) {
+    if ($this->commandRequiresAuthentication($input) && !$this::isMachineAuthenticated($this->datastoreCloud, $this->cloudApiClientService)) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];
