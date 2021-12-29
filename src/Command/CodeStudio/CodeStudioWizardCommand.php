@@ -51,6 +51,16 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   private $checklist;
 
   /**
+   * @var string
+   */
+  private $gitlabToken;
+
+  /**
+   * @var string
+   */
+  private $gitlabHost;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -72,6 +82,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    $this->gitlabHost = $this->getGitLabHost();
+    $this->gitlabToken = $this->getGitLabToken($this->gitlabHost);
     $this->getGitLabClient();
     try {
       $this->gitLabAccount = $this->gitLabClient->users()->me();
@@ -212,7 +224,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    //$this->requireCloudIdeEnvironment();
+    $this->requireCloudIdeEnvironment();
     if (!getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
     }
@@ -337,17 +349,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     ]);
 
     throw new AcquiaCliException("Could not determine GitLab token");
-  }
-
-  /**
-   * @return array
-   */
-  protected function getGitLabConfig(): array {
-    $glab_config_filepath = $this->localMachineHelper->getLocalFilepath('~/.config/glab-cli/config.yml');
-    if ($this->localMachineHelper->getFilesystem()->exists($glab_config_filepath)) {
-      return Yaml::parse($this->localMachineHelper->readFile($glab_config_filepath));
-    }
-    return [];
   }
 
   /**
@@ -534,13 +535,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
-      $gitlab_host = $this->getGitLabHost();
-      $gitlab_token = $this->getGitLabToken($gitlab_host);
-
       // @todo Don't bypass SSL. Not sure why cert isn't valid.
       $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client(['verify' => FALSE])));
-      $gitlab_client->setUrl('https://' . $gitlab_host);
-      $gitlab_client->authenticate($gitlab_token, Client::AUTH_OAUTH_TOKEN);
+      $gitlab_client->setUrl('https://' . $this->gitLabHost);
+      $gitlab_client->authenticate($this->gitlabToken, Client::AUTH_OAUTH_TOKEN);
       $this->setGitLabClient($gitlab_client);
     }
     return $this->gitLabClient;

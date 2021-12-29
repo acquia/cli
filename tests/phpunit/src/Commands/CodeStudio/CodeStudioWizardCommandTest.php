@@ -167,6 +167,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $local_machine_helper->execute(Argument::containing('clone'), Argument::type('callable'), NULL, FALSE)->willReturn($process->reveal());
     $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), Argument::type('string'), FALSE)->willReturn($process->reveal());
 
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn($this->gitlabHost);
+    $local_machine_helper->execute(['glab', 'config', 'get', 'host'], NULL, NULL, FALSE)->willReturn($process->reveal());
+
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn($this->gitlabToken);
+    $local_machine_helper->execute(['glab', 'config', 'get', 'token', '--host=' . $this->gitlabHost], NULL, NULL, FALSE)->willReturn($process->reveal());
+
     $this->mockGlabConfig($local_machine_helper);
     $this->mockGlabConfigGetToken($local_machine_helper, $this->gitlabHost);
 
