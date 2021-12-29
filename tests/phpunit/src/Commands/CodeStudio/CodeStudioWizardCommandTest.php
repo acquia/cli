@@ -7,6 +7,7 @@ use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
 use Acquia\Cli\Tests\TestBase;
@@ -220,6 +221,22 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->assertEquals(1, $this->getStatusCode());
   }
 
+  public function testMissingGitLabCredentials() {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockGitlabGetHost($local_machine_helper);
+    $this->mockGitlabGetToken($local_machine_helper, FALSE);
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    try {
+      $this->executeCommand([
+        '--key' => $this->key,
+        '--secret' => $this->secret,
+      ], []);
+    }
+    catch (AcquiaCliException $exception) {
+    }
+    $this->assertStringContainsString('You must first authenticate with Code Studio', $this->getDisplay());
+  }
+
   /**
    * @return array
    */
@@ -293,8 +310,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   /**
    * @param $local_machine_helper
    */
-  protected function mockGitlabGetToken($local_machine_helper): void {
-    $process = $this->mockProcess();
+  protected function mockGitlabGetToken($local_machine_helper, $success = TRUE): void {
+    $process = $this->mockProcess($success);
     $process->getOutput()->willReturn($this->gitlabToken);
     $local_machine_helper->execute([
       'glab',
