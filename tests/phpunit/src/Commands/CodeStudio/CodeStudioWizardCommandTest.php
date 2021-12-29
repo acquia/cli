@@ -207,6 +207,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlab_client = $this->prophet->prophesize(Client::class);
     $gitlab_client->users()->willThrow(RuntimeException::class);
     $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     try {
       $this->executeCommand([
         '--key' => $this->key,
