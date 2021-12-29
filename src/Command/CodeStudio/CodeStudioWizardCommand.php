@@ -19,11 +19,11 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class CodeStudioProjectCreateCommand.
+ * Class CodeStudioWizardCommand.
  */
-class CodeStudioProjectCreateCommand extends WizardCommandBase {
+class CodeStudioWizardCommand extends WizardCommandBase {
 
-  protected static $defaultName = 'codestudio:project:create';
+  protected static $defaultName = 'codestudio:wizard';
 
   /**
    * @var string
@@ -55,12 +55,11 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
    */
   protected function configure() {
     $this->setDescription('Create and/or configure a new Code Studio project for a given Acquia Cloud application')
-      ->addOption('cloud-key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token key that Code Studio will use')
-      ->addOption('cloud-secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token secret that Code Studio will use')
+      ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token key that Code Studio will use')
+      ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with GitLab instance')
-      ->addOption('gitlab-host', NULL, InputOption::VALUE_REQUIRED, 'The URL of the GitLab instance')
       ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
-      ->setAliases(['codestudio:wizard', 'cs:wizard']);
+      ->setAliases(['cs:wizard']);
     $this->acceptApplicationUuid();
     $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
@@ -79,7 +78,96 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
     $this->checklist = new Checklist($output);
     $this->appUuid = $this->determineCloudApplication();
     $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio_passphrase');
+    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio-passphrase');
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return int
+   * @throws \Exception
+   */
+  protected function execute(InputInterface $input, OutputInterface $output) {
+    // Get Cloud access tokens.
+    $this->promptOpenBrowserToCreateToken($input, $output);
+    $cloud_key = $this->determineApiKey($input, $output);
+    $cloud_secret = $this->determineApiSecret($input, $output);
+    // We may already be authenticated with Acquia Cloud via a refresh token.
+    // But, we specifically need an API Token key-pair of Code Studio.
+    // So we reauthenticate to be sure we're using the provided credentials.
+    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
+
+    // Get Cloud application.
+    $cloud_application_uuid = $this->determineCloudApplication();
+    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+
+    // Get Cloud account.
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $account_adapter = new Account($acquia_cloud_client);
+    $account = $account_adapter->get();
+    $this->validateRequiredCloudPermissions($acquia_cloud_client, $cloud_application_uuid, $account);
+    $this->getGitLabClient();
+
+    try {
+      $this->gitLabAccount = $this->gitLabClient->users()->me();
+    }
+    catch (RuntimeException $exception) {
+      $this->io->error([
+        "Unable to authenticate with Code Studio",
+        "Did you set a valid token with the api and write_repository scopes?",
+        "Try running `glab auth login` to re-authenticate.",
+        "Then try again.",
+      ]);
+      return 1;
+    }
+
+    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
+    $project = $this->determineGitLabProject($cloud_application);
+
+    $this->io->writeln([
+      "",
+      "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
+      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$cloud_application_uuid</comment>)",
+      "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
+      "",
+      "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+    ]);
+    $answer = $this->io->confirm('Do you want to continue?');
+    if (!$answer) {
+      return 0;
+    }
+
+    $this->io->writeln([
+      "Creating an SSH key belonging to <comment>{$account->mail}</comment> for Code Studio to use..."
+    ]);
+    parent::execute($input, $output);
+
+    $project_access_token_name = 'acquia-codestudio';
+    $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
+    $this->updateGitLabProject($project);
+    $this->setGitLabCiCdVariables($project, $cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
+    $this->createScheduledPipeline($project);
+    $this->pushCodeToGitLab($cloud_application_uuid, $output, $project);
+
+    $this->io->success([
+      "Successfully configured the Code Studio project!",
+      "This project will now use Acquia's Drupal optimized AutoDevops to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
+      "You can visit it here:",
+      $project['web_url']
+    ]);
+    $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
+
+    return 0;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    return FALSE;
   }
 
   /**
@@ -134,90 +222,21 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
   }
 
   /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validateEnvironment(): bool {
-    return AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && getenv('GITLAB_HOST');
+  protected function validateEnvironment() {
+    //$this->requireCloudIdeEnvironment();
+    if (!getenv('GITLAB_HOST')) {
+      throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
+    }
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param array $project
+   * @param string $scheduled_pipeline_description
    *
-   * @return int
-   * @throws \Exception
+   * @return bool|void
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
-    // Get Cloud access tokens.
-    $cloud_key = $this->determineCloudKey();
-    $cloud_secret = $this->determineCloudSecret();
-    // We may already be authenticated with Acquia Cloud via a refresh token.
-    // But, we specifically need an API Token key-pair of Code Studio.
-    // So we reauthenticate to be sure we're using the provided credentials.
-    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
-
-    // Get Cloud application.
-    $cloud_application_uuid = $this->determineCloudApplication();
-    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-
-    // Get Cloud account.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_adapter = new Account($acquia_cloud_client);
-    $account = $account_adapter->get();
-    $this->validateRequiredCloudPermissions($acquia_cloud_client, $cloud_application_uuid, $account);
-    $this->createGitLabClient();
-
-    try {
-      $this->gitLabAccount = $this->gitLabClient->users()->me();
-    }
-    catch (RuntimeException $exception) {
-      $this->io->error([
-        "Unable to authenticate with Code Studio",
-        "Did you set a valid token with the api and write_repository scopes?",
-        "Try running `glab auth login` to re-authenticate.",
-        "Then try again.",
-      ]);
-      return 1;
-    }
-
-    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
-    $project = $this->determineGitLabProject($cloud_application);
-
-    $this->io->writeln([
-      "",
-      "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$cloud_application_uuid</comment>)",
-      "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
-      "",
-      "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
-    ]);
-    $answer = $this->io->confirm('Do you want to continue?');
-    if (!$answer) {
-      return 0;
-    }
-
-    $this->io->writeln([
-      "Creating an SSH key belonging to <comment>{$account->mail}</comment> for Code Studio to use..."
-    ]);
-    parent::execute($input, $output);
-
-    $project_access_token_name = 'acquia-codestudio';
-    $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
-    $this->updateGitLabProject($project);
-    $this->setGitLabCiCdVariables($project, $cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
-    $this->createScheduledPipeline($project);
-    $this->pushCodeToGitLab($cloud_application_uuid, $output, $project);
-
-    $this->io->success([
-      "Successfully configured the Code Studio project!",
-      "This project will now use Acquia's Drupal optimized AutoDevops to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
-      "You can visit it here:",
-      $project['web_url']
-    ]);
-    $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
-
-    return 0;
-  }
-
   protected function getGitLabScheduleByDescription($project, $scheduled_pipeline_description) {
     $existing_schedules = $this->gitLabClient->schedules()->showAll($project['id']);
     foreach ($existing_schedules as $schedule) {
@@ -227,7 +246,13 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
     }
   }
 
-  protected function getGitLabProjectAccessTokenByName($project, $name) {
+  /**
+   * @param array $project
+   * @param string $name
+   *
+   * @return mixed|null
+   */
+  protected function getGitLabProjectAccessTokenByName(array $project, string $name) {
     $existing_project_access_tokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
     foreach ($existing_project_access_tokens as $key => $token) {
       if ($token['name'] == $name) {
@@ -294,47 +319,12 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
   }
 
   /**
-   * @return mixed
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function determineCloudKey() {
-    if ($this->input->getOption('cloud-key')) {
-      return $this->input->getOption('cloud-key');
-    }
-    if ($this->input->isInteractive()) {
-      $this->io->note([
-        'Please enter a Cloud API Token key',
-        'This will be used by Code Studio to do things like create CDEs.',
-      ]);
-      return $this->io->ask('Please enter a Cloud API Token key');
-    }
-    throw new AcquiaCliException('You must provide a Cloud API Token key');
-  }
-
-  /**
-   * @return mixed
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function determineCloudSecret() {
-    if ($this->input->getOption('cloud-secret')) {
-      return $this->input->getOption('cloud-secret');
-    }
-    if ($this->input->isInteractive()) {
-      $this->io->note([
-        'Please enter a Cloud API Token secret',
-        'This will be used by Code Studio to do things like create CDEs.',
-      ]);
-      return $this->io->ask('Please enter a Cloud API Token secret');
-    }
-    throw new AcquiaCliException('You must provide a Cloud API Token secret');
-  }
-
-  /**
-   * @param array $gitlab_config
+   * @param string $gitlab_host
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getGitLabToken($gitlab_host): string {
+  protected function getGitLabToken(string $gitlab_host): string {
     if ($this->input->getOption('gitlab-token')) {
       return $this->input->getOption('gitlab-token');
     }
@@ -375,6 +365,7 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
 
   /**
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getGitLabHost(): string {
     $process = $this->localMachineHelper->execute([
@@ -418,9 +409,9 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
     }
     foreach ($required_permissions as $name) {
       if (!array_key_exists($name, $keyed_permissions)) {
-        throw new AcquiaCliException("The Acquia Cloud account @account does not have the required @name permission.", [
-          '@account' => $account->mail,
-          '@name' => $name
+        throw new AcquiaCliException("The Acquia Cloud account {account} does not have the required '{name}' permission.", [
+          'account' => $account->mail,
+          'name' => $name
         ]);
       }
     }
@@ -436,7 +427,7 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
     $this->io->writeln("Creating project access token...");
     try {
       if ($existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
-        $this->checklist->addItem("Deleted access token named <comment>$project_access_token_name</comment>");
+        $this->checklist->addItem("Deleting access token named <comment>$project_access_token_name</comment>");
         $this->gitLabClient->projects()
             ->deleteProjectAccessToken($project['id'], $existing_token['id']);
         $this->checklist->completePreviousItem();
@@ -476,13 +467,13 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @param string|null $cloud_application_uuid
-   * @param $cloud_key
-   * @param $cloud_secret
+   * @param string $cloud_application_uuid
+   * @param string $cloud_key
+   * @param string $cloud_secret
    * @param string $project_access_token_name
-   * @param $project_access_token
+   * @param string $project_access_token
    */
-  protected function setGitLabCiCdVariables(array $project, ?string $cloud_application_uuid, $cloud_key, $cloud_secret, string $project_access_token_name, $project_access_token): void {
+  protected function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
     $gitlab_cicd_variables = [
       [
@@ -566,22 +557,36 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
         # Every Thursday at midnight.
         'cron' => '0 0 * * 4',
       ]);
-      $this->checklist->completePreviousItem();
     }
     else {
       $this->checklist->addItem("Scheduled pipeline named <comment>$scheduled_pipeline_description</comment> already exists");
-      $this->checklist->completePreviousItem();
     }
+    $this->checklist->completePreviousItem();
   }
 
-  protected function createGitLabClient(): void {
-    // Authenticate with GitLab.
-    $gitlab_host = $this->getGitLabHost();
-    $gitlab_token = $this->getGitLabToken($gitlab_host);
-    // @todo Don't bypass SSL. Not sure why cert isn't valid.
-    $this->gitLabClient = new Client(new Builder(new \GuzzleHttp\Client(['verify' => FALSE])));
-    $this->gitLabClient->setUrl('https://' . $gitlab_host);
-    $this->gitLabClient->authenticate($gitlab_token, Client::AUTH_OAUTH_TOKEN);
+  /**
+   * @return \Gitlab\Client
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getGitLabClient(): Client {
+    if (!isset($this->gitLabClient)) {
+      $gitlab_host = $this->getGitLabHost();
+      $gitlab_token = $this->getGitLabToken($gitlab_host);
+
+      // @todo Don't bypass SSL. Not sure why cert isn't valid.
+      $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client(['verify' => FALSE])));
+      $gitlab_client->setUrl('https://' . $gitlab_host);
+      $gitlab_client->authenticate($gitlab_token, Client::AUTH_OAUTH_TOKEN);
+      $this->setGitLabClient($gitlab_client);
+    }
+    return $this->gitLabClient;
+  }
+
+  /**
+   * @param Client $client
+   */
+  public function setGitLabClient($client) {
+    $this->gitLabClient = $client;
   }
 
   /**
@@ -598,13 +603,13 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
   }
 
   /**
-   * @param string|null $cloud_application_uuid
+   * @param string $cloud_application_uuid
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $project
+   * @param array $project
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function pushCodeToGitLab(?string $cloud_application_uuid, OutputInterface $output, $project): void {
+  protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
     $push_code = $this->io->confirm("Would you like to perform a one time push of code from Acquia Cloud to Code Studio now?");
     if ($push_code) {
       $this->checklist->addItem('Cloning repository from Acquia Cloud');
@@ -632,6 +637,7 @@ class CodeStudioProjectCreateCommand extends WizardCommandBase {
         throw new AcquiaCliException("Unable to push repository.");
       }
       $this->checklist->completePreviousItem();
+      $this->localMachineHelper->getFilesystem()->remove($temp_dir);
     }
   }
 

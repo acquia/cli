@@ -179,6 +179,8 @@ abstract class TestBase extends TestCase {
    */
   protected $logger;
 
+  protected $passphraseFilepath;
+
   /**
    * This method is called before each test.
    *
@@ -719,7 +721,7 @@ abstract class TestBase extends TestCase {
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
     $process->getOutput()->willReturn('thekey!');
-    $local_machine_helper->getLocalFilepath('~/.passphrase')
+    $local_machine_helper->getLocalFilepath($this->passphraseFilepath)
       ->willReturn('/tmp/.passphrase');
     $local_machine_helper->execute([
       'ssh-add',
