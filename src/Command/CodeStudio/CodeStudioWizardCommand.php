@@ -68,23 +68,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
-   * @return void
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
-    parent::initialize($input, $output);
-    $this->checklist = new Checklist($output);
-    $this->appUuid = $this->determineCloudApplication();
-    $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio-passphrase');
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int
    * @throws \Exception
    */
@@ -98,8 +81,12 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     // So we reauthenticate to be sure we're using the provided credentials.
     $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
 
+    $this->checklist = new Checklist($output);
+    $this->appUuid = $cloud_application_uuid = $this->determineCloudApplication();
+    $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
+    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio-passphrase');
+
     // Get Cloud application.
-    $cloud_application_uuid = $this->determineCloudApplication();
     $cloud_application = $this->getCloudApplication($cloud_application_uuid);
 
     // Get Cloud account.
