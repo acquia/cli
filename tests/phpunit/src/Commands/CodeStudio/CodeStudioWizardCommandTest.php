@@ -168,16 +168,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $local_machine_helper->execute(Argument::containing('clone'), Argument::type('callable'), NULL, FALSE)->willReturn($process->reveal());
     $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), Argument::type('string'), FALSE)->willReturn($process->reveal());
 
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn($this->gitlabHost);
-    $local_machine_helper->execute(['glab', 'config', 'get', 'host'], NULL, NULL, FALSE)->willReturn($process->reveal());
-
-    $process = $this->mockProcess();
-    $process->getOutput()->willReturn($this->gitlabToken);
-    $local_machine_helper->execute(['glab', 'config', 'get', 'token', '--host=' . $this->gitlabHost], NULL, NULL, FALSE)->willReturn($process->reveal());
-
-    $this->mockGlabConfig($local_machine_helper);
-    $this->mockGlabConfigGetToken($local_machine_helper, $this->gitlabHost);
+    $this->mockGitlabGetHost($local_machine_helper);
+    $this->mockGitlabGetToken($local_machine_helper);
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
@@ -210,8 +202,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   public function testInvalidGitLabCredentials() {
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockGlabConfig($local_machine_helper);
-    $this->mockGlabConfigGetToken($local_machine_helper, $this->gitlabHost);
+    $this->mockGitlabGetHost($local_machine_helper);
+    $this->mockGitlabGetToken($local_machine_helper);
     $gitlab_client = $this->prophet->prophesize(Client::class);
     $gitlab_client->users()->willThrow(RuntimeException::class);
     $this->command->setGitLabClient($gitlab_client->reveal());
@@ -225,35 +217,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       $this->assertStringContainsString('Unable to authenticate with Code Studio', $this->getDisplay());
     }
     $this->assertEquals(1, $this->getStatusCode());
-  }
-
-  protected function mockGlabConfig(ObjectProphecy $local_machine_helper): ObjectProphecy {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $process->getOutput()->willReturn($this->gitlabHost);
-    $local_machine_helper->execute([
-      'glab',
-      'config',
-      'get',
-      'host',
-    ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
-    return $process;
-  }
-
-  protected function mockGlabConfigGetToken(ObjectProphecy $local_machine_helper, $gitlab_host): ObjectProphecy {
-    $process = $this->prophet->prophesize(Process::class);
-    $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
-    $process->getOutput()->willReturn($this->gitlabToken);
-    $local_machine_helper->execute([
-      'glab',
-      'config',
-      'get',
-      'token',
-      '--host=' . $gitlab_host,
-    ], NULL, NULL, FALSE)->willReturn($process->reveal())->shouldBeCalled();
-    return $process;
   }
 
   /**
@@ -324,6 +287,35 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $variables = [];
     $projects->variables($this->gitLabProjectId)->willReturn($variables);
     $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
+  }
+
+  /**
+   * @param $local_machine_helper
+   */
+  protected function mockGitlabGetToken($local_machine_helper): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn($this->gitlabToken);
+    $local_machine_helper->execute([
+      'glab',
+      'config',
+      'get',
+      'token',
+      '--host=' . $this->gitlabHost
+    ], NULL, NULL, FALSE)->willReturn($process->reveal());
+  }
+
+  /**
+   * @param $local_machine_helper
+   */
+  protected function mockGitlabGetHost($local_machine_helper): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn($this->gitlabHost);
+    $local_machine_helper->execute([
+      'glab',
+      'config',
+      'get',
+      'host'
+    ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
 }
