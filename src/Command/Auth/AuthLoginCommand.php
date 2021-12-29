@@ -83,6 +83,64 @@ class AuthLoginCommand extends CommandBase {
   }
 
   /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return string
+   */
+  protected function determineApiKey(InputInterface $input, OutputInterface $output): string {
+    if ($input->getOption('key')) {
+      $api_key = $input->getOption('key');
+      $this->validateApiKey($api_key);
+    }
+    else {
+      $api_key = $this->io->ask('Please enter your API Key', NULL, Closure::fromCallable([$this, 'validateApiKey']));
+    }
+
+    return $api_key;
+  }
+
+  /**
+   * @param $key
+   *
+   * @return string
+   */
+  protected function validateApiKey($key): string {
+    $violations = Validation::createValidator()->validate($key, [
+      new Length(['min' => 10]),
+      new NotBlank(),
+      new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+    return $key;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @return string
+   * @throws \Exception
+   */
+  protected function determineApiSecret(InputInterface $input, OutputInterface $output): string {
+    if ($input->getOption('secret')) {
+      $api_secret = $input->getOption('secret');
+      $this->validateApiKey($api_secret);
+    }
+    else {
+      $question = new Question('Please enter your API Secret (input will be hidden)');
+      $question->setHidden($this->localMachineHelper->useTty());
+      $question->setHiddenFallback(TRUE);
+      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
+      $api_secret = $this->io->askQuestion($question);
+    }
+
+    return $api_secret;
+  }
+
+  /**
    * @param string $api_key
    * @param string $api_secret
    *
@@ -98,6 +156,26 @@ class AuthLoginCommand extends CommandBase {
     ];
     $this->datastoreCloud->set('keys', $keys);
     $this->datastoreCloud->set('acli_key', $api_key);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Exception
+   */
+  protected function promptOpenBrowserToCreateToken(
+        InputInterface $input,
+        OutputInterface $output
+    ): void {
+    if (!$input->getOption('key') || !$input->getOption('secret')) {
+      $token_url = 'https://cloud.acquia.com/a/profile/tokens';
+      $this->output->writeln("You will need a Cloud Platform API token from <href=$token_url>$token_url</>");
+
+      if (!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && $this->io->confirm('Do you want to open this page to generate a token now?')) {
+        $this->localMachineHelper->startBrowser($token_url);
+      }
+    }
   }
 
 }
