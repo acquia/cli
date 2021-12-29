@@ -16,7 +16,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class CodeStudioWizardCommand.
@@ -99,7 +98,22 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     }
 
     // Get Cloud access tokens.
-    $this->promptOpenBrowserToCreateToken($input, $output);
+    if (!$input->getOption('key') || !$input->getOption('secret')) {
+      $token_url = 'https://cloud.acquia.com/a/profile/tokens';
+      $this->io->writeln([
+        "",
+        "This command will automatically configure AutoDevOps for a Code Studio project.",
+        "Acquia's AutoDevops will build, test, and deploy your code to a linked Acquia Cloud Application",
+        "using credentials (API Token and SSH Key) belonging to your current Acquia Cloud Platform account.",
+        "",
+        "Before continuing, make sure that you're logged to an Acquia Cloud account!",
+        "If the Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+        "",
+        "Visit this URL to create a new API Token for Code Studio to use:",
+        "<href=$token_url>$token_url</>",
+      ]);
+    }
+
     $cloud_key = $this->determineApiKey($input, $output);
     $cloud_secret = $this->determineApiSecret($input, $output);
     // We may already be authenticated with Acquia Cloud via a refresh token.
@@ -151,7 +165,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     $this->io->success([
       "Successfully configured the Code Studio project!",
-      "This project will now use Acquia's Drupal optimized AutoDevops to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
+      "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
       "You can visit it here:",
       $project['web_url']
     ]);
@@ -234,24 +248,25 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @param array $project
    * @param string $scheduled_pipeline_description
    *
-   * @return bool|void
+   * @return array
    */
-  protected function getGitLabScheduleByDescription($project, $scheduled_pipeline_description) {
+  protected function getGitLabScheduleByDescription(array $project, string $scheduled_pipeline_description): ?array {
     $existing_schedules = $this->gitLabClient->schedules()->showAll($project['id']);
     foreach ($existing_schedules as $schedule) {
       if ($schedule['description'] == $scheduled_pipeline_description) {
-        return TRUE;
+        return $schedule;
       }
     }
+    return NULL;
   }
 
   /**
    * @param array $project
    * @param string $name
    *
-   * @return mixed|null
+   * @return array?
    */
-  protected function getGitLabProjectAccessTokenByName(array $project, string $name) {
+  protected function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
     $existing_project_access_tokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
     foreach ($existing_project_access_tokens as $key => $token) {
       if ($token['name'] == $name) {
@@ -397,7 +412,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     }
     foreach ($required_permissions as $name) {
       if (!array_key_exists($name, $keyed_permissions)) {
-        throw new AcquiaCliException("The Acquia Cloud account {account} does not have the required '{name}' permission.", [
+        throw new AcquiaCliException("The Acquia Cloud account {account} does not have the required '{name}' permission. Please add the permissions to this user or use an API Token belonging to a different Acquia Cloud user.", [
           'account' => $account->mail,
           'name' => $name
         ]);
