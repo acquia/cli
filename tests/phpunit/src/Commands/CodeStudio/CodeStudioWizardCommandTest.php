@@ -14,6 +14,7 @@ use Gitlab\Api\Projects;
 use Gitlab\Api\Schedules;
 use Gitlab\Api\Users;
 use Gitlab\Client;
+use Gitlab\Exception\RuntimeException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -205,6 +206,25 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
+  }
+
+  public function testInvalidGitLabCredentials() {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockGlabConfig($local_machine_helper);
+    $this->mockGlabConfigGetToken($local_machine_helper, $this->gitlabHost);
+    $gitlab_client = $this->prophet->prophesize(Client::class);
+    $gitlab_client->users()->willThrow(RuntimeException::class);
+    $this->command->setGitLabClient($gitlab_client->reveal());
+    try {
+      $this->executeCommand([
+        '--key' => $this->key,
+        '--secret' => $this->secret,
+      ], []);
+    }
+    catch (RuntimeException $exception) {
+      $this->assertStringContainsString('Unable to authenticate with Code Studio', $this->getDisplay());
+    }
+    $this->assertEquals(1, $this->getStatusCode());
   }
 
   protected function mockGlabConfig(ObjectProphecy $local_machine_helper): ObjectProphecy {
