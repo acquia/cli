@@ -362,14 +362,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    */
   public static function isMachineAuthenticated(JsonFileStore $cloud_datastore, ClientService $cloud_api_client_service = NULL): bool {
-    if ($cloud_api_client_service) {
-      try {
-        $cloud_api_client_service->getClient()->request('get', 'account');
-        return TRUE;
-      } catch (\Exception $exception) {
-      }
-    }
-
     if (getenv('ACLI_ACCESS_TOKEN')) {
       return TRUE;
     }
