@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Auth;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Webmozart\KeyValueStore\JsonFileStore;
@@ -115,6 +116,7 @@ class AuthLoginCommandTest extends CommandTestBase {
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
     $mock_body = $this->mockTokenRequest();
     if (!$machine_is_authenticated) {
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
 
@@ -155,6 +157,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
     try {
       $this->executeCommand($args, $inputs);
