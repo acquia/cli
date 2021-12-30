@@ -7,8 +7,10 @@ use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandBaseTest.
@@ -24,6 +26,7 @@ class CommandBaseTest extends CommandTestBase {
   }
 
   public function testUnauthenticatedFailure(): void {
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
     $this->removeMockConfigFiles();
 
     $inputs = [
