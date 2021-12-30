@@ -492,7 +492,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'key' => 'ACQUIA_CLOUD_SSH_KEY',
         'value' => $this->localMachineHelper->readFile($this->privateSshKeyFilepath),
         'masked' => FALSE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'file',
       ],
       [
         'key' => 'SSH_PASSPHRASE',
