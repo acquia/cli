@@ -104,12 +104,14 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         "",
         "This command will automatically configure AutoDevOps for a Code Studio project.",
         "Acquia's AutoDevops will build, test, and deploy your code to a linked Acquia Cloud Application",
-        "using credentials (API Token and SSH Key) belonging to your current Acquia Cloud Platform account.",
+        "using credentials (an API Token and SSH Key) belonging to your current Acquia Cloud user account.",
         "",
-        "Before continuing, make sure that you're logged into the right Acquia Cloud account.",
-        "If the Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
+        "Before continuing, make sure that you're logged into the right Acquia Cloud user account.",
+        "Typically this command should only be run once per application, but if your Cloud account",
+        "is deleted in the future, the Code Studio project will need to be re-configured using a",
+        "different user account.",
         "",
-        "Visit this URL to create a new API Token for Code Studio to use:",
+        "To begin, visit this URL and create a new API Token for Code Studio to use:",
         "<href=$token_url>$token_url</>",
       ]);
     }

@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLogoutCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Webmozart\KeyValueStore\JsonFileStore;
 
@@ -45,6 +46,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
    */
   public function testAuthLogoutCommand($machine_is_authenticated, $inputs): void {
     if (!$machine_is_authenticated) {
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
 
