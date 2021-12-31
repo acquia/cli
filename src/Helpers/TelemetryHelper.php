@@ -11,7 +11,10 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Path;
 use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\KeyValueStore\Util\Serializer;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
@@ -42,26 +45,42 @@ class TelemetryHelper {
   private $datastoreCloud;
 
   /**
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
+   */
+  private LocalMachineHelper $localMachineHelper;
+
+  /**
+   * @var string
+   */
+  private string $cloudConfigFilepath;
+
+  /**
    * TelemetryHelper constructor.
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\CloudApi\ClientService $cloud_api
-   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   * @param \Acquia\Cli\DataStore\YamlStore $datastore_acli
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastore_cloud
+   * @param \Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
+   * @param string $cloudConfigFilepath
    */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
     ClientService $cloud_api,
-    YamlStore $datastoreAcli,
-    JsonFileStore $datastoreCloud
+    YamlStore $datastore_acli,
+    JsonFileStore $datastore_cloud,
+    LocalMachineHelper $local_machine_helper,
+    string $cloudConfigFilepath
   ) {
     $this->input = $input;
     $this->output = $output;
     $this->cloudApi = $cloud_api;
-    $this->datastoreCloud = $datastoreCloud;
-    $this->acliDatastore = $datastoreAcli;
+    $this->datastoreCloud = $datastore_cloud;
+    $this->acliDatastore = $datastore_acli;
+    $this->localMachineHelper = $local_machine_helper;
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
   }
 
   /**
@@ -172,6 +191,56 @@ class TelemetryHelper {
       'uuid' => $account->get()->uuid,
       'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
     ];
+  }
+
+  /**
+   * Check if telemetry preference is set, prompt if not.
+   */
+  public function checkAndPromptTelemetryPreference(CommandBase $command): void {
+    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    if (!isset($send_telemetry) || is_null($send_telemetry)) {
+      $this->migrateLegacySendTelemetryPreference();
+      $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    }
+    // Convert from serialized to unserialized.
+    if ($this->datastoreCloud->get('user')
+      && is_string($this->datastoreCloud->get('user'))
+      && strpos($this->datastoreCloud->get('user'), 'a:') === 0
+    ) {
+      $value = Serializer::unserialize($this->datastoreCloud->get('user'));
+      $this->datastoreCloud->set('user', $value);
+    }
+    if ($command->getName() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
+      $this->output->writeln('We strive to give you the best tools for development.');
+      $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
+      $style = new SymfonyStyle($this->input, $this->output);
+      $pref = $style->confirm('Would you like to share anonymous performance usage and data?');
+      $this->datastoreCloud->set(DataStoreContract::SEND_TELEMETRY, $pref);
+      if ($pref) {
+        $this->output->writeln('Awesome! Thank you for helping!');
+      }
+      else {
+        // @todo Completely anonymously send an event to indicate some user opted out.
+        $this->output->writeln('Ok, no data will be collected and shared with us.');
+        $this->output->writeln('We take privacy seriously.');
+        $this->output->writeln('If you change your mind, run <options=bold>acli telemetry</>.');
+      }
+    }
+  }
+
+  /**
+   * Migrate from storing preference in acquia-cli.json.
+   */
+  protected function migrateLegacySendTelemetryPreference(): void {
+    $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
+      'acquia-cli.json'));
+    if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
+      $legacy_acli_config = json_decode(file_get_contents($legacy_acli_config_filepath), TRUE);
+      if (array_key_exists('send_telemetry', $legacy_acli_config)) {
+        $send_telemetry = $legacy_acli_config['send_telemetry'];
+        $this->datastoreCloud->set('send_telemetry', $send_telemetry);
+      }
+    }
   }
 
 }
