@@ -406,7 +406,7 @@ class PushArtifactCommand extends PullCommandBase {
     $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE);
     foreach ($composer_json['extra']['drupal-scaffold']['file-mapping'] as $file => $asset_path) {
       if (strpos($file, '[web-root]') === 0) {
-        $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot/core', $file);
+        $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot', $file);
       }
     }
     $this->scaffoldFiles[] = 'docroot/autoload.php';
