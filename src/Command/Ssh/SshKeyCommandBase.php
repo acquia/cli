@@ -42,7 +42,6 @@ abstract class SshKeyCommandBase extends CommandBase {
     $this->privateSshKeyFilename = $private_ssh_key_filename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
   }
 
   /**

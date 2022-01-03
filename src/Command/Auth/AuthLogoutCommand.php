@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Auth;
 
+use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,7 +40,7 @@ class AuthLogoutCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
-    if (CommandBase::isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       $answer = $this->io->confirm('Are you sure you\'d like to unset the Acquia Cloud API key for Acquia CLI?');
       if (!$answer) {
         return 0;

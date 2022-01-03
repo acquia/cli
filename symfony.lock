@@ -32,6 +32,9 @@
     "brick/math": {
         "version": "0.9.1"
     },
+    "clue/stream-filter": {
+        "version": "v1.5.0"
+    },
     "composer/semver": {
         "version": "3.2.2"
     },
@@ -74,6 +77,9 @@
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
+    "http-interop/http-factory-guzzle": {
+        "version": "1.2.0"
+    },
     "justinrainbow/json-schema": {
         "version": "1.6.1"
     },
@@ -85,6 +91,9 @@
     },
     "loophp/phposinfo": {
         "version": "1.7.2"
+    },
+    "m4tthumphrey/php-gitlab-api": {
+        "version": "11.5.0"
     },
     "monolog/monolog": {
         "version": "2.2.0"
@@ -115,6 +124,30 @@
     },
     "php-coveralls/php-coveralls": {
         "version": "v2.2.0"
+    },
+    "php-http/cache-plugin": {
+        "version": "1.7.4"
+    },
+    "php-http/client-common": {
+        "version": "2.5.0"
+    },
+    "php-http/discovery": {
+        "version": "1.14.1"
+    },
+    "php-http/httplug": {
+        "version": "2.2.0"
+    },
+    "php-http/message": {
+        "version": "1.12.0"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
+    "php-http/multipart-stream-builder": {
+        "version": "1.2.0"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
     },
     "phpcompatibility/php-compatibility": {
         "version": "9.3.5"
@@ -185,6 +218,9 @@
         "version": "1.0.0"
     },
     "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
         "version": "1.0.1"
     },
     "psr/http-message": {

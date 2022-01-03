@@ -35,6 +35,7 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
 
     $this->ideUuid = $this::getThisCloudIdeUuid();
     $this->setSshKeyFilepath($this->getSshKeyFilename($this->ideUuid));
+    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
     $this->ide = $ides_resource->get($this->ideUuid);

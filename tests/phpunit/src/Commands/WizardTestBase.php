@@ -32,6 +32,11 @@ abstract class WizardTestBase extends CommandTestBase {
   protected $sshKeyFileName;
 
   /**
+   * @var string
+   */
+  protected $passphraseFilepath = '~/.passphrase';
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -81,6 +86,7 @@ abstract class WizardTestBase extends CommandTestBase {
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $local_machine_helper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
