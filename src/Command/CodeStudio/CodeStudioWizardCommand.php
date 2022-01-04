@@ -498,8 +498,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       [
         'key' => 'SSH_PASSPHRASE',
         'value' => $this->getPassPhraseFromFile(),
-        'masked' => FALSE,
-        'protected' => TRUE
+        'masked' => TRUE,
+        'protected' => FALSE,
       ],
     ];
 
@@ -589,34 +589,30 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
-    $push_code = $this->io->confirm("Would you like to perform a one time push of code from Acquia Cloud to Code Studio now?");
+    $push_code = $this->io->confirm("Would you like to perform a one time push of code from this Cloud IDE to Code Studio now?");
     if ($push_code) {
-      $this->checklist->addItem('Cloning repository from Acquia Cloud');
-      $environment = $this->getAnyNonProdAhEnvironment($cloud_application_uuid);
-      $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-      $temp_dir = Path::join(sys_get_temp_dir(), 'codestudio-repo-copy');
-      $this->localMachineHelper->getFilesystem()->remove($temp_dir);
+      // @todo Add git remote.
+      $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
       $process = $this->localMachineHelper->execute([
         'git',
-        'clone',
-        $environment->vcs->url,
-        $temp_dir,
+        'remote',
+        'add',
+        'codestudio',
+        $project['http_url_to_repo'],
       ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
       if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Unable to clone repository.");
+        throw new AcquiaCliException("Unable to push repository.");
       }
-      $this->checklist->completePreviousItem();
       $this->checklist->addItem('Pushing repository to Code Studio');
       $process = $this->localMachineHelper->execute([
         'git',
         'push',
-        $project['http_url_to_repo'],
-      ], $this->getOutputCallback($output, $this->checklist), $temp_dir, FALSE);
+        'codestudio',
+      ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Unable to push repository.");
       }
       $this->checklist->completePreviousItem();
-      $this->localMachineHelper->getFilesystem()->remove($temp_dir);
     }
   }
 

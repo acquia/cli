@@ -205,8 +205,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->checkRequiredBinariesExist(['git']);
     $process = $this->mockProcess();
-    $local_machine_helper->execute(Argument::containing('clone'), Argument::type('callable'), NULL, FALSE)->willReturn($process->reveal());
-    $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), Argument::type('string'), FALSE)->willReturn($process->reveal());
+    $local_machine_helper->execute(Argument::containing('remote'), Argument::type('callable'), NULL, FALSE)->willReturn($process->reveal());
+    $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), NULL, FALSE)->willReturn($process->reveal());
 
     $this->mockGitlabGetHost($local_machine_helper);
     $this->mockGitlabGetToken($local_machine_helper);
