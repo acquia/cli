@@ -591,8 +591,15 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
     $push_code = $this->io->confirm("Would you like to perform a one time push of code from this Cloud IDE to Code Studio now?");
     if ($push_code) {
-      // @todo Add git remote.
       $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
+
+      // This command is allowed to fail.
+      $process = $this->localMachineHelper->execute([
+        'git',
+        'remote',
+        'remove',
+        'codestudio',
+      ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
       $process = $this->localMachineHelper->execute([
         'git',
         'remote',
@@ -601,8 +608,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         $project['http_url_to_repo'],
       ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
       if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Unable to push repository.");
+        throw new AcquiaCliException("Unable to add codestudio remote.");
       }
+      $this->checklist->completePreviousItem();
       $this->checklist->addItem('Pushing repository to Code Studio');
       $process = $this->localMachineHelper->execute([
         'git',
