@@ -359,7 +359,7 @@ EOT
    * @throws \Exception
    */
   protected function determinePublicSshKey($filepath = NULL): array {
-    if ($this->input->getOption('filepath')) {
+    if ($this->input->hasOption('filepath') && $this->input->getOption('filepath')) {
       $filepath = $this->localMachineHelper
         ->getLocalFilepath($this->input->getOption('filepath'));
     }
