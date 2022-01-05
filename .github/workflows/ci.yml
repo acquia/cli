@@ -15,11 +15,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       ACLI_PRINT_COMMAND_OUTPUT: 1
-      COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.0') && 'xdebug' || 'none' }}
+      COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.1') && 'xdebug' || 'none' }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        php: ["7.4", "8.0"]
+        php: ["7.4", "8.0", "8.1"]
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
