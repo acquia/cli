@@ -43,7 +43,7 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $filename = $this->determineFilename($input, $output);
     $password = $this->determinePassword($input, $output);
-    $this->createSshKey($filename, $password);
+    $filepath = $this->createSshKey($filename, $password);
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
     $this->uploadSshKey($label, $chosen_local_key, $public_key);

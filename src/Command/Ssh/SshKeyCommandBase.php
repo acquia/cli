@@ -219,6 +219,7 @@ EOT
     if (!$this->sshKeyIsAddedToKeychain()) {
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $password);
     }
+    return $key_file_path;
   }
 
   /**
@@ -357,10 +358,12 @@ EOT
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function determinePublicSshKey(): array {
+  protected function determinePublicSshKey($filepath = NULL): array {
     if ($this->input->getOption('filepath')) {
       $filepath = $this->localMachineHelper
         ->getLocalFilepath($this->input->getOption('filepath'));
+    }
+    if ($filepath) {
       if (!$this->localMachineHelper->getFilesystem()->exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
       }
@@ -369,7 +372,8 @@ EOT
       }
       $public_key = $this->localMachineHelper->readFile($filepath);
       $chosen_local_key = basename($filepath);
-    } else {
+    }
+    else {
       // Get local key and contents.
       $local_keys = $this->findLocalSshKeys();
       $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
@@ -455,6 +459,7 @@ EOT
    * @param string $public_key
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function uploadSshKey(string $label, string $chosen_local_key, string $public_key) {
     $options = [
