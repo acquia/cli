@@ -354,15 +354,19 @@ EOT
   }
 
   /**
+   * @param null $filepath
+   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function determinePublicSshKey($filepath = NULL): array {
-    if ($this->input->hasOption('filepath') && $this->input->getOption('filepath')) {
-      $filepath = $this->localMachineHelper
-        ->getLocalFilepath($this->input->getOption('filepath'));
+    if ($filepath) {
+      $filepath = $this->localMachineHelper->getLocalFilepath($filepath);
     }
+    elseif ($this->input->hasOption('filepath') && $this->input->getOption('filepath')) {
+      $filepath = $this->localMachineHelper->getLocalFilepath($this->input->getOption('filepath'));
+    }
+
     if ($filepath) {
       if (!$this->localMachineHelper->getFilesystem()->exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
@@ -407,7 +411,7 @@ EOT
    * @return string
    */
   protected function determineSshKeyLabel(InputInterface $input, OutputInterface $output): string {
-    if ($input->getOption('label')) {
+    if ($input->hasOption('label') && $input->getOption('label')) {
       $label = $input->getOption('label');
       $label = SshKeyCommandBase::normalizeSshKeyLabel($label);
       $label = $this->validateSshKeyLabel($label);
