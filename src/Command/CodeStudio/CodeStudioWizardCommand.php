@@ -240,7 +240,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    $this->requireCloudIdeEnvironment();
+    //$this->requireCloudIdeEnvironment();
     if (!getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
     }
@@ -314,10 +314,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       ]);
       $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
       if ($create_project) {
-        $project = $this->gitLabClient->projects()->create($cloud_application->name, [
-          'description' => $this->gitLabProjectDescription,
-          'topics' => 'Acquia Cloud Application'
-        ]);
+        $project = $this->gitLabClient->projects()->create($cloud_application->name, $this->getGitLabProjectDefaults());
         $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
         return $project;
       }
@@ -574,10 +571,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   protected function updateGitLabProject(array $project): void {
     // Setting the description to match the known pattern will allow us to automatically find the project next time.
     if ($project['description'] != $this->gitLabProjectDescription) {
-      $this->gitLabClient->projects()->update($project['id'], [
-        'description' => $this->gitLabProjectDescription,
-        'topics' => 'Acquia Cloud Application',
-      ]);
+      $this->gitLabClient->projects()->update($project['id'], $this->getGitLabProjectDefaults());
     }
   }
 
@@ -589,6 +583,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
+    // @todo Add branch name to this question.
     $push_code = $this->io->confirm("Would you like to perform a one time push of code from this Cloud IDE to Code Studio now?");
     if ($push_code) {
       $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
@@ -622,6 +617,18 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       }
       $this->checklist->completePreviousItem();
     }
+  }
+
+  /**
+   * @return array
+   */
+  protected function getGitLabProjectDefaults(): array {
+    return [
+      'description' => $this->gitLabProjectDescription,
+      'topics' => 'Acquia Cloud Application',
+      'operations_access_level' => 'disabled',
+      'container_registry_access_level' => 'disabled',
+    ];
   }
 
 }

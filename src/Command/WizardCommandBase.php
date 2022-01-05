@@ -73,7 +73,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
       // Create SSH key.
       $password = md5(random_bytes(10));
       $this->savePassPhraseToFile($password);
-      $this->createLocalSshKey($this->privateSshKeyFilename, $password);
+      $this->createSshKey($this->privateSshKeyFilename, $password);
 
       $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
@@ -87,9 +87,12 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     if (!$this->userHasUploadedThisKeyToCloud($this->getSshKeyLabel())) {
       $this->checklist->addItem('Uploading the local key to the Cloud Platform');
 
-      // Just in case there is an uploaded key but it doesn't actually match the local key, delete remote key!
+      // Just in case there is an uploaded key,  but it doesn't actually match
+      // the local key, delete remote key!
       $this->deleteThisSshKeyFromCloud();
-      $this->uploadSshKeyToCloud($this->getSshKeyLabel(), $this->publicSshKeyFilepath);
+      $public_key = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
+      $chosen_local_key = basename($this->publicSshKeyFilepath);
+      $this->uploadSshKey($this->getSshKeyLabel(), $chosen_local_key, $public_key);
 
       $this->checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
@@ -142,27 +145,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    */
   protected function getPassPhraseFromFile(): string {
     return file_get_contents($this->passphraseFilepath);
-  }
-
-  /**
-   * Create a local SSH key via the `ssh-key:create` command.
-   *
-   * @param string $private_ssh_key_filename
-   * @param string $password
-   *
-   * @return int
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
-  protected function createLocalSshKey(string $private_ssh_key_filename, string $password): int {
-    $return_code = $this->executeAcliCommand('ssh-key:create', [
-      '--filename' => $private_ssh_key_filename,
-      '--password' => $password,
-    ]);
-    if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to generate a local SSH key.');
-    }
-    return $return_code;
   }
 
   /**
