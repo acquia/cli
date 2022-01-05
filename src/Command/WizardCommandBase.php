@@ -148,23 +148,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   }
 
   /**
-   * @param string $label
-   * @param string $public_ssh_key_filepath
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function uploadSshKeyToCloud(string $label, string $public_ssh_key_filepath): void {
-    $return_code = $this->executeAcliCommand('ssh-key:upload', [
-      '--label' => $label,
-      '--filepath' => $public_ssh_key_filepath,
-      '--no-wait' => '',
-    ]);
-    if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to upload the SSH key to the Cloud Platform');
-    }
-  }
-
-  /**
    * Assert whether ANY local key exists that has a corresponding key on the
    * Cloud Platform.
    *

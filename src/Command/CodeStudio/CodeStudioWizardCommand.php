@@ -626,7 +626,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return [
       'description' => $this->gitLabProjectDescription,
       'topics' => 'Acquia Cloud Application',
-      'operations_access_level' => 'disabled',
       'container_registry_access_level' => 'disabled',
     ];
   }
