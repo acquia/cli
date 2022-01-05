@@ -41,17 +41,14 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->createSshKey($input, $output);
-    $command = $this->getApplication()->find('ssh-key:upload');
-    $arguments = [
-      'command' => 'ssh-key:upload',
-      '--filepath' => $this->publicSshKeyFilepath,
-      '--no-wait' => $input->getOption('no-wait'),
-    ];
-    $list_input = new ArrayInput($arguments);
-    $list_input->setStream($input->getStream());
+    $filename = $this->determineFilename($input, $output);
+    $password = $this->determinePassword($input, $output);
+    $this->createSshKey($filename, $password);
+    [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
+    $label = $this->determineSshKeyLabel($input, $output);
+    $this->uploadSshKey($label, $chosen_local_key, $public_key);
 
-    return $command->run($list_input, $output);
+    return 0;
   }
 
 }

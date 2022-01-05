@@ -240,7 +240,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    //$this->requireCloudIdeEnvironment();
+    $this->requireCloudIdeEnvironment();
     if (!getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
     }
