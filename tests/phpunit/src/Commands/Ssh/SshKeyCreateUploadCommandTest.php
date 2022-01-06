@@ -43,6 +43,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:create-upload' command.
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testCreateUpload(): void {
     // Create.

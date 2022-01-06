@@ -677,8 +677,10 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param $local_machine_helper
-   * @param $file_system
+   * @param LocalMachineHelper|ObjectProphecy $local_machine_helper
+   * @param Filesystem|ObjectProphecy $file_system
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockGenerateSshKey($local_machine_helper, $file_system) {
     $key_contents = 'thekey!';
@@ -692,12 +694,6 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
     $local_machine_helper->readFile($public_key_path)->willReturn($key_contents);
     $local_machine_helper->readFile(Argument::containingString('id_rsa'))->willReturn($key_contents);
-    $file_system->exists($public_key_path)
-      ->shouldBeCalled()
-      ->willReturn(TRUE);
-    $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))
-      ->shouldBeCalled()
-      ->willReturn($public_key_path);
   }
 
   /**
