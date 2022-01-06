@@ -358,6 +358,7 @@ EOT
    *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function determinePublicSshKey($filepath = NULL): array {
     if ($filepath) {
