@@ -18,16 +18,56 @@ use Symfony\Component\Filesystem\Path;
 class SshKeyCreateCommandTest extends CommandTestBase {
 
   /**
+   * @var string
+   */
+  protected $filename = 'id_rsa_acli_test';
+
+  /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyCreateCommand::class);
   }
 
+  /**
+   * @return array[]
+   */
   public function providerTestCreate(): array {
     return [
-      [TRUE],
-      [FALSE],
+      [
+        TRUE,
+        // Args.
+        [
+          '--filename' => $this->filename,
+          '--password' => 'acli123'
+        ],
+        // Inputs.
+        []
+      ],
+      [
+        TRUE,
+        // Args.
+        [],
+        // Inputs.
+        [
+          // Please enter a filename for your new local SSH key:
+          $this->filename,
+          // Enter a password for your SSH key:
+          'acli123',
+        ]
+      ],
+      [
+        FALSE,
+        // Args.
+        [],
+        // Inputs.
+        [
+          // Please enter a filename for your new local SSH key:
+          $this->filename,
+          // Enter a password for your SSH key:
+          'acli123',
+        ]
+      ],
     ];
   }
 
@@ -35,10 +75,10 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:create' command.
    *
    * @dataProvider providerTestCreate
+   * @throws \Exception
    */
-  public function testCreate($ssh_add_success): void {
-    $ssh_key_filename = 'id_rsa_acli_test';
-    $ssh_key_filepath = Path::join($this->sshDir, '/' . $ssh_key_filename);
+  public function testCreate($ssh_add_success, $args, $inputs): void {
+    $ssh_key_filepath = Path::join($this->sshDir, '/' . $this->filename);
     $this->fs->remove($ssh_key_filepath);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
@@ -47,16 +87,10 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper, $ssh_add_success);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
+
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-
-    $inputs = [
-        // Please enter a filename for your new local SSH key:
-      $ssh_key_filename,
-          // Enter a password for your SSH key:
-      'acli123',
-    ];
-    $this->executeCommand([], $inputs);
+    $this->executeCommand($args, $inputs);
   }
 
 }
