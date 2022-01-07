@@ -464,31 +464,36 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'key' => 'ACQUIA_APPLICATION_UUID',
         'value' => $cloud_application_uuid,
         'masked' => FALSE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
         'value' => $cloud_key,
         'masked' => FALSE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
         'value' => $cloud_secret,
         'masked' => FALSE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_GLAB_TOKEN_NAME',
         'value' => $project_access_token_name,
         'masked' => FALSE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_GLAB_TOKEN_SECRET',
         'value' => $project_access_token,
         'masked' => TRUE,
-        'protected' => FALSE
+        'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
       [
         'key' => 'ACQUIA_CLOUD_SSH_KEY',
@@ -502,6 +507,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'value' => $this->getPassPhraseFromFile(),
         'masked' => TRUE,
         'protected' => FALSE,
+        'variable_type' => 'env_var',
       ],
     ];
 
@@ -517,11 +523,11 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       $this->checklist->addItem("Setting CI/CD variable <comment>{$variable['key']}</comment>");
       if (!array_key_exists($variable['key'], $gitlab_cicd_existing_variables_keyed)) {
         $this->gitLabClient->projects()
-          ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked']]);
+          ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
       }
       else {
         $this->gitLabClient->projects()
-          ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked']]);
+          ->updateVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
       }
       $this->checklist->completePreviousItem();
     }
