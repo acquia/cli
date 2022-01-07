@@ -85,6 +85,7 @@ class NewCommand extends CommandBase {
       'create-project',
       $project,
       $dir,
+      '--no-interaction',
     ]);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Unable to create new project.");
