@@ -60,6 +60,11 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   private $gitlabHost;
 
   /**
+   * @var string
+   */
+  private $ideProjectDir = '/home/ide/project';
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -594,14 +599,14 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'remote',
         'remove',
         'codestudio',
-      ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
+      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
       $process = $this->localMachineHelper->execute([
         'git',
         'remote',
         'add',
         'codestudio',
         $project['http_url_to_repo'],
-      ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
+      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Unable to add codestudio remote.");
       }
@@ -611,7 +616,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'git',
         'push',
         'codestudio',
-      ], $this->getOutputCallback($output, $this->checklist), NULL, FALSE);
+      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Unable to push repository.");
       }
