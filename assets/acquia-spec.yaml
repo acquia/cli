@@ -27997,25 +27997,25 @@ paths:
             schema:
               type: object
               properties:
-                hostname:
+                domain:
                   type: string
                   format: uri
                   description: The domain name to add.
                   minLength: 3
                   maxLength: 253
             example:
-              hostname: example.com
+              domain: example.com
           application/x-www-form-urlencoded:
             schema:
               type: object
               properties:
-                hostname:
+                domain:
                   type: string
                   description: The domain name to add.
                   minLength: 3
                   maxLength: 253
             example:
-              hostname: example.com
+              domain: example.com
       responses:
         '200':
           description: OK
