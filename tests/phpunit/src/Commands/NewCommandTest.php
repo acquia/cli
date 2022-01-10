@@ -96,6 +96,7 @@ class NewCommandTest extends CommandTestBase {
       'create-project',
       $project,
       $project_dir,
+      '--no-interaction',
     ];
     $local_machine_helper
       ->execute($command)
