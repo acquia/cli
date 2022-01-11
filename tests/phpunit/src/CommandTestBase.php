@@ -401,6 +401,7 @@ abstract class CommandTestBase extends TestBase {
     $stream = $this->prophet->prophesize(StreamInterface::class);
     $stream->__toString()->willReturn('');
     $guzzle_response->getBody()->willReturn($stream->reveal());
+    $guzzle_response->getReasonPhrase()->willReturn('');
     $guzzle_response->getStatusCode()->willReturn($status_code);
     $guzzle_client = $this->prophet->prophesize(Client::class);
     $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
