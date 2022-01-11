@@ -398,7 +398,7 @@ abstract class CommandTestBase extends TestBase {
   protected function setUpdateClient($status_code = 200): void {
     /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
-    $stream = $this->prophesize(StreamInterface::class);
+    $stream = $this->prophet->prophesize(StreamInterface::class);
     $stream->__toString()->willReturn('');
     $guzzle_response->getBody()->willReturn($stream->reveal());
     $guzzle_response->getStatusCode()->willReturn($status_code);
