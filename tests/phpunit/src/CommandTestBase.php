@@ -398,7 +398,9 @@ abstract class CommandTestBase extends TestBase {
   protected function setUpdateClient($status_code = 200): void {
     /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
-    $guzzle_response->getBody()->willReturn();
+    $stream = $this->prophesize(StreamInterface::class);
+    $stream->__toString()->willReturn('');
+    $guzzle_response->getBody()->willReturn($stream->reveal());
     $guzzle_response->getStatusCode()->willReturn($status_code);
     $guzzle_client = $this->prophet->prophesize(Client::class);
     $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
