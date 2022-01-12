@@ -238,6 +238,8 @@ EOT
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh-keygen']);
     $process = $this->localMachineHelper->execute([
       'ssh-keygen',
+      '-t',
+      'rsa',
       '-b',
       '4096',
       '-f',
