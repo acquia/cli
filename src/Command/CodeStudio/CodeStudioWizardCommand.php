@@ -384,7 +384,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not determine GitLab host: {error_message}", ['error_message' => $process->getErrorOutput()]);
     }
-    return trim($process->getOutput());
+    $url = trim($process->getOutput());
+    return parse_url($url, PHP_URL_HOST);
   }
 
   /**
