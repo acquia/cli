@@ -34,7 +34,9 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function configure() {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
-      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded');
+      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
+      ->addOption('all-applications', 'all', InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
+    $this->acceptApplicationUuid();
   }
 
   /**
@@ -46,7 +48,10 @@ class AliasesDownloadCommand extends SshCommand {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $alias_version = $this->promptChooseDrushAliasVersion();
     $site_prefix = '';
-    if ($alias_version === 9) {
+    $all = $input->getOption('all');
+    $application_uuid_argument = $input->getOption('applicationUuid');
+    $single_application = !$all || $application_uuid_argument;
+    if ($alias_version === 9 && $single_application) {
       $this->setDirAndRequireProjectCwd($input);
       $cloud_application_uuid = $this->determineCloudApplication();
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);
@@ -75,14 +80,22 @@ class AliasesDownloadCommand extends SshCommand {
     $archive = new PharData($drush_archive_filepath . '/' . $base_dir);
     $drushFiles = [];
 
-    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-      if ($alias_version === 9 && $file->getFileName() !== $site_prefix . '.site.yml') {
-        continue;
+    if ($single_application) {
+      foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+        // Skip any alias that doesn't match the current application.
+        if ($alias_version === 9 && $file->getFileName() === $site_prefix . '.site.yml') {
+          $drushFiles[] = $base_dir . '/' . $file->getFileName();
+          break;
+        }
       }
-      $drushFiles[] = $base_dir . '/' . $file->getFileName();
+      if (empty($drushFiles)) {
+        throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
+      }
     }
-    if (empty($drushFiles)) {
-      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
+    else {
+      foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+        $drushFiles[] = $base_dir . '/' . $file->getFileName();
+      }
     }
     $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
     $this->output->writeln(sprintf(
