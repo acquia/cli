@@ -35,7 +35,7 @@ class AliasesDownloadCommand extends SshCommand {
   protected function configure() {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
       ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
-      ->addOption('all-applications', 'all', InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
+      ->addOption('all', NULL, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
     $this->acceptApplicationUuid();
   }
 
@@ -49,14 +49,16 @@ class AliasesDownloadCommand extends SshCommand {
     $alias_version = $this->promptChooseDrushAliasVersion();
     $site_prefix = '';
     $all = $input->getOption('all');
-    $application_uuid_argument = $input->getOption('applicationUuid');
+    $application_uuid_argument = $input->getArgument('applicationUuid');
     $single_application = !$all || $application_uuid_argument;
-    if ($alias_version === 9 && $single_application) {
+    if ($alias_version === 9) {
       $this->setDirAndRequireProjectCwd($input);
-      $cloud_application_uuid = $this->determineCloudApplication();
-      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $parts = explode(':', $cloud_application->hosting->id);
-      $site_prefix = $parts[1];
+      if ($single_application) {
+        $cloud_application_uuid = $this->determineCloudApplication();
+        $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+        $parts = explode(':', $cloud_application->hosting->id);
+        $site_prefix = $parts[1];
+      }
     }
     $acquia_cloud_client->addQuery('version', $alias_version);
     $account_adapter = new Account($acquia_cloud_client);
