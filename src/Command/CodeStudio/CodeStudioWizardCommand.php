@@ -549,11 +549,19 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     if (!$this->getGitLabScheduleByDescription($project, $scheduled_pipeline_description)) {
       $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduled_pipeline_description</comment>");
-      $this->gitLabClient->schedules()->create($project['id'], [
+      $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
         'description' => $scheduled_pipeline_description,
         'ref' => $project['default_branch'],
         # Every Thursday at midnight.
         'cron' => '0 0 * * 4',
+      ]);
+      $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
+        'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',
+        'value' => 'true',
+      ]);
+      $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
+        'key' => 'ACQUIA_JOBS_COMPOSER_UPDATE',
+        'value' => 'true',
       ]);
     }
     else {
