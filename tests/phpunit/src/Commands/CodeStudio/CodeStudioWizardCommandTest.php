@@ -196,7 +196,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitLabVariables($this::$application_uuid, $projects);
     $schedules = $this->prophet->prophesize(Schedules::class);
     $schedules->showAll($this->gitLabProjectId)->willReturn([]);
-    $schedules->create($this->gitLabProjectId, Argument::type('array'));
+    $pipeline = ['id' => 1];
+    $schedules->create($this->gitLabProjectId, Argument::type('array'))->willReturn($pipeline);
+    $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], Argument::type('array'));
     $gitlab_client->schedules()->willReturn($schedules->reveal());
     $gitlab_client->projects()->willReturn($projects);
 
