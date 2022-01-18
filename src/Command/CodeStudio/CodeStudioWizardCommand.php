@@ -594,6 +594,25 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
+   * Gets the default branch name for the deployment artifact.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getCurrentBranchName(): string {
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'rev-parse',
+      '--abbrev-ref',
+      'HEAD',
+    ], NULL, NULL, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Could not determine current git branch");
+    }
+    $git_current_branch = $process->getOutput();
+    return $git_current_branch . '-build';
+  }
+
+  /**
    * @param string $cloud_application_uuid
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param array $project
@@ -601,8 +620,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
-    // @todo Add branch name to this question.
-    $push_code = $this->io->confirm("Would you like to perform a one time push of code from this Cloud IDE to Code Studio now?");
+    $current_branch = $this->getCurrentBranchName();
+    $push_code = $this->io->confirm("You currently have the $current_branch branch checked out in this environment. Would you like to perform a one time push of code from this Cloud IDE to Code Studio now? Note, we have not changed any code in this branch as a part of this setup process.");
     if ($push_code) {
       $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
 
