@@ -208,6 +208,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $local_machine_helper->execute(Argument::containing('remote'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
     $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
 
+    $this->mockGetCurrentBranchName($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper);
     $this->mockGitlabGetToken($local_machine_helper);
 
@@ -276,7 +277,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   /**
    * @return array
    */
-  protected function getMockedGitLabProject() {
+  protected function getMockedGitLabProject(): array {
     return [
       'id' => $this->gitLabProjectId,
       'description' => '',
@@ -394,6 +395,20 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       'config',
       'get',
       'host'
+    ], NULL, NULL, FALSE)->willReturn($process->reveal());
+  }
+
+  /**
+   * @param $local_machine_helper
+   */
+  protected function mockGetCurrentBranchName($local_machine_helper): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn('main');
+    $local_machine_helper->execute([
+      'git',
+      'rev-parse',
+      '--abbrev-ref',
+      'HEAD',
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
