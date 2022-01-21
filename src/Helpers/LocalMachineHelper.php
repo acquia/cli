@@ -314,7 +314,7 @@ class LocalMachineHelper {
       array_unshift($possible_project_roots, $_SERVER['PWD']);
     }
     foreach ($possible_project_roots as $possible_project_root) {
-      if ($project_root = self::find_directory_containing_files($possible_project_root, ['docroot/index.php'])) {
+      if ($project_root = self::find_directory_containing_files($possible_project_root, ['docroot'])) {
         return realpath($project_root);
       }
     }

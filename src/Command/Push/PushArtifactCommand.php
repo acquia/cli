@@ -133,13 +133,14 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * @return false|mixed|null
+   * @throws \Exception
    */
   protected function determineDestinationGitUrls() {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
-      return $env_var;
+      return explode(',', $env_var);
     }
     if ($this->datastoreAcli->get('push.artifact.destination-git-urls')) {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
