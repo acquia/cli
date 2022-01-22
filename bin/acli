@@ -56,7 +56,9 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
 
 $kernel->boot();
 $container = $kernel->getContainer();
-putenv("ACLI_REPO_ROOT=" . LocalMachineHelper::getProjectRoot());
+if (!getenv('ACLI_REPO_ROOT')) {
+  putenv("ACLI_REPO_ROOT=" . LocalMachineHelper::getProjectRoot());
+}
 /** @var Application $application */
 $application = $container->get(Application::class);
 /** @var OutputInterface $output */

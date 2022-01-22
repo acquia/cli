@@ -16,6 +16,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Process\Process;
 
 /**
  * Class CodeStudioWizardCommand.
@@ -107,16 +108,15 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
       $this->io->writeln([
         "",
-        "This command will automatically configure AutoDevOps for a Code Studio project.",
-        "Acquia's AutoDevops will build, test, and deploy your code to a linked Acquia Cloud Application",
-        "using credentials (an API Token and SSH Key) belonging to your current Acquia Cloud user account.",
-        "",
+        "This will configure AutoDevOps for a Code Studio project using credentials",
+        "(an API Token and SSH Key) belonging to your current Acquia Cloud user account.",
         "Before continuing, make sure that you're logged into the right Acquia Cloud user account.",
-        "Typically this command should only be run once per application, but if your Cloud account",
-        "is deleted in the future, the Code Studio project will need to be re-configured using a",
-        "different user account.",
         "",
-        "To begin, visit this URL and create a new API Token for Code Studio to use:",
+        "<comment>Typically this command should only be run once per application</comment>",
+        "but if your Cloud account is deleted in the future, the Code Studio project will",
+        "need to be re-configured using a different user account.",
+        "",
+        "<options=bold>To begin, visit this URL and create a new API Token for Code Studio to use:</>",
         "<href=$token_url>$token_url</>",
       ]);
     }
@@ -168,13 +168,15 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->updateGitLabProject($project);
     $this->setGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $this->createScheduledPipeline($project);
-    $this->pushCodeToGitLab($this->appUuid, $output, $project);
+    $this->pushCodeToGitLab($output, $project);
 
     $this->io->success([
       "Successfully configured the Code Studio project!",
       "This project will now use Acquia's Drupal optimized AutoDevOps to build, test, and deploy your code automatically to Acquia Cloud Platform via CI/CD pipelines.",
       "You can visit it here:",
-      $project['web_url']
+      $project['web_url'],
+      "",
+      "We've also added a codestudio git remote to the repository located at /home/ide/project in this IDE.",
     ]);
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
@@ -245,7 +247,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    $this->requireCloudIdeEnvironment();
+    //$this->requireCloudIdeEnvironment();
     if (!getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
     }
@@ -319,9 +321,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       ]);
       $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
       if ($create_project) {
-        $project = $this->gitLabClient->projects()->create($cloud_application->name, $this->getGitLabProjectDefaults());
-        $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
-        return $project;
+        return $this->createGitLabProject($cloud_application);
       }
       // Prompt to choose from full list, regardless of description.
       else {
@@ -616,41 +616,21 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not determine current git branch");
     }
-    $git_current_branch = $process->getOutput();
-    return $git_current_branch . '-build';
+    return trim($process->getOutput());
   }
 
   /**
-   * @param string $cloud_application_uuid
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param array $project
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function pushCodeToGitLab(string $cloud_application_uuid, OutputInterface $output, array $project): void {
+  protected function pushCodeToGitLab(OutputInterface $output, array $project): void {
     $current_branch = $this->getCurrentBranchName();
     $push_code = $this->io->confirm("You currently have the $current_branch branch checked out in this environment. Would you like to perform a one time push of code from this Cloud IDE to Code Studio now? Note, we have not changed any code in this branch as a part of this setup process.");
+    $this->addGitRemote($output, $project['http_url_to_repo']);
+    // @todo Check to see if there's actually any code here.
     if ($push_code) {
-      $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
-
-      // This command is allowed to fail.
-      $process = $this->localMachineHelper->execute([
-        'git',
-        'remote',
-        'remove',
-        'codestudio',
-      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
-      $process = $this->localMachineHelper->execute([
-        'git',
-        'remote',
-        'add',
-        'codestudio',
-        $project['http_url_to_repo'],
-      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
-      if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Unable to add codestudio remote.");
-      }
-      $this->checklist->completePreviousItem();
       $this->checklist->addItem('Pushing repository to Code Studio');
       $process = $this->localMachineHelper->execute([
         'git',
@@ -673,6 +653,60 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       'topics' => 'Acquia Cloud Application',
       'container_registry_access_level' => 'disabled',
     ];
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param $http_url_to_repo
+   *
+   * @return \Symfony\Component\Process\Process
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function addGitRemote(OutputInterface $output, $http_url_to_repo): Process {
+    $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
+
+    // This command is allowed to fail.
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'remote',
+      'remove',
+      'codestudio',
+    ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'remote',
+      'add',
+      'codestudio',
+      $http_url_to_repo,
+    ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to add codestudio remote.");
+    }
+    $this->checklist->completePreviousItem();
+    return $process;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\ApplicationResponse $cloud_application
+   *
+   * @return mixed
+   */
+  protected function createGitLabProject(ApplicationResponse $cloud_application) {
+    $user_groups = $this->gitLabClient->groups()->all([
+      'all_available' => TRUE,
+      'min_access_level' => 40,
+    ]);
+    $parameters = $this->getGitLabProjectDefaults();
+    if ($user_groups) {
+      $user_groups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
+      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Please choose which group this new project should belong to:');
+      $parameters['namespace_id'] = $project_group['id'];
+    }
+
+    $project = $this->gitLabClient->projects()
+      ->create($cloud_application->name, $parameters);
+    $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
+    return $project;
   }
 
 }
