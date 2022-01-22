@@ -144,16 +144,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$this->appUuid</comment>";
     $project = $this->determineGitLabProject($cloud_application);
-    if (array_search('Acquia Cloud Application', $project['tag_list']) !== FALSE) {
-      $this->io->warning([
-        "The project {$project['path_with_namespace']} has already been configured",
-        "Continuing will re-configure the project and overwrite the project CI/CD variables",
-      ]);
-      $continue = $this->io->confirm('Do you want to continue?', FALSE);
-      if (!$continue) {
-        return 0;
-      }
-    }
 
     $this->io->writeln([
       "",
@@ -626,8 +616,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not determine current git branch");
     }
-    $git_current_branch = $process->getOutput();
-    return $git_current_branch . '-build';
+    return trim($process->getOutput());
   }
 
   /**
