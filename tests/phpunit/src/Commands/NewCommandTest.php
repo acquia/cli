@@ -119,6 +119,7 @@ class NewCommandTest extends CommandTestBase {
     $command = [
       'git',
       'init',
+      '--initial-branch=main',
     ];
     $local_machine_helper
       ->execute($command, NULL, $project_dir)

@@ -106,6 +106,7 @@ class NewCommand extends CommandBase {
     $this->localMachineHelper->execute([
       'git',
       'init',
+      '--initial-branch=main',
     ], NULL, $dir);
 
     $this->localMachineHelper->execute([
