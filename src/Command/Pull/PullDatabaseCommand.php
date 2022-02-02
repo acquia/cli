@@ -52,6 +52,7 @@ class PullDatabaseCommand extends PullCommandBase {
     $this->pullDatabase($input, $output, $on_demand, $no_import, $multiple_dbs);
     if (!$no_scripts) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
+      $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist));
     }
 
     return 0;
