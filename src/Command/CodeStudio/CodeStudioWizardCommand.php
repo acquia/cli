@@ -452,6 +452,13 @@ class CodeStudioWizardCommand extends WizardCommandBase {
           'name' => $project_access_token_name,
           'scopes' => ['api', 'write_repository'],
         ]);
+    $this->gitLabClient->users()->update($project_access_token['user_id'], [
+        'avatar' => __DIR__ . '/cs_icon.png',
+      ],
+      [
+        'avatar' => __DIR__ . '/cs_icon.png',
+      ]
+    );
     $this->checklist->completePreviousItem();
     return $project_access_token['token'];
   }
@@ -598,6 +605,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     // Setting the description to match the known pattern will allow us to automatically find the project next time.
     if ($project['description'] != $this->gitLabProjectDescription) {
       $this->gitLabClient->projects()->update($project['id'], $this->getGitLabProjectDefaults());
+      $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
     }
   }
 
@@ -705,6 +713,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     $project = $this->gitLabClient->projects()
       ->create($cloud_application->name, $parameters);
+    $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
     $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
     return $project;
   }
