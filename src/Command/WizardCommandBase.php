@@ -20,10 +20,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    */
   private $checklist;
 
-  abstract protected function deleteThisSshKeyFromCloud();
-
-  abstract protected function getSshKeyLabel();
-
   abstract protected function validateEnvironment();
 
   /**
