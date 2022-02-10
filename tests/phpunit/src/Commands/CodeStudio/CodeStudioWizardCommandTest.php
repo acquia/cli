@@ -3,10 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand;
-use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
-use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
-use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
-use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\Commands\WizardTestBase;
@@ -22,8 +18,6 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Process\Process;
 
 /**
  * Class CodeStudioWizardCommandTest.
@@ -46,9 +40,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
-    $this->mockListSshKeysRequest();
-    $this->sshKeyFileName = CodeStudioWizardCommand::getSshKeyFilename(WizardTestBase::$application_uuid);
-    $this->passphraseFilepath = '~/.codestudio-passphrase';
     IdeRequiredTestTrait::setCloudIdeEnvVars();
     TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
@@ -184,9 +175,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $permissions[] = $permission;
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/permissions")->willReturn($permissions)->shouldBeCalled();
 
-    // List uploaded keys.
-    $this->mockUploadSshKey();
-
     $gitlab_client = $this->prophet->prophesize(Client::class);
     $this->mockGitLabUsersMe($gitlab_client);
     $this->mockGitLabGroups($gitlab_client);
@@ -219,24 +207,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitlabGetHost($local_machine_helper);
     $this->mockGitlabGetToken($local_machine_helper);
 
-    // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
-    $this->command->sshHelper = $ssh_helper->reveal();
-
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper, $file_system);
-    $file_system->remove(Argument::size(2))->shouldBeCalled();
-    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $this->mockSshAgentList($local_machine_helper);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-    $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-    $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-
-    // Remove SSH key if it exists.
-    $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
 
     // Set properties and execute.
     $this->executeCommand($args, $inputs);

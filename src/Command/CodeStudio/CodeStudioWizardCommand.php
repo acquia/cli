@@ -161,7 +161,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->updateGitLabProject($project);
     $this->setGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $this->createScheduledPipeline($project);
-    $this->pushCodeToGitLab($output, $project);
 
     $this->io->success([
       "Successfully configured the Code Studio project!",
