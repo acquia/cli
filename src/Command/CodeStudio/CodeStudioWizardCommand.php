@@ -582,8 +582,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
-      // @todo Don't bypass SSL. Not sure why cert isn't valid.
-      $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client(['verify' => FALSE])));
+      $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
       $gitlab_client->setUrl('https://' . $this->gitlabHost);
       $gitlab_client->authenticate($this->gitlabToken, Client::AUTH_OAUTH_TOKEN);
       $this->setGitLabClient($gitlab_client);
