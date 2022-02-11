@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Email;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -75,6 +76,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     return 0;
   }
 
+  /**
+   * @param $client
+   * @param $subscription
+   * @param $domain_uuid
+   *
+   * @return int|void
+   */
   protected function addDomainToSubscriptionApplications($client, $subscription, $domain_uuid) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
@@ -89,7 +97,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       return 1;
     }
     elseif (count($subscription_applications) === 1) {
-      $application = $subscription_applications;
+      $applications = $subscription_applications;
     }
     else {
       $applications = $this->promptChooseFromObjectsOrArrays($subscription_applications, 'uuid', 'name', "What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.", TRUE);
@@ -126,13 +134,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * @param \AcquiaCloudApi\Connector\Client $client
-   * @param $subscription
-   * @param $base_domain
+   * @param SubscriptionResponse $subscription
+   * @param string $base_domain
    *
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function fetchDomainUuid(\AcquiaCloudApi\Connector\Client $client, $subscription, $base_domain) {
+  protected function fetchDomainUuid(Client $client, $subscription, $base_domain) {
     $domains_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
     foreach ($domains_response as $domain) {
       if ($domain->domain_name === $base_domain) {
@@ -144,10 +152,10 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * @param \AcquiaCloudApi\Connector\Client $client
-   * @param $subscription
-   * @param $domain_uuid
+   * @param SubscriptionResponse $subscription
+   * @param string $domain_uuid
    */
-  protected function createDnsText(\AcquiaCloudApi\Connector\Client $client, $subscription, $domain_uuid): void {
+  protected function createDnsText(Client $client, $subscription, $domain_uuid): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     $records = [];
     foreach ($domain_registration_response as $record) {
@@ -164,13 +172,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * environment.
    *
    * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
-   * @param $domain_uuid
+   * @param string $domain_uuid
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    */
   protected function pollDomainRegistrationsUntilSuccess(
     SubscriptionResponse $subscription,
-    $domain_uuid,
+    string $domain_uuid,
     OutputInterface $output
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
