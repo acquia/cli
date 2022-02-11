@@ -5,18 +5,14 @@ namespace Acquia\Cli\Command\Email;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
-use Acquia\CodeStudioCli\Commands\ProvisionCommand;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\DomainsResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
@@ -71,7 +67,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       return 1;
     }
 
-    //$this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
+    $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
     $this->addDomainToSubscriptionApplications($client, $subscription, $domain_uuid);
