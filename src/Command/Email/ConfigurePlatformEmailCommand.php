@@ -71,7 +71,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
-    $this->addDomainToSubscriptionApplications($client, $subscription, $domain_uuid);
+    $this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid);
 
     return 0;
   }
@@ -83,7 +83,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return int|void
    */
-  protected function addDomainToSubscriptionApplications($client, $subscription, $domain_uuid) {
+  protected function addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -105,16 +105,17 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
-      $response = $client->request('get', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
-      $this->io->success("Domain $domain_uuid has been associated with Application {$application->uuid}");
+      $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+      $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
+      $this->io->success("The last step is enabling Platform Email for the environments of {$application->name}!");
       $application_environments = $environments_resource->getAll($application->uuid);
-      foreach ($application_environments as $application_environment) {
-        $response = $client->request('post', "/environments/{$application_environment->uuid}/email/actions/enable");
-        $this->io->success("Platform email has been enabled for environment {$application_environment->name} for application {$application->name}");
+      $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
+      foreach ($envs as $env) {
+        $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
+        $this->io->success("Platform email has been enabled for environment {$env->name} for application {$application->name}");
       }
     }
-
-    $this->io->success("The last step is enabling Platform Email for the environments of an application!");
+    $this->io->success("You're all set to start using Platform Email!");
   }
 
   /**
@@ -168,7 +169,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * Polls the Cloud Platform until a successful SSH request is made to the dev
+   * Polls the Cloud Platform until the registered domain is verified
    * environment.
    *
    * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
@@ -186,17 +187,20 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the domains to be configured...', $output);
     $client = $this->cloudApiClientService->getClient();
 
-    // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
+    // Poll Cloud every 30 seconds.
+    $loop->addPeriodicTimer(30, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
       try {
         $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
-        if ($response->health->code === 200) {
+        if ($response->health->code === "200") {
           LoopHelper::finishSpinner($spinner);
           $loop->stop();
           $output->writeln("\n<info>Your domain is ready for use!</info>\n");
         }
+        else if ($response->health->code === "404") {
+          $this->logger->debug(json_encode($response));
+        }
         else {
-          $this->logger->debug(json_decode($response));
+          $this->logger->debug(json_encode($response));
         }
       } catch (AcquiaCliException $exception) {
         // Do nothing. Keep waiting and looping and logging.
