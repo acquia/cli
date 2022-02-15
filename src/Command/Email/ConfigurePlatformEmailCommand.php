@@ -12,6 +12,7 @@ use AcquiaCloudApi\Response\SubscriptionResponse;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -28,8 +29,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('')
+    $this->setDescription('Configure Platform email for one or more applications')
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL)
+      ->addOption('domain', NULL, InputOption::VALUE_REQUIRED)
       ->setAliases(['ec']);
   }
 
@@ -42,10 +44,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->io->writeln('Welcome to Platform Email setup! This script will walk you through setting up Platform Email, all through the command line and using the Cloud API!');
-    $domain = $this->io->ask("What's the domain name you'd like to register?", NULL, \Closure::fromCallable([$this, 'validateUrl']));
-    $domain_parts = parse_url($domain);
-    $base_domain = str_replace('www.', '', $domain_parts['host']);
 
+    $base_domain = $this->determineDomain($input);
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
     $response = $client->request('post', "/subscriptions/{$subscription->uuid}/domains", [
@@ -77,13 +77,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * @param $client
-   * @param $subscription
-   * @param $domain_uuid
+   * @param Client $client
+   * @param SubscriptionResponse $subscription
+   * @param string $domain_uuid
    *
    * @return int|void
    */
-  protected function addDomainToSubscriptionApplications($client, $subscription, $domain_uuid) {
+  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $domain_uuid) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -205,6 +205,26 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     });
     LoopHelper::addTimeoutToLoop($loop, 15, $spinner);
     $loop->run();
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return array|string|string[]
+   */
+  protected function determineDomain(InputInterface $input) {
+    if ($input->getOption('domain')) {
+      $domain = $input->getOption('domain');
+    }
+    else {
+      $domain = $this->io->ask("What's the domain name you'd like to register?", NULL, \Closure::fromCallable([
+        $this,
+        'validateUrl'
+      ]));
+    }
+    $domain_parts = parse_url($domain);
+    $base_domain = str_replace('www.', '', $domain_parts['host']);
+    return $base_domain;
   }
 
 }
