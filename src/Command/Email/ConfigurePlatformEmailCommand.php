@@ -73,6 +73,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
     $this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid);
+    $this->io->success("You're all set to start using Platform Email!");
 
     return 0;
   }
@@ -80,11 +81,12 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * @param Client $client
    * @param SubscriptionResponse $subscription
+   * @param string $base_domain
    * @param string $domain_uuid
    *
    * @return int|void
    */
-  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, $base_domain, string $domain_uuid) {
+  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -107,16 +109,17 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
       $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+      // @todo Check response!
       $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
       $this->io->success("The last step is enabling Platform Email for the environments of {$application->name}!");
       $application_environments = $environments_resource->getAll($application->uuid);
       $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
       foreach ($envs as $env) {
         $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
+        // @todo Check response!
         $this->io->success("Platform email has been enabled for environment {$env->name} for application {$application->name}");
       }
     }
-    $this->io->success("You're all set to start using Platform Email!");
   }
 
   /**
@@ -166,7 +169,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     }
     $this->localMachineHelper->getFilesystem()->remove('dns-records.txt');
     $this->localMachineHelper->getFilesystem()
-      ->dumpFile('dns-records.txt', json_encode($records));
+      ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
   }
 
   /**
@@ -227,9 +230,15 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         'validateUrl'
       ]));
     }
+
     $domain_parts = parse_url($domain);
-    $base_domain = str_replace('www.', '', $domain_parts['host']);
-    return $base_domain;
+    if (array_key_exists('host', $domain_parts)) {
+      $return = $domain_parts['host'];
+    }
+    else {
+      $return = $domain;
+    }
+    return str_replace('www.', '', $return);
   }
 
 }
