@@ -113,9 +113,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response);
 
     $this->executeCommand([], $inputs);
-    $output = trim($this->getDisplay());
+    $output = $this->getDisplay();
     $this->assertEquals(1, $this->getStatusCode());
-    $this->assertStringContainsString("Please give these records to your DNS provider, then rerun this script with the domain that you just registered.", $output);
+    $this->assertStringContainsString("Make sure to give these records to your DNS provider", $output);
   }
 
 }
