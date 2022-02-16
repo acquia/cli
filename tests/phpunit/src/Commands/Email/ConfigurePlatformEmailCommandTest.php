@@ -34,6 +34,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $base_domain,
       // Please select a Cloud Platform subscription
       '0',
+      //Would you like your output in JSON or YAML format?
+      '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
       // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
