@@ -17,6 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class ConfigurePlatformEmailCommand.
@@ -56,14 +57,15 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     // @todo Check response!
 
     $domain_uuid = $this->fetchDomainUuid($client, $subscription, $base_domain);
-    $this->createDnsText($client, $subscription, $domain_uuid);
 
     $this->io->success([
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
-      "We created dns-records.txt",
+      "We will create a text file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
       "After you've done this, continue."
     ]);
+    $file_format = $this->io->choice('Would you like your output in JSON or YAML format?', ['YAML', 'JSON'], 'YAML');
+    $this->createDnsText($client, $subscription, $domain_uuid, $file_format);
     $continue = $this->io->confirm('Have you finished providing the DNS records to your DNS provider?');
     if (!$continue) {
       return 1;
@@ -160,16 +162,29 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param SubscriptionResponse $subscription
    * @param string $domain_uuid
    */
-  protected function createDnsText(Client $client, $subscription, $domain_uuid): void {
+  protected function createDnsText(Client $client, $subscription, $domain_uuid, $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     $records = [];
-    foreach ($domain_registration_response->dns_records as $record) {
-      unset($record->health);
-      $records[] = $record;
-    }
     $this->localMachineHelper->getFilesystem()->remove('dns-records.txt');
-    $this->localMachineHelper->getFilesystem()
+    if ($file_format === 'JSON') {
+      foreach ($domain_registration_response->dns_records as $record) {
+        unset($record->health);
+        $records[] = $record;
+      }
+      $this->logger->debug(json_encode($records));
+      $this->localMachineHelper->getFilesystem()
       ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
+    }
+    else {
+      foreach ($domain_registration_response->dns_records as $record) {
+        unset($record->health);
+        $records[] = ['type' => $record->type, 'name' => $record->name, 'value' => $record->value];
+      }
+      $this->logger->debug(json_encode($records));
+      $this->localMachineHelper->getFilesystem()
+      ->dumpFile('dns-records.txt', Yaml::dump($records));
+    }
+    
   }
 
   /**
