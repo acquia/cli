@@ -173,7 +173,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-      ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
+          ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
     }
     else {
       foreach ($domain_registration_response->dns_records as $record) {
@@ -182,9 +182,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-      ->dumpFile('dns-records.txt', Yaml::dump($records));
+          ->dumpFile('dns-records.txt', Yaml::dump($records));
     }
-    
+
   }
 
   /**
