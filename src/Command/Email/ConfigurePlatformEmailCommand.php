@@ -62,12 +62,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
       "We will create a text file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
-      "After you've done this, continue."
+      "After you've done this, please continue."
     ]);
     $file_format = $this->io->choice('Would you like your output in JSON or YAML format?', ['YAML', 'JSON'], 'YAML');
     $this->createDnsText($client, $subscription, $domain_uuid, $file_format);
     $continue = $this->io->confirm('Have you finished providing the DNS records to your DNS provider?');
     if (!$continue) {
+      $this->io->info("Please give these records to your DNS provider, then rerun this script with the domain that you just registered.");
       return 1;
     }
 

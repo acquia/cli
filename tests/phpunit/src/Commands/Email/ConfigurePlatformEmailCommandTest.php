@@ -81,4 +81,41 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
   }
 
+  public function testConfigurePlatformWithoutProvidingRecords():void {
+    $base_domain = 'https://www.test.com';
+    $inputs = [
+      // What's the domain name you'd like to register?
+      $base_domain,
+      // Please select a Cloud Platform subscription
+      '0',
+      //Would you like your output in JSON or YAML format?
+      '1',
+      // Have you finished providing the DNS records to your DNS provider?
+      'n',
+    ];
+
+    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $this->clientProphecy->request('get', '/subscriptions')
+      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->shouldBeCalledTimes(1);
+
+    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
+      'form_params' => [
+        'domain' => $base_domain,
+      ],
+    ])->willReturn($post_domains_response);
+
+    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $get_domains_response->_embedded->items[0]->domain_name = 'test.com';
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response);
+
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertEquals(1, $this->getStatusCode());
+    $this->assertStringContainsString("Please give these records to your DNS provider, then rerun this script with the domain that you just registered.", $output);
+  }
+
 }
