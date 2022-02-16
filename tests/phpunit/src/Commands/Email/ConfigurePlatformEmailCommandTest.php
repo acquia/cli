@@ -59,8 +59,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
     $domains_registration_response_200 = $domains_registration_response;
     $domains_registration_response_200->health->code = '200';
-    // Passing in two responses will
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response_200);
+    // Passing in two responses will return the first response the first time
+    // that the method is called, the second response the second time it is
+    // called, etc.
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response, $domains_registration_response_200);
 
     $applications_response = $this->mockApplicationsRequest();
     // We need the application to belong to the subscription.

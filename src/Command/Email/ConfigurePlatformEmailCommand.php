@@ -200,9 +200,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
           $loop->stop();
           $output->writeln("\n<info>Your domain is ready for use!</info>\n");
         }
-        else if ($response->health->code === "404") {
-          $this->logger->debug(json_encode($response));
-        }
         else {
           $this->logger->debug(json_encode($response));
         }
