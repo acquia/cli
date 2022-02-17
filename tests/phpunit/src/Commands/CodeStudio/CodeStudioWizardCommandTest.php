@@ -20,6 +20,7 @@ use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
@@ -28,7 +29,7 @@ use Symfony\Component\Process\Process;
 /**
  * Class CodeStudioWizardCommandTest.
  *
- * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
+ * @property CodeStudioWizardCommand $command
  * @package Acquia\Cli\Tests\Commands
  *
  * @requires OS linux|darwin
@@ -37,12 +38,15 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   use IdeRequiredTestTrait;
 
-  private $gitlabHost = 'gitlabhost';
-  private $gitlabToken = 'gitlabtoken';
+  private string $gitlabHost = 'gitlabhost';
+  private string $gitlabToken = 'gitlabtoken';
 
-  private $gitLabProjectId = 33;
-  private $gitLabTokenId = 118;
+  private int $gitLabProjectId = 33;
+  private int $gitLabTokenId = 118;
 
+  /**
+   * @throws InvalidArgumentException
+   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
@@ -69,7 +73,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   /**
    * @return array
    */
-  public function providerTestCommand() {
+  public function providerTestCommand(): array {
     return [
       [
         // One project.
@@ -168,8 +172,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @param $args
    * @param $inputs
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws AcquiaCliException
+   * @throws InvalidArgumentException
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args) {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -303,7 +307,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   * @param ObjectProphecy $gitlab_client
    */
   protected function mockGitLabUsersMe(ObjectProphecy $gitlab_client): void {
     $users = $this->prophet->prophesize(Users::class);
@@ -354,7 +358,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $projects
+   * @param ObjectProphecy $projects
    */
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
     $tokens = [
@@ -384,7 +388,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @param $application_uuid
-   * @param \Prophecy\Prophecy\ObjectProphecy $projects
+   * @param ObjectProphecy $projects
    */
   protected function mockGitLabVariables($application_uuid, ObjectProphecy $projects): void {
     $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
@@ -461,7 +465,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   * @param ObjectProphecy $gitlab_client
    */
   protected function mockGitLabGroups(ObjectProphecy $gitlab_client): void {
     $groups = $this->prophet->prophesize(Groups::class);
@@ -527,7 +531,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   * @param ObjectProphecy $gitlab_client
    */
   protected function mockGitLabNamespaces(ObjectProphecy $gitlab_client): void {
     $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
