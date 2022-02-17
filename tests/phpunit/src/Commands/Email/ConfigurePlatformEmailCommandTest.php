@@ -132,9 +132,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       'y',
       // What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.
       '0,1',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 0
       '0,1',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 1
       '0',
     ];
 
@@ -190,7 +190,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
-  public function testConfigurePlatformEmailWithReverifyDomain(): void {
+  public function testConfigurePlatformEmailWithNoReverifyDomain(): void {
     $base_domain = 'https://www.test.com';
     $inputs = [
       // What's the domain name you'd like to register?
@@ -201,8 +201,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-      '0',
+      // Would you like to retry verification?
+      'n',
     ];
 
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -224,25 +224,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
     $domains_registration_response_404 = $domains_registration_response;
     $domains_registration_response_404->health->code = '404';
-    // Passing in two responses will return the first response the first time
-    // that the method is called, the second response the second time it is
-    // called, etc.
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response, $domains_registration_response_200);
 
-    $applications_response = $this->mockApplicationsRequest();
-    // We need the application to belong to the subscription.
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+    $domain_reverification_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify', 'post', '200');
 
-    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{{$get_domains_response->_embedded->items[0]->uuid}}/actions/associate")->willReturn($associate_response);
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
-    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response_404);
+
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/verify")->willReturn($domain_reverification_response);
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->assertEquals(0, $this->getStatusCode());
-    $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
+    $this->assertEquals(1, $this->getStatusCode());
+    $this->assertStringContainsString("Would you like to retry verification?", $output);
+    $this->assertStringContainsString("Please check your DNS records with your DNS provider", $output);
+    $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
 }

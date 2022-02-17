@@ -27,6 +27,11 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   protected static $defaultName = 'email:configure';
 
   /**
+   * @var int
+   */
+  private $domain_verification_error;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -73,6 +78,19 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     }
 
     $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
+
+    // Allow for as many reverification tries as needed.
+    while (isset($this->domain_verification_error)) {
+      $retry_verification = $this->io->confirm('Would you like to retry verification?');
+      if ($retry_verification) {
+        $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
+      }
+      else {
+        $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
+        return 1;
+      }
+    }
+
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
     $this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid);
@@ -200,24 +218,23 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     SubscriptionResponse $subscription,
     string $domain_uuid,
     OutputInterface $output
-  ): void {
+  ) {
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the domains to be configured...', $output);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the domain to be verified...', $output);
     $client = $this->cloudApiClientService->getClient();
+    $this->domain_verification_error = NULL;
 
     // Poll Cloud every 30 seconds.
-    $loop->addPeriodicTimer(30, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
+    $loop->addPeriodicTimer(2, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
       try {
         $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
         if ($response->health->code[0] === "4") {
+          $loop->stop();
           $this->io->error($response->health->details);
-          $confirm_reverify = $this->io->confirm('Would you like to retry verification?');
-          if ($confirm_reverify) {
-            $reverify_request = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}/actions/verify");
-          }
+          $this->domain_verification_error = 1;
         }
-        if ($response->health->code === "200") {
+        else if ($response->health->code === "200") {
           LoopHelper::finishSpinner($spinner);
           $loop->stop();
           $output->writeln("\n<info>Your domain is ready for use!</info>\n");
