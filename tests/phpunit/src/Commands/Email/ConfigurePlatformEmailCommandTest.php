@@ -22,27 +22,79 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
+  public function providerTestConfigurePlatformEmail() {
+    return [
+      [
+        'https://www.test.com',
+        [
+          // What's the domain name you'd like to register?
+          'https://www.test.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your output in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+          '0',
+        ],
+        // Status code.
+        0,
+        "You're all set to start using Platform Email!",
+        // Domain registration responses.
+        ["200"],
+      ],
+      [
+        'https://www.test.com',
+        [
+          // What's the domain name you'd like to register?
+          'https://www.test.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your output in JSON or YAML format?
+          '1',
+          // Have you finished providing the DNS records to your DNS provider?
+          'n',
+        ],
+        // Status code.
+        1,
+        "Make sure to give these records to your DNS provider",
+        // Domain registration responses.
+        ["404"],
+      ],
+      [
+        'https://www.test.com',
+        [
+          // What's the domain name you'd like to register?
+          'https://www.test.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your output in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+          // Would you like to retry verification?
+          'y',
+          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+          '0',
+        ],
+        // Status code.
+        0,
+        "You're all set to start using Platform Email!",
+        // Domain registration responses.
+        ["404", "200"],
+      ],
+    ];
+  }
+
   /**
    * Tests the 'email:configure' command.
    *
+   * @dataProvider providerTestConfigurePlatformEmail
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testConfigurePlatformEmail(): void {
-    $base_domain = 'https://www.test.com';
-    $inputs = [
-      // What's the domain name you'd like to register?
-      $base_domain,
-      // Please select a Cloud Platform subscription
-      '0',
-      //Would you like your output in JSON or YAML format?
-      '0',
-      // Have you finished providing the DNS records to your DNS provider?
-      'y',
-      // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-      '0',
-    ];
-
+  public function testConfigurePlatformEmail($base_domain, $inputs, $expected_exit_code, $expected_text, $response_codes): void {
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
       ->willReturn($subscriptions_response->{'_embedded'}->items)
@@ -60,13 +112,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
 
     $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
-    $domains_registration_response_200 = $domains_registration_response;
-    $domains_registration_response_200->health->code = '200';
-    // Passing in two responses will return the first response the first time
-    // that the method is called, the second response the second time it is
-    // called, etc.
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response, $domains_registration_response_200);
-
+    foreach ($response_codes as $key => $response_code) {
+      $domains_registration_response->health->code = $response_code;
+      $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response);
+    }
     $applications_response = $this->mockApplicationsRequest();
     // We need the application to belong to the subscription.
     $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
@@ -79,45 +128,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->assertEquals(0, $this->getStatusCode());
-    $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
-  }
-
-  public function testConfigurePlatformEmailWithoutProvidingRecords(): void {
-    $base_domain = 'https://www.test.com';
-    $inputs = [
-      // What's the domain name you'd like to register?
-      $base_domain,
-      // Please select a Cloud Platform subscription
-      '0',
-      //Would you like your output in JSON or YAML format?
-      '1',
-      // Have you finished providing the DNS records to your DNS provider?
-      'n',
-    ];
-
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
-    $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
-      ->shouldBeCalledTimes(1);
-
-    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
-    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
-      'form_params' => [
-        'domain' => $base_domain,
-      ],
-    ])->willReturn($post_domains_response);
-
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $get_domains_response->_embedded->items[0]->domain_name = 'test.com';
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
-    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response);
-
-    $this->executeCommand([], $inputs);
-    $output = $this->getDisplay();
-    $this->assertEquals(1, $this->getStatusCode());
-    $this->assertStringContainsString("Make sure to give these records to your DNS provider", $output);
+    $this->assertEquals($expected_exit_code, $this->getStatusCode());
+    $this->assertStringContainsString($expected_text, $output);
   }
 
   public function testConfigurePlatformEmailWithMultipleAppsAndEnvs(): void {
@@ -189,55 +201,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
 
-  }
-
-  public function testConfigurePlatformEmailWithNoReverifyDomain(): void {
-    $base_domain = 'https://www.test.com';
-    $inputs = [
-      // What's the domain name you'd like to register?
-      $base_domain,
-      // Please select a Cloud Platform subscription
-      '0',
-      //Would you like your output in JSON or YAML format?
-      '0',
-      // Have you finished providing the DNS records to your DNS provider?
-      'y',
-      // Would you like to retry verification?
-      'n',
-    ];
-
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
-    $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
-      ->shouldBeCalledTimes(1);
-
-    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
-    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
-      'form_params' => [
-        'domain' => $base_domain,
-      ],
-    ])->willReturn($post_domains_response);
-
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $get_domains_response->_embedded->items[0]->domain_name = 'test.com';
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
-
-    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
-    $domains_registration_response_404 = $domains_registration_response;
-    $domains_registration_response_404->health->code = '404';
-
-    $domain_reverification_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify', 'post', '200');
-
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response_404);
-
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/verify")->willReturn($domain_reverification_response);
-
-    $this->executeCommand([], $inputs);
-    $output = $this->getDisplay();
-    $this->assertEquals(1, $this->getStatusCode());
-    $this->assertStringContainsString("Would you like to retry verification?", $output);
-    $this->assertStringContainsString("Please check your DNS records with your DNS provider", $output);
-    $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
   public function testConfigurePlatformEmailNoApps(): void {

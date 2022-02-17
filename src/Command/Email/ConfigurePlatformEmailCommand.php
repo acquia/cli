@@ -202,27 +202,28 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     SubscriptionResponse $subscription,
     string $domain_uuid,
     OutputInterface $output
-  ) {
+  ): bool {
     // Create a loop to periodically poll the Cloud Platform.
     $client = $this->cloudApiClientService->getClient();
-    sleep(30);
     try {
       $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
-      if ($response->health->code[0] === "4") {
-        $this->io->error($response->health->details);
-        return FALSE;
-      }
-      else if ($response->health->code === "200") {
+      if ($response->health->code === "200") {
         $output->writeln("\n<info>Your domain is ready for use!</info>\n");
         return TRUE;
+      }
+      elseif ($response->health->code[0] === "4") {
+        $this->io->error($response->health->details);
+        return FALSE;
       }
       else {
         $this->io->info("Verification pending...");
         $this->logger->debug(json_encode($response));
+        return FALSE;
       }
     } catch (AcquiaCliException $exception) {
       // Do nothing. Keep waiting and looping and logging.
       $this->logger->debug($exception->getMessage());
+      return FALSE;
     }
   }
 
