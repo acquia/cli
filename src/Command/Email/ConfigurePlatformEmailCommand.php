@@ -114,13 +114,12 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
       // @todo Check response!
       $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
-      $this->io->success("The last step is enabling Platform Email for the environments of {$application->name}!");
       $application_environments = $environments_resource->getAll($application->uuid);
-      $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
+      $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
       foreach ($envs as $env) {
         $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
         // @todo Check response!
-        $this->io->success("Platform email has been enabled for environment {$env->name} for application {$application->name}");
+        $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
       }
     }
   }
@@ -211,6 +210,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $loop->addPeriodicTimer(30, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
       try {
         $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
+        if ($response->health->code[0] === "4") {
+          $this->io->error($response->health->details);
+          $confirm_reverify = $this->io->confirm('Would you like to retry verification?');
+          if ($confirm_reverify) {
+            $reverify_request = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}/actions/verify");
+          }
+        }
         if ($response->health->code === "200") {
           LoopHelper::finishSpinner($spinner);
           $loop->stop();
@@ -224,7 +230,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $this->logger->debug($exception->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 15, $spinner);
     $loop->run();
   }
 
