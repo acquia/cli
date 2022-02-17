@@ -121,7 +121,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
       foreach ($envs as $env) {
         $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
-        // @todo Check response!
         $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
       }
     }
@@ -206,7 +205,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   ) {
     // Create a loop to periodically poll the Cloud Platform.
     $client = $this->cloudApiClientService->getClient();
-
+    sleep(30);
     try {
       $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
       if ($response->health->code[0] === "4") {
@@ -218,6 +217,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         return TRUE;
       }
       else {
+        $this->io->info("Verification pending...");
         $this->logger->debug(json_encode($response));
       }
     } catch (AcquiaCliException $exception) {
