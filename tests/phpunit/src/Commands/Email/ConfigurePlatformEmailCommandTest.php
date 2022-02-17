@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Email;
 
 use Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -236,6 +237,56 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->assertEquals(1, $this->getStatusCode());
     $this->assertStringContainsString("Would you like to retry verification?", $output);
     $this->assertStringContainsString("Please check your DNS records with your DNS provider", $output);
+    $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
+  }
+
+  public function testConfigurePlatformEmailNoApps(): void {
+    $base_domain = 'https://www.test.com';
+    $inputs = [
+      // What's the domain name you'd like to register?
+      $base_domain,
+      // Please select a Cloud Platform subscription
+      '0',
+      //Would you like your output in JSON or YAML format?
+      '0',
+      // Have you finished providing the DNS records to your DNS provider?
+      'y',
+    ];
+
+    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $this->clientProphecy->request('get', '/subscriptions')
+      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->shouldBeCalledTimes(1);
+
+    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
+      'form_params' => [
+        'domain' => $base_domain,
+      ],
+    ])->willReturn($post_domains_response);
+
+    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $get_domains_response->_embedded->items[0]->domain_name = 'test.com';
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+
+    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+    $domains_registration_response_200 = $domains_registration_response;
+    $domains_registration_response_200->health->code = '200';
+    // Passing in two responses will return the first response the first time
+    // that the method is called, the second response the second time it is
+    // called, etc.
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response, $domains_registration_response_200);
+
+    $applications_response = $this->mockApplicationsRequest();
+
+    try {
+      $this->executeCommand([], $inputs);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString("You do not have access to any applications", $exception->getMessage());
+    }
+
+    $output = $this->getDisplay();
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 

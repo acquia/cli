@@ -42,7 +42,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->io->writeln('Welcome to Platform Email setup! This script will walk you through setting up Platform Email, all through the command line and using the Cloud API!');
+    $this->io->writeln('Welcome to Platform Email setup! This script will walk you through the whole process setting up Platform Email, all through the command line and using the Cloud API!');
 
     $base_domain = $this->determineDomain($input);
     $client = $this->cloudApiClientService->getClient();
@@ -52,7 +52,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         'domain' => $base_domain,
       ],
     ]);
-    // @todo Check response!
 
     $domain_uuid = $this->fetchDomainUuid($client, $subscription, $base_domain);
 
@@ -105,8 +104,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
     }
     if (count($subscription_applications) === 0) {
-      $this->io->error("You do not have access to any applications on the {$subscription->name} subscription");
-      return 1;
+      throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
     }
     elseif (count($subscription_applications) === 1) {
       $applications = $subscription_applications;
@@ -118,7 +116,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
       $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
-      // @todo Check response!
       $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
       $application_environments = $environments_resource->getAll($application->uuid);
       $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
