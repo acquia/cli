@@ -27,11 +27,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   protected static $defaultName = 'email:configure';
 
   /**
-   * @var int
-   */
-  private $domain_verification_error;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -77,15 +72,10 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       return 1;
     }
 
-    $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
-
     // Allow for as many reverification tries as needed.
-    while (isset($this->domain_verification_error)) {
+    while (!$this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output)) {
       $retry_verification = $this->io->confirm('Would you like to retry verification?');
-      if ($retry_verification) {
-        $this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output);
-      }
-      else {
+      if (!$retry_verification) {
         $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
         return 1;
       }
@@ -220,34 +210,25 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     OutputInterface $output
   ) {
     // Create a loop to periodically poll the Cloud Platform.
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the domain to be verified...', $output);
     $client = $this->cloudApiClientService->getClient();
-    $this->domain_verification_error = NULL;
 
-    // Poll Cloud every 30 seconds.
-    $loop->addPeriodicTimer(2, function () use ($output, $loop, $client, $subscription, $domain_uuid, $spinner) {
-      try {
-        $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
-        if ($response->health->code[0] === "4") {
-          $loop->stop();
-          $this->io->error($response->health->details);
-          $this->domain_verification_error = 1;
-        }
-        else if ($response->health->code === "200") {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $output->writeln("\n<info>Your domain is ready for use!</info>\n");
-        }
-        else {
-          $this->logger->debug(json_encode($response));
-        }
-      } catch (AcquiaCliException $exception) {
-        // Do nothing. Keep waiting and looping and logging.
-        $this->logger->debug($exception->getMessage());
+    try {
+      $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
+      if ($response->health->code[0] === "4") {
+        $this->io->error($response->health->details);
+        return FALSE;
       }
-    });
-    $loop->run();
+      else if ($response->health->code === "200") {
+        $output->writeln("\n<info>Your domain is ready for use!</info>\n");
+        return TRUE;
+      }
+      else {
+        $this->logger->debug(json_encode($response));
+      }
+    } catch (AcquiaCliException $exception) {
+      // Do nothing. Keep waiting and looping and logging.
+      $this->logger->debug($exception->getMessage());
+    }
   }
 
   /**
