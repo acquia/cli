@@ -34,7 +34,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           'www.test.com',
           // Please select a Cloud Platform subscription
           '0',
-          //Would you like your output in JSON or YAML format?
+          //Would you like your DNS records in JSON or YAML format?
           '0',
           // Have you finished providing the DNS records to your DNS provider?
           'y',
@@ -54,7 +54,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           'test.com',
           // Please select a Cloud Platform subscription
           '0',
-          //Would you like your output in JSON or YAML format?
+          //Would you like your DNS records in JSON or YAML format?
           '1',
           // Have you finished providing the DNS records to your DNS provider?
           'n',
@@ -72,7 +72,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           'https://www.test.com',
           // Please select a Cloud Platform subscription
           '0',
-          //Would you like your output in JSON or YAML format?
+          //Would you like your DNS records in JSON or YAML format?
           '1',
           // Have you finished providing the DNS records to your DNS provider?
           'y',
@@ -92,7 +92,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           'https://www.test.com',
           // Please select a Cloud Platform subscription
           '0',
-          //Would you like your output in JSON or YAML format?
+          //Would you like your DNS records in JSON or YAML format?
           '1',
           // Have you finished providing the DNS records to your DNS provider?
           'y',
@@ -165,7 +165,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $base_domain,
       // Please select a Cloud Platform subscription
       '0',
-      //Would you like your output in JSON or YAML format?
+      //Would you like your DNS records in JSON or YAML format?
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
@@ -236,7 +236,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $base_domain,
       // Please select a Cloud Platform subscription
       '0',
-      //Would you like your output in JSON or YAML format?
+      //Would you like your DNS records in JSON or YAML format?
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
@@ -284,7 +284,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $base_domain,
       // Please select a Cloud Platform subscription
       '0',
-      //Would you like your output in JSON or YAML format?
+      //Would you like your DNS records in JSON or YAML format?
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
@@ -322,7 +322,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $base_domain,
       // Please select a Cloud Platform subscription
       '0',
-      //Would you like your output in JSON or YAML format?
+      //Would you like your DNS records in JSON or YAML format?
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
