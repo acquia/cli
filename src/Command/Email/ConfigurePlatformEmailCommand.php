@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
@@ -25,6 +26,11 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   protected static $defaultName = 'email:configure';
 
   /**
+   * @var \Acquia\Cli\Output\Checklist
+   */
+  private $checklist;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -43,7 +49,17 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->io->writeln('Welcome to Platform Email setup! This script will walk you through the whole process setting up Platform Email, all through the command line and using the Cloud API!');
+    $this->io->writeln('Before getting started, make sure you have the following: ');
 
+    $this->checklist = new Checklist($output);
+    $this->checklist->addItem('the domain name you are registering');
+    $this->checklist->completePreviousItem();
+    $this->checklist->addItem('the subscription where the domain will be registered');
+    $this->checklist->completePreviousItem();
+    $this->checklist->addItem('the application or applications where the domain will be associated');
+    $this->checklist->completePreviousItem();
+    $this->checklist->addItem('the environment or environments for the above applications where Platform Email will be enabled');
+    $this->checklist->completePreviousItem();
     $base_domain = $this->determineDomain($input);
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
@@ -59,9 +75,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
       "We will create a text file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
-      "After you've done this, please continue."
+      "After you've done this, please continue to domain verification."
     ]);
-    $file_format = $this->io->choice('Would you like your output in JSON or YAML format?', ['YAML', 'JSON'], 'YAML');
+    $file_format = $this->io->choice('Would you like your DNS records in JSON or YAML format?', ['YAML', 'JSON'], 'YAML');
     $this->createDnsText($client, $subscription, $domain_uuid, $file_format);
     $continue = $this->io->confirm('Have you finished providing the DNS records to your DNS provider?');
     if (!$continue) {
