@@ -163,9 +163,14 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param SubscriptionResponse $subscription
    * @param string $domain_uuid
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function createDnsText(Client $client, $subscription, $domain_uuid, $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
+    if (!isset($domain_registration_response->dns_records)) {
+      throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
+    }
     $records = [];
     $this->localMachineHelper->getFilesystem()->remove('dns-records.txt');
     if ($file_format === 'JSON') {
@@ -175,7 +180,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-          ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
+            ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
     }
     else {
       foreach ($domain_registration_response->dns_records as $record) {
@@ -184,7 +189,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-          ->dumpFile('dns-records.txt', Yaml::dump($records));
+            ->dumpFile('dns-records.txt', Yaml::dump($records));
     }
 
   }
@@ -206,11 +211,11 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $client = $this->cloudApiClientService->getClient();
     try {
       $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
-      if ($response->health->code === "200") {
+      if (isset($response->health) && $response->health->code === "200") {
         $output->writeln("\n<info>Your domain is ready for use!</info>\n");
         return TRUE;
       }
-      elseif (substr($response->health->code, 0, 1) == "4") {
+      elseif (isset($response->health) && substr($response->health->code, 0, 1) == "4") {
         $this->io->error($response->health->details);
         $reverify = $this->io->confirm('Would you like to refresh?');
         if ($reverify) {
