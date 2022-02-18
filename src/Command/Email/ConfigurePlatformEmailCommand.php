@@ -71,7 +71,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     // Allow for as many reverification tries as needed.
     while (!$this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output)) {
-      $retry_verification = $this->io->confirm('Would you like to retry verification?');
+      $retry_verification = $this->io->confirm('Would you like to re-check domain verification?');
       if (!$retry_verification) {
         $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
         return 1;
@@ -203,7 +203,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     string $domain_uuid,
     OutputInterface $output
   ): bool {
-    // Create a loop to periodically poll the Cloud Platform.
     $client = $this->cloudApiClientService->getClient();
     try {
       $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
@@ -211,8 +210,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $output->writeln("\n<info>Your domain is ready for use!</info>\n");
         return TRUE;
       }
-      elseif ($response->health->code[0] === "4") {
+      elseif (substr($response->health->code, 0, 1) == "4") {
         $this->io->error($response->health->details);
+        $reverify = $this->io->confirm('Would you like to refresh?');
+        if ($reverify) {
+          $refresh_response = $client->request('post', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}/actions/verify");
+          $this->io->info('Refreshing...');
+        }
         return FALSE;
       }
       else {
