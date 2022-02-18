@@ -8,7 +8,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class ClearCacheCommandTest.
+ * Class ConfigurePlatformEmailCommandTest.
  *
  * @property \Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand $command
  * @package Acquia\Cli\Tests\Commands
@@ -22,6 +22,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
+  /**
+   * @return array
+   */
   public function providerTestConfigurePlatformEmail() {
     return [
       [
@@ -323,8 +326,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       '0',
       // Have you finished providing the DNS records to your DNS provider?
       'y',
-      'n',
-      'n'
     ];
 
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');

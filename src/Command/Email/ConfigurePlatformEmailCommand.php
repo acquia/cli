@@ -92,7 +92,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param string $base_domain
    * @param string $domain_uuid
    *
-   * @return int|void
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
     $applications_resource = new Applications($client);
@@ -130,6 +130,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param string $url
    *
    * @return string
+   * @throws \Symfony\Component\Validator\Exception\ValidatorException
    */
   public static function validateUrl(string $url): string {
     $violations = Validation::createValidator()->validate($url, [
@@ -163,6 +164,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param SubscriptionResponse $subscription
    * @param string $domain_uuid
+   * @param string $file_format
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -202,6 +204,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param string $domain_uuid
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
+   * @return bool
    */
   protected function pollDomainRegistrationsUntilSuccess(
     SubscriptionResponse $subscription,
