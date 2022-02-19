@@ -138,18 +138,19 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
       try {
-        $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+        $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+        $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
       } catch (ApiErrorException $e) {
         // Shows a warning and allows user to continue if the domain has already been associated.
         // For any other error from the API, the setup will exit.
         if (strpos($e, 'is already associated with this application') === FALSE) {
+          $this->io->error($e->getMessage());
           return FALSE;
         }
         else {
           $this->io->warning($e->getMessage());
         }
       }
-      $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
 
       $application_environments = $environments_resource->getAll($application->uuid);
       $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
@@ -162,6 +163,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
           // Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
           // For any other error from the API, the setup will exit.
           if (strpos($e, 'is already enabled on this environment') === FALSE) {
+            $this->io->error($e->getMessage());
             return FALSE;
           }
           else {

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Email;
 use Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -43,6 +44,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         ],
         // Status code.
         0,
+        // Expected text.
         ["You're all set to start using Platform Email!"],
         // Domain registration responses.
         ["200"],
@@ -61,6 +63,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         ],
         // Status code.
         1,
+        // Expected text.
         ["Make sure to give these records to your DNS provider"],
         // Domain registration responses.
         ["404"],
@@ -81,6 +84,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         ],
         // Status code.
         1,
+        // Expected text.
         ["Verification pending...", "Please check your DNS records with your DNS provider"],
         // Domain registration responses.
         ["202"],
@@ -103,9 +107,110 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         ],
         // Status code.
         1,
+        // Expected text.
         ["Refreshing...", "Please check your DNS records with your DNS provider"],
         // Domain registration responses.
         ["404"],
+      ],
+    ];
+  }
+
+  public function providerTestConfigurePlatformEmailAddDomain() {
+    return [
+      [
+        'example.com',
+        [
+          // What's the domain name you'd like to register?
+          'example.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your DNS records in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+          '0'
+        ],
+        // Status code.
+        0,
+        // Association response code.
+        '409',
+        // Spec key for association response code.
+        'Already associated',
+        // Expected text.
+        ['is already associated with this application', "You're all set to start using Platform Email!"]
+      ],
+      [
+        'example.com',
+        [
+          // What's the domain name you'd like to register?
+          'example.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your DNS records in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+        ],
+        // Status code.
+        1,
+        // Association response code.
+        '403',
+        // Spec key for association response code.
+        'Insufficient permissions',
+        // Expected text.
+        ['You do not have permission', 'Something went wrong']
+      ],
+    ];
+  }
+
+  public function providerTestConfigurePlatformEmailEnableEnv() {
+    return [
+      [
+        'example.com',
+        [
+          // What's the domain name you'd like to register?
+          'example.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your DNS records in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+          '0'
+        ],
+        // Status code.
+        0,
+        // Enablement response code.
+        '409',
+        // Spec key for enablement response code.
+        'Already enabled',
+        // Expected text.
+        ['already enabled on this environment', "You're all set to start using Platform Email!"]
+      ],
+      [
+        'example.com',
+        [
+          // What's the domain name you'd like to register?
+          'example.com',
+          // Please select a Cloud Platform subscription
+          '0',
+          //Would you like your DNS records in JSON or YAML format?
+          '0',
+          // Have you finished providing the DNS records to your DNS provider?
+          'y',
+          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+          '0'
+        ],
+        // Status code.
+        1,
+        // Enablement response code.
+        '403',
+        // Spec key for enablement response code.
+        'No permission',
+        // Expected text.
+        ['You do not have permission', 'Something went wrong']
       ],
     ];
   }
@@ -352,6 +457,118 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     }
     catch (AcquiaCliException $exception) {
       $this->assertStringContainsString("Could not retrieve DNS records for this domain", $exception->getMessage());
+    }
+
+  }
+
+  /**
+   * Tests the 'email:configure' command.
+   *
+   * @dataProvider providerTestConfigurePlatformEmailAddDomain
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testConfigurePlatformEmailWithAlreadyAssociatedDomains($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
+    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $this->clientProphecy->request('get', '/subscriptions')
+      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->shouldBeCalledTimes(1);
+
+    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
+      'form_params' => [
+        'domain' => $base_domain,
+      ],
+    ])->willReturn($post_domains_response);
+
+    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $get_domains_response->_embedded->items[0]->domain_name = 'example.com';
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+
+    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+    $domains_registration_response_200 = $domains_registration_response;
+    $domains_registration_response_200->health->code = '200';
+
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
+
+    $applications_response = $this->mockApplicationsRequest();
+
+    $app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+    $app_domains_response->_embedded->items[0]->domain_name = 'example.com';
+    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn($app_domains_response->_embedded->items);
+    // We need the application to belong to the subscription.
+    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+
+    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', $response_code);
+
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")
+      ->willThrow(new ApiErrorException($associate_response->{$spec_key}->value));
+
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
+
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertEquals($expected_exit_code, $this->getStatusCode());
+    foreach($expected_text as $text) {
+      $this->assertStringContainsString($text, $output);
+    }
+  }
+
+  /**
+   * Tests the 'email:configure' command.
+   *
+   * @dataProvider providerTestConfigurePlatformEmailEnableEnv
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
+    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $this->clientProphecy->request('get', '/subscriptions')
+      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->shouldBeCalledTimes(1);
+
+    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
+      'form_params' => [
+        'domain' => $base_domain,
+      ],
+    ])->willReturn($post_domains_response);
+
+    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $get_domains_response->_embedded->items[0]->domain_name = 'example.com';
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+
+    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+    $domains_registration_response_200 = $domains_registration_response;
+    $domains_registration_response_200->health->code = '200';
+
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
+
+    $applications_response = $this->mockApplicationsRequest();
+
+    $app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+    $app_domains_response->_embedded->items[0]->domain_name = 'example.com';
+    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn($app_domains_response->_embedded->items);
+    // We need the application to belong to the subscription.
+    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+
+    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '409');
+
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")
+      ->willThrow(new ApiErrorException($associate_response->{'Already associated'}->value));
+
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', $response_code);
+    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")
+      ->willThrow(new ApiErrorException($enable_response->{$spec_key}->value));
+
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertEquals($expected_exit_code, $this->getStatusCode());
+    foreach($expected_text as $text) {
+      $this->assertStringContainsString($text, $output);
     }
 
   }
