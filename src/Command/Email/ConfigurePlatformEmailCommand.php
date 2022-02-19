@@ -108,6 +108,10 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
+   * Associates a domain with an application or applications,
+   * then enables Platform Email for an environment or environments
+   * of the above applications.
+   *
    * @param Client $client
    * @param SubscriptionResponse $subscription
    * @param string $base_domain
@@ -176,6 +180,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
+   * Validates the URL entered as the base domain name.
+   *
    * @param string $url
    *
    * @return string
@@ -192,6 +198,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
+   * Retrieves a domain registration UUID given the domain name.
+   *
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param SubscriptionResponse $subscription
    * @param string $base_domain
@@ -210,6 +218,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
+   * Creates a TXT file, either in JSON or YAML format,
+   * of the DNS records needed to complete Platform Email setup.
+   *
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param SubscriptionResponse $subscription
    * @param string $domain_uuid
@@ -289,6 +300,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
+   * Finds, validates, and trims the URL to be used as the base domain
+   * for setting up Platform Email.
+   *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return array|string|string[]

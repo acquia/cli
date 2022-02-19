@@ -115,6 +115,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     ];
   }
 
+  /**
+   * @return array
+   */
   public function providerTestConfigurePlatformEmailAddDomain() {
     return [
       [
@@ -164,6 +167,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     ];
   }
 
+  /**
+   * @return array
+   */
   public function providerTestConfigurePlatformEmailEnableEnv() {
     return [
       [
@@ -462,10 +468,11 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'email:configure' command.
+   * Tests the 'email:configure' command when associating a domain with an application throws an API error.
    *
    * @dataProvider providerTestConfigurePlatformEmailAddDomain
    * @throws \Exception
+   * @throws AcquiaCloudApi\Exception\ApiErrorException
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyAssociatedDomains($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
@@ -517,10 +524,11 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'email:configure' command.
+   * Tests the 'email:configure' command when enabling email on an environment throws an API error.
    *
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
    * @throws \Exception
+   * @throws AcquiaCloudApi\Exception\ApiErrorException
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
