@@ -8,6 +8,7 @@ use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -96,7 +97,11 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
-    $this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid);
+    if (!$this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid)) {
+      $this->io->error('Something went wrong with associating your application(s) or enabling your environment(s). Please try again.');
+      return 1;
+    };
+
     $this->io->success("You're all set to start using Platform Email!");
 
     return 0;
@@ -124,6 +129,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     }
     elseif (count($subscription_applications) === 1) {
       $applications = $subscription_applications;
+      $this->io->info("You have one application, {$applications[0]->name}, in this subscription.");
     }
     else {
       $applications = $this->promptChooseFromObjectsOrArrays($subscription_applications, 'uuid', 'name', "What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.", TRUE);
@@ -131,15 +137,40 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
-      $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+      try {
+        $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
+      } catch (ApiErrorException $e) {
+        // Shows a warning and allows user to continue if the domain has already been associated.
+        // For any other error from the API, the setup will exit.
+        if (strpos($e, 'is already associated with this application') === FALSE) {
+          return FALSE;
+        }
+        else {
+          $this->io->warning($e->getMessage());
+        }
+      }
       $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
+
       $application_environments = $environments_resource->getAll($application->uuid);
       $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
       foreach ($envs as $env) {
-        $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
-        $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
+        try {
+          $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
+          $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
+        }
+        catch (ApiErrorException $e) {
+          // Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
+          // For any other error from the API, the setup will exit.
+          if (strpos($e, 'is already enabled on this environment') === FALSE) {
+            return FALSE;
+          }
+          else {
+            $this->io->warning($env->label . ' - ' . $e->getMessage());
+          }
+        }
       }
     }
+    return TRUE;
   }
 
   /**
