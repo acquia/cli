@@ -27,3 +27,5 @@ tests/fixtures/project/.acquia-cli.yml
 ###< phpunit/phpunit ###
 
 cx-api-spec
+dns-records.yaml
+dns-records.json

@@ -20,8 +20,10 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Logs;
+use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
 use Composer\Semver\VersionParser;
@@ -478,6 +480,32 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return null|object|array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
+  protected function promptChooseSubscription(
+    Client $acquia_cloud_client
+  ) {
+    $subscriptions_resource = new Subscriptions($acquia_cloud_client);
+    $customer_subscriptions = $subscriptions_resource->getAll();
+
+    if (!$customer_subscriptions->count()) {
+      throw new AcquiaCliException("You have no Cloud subscriptions.");
+    }
+    return $this->promptChooseFromObjectsOrArrays(
+      $customer_subscriptions,
+      'uuid',
+      'name',
+      'Please select a Cloud Platform subscription:'
+    );
+  }
+
+  /**
+   * Prompts the user to choose from a list of available Cloud Platform
+   * applications.
+   *
+   * @param Client $acquia_cloud_client
+   *
+   * @return null|object|array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function promptChooseApplication(
     Client $acquia_cloud_client
   ) {
@@ -774,6 +802,29 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $environment = $this->promptChooseEnvironment($acquia_cloud_client, $application_uuid);
 
     return $environment->uuid;
+  }
+
+  /**
+   * @return array|object|string|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function determineCloudSubscription(): ?SubscriptionResponse {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+
+    if ($this->input->hasArgument('subscriptionUuid') && $this->input->getArgument('subscriptionUuid')) {
+      $cloud_subscription_uuid = $this->input->getArgument('subscriptionUuid');
+      $this->validateUuid($cloud_subscription_uuid);
+      $subscriptions_resource = new Subscriptions($acquia_cloud_client);
+      return $subscriptions_resource->get($cloud_subscription_uuid);
+    }
+
+    // Finally, just ask.
+    if ($this->input->isInteractive() && $subscription = $this->promptChooseSubscription($acquia_cloud_client)) {
+      return $subscription;
+    }
+
+    return NULL;
+
   }
 
   /**
