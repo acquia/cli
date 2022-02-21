@@ -14,7 +14,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Validator\Constraints\Hostname;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Url;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
@@ -36,8 +38,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Configure Platform email for one or more applications')
-      ->addArgument('subscriptionUuid', InputArgument::OPTIONAL)
-      ->addOption('domain', NULL, InputOption::VALUE_REQUIRED)
+      ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
+      ->setHelp('This command configures Platform Email for a domain in a subscription. It registers the domain with the subscription, associates the domain with an application or set of applications, and enables Platform Email for selected environments of these applications.')
       ->setAliases(['ec']);
   }
 
@@ -61,7 +63,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->checklist->completePreviousItem();
     $this->checklist->addItem('the environment or environments for the above applications where Platform Email will be enabled');
     $this->checklist->completePreviousItem();
-    $base_domain = $this->determineDomain($input);
+    $base_domain = $this->determineDomain();
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
     $response = $client->request('post', "/subscriptions/{$subscription->uuid}/domains", [
@@ -87,7 +89,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     }
 
     // Allow for as many reverification tries as needed.
-    while (!$this->pollDomainRegistrationsUntilSuccess($subscription, $domain_uuid, $this->output)) {
+    while (!$this->checkIfDomainVerified($subscription, $domain_uuid, $this->output)) {
       $retry_verification = $this->io->confirm('Would you like to re-check domain verification?');
       if (!$retry_verification) {
         $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
@@ -108,18 +110,14 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * Associates a domain with an application or applications,
-   * then enables Platform Email for an environment or environments
-   * of the above applications.
+   * Determines the applications for domain association and environment enablement of Platform Email.
    *
    * @param Client $client
    * @param SubscriptionResponse $subscription
-   * @param string $base_domain
-   * @param string $domain_uuid
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @return array
    */
-  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
+  protected function determineApplications(Client $client, SubscriptionResponse $subscription) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -138,6 +136,63 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     else {
       $applications = $this->promptChooseFromObjectsOrArrays($subscription_applications, 'uuid', 'name', "What are the applications you'd like to associate this domain with? You may enter multiple separated by a comma.", TRUE);
     }
+    return $applications;
+  }
+
+  /**
+   * Checks any error from Cloud API when associating a domain with an application.
+   * Shows a warning and allows user to continue if the domain has been associated already.
+   * For any other error from the API, the setup will exit.
+   *
+   * @param ApiErrorException $exception
+   *
+   * @return bool
+   */
+  protected function checkIfSuccessfulDomainAssociation($exception) {
+    if (strpos($exception, 'is already associated with this application') === FALSE) {
+      $this->io->error($exception->getMessage());
+      return FALSE;
+    }
+    else {
+      $this->io->warning($exception->getMessage());
+      return TRUE;
+    }
+  }
+
+  /**
+   * Checks any error from Cloud API when enabling Platform Email for an environment.
+   * Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
+   * For any other error from the API, the setup will exit.
+   *
+   * @param ApiErrorException $exception
+   *
+   * @return bool
+   */
+  protected function checkIfSuccessfulEmailEnablement($exception) {
+    if (strpos($exception, 'is already enabled on this environment') === FALSE) {
+      $this->io->error($exception->getMessage());
+      return FALSE;
+    }
+    else {
+      $this->io->warning($exception->getMessage());
+      return TRUE;
+    }
+  }
+
+  /**
+   * Associates a domain with an application or applications,
+   * then enables Platform Email for an environment or environments
+   * of the above applications.
+   *
+   * @param Client $client
+   * @param SubscriptionResponse $subscription
+   * @param string $base_domain
+   * @param string $domain_uuid
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
+    $applications = $this->determineApplications($client, $subscription);
 
     $environments_resource = new Environments($client);
     foreach ($applications as $application) {
@@ -145,33 +200,27 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
         $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
       } catch (ApiErrorException $e) {
-        // Shows a warning and allows user to continue if the domain has already been associated.
-        // For any other error from the API, the setup will exit.
-        if (strpos($e, 'is already associated with this application') === FALSE) {
-          $this->io->error($e->getMessage());
+        if (!$this->checkIfSuccessfulDomainAssociation($e)) {
           return FALSE;
-        }
-        else {
-          $this->io->warning($e->getMessage());
         }
       }
 
       $application_environments = $environments_resource->getAll($application->uuid);
-      $envs = $this->promptChooseFromObjectsOrArrays($application_environments, 'uuid', 'label', "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.", TRUE);
+      $envs = $this->promptChooseFromObjectsOrArrays(
+        $application_environments,
+        'uuid',
+        'label',
+        "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.",
+        TRUE
+      );
       foreach ($envs as $env) {
         try {
           $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
           $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
         }
         catch (ApiErrorException $e) {
-          // Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
-          // For any other error from the API, the setup will exit.
-          if (strpos($e, 'is already enabled on this environment') === FALSE) {
-            $this->io->error($e->getMessage());
+          if (!$this->checkIfSuccessfulEmailEnablement($e)) {
             return FALSE;
-          }
-          else {
-            $this->io->warning($env->label . ' - ' . $e->getMessage());
           }
         }
       }
@@ -188,9 +237,15 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @throws \Symfony\Component\Validator\Exception\ValidatorException
    */
   public static function validateUrl(string $url): string {
-    $violations = Validation::createValidator()->validate($url, [
-      new NotBlank(),
-    ]);
+    $constraints_list = [new NotBlank()];
+    $url_parts = parse_url($url);
+    if (array_key_exists('host', $url_parts)) {
+      $constraints_list[] = new Url();
+    }
+    else {
+      $constraints_list[] = new Hostname();
+    }
+    $violations = Validation::createValidator()->validate($url, $constraints_list);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
@@ -234,7 +289,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
     }
     $records = [];
-    $this->localMachineHelper->getFilesystem()->remove('dns-records.txt');
+    $this->localMachineHelper->getFilesystem()->remove('dns-records.json');
+    $this->localMachineHelper->getFilesystem()->remove('dns-records.yaml');
     if ($file_format === 'JSON') {
       foreach ($domain_registration_response->dns_records as $record) {
         unset($record->health);
@@ -242,7 +298,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-            ->dumpFile('dns-records.txt', json_encode($records, JSON_PRETTY_PRINT));
+            ->dumpFile('dns-records.json', json_encode($records, JSON_PRETTY_PRINT));
     }
     else {
       foreach ($domain_registration_response->dns_records as $record) {
@@ -251,14 +307,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-            ->dumpFile('dns-records.txt', Yaml::dump($records));
+            ->dumpFile('dns-records.yaml', Yaml::dump($records));
     }
 
   }
 
   /**
-   * Polls the Cloud Platform until the registered domain is verified
-   * environment.
+   * Checks the verification status of the registered domain.
    *
    * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param string $domain_uuid
@@ -266,7 +321,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return bool
    */
-  protected function pollDomainRegistrationsUntilSuccess(
+  protected function checkIfDomainVerified(
     SubscriptionResponse $subscription,
     string $domain_uuid,
     OutputInterface $output
@@ -275,7 +330,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     try {
       $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
       if (isset($response->health) && $response->health->code === "200") {
-        $output->writeln("\n<info>Your domain is ready for use!</info>\n");
+        $this->io->success("Your domain is ready for use!");
         return TRUE;
       }
       elseif (isset($response->health) && substr($response->health->code, 0, 1) == "4") {
@@ -293,7 +348,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         return FALSE;
       }
     } catch (AcquiaCliException $exception) {
-      // Do nothing. Keep waiting and looping and logging.
       $this->logger->debug($exception->getMessage());
       return FALSE;
     }
@@ -303,20 +357,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Finds, validates, and trims the URL to be used as the base domain
    * for setting up Platform Email.
    *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return array|string|string[]
+   * @return string
    */
-  protected function determineDomain(InputInterface $input) {
-    if ($input->getOption('domain')) {
-      $domain = $input->getOption('domain');
-    }
-    else {
-      $domain = $this->io->ask("What's the domain name you'd like to register?", NULL, \Closure::fromCallable([
-        $this,
-        'validateUrl'
-      ]));
-    }
+  protected function determineDomain() {
+    $domain = $this->io->ask("What's the domain name you'd like to register?", '', \Closure::fromCallable([
+      $this,
+      'validateUrl'
+    ]));
 
     $domain_parts = parse_url($domain);
     if (array_key_exists('host', $domain_parts)) {
