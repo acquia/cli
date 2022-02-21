@@ -144,17 +144,18 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Shows a warning and allows user to continue if the domain has been associated already.
    * For any other error from the API, the setup will exit.
    *
+   * @param object $application
    * @param ApiErrorException $exception
    *
    * @return bool
    */
-  protected function checkIfSuccessfulDomainAssociation($exception) {
+  protected function domainAlreadyAssociated($application, $exception) {
     if (strpos($exception, 'is already associated with this application') === FALSE) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }
     else {
-      $this->io->warning($exception->getMessage());
+      $this->io->warning($application->name . ' - ' . $exception->getMessage());
       return TRUE;
     }
   }
@@ -164,17 +165,18 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
    * For any other error from the API, the setup will exit.
    *
+   * @param object $environment
    * @param ApiErrorException $exception
    *
    * @return bool
    */
-  protected function checkIfSuccessfulEmailEnablement($exception) {
+  protected function environmentAlreadyEnabled($environment, $exception) {
     if (strpos($exception, 'is already enabled on this environment') === FALSE) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }
     else {
-      $this->io->warning($exception->getMessage());
+      $this->io->warning($environment->label . ' - ' . $exception->getMessage());
       return TRUE;
     }
   }
@@ -200,7 +202,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
         $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
       } catch (ApiErrorException $e) {
-        if (!$this->checkIfSuccessfulDomainAssociation($e)) {
+        if (!$this->domainAlreadyAssociated($application, $e)) {
           return FALSE;
         }
       }
@@ -219,7 +221,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
           $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
         }
         catch (ApiErrorException $e) {
-          if (!$this->checkIfSuccessfulEmailEnablement($e)) {
+          if (!$this->environmentAlreadyEnabled($env, $e)) {
             return FALSE;
           }
         }
