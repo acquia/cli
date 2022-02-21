@@ -141,7 +141,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for association response code.
         'Already associated',
         // Expected text.
-        ['is already associated with this application', "You're all set to start using Platform Email!"]
+        ['is already associated', "You're all set to start using Platform Email!"]
       ],
       [
         'example.com',
@@ -193,7 +193,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for enablement response code.
         'Already enabled',
         // Expected text.
-        ['already enabled on this environment', "You're all set to start using Platform Email!"]
+        ['already enabled', "You're all set to start using Platform Email!"]
       ],
       [
         'example.com',
