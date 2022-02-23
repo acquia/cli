@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -374,6 +375,26 @@ class LocalMachineHelper {
   }
 
   /**
+   * Determines if a browser is available on the local machine.
+   *
+   * @return bool
+   *   TRUE if a browser is available.
+   */
+  public static function isBrowserAvailable(): bool {
+    if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
+      return FALSE;
+    }
+    if (getenv('DISPLAY')) {
+      return TRUE;
+    }
+    if (OsInfo::isWindows() || OsInfo::isApple()) {
+      return TRUE;
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Starts a background browser/tab for the current site or a specified URL.
    *
    * @param $uri
@@ -389,7 +410,7 @@ class LocalMachineHelper {
   public function startBrowser($uri = NULL, $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on
     // POSIX or are running Windows or OS X.
-    if (!getenv('DISPLAY') && !OsInfo::isWindows() && !OsInfo::isApple()) {
+    if (!self::isBrowserAvailable()) {
       $this->logger->info('No graphical display appears to be available, not starting browser.');
       return FALSE;
     }

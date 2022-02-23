@@ -430,6 +430,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
+
+    return $this;
   }
 
   /**
