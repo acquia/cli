@@ -130,8 +130,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     $this->checklist = new Checklist($output);
     $this->appUuid = $this->determineCloudApplication();
-    $this->setSshKeyFilepath($this->getSshKeyFilename($this->appUuid));
-    $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.codestudio-passphrase');
 
     // Get Cloud application.
     $cloud_application = $this->getCloudApplication($this->appUuid);
@@ -158,17 +156,11 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       return 0;
     }
 
-    $this->io->writeln([
-      "Creating an SSH key belonging to <comment>{$account->mail}</comment> for Code Studio to use..."
-    ]);
-    parent::execute($input, $output);
-
     $project_access_token_name = 'acquia-codestudio';
     $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
     $this->updateGitLabProject($project);
     $this->setGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $this->createScheduledPipeline($project);
-    $this->pushCodeToGitLab($output, $project);
 
     $this->io->success([
       "Successfully configured the Code Studio project!",
@@ -190,57 +182,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
-  }
-
-  /**
-   * @param string $app_uuid
-   *
-   * @return string
-   */
-  public static function getSshKeyFilename(string $app_uuid): string {
-    return 'id_rsa_codestudio_' . $app_uuid;
-  }
-
-  /**
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function deleteThisSshKeyFromCloud(): void {
-    if ($cloud_key = $this->findGitLabSshKeyOnCloud()) {
-      $this->deleteSshKeyFromCloud($cloud_key);
-    }
-  }
-
-  /**
-   * @return \stdClass|null
-   */
-  protected function findGitLabSshKeyOnCloud(): ?stdClass {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    $ssh_key_label = $this->getSshKeyLabel();
-    foreach ($cloud_keys as $cloud_key) {
-      if ($cloud_key->label === $ssh_key_label) {
-        return $cloud_key;
-      }
-    }
-    return NULL;
-  }
-
-  /**
-   *
-   * @param string $app_uuid
-   *
-   * @return string
-   */
-  public static function getGitLabSshKeyLabel(string $app_uuid): string {
-    return self::normalizeSshKeyLabel('CODESTUDIO_' . $app_uuid);
-  }
-
-  /**
-   * @return string
-   */
-  protected function getSshKeyLabel(): string {
-    return $this::getGitLabSshKeyLabel($this->appUuid);
   }
 
   /**
@@ -509,20 +450,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         'protected' => FALSE,
         'variable_type' => 'env_var',
       ],
-      [
-        'key' => 'ACQUIA_CLOUD_SSH_KEY',
-        'value' => $this->localMachineHelper->readFile($this->privateSshKeyFilepath),
-        'masked' => FALSE,
-        'protected' => FALSE,
-        'variable_type' => 'file',
-      ],
-      [
-        'key' => 'SSH_PASSPHRASE',
-        'value' => $this->getPassPhraseFromFile(),
-        'masked' => TRUE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
     ];
 
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()
@@ -627,31 +554,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param array $project
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function pushCodeToGitLab(OutputInterface $output, array $project): void {
-    $current_branch = $this->getCurrentBranchName();
-    $push_code = $this->io->confirm("You currently have the $current_branch branch checked out in this environment. Would you like to perform a one time push of code from this Cloud IDE to Code Studio now? Note, we have not changed any code in this branch as a part of this setup process.");
-    $this->addGitRemote($output, $project['http_url_to_repo']);
-    // @todo Check to see if there's actually any code here.
-    if ($push_code) {
-      $this->checklist->addItem('Pushing repository to Code Studio');
-      $process = $this->localMachineHelper->execute([
-        'git',
-        'push',
-        'codestudio',
-      ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
-      if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Unable to push repository.");
-      }
-      $this->checklist->completePreviousItem();
-    }
-  }
-
-  /**
    * @return array
    */
   protected function getGitLabProjectDefaults(): array {
@@ -660,37 +562,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       'topics' => 'Acquia Cloud Application',
       'container_registry_access_level' => 'disabled',
     ];
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param $http_url_to_repo
-   *
-   * @return \Symfony\Component\Process\Process
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function addGitRemote(OutputInterface $output, $http_url_to_repo): Process {
-    $this->checklist->addItem('Adding codestudio git remote to your Cloud IDE git repository');
-
-    // This command is allowed to fail.
-    $process = $this->localMachineHelper->execute([
-      'git',
-      'remote',
-      'remove',
-      'codestudio',
-    ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
-    $process = $this->localMachineHelper->execute([
-      'git',
-      'remote',
-      'add',
-      'codestudio',
-      $http_url_to_repo,
-    ], $this->getOutputCallback($output, $this->checklist), $this->ideProjectDir, FALSE);
-    if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Unable to add codestudio remote.");
-    }
-    $this->checklist->completePreviousItem();
-    return $process;
   }
 
   /**
