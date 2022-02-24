@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -10,13 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class LinkCommand extends CommandBase {
 
-  protected static $defaultName = 'link';
+  protected static $defaultName = 'app:link';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Associate your project with a Cloud Platform application');
+    $this->setDescription('Associate your project with a Cloud Platform application')
+      ->setAliases(['link']);
     $this->acceptApplicationUuid();
   }
 

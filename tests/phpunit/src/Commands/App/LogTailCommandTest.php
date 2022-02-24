@@ -1,15 +1,15 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
-use Acquia\Cli\Command\LogTailCommand;
+use Acquia\Cli\Command\App\LogTailCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class LogTailCommandTest.
  *
- * @property \Acquia\Cli\Command\LogTailCommand $command
+ * @property \Acquia\Cli\Command\App\LogTailCommand $command
  * @package Acquia\Cli\Tests\Ide
  */
 class LogTailCommandTest extends CommandTestBase {

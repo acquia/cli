@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class LogTailCommand extends CommandBase {
 
-  protected static $defaultName = 'log:tail';
+  protected static $defaultName = 'app:log:tail';
 
   /**
    * {inheritdoc}.
@@ -19,7 +20,7 @@ class LogTailCommand extends CommandBase {
   protected function configure() {
     $this->setDescription('Tail the logs from your environments')
       ->acceptEnvironmentId()
-      ->setAliases(['tail']);
+      ->setAliases(['tail', 'log:tail']);
   }
 
   /**
