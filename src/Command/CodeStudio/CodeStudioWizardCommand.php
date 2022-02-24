@@ -70,9 +70,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function configure() {
     $this->setDescription('Create and/or configure a new Code Studio project for a given Acquia Cloud application')
-      ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token key that Code Studio will use')
-      ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud API Token secret that Code Studio will use')
-      ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with GitLab instance')
+      ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
+      ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
+      ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
       ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
       ->setAliases(['cs:wizard']);
     $this->acceptApplicationUuid();
@@ -96,7 +96,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     catch (RuntimeException $exception) {
       $this->io->error([
         "Unable to authenticate with Code Studio",
-        "Did you set a valid token with the api and write_repository scopes?",
+        "Did you set a valid token with the <options=bold>api</> and <options=bold>write_repository</> scopes?",
         "Try running `glab auth login` to re-authenticate.",
         "Then try again.",
       ]);
@@ -110,10 +110,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         "",
         "This will configure AutoDevOps for a Code Studio project using credentials",
         "(an API Token and SSH Key) belonging to your current Acquia Cloud user account.",
-        "Before continuing, make sure that you're logged into the right Acquia Cloud user account.",
+        "Before continuing, make sure that you're logged into the right Acquia Cloud Platform user account.",
         "",
         "<comment>Typically this command should only be run once per application</comment>",
-        "but if your Cloud account is deleted in the future, the Code Studio project will",
+        "but if your Cloud Platform account is deleted in the future, the Code Studio project will",
         "need to be re-configured using a different user account.",
         "",
         "<options=bold>To begin, visit this URL and create a new API Token for Code Studio to use:</>",
@@ -123,7 +123,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
     $cloud_key = $this->determineApiKey($input, $output);
     $cloud_secret = $this->determineApiSecret($input, $output);
-    // We may already be authenticated with Acquia Cloud via a refresh token.
+    // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
     $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
