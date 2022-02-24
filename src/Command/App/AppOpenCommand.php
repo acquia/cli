@@ -1,19 +1,18 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
-use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class OpenCommand.
+ * Class AppOpenCommand.
  */
-class OpenCommand extends CommandBase {
+class AppOpenCommand extends CommandBase {
 
-  protected static $defaultName = 'open:application';
+  protected static $defaultName = 'app:open';
 
   /**
    * {inheritdoc}.
@@ -22,7 +21,7 @@ class OpenCommand extends CommandBase {
     $this->setDescription('Opens your browser to view a given Cloud application')
       ->acceptApplicationUuid()
       ->setHidden(!LocalMachineHelper::isBrowserAvailable())
-      ->setAliases(['open', 'open:app', 'o']);
+      ->setAliases(['open', 'o']);
   }
 
   /**
