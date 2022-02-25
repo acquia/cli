@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
-use Acquia\Cli\Command\LinkCommand;
+use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class LinkCommandTest.
  *
- * @property \Acquia\Cli\Command\LinkCommand $command
+ * @property \Acquia\Cli\Command\App\LinkCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class LinkCommandTest extends CommandTestBase {
