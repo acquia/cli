@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\LinkCommand;
+use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
 class InferApplicationTest extends CommandTestBase {
 
   /**
-   * @return \Acquia\Cli\Command\LinkCommand
+   * @return \Acquia\Cli\Command\App\LinkCommand
    */
   protected function createCommand(): Command {
     return $this->injectCommand(LinkCommand::class);

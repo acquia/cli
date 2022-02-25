@@ -2,9 +2,9 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
+use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
-use Acquia\Cli\Command\LinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
 use Prophecy\Argument;
@@ -19,7 +19,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
 class CommandBaseTest extends CommandTestBase {
 
   /**
-   * @return \Acquia\Cli\Command\LinkCommand
+   * @return \Acquia\Cli\Command\App\LinkCommand
    */
   protected function createCommand(): Command {
     return $this->injectCommand(LinkCommand::class);

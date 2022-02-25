@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\LinkCommand;
+use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
