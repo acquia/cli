@@ -393,13 +393,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
           'name' => $project_access_token_name,
           'scopes' => ['api', 'write_repository'],
         ]);
-    $this->gitLabClient->users()->update($project_access_token['user_id'], [
-        'avatar' => __DIR__ . '/cs_icon.png',
-      ],
-      [
-        'avatar' => __DIR__ . '/cs_icon.png',
-      ]
-    );
     $this->checklist->completePreviousItem();
     return $project_access_token['token'];
   }
