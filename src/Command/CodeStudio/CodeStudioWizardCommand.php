@@ -17,6 +17,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * Class CodeStudioWizardCommand.
@@ -574,8 +575,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       $parameters['namespace_id'] = $project_group['id'];
     }
 
-    $project = $this->gitLabClient->projects()
-      ->create($cloud_application->name, $parameters);
+    $slugger = new AsciiSlugger();
+    $project_name = $slugger->slug($cloud_application->name);
+    $project = $this->gitLabClient->projects()->create($project_name, $parameters);
     $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
     $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
     return $project;
