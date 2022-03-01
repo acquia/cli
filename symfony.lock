@@ -119,9 +119,6 @@
     "phar-io/version": {
         "version": "2.0.1"
     },
-    "php": {
-        "version": "7.3"
-    },
     "php-coveralls/php-coveralls": {
         "version": "v2.2.0"
     },
@@ -394,9 +391,6 @@
             ".env"
         ]
     },
-    "symfony/http-client-contracts": {
-        "version": "v2.3.1"
-    },
     "symfony/http-foundation": {
         "version": "v5.1.0"
     },
@@ -417,9 +411,6 @@
     },
     "symfony/polyfill-mbstring": {
         "version": "v1.17.0"
-    },
-    "symfony/polyfill-php70": {
-        "version": "v1.18.0"
     },
     "symfony/polyfill-php73": {
         "version": "v1.17.0"
