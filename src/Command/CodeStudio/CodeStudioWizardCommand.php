@@ -11,12 +11,9 @@ use AcquiaCloudApi\Response\ApplicationResponse;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Gitlab\HttpClient\Builder;
-use stdClass;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Process\Process;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
@@ -169,7 +166,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       "You can visit it here:",
       $project['web_url'],
       "",
-      "We've also added a codestudio git remote to the repository located at /home/ide/project in this IDE.",
+      "Next, you should use git to push code to your code studio project. E.g.,",
+      "  git remote add codestudio {$project['http_url_to_repo']}",
+      "  git remote push codestudio",
     ]);
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
@@ -580,6 +579,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $project = $this->gitLabClient->projects()->create($project_name, $parameters);
     $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
     $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
+
     return $project;
   }
 
