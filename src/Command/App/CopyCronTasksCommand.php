@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

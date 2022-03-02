@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
-use Acquia\Cli\Command\CopyCronTasksCommand;
+use Acquia\Cli\Command\App\CopyCronTasksCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class CopyCronTasksCommandTest.
  *
- * @property \Acquia\Cli\Command\CopyCronTasksCommand $command
+ * @property \Acquia\Cli\Command\App\CopyCronTasksCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class CopyCronTasksCommandTest extends CommandTestBase {
