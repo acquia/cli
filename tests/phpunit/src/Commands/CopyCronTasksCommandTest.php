@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\CopyCronTasksCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -36,7 +37,7 @@ class CopyCronTasksCommandTest extends CommandTestBase {
 
     $create_cron_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
     $this->clientProphecy->request('post',
-      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
+      '/environments/' . $environments_response->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
       ->willReturn($create_cron_response->{'Adding cron'}->value)
       ->shouldBeCalled();
 
