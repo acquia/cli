@@ -168,7 +168,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       "",
       "Next, you should use git to push code to your Code Studio project. E.g.,",
       "  git remote add codestudio {$project['http_url_to_repo']}",
-      "  git remote push codestudio",
+      "  git push codestudio",
     ]);
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
