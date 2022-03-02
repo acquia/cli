@@ -30,10 +30,10 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
     return [
-      [8, NULL],
-      [9, NULL],
-      [9, 'testdir'],
-      [9, 'testdir', TRUE],
+      [['9'], []],
+      [['9'], ['--destination-dir' => 'testdir'], 'testdir'],
+      [['9'], ['--all' => TRUE], NULL, TRUE],
+      [['8'], []],
     ];
   }
 
@@ -43,10 +43,11 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * @dataProvider providerTestRemoteAliasesDownloadCommand
    *
    * Tests the 'remote:aliases:download' commands.
-   *
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testRemoteAliasesDownloadCommand($alias_version, $destination_dir, $all = FALSE): void {
+  public function testRemoteAliasesDownloadCommand($inputs, $args, $destination_dir = NULL, $all = FALSE): void {
+    $alias_version = $inputs[0];
+
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
     $archive_fixture = new PharData($drush_aliases_tarball_fixture_filepath . '.tar');
@@ -59,7 +60,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
     $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
 
-    if ($alias_version === 9 && !$all) {
+    if ($alias_version === '9' && !$all) {
       $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
       $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
       $cloud_application = $applications_response->{'_embedded'}->items[0];
@@ -69,18 +70,12 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     }
     if ($destination_dir) {
       $this->command->setDrushAliasesDir($destination_dir);
-      $args = ['--destination-dir' => $destination_dir];
     }
     else {
       $this->command->setDrushAliasesDir($drush_aliases_dir);
       $destination_dir = $drush_aliases_dir;
-      $args = [];
-    }
-    if ($all) {
-      $args+= ['--all' => TRUE];
     }
 
-    $inputs = [$alias_version];
     $this->executeCommand($args, $inputs);
 
     // Assert.
