@@ -33,6 +33,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
       [8, NULL],
       [9, NULL],
       [9, 'testdir'],
+      [9, 'testdir', TRUE],
     ];
   }
 
@@ -45,7 +46,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    *
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testRemoteAliasesDownloadCommand($alias_version, $destination_dir): void {
+  public function testRemoteAliasesDownloadCommand($alias_version, $destination_dir, $all = FALSE): void {
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
     $archive_fixture = new PharData($drush_aliases_tarball_fixture_filepath . '.tar');
@@ -57,10 +58,13 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
     $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
-    if ($alias_version === 9) {
+
+    if ($alias_version === 9 && !$all) {
       $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
-      $applications = $this->mockApplicationsRequest();
-      $this->mockEnvironmentsRequest($applications);
+      $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
+      $cloud_application = $applications_response->{'_embedded'}->items[0];
+      $cloud_application_uuid = $cloud_application->uuid;
+      $this->createMockAcliConfigFile($cloud_application_uuid);
       $this->mockApplicationRequest();
     }
     if ($destination_dir) {
@@ -71,6 +75,9 @@ class AliasesDownloadCommandTest extends CommandTestBase {
       $this->command->setDrushAliasesDir($drush_aliases_dir);
       $destination_dir = $drush_aliases_dir;
       $args = [];
+    }
+    if ($all) {
+      $args+= ['--all' => TRUE];
     }
 
     $inputs = [$alias_version];
