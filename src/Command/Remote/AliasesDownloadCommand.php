@@ -137,8 +137,7 @@ class AliasesDownloadCommand extends SshCommand {
   protected function getAliasesFromCloud(Client $acquia_cloud_client, $alias_version): StreamInterface {
     $acquia_cloud_client->addQuery('version', $alias_version);
     $account_adapter = new Account($acquia_cloud_client);
-    $aliases = $account_adapter->getDrushAliases();
-    return $aliases;
+    return $account_adapter->getDrushAliases();
   }
 
   /**
@@ -159,7 +158,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param $alias_version
+   * @param int $alias_version
    * @param string $drush_archive_temp_filepath
    * @param string $base_dir
    *
@@ -169,8 +168,7 @@ class AliasesDownloadCommand extends SshCommand {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $aliases = $this->getAliasesFromCloud($acquia_cloud_client, $alias_version);
     $this->localMachineHelper->writeFile($drush_archive_temp_filepath, $aliases);
-    $archive = new PharData($drush_archive_temp_filepath . '/' . $base_dir);
-    return $archive;
+    return new PharData($drush_archive_temp_filepath . '/' . $base_dir);
   }
 
   /**
@@ -190,29 +188,20 @@ class AliasesDownloadCommand extends SshCommand {
     $site_prefix = $this->getSitePrefix($single_application);
     $base_dir = 'sites';
     $archive = $this->downloadArchive($alias_version, $drush_archive_temp_filepath, $base_dir);
-    $drushFiles = [];
     if ($single_application) {
-      foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-        // Just get the single alias for this single application.
-        if ($file->getFileName() === $site_prefix . '.site.yml') {
-          $drushFiles[] = $base_dir . '/' . $file->getFileName();
-          break;
-        }
-      }
+      $drushFiles = $this->getSingleAliasForSite($archive, $site_prefix, $base_dir);
     }
     else {
+      $drushFiles = [];
       foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
         $drushFiles[] = $base_dir . '/' . $file->getFileName();
       }
-    }
-    if (empty($drushFiles)) {
-      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
     }
     $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
   }
 
   /**
-   * @param $alias_version
+   * @param int $alias_version
    * @param string $drush_archive_temp_filepath
    * @param string $drush_aliases_dir
    */
@@ -224,6 +213,29 @@ class AliasesDownloadCommand extends SshCommand {
       $drushFiles[] = $base_dir . '/' . $file->getFileName();
     }
     $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
+  }
+
+  /**
+   * @param \PharData $archive
+   * @param string $site_prefix
+   * @param string $base_dir
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getSingleAliasForSite(PharData $archive, $site_prefix, string $base_dir): array {
+    $drushFiles = [];
+    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+      // Just get the single alias for this single application.
+      if ($file->getFileName() === $site_prefix . '.site.yml') {
+        $drushFiles[] = $base_dir . '/' . $file->getFileName();
+        break;
+      }
+    }
+    if (empty($drushFiles)) {
+      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
+    }
+    return $drushFiles;
   }
 
 }
