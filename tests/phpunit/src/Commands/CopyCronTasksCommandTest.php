@@ -55,7 +55,8 @@ class CopyCronTasksCommandTest extends CommandTestBase {
 
     $output = $this->getDisplay();
     $this->assertStringContainsString('Are you sure you\'d like to copy the cron jobs from ' . $source . ' to ' . $dest . '? (yes/no) [yes]:', $output);
-    $this->assertStringContainsString('Copying the cron task "" from ' . $source . ' to ' . $dest, $output);
+    $this->assertStringContainsString('Copying the cron task "" from ' . $source . ' to', $output);
+    $this->assertStringContainsString($dest, $output);
     $this->assertStringContainsString('[OK] Cron task copy is completed.', $output);
   }
 
