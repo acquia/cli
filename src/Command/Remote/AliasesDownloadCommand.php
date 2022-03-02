@@ -99,7 +99,7 @@ class AliasesDownloadCommand extends SshCommand {
         $drushFiles[] = $base_dir . '/' . $file->getFileName();
       }
     }
-    $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
+    $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
     $this->output->writeln(sprintf(
       'Cloud Platform Drush aliases installed into <options=bold>%s</>',
       $drush_aliases_dir
@@ -158,7 +158,7 @@ class AliasesDownloadCommand extends SshCommand {
               ->getLocalFilepath('~') . '/.drush';
           break;
         case 9:
-          $this->drushAliasesDir = Path::join($this->dir, 'drush', 'sites');
+          $this->drushAliasesDir = Path::join($this->dir, 'drush');
           break;
         default:
           throw new AcquiaCliException("Unknown Drush version");
