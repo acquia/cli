@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "57307bf2cb5b50158d67a1b39f540725",
+    "content-hash": "419ead429faf9730b67a0ac4c0c16def",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -57,12 +57,82 @@
             "time": "2021-04-15T17:44:09+00:00"
         },
         {
-            "name": "acquia/symfony-local-machine-helper",
+            "name": "acquia/symfony-console-plugin-manager",
             "version": "dev-main",
             "dist": {
                 "type": "path",
+                "url": "../symfony-console-plugin-manager",
+                "reference": "2033eb6711bd7cd512da859fbe0671a07fc44add"
+            },
+            "require": {
+                "php": "^7.4 | ^8.0",
+                "symfony/console": "^5"
+            },
+            "require-dev": {
+                "acquia/coding-standards": "*",
+                "phpstan/phpstan": "^0.12.99",
+                "phpunit/phpunit": "^9.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Acquia\\PluginManager\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Acquia\\PluginManager\\Tests\\": "tests/phpunit/src/"
+                }
+            },
+            "scripts": {
+                "cs": [
+                    "phpcs"
+                ],
+                "cbf": [
+                    "phpcbf"
+                ],
+                "unit": [
+                    "phpunit tests/phpunit -vvv"
+                ],
+                "lint": [
+                    "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+                    "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+                ],
+                "test": [
+                    "@lint",
+                    "@cs",
+                    "@stan",
+                    "@unit"
+                ],
+                "stan": [
+                    "phpstan analyze"
+                ],
+                "coveralls": [
+                    "php-coveralls -vvv"
+                ]
+            },
+            "license": [
+                "GPL-2.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Acquia Engineering",
+                    "homepage": "https://www.acquia.com",
+                    "role": "Maintainer"
+                }
+            ],
+            "description": "Add plugin support to any Symfony Console application",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "acquia/symfony-local-machine-helper",
+            "version": "dev-master",
+            "dist": {
+                "type": "path",
                 "url": "../symfony-local-machine-helper",
-                "reference": "5211bfbb13c9d154cd25bb9f6c594980994e9d00"
+                "reference": "02b98406968e43955b1d8d97b3e10864c4b49db3"
             },
             "require": {
                 "acquia/drupal-environment-detector": "^1.2.0",
@@ -76,6 +146,7 @@
             },
             "require-dev": {
                 "acquia/coding-standards": "*",
+                "phpstan/phpstan": "^0.12.99",
                 "phpunit/phpunit": "^9.1"
             },
             "type": "library",
@@ -86,11 +157,45 @@
             },
             "autoload-dev": {
                 "psr-4": {
-                    "Acquia\\LocalMachineHelper\\Tests\\": "tests/"
+                    "Acquia\\LocalMachineHelper\\Tests\\": "tests/phpunit/src/"
                 }
+            },
+            "scripts": {
+                "cs": [
+                    "phpcs"
+                ],
+                "cbf": [
+                    "phpcbf"
+                ],
+                "unit": [
+                    "phpunit tests/phpunit -vvv"
+                ],
+                "lint": [
+                    "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
+                    "find tests -name '*.php' -print0 | xargs -0 -n1 php -l"
+                ],
+                "test": [
+                    "@lint",
+                    "@cs",
+                    "@stan",
+                    "@unit"
+                ],
+                "stan": [
+                    "phpstan analyze"
+                ],
+                "coveralls": [
+                    "php-coveralls -vvv"
+                ]
             },
             "license": [
                 "GPL-2.0-only"
+            ],
+            "authors": [
+                {
+                    "name": "Acquia Engineering",
+                    "homepage": "https://www.acquia.com",
+                    "role": "Maintainer"
+                }
             ],
             "description": "Execute commands on a local client",
             "transport-options": {

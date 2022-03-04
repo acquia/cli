@@ -5,6 +5,9 @@
     "acquia/drupal-environment-detector": {
         "version": "dev-master"
     },
+    "acquia/symfony-console-plugin-manager": {
+        "version": "dev-main"
+    },
     "acquia/symfony-local-machine-helper": {
         "version": "dev-main"
     },

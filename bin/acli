@@ -18,6 +18,7 @@ namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\LocalMachineHelper\LocalMachineHelper;
+use Acquia\PluginManager\PluginInstallCommand;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -69,4 +70,5 @@ $application->setVersion('@package_version@');
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands());
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
+$application->add(new PluginInstallCommand($application->getName()));
 $application->run($input, $output);
