@@ -2,8 +2,8 @@
 
 namespace Acquia\Cli\Tests\Commands\Remote;
 
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\LocalMachineHelper\LocalMachineHelper;
 use Symfony\Component\Process\Process;
 
 /**

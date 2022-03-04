@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\LocalMachineHelper\LocalMachineHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

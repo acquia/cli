@@ -87,6 +87,8 @@ services:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaLogstream\LogstreamManager: ~
 
+  Acquia\LocalMachineHelper\LocalMachineHelper: ~
+
   # Symfony services.
   Acquia\Cli\Application: ~
   Symfony\Component\Console\Input\ArgvInput: ~

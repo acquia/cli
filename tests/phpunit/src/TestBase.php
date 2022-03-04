@@ -3,23 +3,21 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
-use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\DataStoreContract;
-use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
+use Acquia\LocalMachineHelper\LocalMachineHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PhpParser\Node\Arg;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -140,7 +138,7 @@ abstract class TestBase extends TestCase {
   protected $cloudCredentials;
 
   /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
+   * @var \Acquia\LocalMachineHelper\LocalMachineHelper
    */
   protected $localMachineHelper;
 
@@ -249,7 +247,7 @@ abstract class TestBase extends TestCase {
     $this->input = $input;
     $this->output = $output;
     $this->logger = new ConsoleLogger($output);
-    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+    $this->localMachineHelper = new LocalMachineHelper($input, $this->logger);
     $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }

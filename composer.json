@@ -10,10 +10,17 @@
         }
     ],
     "minimum-stability": "dev",
+    "repositories": {
+        "symfony-local-machine-helper": {
+            "type": "path",
+            "url": "../symfony-local-machine-helper"
+        }
+    },
     "require": {
         "php": "^7.4 | ^8.0",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
+        "acquia/symfony-local-machine-helper": "*",
         "composer/semver": "^3.2",
         "consolidation/self-update": "2.0.0-alpha1 as 1.1",
         "cweagans/composer-patches": "^1.7",
@@ -34,10 +41,8 @@
         "symfony/event-dispatcher": "^5.1",
         "symfony/expression-language": "^5.1",
         "symfony/filesystem": "^5.1@dev",
-        "symfony/finder": "^5.1",
         "symfony/flex": "^1.7",
         "symfony/http-kernel": "^5.1",
-        "symfony/process": "^5.1",
         "symfony/validator": "^5.1",
         "symfony/yaml": "^5.1@dev",
         "typhonius/acquia-logstream": "^0.0.8",
@@ -56,8 +61,7 @@
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^0.12.99",
         "phpstan/phpstan-deprecation-rules": "^0.12.6",
-        "phpunit/phpunit": "^9.1",
-        "squizlabs/php_codesniffer": "^3.5"
+        "phpunit/phpunit": "^9.1"
     },
     "autoload": {
         "psr-4": {

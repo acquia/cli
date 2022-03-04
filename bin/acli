@@ -17,7 +17,7 @@
 namespace Acquia\Cli;
 
 use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\LocalMachineHelper\LocalMachineHelper;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
