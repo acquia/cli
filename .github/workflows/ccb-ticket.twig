@@ -1,0 +1,63 @@
+h3. Change Type
+
+Normal
+h3. Change Description
+
+{{ release_notes }}
+
+h2. Impact and Risks
+ * *How does this change specifically affect the customer?* - Acquia CLI is a packaged software that customers are free to install or not. Similarly, they are free to update or not. Upgrading means they'll have an improved version of the software. Since we're trying to always ship the latest Acquia CLI version in Cloud IDE, then the impact there is they'll benefit from an improved experience working with it.
+ * *Will this change result in downtime, impact to HA, or service restarts?* - No, Acquia CLI is not a service, so there's no downtime, impact, HA or service restarts involved. It's just a PHP-based Open Source CLI tool that is entirely disposable.
+ * *What is the expected duration of the change implementation?* - The change implementation takes 5mn and is not disruptive, as per the [Acquia CLI release runbook|https://github.com/acquia/cli/blob/master/RELEASE.md]. 
+ * *What are the risks of _not_ performing this change in a timely manner?* - None. We just want to be able to ship the new version with Cloud IDE.
+
+h3. Related Tickets
+
+See [this JQL|{{ jira_base_url }}/issues/?jql=project%20%3D%20CLI%20AND%20fixVersion%20%3D%20%22Acquia%20CLI%20{{ tog_name }}%22].
+h3. Technical Publication Tickets
+@TODO!
+
+h3. Change Purpose
+See release notes.
+
+["Feature introduction", "Bug fixes"]
+h3. Customer Impact
+None.
+
+h3. Actions Required by Customer
+None.
+
+h3. SL Tickets
+None required.
+
+h3. Affected Platforms / Products / Services
+Acquia CLI
+
+h3. Customer Base
+ * *Is this maintenance limited to a particular region (e.g. all customers hosted in APJ)?* - No, Acquia CLI is just a software package.
+ * *Is it for sites or users of a specific product (Lift, Cloud Edge, Search)?* - Yes, Acquia CLI and Cloud IDE.
+ * *Is it a list of specific sites or users sharing a specific condition (e.g. users with SSH keys that are below a certain level of encryption)?* - No.
+ * *If this product is still in beta, please provide a list of customers by hosting_site (docroot) or UUID.* - N/A
+
+h3. Customer Base: Target Realms
+["n/a"]
+
+h3. Date and Time of Change (in UTC)
+As soon as we get CCB approval. This can be released at any point in time as it's just a packaged release on Github.
+h3. Test Results
+ * Tests are passing correctly. See {{ $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID }}
+ * See also our test coverage here: [https://coveralls.io/github/acquia/cli]
+
+h3. Change Plan
+
+N/A
+h3. Verification Plan
+ * *How will you know that the change was successful?* - CI tests will be passing and the new released will be [tagged on Github|https://github.com/acquia/cli/releases].
+ * *How will you know that it did not create an outage?* - Acquia CLI is not a service. It cannot cause an outage. Worst case scenario, if a release causes an issue, customers can still decide to use a previous version. In Cloud IDE we have a full test suite for Acquia CLI to prevent regressions. And since releasing Acquia CLI is different from releasing Acquia CLI in Cloud IDE, we'll have time to hotifx Acquia CLI and release a new version before it gets to Cloud IDE.
+ * *What SLOs/dashboards will you consult to verify?* - N/A
+ * *What are the manual verification steps if SLOs are not present?* - N/A
+
+h3. Emergency Recovery Plan
+ * *What recovery strategy will you use? (Roll-back, Roll-forward, Disable Feature Flag, Revert specific changeset, etc)* - Customers can still use any previous version of Acquia CLI, and it's easy for us to publish a new release with the fix, since there's no dependency on anything.
+ * *Link to recovery strategy runbook* - Acquia CLI is just an Open Source PHP CLI tool. There's no recovery strategy and we will simply hotfix the code and tag a new release for any critical issue that is found. 
+ * *How will you verify that your emergency recovery was successful?* - There will be a new tagged release of Acquia CLI over at Github.
