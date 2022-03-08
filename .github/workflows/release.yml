@@ -17,5 +17,6 @@ jobs:
           # @see https://docs.github.com/en/rest/reference/releases#get-a-release
           GITHUB_RELEASE_BODY: ${{ github.event.release.body }}
           GITHUB_RELEASE_NAME: ${{ github.event.release.name }}
+          GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh
         shell: bash

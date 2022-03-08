@@ -16,7 +16,7 @@ $body = $twig->render('ccb-ticket.twig', [
   'GITHUB_RELEASE_BODY' => $_ENV['GITHUB_RELEASE_BODY'],
   'GITHUB_RELEASE_NAME' => $_ENV['GITHUB_RELEASE_NAME'],
   'JIRA_HOST' => $_ENV['JIRA_HOST'],
-  'GITHUB_ACTIONS_RUN_URL' => "{$_ENV['GITHUB_SERVER_URL']}/{$_ENV['GITHUB_REPOSITORY']}/actions/runs/{$_ENV['GITHUB_RUN_ID']}",
+  'GITHUB_ACTIONS_RUN_URL' => $_ENV['GITHUB_ACTIONS_RUN_URL'],
 ]);
 
 try {
