@@ -55,6 +55,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
+    $this->localMachineHelper->getFilesystem()->copy($this->getXdebugTemplateFilePath($version), '/home/ide/configs/php/xdebug.ini');
     $this->restartService('php-fpm');
 
     return 0;

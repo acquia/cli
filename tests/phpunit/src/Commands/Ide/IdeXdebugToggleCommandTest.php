@@ -57,7 +57,10 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeXdebugToggleCommand::class);
   }
 
-  public function providerTestXdebugCommandEnable() {
+  /**
+   * @return array
+   */
+  public function providerTestXdebugCommandEnable(): array {
     return [
       ['7.4'],
       ['8.0'],

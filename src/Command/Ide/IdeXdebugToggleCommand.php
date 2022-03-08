@@ -50,7 +50,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireCloudIdeEnvironment();
-    $ini_file = $this->getXdebugIniFilePath($this->getIdePhpVersion());
+    $ini_file = $this->getXdebugIniFilePath();
     $contents = file_get_contents($ini_file);
     $this->setXDebugStatus($contents);
 
@@ -70,21 +70,17 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * @param string $file_path
    */
-  public function setXdebugIniFilepath($file_path): void {
+  public function setXdebugIniFilepath(string $file_path): void {
     $this->xdebugIniFilepath = $file_path;
   }
 
   /**
+   *
    * @return string
    */
-  public function getXdebugIniFilePath($php_version): string {
+  public function getXdebugIniFilePath(): string {
     if (!isset($this->xdebugIniFilepath)) {
-      if (in_array($php_version, ['8.0', '8.1'])) {
-        $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug3.ini';
-      }
-      else {
-        $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
-      }
+      $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
     }
     return $this->xdebugIniFilepath;
   }
@@ -124,6 +120,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   protected function enableXDebug($destination_file, $contents): void {
     $this->logger->notice("Enabling Xdebug PHP extension in $destination_file...");
+
     // Note that this replaces 1 or more ";" characters.
     $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
     file_put_contents($destination_file, $new_contents);

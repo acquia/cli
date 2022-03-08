@@ -108,6 +108,22 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
+   * @param string $php_version
+   *   The current php version.
+   *
+   * @return string
+   *   The file path to the xdebug template.
+   */
+  protected function getXdebugTemplateFilePath(string $php_version): string {
+    switch ($php_version) {
+      case '7.4':
+        return '/home/ide/configs/php/xdebug2.ini';
+      default:
+        return '/home/ide/configs/php/xdebug3.ini';
+    }
+  }
+
+  /**
    * @param string $path
    */
   public function setPhpVersionFilePath(string $path): void {
