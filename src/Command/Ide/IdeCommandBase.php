@@ -104,7 +104,7 @@ abstract class IdeCommandBase extends CommandBase {
    * @return false|string
    */
   protected function getIdePhpVersion() {
-    return file_get_contents($this->getIdePhpVersionFilePath());
+    return $this->localMachineHelper->readFile($this->getIdePhpVersionFilePath());
   }
 
   /**

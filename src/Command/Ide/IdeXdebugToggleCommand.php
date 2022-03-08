@@ -50,7 +50,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->requireCloudIdeEnvironment();
-    $ini_file = $this->getXdebugIniFilePath();
+    $ini_file = $this->getXdebugIniFilePath($this->getIdePhpVersion());
     $contents = file_get_contents($ini_file);
     $this->setXDebugStatus($contents);
 
@@ -77,9 +77,9 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * @return string
    */
-  public function getXdebugIniFilePath(): string {
+  public function getXdebugIniFilePath($php_version): string {
     if (!isset($this->xdebugIniFilepath)) {
-      if (in_array($this->getIdePhpVersion(), ['8.0', '8.1'])) {
+      if (in_array($php_version, ['8.0', '8.1'])) {
         $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug3.ini';
       }
       else {

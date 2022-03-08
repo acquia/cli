@@ -28,8 +28,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    * @param null $output
    *
    */
-  public function setUp($output = NULL): void {
-    parent::setUp();
+  public function setUpXdebug($php_version): void {
     self::setCloudIdeEnvVars();
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
     $this->fs->copy($this->fixtureDir . '/xdebug.ini', $this->xdebugFilePath, TRUE);
@@ -47,6 +46,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
       ], NULL, NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
+    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn($php_version);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
@@ -57,11 +57,23 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeXdebugToggleCommand::class);
   }
 
+  public function providerTestXdebugCommandEnable() {
+    return [
+      ['7.4'],
+      ['8.0'],
+      ['8.1'],
+    ];
+  }
+
   /**
    * Tests the 'ide:xdebug' command.
+   *
+   * @dataProvider providerTestXdebugCommandEnable
+   *
    * @throws \Exception
    */
-  public function testXdebugCommandEnable(): void {
+  public function testXdebugCommandEnable($php_version): void {
+    $this->setUpXdebug($php_version);
     $this->executeCommand([], []);
     $this->prophet->checkPredictions();
     $this->assertFileExists($this->xdebugFilePath);
@@ -72,9 +84,12 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:xdebug' command.
+   *
+   * @dataProvider providerTestXdebugCommandEnable
    * @throws \Exception
    */
-  public function testXdebugCommandDisable(): void {
+  public function testXdebugCommandDisable($php_version): void {
+    $this->setUpXdebug($php_version);
     // Modify fixture to disable xdebug.
     file_put_contents($this->xdebugFilePath, str_replace(';zend_extension=xdebug.so', 'zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath)));
     $this->executeCommand([], []);

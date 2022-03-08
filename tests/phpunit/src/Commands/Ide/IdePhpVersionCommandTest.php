@@ -33,9 +33,9 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    */
   public function providerTestIdePhpVersionCommand(): array {
     return [
-      ['7.4', '/home/ide/configs/php/xdebug.ini'],
-      ['8.0', '/home/ide/configs/php/xdebug3.ini'],
-      ['8.1', '/home/ide/configs/php/xdebug3.ini'],
+      ['7.4'],
+      ['8.0'],
+      ['8.1'],
     ];
   }
 
@@ -48,7 +48,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    *
    * @throws \Exception
    */
-  public function testIdePhpVersionCommand(string $version, string $php_version_file_path): void {
+  public function testIdePhpVersionCommand(string $version): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($local_machine_helper);
     $this->mockGetFilesystem($local_machine_helper);
@@ -62,7 +62,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
       'version' => $version,
     ], []);
     $this->assertFileExists($this->command->getIdePhpVersionFilePath());
-    //$this->assertEquals($php_version_file_path, $this->command->getIdePhpVersionFilePath());
     $this->assertEquals($version, file_get_contents($this->command->getIdePhpVersionFilePath()));
   }
 
