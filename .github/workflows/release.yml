@@ -7,10 +7,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Create a CCB ticket in Jira
     steps:
-      - run: | 
+      - name: Create ticket
+        env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
+          JIRA_BASE_API_URL: ${{ secrets.JIRA_BASE_API_URL }}
+          JIRA_PROJECT_ID: 20084
+        run: | 
           curl \
           -D- \
-          -u $USER:PASSWORD \
+          -u $JIRA_USER:JIRA_PASSWORD \
           -X POST \
           --data "{ \
             \"fields\": { \
