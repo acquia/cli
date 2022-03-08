@@ -18,6 +18,13 @@ abstract class IdeCommandBase extends CommandBase {
   private $phpVersionFilePath;
 
   /**
+   * @var string
+   */
+  private $xdebugIniFilepath;
+
+  const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug3.ini';
+
+  /**
    * @param string $question_text
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
@@ -105,6 +112,24 @@ abstract class IdeCommandBase extends CommandBase {
    */
   protected function getIdePhpVersion() {
     return $this->localMachineHelper->readFile($this->getIdePhpVersionFilePath());
+  }
+
+  /**
+   * @param string $file_path
+   */
+  public function setXdebugIniFilepath(string $file_path): void {
+    $this->xdebugIniFilepath = $file_path;
+  }
+
+  /**
+   *
+   * @return string
+   */
+  public function getXdebugIniFilePath(): string {
+    if (!isset($this->xdebugIniFilepath)) {
+      $this->xdebugIniFilepath = IdeCommandBase::DEFAULT_XDEBUG_INI_FILEPATH;
+    }
+    return $this->xdebugIniFilepath;
   }
 
   /**

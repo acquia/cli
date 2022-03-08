@@ -6,8 +6,10 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
+use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -51,7 +53,9 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   public function testIdePhpVersionCommand(string $version): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($local_machine_helper);
-    $this->mockGetFilesystem($local_machine_helper);
+    $file_system = $this->mockGetFilesystem($local_machine_helper);
+    $file_system->copy(Argument::type('string'), '/home/ide/configs/php/xdebug.ini')->willReturn(TRUE);
+
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
     $php_filepath_prefix = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_stub_');
@@ -130,9 +134,14 @@ class IdePhpVersionCommandTest extends CommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
-    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $local_machine_helper->getFilesystem()->willReturn($file_system)->shouldBeCalled();
+
+    return $file_system;
   }
 
 }

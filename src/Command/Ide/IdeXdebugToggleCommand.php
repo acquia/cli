@@ -19,11 +19,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   private $xDebugEnabled;
 
   /**
-   * @var string
-   */
-  private $xdebugIniFilepath;
-
-  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
@@ -65,24 +60,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     }
 
     return 0;
-  }
-
-  /**
-   * @param string $file_path
-   */
-  public function setXdebugIniFilepath(string $file_path): void {
-    $this->xdebugIniFilepath = $file_path;
-  }
-
-  /**
-   *
-   * @return string
-   */
-  public function getXdebugIniFilePath(): string {
-    if (!isset($this->xdebugIniFilepath)) {
-      $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
-    }
-    return $this->xdebugIniFilepath;
   }
 
   /**
