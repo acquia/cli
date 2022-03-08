@@ -1,0 +1,11 @@
+on:
+  release:
+    types: [prereleased]
+
+jobs:
+  create-ticket:
+    runs-on: ubuntu-latest
+    name: Create a CCB ticket in Jira
+    steps:
+      - run: echo random-number ${{ steps.foo.outputs.random-number }}
+        shell: bash
