@@ -4,11 +4,11 @@
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
 
-require_once __DIR__ . '../../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $loader = new FilesystemLoader(__DIR__);
 $twig = new Environment($loader);
-echo $twig->render('ccb-ticket.md', [
+echo $twig->render('ccb-ticket.twig', [
   // @see https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
   'GITHUB_RELEASE_BODY' => $_ENV['GITHUB_RELEASE_BODY'],
   'GITHUB_RELEASE_NAME' => $_ENV['GITHUB_RELEASE_NAME'],
