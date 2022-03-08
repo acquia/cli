@@ -7,5 +7,22 @@ jobs:
     runs-on: ubuntu-latest
     name: Create a CCB ticket in Jira
     steps:
-      - run: echo random-number ${{ steps.foo.outputs.random-number }}
+      - run: | 
+          curl \
+          -D- \
+          -u $USER:PASSWORD \
+          -X POST \
+          --data "{ \
+            \"fields\": { \
+              \"project\": { \
+                \"key\": \"${JIRA_PROJECT_ID}\", \
+              }" \
+              \"summary\": \"the summary\", \
+              \"description\": \"the description\", \
+              \"issuetype\": { \
+                \"name\": \"task\", \
+              }" \
+            }" \
+          -H "Content-Type: application/json" \
+          $JIRA_BASE_API_URL/$JIRA_PROJECT_ID/issue/
         shell: bash
