@@ -78,24 +78,14 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @param string $path
    */
-  public function setIdePhpFilePathPrefix($path): void {
+  public function setIdePhpFilePathPrefix(string $path): void {
     $this->idePhpFilePathPrefix = $path;
-  }
-
-  /**
-   * @return string
-   */
-  public function getIdePhpVersionFilePath(): string {
-    if (!isset($this->phpVersionFilePath)) {
-      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
-    }
-    return $this->phpVersionFilePath;
   }
 
   /**
    * @param string $path
    */
-  public function setPhpVersionFilePath($path): void {
+  public function setPhpVersionFilePath(string $path): void {
     $this->phpVersionFilePath = $path;
   }
 
@@ -105,7 +95,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validatePhpVersion($version) {
+  protected function validatePhpVersion(string $version): string {
     $violations = Validation::createValidator()->validate($version, [
       new Length(['min' => 3]),
       new NotBlank(),

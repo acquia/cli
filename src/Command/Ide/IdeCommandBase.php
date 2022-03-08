@@ -95,4 +95,21 @@ abstract class IdeCommandBase extends CommandBase {
     }
   }
 
+  /**
+   * @return false|string
+   */
+  protected function getIdePhpVersion() {
+    return file_get_contents($this->getIdePhpVersionFilePath());
+  }
+
+  /**
+   * @return string
+   */
+  public function getIdePhpVersionFilePath(): string {
+    if (!isset($this->phpVersionFilePath)) {
+      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
+    }
+    return $this->phpVersionFilePath;
+  }
+
 }

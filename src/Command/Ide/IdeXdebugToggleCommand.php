@@ -79,7 +79,12 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   public function getXdebugIniFilePath(): string {
     if (!isset($this->xdebugIniFilepath)) {
-      $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
+      if ($this->getIdePhpVersion() == '8') {
+        $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug3.ini';
+      }
+      else {
+        $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
+      }
     }
     return $this->xdebugIniFilepath;
   }
