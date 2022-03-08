@@ -108,6 +108,13 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
+   * @param string $path
+   */
+  public function setPhpVersionFilePath(string $path): void {
+    $this->phpVersionFilePath = $path;
+  }
+
+  /**
    * @return string
    */
   public function getIdePhpVersionFilePath(): string {

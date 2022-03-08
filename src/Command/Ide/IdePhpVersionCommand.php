@@ -78,13 +78,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   }
 
   /**
-   * @param string $path
-   */
-  public function setPhpVersionFilePath(string $path): void {
-    $this->phpVersionFilePath = $path;
-  }
-
-  /**
    * @param string $version
    *
    * @return string
