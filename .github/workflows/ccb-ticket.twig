@@ -3,17 +3,17 @@ h3. Change Type
 Normal
 h3. Change Description
 
-{{ release_notes }}
+{{ GITHUB_RELEASE_BODY }}
 
 h2. Impact and Risks
  * *How does this change specifically affect the customer?* - Acquia CLI is a packaged software that customers are free to install or not. Similarly, they are free to update or not. Upgrading means they'll have an improved version of the software. Since we're trying to always ship the latest Acquia CLI version in Cloud IDE, then the impact there is they'll benefit from an improved experience working with it.
  * *Will this change result in downtime, impact to HA, or service restarts?* - No, Acquia CLI is not a service, so there's no downtime, impact, HA or service restarts involved. It's just a PHP-based Open Source CLI tool that is entirely disposable.
- * *What is the expected duration of the change implementation?* - The change implementation takes 5mn and is not disruptive, as per the [Acquia CLI release runbook|https://github.com/acquia/cli/blob/master/RELEASE.md]. 
+ * *What is the expected duration of the change implementation?* - The change implementation takes 5mn and is not disruptive, as per the [Acquia CLI release runbook|https://github.com/acquia/cli/blob/master/RELEASE.md].
  * *What are the risks of _not_ performing this change in a timely manner?* - None. We just want to be able to ship the new version with Cloud IDE.
 
 h3. Related Tickets
 
-See [this JQL|{{ jira_base_url }}/issues/?jql=project%20%3D%20CLI%20AND%20fixVersion%20%3D%20%22Acquia%20CLI%20{{ tog_name }}%22].
+See [this JQL|{{ JIRA_BASE_URL }}/issues/?jql=project%20%3D%20CLI%20AND%20fixVersion%20%3D%20%22Acquia%20CLI%20{{ GITHUB_RELEASE_NAME }}%22].
 h3. Technical Publication Tickets
 @TODO!
 
@@ -45,8 +45,8 @@ h3. Customer Base: Target Realms
 h3. Date and Time of Change (in UTC)
 As soon as we get CCB approval. This can be released at any point in time as it's just a packaged release on Github.
 h3. Test Results
- * Tests are passing correctly. See {{ $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID }}
- * See also our test coverage here: [https://coveralls.io/github/acquia/cli]
+ * Tests are passing correctly. See {{ GITHUB_ACTIONS_RUN_URL }}
+ * See also our test coverage here: [https://coveralls.io/github/acquia/cli]
 
 h3. Change Plan
 
