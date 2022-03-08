@@ -10,30 +10,12 @@ jobs:
       - name: Create ticket
         env:
           JIRA_USER: ${{ secrets.JIRA_USER }}
-          JIRA_PASSWORD: ${{ secrets.JIRA_PASSWORD }}
-          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_BASE_API_URL: ${{ secrets.JIRA_BASE_API_URL }}
+          JIRA_PASS: ${{ secrets.JIRA_PASSWORD }}
+          JIRA_HOST: ${{ secrets.JIRA_BASE_URL }}
           JIRA_PROJECT_ID: 20084
+          TOKEN_BASED_AUTH: FALSE
           # @see https://docs.github.com/en/rest/reference/releases#get-a-release
           GITHUB_RELEASE_BODY: ${{ github.event.release.body }}
           GITHUB_RELEASE_NAME: ${{ github.event.release.name }}
-        # @see https://developer.atlassian.com/server/jira/platform/jira-rest-api-examples/
-        run: |
-           DESCRIPTION="$(${GITHUB_WORKSPACE}/.github/workflows/render-ticket.sh)"
-           curl \
-           -D- \
-           -u $JIRA_USER:JIRA_PASSWORD \
-           -X POST \
-           --data "{ \
-             \"fields\": { \
-               \"project\": { \
-                 \"id\": \"${JIRA_PROJECT_ID}\", \
-               }" \
-               \"description\": \"${DESCRIPTION}", \
-               \"issuetype\": { \
-                 \"name\": \"Release\", \
-               }" \
-             }" \
-           -H "Content-Type: application/json" \
-           $JIRA_BASE_API_URL/2/issue/
+        run: ${GITHUB_WORKSPACE}/.github/workflows/render-ticket.sh)
         shell: bash
