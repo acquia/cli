@@ -23,11 +23,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @var string
    */
-  private $phpVersionFilePath;
-
-  /**
-   * @var string
-   */
   private $idePhpFilePathPrefix;
 
   /*

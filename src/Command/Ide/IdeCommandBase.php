@@ -13,6 +13,11 @@ use AcquiaCloudApi\Response\IdeResponse;
 abstract class IdeCommandBase extends CommandBase {
 
   /**
+   * @var string
+   */
+  private $phpVersionFilePath;
+
+  /**
    * @param string $question_text
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
