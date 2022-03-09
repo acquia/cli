@@ -4,7 +4,10 @@ namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Response\SubscriptionResponse;
+use League\Csv\Writer;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
 use Symfony\Component\Console\Helper\TableCellStyle;
@@ -45,105 +48,206 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
     $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
 
     if (count($response)) {
-      $all_domains_table = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
-      $verified_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Verified Domains");
-      $pending_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Pending Domains");
-      $failed_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
 
-      foreach ($response as $domain) {
-        if ($domain->health->code === '200') {
-          $verified_domains_table->addRow([
-            $domain->domain_name,
-            $domain->uuid,
-            'none'
-          ]);
-        }
-        else if ($domain->health->code === '202') {
-          $pending_domains_table->addRow([
-            $domain->domain_name,
-            $domain->uuid,
-            'none'
-          ]);
-        }
-        else {
-          $failed_domains_table->addRow([
-            $domain->domain_name,
-            $domain->uuid,
-            $domain->health->summary
-          ]);
-        }
+      $this->localMachineHelper->getFilesystem()->remove("./domain-info-{$subscription->uuid}");
+      $this->localMachineHelper->getFilesystem()->mkdir("./domain-info-{$subscription->uuid}");
 
-        $all_domains_table->addRow([
-          $domain->domain_name,
-          $domain->uuid,
-          $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
-        ]);
+      $this->writeDomainsToTables($output, $subscription, $response);
+
+      $subscription_applications = $this->validateSubscriptionApplicationCount($client, $subscription);
+
+      if (!isset($subscription_applications)) {
+        return 1;
       }
 
-      $all_domains_table->render();
-      $this->io->newLine();
+      $this->renderApplicationAssociations($output, $client, $subscription_applications);
 
-      $verified_domains_table->render();
-      $this->io->newLine();
-
-      $pending_domains_table->render();
-      $this->io->newLine();
-
-      $failed_domains_table->render();
-      $this->io->newLine();
-
-      $applications_resource = new Applications($client);
-      $applications = $applications_resource->getAll();
-      $subscription_applications = [];
-
-      foreach ($applications as $application) {
-        if ($application->subscription->uuid === $subscription->uuid) {
-          $subscription_applications[] = $application;
-        }
-      }
-      if (count($subscription_applications) === 0) {
-        throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
-      }
-      if (count($subscription_applications) > 100) {
-        $this->io->warning('You have over 100 applications in this subscription. Retrieving the email domains for each could take a while!');
-        $continue = $this->io->confirm('Do you wish to continue?');
-        if (!$continue) {
-          return 1;
-        }
-      }
-      $apps_domains_table = $this->createApplicationDomainsTable($output, 'Domain Association Status');
-      foreach($subscription_applications as $index => $app) {
-        $app_domains = $client->request('get', "/applications/{$app->uuid}/email/domains");
-
-        if ($index !== 0) {
-          $apps_domains_table->addRow([new TableSeparator(['colspan' => 2])]);
-        }
-        $apps_domains_table->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
-        if(count($app_domains)) {
-          foreach($app_domains as $domain) {
-            $apps_domains_table->addRow([
-              $domain->domain_name,
-              var_export($domain->flags->associated, TRUE)
-            ]);
-          }
-        }
-        else {
-          $apps_domains_table->addRow([new TableCell("No domains eligible for association.", [
-            'colspan' => 2,
-            'style' => new TableCellStyle([
-              'fg' => 'yellow'
-            ]),
-          ])
-]);
-        }
-      }
-      $apps_domains_table->render();
     }
     else {
       $this->io->info("No email domains registered in {$subscription->name}.");
     }
 
     return 0;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
+   * @param array $domain_list
+   *
+   * @return void
+   */
+  protected function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list) {
+
+    // initialize tables to be displayed in console
+    $all_domains_table = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
+    $verified_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Verified Domains");
+    $pending_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Pending Domains");
+    $failed_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
+
+    // initialize csv writers for each file
+    $writer_all_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/all-domains-summary.csv", 'w+');
+    $writer_verified_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/verified-domains-summary.csv", 'w+');
+    $writer_pending_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/pending-domains-summary.csv", 'w+');
+    $writer_failed_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/failed-domains-summary.csv", 'w+');
+    $writer_all_domains_dns_health = Writer::createFromPath("./domain-info-{$subscription->uuid}/all-domains-dns-health.csv", 'w+');
+
+    $all_domains_summary_header = ['Domain Name', 'Domain UUID', 'Verification Status'];
+    $writer_all_domains->insertOne($all_domains_summary_header);
+
+    $verified_domains_header = ['Domain Name', 'Summary'];
+    $writer_verified_domains->insertOne($verified_domains_header);
+
+    $pending_domains_header = $verified_domains_header;
+    $writer_pending_domains->insertOne($pending_domains_header);
+
+    $failed_domains_header = $verified_domains_header;
+    $writer_failed_domains->insertOne($failed_domains_header);
+
+    $all_domains_dns_health_csv_header = ['Domain Name', 'Domain UUID', 'Domain Health', 'DNS Record Name', 'DNS Record Type', 'DNS Record Value', 'DNS Record Health Details'];
+    $writer_all_domains_dns_health->insertOne($all_domains_dns_health_csv_header);
+
+    foreach ($domain_list as $domain) {
+      $domain_name_and_summary = [$domain->domain_name, $domain->health->summary];
+
+      if ($domain->health->code === '200') {
+        $verified_domains_table->addRow($domain_name_and_summary);
+        $writer_verified_domains->insertOne($domain_name_and_summary);
+      }
+      else if ($domain->health->code === '202') {
+        $pending_domains_table->addRow($domain_name_and_summary);
+        $writer_pending_domains->insertOne($domain_name_and_summary);
+      }
+      else {
+        $failed_domains_table->addRow($domain_name_and_summary);
+        $writer_failed_domains->insertOne($domain_name_and_summary);
+      }
+
+      $all_domains_table->addRow([
+        $domain->domain_name,
+        $domain->uuid,
+        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
+      ]);
+
+      $writer_all_domains->insertOne([
+        $domain->domain_name,
+        $domain->uuid,
+        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
+      ]);
+
+      foreach($domain->dns_records as $index => $record) {
+        if ($index === 0) {
+          $writer_all_domains_dns_health->insertOne([
+            $domain->domain_name,
+            $domain->uuid,
+            $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
+            $record->name,
+            $record->type,
+            $record->value,
+            $record->health->details
+          ]);
+        }
+        else {
+          $writer_all_domains_dns_health->insertOne([
+            '',
+            '',
+            '',
+            $record->name,
+            $record->type,
+            $record->value,
+            $record->health->details
+          ]);
+        }
+      }
+    }
+
+    $this->renderDomainInfoTables([$all_domains_table, $verified_domains_table, $pending_domains_table, $failed_domains_table]);
+
+  }
+
+  /**
+   * Nicely renders a given array of tables.
+   *
+   * @param array $tables
+   *
+   * @return void
+   */
+  protected function renderDomainInfoTables(array $tables) {
+    foreach ($tables as $table) {
+      $table->render();
+      $this->io->newLine();
+    }
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $client
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
+   *
+   * @return array|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription) {
+    $applications_resource = new Applications($client);
+    $applications = $applications_resource->getAll();
+    $subscription_applications = [];
+
+    foreach ($applications as $application) {
+      if ($application->subscription->uuid === $subscription->uuid) {
+        $subscription_applications[] = $application;
+      }
+    }
+    if (count($subscription_applications) === 0) {
+      throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
+    }
+    if (count($subscription_applications) > 100) {
+      $this->io->warning('You have over 100 applications in this subscription. Retrieving the email domains for each could take a while!');
+      $continue = $this->io->confirm('Do you wish to continue?');
+      if (!$continue) {
+        return NULL;
+      }
+    }
+
+    return $subscription_applications;
+  }
+
+  /**
+   * Renders a table of applications in a subscription and the email domains
+   * associated or dissociated with each application.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Connector\Client $client
+   * @param $subscription_applications
+   *
+   * @return void
+   */
+  protected function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription_applications) {
+    $apps_domains_table = $this->createApplicationDomainsTable($output, 'Domain Association Status');
+    foreach($subscription_applications as $index => $app) {
+      $app_domains = $client->request('get', "/applications/{$app->uuid}/email/domains");
+
+      if ($index !== 0) {
+        $apps_domains_table->addRow([new TableSeparator(['colspan' => 2])]);
+      }
+      $apps_domains_table->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
+      if(count($app_domains)) {
+        foreach($app_domains as $domain) {
+          $apps_domains_table->addRow([
+            $domain->domain_name,
+            var_export($domain->flags->associated, TRUE)
+          ]);
+        }
+      }
+      else {
+        $apps_domains_table->addRow([new TableCell("No domains eligible for association.", [
+          'colspan' => 2,
+          'style' => new TableCellStyle([
+            'fg' => 'yellow'
+          ]),
+        ])
+]);
+      }
+    }
+    $apps_domains_table->render();
   }
 
   /**
@@ -187,12 +291,10 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
     $table = new Table($output);
     $table->setHeaders([
       'Domain Name',
-      'Domain UUID',
       'Summary',
     ]);
     $table->setHeaderTitle($title);
     $table->setColumnWidths([
-      $terminal_width * .2,
       $terminal_width * .2,
       $terminal_width * .2,
     ]);
@@ -201,7 +303,8 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   }
 
   /**
-   * Creates a table of domains of one verification status in a subscription.
+   * Creates a table of applications in a subscription and the associated
+   * or dissociated domains in each application.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param string $title

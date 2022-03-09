@@ -29,3 +29,5 @@ tests/fixtures/project/.acquia-cli.yml
 cx-api-spec
 dns-records.yaml
 dns-records.json
+
+domain-info-*/
