@@ -123,7 +123,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
       // Please select a Cloud Platform subscription
       0,
       // Do you wish to continue?
-      'yes'
+      'no'
     ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
@@ -151,8 +151,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->assertEquals(0, $this->getStatusCode());
-    $this->assertEquals(101, substr_count($output, 'Application: '));
+    $this->assertEquals(1, $this->getStatusCode());
 
   }
 
