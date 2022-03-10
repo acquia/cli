@@ -76,6 +76,19 @@ Acquia CLI stores a local copy of the Cloud Platform API spec in the `assets` di
 composer update-cloud-api-spec
 ```
 
+## Generate docs
+
+To generate docs for all commands in RST format, run:
+```
+./bin/acli self:make-docs
+```
+
+If you're on Mac, you can render and view the outputted RST using a command like this:
+```
+brew install restview
+./bin/acli self:make-docs > /tmp/acli.rst && restview /tmp/acli.rst
+```
+
 ## Style guide
 
 Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
