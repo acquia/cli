@@ -251,7 +251,9 @@ class ApiCommandHelper {
     }
 
     $command->setDefinition(new InputDefinition($input_definition));
-    $command->addUsage(rtrim($usage));
+    if ($usage) {
+      $command->addUsage(rtrim($usage));
+    }
     $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
   }
 
