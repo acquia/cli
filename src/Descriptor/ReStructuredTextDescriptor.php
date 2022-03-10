@@ -161,7 +161,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
       }
 
       $this->write("\n\n");
-      $this->write(implode("\n", array_map(function ($commandName) use ($description) {
+      $this->write(implode("\n", array_map(function ($commandName) {
         return sprintf('- `%s`_', $commandName, str_replace(':', '-', $commandName));
       }, $namespace['commands'])));
     }
