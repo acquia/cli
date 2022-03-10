@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\Descriptor\ReStructuredTextDescriptor;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,8 +29,10 @@ class MakeDocsCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $helper = new DescriptorHelper();
+    $helper->register('rst', new ReStructuredTextDescriptor());
+
     $helper->describe($output, $this->getApplication(), [
-      'format' => 'md',
+      'format' => 'rst',
     ]);
 
     return 0;
