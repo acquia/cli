@@ -29,7 +29,9 @@ class MakeDocsCommandTest extends CommandTestBase {
   public function testMakeDocsCommand(): void {
     $this->executeCommand([], []);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Acquia CLI @package_version@', $output);
+    $this->assertStringContainsString('Console Tool', $output);
+    $this->assertStringContainsString('############', $output);
+    $this->assertStringContainsString('- `completion`_', $output);
   }
 
 }
