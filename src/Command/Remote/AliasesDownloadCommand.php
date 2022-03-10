@@ -3,8 +3,10 @@
 namespace Acquia\Cli\Command\Remote;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Account;
 use PharData;
+use Psr\Http\Message\StreamInterface;
 use RecursiveIteratorIterator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -34,7 +36,9 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function configure() {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
-      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded');
+      ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
+      ->addOption('all', NULL, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
+    $this->acceptApplicationUuid();
   }
 
   /**
@@ -43,53 +47,24 @@ class AliasesDownloadCommand extends SshCommand {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $alias_version = $this->promptChooseDrushAliasVersion();
-    $site_prefix = '';
-    if ($alias_version === 9) {
-      $this->setDirAndRequireProjectCwd($input);
-      $cloud_application_uuid = $this->determineCloudApplication();
-      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-      $parts = explode(':', $cloud_application->hosting->id);
-      $site_prefix = $parts[1];
-    }
-    $acquia_cloud_client->addQuery('version', $alias_version);
-    $account_adapter = new Account($acquia_cloud_client);
-    $aliases = $account_adapter->getDrushAliases();
-    $drush_archive_filepath = $this->getDrushArchiveTempFilepath();
-    $this->localMachineHelper->writeFile($drush_archive_filepath, $aliases);
+    $drush_archive_temp_filepath = $this->getDrushArchiveTempFilepath();
     $drush_aliases_dir = $this->getDrushAliasesDir($alias_version);
-
-    // This message is useful for debugging but could be misleading in ordinary
-    // usage, because the archive is deleted before the command exits.
-    $this->output->writeln(sprintf(
-      'Cloud Platform Drush Aliases archive downloaded to <options=bold>%s</>',
-      $drush_archive_filepath
-    ), OutputInterface::VERBOSITY_VERBOSE);
-
     $this->localMachineHelper->getFilesystem()->mkdir($drush_aliases_dir);
     $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
-    // Tarball may have many subdirectories, only extract this one.
-    $base_dir = $alias_version === 8 ? '.drush' : 'sites';
-    $archive = new PharData($drush_archive_filepath . '/' . $base_dir);
-    $drushFiles = [];
+    if ($alias_version === 9) {
+      $this->downloadDrush9Aliases($input, $alias_version, $drush_archive_temp_filepath, $drush_aliases_dir);
+    }
+    else {
+      $this->downloadDrush8Aliases($alias_version, $drush_archive_temp_filepath, $drush_aliases_dir);
+    }
 
-    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
-      if ($alias_version === 9 && $file->getFileName() !== $site_prefix . '.site.yml') {
-        continue;
-      }
-      $drushFiles[] = $base_dir . '/' . $file->getFileName();
-    }
-    if (empty($drushFiles)) {
-      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
-    }
-    $archive->extractTo(dirname($drush_aliases_dir), $drushFiles, TRUE);
     $this->output->writeln(sprintf(
       'Cloud Platform Drush aliases installed into <options=bold>%s</>',
       $drush_aliases_dir
     ));
-    unlink($drush_archive_filepath);
+    unlink($drush_archive_temp_filepath);
 
     return 0;
   }
@@ -143,7 +118,7 @@ class AliasesDownloadCommand extends SshCommand {
               ->getLocalFilepath('~') . '/.drush';
           break;
         case 9:
-          $this->drushAliasesDir = Path::join($this->dir, 'drush', 'sites');
+          $this->drushAliasesDir = Path::join($this->dir, 'drush');
           break;
         default:
           throw new AcquiaCliException("Unknown Drush version");
@@ -151,6 +126,116 @@ class AliasesDownloadCommand extends SshCommand {
     }
 
     return $this->drushAliasesDir;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param int $alias_version
+   *
+   * @return \Psr\Http\Message\StreamInterface
+   */
+  protected function getAliasesFromCloud(Client $acquia_cloud_client, $alias_version): StreamInterface {
+    $acquia_cloud_client->addQuery('version', $alias_version);
+    $account_adapter = new Account($acquia_cloud_client);
+    return $account_adapter->getDrushAliases();
+  }
+
+  /**
+   * @param bool $single_application
+   *
+   * @return mixed|string
+   * @throws \Exception
+   */
+  protected function getSitePrefix(bool $single_application) {
+    $site_prefix = '';
+    if ($single_application) {
+      $cloud_application_uuid = $this->determineCloudApplication();
+      $cloud_application = $this->getCloudApplication($cloud_application_uuid);
+      $parts = explode(':', $cloud_application->hosting->id);
+      $site_prefix = $parts[1];
+    }
+    return $site_prefix;
+  }
+
+  /**
+   * @param int $alias_version
+   * @param string $drush_archive_temp_filepath
+   * @param string $base_dir
+   *
+   * @return \PharData
+   */
+  protected function downloadArchive($alias_version, string $drush_archive_temp_filepath, string $base_dir): PharData {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $aliases = $this->getAliasesFromCloud($acquia_cloud_client, $alias_version);
+    $this->localMachineHelper->writeFile($drush_archive_temp_filepath, $aliases);
+    return new PharData($drush_archive_temp_filepath . '/' . $base_dir);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param int $alias_version
+   * @param string $drush_archive_temp_filepath
+   * @param string $drush_aliases_dir
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function downloadDrush9Aliases(InputInterface $input, int $alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
+    $this->setDirAndRequireProjectCwd($input);
+    $all = $input->getOption('all');
+    $application_uuid_argument = $input->getArgument('applicationUuid');
+    $single_application = !$all || $application_uuid_argument;
+    $site_prefix = $this->getSitePrefix($single_application);
+    $base_dir = 'sites';
+    $archive = $this->downloadArchive($alias_version, $drush_archive_temp_filepath, $base_dir);
+    if ($single_application) {
+      $drushFiles = $this->getSingleAliasForSite($archive, $site_prefix, $base_dir);
+    }
+    else {
+      $drushFiles = [];
+      foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+        $drushFiles[] = $base_dir . '/' . $file->getFileName();
+      }
+    }
+    $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
+  }
+
+  /**
+   * @param int $alias_version
+   * @param string $drush_archive_temp_filepath
+   * @param string $drush_aliases_dir
+   */
+  protected function downloadDrush8Aliases($alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
+    $base_dir = '.drush';
+    $archive = $this->downloadArchive($alias_version, $drush_archive_temp_filepath, $base_dir);
+    $drushFiles = [];
+    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+      $drushFiles[] = $base_dir . '/' . $file->getFileName();
+    }
+    $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
+  }
+
+  /**
+   * @param \PharData $archive
+   * @param string $site_prefix
+   * @param string $base_dir
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getSingleAliasForSite(PharData $archive, $site_prefix, string $base_dir): array {
+    $drushFiles = [];
+    foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
+      // Just get the single alias for this single application.
+      if ($file->getFileName() === $site_prefix . '.site.yml') {
+        $drushFiles[] = $base_dir . '/' . $file->getFileName();
+        break;
+      }
+    }
+    if (empty($drushFiles)) {
+      throw new AcquiaCliException("Could not locate any aliases matching the current site ($site_prefix)");
+    }
+    return $drushFiles;
   }
 
 }
