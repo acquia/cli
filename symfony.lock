@@ -86,6 +86,9 @@
     "kevinrob/guzzle-cache-middleware": {
         "version": "v3.3.1"
     },
+    "league/csv": {
+        "version": "^9.8.0"
+    },
     "league/oauth2-client": {
         "version": "2.4.1"
     },

@@ -27,5 +27,8 @@ tests/fixtures/project/.acquia-cli.yml
 ###< phpunit/phpunit ###
 
 cx-api-spec
+
+# Generated files from Platform Email configuration/info commands
 dns-records.yaml
 dns-records.json
+subscription-*/
