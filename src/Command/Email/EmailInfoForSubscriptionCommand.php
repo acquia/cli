@@ -80,6 +80,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @param array $domain_list
    *
    * @return void
+   * @throws \League\Csv\CannotInsertRecord
    */
   protected function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list) {
 
@@ -225,6 +226,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @param $subscription_applications
    *
    * @return void
+   * @throws \League\Csv\CannotInsertRecord
    */
   protected function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications) {
     $apps_domains_table = $this->createApplicationDomainsTable($output, 'Domain Association Status');
@@ -349,7 +351,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return string
    */
-  protected function showHumanReadableStatus(string $code) {
+  protected function showHumanReadableStatus(string $code): string {
     switch ($code) {
       case '200':
           return "Succeeded";
