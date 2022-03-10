@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\Self;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Descriptor\ReStructuredTextDescriptor;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class MakeDocsCommand extends CommandBase {
 
-  protected static $defaultName = 'make:docs';
+  protected static $defaultName = 'self:make-docs';
 
   /**
    * {inheritdoc}.

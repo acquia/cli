@@ -1,15 +1,15 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\Self;
 
-use Acquia\Cli\Command\MakeDocsCommand;
+use Acquia\Cli\Command\Self\MakeDocsCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class MakeDocsCommandTest.
  *
- * @property \Acquia\Cli\Command\MakeDocsCommand $command
+ * @property \Acquia\Cli\Command\Self\MakeDocsCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class MakeDocsCommandTest extends CommandTestBase {
@@ -22,7 +22,7 @@ class MakeDocsCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'make:docs' command.
+   * Tests the 'self:make-docs' command.
    *
    * @throws \Exception
    */

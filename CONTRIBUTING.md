@@ -80,13 +80,13 @@ composer update-cloud-api-spec
 
 To generate docs for all commands in RST format, run:
 ```
-./bin/acli make:docs
+./bin/acli self:make-docs
 ```
 
 If you're on Mac, you can render and view the outputted RST using a command like this:
 ```
 brew install restview
-./bin/acli make:docs > /tmp/acli.rst && restview /tmp/acli.rst
+./bin/acli self:make-docs > /tmp/acli.rst && restview /tmp/acli.rst
 ```
 
 ## Style guide
