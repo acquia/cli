@@ -22,9 +22,11 @@ $body = $twig->render('ccb-ticket.twig', [
 try {
   $issueField = new IssueField();
   $issueField->setProjectKey("CLI")
+    ->setAssigneeName('aurelien.navarre')
     ->setSummary($_ENV['GITHUB_RELEASE_NAME'])
     ->setIssueType("Release")
     ->setDescription($body)
+    ->addCustomField('19994', 'No Impact')
     ->addComponents(['Acquia CLI']);
 
   $issueService = new IssueService();
