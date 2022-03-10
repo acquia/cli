@@ -49,8 +49,8 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
     if (count($response)) {
 
-      $this->localMachineHelper->getFilesystem()->remove("./domain-info-{$subscription->uuid}");
-      $this->localMachineHelper->getFilesystem()->mkdir("./domain-info-{$subscription->uuid}");
+      $this->localMachineHelper->getFilesystem()->remove("./subscription-{$subscription->uuid}-domains");
+      $this->localMachineHelper->getFilesystem()->mkdir("./subscription-{$subscription->uuid}-domains");
 
       $this->writeDomainsToTables($output, $subscription, $response);
 
@@ -60,8 +60,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
         return 1;
       }
 
-      $this->renderApplicationAssociations($output, $client, $subscription_applications);
+      $this->renderApplicationAssociations($output, $client, $subscription, $subscription_applications);
 
+      $this->io->info("CSV files with these tables have been exported to ./subscription-{$subscription->uuid}-domains. A detailed breakdown of each domain's DNS records has been exported there as well.");
     }
     else {
       $this->io->info("No email domains registered in {$subscription->name}.");
@@ -71,6 +72,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   }
 
   /**
+   * Renders tables showing email domain verification statuses,
+   * as well as exports these statuses to respective CSV files.
+   *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param array $domain_list
@@ -86,11 +90,11 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
     $failed_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
 
     // initialize csv writers for each file
-    $writer_all_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/all-domains-summary.csv", 'w+');
-    $writer_verified_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/verified-domains-summary.csv", 'w+');
-    $writer_pending_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/pending-domains-summary.csv", 'w+');
-    $writer_failed_domains = Writer::createFromPath("./domain-info-{$subscription->uuid}/failed-domains-summary.csv", 'w+');
-    $writer_all_domains_dns_health = Writer::createFromPath("./domain-info-{$subscription->uuid}/all-domains-dns-health.csv", 'w+');
+    $writer_all_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-summary.csv", 'w+');
+    $writer_verified_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/verified-domains-summary.csv", 'w+');
+    $writer_pending_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/pending-domains-summary.csv", 'w+');
+    $writer_failed_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/failed-domains-summary.csv", 'w+');
+    $writer_all_domains_dns_health = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-dns-health.csv", 'w+');
 
     $all_domains_summary_header = ['Domain Name', 'Domain UUID', 'Verification Status'];
     $writer_all_domains->insertOne($all_domains_summary_header);
@@ -180,6 +184,8 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   }
 
   /**
+   * Verifies the number of applications present in a subscription.
+   *
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    *
@@ -220,8 +226,13 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return void
    */
-  protected function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription_applications) {
+  protected function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications) {
     $apps_domains_table = $this->createApplicationDomainsTable($output, 'Domain Association Status');
+    $writer_apps_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/apps-domain-associations.csv", 'w+');
+
+    $apps_domains_header = ['Application', 'Domain Name', 'Associated?'];
+    $writer_apps_domains->insertOne($apps_domains_header);
+
     foreach($subscription_applications as $index => $app) {
       $app_domains = $client->request('get', "/applications/{$app->uuid}/email/domains");
 
@@ -235,6 +246,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
             $domain->domain_name,
             var_export($domain->flags->associated, TRUE)
           ]);
+          $writer_apps_domains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, TRUE)]);
         }
       }
       else {
@@ -244,7 +256,8 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
             'fg' => 'yellow'
           ]),
         ])
-]);
+        ]);
+        $writer_apps_domains->insertOne([$app->name, 'No domains eligible for association', '']);
       }
     }
     $apps_domains_table->render();
