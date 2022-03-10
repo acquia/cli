@@ -38,7 +38,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    */
   protected function describeInputArgument(InputArgument $argument, array $options = []) {
     $this->write(
-      '``' . ($argument->getName() ?: '<none>') . "``\n" . str_repeat($this->argumentTitleUnderlineChar, 4) . "\n\n"
+      '``' . ($argument->getName() ?: '<none>') . "``\n" . str_repeat($this->argumentTitleUnderlineChar, Helper::width($argument->getName()) + 4) . "\n\n"
       . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
       . '- Is required: ' . ($argument->isRequired() ? 'yes' : 'no') . "\n"
       . '- Is array: ' . ($argument->isArray() ? 'yes' : 'no') . "\n"
@@ -59,7 +59,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     }
 
     $this->write(
-      '``' . $name . '``' . "\n" . str_repeat($this->argumentTitleUnderlineChar, 4) . "\n\n"
+      '``' . $name . '``' . "\n" . str_repeat($this->argumentTitleUnderlineChar, Helper::width($name) + 4) . "\n\n"
       . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $option->getDescription()) . "\n\n" : '')
       . '- Accept value: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
       . '- Is value required: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
@@ -74,7 +74,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    */
   protected function describeInputDefinition(InputDefinition $definition, array $options = []) {
     if ($showArguments = \count($definition->getArguments()) > 0) {
-      $this->write("Arguments\n" . str_repeat($this->argumentsTitleUnderlineChar, 3)) . "\n\n";
+      $this->write("Arguments\n" . str_repeat($this->argumentsTitleUnderlineChar, 9)) . "\n\n";
       foreach ($definition->getArguments() as $argument) {
         $this->write("\n\n");
         if (NULL !== $describeInputArgument = $this->describeInputArgument($argument)) {
@@ -88,7 +88,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
         $this->write("\n\n");
       }
 
-      $this->write("Options\n" . str_repeat($this->argumentsTitleUnderlineChar, 3)) . "\n\n";
+      $this->write("Options\n" . str_repeat($this->argumentsTitleUnderlineChar, 7)) . "\n\n";
       foreach ($definition->getOptions() as $option) {
         $this->write("\n\n");
         if (NULL !== $describeInputOption = $this->describeInputOption($option)) {
@@ -105,9 +105,9 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     if ($options['short'] ?? FALSE) {
       $this->write(
         '``' . $command->getName() . "``\n"
-        . str_repeat($this->commandTitleUnderlineChar, Helper::width($command->getName()) + 2) . "\n\n"
+        . str_repeat($this->commandTitleUnderlineChar, Helper::width($command->getName()) + 4) . "\n\n"
         . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
-        . '### Usage' . "\n\n"
+        . "Usage\n" . str_repeat($this->argumentsTitleUnderlineChar, 5) . "\n\n"
         . array_reduce($command->getAliases(), function ($carry, $usage) {
           return $carry . '- ``' . $usage . '``' . "\n";
         })
@@ -118,11 +118,15 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
 
     $command->mergeApplicationDefinition(FALSE);
 
+    foreach ($command->getAliases() as $alias) {
+      $this->write('.. _' . $alias . ":\n\n");
+      //'.. _' . str_replace(':', '-', $command->getName()) . ':' . "\n\n"
+    }
     $this->write(
       '``' . $command->getName() . "``\n"
-      . str_repeat($this->commandTitleUnderlineChar, Helper::width($command->getName()) + 2) . "\n\n"
+      . str_repeat($this->commandTitleUnderlineChar, Helper::width($command->getName()) + 4) . "\n\n"
       . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
-      . '### Usage' . "\n\n"
+      . "Usage\n" . str_repeat($this->argumentsTitleUnderlineChar, 5) . "\n\n"
       . array_reduce(array_merge([$command->getSynopsis()], $command->getAliases(), $command->getUsages()), function ($carry, $usage) {
         return $carry . '- ``' . $usage . '``' . "\n";
       })
@@ -158,7 +162,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
 
       $this->write("\n\n");
       $this->write(implode("\n", array_map(function ($commandName) use ($description) {
-        return sprintf('- ```%s`` <#%s>`_', $commandName, str_replace(':', '', $description->getCommand($commandName)->getName()));
+        return sprintf('- `%s`_', $commandName, str_replace(':', '-', $commandName));
       }, $namespace['commands'])));
     }
 
