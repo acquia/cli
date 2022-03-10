@@ -62,7 +62,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
       $this->renderApplicationAssociations($output, $client, $subscription, $subscription_applications);
 
-      $this->io->info("CSV files with these tables have been exported to <options=bold>/subscription-{$subscription->uuid}-domains</>. A detailed breakdown of each domain's DNS records has been exported there as well.");
+      $this->output->writeln("<info>CSV files with these tables have been exported to <options=bold>/subscription-{$subscription->uuid}-domains</>. A detailed breakdown of each domain's DNS records has been exported there as well.</info>");
     }
     else {
       $this->io->info("No email domains registered in {$subscription->name}.");
