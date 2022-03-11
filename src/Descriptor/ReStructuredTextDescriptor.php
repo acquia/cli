@@ -40,9 +40,9 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     $this->write(
       '``' . ($argument->getName() ?: '<none>') . "``\n" . str_repeat($this->argumentTitleUnderlineChar, Helper::width($argument->getName()) + 4) . "\n\n"
       . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
-      . '- Is required: ' . ($argument->isRequired() ? 'yes' : 'no') . "\n"
-      . '- Is array: ' . ($argument->isArray() ? 'yes' : 'no') . "\n"
-      . '- Default: ``' . str_replace("\n", '', var_export($argument->getDefault(), TRUE)) . '``'
+      . '- **Is required**: ' . ($argument->isRequired() ? 'yes' : 'no') . "\n"
+      . '- **Is array**: ' . ($argument->isArray() ? 'yes' : 'no') . "\n"
+      . '- **Default**: ``' . str_replace("\n", '', var_export($argument->getDefault(), TRUE)) . '``'
     );
   }
 
@@ -61,11 +61,11 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     $this->write(
       '``' . $name . '``' . "\n" . str_repeat($this->argumentTitleUnderlineChar, Helper::width($name) + 4) . "\n\n"
       . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $option->getDescription()) . "\n\n" : '')
-      . '- Accept value: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
-      . '- Is value required: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
-      . '- Is multiple: ' . ($option->isArray() ? 'yes' : 'no') . "\n"
-      . '- Is negatable: ' . ($option->isNegatable() ? 'yes' : 'no') . "\n"
-      . '- Default: ``' . str_replace("\n", '', var_export($option->getDefault(), TRUE)) . '``'
+      . '- **Accept value**: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
+      . '- **Is value required**: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
+      . '- **Is multiple**: ' . ($option->isArray() ? 'yes' : 'no') . "\n"
+      . '- **Is negatable**: ' . ($option->isNegatable() ? 'yes' : 'no') . "\n"
+      . '- **Default**: ``' . str_replace("\n", '', var_export($option->getDefault(), TRUE)) . '``'
     );
   }
 
@@ -83,13 +83,27 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
       }
     }
 
-    if (\count($definition->getOptions()) > 0) {
+    $global_options = [
+      'help',
+      'quiet',
+      'verbose',
+      'version',
+      'ansi',
+      'no-interaction'
+    ];
+    $non_default_options = [];
+    foreach ($definition->getOptions() as $option) {
+      if (!in_array($option->getName(), $global_options)) {
+        $non_default_options[] = $option;
+      }
+    }
+    if (\count($non_default_options) > 0) {
       if ($showArguments) {
         $this->write("\n\n");
       }
 
       $this->write("Options\n" . str_repeat($this->argumentsTitleUnderlineChar, 7)) . "\n\n";
-      foreach ($definition->getOptions() as $option) {
+      foreach ($non_default_options as $option) {
         $this->write("\n\n");
         if (NULL !== $describeInputOption = $this->describeInputOption($option)) {
           $this->write($describeInputOption);
