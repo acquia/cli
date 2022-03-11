@@ -93,6 +93,8 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     ];
     $non_default_options = [];
     foreach ($definition->getOptions() as $option) {
+      // Skip global options.
+      // @todo Show these once at the beginning.
       if (!in_array($option->getName(), $global_options)) {
         $non_default_options[] = $option;
       }
@@ -134,7 +136,6 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
 
     foreach ($command->getAliases() as $alias) {
       $this->write('.. _' . $alias . ":\n\n");
-      //'.. _' . str_replace(':', '-', $command->getName()) . ':' . "\n\n"
     }
     $this->write(
       '``' . $command->getName() . "``\n"
@@ -170,6 +171,19 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
 
     foreach ($description->getNamespaces() as $namespace) {
       if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
+        try {
+          $all_hidden = TRUE;
+          foreach ($description->getCommands() as $command) {
+            if (strpos($command->getName(), $namespace['id'] . ':') !== FALSE && !$command->isHidden()) {
+              $all_hidden = FALSE;
+            }
+          }
+          if ($all_hidden) {
+            continue;
+          }
+        } catch (\Exception $exception) {
+
+        }
         $this->write("\n\n");
         $this->write('**' . $namespace['id'] . ':**');
       }
