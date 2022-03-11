@@ -21,7 +21,7 @@ jobs:
           issuetype: Task
           summary: ${{ github.events.issue.title }}
           description: ${{ github.events.issue.url }}
-          fields: '{"components": [{"id": "21989"}]}'
+          fields: '{"components": [{"id": "20084"}]}'
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
       - name: Update Github issue with Jira ticket prefix
