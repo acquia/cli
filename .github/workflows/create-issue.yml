@@ -24,11 +24,11 @@ jobs:
           fields: '{"components": [{"id": "20084"}]}'
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
-      - name: Update Github issue with Jira ticket prefix
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: 'update-issue'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          state: 'open'
-          title: "${{ steps.create.outputs.issue }}: ${{ github.event.issue.number }}"
+#      - name: Update Github issue with Jira ticket prefix
+#        uses: actions-cool/issues-helper@v3
+#        with:
+#          actions: 'update-issue'
+#          token: ${{ secrets.GITHUB_TOKEN }}
+#          issue-number: ${{ github.event.issue.number }}
+#          state: 'open'
+#          title: "${{ steps.create.outputs.issue }}: ${{ github.event.issue.number }}"
