@@ -51,7 +51,6 @@
     "require-dev": {
         "acquia/coding-standards": "*",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-        "lesstif/php-jira-rest-client": "^2.6",
         "php-coveralls/php-coveralls": "^2.2",
         "phpro/grumphp": "^1.2",
         "phpspec/prophecy": "^1.10",

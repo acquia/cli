@@ -7,16 +7,28 @@ jobs:
     runs-on: ubuntu-latest
     name: Create a CCB ticket in Jira
     steps:
-      - name: Create ticket
+      - name: Generate body
         env:
-          JIRA_USER: ${{ secrets.JIRA_USER }}
-          JIRA_PASS: ${{ secrets.JIRA_PASSWORD }}
-          JIRA_HOST: ${{ secrets.JIRA_BASE_URL }}
-          JIRA_PROJECT_ID: 20084
-          TOKEN_BASED_AUTH: FALSE
           # @see https://docs.github.com/en/rest/reference/releases#get-a-release
           GITHUB_RELEASE_BODY: ${{ github.event.release.body }}
           GITHUB_RELEASE_NAME: ${{ github.event.release.name }}
           GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh
+        run: export JIRA_DESCRIPTION="$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh)"
         shell: bash
+      - name: Login to Jira
+        uses: acquia/gajira-login-2@server
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      - name: Create CCB ticket
+        uses: acquia/gajira-create@server
+        with:
+          project: DX
+          issuetype: Release
+          summary: ${{ github.events.issue.title }}
+          description: ${{ env.JIRA_DESCRIPTION }}
+          # @todo Replace with CLI component ID.
+          fields: '{"components": [{"id": "21989"}]}'
+      - name: Log created issue
+        run: echo "Issue ${{ steps.create.outputs.issue }} was created"

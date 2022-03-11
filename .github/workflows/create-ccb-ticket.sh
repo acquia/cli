@@ -3,10 +3,6 @@
 
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
-use JiraRestApi\Issue\IssueService;
-use JiraRestApi\Issue\IssueField;
-use JiraRestApi\JiraException;
-
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 $loader = new FilesystemLoader(__DIR__);
@@ -18,21 +14,4 @@ $body = $twig->render('ccb-ticket.twig', [
   'JIRA_HOST' => $_ENV['JIRA_HOST'],
   'GITHUB_ACTIONS_RUN_URL' => $_ENV['GITHUB_ACTIONS_RUN_URL'],
 ]);
-
-try {
-  $issueField = new IssueField();
-  $issueField->setProjectKey("CLI")
-    ->setAssigneeName('aurelien.navarre')
-    ->setSummary($_ENV['GITHUB_RELEASE_NAME'])
-    ->setIssueType("Release")
-    ->setDescription($body)
-    ->addCustomField('19994', 'No Impact')
-    ->addComponents(['Acquia CLI']);
-
-  $issueService = new IssueService();
-
-  $ret = $issueService->create($issueField);
-  print "Created $ret->key";
-} catch (JiraException $e) {
-  print("An orror occurred! " . $e->getMessage());
-}
+echo $body;
