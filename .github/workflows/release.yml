@@ -1,3 +1,4 @@
+name: Jira release creator
 on: push
 #on:
 #  release:
