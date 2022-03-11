@@ -9,10 +9,11 @@ jobs:
     steps:
       - name: Create ticket
         env:
+          JIRA_USER: ${{ secrets.JIRA_USER }}
+          JIRA_PASS: ${{ secrets.JIRA_PASSWORD }}
           JIRA_HOST: ${{ secrets.JIRA_BASE_URL }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.JIRA_PERSONAL_ACCESS_TOKEN }}
           JIRA_PROJECT_ID: 20084
-          TOKEN_BASED_AUTH: true
+          TOKEN_BASED_AUTH: FALSE
           # @see https://docs.github.com/en/rest/reference/releases#get-a-release
           GITHUB_RELEASE_BODY: ${{ github.event.release.body }}
           GITHUB_RELEASE_NAME: ${{ github.event.release.name }}
