@@ -30,7 +30,6 @@ jobs:
           issuetype: Release
           summary: ${{ github.events.issue.title }}
           description: ${{ env.JIRA_DESCRIPTION }}
-          # @todo Replace with CLI component ID.
           fields: '{"components": [{"id": "21989"}]}'
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
