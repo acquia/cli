@@ -22,11 +22,10 @@ jobs:
       id: create
       uses: acquia/gajira-create@server
       with:
-        project: DX
+        project: CLI
         issuetype: Task
         summary: ${{ github.event.issue.title }}
         description: ${{ github.event.issue.html_url }}
-        fields: '{"components": [{"id": "21989"}]}'
     - name: Update Github issue with Jira ticket prefix
       run: 'gh issue edit $GH_ISSUE --title "$JIRA_ISSUE: $ISSUE_TITLE"'
       env:
