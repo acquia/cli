@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\SshCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -11,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IdeWizardDeleteSshKeyCommand.
  */
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
+
+  use SshCommandTrait;
 
   protected static $defaultName = 'ide:wizard:ssh-key:delete';
 
@@ -38,7 +41,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
       throw new AcquiaCliException('Could not find an SSH key on the Cloud Platform matching any local key in this IDE.');
     }
 
-    $this->deleteSshKeyFromCloud($cloud_key);
+    $this->deleteSshKeyFromCloud($output, $cloud_key);
     $this->deleteLocalSshKey();
 
     $this->output->writeln("<info>Deleted local files <options=bold>{$this->publicSshKeyFilepath}</> and <options=bold>{$this->privateSshKeyFilepath}</>");
