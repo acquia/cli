@@ -27,7 +27,7 @@ jobs:
         id: create
         uses: acquia/gajira-create@server
         with:
-          project: DX
+          project: CLI
           issuetype: Release
           summary: ${{ github.events.issue.title }}
           description: ${{ env.JIRA_DESCRIPTION }}
