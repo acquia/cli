@@ -19,7 +19,7 @@ jobs:
         run: export JIRA_DESCRIPTION="$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh)"
         shell: bash
       - name: Login to Jira
-        uses: acquia/gajira-login-2@server
+        uses: acquia/gajira-login@server
         env:
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
@@ -35,11 +35,3 @@ jobs:
           fields: '{"components": [{"id": "20084"}]}'
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
-      - name: Update Github issue with Jira ticket prefix
-        uses: actions-cool/issues-helper@v3
-        with:
-          actions: 'update-issue'
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.issue.number }}
-          state: 'open'
-          title: "${{ steps.create.outputs.issue }}: ${{ github.event.issue.number }}"
