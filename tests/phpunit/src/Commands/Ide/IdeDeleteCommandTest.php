@@ -54,7 +54,6 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $ide = new IdeResponse((object) $ide_get_response);
     $ssh_key_get_response = $this->mockListSshKeysRequestWithIdeKey($ide);
 
-    $this->mockGetIdeSshKeyRequest($ide);
     $this->mockDeleteSshKeyRequest($ssh_key_get_response->{'_embedded'}->items[0]->uuid);
 
     $inputs = [
