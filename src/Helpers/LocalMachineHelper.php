@@ -92,8 +92,8 @@ class LocalMachineHelper {
    */
   public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = new Process($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
-    return $this->executeProcess($process, $callback);
+    $process = $this->configureProcess($process, $cwd, $timeout, $env);
+    return $this->executeProcess($process, $callback, $print_output);
   }
 
   /**
@@ -115,9 +115,9 @@ class LocalMachineHelper {
    */
   public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
+    $process = $this->configureProcess($process, $cwd, $timeout, $env);
 
-    return $this->executeProcess($process, $callback);
+    return $this->executeProcess($process, $callback, $print_output);
   }
 
   /**
@@ -129,15 +129,12 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL) {
+  private function configureProcess(Process $process, $cwd = NULL, $timeout = NULL, $env = NULL) {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
       $process->setWorkingDirectory($cwd);
-    }
-    if ($print_output) {
-      $process->setTty($this->useTty());
     }
     if ($env) {
       $process->setEnv($env);
@@ -154,10 +151,16 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, $callback = NULL, $timeout = NULL): Process {
-    $process->setTimeout($timeout);
-    $process->start(NULL);
-    $process->wait($callback);
+  protected function executeProcess(Process $process, $callback = NULL, $print_output = TRUE): Process {
+    $process->start();
+    if ($callback) {
+      $process->wait($callback);
+    }
+    else {
+      $process->wait(function ($type, $buffer) {
+        $this->output->write($buffer);
+      });
+    }
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),
