@@ -31,6 +31,6 @@ jobs:
           issuetype: Release
           summary: ${{ github.event.issue.title }}
           description: ${{ env.JIRA_DESCRIPTION }}
-          fields: '{"components": [{"id": "20084"}]}'
+          fields: '{"components": [{"id": "25474"}]}'
       - name: Log created issue
         run: echo "Issue ${{ steps.create.outputs.issue }} was created"
