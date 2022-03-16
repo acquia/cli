@@ -1,8 +1,7 @@
 name: Jira release creator
-on: push
-#on:
-#  release:
-#    types: [prereleased]
+on:
+  release:
+    types: [prereleased]
 
 jobs:
   create-ticket:
