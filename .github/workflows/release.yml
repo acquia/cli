@@ -1,0 +1,36 @@
+name: Jira release creator
+on:
+  release:
+    types: [prereleased]
+
+jobs:
+  create-ticket:
+    runs-on: ubuntu-latest
+    name: Create a CCB ticket in Jira
+    steps:
+      - name: Generate Jira ticket body
+        env:
+          # @see https://docs.github.com/en/rest/reference/releases#get-a-release
+          GITHUB_RELEASE_BODY: ${{ github.event.release.body }}
+          GITHUB_RELEASE_NAME: ${{ github.event.release.name }}
+          GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+        run: export JIRA_DESCRIPTION="$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh)"
+        shell: bash
+      - name: Login to Jira
+        uses: acquia/gajira-login@server
+        env:
+          JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_USER_EMAIL: ${{ secrets.JIRA_USER_EMAIL }}
+      - name: Create CCB ticket in Jira
+        id: create
+        uses: acquia/gajira-create@server
+        with:
+          project: CLI
+          issuetype: Release
+          summary: ${{ github.event.issue.title }}
+          description: ${{ env.JIRA_DESCRIPTION }}
+          fields: '{"components": [{"id": "25474"}]}'
+      - name: Log created issue
+        run: echo "Issue ${{ steps.create.outputs.issue }} was created"

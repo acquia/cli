@@ -463,6 +463,9 @@
     "theseer/tokenizer": {
         "version": "1.2.1"
     },
+    "twig/twig": {
+        "version": "v3.3.8"
+    },
     "typhonius/acquia-logstream": {
         "version": "0.0.8"
     },
