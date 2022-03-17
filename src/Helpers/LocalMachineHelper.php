@@ -136,6 +136,7 @@ class LocalMachineHelper {
     if ($cwd) {
       $process->setWorkingDirectory($cwd);
     }
+    $process->setTty($this->useTty());
     if ($env) {
       $process->setEnv($env);
     }
@@ -152,15 +153,13 @@ class LocalMachineHelper {
    * @return \Symfony\Component\Process\Process
    */
   protected function executeProcess(Process $process, $callback = NULL, $print_output = TRUE): Process {
-    $process->start();
-    if ($callback) {
-      $process->wait($callback);
-    }
-    else {
-      $process->wait(function ($type, $buffer) {
+    if ($callback === NULL) {
+      $callback = function ($type, $buffer) {
         $this->output->write($buffer);
-      });
+      };
     }
+    $process->start();
+    $process->wait($callback);
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
       'command' => $process->getCommandLine(),
@@ -215,8 +214,8 @@ class LocalMachineHelper {
    * @return bool
    */
   public function useTty(): bool {
-    if (isset($this->isTty) && $this->isTty) {
-      return TRUE;
+    if (isset($this->isTty)) {
+      return $this->isTty;
     }
 
     // If we are not in interactive mode, then never use a tty.
