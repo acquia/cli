@@ -186,27 +186,6 @@ EOT
   }
 
   /**
-   * Get the first environment for a given Cloud application.
-   *
-   * @param string $cloud_app_uuid
-   *
-   * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
-   * @throws \Exception
-   */
-  protected function getAnyNonProdAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $environment_resource = new Environments($acquia_cloud_client);
-    /** @var EnvironmentResponse[] $application_environments */
-    $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
-    foreach ($application_environments as $environment) {
-      if (!$environment->flags->production) {
-        return $environment;
-      }
-    }
-    return NULL;
-  }
-
-  /**
    * @param string $filename
    * @param string $password
    *

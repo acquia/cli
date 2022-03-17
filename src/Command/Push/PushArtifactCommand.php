@@ -93,7 +93,8 @@ class PushArtifactCommand extends PullCommandBase {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
-    $destination_git_urls = $this->determineDestinationGitUrls();
+    $application_uuid = $this->determineCloudApplication();
+    $destination_git_urls = $this->determineDestinationGitUrls($application_uuid);
     $destination_git_branch = $this->determineDestinationGitBranch();
 
     $destination_git_urls_string = implode(',', $destination_git_urls);
@@ -145,7 +146,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @return false|mixed|null
    * @throws \Exception
    */
-  protected function determineDestinationGitUrls() {
+  protected function determineDestinationGitUrls($application_uuid) {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
@@ -156,8 +157,8 @@ class PushArtifactCommand extends PullCommandBase {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
     }
 
-    $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
-    $destination_git_url = $this->environment->vcs->url;
+    $environment = $this->getAnyNonProdAhEnvironment($application_uuid);
+    $destination_git_url = $environment->vcs->url;
     return [$destination_git_url];
   }
 
@@ -440,6 +441,7 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   protected function determineDestinationGitBranch() {
     if ($this->input->getOption('destination-git-branch')) {
@@ -448,6 +450,8 @@ class PushArtifactCommand extends PullCommandBase {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
       return $env_var;
     }
+
+    $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
     if (strpos($this->environment->vcs->path, 'tags') === 0) {
       throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$this->environment->name} has {$this->environment->vcs->path} deployed. Please select a different environment.");
     }

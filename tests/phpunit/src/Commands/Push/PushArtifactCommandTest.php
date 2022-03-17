@@ -30,6 +30,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPushArtifact(): void {
+    $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -42,7 +43,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       // Please select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
-      'n',
+      'y',
       // Please choose an Acquia environment:
       0,
     ];
@@ -77,8 +78,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
-      0,
     ];
     $this->executeCommand([
       '--tag-name' => $git_tag
@@ -88,12 +87,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
     $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
-    $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
   public function testPushArtifactWithAcquiaCliFile() {
+    $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $this->datastoreAcli->set('push.artifact.destination-git-urls', [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
@@ -114,6 +116,11 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPushArtifactWithArgs() {
+    $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $selected_environment = $environments_response->_embedded->items[0];
     $destination_git_urls = [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
