@@ -118,7 +118,7 @@ class AliasesDownloadCommand extends SshCommand {
               ->getLocalFilepath('~') . '/.drush';
           break;
         case 9:
-          $this->drushAliasesDir = Path::join($this->dir, 'drush');
+          $this->drushAliasesDir = Path::join($this->getRepoRoot(), 'drush');
           break;
         default:
           throw new AcquiaCliException("Unknown Drush version");
