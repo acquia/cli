@@ -63,7 +63,8 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->addOption('destination-git-urls', 'dest-git-urls', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
       ->addOption('destination-git-branch', 'dest-git-branch', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
-      ->addOption('tag-name', 'tag', InputOption::VALUE_REQUIRED, 'If defined, a tag with this name will be created and pushed')
+      ->addOption('source-git-branch', NULL, InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('destination-git-tag', 'tag', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
@@ -96,15 +97,22 @@ class PushArtifactCommand extends PullCommandBase {
     $application_uuid = $this->determineCloudApplication();
     $destination_git_urls = $this->determineDestinationGitUrls($application_uuid);
     $destination_git_branch = $this->determineDestinationGitBranch();
+    $source_git_branch = $this->determineSourceGitBranch();
 
     $destination_git_urls_string = implode(',', $destination_git_urls);
-    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $destination_git_branch branch on the $destination_git_urls_string git remote(s)");
+    $this->io->note([
+      "Acquia CLI will:",
+      "- clone $source_git_branch from $destination_git_urls[0]",
+      "- Compile the contents of $this->dir into an artifact",
+      "- Copy the artifact files into the checked out copy of $source_git_branch",
+      "- Commit changes and push to the $destination_git_branch branch to the following git remote(s):",
+      "  $destination_git_urls_string",
+    ]);
 
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    // @todo Output which git url we will pull from.
-    $this->cloneDestinationBranch($output_callback, $artifact_dir, $destination_git_urls[0], $destination_git_branch);
+    $this->cloneSourceBranch($output_callback, $artifact_dir, $destination_git_urls[0], $source_git_branch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
@@ -172,7 +180,7 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function cloneDestinationBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
+  protected function cloneSourceBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
     $output_callback('out', "Removing $artifact_dir if it exists");
@@ -436,6 +444,25 @@ class PushArtifactCommand extends PullCommandBase {
         throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
       }
     }
+  }
+
+  /**
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function determineSourceGitBranch() {
+    if ($this->input->getOption('source-git-branch')) {
+      return $this->input->getOption('source-git-branch');
+    }
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_BRANCH')) {
+      return $env_var;
+    }
+    // Assume the source and destination branches are the same.
+    if ($this->input->getOption('destination-git-branch')) {
+      return $this->input->getOption('destination-git-branch');
+    }
+    throw new AcquiaCliException("Could not determine source-git-branch.");
   }
 
   /**
