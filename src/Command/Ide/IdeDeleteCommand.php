@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
+use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -12,6 +13,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package Grasmash\YamlCli\Command
  */
 class IdeDeleteCommand extends IdeCommandBase {
+
+  use SshCommandTrait;
 
   protected static $defaultName = 'ide:delete';
 
@@ -52,7 +55,7 @@ class IdeDeleteCommand extends IdeCommandBase {
     if ($cloud_key) {
       $answer = $this->io->confirm('Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?');
       if ($answer) {
-        $this->deleteSshKeyFromCloud($cloud_key);
+        $this->deleteSshKeyFromCloud($output, $cloud_key);
       }
     }
 

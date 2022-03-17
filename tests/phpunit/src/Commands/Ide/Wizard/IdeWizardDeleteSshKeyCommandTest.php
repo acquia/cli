@@ -27,7 +27,6 @@ class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
     $ide = new IdeResponse((object) $ide_response);
     $mock_body = $this->mockListSshKeysRequestWithIdeKey($ide);
 
-    $this->mockGetIdeSshKeyRequest($ide);
     $this->mockDeleteSshKeyRequest($mock_body->{'_embedded'}->items[0]->uuid);
 
     // Create the file so it can be deleted.

@@ -1035,21 +1035,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $command_name
-   * @param array $arguments
-   *
-   * @return int
-   * @throws \Exception
-   */
-  protected function executeAcliCommand($command_name, $arguments = []): int {
-    $command = $this->getApplication()->find($command_name);
-    array_unshift($arguments, ['command' => $command_name]);
-    $create_input = new ArrayInput($arguments);
-
-    return $command->run($create_input, new NullOutput());
-  }
-
-  /**
    * @param string $alias
    *
    * @return string
@@ -1214,21 +1199,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     return NULL;
-  }
-
-  /**
-   * @param \stdClass|null $cloud_key
-   *
-   * @throws AcquiaCliException
-   * @throws \Exception
-   */
-  protected function deleteSshKeyFromCloud(stdClass $cloud_key): void {
-    $return_code = $this->executeAcliCommand('ssh-key:delete', [
-      '--cloud-key-uuid' => $cloud_key->uuid,
-    ]);
-    if ($return_code !== 0) {
-      throw new AcquiaCliException('Unable to delete SSH key from the Cloud Platform');
-    }
   }
 
   public function checkForNewVersion() {

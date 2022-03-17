@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\WizardCommandBase;
+use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IdeWizardCommandBase.
  */
 abstract class IdeWizardCommandBase extends WizardCommandBase {
+
+  use SshCommandTrait;
+
   /**
    * @var false|string
    */
@@ -72,4 +76,5 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
       $this->deleteSshKeyFromCloud($cloud_key);
     }
   }
+
 }

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ssh;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
+use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -26,6 +27,8 @@ use Symfony\Component\Validator\Validation;
  * Class SshKeyCommandBase.
  */
 abstract class SshKeyCommandBase extends CommandBase {
+
+  use SshCommandTrait;
 
   /** @var string */
   protected $passphraseFilepath;
@@ -52,16 +55,6 @@ abstract class SshKeyCommandBase extends CommandBase {
     $this->privateSshKeyFilename = $private_ssh_key_filename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
-  }
-
-  /**
-   * @return \Symfony\Component\Finder\SplFileInfo[]
-   * @throws \Exception
-   */
-  protected function findLocalSshKeys(): array {
-    $finder = $this->localMachineHelper->getFinder();
-    $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
-    return iterator_to_array($finder);
   }
 
   /**
