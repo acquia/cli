@@ -45,8 +45,8 @@ class CopyCronTasksCommandTest extends CommandTestBase {
     $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $this->executeCommand(
       [
-      'source_app' => $source,
-      'dest_app' => $dest,
+      'source_env' => $source,
+      'dest_env' => $dest,
       ],
       [
         'y'
@@ -67,8 +67,8 @@ class CopyCronTasksCommandTest extends CommandTestBase {
    */
   public function testCopyCronTasksCommandTestFail(): void {
     $this->executeCommand([
-        'source_app' => 'app.test',
-        'dest_app' => 'app.test'
+        'source_env' => 'app.test',
+        'dest_env' => 'app.test'
       ],
     );
     $output = $this->getDisplay();

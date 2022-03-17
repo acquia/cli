@@ -20,9 +20,9 @@ class CopyCronTasksCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
-      ->addArgument('source_app', InputArgument::REQUIRED, 'Alias of the source application in the format `app-name.env` or the environment uuid')
-      ->addArgument('dest_app', InputArgument::REQUIRED, 'Alias of the destination application in the format `app-name.env` or the environment uuid')
-      ->addUsage(self::getDefaultName() . ' <srcApplicationAlias> <destApplicationAlias>')
+      ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
+      ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
+      ->addUsage(self::getDefaultName() . ' <srcEnvironmentAlias> <destEnvironmentAlias>')
       ->addUsage(self::getDefaultName() . ' myapp.dev myapp.prod')
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
   }
@@ -35,23 +35,23 @@ class CopyCronTasksCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    // If both source and destination app inputs are same.
-    if ($input->getArgument('source_app') === $input->getArgument('dest_app')) {
+    // If both source and destination env inputs are same.
+    if ($input->getArgument('source_env') === $input->getArgument('dest_env')) {
       $this->io->error('The source and destination environments can not be same.');
       return 1;
     }
 
-    // Get source app alias.
-    $this->convertEnvironmentAliasToUuid($input, 'source_app');
-    $source_env_id = $input->getArgument('source_app');
+    // Get source env alias.
+    $this->convertEnvironmentAliasToUuid($input, 'source_env');
+    $source_env_id = $input->getArgument('source_env');
 
-    // Get destination app alias.
-    $this->convertEnvironmentAliasToUuid($input, 'dest_app');
-    $dest_env_id = $input->getArgument('dest_app');
+    // Get destination env alias.
+    $this->convertEnvironmentAliasToUuid($input, 'dest_env');
+    $dest_env_id = $input->getArgument('dest_env');
 
     // Get the cron resource.
     $cron_resource = new Crons($this->cloudApiClientService->getClient());
-    $source_app_cron_list = $cron_resource->getAll($source_env_id);
+    $source_env_cron_list = $cron_resource->getAll($source_env_id);
 
     // Ask for confirmation before starting the copy.
     $answer = $this->io->confirm('Are you sure you\'d like to copy the cron jobs from ' . $source_env_id . ' to ' . $dest_env_id . '?');
@@ -60,7 +60,7 @@ class CopyCronTasksCommand extends CommandBase {
     }
 
     $only_system_crons = TRUE;
-    foreach ($source_app_cron_list as $cron) {
+    foreach ($source_env_cron_list as $cron) {
       if (!$cron->flags->system) {
         $only_system_crons = FALSE;
       }
@@ -68,12 +68,12 @@ class CopyCronTasksCommand extends CommandBase {
 
     // If source environment doesn't have any cron job or only
     // has system crons.
-    if ($source_app_cron_list->count() === 0 || $only_system_crons) {
+    if ($source_env_cron_list->count() === 0 || $only_system_crons) {
       $this->io->error('There are no cron jobs in the source environment for copying.');
       return 1;
     }
 
-    foreach ($source_app_cron_list as $cron) {
+    foreach ($source_env_cron_list as $cron) {
       // We don't copy the system cron as those should already be there
       // when environment is provisioned.
       if (!$cron->flags->system) {
