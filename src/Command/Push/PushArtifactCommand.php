@@ -54,6 +54,11 @@ class PushArtifactCommand extends PullCommandBase {
   private $environment;
 
   /**
+   * @var string
+   */
+  private $destinationGitBranch;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -130,7 +135,7 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      if ($tag_name = $input->getOption('tag-name')) {
+      if ($tag_name = $input->getOption('destination-git-tag')) {
         $this->checklist->addItem("Creating <options=bold>{$tag_name}</> tag.");
         $this->createTag($tag_name, $output_callback, $artifact_dir);
         $this->checklist->completePreviousItem();
@@ -458,11 +463,9 @@ class PushArtifactCommand extends PullCommandBase {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_BRANCH')) {
       return $env_var;
     }
+
     // Assume the source and destination branches are the same.
-    if ($this->input->getOption('destination-git-branch')) {
-      return $this->input->getOption('destination-git-branch');
-    }
-    throw new AcquiaCliException("Could not determine source-git-branch.");
+    return $this->destinationGitBranch;
   }
 
   /**
@@ -472,17 +475,22 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function determineDestinationGitBranch() {
     if ($this->input->getOption('destination-git-branch')) {
-      return $this->input->getOption('destination-git-branch');
+      $this->destinationGitBranch = $this->input->getOption('destination-git-branch');
+      return $this->destinationGitBranch;
     }
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
-      return $env_var;
+      $this->destinationGitBranch = $env_var;
+      return $this->destinationGitBranch;
     }
 
     $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
     if (strpos($this->environment->vcs->path, 'tags') === 0) {
       throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$this->environment->name} has {$this->environment->vcs->path} deployed. Please select a different environment.");
     }
-    return $this->environment->vcs->path;
+
+    $this->destinationGitBranch = $this->environment->vcs->path;
+
+    return $this->destinationGitBranch;
   }
 
   /**
