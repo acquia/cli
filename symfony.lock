@@ -104,6 +104,9 @@
     "myclabs/deep-copy": {
         "version": "1.11.0"
     },
+    "n98/junit-xml": {
+        "version": "1.1.0"
+    },
     "nikic/php-parser": {
         "version": "v4.13.2"
     },
@@ -112,6 +115,9 @@
     },
     "opis/closure": {
         "version": "3.6.3"
+    },
+    "overtrue/phplint": {
+        "version": "3.0.6"
     },
     "paragonie/random_compat": {
         "version": "v9.99.100"
