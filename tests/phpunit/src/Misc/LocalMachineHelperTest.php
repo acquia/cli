@@ -43,6 +43,13 @@ class LocalMachineHelperTest extends TestBase {
     $this->input->setInteractive($interactive);
     $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, $print_output);
     $this->assertTrue($process->isSuccessful());
+    $buffer = $this->output->fetch();
+    if ($print_output === FALSE) {
+      $this->assertEmpty($buffer);
+    }
+    else {
+      $this->assertSame("hello world\n", $buffer);
+    }
   }
 
   public function testExecuteWithCwd(): void {
