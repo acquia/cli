@@ -23,7 +23,9 @@ jobs:
         run: |
           ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "$GITHUB_RELEASE_BODY" "$GITHUB_RELEASE_NAME" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
           JIRA_DESCRIPTION=$(<jira_description.md)
-          echo 'JIRA_DESCRIPTION=$JIRA_DESCRIPTION' >> $GITHUB_ENV
+          echo "JIRA_DESCRIPTION<<EOF" >> $GITHUB_ENV
+          echo "$JIRA_DESCRIPTION" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
         shell: bash
       - name: Login to Jira
         uses: acquia/gajira-login@server
