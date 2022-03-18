@@ -90,7 +90,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function execute(array $cmd, $callback = NULL, $cwd = NULL, bool $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
+  public function execute(array $cmd, $callback = NULL, $cwd = NULL, ?bool $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = new Process($cmd);
     $process = $this->configureProcess($process, $cwd, $timeout, $env);
     return $this->executeProcess($process, $callback, $print_output);
@@ -113,7 +113,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, ?int $timeout = NULL, array $env = NULL): Process {
+  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, int $timeout = NULL, array $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
     $process = $this->configureProcess($process, $cwd, $timeout, $env);
 
