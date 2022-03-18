@@ -67,7 +67,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $selected_environment = $environments_response->_embedded->items[0];
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->setUpPushArtifact($local_machine_helper, $selected_environment->vcs->path, [$selected_environment->vcs->url]);
+    $this->setUpPushArtifact($local_machine_helper, '1.2.0', [$selected_environment->vcs->url]);
     $git_tag = '1.2.0-build';
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->mockGitTag($local_machine_helper, $git_tag, $artifact_dir);
