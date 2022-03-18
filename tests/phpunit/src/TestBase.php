@@ -250,6 +250,8 @@ abstract class TestBase extends TestCase {
     $this->output = $output;
     $this->logger = new ConsoleLogger($output);
     $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+    // TTY should never be used for tests.
+    $this->localMachineHelper->setIsTty(FALSE);
     $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }

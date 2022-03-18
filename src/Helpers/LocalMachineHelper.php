@@ -90,10 +90,10 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function execute($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
+  public function execute(array $cmd, $callback = NULL, $cwd = NULL, ?bool $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
     $process = new Process($cmd);
     $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
-    return $this->executeProcess($process, $callback);
+    return $this->executeProcess($process, $callback, $print_output);
   }
 
   /**
@@ -106,30 +106,29 @@ class LocalMachineHelper {
    * Windows does not support prepending commands with environment variables.
    *
    * @param string $cmd
-   * @param callable $callback
-   * @param string $cwd
+   * @param callable|null $callback
+   * @param string|null $cwd
    * @param bool $print_output
-   * @param int $timeout
+   * @param int|null $timeout
    *
    * @return \Symfony\Component\Process\Process
    */
-  public function executeFromCmd($cmd, $callback = NULL, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL): Process {
+  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, int $timeout = NULL, array $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
     $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
 
-    return $this->executeProcess($process, $callback);
+    return $this->executeProcess($process, $callback, $print_output);
   }
 
   /**
    * @param \Symfony\Component\Process\Process $process
    * @param string|null $cwd
-   * @param bool $print_output
    * @param null $timeout
-   * @param null $env
+   * @param array|null $env
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, $cwd = NULL, $print_output = TRUE, $timeout = NULL, $env = NULL) {
+  private function configureProcess(Process $process, string $cwd = NULL, ?bool $print_output = TRUE, $timeout = NULL, array $env = NULL): Process {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
@@ -149,14 +148,18 @@ class LocalMachineHelper {
 
   /**
    * @param \Symfony\Component\Process\Process $process
-   * @param callable $callback
-   * @param int $timeout
+   * @param callable|null $callback
+   * @param bool|null $print_output
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, $callback = NULL, $timeout = NULL): Process {
-    $process->setTimeout($timeout);
-    $process->start(NULL);
+  protected function executeProcess(Process $process, callable $callback = NULL, ?bool $print_output = TRUE): Process {
+    if ($callback === NULL && $print_output !== FALSE) {
+      $callback = function ($type, $buffer) {
+        $this->output->write($buffer);
+      };
+    }
+    $process->start();
     $process->wait($callback);
 
     $this->logger->notice('Command: {command} [Exit: {exit}]', [
@@ -212,8 +215,8 @@ class LocalMachineHelper {
    * @return bool
    */
   public function useTty(): bool {
-    if (isset($this->isTty) && $this->isTty) {
-      return TRUE;
+    if (isset($this->isTty)) {
+      return $this->isTty;
     }
 
     // If we are not in interactive mode, then never use a tty.
