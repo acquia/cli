@@ -11,7 +11,8 @@ $body = $twig->render('ccb-ticket.twig', [
    // @see https://docs.github.com/en/actions/learn-github-actions/environment-variables#default-environment-variables
   'GITHUB_RELEASE_BODY' => $argv[1],
   'GITHUB_RELEASE_NAME' => $argv[2],
-  'GITHUB_ACTIONS_RUN_URL' => $argv[3],
-  'JIRA_BASE_URL' => $argv[4],
+  'GITHUB_RELEASE_URL' => $argv[3],
+  'GITHUB_ACTIONS_RUN_URL' => $argv[4],
+  'JIRA_BASE_URL' => $argv[5],
 ]);
 echo $body;
