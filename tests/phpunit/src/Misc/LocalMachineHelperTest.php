@@ -41,7 +41,7 @@ class LocalMachineHelperTest extends TestBase {
     $local_machine_helper = $this->localMachineHelper;
     $local_machine_helper->setIsTty($is_tty);
     $this->input->setInteractive($interactive);
-    $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, $print_output);
+    $process = $local_machine_helper->executeFromCmd('echo hello world', NULL, NULL, $print_output);
     $this->assertTrue($process->isSuccessful());
     $buffer = $this->output->fetch();
     if ($print_output === FALSE) {
