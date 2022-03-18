@@ -16,12 +16,11 @@ jobs:
         run: composer install --optimize-autoloader --no-interaction
       - name: Generate Jira ticket body
         env:
-          # @see https://docs.github.com/en/rest/reference/releases#get-a-release
           GITHUB_RELEASE_BODY: "${{ github.event.release.body }}"
           GITHUB_RELEASE_NAME: "${{ github.event.release.name }}"
           GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-        run: echo "JIRA_DESCRIPTION=\"$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh)\"" >> $GITHUB_ENV
+        run: echo "JIRA_DESCRIPTION=\"$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh \"$GITHUB_RELEASE_BODY\" \"$GITHUB_RELEASE_NAME\" \"$GITHUB_ACTIONS_RUN_URL\" \"$JIRA_BASE_URL\")\"" >> $GITHUB_ENV
         shell: bash
       - name: Login to Jira
         uses: acquia/gajira-login@server
