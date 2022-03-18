@@ -54,6 +54,11 @@ class PushArtifactCommand extends PullCommandBase {
   private $environment;
 
   /**
+   * @var string
+   */
+  private $destinationGitRef;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure(): void {
@@ -61,13 +66,16 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
       ->addOption('no-sanitize', NULL, InputOption::VALUE_NONE, 'Do not sanitize the build artifact')
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
-      ->addOption('destination-git-urls', 'dest-git-urls', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
-      ->addOption('destination-git-branch', 'dest-git-branch', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('destination-git-urls', 'u', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
+      ->addOption('destination-git-branch', 'b', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-tag option')
+      ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'The source tag from which to create the tag artifact')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
-      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
+      ->addUsage('--destination-git-branch=main-build')
+      ->addUsage('--source-git-branch=main-build --destination-git-tag=1.0.0')
       ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --dest-branch=main-build');
   }
 
@@ -92,17 +100,26 @@ class PushArtifactCommand extends PullCommandBase {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
-    $destination_git_urls = $this->determineDestinationGitUrls();
-    $destination_git_branch = $this->determineDestinationGitBranch();
+    $application_uuid = $this->determineCloudApplication();
+    $destination_git_urls = $this->determineDestinationGitUrls($application_uuid);
+    $destination_git_ref = $this->determineDestinationGitRef();
+    $source_git_branch = $this->determineSourceGitRef();
 
     $destination_git_urls_string = implode(',', $destination_git_urls);
-    $this->io->info("The contents of $this->dir will be compiled into an artifact and pushed to the $destination_git_branch branch on the $destination_git_urls_string git remote(s)");
+    $ref_type = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
+    $this->io->note([
+      "Acquia CLI will:",
+      "- git clone $source_git_branch from $destination_git_urls[0]",
+      "- Compile the contents of $this->dir into an artifact in a temporary directory",
+      "- Copy the artifact files into the checked out copy of $source_git_branch",
+      "- Commit changes and push the $destination_git_ref $ref_type to the following git remote(s):",
+      "  $destination_git_urls_string",
+    ]);
 
     $output_callback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    // @todo Output which git url we will pull from.
-    $this->cloneDestinationBranch($output_callback, $artifact_dir, $destination_git_urls[0], $destination_git_branch);
+    $this->cloneSourceBranch($output_callback, $artifact_dir, $destination_git_urls[0], $source_git_branch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
@@ -120,8 +137,17 @@ class PushArtifactCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      $this->checklist->addItem("Pushing changes to <options=bold>{$destination_git_branch}</> branch.");
-      $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $destination_git_branch);
+      if ($tag_name = $input->getOption('destination-git-tag')) {
+        $this->checklist->addItem("Creating <options=bold>{$tag_name}</> tag.");
+        $this->createTag($tag_name, $output_callback, $artifact_dir);
+        $this->checklist->completePreviousItem();
+        $this->checklist->addItem("Pushing changes to <options=bold>{$tag_name}</> tag.");
+        $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $tag_name);
+      }
+      else {
+        $this->checklist->addItem("Pushing changes to <options=bold>{$destination_git_ref}</> branch.");
+        $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $destination_git_ref . ':' . $destination_git_ref);
+      }
       $this->checklist->completePreviousItem();
     }
     else {
@@ -135,7 +161,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @return false|mixed|null
    * @throws \Exception
    */
-  protected function determineDestinationGitUrls() {
+  protected function determineDestinationGitUrls($application_uuid) {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
@@ -146,8 +172,8 @@ class PushArtifactCommand extends PullCommandBase {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
     }
 
-    $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
-    $destination_git_url = $this->environment->vcs->url;
+    $environment = $this->getAnyNonProdAhEnvironment($application_uuid);
+    $destination_git_url = $environment->vcs->url;
     return [$destination_git_url];
   }
 
@@ -161,7 +187,7 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function cloneDestinationBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
+  protected function cloneSourceBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
     $output_callback('out', "Removing $artifact_dir if it exists");
@@ -178,15 +204,12 @@ class PushArtifactCommand extends PullCommandBase {
       // Remote branch does not exist. Just create it locally. This will create
       // the new branch off of the current commit.
       $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-      if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
-      }
     }
     else {
       $process = $this->localMachineHelper->execute(['git', 'checkout', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-      if (!$process->isSuccessful()) {
-        throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
-      }
+    }
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
 
     $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
@@ -356,7 +379,7 @@ class PushArtifactCommand extends PullCommandBase {
         'git',
         'push',
         $vcs_url,
-        $dest_git_branch . ':' . $dest_git_branch
+        $dest_git_branch,
       ];
       $process = $this->localMachineHelper->execute($args, $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
       if (!$process->isSuccessful()) {
@@ -433,18 +456,73 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
-  protected function determineDestinationGitBranch() {
-    if ($this->input->getOption('destination-git-branch')) {
-      return $this->input->getOption('destination-git-branch');
+  protected function determineSourceGitRef() {
+    if ($this->input->getOption('source-git-tag')) {
+      return $this->input->getOption('source-git-tag');
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_TAG')) {
       return $env_var;
     }
+    if ($this->input->getOption('destination-git-tag')) {
+      throw new AcquiaCliException('You must also set the --source-git-tag option when setting the --destination-git-tag option.');
+    }
+
+    // Assume the source and destination branches are the same.
+    return $this->destinationGitRef;
+  }
+
+  /**
+   * @return mixed
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
+   */
+  protected function determineDestinationGitRef() {
+    if ($this->input->getOption('destination-git-tag')) {
+      $this->destinationGitRef = $this->input->getOption('destination-git-tag');
+      return $this->destinationGitRef;
+    }
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_TAG')) {
+      $this->destinationGitRef = $env_var;
+      return $this->destinationGitRef;
+    }
+    if ($this->input->getOption('destination-git-branch')) {
+      $this->destinationGitRef = $this->input->getOption('destination-git-branch');
+      return $this->destinationGitRef;
+    }
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
+      $this->destinationGitRef = $env_var;
+      return $this->destinationGitRef;
+    }
+
+    $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
     if (strpos($this->environment->vcs->path, 'tags') === 0) {
       throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$this->environment->name} has {$this->environment->vcs->path} deployed. Please select a different environment.");
     }
-    return $this->environment->vcs->path;
+
+    $this->destinationGitRef = $this->environment->vcs->path;
+
+    return $this->destinationGitRef;
+  }
+
+  /**
+   * @param $tag_name
+   * @param \Closure $output_callback
+   * @param string $artifact_dir
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function createTag($tag_name, Closure $output_callback, string $artifact_dir): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
+    $process = $this->localMachineHelper->execute([
+      'git',
+      'tag',
+      $tag_name
+    ], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException('Failed to create Git tag: {message}', ['message' => $process->getErrorOutput()]);
+    }
   }
 
 }
