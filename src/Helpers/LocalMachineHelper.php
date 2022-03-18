@@ -128,14 +128,16 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  private function configureProcess(Process $process, string $cwd = NULL, $timeout = NULL, array $env = NULL): Process {
+  private function configureProcess(Process $process, string $cwd = NULL, ?bool $print_output = TRUE, $timeout = NULL, array $env = NULL): Process {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
       $process->setWorkingDirectory($cwd);
     }
-    $process->setTty($this->useTty());
+    if ($print_output) {
+      $process->setTty($this->useTty());
+    }
     if ($env) {
       $process->setEnv($env);
     }
