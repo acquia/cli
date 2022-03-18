@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Create a CCB ticket in Jira
     steps:
+      - uses: actions/checkout@v2
       - name: Generate Jira ticket body
         env:
           # @see https://docs.github.com/en/rest/reference/releases#get-a-release
