@@ -48,7 +48,7 @@ class LocalMachineHelperTest extends TestBase {
       $this->assertEmpty($buffer);
     }
     else {
-      $this->assertSame("hello world" . PHP_EOL, $buffer);
+      $this->assertStringContainsString("hello world", $buffer);
     }
   }
 
