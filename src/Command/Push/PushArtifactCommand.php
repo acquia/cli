@@ -69,7 +69,7 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('destination-git-urls', NULL, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
       ->addOption('destination-git-branch', NULL, InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-branch option')
-      ->addOption('source-git-branch', 's', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('source-git-tag', 's', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
@@ -103,7 +103,7 @@ class PushArtifactCommand extends PullCommandBase {
     $application_uuid = $this->determineCloudApplication();
     $destination_git_urls = $this->determineDestinationGitUrls($application_uuid);
     $destination_git_ref = $this->determineDestinationGitRef();
-    $source_git_branch = $this->determineSourceGitBranch();
+    $source_git_branch = $this->determineSourceGitRef();
 
     $destination_git_urls_string = implode(',', $destination_git_urls);
     $ref_type = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
@@ -458,15 +458,15 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function determineSourceGitBranch() {
-    if ($this->input->getOption('source-git-branch')) {
-      return $this->input->getOption('source-git-branch');
+  protected function determineSourceGitRef() {
+    if ($this->input->getOption('source-git-tag')) {
+      return $this->input->getOption('source-git-tag');
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_BRANCH')) {
+    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_TAG')) {
       return $env_var;
     }
     if ($this->input->getOption('destination-git-tag')) {
-      throw new AcquiaCliException('You must also set the --source-git-branch option when setting the --destination-git-tag option.');
+      throw new AcquiaCliException('You must also set the --source-git-tag option when setting the --destination-git-tag option.');
     }
 
     // Assume the source and destination branches are the same.
