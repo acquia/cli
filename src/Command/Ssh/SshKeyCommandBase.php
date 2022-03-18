@@ -174,7 +174,10 @@ EOT
         $this->logger->debug($exception->getMessage());
       }
     });
-    LoopHelper::addTimeoutToLoop($loop, 15, $spinner);
+    $loop->addTimer(10 * 60, function () use ($output) {
+      $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
+    });
+    LoopHelper::addTimeoutToLoop($loop, 30, $spinner);
     $loop->run();
   }
 
