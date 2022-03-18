@@ -68,13 +68,14 @@ class PushArtifactCommand extends PullCommandBase {
       ->addOption('dry-run', NULL, InputOption::VALUE_NONE, 'Do not push changes to Acquia Cloud')
       ->addOption('destination-git-urls', NULL, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED, 'The URL(s) of your git repository to which the artifact branch will be pushed')
       ->addOption('destination-git-branch', NULL, InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
+      ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to. Using this option requires also using the --source-git-branch option')
       ->addOption('source-git-branch', 's', InputOption::VALUE_REQUIRED, 'The destination branch to push the artifact to')
-      ->addOption('destination-git-tag', 't', InputOption::VALUE_REQUIRED, 'The destination tag to push the artifact to')
       ->acceptEnvironmentId()
       ->setHelp('This command builds a sanitized deploy artifact by running <options=bold>composer install</>, removing sensitive files, and committing vendor directories.' . PHP_EOL . PHP_EOL
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
-      ->addUsage('--no-sanitize --dry-run # skip sanitization and Git push')
+      ->addUsage('--destination-git-branch=main-build')
+      ->addUsage('--source-git-branch=main-build --destination-git-tag=1.0.0')
       ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --dest-branch=main-build');
   }
 
@@ -108,8 +109,8 @@ class PushArtifactCommand extends PullCommandBase {
     $ref_type = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
     $this->io->note([
       "Acquia CLI will:",
-      "- clone $source_git_branch from $destination_git_urls[0]",
-      "- Compile the contents of $this->dir into an artifact",
+      "- git clone $source_git_branch from $destination_git_urls[0]",
+      "- Compile the contents of $this->dir into an artifact in a temporary directory",
       "- Copy the artifact files into the checked out copy of $source_git_branch",
       "- Commit changes and push the $destination_git_ref $ref_type to the following git remote(s):",
       "  $destination_git_urls_string",
