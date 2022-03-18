@@ -20,7 +20,10 @@ jobs:
           GITHUB_RELEASE_NAME: "${{ github.event.release.name }}"
           GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
-        run: echo "JIRA_DESCRIPTION=\"$(${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh \"$GITHUB_RELEASE_BODY\" \"$GITHUB_RELEASE_NAME\" \"$GITHUB_ACTIONS_RUN_URL\" \"$JIRA_BASE_URL\")\"" >> $GITHUB_ENV
+        run: |
+          ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "$GITHUB_RELEASE_BODY" "$GITHUB_RELEASE_NAME" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
+          JIRA_DESCRIPTION=$(<jira_description.md)
+          echo 'JIRA_DESCRIPTION=$JIRA_DESCRIPTION' >> $GITHUB_ENV
         shell: bash
       - name: Login to Jira
         uses: acquia/gajira-login@server
