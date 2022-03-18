@@ -464,6 +464,9 @@ class PushArtifactCommand extends PullCommandBase {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_BRANCH')) {
       return $env_var;
     }
+    if ($this->input->getOption('destination-git-tag')) {
+      throw new AcquiaCliException('You must also set the --source-git-branch option when setting the --destination-git-tag option.');
+    }
 
     // Assume the source and destination branches are the same.
     return $this->destinationGitRef;

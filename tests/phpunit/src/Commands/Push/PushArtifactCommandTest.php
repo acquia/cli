@@ -80,7 +80,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       'n',
     ];
     $this->executeCommand([
-      '--destination-git-tag' => $git_tag
+      '--destination-git-tag' => $git_tag,
+      '--source-git-branch' => 'master',
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
