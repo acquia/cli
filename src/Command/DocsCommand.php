@@ -18,9 +18,8 @@ class DocsCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Open Acquia products documentation in a web browser')
-      ->addArgument('acquiaProduct', InputArgument::OPTIONAL, 'Name of the acquia product')
-      ->addUsage(self::getDefaultName() . ' <acquiaProduct>')
+    $this->setDescription('Open Acquia product documentation in a web browser')
+      ->addArgument('acquiaProductName', InputArgument::OPTIONAL, 'Acquia Product Name')
       ->addUsage(self::getDefaultName() . ' acli');
   }
 
@@ -42,7 +41,7 @@ class DocsCommand extends CommandBase {
       ],
       'Code Studio' => [
         'url' => 'code-studio',
-        'alias' => ['code_studio', 'codestudio'],
+        'alias' => ['code_studio', 'codestudio', 'cs'],
       ],
       'Campaign Studio' => [
         'url' => 'campaign-studio',
@@ -50,7 +49,7 @@ class DocsCommand extends CommandBase {
       ],
       'Content Hub' => [
         'url' => 'contenthub',
-        'alias' => ['contenthub'],
+        'alias' => ['contenthub', 'ch'],
       ],
       'Acquia Migrate Accelerate' => [
         'url' => 'acquia-migrate-accelerate',
@@ -84,14 +83,34 @@ class DocsCommand extends CommandBase {
         'url' => 'ide',
         'alias' => ['ide', 'cloud_ide', 'cloud-ide'],
       ],
+      'BLT' => [
+        'url' => 'blt',
+        'alias' => ['blt'],
+      ],
+      'Cloud Platform' => [
+        'url' => 'cloud-platform',
+        'alias' => ['cloud-platform', 'acquiacloud', 'acquia_cloud', 'acquia-cloud', 'cloud'],
+      ],
+      'Acquia DAM Classic' => [
+        'url' => 'dam',
+        'alias' => ['dam', 'acquia_dam', 'dam_classic', 'acquiadam', 'damclassic'],
+      ],
+      'Personalization' => [
+        'url' => 'personalization',
+        'alias' => ['personalization'],
+      ],
+      'Campaign Factory' => [
+        'url' => 'campaign-factory',
+        'alias' => ['campaign-factory', 'campaign_factory', 'campaignfactory'],
+      ],
     ];
 
-    // If user has provided any product in command.
-    if ($acquiaProduct = $input->getArgument('acquiaProduct')) {
+    // If user has provided any acquia product in command.
+    if ($acquiaProductName = $input->getArgument('acquiaProductName')) {
       $product_url = NULL;
       foreach (array_values($acquia_products) as $acquia_product) {
         // If product provided by the user exists in the alias
-        if (in_array(strtolower($acquiaProduct), $acquia_product['alias'])) {
+        if (in_array(strtolower($acquiaProductName), $acquia_product['alias'])) {
           $product_url = $acquia_product['url'];
           break;
         }

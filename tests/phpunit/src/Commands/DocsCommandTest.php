@@ -139,6 +139,51 @@ class DocsCommandTest extends CommandTestBase {
   }
 
   /**
+   * Tests the 'docs' command for BLT.
+   *
+   * @throws \Exception
+   */
+  public function testBltDocCommand(): void {
+    $this->docCommandValidate([13], '  [13] BLT');
+  }
+
+  /**
+   * Tests the 'docs' command for Cloud Platform.
+   *
+   * @throws \Exception
+   */
+  public function testCloudPlatformDocCommand(): void {
+    $this->docCommandValidate([14], '  [14] Cloud Platform');
+  }
+
+  /**
+   * Tests the 'docs' command for Acquia DAM Classic.
+   *
+   * @throws \Exception
+   */
+  public function testDamClassicDocCommand(): void {
+    $this->docCommandValidate([15], '  [15] Acquia DAM Classic');
+  }
+
+  /**
+   * Tests the 'docs' command for Personalization.
+   *
+   * @throws \Exception
+   */
+  public function testPersonalizationDocCommand(): void {
+    $this->docCommandValidate([16], '  [16] Personalization');
+  }
+
+  /**
+   * Tests the 'docs' command for Campaign Factory.
+   *
+   * @throws \Exception
+   */
+  public function testCampaignFactoryDocCommand(): void {
+    $this->docCommandValidate([17], '  [17] Campaign Factory');
+  }
+
+  /**
    * Helper to run the command.
    *
    * @param array $input
