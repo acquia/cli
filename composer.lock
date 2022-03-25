@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7aa25ca1eeb699b3e267320b64e890af",
+    "content-hash": "250005502e3ae7b7a38a09c57687ff75",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -737,16 +737,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "6565c7e0db3231e92dd5ca3bed448b30fbc89eb1"
+                "reference": "c94a94f120803a18554c1805ef2e539f8285f9a2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/6565c7e0db3231e92dd5ca3bed448b30fbc89eb1",
-                "reference": "6565c7e0db3231e92dd5ca3bed448b30fbc89eb1",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/c94a94f120803a18554c1805ef2e539f8285f9a2",
+                "reference": "c94a94f120803a18554c1805ef2e539f8285f9a2",
                 "shasum": ""
             },
             "require": {
@@ -832,7 +832,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.2.0"
+                "source": "https://github.com/guzzle/psr7/tree/2.2.1"
             },
             "funding": [
                 {
@@ -848,7 +848,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-20T13:51:08+00:00"
+            "time": "2022-03-20T21:55:58+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -2502,26 +2502,27 @@
         },
         {
             "name": "ratchet/pawl",
-            "version": "v0.3.5",
+            "version": "v0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ratchetphp/Pawl.git",
-                "reference": "89ec703c76dc893484a2a0ed44b48a37d445abd5"
+                "reference": "af70198bab77a582b31169d3cc3982bed25c161f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ratchetphp/Pawl/zipball/89ec703c76dc893484a2a0ed44b48a37d445abd5",
-                "reference": "89ec703c76dc893484a2a0ed44b48a37d445abd5",
+                "url": "https://api.github.com/repos/ratchetphp/Pawl/zipball/af70198bab77a582b31169d3cc3982bed25c161f",
+                "reference": "af70198bab77a582b31169d3cc3982bed25c161f",
                 "shasum": ""
             },
             "require": {
                 "evenement/evenement": "^3.0 || ^2.0",
+                "guzzlehttp/psr7": "^2.0 || ^1.7",
                 "php": ">=5.4",
-                "ratchet/rfc6455": "^0.3",
-                "react/socket": "^1.0 || ^0.8 || ^0.7"
+                "ratchet/rfc6455": "^0.3.1",
+                "react/socket": "^1.9"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8"
+                "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8"
             },
             "suggest": {
                 "reactivex/rxphp": "~2.0"
@@ -2549,9 +2550,9 @@
             ],
             "support": {
                 "issues": "https://github.com/ratchetphp/Pawl/issues",
-                "source": "https://github.com/ratchetphp/Pawl/tree/master"
+                "source": "https://github.com/ratchetphp/Pawl/tree/v0.4.1"
             },
-            "time": "2020-07-17T15:32:47+00:00"
+            "time": "2021-12-10T14:32:34+00:00"
         },
         {
             "name": "ratchet/rfc6455",
@@ -5789,29 +5790,29 @@
         },
         {
             "name": "typhonius/acquia-logstream",
-            "version": "0.0.8",
+            "version": "0.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-logstream.git",
-                "reference": "a9ae771cc0c1b180493c83537264fde0da2a5d73"
+                "reference": "9b9d6291034d98fab0c919f34becfe21a6d5dd31"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/a9ae771cc0c1b180493c83537264fde0da2a5d73",
-                "reference": "a9ae771cc0c1b180493c83537264fde0da2a5d73",
+                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/9b9d6291034d98fab0c919f34becfe21a6d5dd31",
+                "reference": "9b9d6291034d98fab0c919f34becfe21a6d5dd31",
                 "shasum": ""
             },
             "require": {
-                "consolidation/self-update": "^1.1",
-                "php": ">=7.1",
-                "ratchet/pawl": "^0.3",
-                "symfony/console": "^4 || ^5",
+                "consolidation/self-update": "^1.2 | ^2.0",
+                "php": "^7.4 | ^8.0.3 | ^8.1",
+                "ratchet/pawl": "^0.4.1",
+                "symfony/console": "^5 | ^6",
                 "typhonius/acquia-php-sdk-v2": "^2.0.0"
             },
             "require-dev": {
                 "php-coveralls/php-coveralls": "^2.0.0",
                 "phpstan/phpstan": "^0.12.0",
-                "phpunit/phpunit": "^7.0",
+                "phpunit/phpunit": "^9.4",
                 "squizlabs/php_codesniffer": "^3.1"
             },
             "type": "library",
@@ -5833,7 +5834,7 @@
             "description": "PHP library to connect to Acquia Logstream service",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-logstream/issues",
-                "source": "https://github.com/typhonius/acquia-logstream/tree/0.0.8"
+                "source": "https://github.com/typhonius/acquia-logstream/tree/0.0.10"
             },
             "funding": [
                 {
@@ -5841,7 +5842,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-10T01:13:50+00:00"
+            "time": "2022-03-21T17:32:49+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
