@@ -1,0 +1,5304 @@
+---
+openapi: 3.0.0
+info:
+  description: Acquia Site Factory REST API
+  version: 1.0.0
+  title: ACSF API
+paths:
+  /api/v1/users/all/api-keys:
+    delete:
+      summary: Regenerate ALL users API keys
+      description: Regenerate ALL users API keys.
+      operationId: delete_ApiKey_resetKeys
+      x-cli-name: api-keys-delete
+      parameters: []
+      responses:
+        200:
+          description: ApiKey_resetKeys response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey_resetKeysResponse'
+        400:
+          description: bad input parameter
+  /api/v1/users/{user_id}/api-keys:
+    delete:
+      summary: Regenerate a user's API key
+      description: Regenerate a user's API key.
+      operationId: delete_ApiKey_resetUserKeys
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: The user ID of the user.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: ApiKey_resetUserKeys response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKey_resetUserKeysResponse'
+        400:
+          description: bad input parameter
+  /api/v1/audit:
+    get:
+      summary: List audit events
+      description: Gets a list of audit events.
+      operationId: get_AuditEvent_getAuditEvents
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: order
+        description: Either "ASC" or "DESC".
+        schema:
+          type: string
+      - in: query
+        name: source
+        description: The source of the event.
+        schema:
+          type: string
+      - in: query
+        name: module
+        description: The system name of the module.
+        schema:
+          type: string
+      - in: query
+        name: scope
+        description: The general scope of the changes.
+        schema:
+          type: string
+      - in: query
+        name: type
+        description: The specific type of changes.
+        schema:
+          type: string
+      - in: query
+        name: nid
+        description: An associated node ID.
+        schema:
+          type: integer
+      - in: query
+        name: uid
+        description: The user who made the change.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: AuditEvent_getAuditEvents response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEvent_getAuditEventsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/centralized-role-management:
+    get:
+      summary: Get current centralized role management settings.
+      description: Get current centralized role management settings.
+      operationId: get_CentralizedRoleManagement_executeGetActions
+      parameters: []
+      responses:
+        200:
+          description: CentralizedRoleManagement_executeGetActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CentralizedRoleManagement_executeGetActionsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/centralized-role-management/{factory_role}:
+    put:
+      summary: Set the centralized role management settings for a given role.
+      description: Set the centralized role management settings for a given role.
+      operationId: put_CentralizedRoleManagement_executePutActions
+      parameters:
+      - in: path
+        required: true
+        name: factory_role
+        description: The site factory role. Currently the only supported ones are
+          "content_editor", "platform_admin" and "site_builder".
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: site_role
+        description: The corresponding role on the site.
+        schema:
+          type: string
+      responses:
+        200:
+          description: CentralizedRoleManagement_executePutActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CentralizedRoleManagement_executePutActionsResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Disable the centralized role management settings for a given role.
+      description: Disable the centralized role management settings for a given role.
+      operationId: delete_CentralizedRoleManagement_executeDeleteActions
+      parameters:
+      - in: path
+        required: true
+        name: factory_role
+        description: The site factory role. Currently the only supported ones are
+          "content_editor", "platform_admin" and "site_builder".
+        schema:
+          type: string
+      responses:
+        200:
+          description: CentralizedRoleManagement_executeDeleteActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CentralizedRoleManagement_executeDeleteActionsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/stacks:
+    get:
+      summary: Get list of available stacks.
+      description: Fetches the list of available stacks.
+      operationId: get_CodeBases_getCodeBaseNames
+      parameters: []
+      responses:
+        200:
+          description: CodeBases_getCodeBaseNames response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CodeBases_getCodeBaseNamesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/cronjobs:
+    get:
+      summary: 'Get cron jobs. sites_affected: dev-sites(without custom domains)|prod-sites(with
+        custom domains)|all'
+      description: Get all cron jobs (paged).
+      operationId: get_CronJobs_getCronJobs
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 1000).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: CronJobs_getCronJobs response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CronJobs_getCronJobsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/cronjobs/%job_id:
+    get:
+      summary: Get cron job
+      description: Get cron job by its id.
+      operationId: get_CronJobs_getCronJob
+      parameters:
+      - required: true
+        in: query
+        name: job_id
+        description: Cron job id
+        schema:
+          type: integer
+      responses:
+        200:
+          description: CronJobs_getCronJob response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CronJobs_getCronJobResponse'
+        400:
+          description: bad input parameter
+  /api/v1/domains/{node_id}:
+    get:
+      summary: Get domains
+      description: Get domains by node ID.
+      operationId: get_Domains_getDomains
+      parameters:
+      - in: path
+        required: true
+        name: node_id
+        description: Site node id.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Domains_getDomains response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domains_getDomainsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/domains/status/{domain_name}:
+    get:
+      summary: Get domain status
+      description: Get domain status.
+      operationId: get_Domains_getDomainStatus
+      parameters:
+      - in: path
+        required: true
+        name: domain_name
+        description: The domain name.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Domains_getDomainStatus response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domains_getDomainStatusResponse'
+        400:
+          description: bad input parameter
+  /api/v1/domains/{node_id}/add:
+    post:
+      summary: Add domain
+      description: Adds a domain.
+      operationId: post_Domains_addDomain
+      parameters:
+      - in: path
+        required: true
+        name: node_id
+        description: Site node id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: domain_name
+        description: The domain name to add.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Domains_addDomain response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domains_addDomainResponse'
+        400:
+          description: bad input parameter
+  /api/v1/domains/{node_id}/remove:
+    post:
+      summary: Remove domain
+      description: Removes a domain.
+      operationId: post_Domains_removeDomain
+      parameters:
+      - in: path
+        required: true
+        name: node_id
+        description: Site node id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: domain_name
+        description: The domain name to remove.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Domains_removeDomain response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domains_removeDomainResponse'
+        400:
+          description: bad input parameter
+  /api/v1/groups/{group_id}/members:
+    get:
+      summary: List group members
+      description: Get the members of a group.
+      operationId: get_Groups_getMembers
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - in: query
+        name: limit
+        description: A positive integer (max 1000).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_getMembers response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_getMembersResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Add members to a group
+      description: Add members to a group.
+      operationId: post_Groups_addMembers
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: uids
+        description: A single user ID, or an array of user IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_addMembers response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_addMembersResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Remove members from a group
+      description: Remove members from a group.
+      operationId: delete_Groups_removeMembers
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: uids
+        description: A single user ID, or an array of user IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_removeMembers response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_removeMembersResponse'
+        400:
+          description: bad input parameter
+  /api/v1/groups/{group_id}:
+    get:
+      summary: Get a group
+      description: Get a group by group ID.
+      operationId: get_Groups_getGroupById
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_getGroupById response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_getGroupByIdResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete a group
+      description: Delete a site group.
+      operationId: delete_Groups_deleteGroup
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_deleteGroup response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_deleteGroupResponse'
+        400:
+          description: bad input parameter
+  /api/v1/groups:
+    get:
+      summary: List groups
+      description: Get a list of groups.
+      operationId: get_Groups_getGroups
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer not higher than 100.
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_getGroups response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_getGroupsResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Create a group
+      description: Create a site group.
+      operationId: post_Groups_createGroup
+      parameters:
+      - required: true
+        in: header
+        name: group_name
+        description: The name of the site group to create.
+        schema:
+          type: string
+      - in: header
+        name: parent_id
+        description: The parent group ID, if applicable.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_createGroup response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_createGroupResponse'
+        400:
+          description: bad input parameter
+    put:
+      summary: Edit a group
+      description: Edit a group.
+      operationId: put_Groups_editGroup
+      parameters:
+      - required: true
+        in: header
+        name: group_name
+        description: New name for the group.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Groups_editGroup response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_editGroupResponse'
+        400:
+          description: bad input parameter
+  /api/v1/groups/{group_id}/admins:
+    post:
+      summary: Make members group admin
+      description: Make members group admin.
+      operationId: post_Groups_addAdmins
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: uids
+        description: A single user ID, or an array of user IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_addAdmins response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_addAdminsResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Remove group admin from members
+      description: Remove group admin from members.
+      operationId: delete_Groups_removeAdmins
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: uids
+        description: A single user ID, or an array of user IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_removeAdmins response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_removeAdminsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/groups/{group_id}/sites:
+    post:
+      summary: Add site(s) to a site group.
+      description: Add site(s) to a site group.
+      operationId: post_Groups_addSites
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_ids
+        description: Either a single site ID, or an array of site IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_addSites response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_addSitesResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Remove site(s) from a site group.
+      description: Remove site(s) from a site group.
+      operationId: delete_Groups_removeSites
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_ids
+        description: Either a single site ID, or an array of site IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: Groups_removeSites response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_removeSitesResponse'
+        400:
+          description: bad input parameter
+    get:
+      summary: List sites in a group.
+      description: Get the sites of a group.
+      operationId: get_Groups_getSites
+      parameters:
+      - in: path
+        required: true
+        name: group_id
+        description: Group id.
+        schema:
+          type: integer
+      - in: query
+        name: limit
+        description: A positive integer (max 1000).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Groups_getSites response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Groups_getSitesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/profiles:
+    get:
+      summary: List installation profiles.
+      description: List installation profiles.
+      operationId: get_InstallationProfiles_getInstallationProfiles
+      parameters:
+      - in: query
+        name: stack_id
+        description: Get only the profiles on the given stack.
+        schema:
+          type: integer
+      - in: query
+        name: is_enabled
+        description: Get only the enabled/disabled profiles.
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: InstallationProfiles_getInstallationProfiles response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationProfiles_getInstallationProfilesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/profiles/{profile_name}/enable:
+    post:
+      summary: Enable installation profile.
+      description: Enable installation profile.
+      operationId: post_InstallationProfiles_enableProfile
+      parameters:
+      - in: path
+        required: true
+        name: profile_name
+        description: The installation profile name.
+        schema:
+          type: string
+      - in: header
+        name: stack_id
+        description: The installation profile's stack.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: InstallationProfiles_enableProfile response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationProfiles_enableProfileResponse'
+        400:
+          description: bad input parameter
+  /api/v1/profiles/{profile_name}/disable:
+    post:
+      summary: Disable installation profile.
+      description: Disable installation profile.
+      operationId: post_InstallationProfiles_disableProfile
+      parameters:
+      - in: path
+        required: true
+        name: profile_name
+        description: The installation profile name.
+        schema:
+          type: string
+      - in: header
+        name: stack_id
+        description: The installation profile's stack.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: InstallationProfiles_disableProfile response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationProfiles_disableProfileResponse'
+        400:
+          description: bad input parameter
+  /api/v1/profiles/{profile_name}/set_default:
+    post:
+      summary: Sets the installation profile as default.
+      description: Sets the installation profile as default.
+      operationId: post_InstallationProfiles_setDefault
+      parameters:
+      - in: path
+        required: true
+        name: profile_name
+        description: The installation profile name.
+        schema:
+          type: string
+      - in: header
+        name: stack_id
+        description: The installation profile's stack.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: InstallationProfiles_setDefault response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstallationProfiles_setDefaultResponse'
+        400:
+          description: bad input parameter
+  /api/v1/dynamic-requests/monthly:
+    get:
+      summary: List monthly aggregated dynamic request statistics.
+      description: Gets the monthly aggregated dynamic request statistics.
+      operationId: get_PageView_getPageViewDataMonthly
+      parameters:
+      - required: true
+        in: query
+        name: stack_id
+        description: The stack id for which to fetch the dynamic request statistics.
+          If there is only one stack, this parameter can be omitted.
+        schema:
+          type: integer
+      - in: query
+        name: start_from
+        description: The first date from which to start showing the statistics in
+          the format of YYYY-MM.
+        schema:
+          type: string
+      - in: query
+        name: sort_order
+        description: The sort order direction. Either asc or desc.
+        schema:
+          type: string
+      - in: query
+        name: limit
+        description: The number of months to be listed. Maximum value is 120.
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: The page number to show in the list.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: PageView_getPageViewDataMonthly response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageView_getPageViewDataMonthlyResponse'
+        400:
+          description: bad input parameter
+  /api/v1/dynamic-requests/monthly/domains:
+    get:
+      summary: List monthly dynamic request statistics by domain.
+      description: Gets the monthly dynamic request statistics by domain.
+      operationId: get_PageView_getPageViewDataMonthlyPerDomain
+      parameters:
+      - required: true
+        in: query
+        name: stack_id
+        description: The stack id for which to fetch the dynamic request statistics.
+          If there is only one stack, this parameter can be omitted.
+        schema:
+          type: integer
+      - required: true
+        in: query
+        name: date
+        description: The month in the format of YYYY-MM.
+        schema:
+          type: string
+      - in: query
+        name: domain_name
+        description: Full domain name or a prefix for filtering the results.
+        schema:
+          type: string
+      - in: query
+        name: sort_order
+        description: The sort order direction. Either asc or desc.
+        schema:
+          type: string
+      - in: query
+        name: limit
+        description: The number of domains to be listed. (max 100)
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: The page number to show in the list.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: PageView_getPageViewDataMonthlyPerDomain response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageView_getPageViewDataMonthlyPerDomainResponse'
+        400:
+          description: bad input parameter
+  /api/v1/pause:
+    post:
+      summary: Pause/resume task processing
+      description: Pause or resume task processing.
+      operationId: post_Pause_pause
+      parameters: []
+      responses:
+        200:
+          description: Pause_pause response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pause_pauseResponse'
+        400:
+          description: bad input parameter
+  /api/v1/pause/%task_id:
+    post:
+      summary: Pause/resume task processing for a specific task
+      description: Pause or resume task processing.
+      operationId: post_Pause_pauseTask
+      parameters: []
+      responses:
+        200:
+          description: Pause_pauseTask response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pause_pauseTaskResponse'
+        400:
+          description: bad input parameter
+  /api/v1/ping:
+    get:
+      summary: Check service response
+      description: Checks whether the API is responding.
+      operationId: get_Ping_ping
+      parameters: []
+      responses:
+        200:
+          description: Ping_ping response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ping_pingResponse'
+        400:
+          description: bad input parameter
+  /api/v1/roles:
+    get:
+      summary: List roles
+      description: Gets a list of roles.
+      operationId: get_Role_getRoles
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: order
+        description: Either "ASC" or "DESC".
+        schema:
+          type: string
+      responses:
+        200:
+          description: Role_getRoles response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role_getRolesResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Create a role
+      description: Create a role.
+      operationId: post_Role_createRole
+      parameters:
+      - required: true
+        in: header
+        name: name
+        description: The name of the role.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Role_createRole response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role_createRoleResponse'
+        400:
+          description: bad input parameter
+  /api/v1/roles/{role_id}:
+    get:
+      summary: Retrieve a role
+      description: Retrieve a role by role ID.
+      operationId: get_Role_getRole
+      parameters:
+      - in: path
+        required: true
+        name: role_id
+        description: The role ID of the user role.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Role_getRole response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role_getRoleResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete a role
+      description: Delete a role.
+      operationId: delete_Role_deleteRole
+      parameters:
+      - in: path
+        required: true
+        name: role_id
+        description: The role ID of the user role.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Role_deleteRole response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role_deleteRoleResponse'
+        400:
+          description: bad input parameter
+  /api/v1/roles/{role_id}/update:
+    put:
+      summary: Update (rename) a role
+      description: Update (rename) a role.
+      operationId: put_Role_updateRole
+      parameters:
+      - in: path
+        required: true
+        name: role_id
+        description: The role ID of the user role.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: new_name
+        description: The new name for the user role.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Role_updateRole response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Role_updateRoleResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sf-info:
+    get:
+      summary: Get the version of the Site Factory
+      description: Gets the (release) version the Site Factory is on.
+      operationId: get_SfInfo_getSfVersion
+      parameters: []
+      responses:
+        200:
+          description: SfInfo_getSfVersion response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SfInfo_getSfVersionResponse'
+        400:
+          description: bad input parameter
+  /api/v1/collections:
+    get:
+      summary: List site collections
+      description: Gets a list of site collections.
+      operationId: get_SiteCollections_getCollections
+      parameters:
+      - in: query
+        name: remove_empty
+        description: True to only return collections containing active sites.
+        schema:
+          type: boolean
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SiteCollections_getCollections response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_getCollectionsResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Create a site collection
+      description: Create a new site collection.
+      operationId: post_SiteCollections_createCollection
+      parameters:
+      - required: true
+        in: header
+        name: name
+        description: The name of the new site collection.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: site_ids
+        description: Either a single site ID, or an array of site IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      - required: true
+        in: header
+        name: group_ids
+        description: Either a single group ID, or an array of group IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      - in: header
+        name: internal_domain_prefix
+        description: The site collection's internal domain prefix. Uses the "name"
+          parameter's value if not set.
+        schema:
+          type: string
+      responses:
+        200:
+          description: SiteCollections_createCollection response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_createCollectionResponse'
+        400:
+          description: bad input parameter
+  /api/v1/collections/{collection_id}:
+    get:
+      summary: Site collection details
+      description: Get detailed information about a site collection.
+      operationId: get_SiteCollections_getCollection
+      parameters:
+      - in: path
+        required: true
+        name: collection_id
+        description: Collection ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SiteCollections_getCollection response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_getCollectionResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete a site collection
+      description: Delete a site collection.
+      operationId: delete_SiteCollections_deleteCollection
+      parameters:
+      - in: path
+        required: true
+        name: collection_id
+        description: Collection ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SiteCollections_deleteCollection response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_deleteCollectionResponse'
+        400:
+          description: bad input parameter
+  /api/v1/collections/{collection_id}/add:
+    post:
+      summary: Add site(s) to a site collection.
+      description: Add site(s) to a site collection.
+      operationId: post_SiteCollections_addSiteToCollection
+      parameters:
+      - in: path
+        required: true
+        name: collection_id
+        description: Collection ID.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_ids
+        description: A site ID or an array of site IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: SiteCollections_addSiteToCollection response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_addSiteToCollectionResponse'
+        400:
+          description: bad input parameter
+  /api/v1/collections/{collection_id}/remove:
+    post:
+      summary: Remove site(s) from a site collection.
+      description: Remove site(s) from a site collection.
+      operationId: post_SiteCollections_removeSiteFromCollection
+      parameters:
+      - in: path
+        required: true
+        name: collection_id
+        description: Collection ID.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_ids
+        description: A site ID, or an array of site IDs.
+        schema:
+          oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+      responses:
+        200:
+          description: SiteCollections_removeSiteFromCollection response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_removeSiteFromCollectionResponse'
+        400:
+          description: bad input parameter
+  /api/v1/collections/{collection_id}/set-primary:
+    post:
+      summary: Set the primary site of a site collection.
+      description: Set the primary site of a site collection.
+      operationId: post_SiteCollections_setPrimarySite
+      parameters:
+      - in: path
+        required: true
+        name: collection_id
+        description: Collection ID.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_id
+        description: A single site ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SiteCollections_setPrimarySite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteCollections_setPrimarySiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/site-ownership:
+    get:
+      summary: Get current site ownership settings.
+      description: Get current site ownership settings.
+      operationId: get_SiteOwnership_executeGetActions
+      parameters: []
+      responses:
+        200:
+          description: SiteOwnership_executeGetActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteOwnership_executeGetActionsResponse'
+        400:
+          description: bad input parameter
+    put:
+      summary: Set the site ownership settings.
+      description: Set the site ownership settings.
+      operationId: put_SiteOwnership_executePutActions
+      parameters:
+      - required: true
+        in: header
+        name: username
+        description: The default owner username. The user has to have the "Platform
+          admin" role.
+        schema:
+          type: string
+      responses:
+        200:
+          description: SiteOwnership_executePutActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteOwnership_executePutActionsResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete the site ownership settings.
+      description: Delete the site ownership settings.
+      operationId: delete_SiteOwnership_executeDeleteActions
+      parameters: []
+      responses:
+        200:
+          description: SiteOwnership_executeDeleteActions response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteOwnership_executeDeleteActionsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites:
+    get:
+      summary: List sites
+      description: Gets a list of sites.
+      operationId: get_Sites_getSites
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 1000).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: canary
+        description: No value necessary.
+        schema:
+          type: boolean
+      - in: query
+        name: show_incomplete
+        description: Show sites that are incomplete.
+        schema:
+          type: boolean
+      - in: query
+        name: stack_id
+        description: Show sites on a specific stack.
+        schema:
+          type: integer
+      - in: query
+        name: domain_contains
+        description: Show sites whose domain contains this value.
+        schema:
+          type: string
+      - in: query
+        name: domain_not_contains
+        description: Show sites whose domain does not contain this value.
+        schema:
+          type: string
+      - in: query
+        name: has_custom_domain
+        description: Whether to only show sites with custom domains.
+        schema:
+          type: boolean
+      - in: query
+        name: site_owner
+        description: Either a user id or a comma separated list of user ids.
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: query
+        name: show_custom_domain
+        description: Return the first custom domain if the site has one instead of
+          the internal one.
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: Sites_getSites response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_getSitesResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Create a site
+      description: Create a new site.
+      operationId: post_Sites_createSite
+      parameters:
+      - required: true
+        in: header
+        name: site_name
+        description: The new site name.
+        schema:
+          type: string
+      - in: header
+        name: group_ids
+        description: Either a single group ID, or an array of group IDs.
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: header
+        name: install_profile
+        description: The install profile to be used to install the site.
+        schema:
+          type: string
+      - in: header
+        name: stack_id
+        description: The stack id where the site should go.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_createSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_createSiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}:
+    get:
+      summary: Site details
+      description: Get detailed information about a site.
+      operationId: get_Sites_getSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_getSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_getSiteResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Site delete
+      description: Delete a site.
+      operationId: delete_Sites_deleteSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_deleteSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_deleteSiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/duplicate:
+    post:
+      summary: Duplicate a site
+      description: Duplicate a site.
+      operationId: post_Sites_duplicateSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: site_name
+        description: The new site name.
+        schema:
+          type: string
+      - in: header
+        name: group_ids
+        description: Either a single group ID, or an array of group IDs.
+        schema:
+          type: array
+          items:
+            type: integer
+      - in: header
+        name: exact_copy
+        description: A boolean indicating whether or not to create an exact copy.
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: Sites_duplicateSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_duplicateSiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/backup:
+    post:
+      summary: Create a site backup
+      description: Create a site backup.
+      operationId: post_Sites_backupSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - in: header
+        name: label
+        description: The human-readable description of this backup.
+        schema:
+          type: string
+      - in: header
+        name: callback_url
+        description: The callback URL, which is invoked upon completion.
+        schema:
+          type: string
+      - in: header
+        name: callback_method
+        description: The callback method, "GET", or "POST". Uses "POST" if empty.
+        schema:
+          type: string
+      - in: header
+        name: caller_data
+        description: Data that should be included in the callback, json encoded.
+        schema:
+          type: string
+      - in: header
+        name: components
+        description: 'Array of components to be included in the backup. The following
+          component names are accepted: codebase, database, public files, private
+          files, themes. When omitting this parameter it will default to a backup
+          with every component.'
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: Sites_backupSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_backupSiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/backups:
+    get:
+      summary: List site backups
+      description: |-
+        List site backups.
+
+         Note that the results are sorted from newest backup to oldest.
+      operationId: get_Sites_getSiteBackups
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_getSiteBackups response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_getSiteBackupsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/backups/{backup_id}/url:
+    get:
+      summary: Get a temporary site backup URL
+      description: Get temporary site backup URL.
+      operationId: get_Sites_getSiteBackupUrl
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: backup_id
+        description: Backup ID
+        schema:
+          type: integer
+      - in: query
+        name: lifetime
+        description: The number of seconds the temporary URL is good for.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_getSiteBackupUrl response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_getSiteBackupUrlResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/backups/{backup_id}:
+    delete:
+      summary: Delete a site backup
+      description: Delete a site backup.
+      operationId: delete_Sites_deleteSiteBackup
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - in: path
+        required: true
+        name: backup_id
+        description: Backup ID
+        schema:
+          type: integer
+      - in: header
+        name: callback_url
+        description: The callback URL, which is invoked upon completion.
+        schema:
+          type: string
+      - in: header
+        name: callback_method
+        description: The callback method, "GET", or "POST". Uses "POST" if empty.
+        schema:
+          type: string
+      - in: header
+        name: caller_data
+        description: Data that should be included in the callback, json encoded.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Sites_deleteSiteBackup response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_deleteSiteBackupResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/restore:
+    post:
+      summary: Restore a site backup
+      description: Restore a site backup.
+      operationId: post_Sites_restoreSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      - in: header
+        name: target_site_id
+        description: ID of the site to restore the backup onto.
+        schema:
+          type: integer
+      - in: header
+        name: backup_id
+        description: ID of the backup to restore defaults to the most recent.
+        schema:
+          type: integer
+      - in: header
+        name: callback_url
+        description: The callback URL, which is invoked upon completion.
+        schema:
+          type: string
+      - in: header
+        name: callback_method
+        description: The callback method, "GET", or "POST". Uses "POST" if empty.
+        schema:
+          type: string
+      - in: header
+        name: caller_data
+        description: Data that should be included in the callback, json encoded.
+        schema:
+          type: string
+      - in: header
+        name: components
+        description: 'Array of components to be restored from the backup. The following
+          component names are accepted: database, public files, private files, themes.
+          When omitting this parameter it will default to the backup''s every component.'
+        schema:
+          type: array
+          items:
+            type: string
+      responses:
+        200:
+          description: Sites_restoreSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_restoreSiteResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/cache-clear:
+    post:
+      summary: Clear a site's caches
+      description: Clear Drupal and Varnish caches for a site.
+      operationId: post_Sites_clearCaches
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Sites_clearCaches response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sites_clearCachesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/ssl/certificates:
+    get:
+      summary: INTERNAL, SUBJECT TO CHANGE - Get the SSL certificates installed on
+        a stack
+      description: Gets the SSL certificates that are installed on a stack.
+      operationId: get_SslCertificates_getCertificates
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: stack_id
+        description: The stack id.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SslCertificates_getCertificates response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SslCertificates_getCertificatesResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: INTERNAL, SUBJECT TO CHANGE - Install a new SSL certificate on a stack
+      description: Installs a new SSL certificate on a stack.
+      operationId: post_SslCertificates_installCertificate
+      parameters:
+      - in: header
+        name: stack_id
+        description: The stack id.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: label
+        description: The label to identify the SSL certificate.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: certificate
+        description: The SSL certificate in PEM format.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: private_key
+        description: The SSL private key in PEM format.
+        schema:
+          type: string
+      - in: header
+        name: ca_certificates
+        description: CA intermediate certificates in PEM format.
+        schema:
+          type: string
+      responses:
+        200:
+          description: SslCertificates_installCertificate response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SslCertificates_installCertificateResponse'
+        400:
+          description: bad input parameter
+  /api/v1/stage:
+    get:
+      summary: Retrieve available environments
+      description: Retrieves available environments user can stage to.
+      operationId: get_Stage_stagingEnvironments
+      parameters: []
+      responses:
+        200:
+          description: Stage_stagingEnvironments response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stage_stagingEnvironmentsResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Start staging process
+      description: Starts the staging process.
+      operationId: post_Stage_stage
+      parameters: []
+      responses:
+        200:
+          description: Stage_stage response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stage_stageResponse'
+        400:
+          description: bad input parameter
+  /api/v2/stage:
+    get:
+      summary: Retrieve available environments
+      description: Retrieves available environments user can stage to.
+      operationId: get_StageV2_stagingEnvironments
+      parameters: []
+      responses:
+        200:
+          description: StageV2_stagingEnvironments response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageV2_stagingEnvironmentsResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Start staging process
+      description: Starts the staging process.
+      operationId: post_StageV2_stage
+      parameters: []
+      responses:
+        200:
+          description: StageV2_stage response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StageV2_stageResponse'
+        400:
+          description: bad input parameter
+  /api/v1/status:
+    get:
+      summary: Get status information
+      description: Get a status report.
+      operationId: get_Status_getStatus
+      parameters: []
+      responses:
+        200:
+          description: Status_getStatus response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status_getStatusResponse'
+        400:
+          description: bad input parameter
+    put:
+      summary: Modify status
+      description: Modify the status.
+      operationId: put_Status_setStatus
+      parameters: []
+      responses:
+        200:
+          description: Status_setStatus response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status_setStatusResponse'
+        400:
+          description: bad input parameter
+  /api/v1/classes/{type}:
+    get:
+      summary: (Internal use only) Get Task class information.
+      description: Return data about WIP classes
+      operationId: get_Task_classes
+      parameters:
+      - in: path
+        required: true
+        name: type
+        description: Either "softpaused" or "softpause-for-update"
+        schema:
+          type: string
+      responses:
+        200:
+          description: Task_classes response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task_classesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/tasks:
+    get:
+      summary: (Internal use only) Get Task information.
+      description: Returns data about WIP tasks.
+      operationId: get_Task_tasks
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        description: processing, error or not-started
+        schema:
+          type: string
+      - in: query
+        name: class
+        description: A WIP class name to filter on.
+        schema:
+          type: string
+      - in: query
+        name: group
+        description: A WIP group name to filter on.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Task_tasks response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task_tasksResponse'
+        400:
+          description: bad input parameter
+  /api/v1/tasks/{task_id}/logs:
+    get:
+      summary: (Internal use only) Get Task log information.
+      description: Returns log entries about WIP tasks.
+      operationId: get_Task_logs
+      parameters:
+      - in: path
+        required: true
+        name: task_id
+        description: Task ID.
+        schema:
+          type: integer
+      - in: query
+        name: level
+        description: The minimum status level to display
+        schema:
+          type: string
+      - in: query
+        name: descendants
+        description: Include the logs of all descendant tasks.
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: Task_logs response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task_logsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/tasks/{task_id}:
+    delete:
+      summary: Delete tasks from the work pool.
+      description: Delete a task and its descendants.
+      operationId: delete_Task_delete
+      parameters:
+      - in: path
+        required: true
+        name: task_id
+        description: Task ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Task_delete response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task_deleteResponse'
+        400:
+          description: bad input parameter
+    put:
+      summary: Terminate tasks in the work pool.
+      description: Terminate a task and its descendants.
+      operationId: put_Task_terminate
+      parameters:
+      - in: path
+        required: true
+        name: task_id
+        description: Task ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Task_terminate response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task_terminateResponse'
+        400:
+          description: bad input parameter
+  /api/v1/theme/deploy-key:
+    get:
+      summary: External theme repository deploy key
+      description: |-
+        Gets the deploy key that needs to be added to external theme repositories.
+
+         Add this deploy key to your theme repositories, so that the Acquia Cloud
+         Site Factory platform gets access to your repository and is able to deploy
+         updated themes to your sites.
+      operationId: get_Theme_getThemePublicKey
+      parameters: []
+      responses:
+        200:
+          description: Theme_getThemePublicKey response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme_getThemePublicKeyResponse'
+        400:
+          description: bad input parameter
+  /api/v1/theme/process:
+    post:
+      summary: Process theme modifications
+      description: Processes the stored theme change notifications.
+      operationId: post_Theme_processThemes
+      parameters:
+      - in: header
+        name: sitegroup_id
+        description: The ID of a specific sitegroup to process e.g. "tangle001".
+        schema:
+          type: string
+      responses:
+        200:
+          description: Theme_processThemes response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme_processThemesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/external-theme-refresh:
+    post:
+      summary: Site external theme refresh
+      description: Refreshes the site's themes from the external theme repository.
+      operationId: post_Theme_refreshSiteExternalThemes
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Theme_refreshSiteExternalThemes response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme_refreshSiteExternalThemesResponse'
+        400:
+          description: bad input parameter
+  /api/v1/sites/{site_id}/external-theme:
+    put:
+      summary: Set site external theme
+      description: Sets the site's external theme data.
+      operationId: put_Theme_setSiteExternalTheme
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID.
+        schema:
+          type: integer
+      - in: header
+        name: vcs_url
+        description: The external theme repository's url.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: vcs_path
+        description: The VCS path to use.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Theme_setSiteExternalTheme response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme_setSiteExternalThemeResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete site external theme
+      description: Deletes the site's external theme data.
+      operationId: delete_Theme_deleteSiteExternalTheme
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Theme_deleteSiteExternalTheme response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme_deleteSiteExternalThemeResponse'
+        400:
+          description: bad input parameter
+  /api/v1/theme/notification:
+    post:
+      summary: Send a theme notification
+      description: Receives a theme event notification.
+      operationId: post_ThemeNotification_handleNotification
+      parameters:
+      - required: true
+        in: header
+        name: scope
+        description: The scope. Either "theme", "site", "group", or "global".
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: event
+        description: The type of theme event. Either "create", "modify", or "delete".
+        schema:
+          type: string
+      - in: header
+        name: nid
+        description: The node ID of the related entity (site or group). Not relevant
+          for the "global" scope.
+        schema:
+          type: integer
+      - in: header
+        name: theme
+        description: The system name of the theme. Only relevant for "theme" scope
+          notifications.
+        schema:
+          type: string
+      - in: header
+        name: uid
+        description: The user id owning the notification and who should get notified
+          if an error occurs during processing.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: ThemeNotification_handleNotification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemeNotification_handleNotificationResponse'
+        400:
+          description: bad input parameter
+  /api/v1/update:
+    post:
+      summary: Start an update
+      description: Start the update process.
+      operationId: post_Update_update
+      parameters: []
+      responses:
+        200:
+          description: Update_update response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_updateResponse'
+        400:
+          description: bad input parameter
+    get:
+      summary: List updates
+      description: ""
+      operationId: get_Update_updateList
+      parameters: []
+      responses:
+        200:
+          description: Update_updateList response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_updateListResponse'
+        400:
+          description: bad input parameter
+  /api/v1/update/{update_id}/status:
+    get:
+      summary: Get update progress
+      description: Gets the status of a running update process.
+      operationId: get_Update_status
+      parameters:
+      - in: path
+        required: true
+        name: update_id
+        description: Either int value or 'last'.
+        schema:
+          oneOf:
+          - type: integer
+          - type: string
+      responses:
+        200:
+          description: Update_status response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_statusResponse'
+        400:
+          description: bad input parameter
+  /api/v1/update/pause:
+    post:
+      summary: Pause an update
+      description: Pause a running update process.
+      operationId: post_Update_pauseUpdate
+      parameters: []
+      responses:
+        200:
+          description: Update_pauseUpdate response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Update_pauseUpdateResponse'
+        400:
+          description: bad input parameter
+  /api/v1/users:
+    get:
+      summary: List users
+      description: Gets a list of users.
+      operationId: get_User_getUsers
+      parameters:
+      - in: query
+        name: limit
+        description: A positive integer (max 100).
+        schema:
+          type: integer
+      - in: query
+        name: page
+        description: A positive integer.
+        schema:
+          type: integer
+      - in: query
+        name: order
+        description: Either "ASC" or "DESC".
+        schema:
+          type: string
+      - in: query
+        name: ids
+        description: A comma-separated list of user IDs.
+        schema:
+          type: string
+      - in: query
+        name: role_ids
+        description: A comma-separated list of role IDs.
+        schema:
+          type: string
+      - in: query
+        name: status
+        description: Either "active" or "blocked".
+        schema:
+          type: string
+      - in: query
+        name: uid_min
+        description: First uid value to start with.
+        schema:
+          type: integer
+      - in: query
+        name: uid_max
+        description: Last uid value to fetch.
+        schema:
+          type: integer
+      - in: query
+        name: created_min
+        description: Lowest 'created' value (timestamp).
+        schema:
+          type: integer
+      - in: query
+        name: created_max
+        description: Highest 'created' value (timestamp).
+        schema:
+          type: integer
+      - in: query
+        name: login_min
+        description: Lowest 'login' value (timestamp).
+        schema:
+          type: integer
+      - in: query
+        name: login_max
+        description: Highest 'login' value (timestamp).
+        schema:
+          type: integer
+      - in: query
+        name: tfa_status
+        description: Either "active" or "disabled".
+        schema:
+          type: string
+      - in: query
+        name: fields
+        description: A comma-separated list of Drupal user fields.
+        schema:
+          type: string
+      responses:
+        200:
+          description: User_getUsers response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User_getUsersResponse'
+        400:
+          description: bad input parameter
+    post:
+      summary: Create a user
+      description: Create a user.
+      operationId: post_User_createUser
+      parameters:
+      - required: true
+        in: header
+        name: name
+        description: The name of the user.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: mail
+        description: The email address of the user.
+        schema:
+          type: string
+      - in: header
+        name: pass
+        description: The user's password. (Included in the response, if not provided.)
+        schema:
+          type: string
+      - in: header
+        name: status
+        description: The user's status, either 0 or 1.
+        schema:
+          type: integer
+      - in: header
+        name: roles
+        description: Either a single role name, or an array of role names.
+        schema:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+      responses:
+        200:
+          description: User_createUser response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User_createUserResponse'
+        400:
+          description: bad input parameter
+  /api/v1/users/{user_id}:
+    get:
+      summary: Retrieve a user
+      description: Retrieve a user by user ID.
+      operationId: get_User_getUser
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: The user ID of the user.
+        schema:
+          type: integer
+      - in: query
+        name: fields
+        description: A comma-separated list of fields to retrieve.
+        schema:
+          type: string
+      responses:
+        200:
+          description: User_getUser response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User_getUserResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Delete a user
+      description: Delete a user.
+      operationId: delete_User_deleteUser
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: The user ID of the user.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: User_deleteUser response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User_deleteUserResponse'
+        400:
+          description: bad input parameter
+  /api/v1/users/{user_id}/update:
+    put:
+      summary: Update a user
+      description: Update a user.
+      operationId: put_User_updateUser
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: The user ID of the user.
+        schema:
+          type: integer
+      - in: header
+        name: name
+        description: The name of the user.
+        schema:
+          type: string
+      - in: header
+        name: mail
+        description: The email address of the user.
+        schema:
+          type: string
+      - in: header
+        name: pass
+        description: The user's password.
+        schema:
+          type: string
+      - in: header
+        name: status
+        description: The user's status, either 0 or 1.
+        schema:
+          type: integer
+      - in: header
+        name: roles
+        description: Either a single role name, or an array of role names.
+        schema:
+          oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+      - in: header
+        name: tfa_status
+        description: The user's TFA status, either 0 or 1.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: User_updateUser response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User_updateUserResponse'
+        400:
+          description: bad input parameter
+  /api/v1/variables:
+    get:
+      summary: List variables
+      description: Get lists of variables.
+      operationId: get_Variables_getVariables
+      parameters:
+      - in: query
+        name: search
+        description: Variable name pattern
+        schema:
+          type: string
+      - in: query
+        name: name
+        description: Name of a single variable to return.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Variables_getVariables response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variables_getVariablesResponse'
+        400:
+          description: bad input parameter
+    put:
+      summary: Set a variable
+      description: Set a configuration variable by name.
+      operationId: put_Variables_setVariable
+      parameters: []
+      responses:
+        200:
+          description: Variables_setVariable response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Variables_setVariableResponse'
+        400:
+          description: bad input parameter
+  /api/v1/vcs:
+    get:
+      summary: List deployable refs
+      description: Get a list of VCS refs.
+      operationId: get_Vcs_getRefs
+      parameters:
+      - required: true
+        in: query
+        name: type
+        description: 'Either "sites" or "factory". (Note: "factory" is restricted
+          to Acquia employees.)'
+        schema:
+          type: string
+      - in: query
+        name: stack_id
+        description: The stack id.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Vcs_getRefs response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vcs_getRefsResponse'
+        400:
+          description: bad input parameter
+  /api/v1/wip/task/%task_id/status:
+    get:
+      summary: Wip task status
+      description: Gets the status of a Wip task.
+      operationId: get_WipTaskStatus_getWipTaskStatus
+      parameters:
+      - required: true
+        in: query
+        name: task_id
+        description: The Wip task ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: WipTaskStatus_getWipTaskStatus response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WipTaskStatus_getWipTaskStatusResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/archive-site/{site_id}:
+    post:
+      summary: Archive site
+      description: Archives a site.
+      operationId: post_Archive_archiveSite
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: url
+        description: The URL where the site archive can be downloaded.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Archive_archiveSite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Archive_archiveSiteResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/theme/deploy:
+    post:
+      summary: Distribute themes
+      description: Distributes themes to a webnode.
+      operationId: post_DeployTheme_deployThemes
+      parameters:
+      - in: header
+        name: sitegroup
+        description: The sitegroup to which themes should be deployed.
+        schema:
+          type: string
+      - in: header
+        name: webnode
+        description: The webnode to which themes should be deployed.
+        schema:
+          type: string
+      responses:
+        200:
+          description: DeployTheme_deployThemes response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployTheme_deployThemesResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/export-stats:
+    post:
+      summary: Export stats
+      description: Saves stats regarding a site export.
+      operationId: post_Export_exportStats
+      parameters:
+      - required: true
+        in: header
+        name: dbname
+        description: The name of the database.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: reason
+        description: The reason for exporting.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: explanation
+        description: The explanation for exporting.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Export_exportStats response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Export_exportStatsResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/broadcasting/task:
+    get:
+      summary: Task Broadcasting
+      description: Retrieves a list of tasks broadcast by the Factory.
+      operationId: get_GardenerBroadcasting_getTask
+      parameters:
+      - required: true
+        in: query
+        name: cluster
+        description: The cluster to request.
+        schema:
+          type: string
+      - required: true
+        in: query
+        name: timestamp
+        description: The timestamp of the most recent tasks.
+        schema:
+          type: integer
+      - required: true
+        in: query
+        name: tangle
+        description: The tangle to retrieve tasks for.
+        schema:
+          type: string
+      responses:
+        200:
+          description: GardenerBroadcasting_getTask response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GardenerBroadcasting_getTaskResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/janrain/rp:
+    get:
+      summary: Get RP data.
+      description: Retrieves Janrain Engage app data.
+      operationId: get_Janrain_getRp
+      parameters:
+      - required: true
+        in: query
+        name: id
+        description: The request ID.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Janrain_getRp response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Janrain_getRpResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/janrain/invite:
+    get:
+      summary: Get invite.
+      description: Retrieves invite.
+      operationId: get_Janrain_getInvite
+      parameters:
+      - required: true
+        in: query
+        name: id
+        description: The request ID.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Janrain_getInvite response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Janrain_getInviteResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/janrain/user-data:
+    get:
+      summary: Get user data.
+      description: Retrieves user data.
+      operationId: get_Janrain_getUserData
+      parameters:
+      - required: true
+        in: query
+        name: id
+        description: The request ID.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Janrain_getUserData response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Janrain_getUserDataResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/pdf-rendition:
+    post:
+      summary: PDF Rendition
+      description: Save PDF Rendition information.
+      operationId: post_PdfRendition_saveInfo
+      parameters:
+      - required: true
+        in: header
+        name: info
+        description: The PDF information.
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        200:
+          description: PdfRendition_saveInfo response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdfRendition_saveInfoResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/ping:
+    get:
+      summary: Check service response
+      description: Checks whether the API is responding.
+      operationId: get_Ping_pingSiteApi
+      parameters: []
+      responses:
+        200:
+          description: Ping_pingSiteApi response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ping_pingSiteApiResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/pingdom-pause/{site_id}:
+    post:
+      summary: Pingdom Pause.
+      description: Pauses or unpauses a pingdom check.
+      operationId: post_PingdomPause_setPause
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: PingdomPause_setPause response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingdomPause_setPauseResponse'
+        400:
+          description: bad input parameter
+    delete:
+      summary: Pingdom Pause.
+      description: Pauses or unpauses a pingdom check.
+      operationId: delete_PingdomPause_setPause
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: PingdomPause_setPause response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PingdomPause_setPauseResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/sf-alert:
+    post:
+      summary: Accept sites.json reports
+      description: Accepts sites.json reports from a webnode.
+      operationId: post_SfAlert_registerSitesJSONError
+      parameters:
+      - required: true
+        in: header
+        name: scope
+        description: The scope type.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: data
+        description: The data containing the report details (check example command
+          for all required fields).
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        200:
+          description: SfAlert_registerSitesJSONError response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SfAlert_registerSitesJSONErrorResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/sf-log:
+    post:
+      summary: Log message
+      description: Sends a log message to the Factory on behalf of a site.
+      operationId: post_SfLog_saveLog
+      parameters:
+      - required: true
+        in: header
+        name: type
+        description: The type of message.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: level
+        description: The severity level.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: message
+        description: The message text.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: timestamp
+        description: The timestamp of the message.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: nid
+        description: The site id.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SfLog_saveLog response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SfLog_saveLogResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/sync/{site_id}:
+    post:
+      summary: SF Site Sync
+      description: Syncs Factory data with a site.
+      operationId: post_SiteSync_sync
+      parameters:
+      - in: path
+        required: true
+        name: site_id
+        description: Site ID.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: SiteSync_sync response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SiteSync_syncResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/site-stats:
+    post:
+      summary: Site Stats
+      description: Saves site stats.
+      operationId: post_Stats_setStats
+      parameters:
+      - required: true
+        in: header
+        name: stats
+        description: The stats to save.
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        200:
+          description: Stats_setStats response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stats_setStatsResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/theme/notification:
+    post:
+      summary: Send a theme notification
+      description: Receives a theme event notification.
+      operationId: post_ThemeNotification_handleSiteNotification
+      parameters:
+      - required: true
+        in: header
+        name: scope
+        description: The scope. Either "theme", "site", "group", or "global".
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: event
+        description: The type of event. Either "create", "modify", or "delete".
+        schema:
+          type: string
+      - in: header
+        name: nid
+        description: The node ID of the related entity (site or group). Not relevant
+          for the "global" scope.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: theme
+        description: The system name of the theme on which the event occurred.
+        schema:
+          type: string
+      - in: header
+        name: timestamp
+        description: A Unix timestamp of when the event occurred.
+        schema:
+          type: integer
+      - in: header
+        name: uid
+        description: The user id owning the notification and who should get notified
+          if an error occurs during processing.
+        schema:
+          type: integer
+      responses:
+        200:
+          description: ThemeNotification_handleSiteNotification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemeNotification_handleSiteNotificationResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/verification/resend:
+    post:
+      summary: Email Verification
+      description: Sends a verification email.
+      operationId: post_Verification_resendVerification
+      parameters:
+      - required: true
+        in: header
+        name: name
+        description: The username to email.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: verifier
+        description: The module who should verify.
+        schema:
+          type: string
+      responses:
+        200:
+          description: Verification_resendVerification response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verification_resendVerificationResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/wip-signal-send:
+    post:
+      summary: Wip Signal
+      description: Sends a signal to a wip object.
+      operationId: post_WipSignalSend_sendSignal
+      parameters:
+      - required: true
+        in: header
+        name: wid
+        description: The Wip Task ID to signal.
+        schema:
+          type: integer
+      - required: true
+        in: header
+        name: signal
+        description: The signal to send.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: state
+        description: The state to signal.
+        schema:
+          type: string
+      - required: true
+        in: header
+        name: data
+        description: The data to send.
+        schema:
+          type: object
+          additionalProperties:
+            type: string
+      responses:
+        200:
+          description: WipSignalSend_sendSignal response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WipSignalSend_sendSignalResponse'
+        400:
+          description: bad input parameter
+  /site-api/v1/wip/task/%task_id/status:
+    get:
+      summary: Wip task status
+      description: Gets the status of a Wip task.
+      operationId: get_WipTaskStatus_getSiteWipTaskStatus
+      parameters:
+      - required: true
+        in: query
+        name: task_id
+        description: The Wip task ID
+        schema:
+          type: integer
+      responses:
+        200:
+          description: WipTaskStatus_getSiteWipTaskStatus response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WipTaskStatus_getSiteWipTaskStatusResponse'
+        400:
+          description: bad input parameter
+components:
+  schemas:
+    ApiKey_resetKeysResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: API keys will be regenerated in a few minutes
+        server_time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+        task_id:
+          type: integer
+          example: 1234
+    ApiKey_resetUserKeysResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The API key for user 32 was regenerated.
+        server_time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+    AuditEvent_getAuditEventsResponse_changes:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        message:
+          type: string
+          example: Thing changed from @before to @after.
+        before:
+          type: string
+          example: before_data
+        after:
+          type: string
+          example: after_data
+        type:
+          type: string
+          example: field_name
+        scope:
+          type: string
+          example: context_name
+        module:
+          type: string
+          example: system
+        source:
+          type: string
+          example: Factory UI
+        nid:
+          type: integer
+          example: 123
+        uid:
+          type: integer
+          example: 456
+        timestamp:
+          type: integer
+          example: 1403742194
+    AuditEvent_getAuditEventsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 1
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEvent_getAuditEventsResponse_changes'
+    CentralizedRoleManagement_executeGetActionsResponse_content_editor:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        site_roles:
+          type: array
+          items:
+            type: string
+    CentralizedRoleManagement_executeGetActionsResponse_platform_admin:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        site_roles:
+          type: array
+          items:
+            type: string
+            example: site maintainer
+    CentralizedRoleManagement_executeGetActionsResponse_site_builder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        site_roles:
+          type: array
+          items:
+            type: string
+    CentralizedRoleManagement_executeGetActionsResponse:
+      type: object
+      properties:
+        content editor:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeGetActionsResponse_content_editor'
+        platform admin:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeGetActionsResponse_platform_admin'
+        site builder:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeGetActionsResponse_site_builder'
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    CentralizedRoleManagement_executePutActionsResponse_content_editor:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        site_roles:
+          type: array
+          items:
+            type: string
+            example: newrole
+    CentralizedRoleManagement_executePutActionsResponse_platform_admin:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        site_roles:
+          type: array
+          items:
+            type: string
+            example: site maintainer
+    CentralizedRoleManagement_executePutActionsResponse_site_builder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        site_roles:
+          type: array
+          items:
+            type: string
+    CentralizedRoleManagement_executePutActionsResponse:
+      type: object
+      properties:
+        content editor:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executePutActionsResponse_content_editor'
+        platform admin:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executePutActionsResponse_platform_admin'
+        site builder:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executePutActionsResponse_site_builder'
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    CentralizedRoleManagement_executeDeleteActionsResponse_content_editor:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        site_roles:
+          type: array
+          items:
+            type: string
+            example: newrole
+    CentralizedRoleManagement_executeDeleteActionsResponse_platform_admin:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        site_roles:
+          type: array
+          items:
+            type: string
+            example: site maintainer
+    CentralizedRoleManagement_executeDeleteActionsResponse_site_builder:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: false
+        site_roles:
+          type: array
+          items:
+            type: string
+    CentralizedRoleManagement_executeDeleteActionsResponse:
+      type: object
+      properties:
+        content editor:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeDeleteActionsResponse_content_editor'
+        platform admin:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeDeleteActionsResponse_platform_admin'
+        site builder:
+          $ref: '#/components/schemas/CentralizedRoleManagement_executeDeleteActionsResponse_site_builder'
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    CodeBases_getCodeBaseNamesResponse:
+      type: object
+      properties:
+        stacks:
+          type: object
+          additionalProperties:
+            type: string
+    CronJobs_getCronJobsResponse_cronjobs:
+      type: object
+      properties:
+        nid:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: cron job 1
+        stacks:
+          type: array
+          items:
+            type: integer
+            example: 1
+        sites_affected:
+          type: string
+          example: dev-sites
+        interval:
+          type: string
+          example: 14 0,12 * * *
+        drush_command:
+          type: string
+          example: cron
+        thread_percentage:
+          type: integer
+          example: 60
+    CronJobs_getCronJobsResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2021-11-25T13:18:44+00:00"
+        count:
+          type: integer
+          example: 2
+        cronjobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/CronJobs_getCronJobsResponse_cronjobs'
+    CronJobs_getCronJobResponse:
+      type: object
+      properties:
+        nid:
+          type: integer
+          example: 101
+        name:
+          type: string
+          example: cron job 1
+        stacks:
+          type: array
+          items:
+            type: integer
+            example: 1
+        sites_affected:
+          type: string
+          example: dev-sites
+        interval:
+          type: string
+          example: 14 0,12 * * *
+        drush_command:
+          type: string
+          example: cron
+        thread_percentage:
+          type: integer
+          example: 60
+    Domains_getDomainsResponse_domains:
+      type: object
+      properties:
+        protected_domains:
+          type: array
+          items:
+            type: string
+            example: site.example.sfdev.acquia-test.co
+        custom_domains:
+          type: array
+          items:
+            type: string
+            example: www.abc.com/def
+    Domains_getDomainsResponse:
+      type: object
+      properties:
+        node_id:
+          type: integer
+          example: 121
+        node_type:
+          type: string
+          example: site collection
+        time:
+          type: string
+          example: "2016-10-28T09:25:26+00:00"
+        domains:
+          $ref: '#/components/schemas/Domains_getDomainsResponse_domains'
+    Domains_getDomainStatusResponse:
+      type: object
+      properties:
+        domain_name:
+          type: string
+          example: www.example.com
+        associated_status:
+          type: string
+          example: registered|registered_unstable|unregistered|unregistered_unstable
+        node_id:
+          type: integer
+          example: 123
+        node_type:
+          type: string
+          example: site
+        stack_id:
+          type: integer
+          example: 1
+        time:
+          type: string
+          example: "2016-10-28T09:25:26+00:00"
+    Domains_addDomainResponse:
+      type: object
+      properties:
+        node_id:
+          type: integer
+          example: 121
+        node_type:
+          type: string
+          example: site collection
+        domain:
+          type: string
+          example: www.domaintoadd.com
+        time:
+          type: string
+          example: "2016-10-28T09:25:26+00:00"
+        added:
+          type: boolean
+          example: true
+        messages:
+          type: array
+          items:
+            type: string
+            example: Your domain name was successfully added to the site collection.
+    Domains_removeDomainResponse:
+      type: object
+      properties:
+        node_id:
+          type: integer
+          example: 121
+        node_type:
+          type: string
+          example: site collection
+        domain:
+          type: string
+          example: www.domaintoremove.com
+        time:
+          type: string
+          example: "2016-10-28T09:25:26+00:00"
+        removed:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Your domain name has been successfully removed from &lt;site collection
+            name&gt;.
+    Groups_getMembersResponse_members:
+      type: object
+      properties:
+        uid:
+          type: integer
+          example: 101
+        group owner:
+          type: boolean
+          example: true
+        group administrator:
+          type: boolean
+          example: true
+    Groups_getMembersResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+        count:
+          type: integer
+          example: 3
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Groups_getMembersResponse_members'
+    Groups_getGroupByIdResponse:
+      type: object
+      properties:
+        created:
+          type: integer
+          example: 1399421609
+        group_id:
+          type: integer
+          example: 123
+        group_name:
+          type: string
+          example: mygroup
+        owner:
+          type: string
+          example: user_name
+        owner_id:
+          type: integer
+          example: 456
+        parent_id:
+          type: integer
+          example: 789
+        parent_name:
+          type: string
+          example: parentgroup
+        live_site_count:
+          type: integer
+          example: 1
+        total_site_count:
+          type: integer
+          example: 3
+        status:
+          type: integer
+          example: 1
+    Groups_getGroupsResponse_groups:
+      type: object
+      properties:
+        group_name:
+          type: string
+          example: test
+        group_id:
+          type: integer
+          example: 10002246
+        owner:
+          type: string
+          example: user_name
+        owner_id:
+          type: integer
+          example: 10000461
+        parent_name:
+          type: string
+          example: foo
+        parent_id:
+          type: integer
+          example: 4242
+        status:
+          type: integer
+          example: 1
+        created:
+          type: integer
+          example: 1473142941
+        live_site_count:
+          type: integer
+          example: 1
+        total_site_count:
+          type: integer
+          example: 2
+    Groups_getGroupsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Groups_getGroupsResponse_groups'
+    Groups_createGroupResponse:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          example: 123
+        group_name:
+          type: string
+          example: mygroup
+    Groups_editGroupResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+    Groups_deleteGroupResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+    Groups_addMembersResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+        uids_added:
+          type: array
+          items:
+            type: integer
+            example: 66
+    Groups_addAdminsResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+        uids_promoted:
+          type: array
+          items:
+            type: integer
+            example: 66
+    Groups_addSitesResponse:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: foobargroup
+        time:
+          type: string
+          example: "2020-04-20T10:58:18+00:00"
+        site_ids_added:
+          type: array
+          items:
+            type: integer
+            example: 121
+        message:
+          type: string
+          example: One site was successfully added to the site group.
+        site_ids_skipped:
+          type: array
+          items:
+            type: integer
+            example: 101
+    Groups_removeMembersResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+        uids_removed:
+          type: array
+          items:
+            type: integer
+            example: 66
+    Groups_removeAdminsResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        group_id:
+          type: integer
+          example: 123
+        uids_demoted:
+          type: array
+          items:
+            type: integer
+            example: 66
+    Groups_removeSitesResponse:
+      type: object
+      properties:
+        group_id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: foobargroup
+        time:
+          type: string
+          example: "2020-04-20T10:58:18+00:00"
+        site_ids_removed:
+          type: array
+          items:
+            type: integer
+            example: 121
+        message:
+          type: string
+          example: One site was successfully removed from the site group.
+        site_ids_skipped:
+          type: array
+          items:
+            type: integer
+            example: 101
+    Groups_getSitesResponse_sites:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 151
+        db_name:
+          type: string
+          example: iade151
+        site:
+          type: string
+          example: site1
+        stack_id:
+          type: integer
+          example: 1
+        domain:
+          type: string
+          example: '{base_url}'
+        groups:
+          type: array
+          items:
+            type: integer
+            example: 91
+        site_collection:
+          type: integer
+          example: 5
+        is_primary:
+          type: boolean
+          example: true
+    Groups_getSitesResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: "2021-02-19T12:54:23+00:00"
+        group_id:
+          type: integer
+          example: 101
+        count:
+          type: integer
+          example: 2
+        sites:
+          type: array
+          items:
+            $ref: '#/components/schemas/Groups_getSitesResponse_sites'
+    InstallationProfiles_getInstallationProfilesResponse_profiles:
+      type: object
+      properties:
+        name:
+          type: string
+          example: acquia_acms
+        stack_id:
+          type: integer
+          example: 1
+        enabled:
+          type: boolean
+          example: true
+        rest_api_default:
+          type: boolean
+          example: true
+        description:
+          type: string
+          example: Ready-to-use solution designed to help create and publish websites
+            more easily
+    InstallationProfiles_getInstallationProfilesResponse:
+      type: object
+      properties:
+        profiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/InstallationProfiles_getInstallationProfilesResponse_profiles'
+        count:
+          type: integer
+          example: 4
+        time:
+          type: string
+          example: "1970-01-01T01:02:03+00:00"
+    InstallationProfiles_enableProfileResponse:
+      type: object
+      properties:
+        updated:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Profile enabled successfully.
+        profile_name:
+          type: string
+          example: standard
+        stack_id:
+          type: integer
+          example: 1
+        enabled:
+          type: boolean
+          example: true
+        rest_api_default:
+          type: boolean
+          example: true
+        time:
+          type: string
+          example: "1970-01-01T01:02:03+00:00"
+    InstallationProfiles_disableProfileResponse:
+      type: object
+      properties:
+        updated:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Profile disabled successfully.
+        profile_name:
+          type: string
+          example: standard
+        stack_id:
+          type: integer
+          example: 1
+        enabled:
+          type: boolean
+          example: false
+        rest_api_default:
+          type: boolean
+          example: false
+        time:
+          type: string
+          example: "1970-01-01T01:02:03+00:00"
+    InstallationProfiles_setDefaultResponse:
+      type: object
+      properties:
+        updated:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Profile set as default successfully.
+        profile_name:
+          type: string
+          example: standard
+        stack_id:
+          type: integer
+          example: 1
+        enabled:
+          type: boolean
+          example: true
+        rest_api_default:
+          type: boolean
+          example: true
+        time:
+          type: string
+          example: "1970-01-01T01:02:03+00:00"
+    PageView_getPageViewDataMonthlyResponse_dynamic_requests_2016-10:
+      type: object
+      properties:
+        date:
+          type: string
+          example: 2016-10
+        stack_id:
+          type: integer
+          example: 1
+        total_dynamic_requests:
+          type: integer
+          example: 106
+        2xx_dynamic_requests:
+          type: integer
+          example: 100
+        3xx_dynamic_requests:
+          type: integer
+          example: 3
+        4xx_dynamic_requests:
+          type: integer
+          example: 2
+        5xx_dynamic_requests:
+          type: integer
+          example: 1
+        total_runtime:
+          type: number
+          example: 101.4
+        2xx_runtime:
+          type: integer
+          example: 100
+        3xx_runtime:
+          type: number
+          example: 0.9
+        4xx_runtime:
+          type: number
+          example: 0.4
+        5xx_runtime:
+          type: number
+          example: 0.1
+    PageView_getPageViewDataMonthlyResponse_dynamic_requests:
+      type: object
+      properties:
+        2016-10:
+          $ref: '#/components/schemas/PageView_getPageViewDataMonthlyResponse_dynamic_requests_2016-10'
+    PageView_getPageViewDataMonthlyResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 1
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        most_recent_data:
+          type: string
+          example: "2016-11-23"
+        dynamic_requests:
+          $ref: '#/components/schemas/PageView_getPageViewDataMonthlyResponse_dynamic_requests'
+    PageView_getPageViewDataMonthlyPerDomainResponse_dynamic_requests_domain1.example.com:
+      type: object
+      properties:
+        date:
+          type: string
+          example: 2016-11
+        stack_id:
+          type: integer
+          example: 1
+        total_dynamic_requests:
+          type: integer
+          example: 106
+        2xx_dynamic_requests:
+          type: integer
+          example: 100
+        3xx_dynamic_requests:
+          type: integer
+          example: 3
+        4xx_dynamic_requests:
+          type: integer
+          example: 2
+        5xx_dynamic_requests:
+          type: integer
+          example: 1
+        total_runtime:
+          type: number
+          example: 101.4
+        2xx_runtime:
+          type: integer
+          example: 100
+        3xx_runtime:
+          type: number
+          example: 0.9
+        4xx_runtime:
+          type: number
+          example: 0.4
+        5xx_runtime:
+          type: number
+          example: 0.1
+    PageView_getPageViewDataMonthlyPerDomainResponse_dynamic_requests:
+      type: object
+      properties:
+        domain1.example.com:
+          $ref: '#/components/schemas/PageView_getPageViewDataMonthlyPerDomainResponse_dynamic_requests_domain1.example.com'
+    PageView_getPageViewDataMonthlyPerDomainResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 1
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        most_recent_data:
+          type: string
+          example: "2016-11-23"
+        dynamic_requests:
+          $ref: '#/components/schemas/PageView_getPageViewDataMonthlyPerDomainResponse_dynamic_requests'
+    Pause_pauseResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Task processing has been paused.
+    Pause_pauseTaskResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Task processing has been paused.
+        task_id:
+          type: integer
+          example: 123
+        level:
+          type: string
+          example: family
+    Ping_pingResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: pong
+        server_time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+    Role_getRolesResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 4
+        roles:
+          type: object
+          additionalProperties:
+            type: string
+    Role_getRoleResponse:
+      type: object
+      properties:
+        rid:
+          type: integer
+          example: 32
+        name:
+          type: string
+          example: platform admin
+    Role_createRoleResponse:
+      type: object
+      properties:
+        role_id:
+          type: integer
+          example: 16
+        role_name:
+          type: string
+          example: content editor
+    Role_updateRoleResponse:
+      type: object
+      properties:
+        role_id:
+          type: integer
+          example: 32
+        updated:
+          type: boolean
+          example: true
+    Role_deleteRoleResponse:
+      type: object
+      properties:
+        role_id:
+          type: integer
+          example: 76
+        deleted:
+          type: boolean
+          example: true
+    SfInfo_getSfVersionResponse:
+      type: object
+      properties:
+        factory_version:
+          type: string
+          example: 2.59.0
+        time:
+          type: string
+          example: "2017-05-11T18:15:19+00:00"
+    SiteCollections_getCollectionsResponse_collections:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 196
+        name:
+          type: string
+          example: collection2
+        internal_domain:
+          type: string
+          example: domain1.site-factory.com
+        primary_site:
+          type: integer
+          example: 220
+        site_count:
+          type: integer
+          example: 2
+        groups:
+          type: array
+          items:
+            type: integer
+            example: 91
+    SiteCollections_getCollectionsResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 111
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/SiteCollections_getCollectionsResponse_collections'
+    SiteCollections_getCollectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 261
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        created:
+          type: integer
+          example: 1489075420
+        owner:
+          type: string
+          example: admin
+        name:
+          type: string
+          example: collection1
+        internal_domain:
+          type: string
+          example: collection1.site-factory.com
+        external_domains:
+          type: array
+          items:
+            type: string
+            example: domain1.site-factory.com
+        groups:
+          type: array
+          items:
+            type: integer
+            example: 91
+        sites:
+          type: array
+          items:
+            type: integer
+            example: 236
+        primary_site:
+          type: integer
+          example: 236
+    SiteCollections_createCollectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: mycollection
+        time:
+          type: string
+          example: "2016-11-25T13:18:44+00:00"
+        internal_domain:
+          type: string
+          example: mycollecton.site-factory.com
+    SiteCollections_deleteCollectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        time:
+          type: string
+          example: "2016-10-28T09:25:26+00:00"
+        deleted:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Your site collection was successfully deleted.
+    SiteCollections_addSiteToCollectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: foobarcollection
+        time:
+          type: string
+          example: "2017-04-20T10:58:18+00:00"
+        site_ids_added:
+          type: array
+          items:
+            type: integer
+            example: 121
+        added:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: One site was successfully added to the site collection.
+        warning:
+          type: array
+          items:
+            type: string
+            example: 'The site aabbcc (site ID: 101) is already part of the current
+              site collection.; The site ddeeff (site ID: 126) is already part of
+              the current site collection.'
+        site_ids_skipped:
+          type: array
+          items:
+            type: integer
+            example: 101
+    SiteCollections_removeSiteFromCollectionResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: foobarcollection
+        time:
+          type: string
+          example: "2017-04-20T10:58:18+00:00"
+        site_ids_removed:
+          type: array
+          items:
+            type: integer
+            example: 121
+        removed:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: One site was successfully removed from the site collection.
+    SiteCollections_setPrimarySiteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        name:
+          type: string
+          example: foobarcollection
+        time:
+          type: string
+          example: "2017-04-20T10:58:18+00:00"
+        primary_site_id:
+          type: integer
+          example: 101
+        switched:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: It can take a few minutes to switch over to the new primary site.
+    SiteOwnership_executeGetActionsResponse:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        uid:
+          type: integer
+          example: 1234
+        username:
+          type: string
+          example: john.doe
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    SiteOwnership_executePutActionsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The configuration options have been saved.
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    SiteOwnership_executeDeleteActionsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Site ownership assignment feature has been disabled.
+        time:
+          type: string
+          example: "2022-01-19T08:38:09+00:00"
+    Sites_getSitesResponse_sites:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        created:
+          type: integer
+          example: 1616611353
+        owner:
+          type: string
+          example: John Drupal
+        site:
+          type: string
+          example: site1
+        db_name:
+          type: string
+          example: bdpref191
+        stack_id:
+          type: integer
+          example: 1
+        domain:
+          type: string
+          example: domain1.site-factory.com
+        groups:
+          type: array
+          items:
+            type: integer
+            example: 91
+        site_collection:
+          oneOf:
+          - type: integer
+          - type: boolean
+        is_primary:
+          type: boolean
+          example: true
+    Sites_getSitesResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 111
+        sites:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sites_getSitesResponse_sites'
+    Sites_getSiteResponse_external_theme:
+      type: object
+      properties:
+        vcs_url:
+          type: string
+          example: git@github.com:username/drupal-theme-repo.git
+        vcs_path:
+          type: string
+          example: master
+    Sites_getSiteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        created:
+          type: integer
+          example: 1397483647
+        owner:
+          type: string
+          example: John Drupal
+        site:
+          type: string
+          example: site1
+        stack_id:
+          type: integer
+          example: 1
+        db_name:
+          type: string
+          example: bdpref196
+        domains:
+          type: array
+          items:
+            type: string
+            example: domain1.site-factory.com
+        groups:
+          type: array
+          items:
+            type: integer
+            example: 91
+        part_of_collection:
+          type: boolean
+          example: true
+        is_primary:
+          type: boolean
+          example: true
+        collection_id:
+          type: integer
+          example: 241
+        collection_domains:
+          type: array
+          items:
+            type: string
+            example: domain241.example.com
+        external_theme:
+          $ref: '#/components/schemas/Sites_getSiteResponse_external_theme'
+    Sites_createSiteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 191
+        site:
+          type: string
+          example: site1
+        domains:
+          type: array
+          items:
+            type: string
+            example: mysite.site-factory.com
+        task_id:
+          type: integer
+          example: 12345
+    Sites_deleteSiteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        owner:
+          type: string
+          example: johnsmith
+        site:
+          type: string
+          example: unicorns
+        time:
+          type: string
+          example: "1970-01-01T01:02:03+00:00"
+        task_id:
+          type: integer
+          example: 16
+    Sites_duplicateSiteResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 183
+        site:
+          type: string
+          example: mysite2
+    Sites_backupSiteResponse:
+      type: object
+      properties:
+        task_id:
+          type: integer
+          example: 183
+    Sites_getSiteBackupsResponse_backups:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 6
+        nid:
+          type: integer
+          example: 123
+        status:
+          type: integer
+          example: 1
+        uid:
+          type: integer
+          example: 16
+        timestamp:
+          type: integer
+          example: 1415044083
+        bucket:
+          type: string
+          example: sitefactorybackups
+        directory:
+          type: string
+          example: oldschool
+        file:
+          type: string
+          example: oldschool_91_1415044083.tar.gz
+        label:
+          type: string
+          example: Weekly
+        componentList:
+          type: array
+          items:
+            type: string
+            example: codebase
+        complete:
+          type: boolean
+          example: true
+    Sites_getSiteBackupsResponse:
+      type: object
+      properties:
+        backups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Sites_getSiteBackupsResponse_backups'
+    Sites_getSiteBackupUrlResponse:
+      type: object
+      properties:
+        url:
+          type: string
+          example: https://s3.amazonaws.com/sitefactorybackups/site/backup1_101_1415643727.tar.gz?AWSAccessKeyId=AKIAINAAC2EGOVCRW4WA&Expires=1415713064&Signature=pWucd8b6T%2FqzoNewXH6EuTyIr1g%3D
+        lifetime:
+          type: integer
+          example: 300
+    Sites_deleteSiteBackupResponse:
+      type: object
+      properties:
+        task_id:
+          type: integer
+          example: 16
+    Sites_restoreSiteResponse:
+      type: object
+      properties:
+        task_id:
+          type: integer
+          example: 1024
+    Sites_clearCachesResponse_task_ids:
+      type: object
+      properties:
+        drupal_cache_clear:
+          type: integer
+          example: 1234
+        varnish_cache_clear:
+          type: integer
+          example: 1234
+    Sites_clearCachesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        time:
+          type: string
+          example: "2017-05-04T09:25:26+00:00"
+        task_ids:
+          $ref: '#/components/schemas/Sites_clearCachesResponse_task_ids'
+    SslCertificates_getCertificatesResponse_certificates_flags:
+      type: object
+      properties:
+        active:
+          type: boolean
+          example: false
+    SslCertificates_getCertificatesResponse_certificates:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "4"
+        label:
+          type: string
+          example: Test Certificate 1
+        certificate:
+          type: string
+          example: '-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----'
+        private_key:
+          type: string
+          example: '-----BEGIN RSA PRIVATE KEY-----...-----END RSA PRIVATE KEY-----'
+        ca:
+          type: string
+          example: '-----BEGIN CERTIFICATE-----...-----END CERTIFICATE-----'
+        flags:
+          $ref: '#/components/schemas/SslCertificates_getCertificatesResponse_certificates_flags'
+    SslCertificates_getCertificatesResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 2
+        stack_id:
+          type: integer
+          example: 1
+        certificates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SslCertificates_getCertificatesResponse_certificates'
+    SslCertificates_installCertificateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The SSL certificate has been accepted.
+    Stage_stagingEnvironmentsResponse:
+      type: object
+      properties:
+        test:
+          type: string
+          example: test
+    Stage_stageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Staging deployment has been initiated - WIP123.
+        task_id:
+          type: integer
+          example: 123
+    StageV2_stagingEnvironmentsResponse_environments:
+      type: object
+      properties:
+        test:
+          type: string
+          example: test
+    StageV2_stagingEnvironmentsResponse:
+      type: object
+      properties:
+        environments:
+          $ref: '#/components/schemas/StageV2_stagingEnvironmentsResponse_environments'
+    StageV2_stageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Staging deployment has been initiated - WIP123.
+        task_id:
+          type: integer
+          example: 123
+    Status_getStatusResponse:
+      type: object
+      properties:
+        site_creation:
+          type: string
+          example: Disabled
+        site_duplication:
+          type: string
+          example: Enabled
+        domain_management:
+          type: string
+          example: Disabled until 2014-02-14T11:52:17-05:00
+        bulk_operations:
+          type: string
+          example: Disabled until 2014-02-14T11:52:17-05:00
+    Status_setStatusResponse:
+      type: object
+      properties:
+        site_creation:
+          type: string
+          example: ""
+        site_duplication:
+          type: string
+          example: "2022-02-17T05:06:55-08:00"
+        domain_management:
+          type: string
+          example: ""
+        bulk_operations:
+          type: string
+          example: "2022-02-17T05:06:55-08:00"
+    Task_classesResponse:
+      type: array
+      items:
+        type: string
+        example: Acquia\SfSite\SiteInstall
+    Task_tasksResponse_item:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "7726"
+        parent:
+          type: string
+          example: "0"
+        name:
+          type: string
+          example: CronController 151
+        group_name:
+          type: string
+          example: CronController
+        priority:
+          type: string
+          example: "2"
+        object_id:
+          type: string
+          example: "7726"
+        status:
+          type: string
+          example: "8"
+        wake:
+          type: string
+          example: "1645143240"
+        added:
+          type: string
+          example: "1645103709"
+        started:
+          type: string
+          example: "1645103715"
+        completed:
+          type: string
+          example: "0"
+        taken:
+          type: string
+          example: "0"
+        lease:
+          type: string
+          example: "301"
+        max_run_time:
+          type: string
+          example: "300"
+        paused:
+          type: string
+          example: "0"
+        concurrency_exceeded:
+          type: string
+          example: "0"
+        error_message:
+          type: string
+          example: ""
+        nid:
+          type: string
+          example: "0"
+        uid:
+          type: string
+          example: "0"
+        class:
+          type: string
+          example: Acquia\SfCron\CronController
+    Task_tasksResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Task_tasksResponse_item'
+    Task_logsResponse_item:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "755096"
+        timestamp:
+          type: string
+          example: "1643297111"
+        object_id:
+          type: string
+          example: "5566"
+        action:
+          type: string
+          example: ""
+        level:
+          type: string
+          example: "7"
+        message:
+          type: string
+          example: '[ded-11|7376] - Task added for object id 5566.'
+        readable:
+          type: string
+          example: "0"
+    Task_logsResponse:
+      type: array
+      items:
+        $ref: '#/components/schemas/Task_logsResponse_item'
+    Task_deleteResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Task 123 has been deleted.
+        time:
+          type: string
+          example: "1970-01-01T00:00:00+00:00"
+        task_id:
+          type: integer
+          example: 123
+    Task_terminateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Task 123 has been queued for termination.
+        time:
+          type: string
+          example: "1970-01-01T00:00:00+00:00"
+        task_id:
+          type: integer
+          example: 123
+    Theme_getThemePublicKeyResponse:
+      type: object
+      properties:
+        deploy_key:
+          type: string
+          example: ssh-rsa...== id_rsa_external_theme
+        time:
+          type: string
+          example: "2034-05-11T18:15:19+00:00"
+    Theme_processThemesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The request to process theme notification has been accepted.
+        sitegroups:
+          type: array
+          items:
+            type: string
+            example: tangle001
+        time:
+          type: string
+          example: "2014-05-02T16:21:25+00:00"
+    Theme_refreshSiteExternalThemesResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 121
+        accepted:
+          type: boolean
+          example: true
+        time:
+          type: string
+          example: "2024-05-11T18:15:19+00:00"
+    Theme_setSiteExternalThemeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 121
+        vcs_url:
+          type: string
+          example: git@github.com:user/repo.git
+        vcs_path:
+          type: string
+          example: master
+        time:
+          type: string
+          example: "2020-01-09T15:57:24+00:00"
+    Theme_deleteSiteExternalThemeResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 121
+        accepted:
+          type: boolean
+          example: true
+        time:
+          type: string
+          example: "2024-05-11T18:15:19+00:00"
+    ThemeNotification_handleNotificationResponse_notification:
+      type: object
+      properties:
+        scope:
+          type: string
+          example: site
+        event:
+          type: string
+          example: modify
+        nid:
+          type: integer
+          example: 123
+    ThemeNotification_handleNotificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The site.modify notification has been received.
+        time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+        notification:
+          $ref: '#/components/schemas/ThemeNotification_handleNotificationResponse_notification'
+    Update_updateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Update initiated.
+        task_id:
+          type: integer
+          example: 123
+    Update_statusResponse_statuses:
+      type: object
+      properties:
+        not-started:
+          type: integer
+          example: 0
+        in-progress:
+          type: integer
+          example: 0
+        completed:
+          type: string
+          example: "30"
+        warning:
+          type: integer
+          example: 0
+        error:
+          type: integer
+          example: 0
+    Update_statusResponse_docroot_pairs_environment:
+      type: object
+      properties:
+        site:
+          type: string
+          example: test
+        env:
+          type: string
+          example: prod
+        tangle:
+          type: string
+          example: tangle_test
+        type:
+          type: string
+          example: live_env
+    Update_statusResponse_docroot_pairs:
+      type: object
+      properties:
+        environment:
+          $ref: '#/components/schemas/Update_statusResponse_docroot_pairs_environment'
+        total:
+          type: integer
+          example: 30
+        error_percentage:
+          type: integer
+          example: 0
+        completed_percentage:
+          type: integer
+          example: 100
+    Update_statusResponse:
+      type: object
+      properties:
+        statuses:
+          $ref: '#/components/schemas/Update_statusResponse_statuses'
+        message:
+          type: string
+          example: Update complete
+        percentage:
+          type: integer
+          example: 100
+        start_time:
+          type: integer
+          example: 1423862773
+        end_time:
+          type: integer
+          example: 1423865337
+        id:
+          type: integer
+          example: 4726
+        docroot_pairs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Update_statusResponse_docroot_pairs'
+    Update_updateListResponse:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/Update_updateListResponse_item'
+    Update_updateListResponse_item:
+      type: object
+      properties:
+        added:
+          type: string
+          example: "1423762615"
+        status:
+          type: string
+          example: "16"
+    Update_pauseUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Site update processing has been paused.
+    User_getUsersResponse_users:
+      type: object
+      properties:
+        uid:
+          type: string
+          example: "1"
+        name:
+          type: string
+          example: admin
+        mail:
+          type: string
+          example: admin@example.com
+        created:
+          type: string
+          example: "1431525207"
+        access:
+          type: string
+          example: "1431525447"
+        status:
+          type: string
+          example: blocked
+        tfa_status:
+          type: string
+          example: not available
+        roles:
+          type: object
+          additionalProperties:
+            type: string
+    User_getUsersResponse:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 6
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User_getUsersResponse_users'
+    User_getUserResponse:
+      type: object
+      properties:
+        uid:
+          type: string
+          example: "32"
+        name:
+          type: string
+          example: Mark
+        mail:
+          type: string
+          example: mark@example.com
+        created:
+          type: string
+          example: "1449070860"
+        login:
+          type: string
+          example: "1449071036"
+        status:
+          type: string
+          example: "1"
+        roles:
+          type: object
+          additionalProperties:
+            type: string
+        tfa_status:
+          type: string
+          example: active
+    User_createUserResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 16
+        user_name:
+          type: string
+          example: Mark
+        user_mail:
+          type: string
+          example: mark@example.com
+        user_status:
+          type: string
+          example: active
+    User_updateUserResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 85
+        updated:
+          type: boolean
+          example: true
+    User_deleteUserResponse:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 76
+        deleted:
+          type: boolean
+          example: true
+    Variables_getVariablesResponse:
+      type: object
+      additionalProperties:
+        type: string
+    Variables_setVariableResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: value
+    Vcs_getRefsResponse:
+      type: object
+      properties:
+        available:
+          type: array
+          items:
+            type: string
+            example: dev-branch
+        current:
+          type: string
+          example: tags/2.85.0.3085
+    WipTaskStatus_getWipTaskStatusResponse_wip_task:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "476"
+        parent:
+          type: string
+          example: "0"
+        name:
+          type: string
+          example: SiteArchive 111
+        group_name:
+          type: string
+          example: SiteArchive customerstack1_01
+        status:
+          type: string
+          example: "16"
+        status_string:
+          type: string
+          example: Completed
+        added:
+          type: string
+          example: "1475051666"
+        started:
+          type: string
+          example: "1475051667"
+        completed:
+          type: string
+          example: "1475051765"
+        paused:
+          type: string
+          example: "0"
+        error_message:
+          type: string
+          example: ""
+        nid:
+          type: string
+          example: "111"
+        uid:
+          type: string
+          example: "21"
+    WipTaskStatus_getWipTaskStatusResponse:
+      type: object
+      properties:
+        wip_task:
+          $ref: '#/components/schemas/WipTaskStatus_getWipTaskStatusResponse_wip_task'
+        time:
+          type: string
+          example: "2014-05-02T16:21:25+00:00"
+    Archive_archiveSiteResponse:
+      type: object
+      properties:
+        archived:
+          type: boolean
+          example: true
+    DeployTheme_deployThemesResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The request to deploy themes has been accepted.
+        sitegroup:
+          type: string
+          example: tangle001
+        webnode:
+          type: string
+          example: managed-47.gardens.hosting.acquia.com
+        task_id:
+          type: string
+          example: "47"
+        time:
+          type: string
+          example: "2014-05-02T16:21:25+00:00"
+    Export_exportStatsResponse:
+      type: object
+      properties:
+        saved:
+          type: boolean
+          example: true
+    GardenerBroadcasting_getTaskResponse_tasks_task_expire:
+      type: object
+      properties:
+        month:
+          type: string
+          example: "3"
+        day:
+          type: string
+          example: "3"
+        year:
+          type: string
+          example: "2022"
+    GardenerBroadcasting_getTaskResponse_tasks_task:
+      type: object
+      properties:
+        notification:
+          type: string
+          example: asdf asdf test test!
+        expire:
+          $ref: '#/components/schemas/GardenerBroadcasting_getTaskResponse_tasks_task_expire'
+    GardenerBroadcasting_getTaskResponse_tasks:
+      type: object
+      properties:
+        tid:
+          type: string
+          example: "1"
+        task_provider:
+          type: string
+          example: notifications
+        task:
+          $ref: '#/components/schemas/GardenerBroadcasting_getTaskResponse_tasks_task'
+        created:
+          type: string
+          example: "1646319386"
+        target_domains:
+          type: string
+          example: qwertty.wq
+    GardenerBroadcasting_getTaskResponse:
+      type: object
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/GardenerBroadcasting_getTaskResponse_tasks'
+    Janrain_getRpResponse:
+      type: object
+    Janrain_getInviteResponse:
+      type: object
+    Janrain_getUserDataResponse:
+      type: object
+    PdfRendition_saveInfoResponse:
+      type: object
+      properties:
+        saved:
+          type: boolean
+          example: true
+    Ping_pingSiteApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: pong
+        server_time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+    PingdomPause_setPauseResponse:
+      type: object
+    SfAlert_registerSitesJSONErrorResponse:
+      type: object
+      properties:
+        received:
+          type: boolean
+          example: true
+        time_created:
+          type: string
+          example: "2016-03-21T16:21:17+00:00"
+        time_received:
+          type: string
+          example: "2016-03-21T16:21:25+00:00"
+    SfLog_saveLogResponse:
+      type: object
+      properties:
+        sf_log:
+          type: integer
+          example: 1
+    SiteSync_syncResponse:
+      type: object
+    Stats_setStatsResponse:
+      type: object
+      properties:
+        saved:
+          type: boolean
+          example: true
+    ThemeNotification_handleSiteNotificationResponse_notification:
+      type: object
+      properties:
+        scope:
+          type: string
+          example: site
+        event:
+          type: string
+          example: modify
+        nid:
+          type: integer
+          example: 123
+    ThemeNotification_handleSiteNotificationResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The site.modify notification has been received.
+        time:
+          type: string
+          example: "2014-02-16T20:04:12-06:00"
+        notification:
+          $ref: '#/components/schemas/ThemeNotification_handleSiteNotificationResponse_notification'
+    Verification_resendVerificationResponse:
+      type: object
+      properties:
+        sent:
+          type: boolean
+          example: false
+    WipSignalSend_sendSignalResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: sent
+    WipTaskStatus_getSiteWipTaskStatusResponse_wip_task:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "476"
+        parent:
+          type: string
+          example: "0"
+        name:
+          type: string
+          example: SiteArchive 111
+        group_name:
+          type: string
+          example: SiteArchive customerstack1_01
+        priority:
+          type: string
+          example: "2"
+        object_id:
+          type: string
+          example: "476"
+        status:
+          type: string
+          example: "16"
+        wake:
+          type: string
+          example: "1475051764"
+        added:
+          type: string
+          example: "1475051666"
+        started:
+          type: string
+          example: "1475051667"
+        completed:
+          type: string
+          example: "1475051765"
+        taken:
+          type: string
+          example: "0"
+        lease:
+          type: string
+          example: "180"
+        max_run_time:
+          type: string
+          example: "300"
+        paused:
+          type: string
+          example: "0"
+        concurrency_exceeded:
+          type: string
+          example: "0"
+        error_message:
+          type: string
+          example: ""
+        nid:
+          type: string
+          example: "111"
+        uid:
+          type: string
+          example: "21"
+        class:
+          type: string
+          example: Acquia\SfBackup\SiteArchiveV2
+    WipTaskStatus_getSiteWipTaskStatusResponse:
+      type: object
+      properties:
+        wip_task:
+          $ref: '#/components/schemas/WipTaskStatus_getSiteWipTaskStatusResponse_wip_task'
+        time:
+          type: string
+          example: "2016-09-28T09:01:09+00:00"
+...
