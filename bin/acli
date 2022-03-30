@@ -67,6 +67,7 @@ $application->setName('Acquia CLI');
 $application->setVersion('@package_version@');
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
-$application->addCommands($helper->getApiCommands());
+$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api'));
+$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf'));
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
 $application->run($input, $output);

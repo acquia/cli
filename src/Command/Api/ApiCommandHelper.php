@@ -155,13 +155,16 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return ApiCommandBase[]
+   * @param string $acquia_cloud_spec_file
+   * @param string $command_prefix
+   *
+   * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function getApiCommands(): array {
-    $acquia_cloud_spec = $this->getCloudApiSpec();
-    $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec);
-    $api_list_commands = $this->generateApiListCommands($api_commands);
+  public function getApiCommands($acquia_cloud_spec_file, $command_prefix): array {
+    $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file);
+    $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec, $command_prefix);
+    $api_list_commands = $this->generateApiListCommands($api_commands, $command_prefix);
     $commands = array_merge($api_commands, $api_list_commands);
 
     return $commands;
@@ -175,7 +178,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $param_definition
+   * @param array $param_definition
    * @param string $usage
    *
    * @return mixed|string
@@ -197,7 +200,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $param_definition
+   * @param array $param_definition
    * @param string $usage
    *
    * @return string
@@ -211,8 +214,8 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $schema
-   * @param $acquia_cloud_spec
+   * @param array $schema
+   * @param array $acquia_cloud_spec
    * @param \Acquia\Cli\Command\Api\ApiCommandBase $command
    */
   protected function addApiCommandParameters($schema, $acquia_cloud_spec, ApiCommandBase $command): void {
@@ -258,8 +261,8 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $schema
-   * @param $acquia_cloud_spec
+   * @param array $schema
+   * @param array $acquia_cloud_spec
    *
    * @return array
    */
@@ -370,8 +373,8 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $schema
-   * @param $acquia_cloud_spec
+   * @param array $schema
+   * @param array $acquia_cloud_spec
    *
    * @return array
    */
@@ -417,8 +420,8 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $param_key
-   * @param $acquia_cloud_spec
+   * @param string $param_key
+   * @param array $acquia_cloud_spec
    *
    * @return mixed
    */
@@ -449,18 +452,17 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return mixed
+   * @param string $acquia_cloud_spec_file
+   *
+   * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApiSpec(): array {
-    // The acquia-spec.yaml is copied directly from the acquia/cx-api-spec repository. It can be updated
-    // by running `composer update-cloud-api-spec`.
-    $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
+  protected function getCloudApiSpec($acquia_cloud_spec_file): array {
     $cache = self::getCommandCache();
 
     // When running the phar, the original file may not exist. In that case, always use the cache.
     if (!file_exists($acquia_cloud_spec_file)) {
-      $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
+      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file);
       if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
         return $acquia_cloud_spec_yaml_item->get();
       }
@@ -469,7 +471,7 @@ class ApiCommandHelper {
     // Otherwise, only use cache when it is valid.
     $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
     if ($this->useCloudApiSpecCache() && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)) {
-      $acquia_cloud_spec_yaml_item = $cache->getItem('api_spec.yaml');
+      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file);
       if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
         return $acquia_cloud_spec_yaml_item->get();
       }
@@ -491,7 +493,7 @@ class ApiCommandHelper {
    *
    * @return ApiCommandBase[]
    */
-  protected function generateApiCommandsFromSpec(array $acquia_cloud_spec): array {
+  protected function generateApiCommandsFromSpec(array $acquia_cloud_spec, $command_prefix): array {
     $api_commands = [];
     foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
@@ -500,6 +502,10 @@ class ApiCommandHelper {
       }
 
       foreach ($endpoint as $method => $schema) {
+        if (!array_key_exists('x-cli-name', $schema)) {
+          continue;
+        }
+
         if (in_array($schema['x-cli-name'], $this->getSkippedApiCommands(), TRUE)) {
           continue;
         }
@@ -509,7 +515,7 @@ class ApiCommandHelper {
           continue;
         }
 
-        $command_name = 'api:' . $schema['x-cli-name'];
+        $command_name = $command_prefix . ':' . $schema['x-cli-name'];
         $command = new ApiCommandBase(
           $this->cloudConfigFilepath,
           $this->localMachineHelper,
@@ -596,7 +602,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $schema
+   * @param array $schema
    * @param $acquia_cloud_spec
    *
    * @return array
@@ -681,7 +687,7 @@ class ApiCommandHelper {
    *
    * @return ApiListCommandBase[]
    */
-  protected function generateApiListCommands(array $api_commands): array {
+  protected function generateApiListCommands(array $api_commands, $command_prefix): array {
     $api_list_commands = [];
     foreach ($api_commands as $api_command) {
       $command_name_parts = explode(':', $api_command->getName());
@@ -705,7 +711,7 @@ class ApiCommandHelper {
             $this->sshDir,
             $this->logger
         );
-        $name = 'api:' . $namespace;
+        $name = $command_prefix . ':' . $namespace;
         $command->setName($name);
         $command->setNamespace($name);
         $command->setDescription("List all API commands for the {$namespace} resource");
