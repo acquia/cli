@@ -19,7 +19,6 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -41,11 +40,9 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
@@ -551,18 +548,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
    *
-   * @param Client $acquia_cloud_client
-   * @param string $environment_id
-   *
    * @return null|object|array
    */
-  protected function promptChooseLogs(
-    Client $acquia_cloud_client,
-    string $environment_id
-  ) {
-    $logs_resource = new Logs($acquia_cloud_client);
-    $logs = $logs_resource->getAll($environment_id);
-
+  protected function promptChooseLogs() {
+    $logs = array_map(static function ($log_type, $log_label) {
+      return [
+        'type' => $log_type,
+        'label' => $log_label,
+      ];
+    }, array_keys(LogstreamManager::AVAILABLE_TYPES), LogstreamManager::AVAILABLE_TYPES);
     return $this->promptChooseFromObjectsOrArrays(
       $logs,
       'type',
