@@ -87,22 +87,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
       }
     }
 
-    $global_options = [
-      'help',
-      'quiet',
-      'verbose',
-      'version',
-      'ansi',
-      'no-interaction'
-    ];
-    $non_default_options = [];
-    foreach ($definition->getOptions() as $option) {
-      // Skip global options.
-      // @todo Show these once at the beginning.
-      if (!in_array($option->getName(), $global_options)) {
-        $non_default_options[] = $option;
-      }
-    }
+    $non_default_options = $this->getNonDefaultOptions($definition);
     if (\count($non_default_options) > 0) {
       if ($showArguments) {
         $this->write("\n\n");
@@ -172,7 +157,43 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     $title = $this->getApplicationTitle($application);
 
     $this->write($title . "\n" . str_repeat($this->partChar, Helper::width($title)));
+    $this->createTableOfContents($description, $application);
+    $this->describeCommands($description, $options);
+  }
 
+  private function getApplicationTitle(Application $application): string {
+    if ('UNKNOWN' !== $application->getName()) {
+      if ('UNKNOWN' !== $application->getVersion()) {
+        return sprintf('%s %s', $application->getName(), $application->getVersion());
+      }
+
+      return $application->getName();
+    }
+
+    return 'Console Tool';
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
+   * @param array $options
+   */
+  protected function describeCommands(ApplicationDescription $description, array $options): void {
+    $this->write("\n\nCommands\n" . str_repeat($this->chapterChar, 8));
+    $commands = $description->getCommands();
+    unset($commands['completion']);
+    foreach ($commands as $command) {
+      $this->write("\n\n");
+      if (NULL !== $describeCommand = $this->describeCommand($command, $options)) {
+        $this->write($describeCommand);
+      }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
+   * @param \Symfony\Component\Console\Application $application
+   */
+  protected function createTableOfContents(ApplicationDescription $description, Application $application): void {
     foreach ($description->getNamespaces() as $namespace) {
       if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
         try {
@@ -205,32 +226,37 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
           unset($commands[$key]);
         }
       }
+      unset($commands['completion']);
 
       $this->write("\n\n");
       $this->write(implode("\n", array_map(function ($commandName) {
         return sprintf('- `%s`_', $commandName);
       }, array_keys($commands))));
     }
-
-    $this->write("\n\nCommands\n" . str_repeat($this->chapterChar, 8));
-    foreach ($description->getCommands() as $command) {
-      $this->write("\n\n");
-      if (NULL !== $describeCommand = $this->describeCommand($command, $options)) {
-        $this->write($describeCommand);
-      }
-    }
   }
 
-  private function getApplicationTitle(Application $application): string {
-    if ('UNKNOWN' !== $application->getName()) {
-      if ('UNKNOWN' !== $application->getVersion()) {
-        return sprintf('%s %s', $application->getName(), $application->getVersion());
+  /**
+   * @param \Symfony\Component\Console\Input\InputDefinition $definition
+   * @return array
+   */
+  protected function getNonDefaultOptions(InputDefinition $definition): array {
+    $global_options = [
+      'help',
+      'quiet',
+      'verbose',
+      'version',
+      'ansi',
+      'no-interaction'
+    ];
+    $non_default_options = [];
+    foreach ($definition->getOptions() as $option) {
+      // Skip global options.
+      // @todo Show these once at the beginning.
+      if (!in_array($option->getName(), $global_options)) {
+        $non_default_options[] = $option;
       }
-
-      return $application->getName();
     }
-
-    return 'Console Tool';
+    return $non_default_options;
   }
 
 }
