@@ -155,14 +155,14 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $acquia_cloud_spec_file
+   * @param string $acquia_cloud_spec_file_path
    * @param string $command_prefix
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function getApiCommands($acquia_cloud_spec_file, $command_prefix): array {
-    $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file);
+  public function getApiCommands($acquia_cloud_spec_file_path, $command_prefix): array {
+    $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file_path);
     $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec, $command_prefix);
     $api_list_commands = $this->generateApiListCommands($api_commands, $command_prefix);
     $commands = array_merge($api_commands, $api_list_commands);
@@ -425,20 +425,20 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  protected function getParameterSchemaFromSpec($param_key, $acquia_cloud_spec) {
+  protected function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec) {
     return $acquia_cloud_spec['components']['schemas'][$param_key];
   }
 
   /**
    * @param \Symfony\Component\Cache\Adapter\PhpArrayAdapter $cache
-   *
+   * @param string $acquia_cloud_spec_file_path
    * @param string $acquia_cloud_spec_file_checksum
    *
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function isApiSpecChecksumCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
-    $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
+  protected function isApiSpecChecksumCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_path, string $acquia_cloud_spec_file_checksum): bool {
+    $api_spec_checksum_item = $cache->getItem($acquia_cloud_spec_file_path . '.checksum');
     // If the spec file doesn't exist, assume cache is valid.
     if ($api_spec_checksum_item->isHit() && !$acquia_cloud_spec_file_checksum) {
       return TRUE;
@@ -452,37 +452,37 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $acquia_cloud_spec_file
+   * @param string $acquia_cloud_spec_file_path
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApiSpec($acquia_cloud_spec_file): array {
+  protected function getCloudApiSpec($acquia_cloud_spec_file_path): array {
     $cache = self::getCommandCache();
 
     // When running the phar, the original file may not exist. In that case, always use the cache.
-    if (!file_exists($acquia_cloud_spec_file)) {
-      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file);
+    if (!file_exists($acquia_cloud_spec_file_path)) {
+      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file_path);
       if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
         return $acquia_cloud_spec_yaml_item->get();
       }
     }
 
     // Otherwise, only use cache when it is valid.
-    $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
-    if ($this->useCloudApiSpecCache() && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_checksum)) {
-      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file);
+    $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file_path);
+    if ($this->useCloudApiSpecCache() && $this->isApiSpecChecksumCacheValid($cache, $acquia_cloud_spec_file_path, $acquia_cloud_spec_file_checksum)) {
+      $acquia_cloud_spec_yaml_item = $cache->getItem($acquia_cloud_spec_file_path);
       if ($acquia_cloud_spec_yaml_item && $acquia_cloud_spec_yaml_item->isHit()) {
         return $acquia_cloud_spec_yaml_item->get();
       }
     }
 
     // Parse file.
-    $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file);
+    $acquia_cloud_spec = Yaml::parseFile($acquia_cloud_spec_file_path);
 
     $cache->warmUp([
-      'api_spec.yaml' => $acquia_cloud_spec,
-      'api_spec.checksum' => $acquia_cloud_spec_file_checksum
+      $acquia_cloud_spec_file_path => $acquia_cloud_spec,
+      $acquia_cloud_spec_file_path . '.checksum' => $acquia_cloud_spec_file_checksum
     ]);
 
     return $acquia_cloud_spec;
