@@ -9,6 +9,7 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
@@ -30,6 +31,11 @@ class LocalMachineHelper {
   private $installedBinaries = [];
 
   /**
+   * @var \Symfony\Component\Console\Style\SymfonyStyle
+   */
+  private $io;
+
+  /**
    * @param InputInterface $input
    * @param OutputInterface $output
    */
@@ -41,6 +47,7 @@ class LocalMachineHelper {
     $this->input = $input;
     $this->output = $output;
     $this->setLogger($logger);
+    $this->io = new SymfonyStyle($input, $output);
   }
 
   /**
@@ -454,7 +461,7 @@ class LocalMachineHelper {
       }
     }
     if ($browser) {
-      $this->logger->info('Opening browser !browser at !uri', ['!browser' => $browser, '!uri' => $uri]);
+      $this->io->info("Opening $uri");
       $this->executeFromCmd("$browser $uri");
 
       return TRUE;

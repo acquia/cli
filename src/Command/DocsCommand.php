@@ -19,7 +19,7 @@ class DocsCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Open Acquia product documentation in a web browser')
-      ->addArgument('acquiaProductName', InputArgument::OPTIONAL, 'Acquia Product Name')
+      ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
       ->addUsage(self::getDefaultName() . ' acli');
   }
 
@@ -106,7 +106,7 @@ class DocsCommand extends CommandBase {
     ];
 
     // If user has provided any acquia product in command.
-    if ($acquiaProductName = $input->getArgument('acquiaProductName')) {
+    if ($acquiaProductName = $input->getArgument('product')) {
       $product_url = NULL;
       foreach (array_values($acquia_products) as $acquia_product) {
         // If product provided by the user exists in the alias
