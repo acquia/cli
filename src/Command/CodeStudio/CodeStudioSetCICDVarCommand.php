@@ -32,6 +32,13 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       ->addOption('gitlab-cicd-var', NULL, InputOption::VALUE_REQUIRED, 'The Code Studio CI/CD variable which needs to set/update.')
       ->addOption('gitlab-cicd-var-value', NULL, InputOption::VALUE_REQUIRED, 'The value of the CI/CD variable which needs to be updated.')
       ->addUsage(self::getDefaultName() . '  --gitlab-project-id=<codeStudioProjectId> --gitlab-token=<codeStudioToken> --gitlab-host-name=<codeStudiohostName> --gitlab-cicd-var=<CICD_VAR> --gitlab-cicd-var-value=`<CICD_VAR_VALUE`>');
+
+    $supported_variables_list = array_keys($this->getSupportedVariables());
+    $supported_variables = implode(PHP_EOL, $supported_variables_list);
+    $this->setHelp('This command allows to update the CI/CD variable for a given Code Studio project.' . PHP_EOL . PHP_EOL
+      . 'Below are the supported list of variables' . PHP_EOL
+      . '-----------------------------------------' . PHP_EOL
+      . $supported_variables . PHP_EOL);
   }
 
   /**
@@ -60,9 +67,9 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
     // @todo: Check if there is something for environment variable permission.
     $allowedProjects = $this->gitLabClient->projects()->all(['owned' => TRUE]);
 
-    // If there are no project available for the user.
+    // If there are no projects available for the user.
     if (count($allowedProjects) === 0) {
-      $this->io->error('There are no code studio projects available for your account.');
+      $this->io->error('There are no Code Studio projects available for your account.');
       return 1;
     }
 
@@ -76,16 +83,16 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       $project_id = $this->input->getOption('gitlab-project-id');
       // If project id provided by user is not valid.
       if (!isset($list[$project_id])) {
-        $this->io->error('Project id provided is not valid. Please check the project id.');
+        $this->io->error("The project id {$project_id} provided is either invalid or you do not have sufficient access to set variables for it.");
         return 1;
       }
     }
 
-    // If user not providing project id in option.
+    // If the user has not provided the project id as an option.
     if (!$project_id) {
       // Prepare list of projects to ask from the user.
       $project_choice_labels = array_values($list);
-      $question = new ChoiceQuestion('Please select a Cloud Platform subscription',
+      $question = new ChoiceQuestion('Please select a Code Studio project',
         $project_choice_labels,
         $project_choice_labels[0],
       );
@@ -93,28 +100,8 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       $project_id = array_search($choice_id, $list, TRUE);
     }
 
-    // Variables list of Code Studio CI/CD variables with default value.
-    $variables_list = [
-      'ACQUIA_JOBS_BUILD_DRUPAL' => 'true',
-      'ACQUIA_JOBS_TEST_DRUPAL' => 'true',
-      'ACQUIA_TASKS_SETUP_DRUPAL' => 'false',
-      'ACQUIA_TASKS_PHPCS' => 'true',
-      'ACQUIA_TASKS_PHPSTAN' => 'true',
-      'ACQUIA_TASKS_DRUTINY' => 'false',
-      'ACQUIA_TASKS_PHPUNIT' => 'true',
-      'ACQUIA_TASKS_SETUP_DRUPAL_CONFIG_IMPORT' => 'true',
-      'ACQUIA_JOBS_CREATE_BRANCH_ARTIFACT' => 'true',
-      'ACQUIA_JOBS_CREATE_TAG_ARTIFACT' => 'true',
-      'ACQUIA_JOBS_DEPLOY_TAG' => 'false',
-      'ACQUIA_JOBS_CREATE_CDE' => 'true',
-      'ACQUIA_JOBS_DEPRECATED_UPDATE' => 'true',
-      'ACQUIA_JOBS_COMPOSER_UPDATE' => 'true',
-      'ACQUIA_JOBS_BEAUTIFY_CODE' => 'false',
-      'SAST_EXCLUDED_PATHS' => 'spec, test, tests, tmp, node_modules, vendor, contrib, core',
-      'SECRET_DETECTION_EXCLUDED_PATHS' => 'spec, tmp, node_modules, vendor, contrib, core',
-      'ACQUIA_CUSTOM_CODE_DIRS' => 'docroot/modules/custom docroot/themes/custom docroot/profiles/custom',
-    ];
-
+    // List of CI/CD variables.
+    $variables_list = $this->getSupportedVariables();
     $variable_names = array_keys($variables_list);
 
     $variable = NULL;
@@ -122,13 +109,14 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       $variable = $this->input->getOption('gitlab-cicd-var');
       // If job provided by user is not valid.
       if (!in_array($variable, $variable_names)) {
-        $this->io->error('Variable provided is not valid.');
+        $this->io->error("The variable {$variable} is not supported by this command.");
+        $this->io->table(['Code Studio CI/CD supported variable are'], array_chunk($variable_names, 1));
         return 1;
       }
     }
 
     if (!$variable) {
-      $question = new ChoiceQuestion('Please select the Code Studio CI/CD variable you want to update.',
+      $question = new ChoiceQuestion('Please select the Code Studio CI/CD variable that you want to update.',
         $variable_names,
         $variable_names[0],
       );
@@ -157,6 +145,14 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       $variable_value = $this->io->askQuestion($variable_val_question);
     }
 
+    // Some variables only support true/false value.
+    // If value provided for those variables is not true/false,
+    // we ignore that value.
+    if (in_array($variables_list[$variable], ['true', 'false']) && !in_array($variable_value, ['true', 'false'])) {
+      $this->io->error("The variable {$variable} only supports either `true` or `false` value.");
+      return 1;
+    }
+
     try {
       // If  variable not exists in project, create it.
       if (!$is_variable_exist) {
@@ -168,7 +164,7 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
     }
     catch (RuntimeException $exception) {
       $this->io->error([
-        "Unable to update the job",
+        "Unable to update the variable {$variable} with value {$variable_value}",
       ]);
       // Log the error for debugging purpose.
       $this->logger->debug('Error @error while updating/creating the job @variable for the project @project project id @project_id', [
@@ -180,7 +176,7 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
       return 1;
     }
 
-    $this->io->info("Job `{$variable}` is updated for the project `{$list[$project_id]}` with value '{$variable_value}'");
+    $this->io->info("Variable `{$variable}` is updated for the project `{$list[$project_id]}` with value '{$variable_value}'");
     return 0;
   }
 
@@ -193,6 +189,34 @@ class CodeStudioSetCICDVarCommand extends GitLabCommandBase {
     }
 
     return parent::getGitLabHost();
+  }
+
+  /**
+   * List of supported CI/CD variables with default values.
+   *
+   * @return string[]
+   */
+  protected function getSupportedVariables() {
+    return [
+      'ACQUIA_JOBS_BUILD_DRUPAL' => 'true',
+      'ACQUIA_JOBS_TEST_DRUPAL' => 'true',
+      'ACQUIA_TASKS_SETUP_DRUPAL' => 'false',
+      'ACQUIA_TASKS_PHPCS' => 'true',
+      'ACQUIA_TASKS_PHPSTAN' => 'true',
+      'ACQUIA_TASKS_DRUTINY' => 'false',
+      'ACQUIA_TASKS_PHPUNIT' => 'true',
+      'ACQUIA_TASKS_SETUP_DRUPAL_CONFIG_IMPORT' => 'true',
+      'ACQUIA_JOBS_CREATE_BRANCH_ARTIFACT' => 'true',
+      'ACQUIA_JOBS_CREATE_TAG_ARTIFACT' => 'true',
+      'ACQUIA_JOBS_DEPLOY_TAG' => 'false',
+      'ACQUIA_JOBS_CREATE_CDE' => 'true',
+      'ACQUIA_JOBS_DEPRECATED_UPDATE' => 'true',
+      'ACQUIA_JOBS_COMPOSER_UPDATE' => 'true',
+      'ACQUIA_JOBS_BEAUTIFY_CODE' => 'false',
+      'SAST_EXCLUDED_PATHS' => 'spec, test, tests, tmp, node_modules, vendor, contrib, core',
+      'SECRET_DETECTION_EXCLUDED_PATHS' => 'spec, tmp, node_modules, vendor, contrib, core',
+      'ACQUIA_CUSTOM_CODE_DIRS' => 'docroot/modules/custom docroot/themes/custom docroot/profiles/custom',
+    ];
   }
 
 }
