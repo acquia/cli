@@ -15,4 +15,4 @@ $body = $twig->render('ccb-ticket.twig', [
   'GITHUB_ACTIONS_RUN_URL' => $argv[4],
   'JIRA_BASE_URL' => $argv[5],
 ]);
-echo $body;
+echo htmlspecialchars($body);
