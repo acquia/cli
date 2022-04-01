@@ -4,6 +4,7 @@ on:
   pull_request:
   schedule:
     - cron: "0 2 * * *"
+  release:
 defaults:
   run:
     # Run Git Bash on Windows. Otherwise it uses PowerShell Core and we'd need
