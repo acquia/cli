@@ -28,6 +28,7 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
+          extensions: gmp
           # Only report coverage once
           coverage: ${{ env.COVERAGE }}
       - name: Check dependencies on Ubuntu
