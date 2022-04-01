@@ -277,46 +277,6 @@ components:
             - web-cpu
             - web-memory
       example: web-cpu
-    StackMetricsMetricTypes:
-      name: stackMetricsMetricTypes
-      in: query
-      description: Specifies the types of StackMetrics metric to retrieve.
-      required: true
-      schema:
-        type: array
-        items:
-          type: string
-          enum:
-            - apache-requests
-            - bal-cpu
-            - bal-memory
-            - cron-memory
-            - db-cpu
-            - db-disk-size
-            - db-disk-usage
-            - db-memory
-            - file-disk-size
-            - file-cpu
-            - file-disk-usage
-            - file-memory
-            - http-2xx
-            - http-3xx
-            - http-4xx
-            - http-5xx
-            - mysql-slow-query-count
-            - nginx-requests
-            - out-of-memory
-            - php-proc-max-reached-site
-            - php-proc-max-reached-total
-            - php-proc-site
-            - php-proc-total
-            - varnish-cache-hit-rate
-            - varnish-requests
-            - web-cpu
-            - web-memory
-      example:
-        - web-cpu
-        - db-cpu
     TagName:
       name: tagName
       in: path
@@ -515,6 +475,14 @@ components:
       schema:
         type: string
       example: '2021-01-29T22:45:21+00:00'
+    FromStackMetrics:
+      name: from
+      in: query
+      description: An ISO-8601 formatted date retrieve metrics from.
+      required: true
+      schema:
+        type: string
+      example: '2021-01-29T22:45:21+00:00'
     To:
       name: to
       in: query
@@ -569,6 +537,38 @@ components:
       schema:
         type: string
         minimum: 1
+    FilterStackMetrics:
+      name: filter
+      in: query
+      description: |
+        The filters query string parameter restricts the data returned from your request. Filtered queries restrict the rows that do (or do not) get included in the result by testing each row in the result against the filters. Not all fields are filterable.
+
+        There are eight filter operators that can be used and they must be URL encoded in order to be included. The operators are:
+
+        * Equals: `= (%3D)`
+        * Does not equal: `!= (!%3D)`
+        * Greater than: `> (%3E)`
+        * Less than: `< (%3C)`
+        * Greater than or equal to: `>= (%3E%3D)`
+        * Less than or equal to: `<= (%3C%3D)`
+        * Contains substring: `=@ (%3D@)`
+        * Does not contain substring: `!@ (!@)`
+
+        Filters can be combined using `OR` and `AND` boolean logic. The `OR` operator is defined using a comma (`,`) and the `AND` operator is defined using a semi-colon (`;`).
+
+        Some examples:
+        * `filter=field%3Dvalue` (`field` equals `'value'`)
+        * `filter=field%3D@*partialmatch` (`field` ends with `'partialmatch'`)
+        * `filter=field%3D@*partialmatch,field%3Dvalue` (`field` ends with `'partialmatch'` OR `field` equals `'value'`)
+        * `filter=field%3D@*partialmatch,field%3Dvalue;field2%3C5` (`field` ends with `'partialmatch'` OR `field` equals `'value'` AND `field2` > `5`)
+
+        **For this endpoint, the "metric" filter is required. Multiple metrics can be returned in one request. The following metrics are available:**
+
+        * apache-requests, bal-cpu, bal-memory, cron-memory, db-cpu, db-disk-size, db-disk-usage, db-memory, file-disk-size, file-cpu, file-disk-usage, file-memory, http-2xx, http-3xx, http-4xx, http-5xx, mysql-slow-query-count, nginx-requests, out-of-memory, php-proc-max-reached-site, php-proc-max-reached-total, php-proc-site, php-proc-total, varnish-cache-hit-rate, varnish-requests, web-cpu, web-memory
+      required: true
+      schema:
+        type: string
+        minimum: 1
     Limit:
       name: limit
       in: query
@@ -604,12 +604,20 @@ components:
       name: resolution
       in: query
       description: |
-        Specifies the data granularity for the request. Resolution for is limited to six months for a "day" resolution, one
-        year for a "week" resolution, and three years for a "month" resolution.
+        Specifies the data granularity of the request. Available resolutions: minute, hour, day, week or month.
+
+        Limits:
+        - 3 hour limit for “minute” resolution
+        - 1 week limit for “hour” resolution
+        - 6 month limit for “day” resolution
+        - 1 year limit for "week" resolution
+        - 3 year limit for “month” resolution
       required: false
       schema:
         type: string
         enum:
+          - minute
+          - hour
           - day
           - week
           - month
@@ -2267,7 +2275,6 @@ components:
         - hostname
         - cdn
         - flags
-        - uptime
         - environment
         - _links
       properties:
@@ -2279,8 +2286,6 @@ components:
           $ref: '#/components/schemas/CdnInformation'
         flags:
           $ref: '#/components/schemas/DomainFlags'
-        uptime:
-          $ref: '#/components/schemas/Uptime'
         environment:
           $ref: '#/components/schemas/EnvironmentStub'
         _links:
@@ -2311,7 +2316,6 @@ components:
       required:
         - default
         - active
-        - uptime
         - wildcard
       description: An array of flags representing features of the domain.
       properties:
@@ -2321,9 +2325,6 @@ components:
         active:
           type: boolean
           description: If the domain is considered to be the main or active domain in this environment.
-        uptime:
-          type: boolean
-          description: If the domain is currently being monitored by Uptime.
         wildcard:
           type: boolean
           description: If this is a wildcard domain.
@@ -3073,80 +3074,6 @@ components:
             format: ipv4
         _links:
           $ref: '#/components/schemas/Links'
-    Uptime:
-      type: object
-      required:
-        - actual_host
-        - created_at
-        - online
-        - last_result
-        - last_scanned_at
-      description: A collection of Uptime data.
-      properties:
-        actual_host:
-          type: string
-          format: uri
-          description: The actual hostname.
-        created_at:
-          type: string
-          format: date-time
-          description: The date time corresponding to the start of monitoring.
-        online:
-          type: boolean
-          description: Whether or not the domain is online and stable.
-          deprecated: true
-        last_result:
-          type: string
-          description: The last result returned from a monitoring scan.
-          enum:
-            - ok
-            - maintenance
-            - client_error
-            - site_error_partial
-            - site_error
-            - no_response_partial
-            - timeout_partial
-            - no_response
-            - no_dns
-            - timeout
-          deprecated: true
-        last_scanned_at:
-          type: string
-          format: date-time
-          description: The date time for the last monitoring scan.
-          deprecated: true
-    UptimeAlerts:
-      type: object
-      description: Response schema for environment uptime alerts status.
-      required:
-        - emails
-        - flags
-      properties:
-        emails:
-          type: array
-          description: Emails that will receive uptime alerts.
-          items:
-            type: string
-            format: email
-        flags:
-          $ref: '#/components/schemas/UptimeAlertsFlags'
-        _links:
-          $ref: '#/components/schemas/Links'
-    UptimeAlertsFlags:
-      type: object
-      description: Various flags related to environment uptime alerts.
-      properties:
-        enabled:
-          type: boolean
-          description: Whether uptime alerts are enabled for this environment.
-    UptimeTraversal:
-      type: object
-      description: A collection of links that provides traversal of uptime endpoints.
-      required:
-        - _links
-      properties:
-        _links:
-          $ref: '#/components/schemas/Links'
     Vcs:
       type: object
       required:
@@ -3872,7 +3799,6 @@ components:
         - datapoints
         - last_data_at
         - metadata
-        - _links
       properties:
         metric:
           type: string
@@ -3910,10 +3836,10 @@ components:
           description: The data points for the StackMetrics request.
           items:
             type: array
-            description: Each element includes the sampling time and the value for the requested metric.
+            description: Each element includes the value and the sampling time for the requested metric.
             items:
               type: string
-              description: Each datapoint is a tuple consisting of two elements - a Unix timestamp and a value.
+              description: Each datapoint is a tuple consisting of two elements - a value and a Unix timestamp.
         last_data_at:
           type: string
           description: The ISO-8601 date time when the last datapoint was sampled.
@@ -3926,73 +3852,6 @@ components:
               type: string
               format: uri
               description: The corresponding hostname for the StackMetrics datapoints.
-        _links:
-          $ref: '#/components/schemas/Links'
-    UptimeScanMetric:
-      type: object
-      description: An object containing Uptime scan metrics data from the Uptime API.
-      required:
-        - datapoints
-        - metric
-        - last_data_time
-        - metadata
-      properties:
-        metric:
-          type: string
-          description: The name of the type of scan metric.
-          enum:
-            - ok_scans
-            - maintenance_scans
-            - client_error_scans
-            - site_error_partial_scans
-            - site_error_scans
-            - no_response_partial_scans
-            - timeout_partial_scans
-            - no_response_scans
-            - no_dns_scans
-            - timeout_scans
-        datapoints:
-          type: array
-          description: The data points for the uptime scan metrics request.
-          items:
-            type: array
-            description: Each element includes the sampling time and the value for the requested metric.
-            items:
-              type: integer
-              description: Each datapoint is a tuple consisting of two elements - a Unix timestamp and a value.
-        last_data_time:
-          type: string
-          description: The ISO-8601 date time when the last datapoint was captured.
-          format: date-time
-        metadata:
-          type: object
-          description: The metadata describing the context for the metric.
-          properties:
-            hostname:
-              type: string
-              format: uri
-              description: The corresponding hostname for the Uptime scan metrics.
-    UptimeScanMetrics:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      description: A collection of Uptime scans data.
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of Uptime scan metric items matching the request parameters.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/UptimeScanMetric'
     SubscriptionUsageMetric:
       type: object
       description: Provides details about views and visits for a subscription.
@@ -5107,26 +4966,6 @@ components:
               type: boolean
             merge_tag:
               type: boolean
-        _links:
-          $ref: '#/components/schemas/Links'
-    SearchSettings:
-      type: object
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          description: The application UUID.
-        configuration_set:
-          type: string
-          description: The search configuration set currently used.
-        status:
-          type: string
-          description: The application's hosting status.
-          enum:
-            - enabled
-            - disabled
-            - read-only
-            - removed
         _links:
           $ref: '#/components/schemas/Links'
     SecuritySettings:
@@ -6379,7 +6218,6 @@ components:
               - php7
               - php71
               - platform
-              - uptime
         flags:
           $ref: '#/components/schemas/UserFlags'
         metadata:
@@ -10059,7 +9897,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApplicationsPermissions'
               example:
-                total: 55
+                total: 51
                 flags:
                   administrator: false
                 _links:
@@ -10295,18 +10133,6 @@ paths:
                       label: Modify cron tasks for the production environment
                       description: null
                       group_label: Cron
-                      flags:
-                        deprecated: false
-                    - name: search limit increase
-                      label: Increase the search index limit for a subscription
-                      description: null
-                      group_label: Search
-                      flags:
-                        deprecated: false
-                    - name: search schema edit
-                      label: Edit the search schema for a subscription
-                      description: null
-                      group_label: Search
                       flags:
                         deprecated: false
                     - name: create support ticket
@@ -10795,8 +10621,6 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings/keys'
                   ra:
                     href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings/ra'
-                  search:
-                    href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings/search'
                   security:
                     href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings/security'
                   parent:
@@ -11104,211 +10928,6 @@ paths:
                   value:
                     error: not_found
                     message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-  '/applications/{applicationUuid}/settings/search':
-    get:
-      tags:
-        - Applications
-      summary: Returns the search settings for this application.
-      description: Returns the search settings for this application.
-      deprecated: true
-      operationId: getApplicationSearchSettings
-      x-cli-name: 'applications:search-settings-find'
-      parameters:
-        - $ref: '#/components/parameters/ApplicationUuid'
-      security:
-        - OAuth2: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SearchSettings'
-              example:
-                uuid: abcd1234-1111-2222-3333-0e02b2c3d470
-                configuration_set: search-api-1.0
-                status: enabled
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings/search'
-                  application:
-                    href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470'
-                  settings:
-                    href: 'https://cloud.acquia.com/api/applications/abcd1234-1111-2222-3333-0e02b2c3d470/settings'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not available for free tier:
-                  value:
-                    error: forbidden
-                    message: Search is not available to Acquia Cloud Free subscriptions.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Not available for Node.js:
-                  value:
-                    error: not_available
-                    message: Search is not available on Node.js applications.
-    put:
-      tags:
-        - Applications
-      summary: Modifies the search settings for an application.
-      description: Modifies the search settings for an application.
-      deprecated: true
-      operationId: putApplicationSearchSettings
-      x-cli-name: 'applications:search-settings-update'
-      parameters:
-        - $ref: '#/components/parameters/ApplicationUuid'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - status
-              properties:
-                status:
-                  type: string
-                  description: The search status setting to set.
-                  enum:
-                    - enabled
-                    - disabled
-                    - read-only
-                configuration_set:
-                  type: string
-                  description: The configuration set to use.
-            example:
-              status: enabled
-              configuration_set: search-api-1.0
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              required:
-                - status
-              properties:
-                status:
-                  type: string
-                  description: The search status setting to set.
-                  enum:
-                    - enabled
-                    - disabled
-                    - read-only
-                configuration_set:
-                  type: string
-                  description: The configuration set to use.
-                  enum:
-                    - drupal-1.1
-                    - drupal-1.3
-                    - drupal-1.7
-                    - drupal-2.0-beta4
-                    - drupal-3.0-beta4
-                    - drupal-3.0-rc2
-                    - drupal-3.0-rc2-dutch
-                    - drupal-3.0-rc2-french
-                    - drupal-3.0-rc2-german
-                    - drupal-3.0-rc2-spanish
-                    - 'drupal-4.0, drupal-4.3'
-                    - search-api-1.0
-              example:
-                status: enabled
-                configuration_set: search-api-1.0
-      security:
-        - OAuth2: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: The search settings have been updated.
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-              examples:
-                No parameters:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: No fields were set to update. No action performed.
-                Search not availble for application:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: Search is not available for this application.
-                Invalid search status:
-                  value:
-                    error: validation_failed
-                    message:
-                      status: 'The search status ''random'' is invalid. Must be one of ''enabled'', ''disabled'', or ''read-only''.'
-                Invalid search configuration set:
-                  value:
-                    error: validation_failed
-                    message:
-                      configuration: Invalid search configuration set.
-                Search is read-only:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: Search is currently in read-only mode for this application and cannot be modified.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Unsufficient permissions:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to update the search settings for this application.
-                Search not available for Acquia Cloud free:
-                  value:
-                    error: forbidden
-                    message: Search is not available to Acquia Cloud Free subscriptions.
-                Search not available for Node.js applications:
-                  value:
-                    error: forbidden
-                    message: Search is not available on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found or does not exist:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Action unavailable:
-                  value:
-                    error: conflict
-                    message: Search is already configured to these settings.
   '/applications/{applicationUuid}/settings/security':
     get:
       tags:
@@ -13535,19 +13154,8 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                domains:
-                  type: array
-                  description: A list of domains to clear the caches for.
-                  items:
-                    type: string
-                    format: uri
-            example:
-              domains:
-                - domain1.example.com
-                - domain2.example.com
-          application/x-www-form-urlencoded:
-            schema:
+              required:
+                - domains
               properties:
                 domains:
                   type: array
@@ -16173,11 +15781,7 @@ paths:
                       flags:
                         default: true
                         active: true
-                        uptime: true
                         wildcard: false
-                      uptime:
-                        actual_host: www.example.com
-                        created_at: '2011-03-28T12:33:49-0400'
                       environment:
                         id: 24-abcd1234-58cc-4372-a567-0e02b2c3d470
                         name: dev
@@ -16191,12 +15795,10 @@ paths:
                       flags:
                         default: false
                         active: false
-                        uptime: false
                         wildcard: false
                       environment:
                         id: 24-abcd1234-58cc-4372-a567-0e02b2c3d470
                         name: dev
-                      uptime: []
                       _links:
                         self:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com'
@@ -16204,17 +15806,13 @@ paths:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com/status'
                         dns:
                           href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/dns'
-                        uptime:
-                          href: 'https://cloud.acquia.com/api/environments/24-abcd1234-58cc-4372-a567-0e02b2c3d470/domains/other.example.com/metrics/uptime'
                     - hostname: '*.example.com'
                       cdn:
                         status: active
                       flags:
                         default: false
                         active: false
-                        uptime: false
                         wildcard: true
-                      uptime: []
                       environment:
                         id: 24-abcd1234-58cc-4372-a567-0e02b2c3d470
                         name: dev
@@ -16360,19 +15958,8 @@ paths:
         content:
           application/json:
             schema:
-              properties:
-                domains:
-                  type: array
-                  description: A list of domains to clear the Varnish cache for.
-                  items:
-                    type: string
-                    format: uri
-            example:
-              domains:
-                - domain1.example.com
-                - domain2.example.com
-          application/x-www-form-urlencoded:
-            schema:
+              required:
+                - domains
               properties:
                 domains:
                   type: array
@@ -16457,21 +16044,15 @@ paths:
                 flags:
                   default: false
                   active: true
-                  uptime: true
                   wildcard: false
                 environment:
                   id: 24-47c9ae06-2a57-11e9-b210-d663bd873d93
                   name: dev
-                uptime:
-                  actual_host: www.example.com
-                  created_at: '2011-03-28T12:33:49-0400'
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/24-47c9ae06-2a57-11e9-b210-d663bd873d93/domains/example.com'
                   status:
                     href: 'https://cloud.acquia.com/api/environments/24-47c9ae06-2a57-11e9-b210-d663bd873d93/domains/example.com/status'
-                  uptime:
-                    href: 'https://cloud.acquia.com/api/environments/24-47c9ae06-2a57-11e9-b210-d663bd873d93/domains/example.com/metrics/uptime'
                   parent:
                     href: 'https://cloud.acquia.com/api/environments/24-47c9ae06-2a57-11e9-b210-d663bd873d93/domains'
         '404':
@@ -16670,92 +16251,6 @@ paths:
                   value:
                     error: not_found
                     message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-  '/environments/{environmentId}/domains/{domain}/metrics/uptime':
-    get:
-      tags:
-        - Environments
-      summary: Retrieves Uptime scan data for a specific domain.
-      description: Retrieves the scan data for a domain name that is part of this environment.
-      deprecated: true
-      operationId: getEnvironmentsDomainsUptimeScans
-      x-cli-name: 'environments:domain-uptime-scan-find'
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-        - $ref: '#/components/parameters/Domain'
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UptimeScanMetrics'
-              example:
-                total: 2
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/399-b48d4745-ee0c-102e-8305-1231390f2cc1/domains/example.com/metrics/uptime'
-                  domain:
-                    href: 'https://cloud.acquia.com/api/environments/399-b48d4745-ee0c-102e-8305-1231390f2cc1/domains/example.com'
-                _embedded:
-                  items:
-                    - metric: timeout_partial_scans
-                      datapoints:
-                        - - 1
-                          - 1449679507
-                        - - 1
-                          - 1449686707
-                      last_data_at: null
-                      metadata:
-                        host: example.com
-                    - metric: ok_scans
-                      datapoints:
-                        - - 123.1
-                          - 1449678507
-                        - - 134.2
-                          - 1449688707
-                      last_data_at: null
-                      metadata:
-                        host: example.com
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not Found:
-                  value:
-                    error: forbidden
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-                Not available for Acquia Cloud Free:
-                  value:
-                    error: forbidden
-                    message: Uptime is not available to Acquia Cloud Free subscriptions.
-                Only available for the active domain:
-                  value:
-                    error: forbidden
-                    message: Uptime data is only available for the active domain.
-                Not available on Node.js applications:
-                  value:
-                    error: forbidden
-                    message: Uptime is not available on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not Found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-                Domain does not belong to environment:
-                  value:
-                    error: not_found
-                    message: The domain example.com does not belong to this environment.
   '/environments/{environmentId}/domains/{domain}/status':
     get:
       tags:
@@ -18652,16 +18147,8 @@ paths:
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics'
-                  db-cpu:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/db-cpu'
-                  db-memory:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/db-memory'
-                  http-2xx:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/http-2xx'
-                  web-cpu:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/web-cpu'
-                  web-memory:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/web-memory'
+                  data:
+                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/data'
                   parent:
                     href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics'
         '403':
@@ -18696,7 +18183,10 @@ paths:
       x-cli-name: 'environments:stack-metrics-data-find'
       parameters:
         - $ref: '#/components/parameters/EnvironmentId'
-        - $ref: '#/components/parameters/StackMetricsMetricTypes'
+        - $ref: '#/components/parameters/FilterStackMetrics'
+        - $ref: '#/components/parameters/FromStackMetrics'
+        - $ref: '#/components/parameters/ToNoDefault'
+        - $ref: '#/components/parameters/Resolution'
       security:
         - OAuth2: []
       responses:
@@ -18723,9 +18213,6 @@ paths:
                           - 1447876980
                       metadata:
                         host: fsdb-1.prod.hosting.acquia.com
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/db-cpu'
                     - metric: db-cpu
                       datapoints:
                         - - 22.1395360194838
@@ -18736,9 +18223,6 @@ paths:
                           - 1447876980
                       metadata:
                         host: fsdb-2.prod.hosting.acquia.com
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/db-cpu'
                     - metric: web-cpu
                       datapoints:
                         - - 12.1395360194838
@@ -18749,9 +18233,6 @@ paths:
                           - 1447876980
                       metadata:
                         host: web-1.prod.hosting.acquia.com
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/web-cpu'
                     - metric: web-cpu
                       datapoints:
                         - - 2.1395360194838
@@ -18762,88 +18243,6 @@ paths:
                           - 1447876980
                       metadata:
                         host: web-2.prod.hosting.acquia.com
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/web-cpu'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not available on Acquia Cloud Free:
-                  value:
-                    error: forbidden
-                    message: Metrics are not available to Acquia Cloud Free subscriptions.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-  '/environments/{environmentId}/metrics/stackmetrics/{stackMetricsMetricType}':
-    get:
-      tags:
-        - Environments
-      summary: 'Returns StackMetrics data for the metric (e.g., apache-access).'
-      description: 'Returns StackMetrics data for the metric (e.g., apache-access).'
-      deprecated: true
-      operationId: getEnvironmentsStackMetricsMetric
-      x-cli-name: 'environments:stack-metrics-data-metric'
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-        - $ref: '#/components/parameters/StackMetricsMetricType'
-        - $ref: '#/components/parameters/ServerType'
-      security:
-        - OAuth2: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StackMetricsData'
-              example:
-                metric: web-cpu
-                datapoints:
-                  - - 2.1395360194838
-                    - 1447876380
-                  - - 2.7012513318685
-                    - 1447876680
-                  - - 2.168567607842
-                    - 1447876980
-                  - - 2.1622800487923
-                    - 1447877280
-                  - - 2.3537085976764
-                    - 1447877580
-                  - - 2.1784819708111
-                    - 1447877880
-                  - - 2.1094592966954
-                    - 1447878180
-                  - - 2.2565573988922
-                    - 1447878480
-                  - - 2.1432396948143
-                    - 1447878780
-                  - - 2.1021371063676
-                    - 1447879080
-                  - - 2.1395397154601
-                    - 1447879380
-                  - - 2.1010243649772
-                    - 1447879680
-                last_data_at: null
-                metadata:
-                  host: null
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics/web-cpu'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/18-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics/stackmetrics'
         '403':
           description: Forbidden
           content:
@@ -21573,462 +20972,6 @@ paths:
                   value:
                     error: not_found
                     message: 'This certificate signing request does not belong to the environment, and cannot be removed.'
-  '/environments/{environmentId}/uptime':
-    get:
-      tags:
-        - Environments
-      summary: Returns a traversal endpoint for uptime alerts for the environment.
-      description: Does not return any data. Allows traversal to uptime alert endpoint.
-      deprecated: true
-      operationId: getUptime
-      x-cli-name: 'environments:uptime-find'
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      security:
-        - OAuth2: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UptimeTraversal'
-              example:
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime'
-                  alerts:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_found
-                    message: Uptime is not available on Node.js applications.
-  '/environments/{environmentId}/uptime/actions/disable':
-    post:
-      tags:
-        - Environments
-      summary: Disables uptime for the active domain on an environment.
-      description: Disables uptime for the active domain on an environment.
-      deprecated: true
-      operationId: postEnvironmentUptimeDisable
-      x-cli-name: 'environments:uptime-disable'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Uptime disabled.
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions/disable'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions'
-                  notification:
-                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to disable Uptime for domains on this environment.
-                Node.js application:
-                  value:
-                    error: forbidden
-                    message: Uptime cannot be disabled on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Environment not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not enabled:
-                  value:
-                    error: conflict
-                    message: This environment does not have Uptime enabled.
-  '/environments/{environmentId}/uptime/actions/enable':
-    post:
-      tags:
-        - Environments
-      summary: Enables uptime for the active domain on an environment.
-      description: Enables uptime for the active domain on an environment.
-      deprecated: true
-      operationId: postEnvironmentUptimeEnable
-      x-cli-name: 'environments:uptime-enable'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Uptime enabled.
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions/enable'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/actions'
-                  notification:
-                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-              examples:
-                No active domain:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: This environment does not have an active domain. Uptime cannot be enabled.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to enable Uptime for domains on this environment.
-                Node.js application:
-                  value:
-                    error: forbidden
-                    message: Uptime cannot be enabled on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Environment not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Currently enabled:
-                  value:
-                    error: conflict
-                    message: This environment already has Uptime enabled.
-                Cannot be wildcard domain:
-                  value:
-                    error: conflict
-                    message: The active domain is a wildcard domain. Wildcard domains are not supported by Uptime.
-  '/environments/{environmentId}/uptime/alerts':
-    get:
-      tags:
-        - Environments
-      summary: Returns the uptime alerts status for an environment.
-      description: Returns the uptime alerts status including whether it is enabled for an environment and the email that will receive alerts.
-      deprecated: true
-      operationId: getEnvironmentUptimeAlerts
-      x-cli-name: 'environments:uptime:alerts-find'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UptimeAlerts'
-              example:
-                emails:
-                  - alerts@example.com
-                flags:
-                  enabled: true
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_found
-                    message: Uptime is not available on Node.js applications.
-  '/environments/{environmentId}/uptime/alerts/actions/disable':
-    post:
-      tags:
-        - Environments
-      summary: Disables uptime email alerts for the active domain on an environment.
-      description: Disables uptime email alerts for the active domain on an environment.
-      deprecated: true
-      operationId: postEnvironmentUptimeAlertsDisable
-      x-cli-name: 'environments:uptime-alerts-disable'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                emails:
-                  type: array
-                  description: The emails that should no longer receive uptime alerts.
-                  items:
-                    type: string
-                    description: An email address that should no longer receive alerts.
-                    format: email
-            example:
-              emails:
-                - user1@example.com
-                - user2@example.com
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                emails:
-                  type: array
-                  description: The emails that should no longer receive uptime alerts.
-                  items:
-                    type: string
-                    description: An email address that should no longer receive alerts.
-                    format: email
-            example:
-              emails:
-                - user1@example.com
-                - user2@example.com
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Uptime E-mail alerts disabled.
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions/disable'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions'
-                  notification:
-                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-              examples:
-                No active domain:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: This environment does not have an active domain. Uptime alerts cannot be disabled.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to disable Uptime alerts for domains on this environment.
-                Node.js application:
-                  value:
-                    error: forbidden
-                    message: Uptime alerts cannot be disabled on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Environment not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
-  '/environments/{environmentId}/uptime/alerts/actions/enable':
-    post:
-      tags:
-        - Environments
-      summary: Enables uptime email alerts for the active domain on an environment.
-      description: Enables uptime email alerts for the active domain on an environment.
-      deprecated: true
-      operationId: postEnvironmentUptimeAlertsEnable
-      x-cli-name: 'environments:uptime-alerts-enable'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                emails:
-                  type: array
-                  description: The emails that should receive uptime alerts.
-                  items:
-                    type: string
-                    description: An email address that should receive alerts.
-                    format: email
-            example:
-              emails:
-                - user1@example.com
-                - user2@example.com
-          application/x-www-form-urlencoded:
-            schema:
-              type: object
-              properties:
-                emails:
-                  type: array
-                  description: The emails that should receive uptime alerts.
-                  items:
-                    type: string
-                    description: An email address that should receive alerts.
-                    format: email
-            example:
-              emails:
-                - user1@example.com
-                - user2@example.com
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Uptime E-mail alerts enabled.
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions/enable'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/123-3f6d06a9-9236-411e-9dcc-44f0003a5905/uptime/alerts/actions'
-                  notification:
-                    href: 'https://cloud.acquia.com/api/notifications/123e4567-e89b-12d3-a456-426614174000'
-        '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-              examples:
-                No active domain:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: This environment does not have an active domain. Uptime alerts cannot be enabled.
-                Missing email:
-                  value:
-                    error: validation_failed
-                    message:
-                      general: Uptime alerts cannot be enabled without any e-mail addresses.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to enable Uptime alerts for domains on this environment.
-                Node.js application:
-                  value:
-                    error: forbidden
-                    message: Uptime alerts cannot be enabled on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Environment not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have access to it.'
-        '409':
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not enabled:
-                  value:
-                    error: conflict
-                    message: This environment does not have Uptime enabled and thus cannot have alerts enabled.
-                Cannot be wildcard domain:
-                  value:
-                    error: conflict
-                    message: The active domain is a wildcard domain. Wildcard domains are not supported by Uptime.
   '/environments/{environmentId}/variables':
     get:
       tags:
@@ -26724,7 +25667,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Permissions'
               example:
-                total: 55
+                total: 51
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/permissions'
@@ -26956,18 +25899,6 @@ paths:
                       label: Modify cron tasks for the production environment
                       description: null
                       group_label: Cron
-                      flags:
-                        deprecated: false
-                    - name: search limit increase
-                      label: Increase the search index limit for a subscription
-                      description: null
-                      group_label: Search
-                      flags:
-                        deprecated: false
-                    - name: search schema edit
-                      label: Edit the search schema for a subscription
-                      description: null
-                      group_label: Search
                       flags:
                         deprecated: false
                     - name: create support ticket
