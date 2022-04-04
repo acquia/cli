@@ -29,8 +29,14 @@
     "amphp/sync": {
         "version": "v1.4.2"
     },
+    "badcow/dns": {
+        "version": "v4.1.1"
+    },
     "brick/math": {
         "version": "0.9.3"
+    },
+    "christian-riesen/base32": {
+        "version": "1.6.0"
     },
     "clue/stream-filter": {
         "version": "v1.6.0"
@@ -270,6 +276,9 @@
     },
     "react/stream": {
         "version": "v1.2.0"
+    },
+    "rlanvin/php-ip": {
+        "version": "v2.1.0"
     },
     "sebastian/cli-parser": {
         "version": "1.0.1"
