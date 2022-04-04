@@ -15,4 +15,10 @@ $body = $twig->render('ccb-ticket.twig', [
   'GITHUB_ACTIONS_RUN_URL' => $argv[4],
   'JIRA_BASE_URL' => $argv[5],
 ]);
-echo htmlspecialchars($body);
+$body = htmlspecialchars($body);
+$body = preg_replace(
+  '/[\x{1F600}-\x{1F64F}\x{2700}-\x{27BF}\x{1F680}-\x{1F6FF}\x{24C2}-\x{1F251}\x{1F30D}-\x{1F567}\x{1F900}-\x{1F9FF}\x{1F300}-\x{1F5FF}]/u',
+  '[emoji-removed]',
+  $body
+);
+echo $body;
