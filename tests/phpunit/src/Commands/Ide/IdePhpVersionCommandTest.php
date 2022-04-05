@@ -53,20 +53,21 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   public function testIdePhpVersionCommand(string $version): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($local_machine_helper);
-    $file_system = $this->mockGetFilesystem($local_machine_helper);
-    $file_system->copy(Argument::type('string'), '/home/ide/configs/php/xdebug.ini')->willReturn(TRUE);
-
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->setPhpVersionFilePath($this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_'));
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
+    $mock_file_system->copy(Argument::type('string'), '/home/ide/configs/php/xdebug.ini')->willReturn(TRUE);
     $php_filepath_prefix = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_stub_');
     $php_stub_filepath = $php_filepath_prefix . $version;
-    $this->fs->touch($php_stub_filepath);
+    $mock_file_system->exists($php_stub_filepath)->willReturn(TRUE);
+    $php_version_file_path = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_');
+    $mock_file_system->dumpFile($php_version_file_path, $version)->shouldBeCalled();
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->setPhpVersionFilePath($php_version_file_path);
     $this->command->setIdePhpFilePathPrefix($php_filepath_prefix);
     $this->executeCommand([
       'version' => $version,
     ], []);
-    $this->assertFileExists($this->command->getIdePhpVersionFilePath());
-    $this->assertEquals($version, file_get_contents($this->command->getIdePhpVersionFilePath()));
+    $this->prophet->checkPredictions();
   }
 
   /**
