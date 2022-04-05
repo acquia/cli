@@ -22,7 +22,7 @@ abstract class IdeCommandBase extends CommandBase {
    */
   private $xdebugIniFilepath;
 
-  const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug3.ini';
+  const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug.ini';
 
   /**
    * @param string $question_text
