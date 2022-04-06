@@ -63,7 +63,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->checklist->completePreviousItem();
     $this->checklist->addItem('the environment or environments for the above applications where Platform Email will be enabled');
     $this->checklist->completePreviousItem();
-
     $base_domain = $this->determineDomain();
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
@@ -119,7 +118,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    */
   protected function generateZoneFile($base_domain, $records) {
 
-    // also you can make zone programmatically
     $zone = new Zone($base_domain . '.');
 
     foreach ($records as $record) {
