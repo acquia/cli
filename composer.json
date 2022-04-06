@@ -23,6 +23,7 @@
         "kevinrob/guzzle-cache-middleware": "^3.3",
         "league/csv": "^9.8",
         "loophp/phposinfo": "^1.7.2",
+        "ltd-beget/dns-zone-configurator": "^1.2",
         "m4tthumphrey/php-gitlab-api": "^11.5",
         "psr/log": "^1.1",
         "ramsey/uuid": "^4.1",
