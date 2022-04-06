@@ -29,5 +29,4 @@ cx-api-spec
 # Generated files from Platform Email configuration/info commands
 dns-records.yaml
 dns-records.json
-dns-records.zone
 subscription-*/
