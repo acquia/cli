@@ -41,6 +41,9 @@
     "consolidation/self-update": {
         "version": "2.0.0-alpha1"
     },
+    "container-interop/container-interop": {
+        "version": "1.2.0"
+    },
     "cweagans/composer-patches": {
         "version": "1.7.2"
     },
@@ -95,8 +98,23 @@
     "loophp/phposinfo": {
         "version": "1.7.2"
     },
+    "ltd-beget/ascii-table": {
+        "version": "1.0.4"
+    },
+    "ltd-beget/dns-zone-configurator": {
+        "version": "v1.2.9"
+    },
+    "ltd-beget/dns-zone-tokenizer": {
+        "version": "v0.0.9"
+    },
+    "ltd-beget/stringstream": {
+        "version": "v1.1.1"
+    },
     "m4tthumphrey/php-gitlab-api": {
         "version": "11.6.0"
+    },
+    "marc-mabe/php-enum": {
+        "version": "v2.3.2"
     },
     "monolog/monolog": {
         "version": "2.3.5"
@@ -492,6 +510,12 @@
     },
     "webmozart/path-util": {
         "version": "2.3.0"
+    },
+    "zendframework/zend-stdlib": {
+        "version": "3.2.1"
+    },
+    "zendframework/zend-validator": {
+        "version": "2.13.0"
     },
     "zumba/amplitude-php": {
         "version": "1.0.2"

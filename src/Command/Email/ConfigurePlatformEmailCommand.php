@@ -10,9 +10,9 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
+use LTDBeget\dns\configurator\Zone;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Constraints\Hostname;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -76,12 +76,12 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $this->io->success([
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
-      "We will create a text file with the DNS records for your newly registered domain",
+      "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
       "After you've done this, please continue to domain verification."
     ]);
-    $file_format = $this->io->choice('Would you like your DNS records in JSON or YAML format?', ['YAML', 'JSON'], 'YAML');
-    $this->createDnsText($client, $subscription, $domain_uuid, $file_format);
+    $file_format = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
+    $this->createDnsText($client, $subscription, $base_domain, $domain_uuid, $file_format);
     $continue = $this->io->confirm('Have you finished providing the DNS records to your DNS provider?');
     if (!$continue) {
       $this->io->info("Make sure to give these records to your DNS provider, then rerun this script with the domain that you just registered.");
@@ -107,6 +107,40 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->io->success("You're all set to start using Platform Email!");
 
     return 0;
+  }
+
+  /**
+   * Generates Zone File for DNS records of the registered domain.
+   *
+   * @param string $base_domain
+   * @param array $records
+   *
+   */
+  protected function generateZoneFile($base_domain, $records) {
+
+    $zone = new Zone($base_domain . '.');
+
+    foreach ($records as $record) {
+      unset($record->health);
+      $record_to_add = $zone->getNode($record->name . '.');
+
+      switch ($record->type) {
+        case 'MX':
+          $mx_priority_value_arr = explode(' ', $record->value);
+          $record_to_add->getRecordAppender()->appendMxRecord($mx_priority_value_arr[0], $mx_priority_value_arr[1] . '.', 3600);
+          break;
+        case 'TXT':
+          $record_to_add->getRecordAppender()->appendTxtRecord($record->value, 3600);
+          break;
+        case 'CNAME':
+          $record_to_add->getRecordAppender()->appendCNameRecord($record->value . '.', 3600);
+          break;
+      }
+    }
+
+    $this->localMachineHelper->getFilesystem()
+      ->dumpFile('dns-records.zone', (string) $zone);
+
   }
 
   /**
@@ -275,17 +309,18 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * Creates a TXT file, either in JSON or YAML format,
+   * Creates a file, either in Bind Zone File, JSON or YAML format,
    * of the DNS records needed to complete Platform Email setup.
    *
    * @param \AcquiaCloudApi\Connector\Client $client
    * @param SubscriptionResponse $subscription
+   * @param string $base_domain
    * @param string $domain_uuid
    * @param string $file_format
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createDnsText(Client $client, $subscription, $domain_uuid, $file_format): void {
+  protected function createDnsText(Client $client, $subscription, $base_domain, $domain_uuid, $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     if (!isset($domain_registration_response->dns_records)) {
       throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
@@ -293,6 +328,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $records = [];
     $this->localMachineHelper->getFilesystem()->remove('dns-records.json');
     $this->localMachineHelper->getFilesystem()->remove('dns-records.yaml');
+    $this->localMachineHelper->getFilesystem()->remove('dns-records.zone');
     if ($file_format === 'JSON') {
       foreach ($domain_registration_response->dns_records as $record) {
         unset($record->health);
@@ -302,7 +338,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       $this->localMachineHelper->getFilesystem()
             ->dumpFile('dns-records.json', json_encode($records, JSON_PRETTY_PRINT));
     }
-    else {
+    else if ($file_format === 'YAML') {
       foreach ($domain_registration_response->dns_records as $record) {
         unset($record->health);
         $records[] = ['type' => $record->type, 'name' => $record->name, 'value' => $record->value];
@@ -310,6 +346,9 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
             ->dumpFile('dns-records.yaml', Yaml::dump($records));
+    }
+    else {
+      $this->generateZoneFile($base_domain, $domain_registration_response->dns_records);
     }
 
   }
