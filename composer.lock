@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "561f7fdd74e21454eb9367a961f040ac",
+    "content-hash": "8946db4c0a36a3b4123eef64bb86fd68",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -55,53 +55,6 @@
                 "source": "https://github.com/acquia/drupal-environment-detector/tree/1.4.1"
             },
             "time": "2022-03-15T20:59:14+00:00"
-        },
-        {
-            "name": "badcow/dns",
-            "version": "v4.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Badcow/DNS.git",
-                "reference": "aeb1aa568001319ec881581010471b2f04528808"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Badcow/DNS/zipball/aeb1aa568001319ec881581010471b2f04528808",
-                "reference": "aeb1aa568001319ec881581010471b2f04528808",
-                "shasum": ""
-            },
-            "require": {
-                "christian-riesen/base32": "^1.5.2",
-                "php": "^7.3 || ^8.0",
-                "rlanvin/php-ip": "^2.0 || dev-php8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "phpstan/phpstan": "^0.12",
-                "phpunit/phpunit": "^9.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Badcow\\DNS\\": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Sam Williams",
-                    "email": "sam@badcow.co"
-                }
-            ],
-            "description": "A PHP library for creating DNS zone files based on RFC1035",
-            "support": {
-                "issues": "https://github.com/Badcow/DNS/issues",
-                "source": "https://github.com/Badcow/DNS/tree/v4.1.1"
-            },
-            "time": "2021-01-21T22:53:54+00:00"
         },
         {
             "name": "brick/math",
@@ -162,65 +115,6 @@
                 }
             ],
             "time": "2021-08-15T20:50:18+00:00"
-        },
-        {
-            "name": "christian-riesen/base32",
-            "version": "1.6.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ChristianRiesen/base32.git",
-                "reference": "2e82dab3baa008e24a505649b0d583c31d31e894"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ChristianRiesen/base32/zipball/2e82dab3baa008e24a505649b0d583c31d31e894",
-                "reference": "2e82dab3baa008e24a505649b0d583c31d31e894",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2 || ^8.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.17",
-                "phpstan/phpstan": "^0.12",
-                "phpunit/phpunit": "^8.5.13 || ^9.5"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Base32\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Riesen",
-                    "email": "chris.riesen@gmail.com",
-                    "homepage": "http://christianriesen.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Base32 encoder/decoder according to RFC 4648",
-            "homepage": "https://github.com/ChristianRiesen/base32",
-            "keywords": [
-                "base32",
-                "decode",
-                "encode",
-                "rfc4648"
-            ],
-            "support": {
-                "issues": "https://github.com/ChristianRiesen/base32/issues",
-                "source": "https://github.com/ChristianRiesen/base32/tree/1.6.0"
-            },
-            "time": "2021-02-26T10:19:33+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -423,6 +317,42 @@
                 "source": "https://github.com/consolidation/self-update/tree/2.0.0-alpha1"
             },
             "time": "2021-10-05T04:23:36+00:00"
+        },
+        {
+            "name": "container-interop/container-interop",
+            "version": "1.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/container-interop/container-interop.git",
+                "reference": "79cbf1341c22ec75643d841642dd5d6acd83bdb8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/container-interop/container-interop/zipball/79cbf1341c22ec75643d841642dd5d6acd83bdb8",
+                "reference": "79cbf1341c22ec75643d841642dd5d6acd83bdb8",
+                "shasum": ""
+            },
+            "require": {
+                "psr/container": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Interop\\Container\\": "src/Interop/Container/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
+            "homepage": "https://github.com/container-interop/container-interop",
+            "support": {
+                "issues": "https://github.com/container-interop/container-interop/issues",
+                "source": "https://github.com/container-interop/container-interop/tree/master"
+            },
+            "abandoned": "psr/container",
+            "time": "2017-02-14T19:40:03+00:00"
         },
         {
             "name": "cweagans/composer-patches",
@@ -1384,6 +1314,196 @@
             "time": "2021-06-29T07:18:36+00:00"
         },
         {
+            "name": "ltd-beget/ascii-table",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LTD-Beget/ascii-table.git",
+                "reference": "4020cf9015ceff6405b7204bc14c8d58cf9879dd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LTD-Beget/ascii-table/zipball/4020cf9015ceff6405b7204bc14c8d58cf9879dd",
+                "reference": "4020cf9015ceff6405b7204bc14c8d58cf9879dd",
+                "shasum": ""
+            },
+            "require": {
+                "marc-mabe/php-enum": ">=2.2",
+                "php": ">=7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "LTDBeget\\ascii": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Viskov Sergey",
+                    "homepage": "https://github.com/voksiv"
+                }
+            ],
+            "description": "Php library with ascii table enum.",
+            "keywords": [
+                "ascii"
+            ],
+            "support": {
+                "issues": "https://github.com/LTD-Beget/ascii-table/issues",
+                "source": "https://github.com/LTD-Beget/ascii-table/tree/1.0.4"
+            },
+            "time": "2022-01-26T19:08:18+00:00"
+        },
+        {
+            "name": "ltd-beget/dns-zone-configurator",
+            "version": "v1.2.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LTD-Beget/dns-zone-configurator.git",
+                "reference": "e52284eb624ae67a28aff4fdb19623b06e2ca3af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-configurator/zipball/e52284eb624ae67a28aff4fdb19623b06e2ca3af",
+                "reference": "e52284eb624ae67a28aff4fdb19623b06e2ca3af",
+                "shasum": ""
+            },
+            "require": {
+                "ltd-beget/dns-zone-tokenizer": "~0.0.6",
+                "marc-mabe/php-enum": "~2.2",
+                "php": ">=7.0",
+                "zendframework/zend-validator": "~2.7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~7.3",
+                "theseer/phpdox": "~0.8",
+                "tideways/profiler": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "LTDBeget\\dns": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Viskov Sergey",
+                    "homepage": "https://github.com/voksiv"
+                }
+            ],
+            "description": "Php library for parsing and editing dns zones files programmatically with high level abstraction.",
+            "keywords": [
+                "dns",
+                "zone file"
+            ],
+            "support": {
+                "issues": "https://github.com/LTD-Beget/dns-zone-configurator/issues",
+                "source": "https://github.com/LTD-Beget/dns-zone-configurator/tree/v1.2.9"
+            },
+            "time": "2020-04-22T12:11:58+00:00"
+        },
+        {
+            "name": "ltd-beget/dns-zone-tokenizer",
+            "version": "v0.0.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LTD-Beget/dns-zone-tokenizer.git",
+                "reference": "8881f106f1a173b41e115c0b8bfea1caf7ad212a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-tokenizer/zipball/8881f106f1a173b41e115c0b8bfea1caf7ad212a",
+                "reference": "8881f106f1a173b41e115c0b8bfea1caf7ad212a",
+                "shasum": ""
+            },
+            "require": {
+                "ltd-beget/stringstream": "~1.0",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "ext-json": "~1.0",
+                "phpunit/phpunit": "~7.3",
+                "theseer/phpdox": "0.8.*",
+                "tideways/profiler": "2.0.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "LTDBeget\\dns": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Viskov Sergey",
+                    "homepage": "https://github.com/voksiv"
+                }
+            ],
+            "description": "tokenize dns zone files and that's all, folks.",
+            "keywords": [
+                "dns",
+                "dns parser",
+                "dns zone"
+            ],
+            "support": {
+                "issues": "https://github.com/LTD-Beget/dns-zone-tokenizer/issues",
+                "source": "https://github.com/LTD-Beget/dns-zone-tokenizer/tree/v0.0.9"
+            },
+            "time": "2020-11-24T15:40:10+00:00"
+        },
+        {
+            "name": "ltd-beget/stringstream",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LTD-Beget/stringstream.git",
+                "reference": "1704f248a58c8dd1af3a3635f9ffa7b84a60ccd2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LTD-Beget/stringstream/zipball/1704f248a58c8dd1af3a3635f9ffa7b84a60ccd2",
+                "reference": "1704f248a58c8dd1af3a3635f9ffa7b84a60ccd2",
+                "shasum": ""
+            },
+            "require": {
+                "ltd-beget/ascii-table": "1.*",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "theseer/phpdox": "0.8.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "LTDBeget\\stringstream": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "authors": [
+                {
+                    "name": "Viskov Sergey",
+                    "homepage": "https://github.com/voksiv"
+                }
+            ],
+            "description": "Php Stringstream data structure.",
+            "keywords": [
+                "stream",
+                "stringstream"
+            ],
+            "support": {
+                "issues": "https://github.com/LTD-Beget/stringstream/issues",
+                "source": "https://github.com/LTD-Beget/stringstream/tree/v1.1.1"
+            },
+            "time": "2020-06-05T11:16:45+00:00"
+        },
+        {
             "name": "m4tthumphrey/php-gitlab-api",
             "version": "11.6.0",
             "source": {
@@ -1466,6 +1586,73 @@
                 }
             ],
             "time": "2022-01-23T19:13:35+00:00"
+        },
+        {
+            "name": "marc-mabe/php-enum",
+            "version": "v2.3.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/marc-mabe/php-enum.git",
+                "reference": "b93dd64030cdd700d18ba681919a52054999b1fa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/marc-mabe/php-enum/zipball/b93dd64030cdd700d18ba681919a52054999b1fa",
+                "reference": "b93dd64030cdd700d18ba681919a52054999b1fa",
+                "shasum": ""
+            },
+            "require": {
+                "ext-reflection": "*",
+                "php": ">=5.3"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0"
+            },
+            "suggest": {
+                "php": "PHP>=5.4 will be required for using trait EnumSerializableTrait"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev",
+                    "dev-2.x": "2.3-dev",
+                    "dev-1.x": "1.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "MabeEnum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Marc Bennewitz",
+                    "email": "dev@mabe.berlin",
+                    "homepage": "http://mabe.berlin/",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Simple and fast implementation of enumerations with native PHP 5.3 and upper",
+            "homepage": "https://github.com/marc-mabe/php-enum",
+            "keywords": [
+                "enum",
+                "enum-map",
+                "enum-set",
+                "enumeration",
+                "enummap",
+                "enumset",
+                "type-hint",
+                "typehint"
+            ],
+            "support": {
+                "issues": "https://github.com/marc-mabe/php-enum/issues",
+                "source": "https://github.com/marc-mabe/php-enum/tree/2.x"
+            },
+            "time": "2019-03-16T18:21:30+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -3277,69 +3464,24 @@
             "time": "2021-07-11T12:37:55+00:00"
         },
         {
-            "name": "rlanvin/php-ip",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/rlanvin/php-ip.git",
-                "reference": "1bea521987f3c7db5f4b9f17f321e90feaefad11"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/rlanvin/php-ip/zipball/1bea521987f3c7db5f4b9f17f321e90feaefad11",
-                "reference": "1bea521987f3c7db5f4b9f17f321e90feaefad11",
-                "shasum": ""
-            },
-            "require": {
-                "ext-gmp": "*",
-                "php": "~7.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">=6.5 <8.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "PhpIP\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "IPv4/IPv6 manipulation library for PHP",
-            "homepage": "https://github.com/rlanvin/php-ip",
-            "keywords": [
-                "IP",
-                "ipv4",
-                "ipv6"
-            ],
-            "support": {
-                "issues": "https://github.com/rlanvin/php-ip/issues",
-                "source": "https://github.com/rlanvin/php-ip/tree/v2.1.0"
-            },
-            "time": "2020-10-31T12:31:56+00:00"
-        },
-        {
             "name": "seld/jsonlint",
-            "version": "1.9.0",
+            "version": "1.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "4211420d25eba80712bff236a98960ef68b866b7"
+                "reference": "9ad6ce79c342fbd44df10ea95511a1b24dee5b57"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/4211420d25eba80712bff236a98960ef68b866b7",
-                "reference": "4211420d25eba80712bff236a98960ef68b866b7",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/9ad6ce79c342fbd44df10ea95511a1b24dee5b57",
+                "reference": "9ad6ce79c342fbd44df10ea95511a1b24dee5b57",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.3 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.5",
-                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0 || ^8.5.13"
+                "phpunit/phpunit": "^4.8.35 || ^5.7 || ^6.0"
             },
             "bin": [
                 "bin/jsonlint"
@@ -3370,7 +3512,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/jsonlint/issues",
-                "source": "https://github.com/Seldaek/jsonlint/tree/1.9.0"
+                "source": "https://github.com/Seldaek/jsonlint/tree/1.8.3"
             },
             "funding": [
                 {
@@ -3382,7 +3524,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-01T13:37:23+00:00"
+            "time": "2020-11-11T09:19:24+00:00"
         },
         {
             "name": "symfony/cache",
@@ -6321,6 +6463,145 @@
             "time": "2015-12-17T08:42:14+00:00"
         },
         {
+            "name": "zendframework/zend-stdlib",
+            "version": "3.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zendframework/zend-stdlib.git",
+                "reference": "66536006722aff9e62d1b331025089b7ec71c065"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zendframework/zend-stdlib/zipball/66536006722aff9e62d1b331025089b7ec71c065",
+                "reference": "66536006722aff9e62d1b331025089b7ec71c065",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.6 || ^7.0"
+            },
+            "require-dev": {
+                "phpbench/phpbench": "^0.13",
+                "phpunit/phpunit": "^5.7.27 || ^6.5.8 || ^7.1.2",
+                "zendframework/zend-coding-standard": "~1.0.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.2.x-dev",
+                    "dev-develop": "3.3.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Zend\\Stdlib\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "SPL extensions, array utilities, error handlers, and more",
+            "keywords": [
+                "ZendFramework",
+                "stdlib",
+                "zf"
+            ],
+            "support": {
+                "docs": "https://docs.zendframework.com/zend-stdlib/",
+                "forum": "https://discourse.zendframework.com/c/questions/components",
+                "issues": "https://github.com/zendframework/zend-stdlib/issues",
+                "rss": "https://github.com/zendframework/zend-stdlib/releases.atom",
+                "slack": "https://zendframework-slack.herokuapp.com",
+                "source": "https://github.com/zendframework/zend-stdlib"
+            },
+            "abandoned": "laminas/laminas-stdlib",
+            "time": "2018-08-28T21:34:05+00:00"
+        },
+        {
+            "name": "zendframework/zend-validator",
+            "version": "2.13.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zendframework/zend-validator.git",
+                "reference": "b54acef1f407741c5347f2a97f899ab21f2229ef"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/zendframework/zend-validator/zipball/b54acef1f407741c5347f2a97f899ab21f2229ef",
+                "reference": "b54acef1f407741c5347f2a97f899ab21f2229ef",
+                "shasum": ""
+            },
+            "require": {
+                "container-interop/container-interop": "^1.1",
+                "php": "^7.1",
+                "zendframework/zend-stdlib": "^3.2.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.0.8 || ^5.7.15",
+                "psr/http-client": "^1.0",
+                "psr/http-factory": "^1.0",
+                "psr/http-message": "^1.0",
+                "zendframework/zend-cache": "^2.6.1",
+                "zendframework/zend-coding-standard": "~1.0.0",
+                "zendframework/zend-config": "^2.6",
+                "zendframework/zend-db": "^2.7",
+                "zendframework/zend-filter": "^2.6",
+                "zendframework/zend-http": "^2.5.4",
+                "zendframework/zend-i18n": "^2.6",
+                "zendframework/zend-math": "^2.6",
+                "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3",
+                "zendframework/zend-session": "^2.8",
+                "zendframework/zend-uri": "^2.5"
+            },
+            "suggest": {
+                "psr/http-message": "psr/http-message, required when validating PSR-7 UploadedFileInterface instances via the Upload and UploadFile validators",
+                "zendframework/zend-db": "Zend\\Db component, required by the (No)RecordExists validator",
+                "zendframework/zend-filter": "Zend\\Filter component, required by the Digits validator",
+                "zendframework/zend-i18n": "Zend\\I18n component to allow translation of validation error messages",
+                "zendframework/zend-i18n-resources": "Translations of validator messages",
+                "zendframework/zend-math": "Zend\\Math component, required by the Csrf validator",
+                "zendframework/zend-servicemanager": "Zend\\ServiceManager component to allow using the ValidatorPluginManager and validator chains",
+                "zendframework/zend-session": "Zend\\Session component, ^2.8; required by the Csrf validator",
+                "zendframework/zend-uri": "Zend\\Uri component, required by the Uri and Sitemap\\Loc validators"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.13.x-dev",
+                    "dev-develop": "2.14.x-dev"
+                },
+                "zf": {
+                    "component": "Zend\\Validator",
+                    "config-provider": "Zend\\Validator\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Zend\\Validator\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "description": "Validation classes for a wide range of domains, and the ability to chain validators to create complex validation criteria",
+            "keywords": [
+                "ZendFramework",
+                "validator",
+                "zf"
+            ],
+            "support": {
+                "chat": "https://zendframework-slack.herokuapp.com",
+                "docs": "https://docs.zendframework.com/zend-validator/",
+                "forum": "https://discourse.zendframework.com/c/questions/components",
+                "issues": "https://github.com/zendframework/zend-validator/issues",
+                "rss": "https://github.com/zendframework/zend-validator/releases.atom",
+                "source": "https://github.com/zendframework/zend-validator"
+            },
+            "abandoned": "laminas/laminas-validator",
+            "time": "2019-12-28T04:07:18+00:00"
+        },
+        {
             "name": "zumba/amplitude-php",
             "version": "1.0.2",
             "source": {
@@ -8433,30 +8714,35 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.4.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "4cb3021a4e10ffe3d5f94a4c34cf4b3f6de2fa3d"
+                "reference": "dbc093d7af60eff5cd575d2ed761b15ed40bd08e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/4cb3021a4e10ffe3d5f94a4c34cf4b3f6de2fa3d",
-                "reference": "4cb3021a4e10ffe3d5f94a4c34cf4b3f6de2fa3d",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/dbc093d7af60eff5cd575d2ed761b15ed40bd08e",
+                "reference": "dbc093d7af60eff5cd575d2ed761b15ed40bd08e",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2 || ^8.0"
+                "php": "^7.1 || ^8.0"
             },
             "require-dev": {
                 "php-parallel-lint/php-parallel-lint": "^1.2",
                 "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^1.5",
+                "phpstan/phpstan": "^1.0",
                 "phpstan/phpstan-strict-rules": "^1.0",
                 "phpunit/phpunit": "^9.5",
                 "symfony/process": "^5.2"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "PHPStan\\PhpDocParser\\": [
@@ -8471,9 +8757,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.4.2"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.2.0"
             },
-            "time": "2022-03-30T13:33:37+00:00"
+            "time": "2021-09-16T20:46:02+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -10030,32 +10316,32 @@
         },
         {
             "name": "slevomat/coding-standard",
-            "version": "7.1",
+            "version": "7.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/slevomat/coding-standard.git",
-                "reference": "b521bd358b5f7a7d69e9637fd139e036d8adeb6f"
+                "reference": "bef66a43815bbf9b5f49775e9ded3f7c6ba0cc37"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/b521bd358b5f7a7d69e9637fd139e036d8adeb6f",
-                "reference": "b521bd358b5f7a7d69e9637fd139e036d8adeb6f",
+                "url": "https://api.github.com/repos/slevomat/coding-standard/zipball/bef66a43815bbf9b5f49775e9ded3f7c6ba0cc37",
+                "reference": "bef66a43815bbf9b5f49775e9ded3f7c6ba0cc37",
                 "shasum": ""
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.6.2 || ^0.7",
-                "php": "^7.2 || ^8.0",
-                "phpstan/phpdoc-parser": "^1.4.1",
+                "php": "^7.1 || ^8.0",
+                "phpstan/phpdoc-parser": "^1.0.0",
                 "squizlabs/php_codesniffer": "^3.6.2"
             },
             "require-dev": {
                 "phing/phing": "2.17.2",
                 "php-parallel-lint/php-parallel-lint": "1.3.2",
-                "phpstan/phpstan": "1.4.10|1.5.2",
+                "phpstan/phpstan": "1.4.6",
                 "phpstan/phpstan-deprecation-rules": "1.0.0",
-                "phpstan/phpstan-phpunit": "1.0.0|1.1.0",
+                "phpstan/phpstan-phpunit": "1.0.0",
                 "phpstan/phpstan-strict-rules": "1.1.0",
-                "phpunit/phpunit": "7.5.20|8.5.21|9.5.19"
+                "phpunit/phpunit": "7.5.20|8.5.21|9.5.16"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -10075,7 +10361,7 @@
             "description": "Slevomat Coding Standard for PHP_CodeSniffer complements Consistence Coding Standard by providing sniffs with additional checks.",
             "support": {
                 "issues": "https://github.com/slevomat/coding-standard/issues",
-                "source": "https://github.com/slevomat/coding-standard/tree/7.1"
+                "source": "https://github.com/slevomat/coding-standard/tree/7.0.19"
             },
             "funding": [
                 {
@@ -10087,7 +10373,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-29T12:44:16+00:00"
+            "time": "2022-03-01T18:01:41+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -10259,16 +10545,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.3.9",
+            "version": "v3.3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "6ff9b0e440fa66f97f207e181c41340ddfa5683d"
+                "reference": "8442df056c51b706793adf80a9fd363406dd3674"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/6ff9b0e440fa66f97f207e181c41340ddfa5683d",
-                "reference": "6ff9b0e440fa66f97f207e181c41340ddfa5683d",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8442df056c51b706793adf80a9fd363406dd3674",
+                "reference": "8442df056c51b706793adf80a9fd363406dd3674",
                 "shasum": ""
             },
             "require": {
@@ -10319,7 +10605,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.3.9"
+                "source": "https://github.com/twigphp/Twig/tree/v3.3.10"
             },
             "funding": [
                 {
@@ -10331,7 +10617,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-25T09:37:52+00:00"
+            "time": "2022-04-06T06:47:41+00:00"
         }
     ],
     "aliases": [

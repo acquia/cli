@@ -10,10 +10,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
-use Badcow\DNS\AlignedBuilder;
-use Badcow\DNS\Rdata\Factory;
-use Badcow\DNS\ResourceRecord;
-use Badcow\DNS\Zone;
+use LTDBeget\dns\configurator\Zone;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -79,11 +76,11 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $this->io->success([
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
-      "We will create a text file with the DNS records for your newly registered domain",
+      "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
       "After you've done this, please continue to domain verification."
     ]);
-    $file_format = $this->io->choice('Would you like your DNS records in JSON, YAML, or Zone File format?', ['Zone File', 'YAML', 'JSON'], 'Zone File');
+    $file_format = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
     $this->createDnsText($client, $subscription, $base_domain, $domain_uuid, $file_format);
     $continue = $this->io->confirm('Have you finished providing the DNS records to your DNS provider?');
     if (!$continue) {
@@ -122,34 +119,28 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   protected function generateZoneFile($base_domain, $records) {
 
     $zone = new Zone($base_domain . '.');
-    $zone->setDefaultTtl(3600);
 
     foreach ($records as $record) {
       unset($record->health);
-      $record_to_add = new ResourceRecord;
-      $record_to_add->setName($record->name . '.');
+      $record_to_add = $zone->getNode($record->name . '.');
 
       switch ($record->type) {
         case 'MX':
           $mx_priority_value_arr = explode(' ', $record->value);
-          $record_to_add->setRdata(Factory::Mx(
-            $mx_priority_value_arr[0],
-            $mx_priority_value_arr[1] . '.')
-          );
+          $record_to_add->getRecordAppender()->appendMxRecord($mx_priority_value_arr[0], $mx_priority_value_arr[1] . '.', 3600);
           break;
         case 'TXT':
-          $record_to_add->setRdata(Factory::TXT($record->value . '.'));
+          $record_to_add->getRecordAppender()->appendTxtRecord($record->value, 3600);
           break;
         case 'CNAME':
-          $record_to_add->setRdata(Factory::CNAME($record->value . '.'));
+          $record_to_add->getRecordAppender()->appendCNameRecord($record->value . '.', 3600);
           break;
       }
-      $zone->addResourceRecord($record_to_add);
     }
 
-    $builder = new AlignedBuilder();
     $this->localMachineHelper->getFilesystem()
-            ->dumpFile('dns-records.zone', $builder->build($zone));
+      ->dumpFile('dns-records.zone', (string) $zone);
+
   }
 
   /**
@@ -318,7 +309,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * Creates a file, either in JSON, YAML, or Zone File format,
+   * Creates a file, either in Bind Zone File, JSON or YAML format,
    * of the DNS records needed to complete Platform Email setup.
    *
    * @param \AcquiaCloudApi\Connector\Client $client

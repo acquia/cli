@@ -17,9 +17,10 @@ jobs:
       - name: Generate Jira ticket body
         env:
           GITHUB_ACTIONS_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          RELEASE_BODY: ${{ github.event.release.body }}
           JIRA_BASE_URL: ${{ secrets.JIRA_BASE_URL }}
         run: |
-          ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "${{ github.event.release.body }}" "${{ github.event.release.name }}" "${{ github.event.release.html_url }}" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
+          ${GITHUB_WORKSPACE}/.github/workflows/create-ccb-ticket.sh "$RELEASE_BODY" "${{ github.event.release.name }}" "${{ github.event.release.html_url }}" "$GITHUB_ACTIONS_RUN_URL" "$JIRA_BASE_URL" >> jira_description.md
           JIRA_DESCRIPTION=$(<jira_description.md)
           echo "JIRA_DESCRIPTION<<EOF" >> $GITHUB_ENV
           echo "$JIRA_DESCRIPTION" >> $GITHUB_ENV
