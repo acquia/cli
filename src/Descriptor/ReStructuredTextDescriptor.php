@@ -58,9 +58,9 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * {@inheritdoc}
    */
   protected function describeInputOption(InputOption $option, array $options = []) {
-    $name = '--' . $option->getName();
+    $name = '\-\-' . $option->getName();
     if ($option->isNegatable()) {
-      $name .= '|--no-' . $option->getName();
+      $name .= '|\-\-no-' . $option->getName();
     }
     if ($option->getShortcut()) {
       $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
