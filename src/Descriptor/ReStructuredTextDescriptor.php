@@ -66,9 +66,11 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
       $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
     }
 
+    $option_description = $option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n\n", $option->getDescription()) . "\n\n" : '';
+    $option_description = iconv('UTF-8', 'ASCII//TRANSLIT', $option_description);
     $this->write(
       '' . $name . '' . "\n" . str_repeat($this->paragraphsChar, Helper::width($name)) . "\n\n"
-      . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n\n", $option->getDescription()) . "\n\n" : '')
+      . $option_description
       . '- **Accept value**: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
       . '- **Is value required**: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
       . '- **Is multiple**: ' . ($option->isArray() ? 'yes' : 'no') . "\n"
