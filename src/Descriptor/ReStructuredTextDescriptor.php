@@ -58,9 +58,9 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * {@inheritdoc}
    */
   protected function describeInputOption(InputOption $option, array $options = []) {
-    $name = '--' . $option->getName();
+    $name = '\-\-' . $option->getName();
     if ($option->isNegatable()) {
-      $name .= '|--no-' . $option->getName();
+      $name .= '|\-\-no-' . $option->getName();
     }
     if ($option->getShortcut()) {
       $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
@@ -188,12 +188,13 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     foreach ($this->visibleNamespaces as $namespace) {
       if ($namespace === '_global') {
         $commands = $application->all("");
+        $this->write('Global' . "\n" . str_repeat($this->sectionChar, Helper::width('Global')) . "\n\n");
       }
       else {
         $commands = $application->all($namespace);
+        $this->write($namespace . "\n" . str_repeat($this->sectionChar, Helper::width($namespace)) . "\n\n");
       }
       $commands = $this->removeAliasesAndHiddenCommands($commands);
-      $this->write($namespace . "\n" . str_repeat($this->sectionChar, Helper::width($namespace)) . "\n\n");
 
       foreach ($commands as $command) {
         if (NULL !== $describeCommand = $this->describeCommand($command, $options)) {
