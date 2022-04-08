@@ -30,12 +30,12 @@ class LogTailCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $environment_id = $this->determineCloudEnvironment();
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $logs = $this->promptChooseLogs($acquia_cloud_client, $environment_id);
-    $log_types = array_map(function ($log) {
-      return $log->type;
+    $logs = $this->promptChooseLogs();
+    $log_types = array_map(static function ($log) {
+      return $log['type'];
     }, $logs);
     $logs_resource = new Logs($acquia_cloud_client);
     $stream = $logs_resource->stream($environment_id);
