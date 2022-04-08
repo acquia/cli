@@ -71,7 +71,7 @@ class LogTailCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Apache access', $output);
+    $this->assertStringContainsString('Apache request', $output);
     $this->assertStringContainsString('Drupal request', $output);
   }
 
