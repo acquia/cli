@@ -39,7 +39,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
   // <h6>
   private $paragraphsChar = '"';
 
-  private $visibleNamespaces;
+  private $visibleNamespaces = [];
 
   /**
    * {@inheritdoc}
@@ -260,28 +260,26 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
   protected function setVisibleNamespaces(ApplicationDescription $description) {
     $commands = $description->getCommands();
     foreach ($description->getNamespaces() as $namespace) {
-      if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
-        try {
-          // Remove aliases.
-          $namespace_commands = $namespace['commands'];
-          foreach ($namespace_commands as $key => $command_name) {
-            if (!array_key_exists($command_name, $commands)) {
-              // If the array key does not exist, then this is an alias.
-              unset($namespace_commands[$key]);
-            }
-            elseif ($commands[$command_name]->isHidden()) {
-              unset($namespace_commands[$key]);
-            }
+      try {
+        // Remove aliases.
+        $namespace_commands = $namespace['commands'];
+        foreach ($namespace_commands as $key => $command_name) {
+          if (!array_key_exists($command_name, $commands)) {
+            // If the array key does not exist, then this is an alias.
+            unset($namespace_commands[$key]);
           }
-          if (!count($namespace_commands)) {
-            // If the namespace contained only aliases or hidden commands, skip the namespace.
-            continue;
+          elseif ($commands[$command_name]->isHidden()) {
+            unset($namespace_commands[$key]);
           }
-        } catch (\Exception $exception) {
-
         }
-        $this->visibleNamespaces[] = $namespace['id'];
+        if (!count($namespace_commands)) {
+          // If the namespace contained only aliases or hidden commands, skip the namespace.
+          continue;
+        }
+      } catch (\Exception $exception) {
+
       }
+      $this->visibleNamespaces[] = $namespace['id'];
     }
   }
 
