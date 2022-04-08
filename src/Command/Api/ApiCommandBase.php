@@ -5,9 +5,20 @@ namespace Acquia\Cli\Command\Api;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use GuzzleHttp\Psr7\Utils;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Terminal;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Constraints\TypeValidator;
+use Symfony\Component\Validator\Constraints\Valid;
+use Symfony\Component\Validator\ConstraintValidatorFactory;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class ApiCommandBase.
@@ -58,20 +69,35 @@ class ApiCommandBase extends CommandBase {
     parent::initialize($input, $output);
   }
 
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
   protected function interact(InputInterface $input, OutputInterface $output) {
     parent::interact($input, $output);
-    $terminal = new Terminal();
-    /** @var \Symfony\Component\Console\Formatter\OutputFormatter $output_formatter */
-    $output_formatter = $this->io->getFormatter();
+    $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
     foreach ($this->getDefinition()->getArguments() as $argument) {
       if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
-        $question_text = "<options=bold;>{$argument->getName()}</> is a required argument."
-          . "\n\n{$argument->getDescription()}"
-          . "\n\nPlease enter a value for "
-          . $argument->getName();
-        $question_text = $output_formatter->formatAndWrap($question_text, $terminal->getWidth() * .9);
-        $answer = $this->io->ask($question_text, $argument->getDefault());
-        // @todo Add data type validator.
+        $this->io->note([
+          "{$argument->getName()} is a required argument.",
+          $argument->getDescription(),
+        ]);
+        // Choice question.
+        if (array_key_exists($argument->getName(), $params)
+          && array_key_exists('schema', $params[$argument->getName()])
+          && array_key_exists('enum', $params[$argument->getName()]['schema'])) {
+          $choices = $params[$argument->getName()]['schema']['enum'];
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", $choices, $argument->getDefault());
+        }
+        // Free form.
+        else {
+          $validator = $this->createCallableValidator($argument, $params);
+          $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
+          $question->setValidator($validator);
+          // Allow unlimited attempts.
+          $question->setMaxAttempts(NULL);
+          $answer = $this->io->askQuestion($question);
+        }
         $input->setArgument($argument->getName(), $answer);
       }
     }
@@ -224,7 +250,7 @@ class ApiCommandBase extends CommandBase {
   }
 
   /**
-   * @param $param_name
+   * @param string $param_name
    * @param $value
    */
   public function addPathParameter($param_name, $value): void {
@@ -248,20 +274,14 @@ class ApiCommandBase extends CommandBase {
   }
 
   /**
-   * @param $param_spec
-   * @param $value
+   * @param array $param_spec
+   * @param string $value
    *
    * @return mixed
    */
   protected function castParamType($param_spec, $value) {
-    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
-    if (array_key_exists('type', $param_spec)) {
-      $type = $param_spec['type'];
-    }
-    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
-      $type = $param_spec['schema']['type'];
-    }
-    else {
+    $type = $this->getParamType($param_spec);
+    if (!$type) {
       return $value;
     }
 
@@ -278,6 +298,72 @@ class ApiCommandBase extends CommandBase {
     }
 
     return $value;
+  }
+
+  /**
+   * @param array $param_spec
+   *
+   * @return null|string
+   */
+  protected function getParamType($param_spec): ?string {
+    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
+    if (array_key_exists('type', $param_spec)) {
+      return $param_spec['type'];
+    }
+    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
+      return $param_spec['schema']['type'];
+    }
+    return NULL;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputArgument $argument
+   * @param array $params
+   *
+   * @return callable|null
+   */
+  protected function createCallableValidator(InputArgument $argument, array $params): ?callable {
+    $validator = NULL;
+    if (array_key_exists($argument->getName(), $params)) {
+      $param_spec = $params[$argument->getName()];
+      $constraints = [
+        new NotBlank(),
+      ];
+      if ($type = $this->getParamType($param_spec)) {
+        $constraints[] = new Type($type);
+      }
+      if (array_key_exists('schema', $param_spec)) {
+        $schema = $param_spec['schema'];
+        if (array_key_exists('min', $schema) || array_key_exists('max', $schema)) {
+          $length_options = [];
+          if (array_key_exists('min', $schema)) {
+            $length_options['min'] = $param_spec['min'];
+          }
+          if (array_key_exists('max', $schema)) {
+            $length_options['max'] = $param_spec['max'];
+          }
+          $constraints[] = new Length($length_options);
+        }
+        if (array_key_exists('format', $schema)) {
+          switch ($schema['format']) {
+            case 'uuid';
+              $constraints[] = CommandBase::getUuidRegexConstraint();
+              break;
+          }
+        }
+        elseif (array_key_exists('pattern,', $schema)) {
+          $constraints[] = new Regex(['pattern' => $schema['pattern']]);
+        }
+      }
+      $validator = function ($value) use ($constraints) {
+        $violations = Validation::createValidator()->validate($value, $constraints);
+        if (count($violations)) {
+          throw new ValidatorException($violations->get(0)->getMessage());
+        }
+        return $value;
+      };
+    }
+    return $validator;
   }
 
 }

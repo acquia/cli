@@ -222,6 +222,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @return \Symfony\Component\Validator\Constraints\Regex
+   */
+  protected static function getUuidRegexConstraint(): Regex {
+    return new Regex([
+      'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
+      'message' => 'This is not a valid UUID.',
+    ]);
+  }
+
+  /**
    * @param string $repoRoot
    */
   public function setRepoRoot(string $repoRoot): void {
@@ -923,10 +933,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       new Length([
         'value' => 36,
       ]),
-      new Regex([
-        'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
-        'message' => 'This is not a valid UUID.',
-      ]),
+      self::getUuidRegexConstraint(),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
