@@ -39,14 +39,14 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
   // <h6>
   private $paragraphsChar = '"';
 
-  private $visibleNamespaces;
+  private $visibleNamespaces = [];
 
   /**
    * {@inheritdoc}
    */
   protected function describeInputArgument(InputArgument $argument, array $options = []) {
     $this->write(
-      '' . ($argument->getName() ?: '<none>') . "\n" . str_repeat($this->paragraphsChar, Helper::width($argument->getName()) + 4) . "\n\n"
+      '' . ($argument->getName() ?: '<none>') . "\n" . str_repeat($this->paragraphsChar, Helper::width($argument->getName())) . "\n\n"
       . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
       . '- **Is required**: ' . ($argument->isRequired() ? 'yes' : 'no') . "\n"
       . '- **Is array**: ' . ($argument->isArray() ? 'yes' : 'no') . "\n"
@@ -67,7 +67,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     }
 
     $this->write(
-      '' . $name . '' . "\n" . str_repeat($this->paragraphsChar, Helper::width($name) + 4) . "\n\n"
+      '' . $name . '' . "\n" . str_repeat($this->paragraphsChar, Helper::width($name)) . "\n\n"
       . ($option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n\n", $option->getDescription()) . "\n\n" : '')
       . '- **Accept value**: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
       . '- **Is value required**: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
@@ -97,12 +97,12 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
         $this->write("\n\n");
       }
 
-      $this->write("Options\n" . str_repeat($this->subsubsectionChar, 7)) . "\n\n";
+      $this->write("Options\n" . str_repeat($this->subsubsectionChar, 7) . "\n\n");
       foreach ($non_default_options as $option) {
-        $this->write("\n\n");
         if (NULL !== $describeInputOption = $this->describeInputOption($option)) {
           $this->write($describeInputOption);
         }
+        $this->write("\n");
       }
     }
   }
@@ -114,7 +114,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     if ($options['short'] ?? FALSE) {
       $this->write(
         '``' . $command->getName() . "``\n"
-        . str_repeat($this->subsectionChar, Helper::width($command->getName()) + 4) . "\n\n"
+        . str_repeat($this->subsectionChar, Helper::width($command->getName())) . "\n\n"
         . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
         . "Usage\n" . str_repeat($this->paragraphsChar, 5) . "\n\n"
         . array_reduce($command->getAliases(), function ($carry, $usage) {
@@ -132,7 +132,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
     }
     $this->write(
       $command->getName() . "\n"
-      . str_repeat($this->sectionChar, Helper::width($command->getName()) + 4) . "\n\n"
+      . str_repeat($this->subsectionChar, Helper::width($command->getName())) . "\n\n"
       . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
       . "Usage\n" . str_repeat($this->subsubsectionChar, 5) . "\n\n"
       . array_reduce(array_merge([$command->getSynopsis()], $command->getAliases(), $command->getUsages()), function ($carry, $usage) {
@@ -183,7 +183,8 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * @param array $options
    */
   protected function describeCommands(ApplicationDescription $description, $application, array $options): void {
-    $this->write("\n\nCommands\n" . str_repeat($this->chapterChar, 8) . "\n\n");
+    $title = "Commands";
+    $this->write("\n\n$title\n" . str_repeat($this->chapterChar, Helper::width($title)) . "\n\n");
     foreach ($this->visibleNamespaces as $namespace) {
       if ($namespace === '_global') {
         $commands = $application->all("");
@@ -191,14 +192,14 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
       else {
         $commands = $application->all($namespace);
       }
-      $commands = $this->removeAliases($commands);
-      unset($commands['completion']);
-      $this->write($namespace . "\n" . str_repeat($this->subsectionChar, Helper::width($namespace)));
+      $commands = $this->removeAliasesAndHiddenCommands($commands);
+      $this->write($namespace . "\n" . str_repeat($this->sectionChar, Helper::width($namespace)) . "\n\n");
+
       foreach ($commands as $command) {
-        $this->write("\n\n");
         if (NULL !== $describeCommand = $this->describeCommand($command, $options)) {
           $this->write($describeCommand);
         }
+        $this->write("\n\n");
       }
     }
   }
@@ -220,8 +221,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
         $this->write("\n\n");
         $this->write($namespace . "\n" . str_repeat($this->sectionChar, Helper::width($namespace)) . "\n\n");
       }
-      $commands = $this->removeAliases($commands);
-      unset($commands['completion']);
+      $commands = $this->removeAliasesAndHiddenCommands($commands);
 
       $this->write("\n\n");
       $this->write(implode("\n", array_map(function ($commandName) {
@@ -258,24 +258,28 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
   */
   protected function setVisibleNamespaces(ApplicationDescription $description) {
+    $commands = $description->getCommands();
     foreach ($description->getNamespaces() as $namespace) {
-      if (ApplicationDescription::GLOBAL_NAMESPACE !== $namespace['id']) {
-        try {
-          $all_hidden = TRUE;
-          foreach ($description->getCommands() as $command) {
-            if (strpos($command->getName(), $namespace['id'] . ':') !== FALSE && !$command->isHidden()) {
-              $all_hidden = FALSE;
-            }
+      try {
+        // Remove aliases.
+        $namespace_commands = $namespace['commands'];
+        foreach ($namespace_commands as $key => $command_name) {
+          if (!array_key_exists($command_name, $commands)) {
+            // If the array key does not exist, then this is an alias.
+            unset($namespace_commands[$key]);
           }
-          if ($all_hidden) {
-            // Skip this namespace.
-            continue;
+          elseif ($commands[$command_name]->isHidden()) {
+            unset($namespace_commands[$key]);
           }
-        } catch (\Exception $exception) {
-
         }
-        $this->visibleNamespaces[] = $namespace['id'];
+        if (!count($namespace_commands)) {
+          // If the namespace contained only aliases or hidden commands, skip the namespace.
+          continue;
+        }
+      } catch (\Exception $exception) {
+
       }
+      $this->visibleNamespaces[] = $namespace['id'];
     }
   }
 
@@ -284,13 +288,14 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    *
    * @return array
    */
-  protected function removeAliases(array $commands): array {
+  protected function removeAliasesAndHiddenCommands(array $commands): array {
     // Remove aliases.
     foreach ($commands as $key => $command) {
       if (in_array($key, $command->getAliases()) || $command->isHidden()) {
         unset($commands[$key]);
       }
     }
+    unset($commands['completion']);
     return $commands;
   }
 

@@ -19,7 +19,6 @@ tests/fixtures/project/.acquia-cli.yml
 ###> squizlabs/php_codesniffer ###
 /phpcs.xml
 .phpcs-cache
-.phplint.yml
 ###< squizlabs/php_codesniffer ###
 
 ###> phpunit/phpunit ###
