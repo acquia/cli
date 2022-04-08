@@ -15,7 +15,7 @@
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
         "composer/semver": "^3.2",
-        "consolidation/self-update": "2.0.0-alpha1 as 1.1",
+        "consolidation/self-update": "^2",
         "cweagans/composer-patches": "^1.7",
         "grasmash/expander": "^1.0",
         "guzzlehttp/guzzle": "^7.4",
@@ -99,6 +99,9 @@
         "patches": {
             "symfony/filesystem": [
                 "symfony-fs-mirror.patch"
+            ],
+            "consolidation/self-update": [
+                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch"
             ]
         },
         "patchLevel": {
