@@ -83,6 +83,11 @@ To generate docs for all commands in RST format, run:
 ./bin/acli self:make-docs
 ```
 
+To copy the output easily to the clipboard, run:
+```
+./bin/acli self:make-docs | pbcopy
+```
+
 If you're on Mac, you can render and view the outputted RST using a command like this:
 ```
 brew install restview
