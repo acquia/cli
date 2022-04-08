@@ -7,6 +7,7 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use GuzzleHttp\Psr7\Utils;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Terminal;
 
 /**
  * Class ApiCommandBase.
@@ -55,6 +56,25 @@ class ApiCommandBase extends CommandBase {
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
+  }
+
+  protected function interact(InputInterface $input, OutputInterface $output) {
+    parent::interact($input, $output);
+    $terminal = new Terminal();
+    /** @var \Symfony\Component\Console\Formatter\OutputFormatter $output_formatter */
+    $output_formatter = $this->io->getFormatter();
+    foreach ($this->getDefinition()->getArguments() as $argument) {
+      if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
+        $question_text = "<options=bold;>{$argument->getName()}</> is a required argument."
+          . "\n\n{$argument->getDescription()}"
+          . "\n\nPlease enter a value for "
+          . $argument->getName();
+        $question_text = $output_formatter->formatAndWrap($question_text, $terminal->getWidth() * .9);
+        $answer = $this->io->ask($question_text, $argument->getDefault());
+        // @todo Add data type validator.
+        $input->setArgument($argument->getName(), $answer);
+      }
+    }
   }
 
   /**
