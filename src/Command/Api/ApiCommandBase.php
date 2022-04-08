@@ -351,8 +351,11 @@ class ApiCommandBase extends CommandBase {
               break;
           }
         }
-        elseif (array_key_exists('pattern,', $schema)) {
-          $constraints[] = new Regex(['pattern' => $schema['pattern']]);
+        elseif (array_key_exists('pattern', $schema)) {
+          $constraints[] = new Regex([
+            'pattern' => '/' . $schema['pattern'] . '/',
+            'message' => 'It must match the pattern ' . $schema['pattern'],
+          ]);
         }
       }
       $validator = function ($value) use ($constraints) {
