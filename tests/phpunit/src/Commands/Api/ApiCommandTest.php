@@ -62,6 +62,20 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('It must match the pattern', $output);
   }
 
+  public function testArgumentsInteractionValdationFormat() {
+    $this->command = $this->getApiCommandByName('api:notifications:find');
+    try {
+      $this->executeCommand([], [
+        'test'
+      ]);
+    }
+    catch (MissingInputException $exception) {
+
+    }
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('This is not a valid UUID', $output);
+  }
+
   /**
    * Tests invalid UUID.
    */
