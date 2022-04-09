@@ -330,29 +330,8 @@ class ApiCommandBase extends CommandBase {
       }
       if (array_key_exists('schema', $param_spec)) {
         $schema = $param_spec['schema'];
-        if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
-          $length_options = [];
-          if (array_key_exists('minLength', $schema)) {
-            $length_options['min'] = $schema['minLength'];
-          }
-          if (array_key_exists('maxLength', $schema)) {
-            $length_options['max'] = $schema['maxLength'];
-          }
-          $constraints[] = new Length($length_options);
-        }
-        if (array_key_exists('format', $schema)) {
-          switch ($schema['format']) {
-            case 'uuid';
-              $constraints[] = CommandBase::getUuidRegexConstraint();
-              break;
-          }
-        }
-        elseif (array_key_exists('pattern', $schema)) {
-          $constraints[] = new Regex([
-            'pattern' => '/' . $schema['pattern'] . '/',
-            'message' => 'It must match the pattern ' . $schema['pattern'],
-          ]);
-        }
+        $constraints = $this->createLengthConstraint($schema, $constraints);
+        $constraints = $this->createRegexConstraint($schema, $constraints);
       }
       $validator = function ($value) use ($constraints) {
         $violations = Validation::createValidator()->validate($value, $constraints);
@@ -363,6 +342,49 @@ class ApiCommandBase extends CommandBase {
       };
     }
     return $validator;
+  }
+
+  /**
+   * @param $schema
+   * @param array $constraints
+   *
+   * @return array
+   */
+  protected function createLengthConstraint($schema, array $constraints): array {
+    if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
+      $length_options = [];
+      if (array_key_exists('minLength', $schema)) {
+        $length_options['min'] = $schema['minLength'];
+      }
+      if (array_key_exists('maxLength', $schema)) {
+        $length_options['max'] = $schema['maxLength'];
+      }
+      $constraints[] = new Length($length_options);
+    }
+    return $constraints;
+  }
+
+  /**
+   * @param $schema
+   * @param array $constraints
+   *
+   * @return array
+   */
+  protected function createRegexConstraint($schema, array $constraints): array {
+    if (array_key_exists('format', $schema)) {
+      switch ($schema['format']) {
+        case 'uuid';
+          $constraints[] = CommandBase::getUuidRegexConstraint();
+          break;
+      }
+    }
+    elseif (array_key_exists('pattern', $schema)) {
+      $constraints[] = new Regex([
+        'pattern' => '/' . $schema['pattern'] . '/',
+        'message' => 'It must match the pattern ' . $schema['pattern'],
+      ]);
+    }
+    return $constraints;
   }
 
 }
