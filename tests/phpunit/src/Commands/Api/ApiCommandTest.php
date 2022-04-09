@@ -8,6 +8,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
@@ -30,6 +31,34 @@ class ApiCommandTest extends CommandTestBase {
    */
   protected function createCommand(): Command {
     return $this->injectCommand(ApiCommandBase::class);
+  }
+
+  public function testArgumentsInteraction() {
+    $this->command = $this->getApiCommandByName('api:environments:log-download');
+    $this->executeCommand([], [
+      'test',
+      'apache-access',
+    ]);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Please enter a value for environmentId', $output);
+    $this->assertStringContainsString('logType is a required argument', $output);
+    $this->assertStringContainsString('An ID that uniquely identifies a log type.', $output);
+    $this->assertStringContainsString('apache-access', $output);
+    $this->assertStringContainsString('Please select a value for logType', $output);
+  }
+
+  public function testArgumentsInteractionValidation() {
+    $this->command = $this->getApiCommandByName('api:environments:variable-update');
+    try {
+      $this->executeCommand([], [
+        'AH_',
+      ]);
+    }
+    catch (MissingInputException $exception) {
+
+    }
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('It must match the pattern', $output);
   }
 
   /**
