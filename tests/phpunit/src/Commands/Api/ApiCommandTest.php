@@ -52,6 +52,7 @@ class ApiCommandTest extends CommandTestBase {
     try {
       $this->executeCommand([], [
         'AH_',
+        'AH_',
       ]);
     }
     catch (MissingInputException $exception) {
