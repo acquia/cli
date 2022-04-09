@@ -336,11 +336,11 @@ class ApiCommandBase extends CommandBase {
         $schema = $param_spec['schema'];
         if (array_key_exists('min', $schema) || array_key_exists('max', $schema)) {
           $length_options = [];
-          if (array_key_exists('min', $schema)) {
-            $length_options['min'] = $param_spec['min'];
+          if (array_key_exists('minLength', $schema)) {
+            $length_options['min'] = $param_spec['minLength'];
           }
-          if (array_key_exists('max', $schema)) {
-            $length_options['max'] = $param_spec['max'];
+          if (array_key_exists('maxLength', $schema)) {
+            $length_options['max'] = $param_spec['maxLength'];
           }
           $constraints[] = new Length($length_options);
         }
