@@ -1051,7 +1051,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
-      new Regex(['pattern' => '/.+\..+/', 'message' => 'Environment alias must match the pattern [app-name].[env]']),
+      new Regex(['pattern' => '/.+\..+/', 'message' => 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]']),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
