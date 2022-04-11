@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use GuzzleHttp\Psr7\Utils;
 use Symfony\Component\Console\Input\InputArgument;
@@ -69,8 +70,7 @@ class ApiCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  protected function interact(InputInterface $input, OutputInterface $output) {
-    parent::interact($input, $output);
+  public function interact(InputInterface $input, OutputInterface $output) {
     $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
     foreach ($this->getDefinition()->getArguments() as $argument) {
       if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
@@ -97,6 +97,7 @@ class ApiCommandBase extends CommandBase {
         $input->setArgument($argument->getName(), $answer);
       }
     }
+    parent::interact($input, $output);
   }
 
   /**
@@ -109,41 +110,8 @@ class ApiCommandBase extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     // Build query from non-null options.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    if ($this->queryParams) {
-      foreach ($this->queryParams as $key => $param_spec) {
-        // We may have a queryParam that is used in the path rather than the query string.
-        if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getOption($key));
-        }
-        elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
-        }
-      }
-    }
-    if ($this->postParams) {
-      foreach ($this->postParams as $param_name => $param_spec) {
-        $param = $this->getParamFromInput($input, $param_name);
-        if (!is_null($param)) {
-          $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
-          if ($param_spec) {
-            $param = $this->castParamType($param_spec, $param);
-          }
-          if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
-            $acquia_cloud_client->addOption('multipart', [
-              [
-                'name'     => $param_name,
-                'contents' => Utils::tryFopen($param, 'r'),
-              ],
-            ]);
-          }
-          else {
-            $acquia_cloud_client->addOption('json', [$param_name => $param]);
-          }
-        }
-      }
-    }
-
-    $path = $this->getRequestPath($input);
+    $this->addQueryParamsToClient($input, $acquia_cloud_client);
+    $this->addPostParamsToClient($input, $acquia_cloud_client);
     $acquia_cloud_client->addOption('headers', [
       'Accept' => 'application/json',
     ]);
@@ -152,6 +120,7 @@ class ApiCommandBase extends CommandBase {
       if ($this->output->isVeryVerbose()) {
         $acquia_cloud_client->addOption('debug', $this->output);
       }
+      $path = $this->getRequestPath($input);
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;
     }
@@ -159,7 +128,7 @@ class ApiCommandBase extends CommandBase {
       $response = $exception->getResponseBody();
       $exit_code = 1;
     }
-    // @todo Add syntax highlighting to json output.
+
     $contents = json_encode($response, JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
 
@@ -395,6 +364,62 @@ class ApiCommandBase extends CommandBase {
       }
       return $value;
     };
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   */
+  protected function addQueryParamsToClient(InputInterface $input, Client $acquia_cloud_client) {
+    if ($this->queryParams) {
+      foreach ($this->queryParams as $key => $param_spec) {
+        // We may have a queryParam that is used in the path rather than the query string.
+        if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getOption($key));
+        }
+        elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
+        }
+      }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   */
+  protected function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
+    if ($this->postParams) {
+      foreach ($this->postParams as $param_name => $param_spec) {
+        $param_value = $this->getParamFromInput($input, $param_name);
+        if (!is_null($param_value)) {
+          $this->addPostParamToClient($param_name, $param_spec, $param_value, $acquia_cloud_client);
+        }
+      }
+    }
+  }
+
+  /**
+  * @param string $param_name
+  * @param array $param_spec
+  * @param mixed $param_value
+  * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+  */
+  protected function addPostParamToClient(string $param_name, array $param_spec, $param_value, Client $acquia_cloud_client) {
+    $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
+    $param_value = $this->castParamType($param_spec, $param_value);
+
+    if (array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
+      $acquia_cloud_client->addOption('multipart', [
+        [
+          'name' => $param_name,
+          'contents' => Utils::tryFopen($param_value, 'r'),
+        ],
+      ]);
+    }
+    else {
+      $acquia_cloud_client->addOption('json', [$param_name => $param_value]);
+    }
   }
 
 }

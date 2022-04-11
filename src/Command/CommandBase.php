@@ -358,13 +358,25 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
+    if ($latest = $this->checkForNewVersion()) {
+      $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function interact(InputInterface $input, OutputInterface $output) {
     $this->convertApplicationAliasToUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
-    if ($latest = $this->checkForNewVersion()) {
-      $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
-    }
+
+    parent::interact($input, $output);
   }
 
   /**
