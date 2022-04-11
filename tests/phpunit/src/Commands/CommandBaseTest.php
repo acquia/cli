@@ -104,8 +104,8 @@ class CommandBaseTest extends CommandTestBase {
   public function providerTestInvalidCloudEnvironmentAlias(): array {
     return [
       ['bl.a', 'This value is too short. It should have 5 characters or more.'],
-      ['blarg', 'Environment alias must match the pattern [app-name].[env]'],
-      ['12345', 'Environment alias must match the pattern [app-name].[env]'],
+      ['blarg', 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]'],
+      ['12345', 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]'],
     ];
   }
 
