@@ -1250,10 +1250,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
 
+    foreach ($releases as $release) {
+      if (!$release->prerelease) {
+        break;
+      }
+    }
+
     /**
      * @var $version string
      */
-    $version = $releases[0]->tag_name;
+    $version = $release->tag_name;
     $versionStability = VersionParser::parseStability($version);
     $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
     if ($versionStability === 'stable' && $versionIsNewer) {
