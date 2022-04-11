@@ -87,12 +87,7 @@ class ApiCommandBase extends CommandBase {
         }
         // Free form.
         else {
-          $validator = $this->createCallableValidator($argument, $params);
-          $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
-          $question->setValidator($validator);
-          // Allow unlimited attempts.
-          $question->setMaxAttempts(NULL);
-          $answer = $this->io->askQuestion($question);
+          $answer = $this->askFreeFormQuestion($argument, $params);
         }
         $input->setArgument($argument->getName(), $answer);
       }
@@ -421,6 +416,38 @@ class ApiCommandBase extends CommandBase {
     else {
       $acquia_cloud_client->addOption('json', [$param_name => $param_value]);
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputArgument $argument
+   * @param array $params
+   *
+   * @return mixed
+   */
+  protected function askFreeFormQuestion(InputArgument $argument, array $params) {
+    $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
+    switch ($argument->getName()) {
+      case 'applicationUuid':
+        $question->setValidator(function ($value) {
+          return $this->validateApplicationUuid($value);
+        });
+        break;
+      case 'environmentId':
+      case 'source':
+        $question->setValidator(function ($value) use ($argument) {
+          return $this->validateEnvironmentUuid($value, $argument->getName());
+        });
+        break;
+
+      default:
+        $validator = $this->createCallableValidator($argument, $params);
+        $question->setValidator($validator);
+        break;
+    }
+
+    // Allow unlimited attempts.
+    $question->setMaxAttempts(NULL);
+    return $this->io->askQuestion($question);
   }
 
 }
