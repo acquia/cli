@@ -21,7 +21,7 @@ $body = preg_replace(
   '[emoji-removed]',
   $body
 );
-$release_body = str_replace('## ', 'h4. ', $body);
+$body = str_replace('## ', 'h4. ', $body);
 $body = str_replace('&amp;#039;', '&#039;', $body);
 
 echo $body;
