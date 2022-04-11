@@ -169,28 +169,28 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param string $method
    */
-  public function setMethod($method): void {
+  public function setMethod(string $method): void {
     $this->method = $method;
   }
 
   /**
    * @param array $responses
    */
-  public function setResponses($responses): void {
+  public function setResponses(array $responses): void {
     $this->responses = $responses;
   }
 
   /**
    * @param array $servers
    */
-  public function setServers($servers): void {
+  public function setServers(array $servers): void {
     $this->servers = $servers;
   }
 
   /**
    * @param string $path
    */
-  public function setPath($path): void {
+  public function setPath(string $path): void {
     $this->path = $path;
   }
 
@@ -255,11 +255,11 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param $param_name
+   * @param string $param_name
    *
    * @return bool|string|string[]|null
    */
-  protected function getParamFromInput(InputInterface $input, $param_name) {
+  protected function getParamFromInput(InputInterface $input, string $param_name) {
     if ($input->hasArgument($param_name)) {
       $param = $input->getArgument($param_name);
     }
@@ -273,9 +273,9 @@ class ApiCommandBase extends CommandBase {
    * @param array $param_spec
    * @param string $value
    *
-   * @return mixed
+   * @return bool|int|string
    */
-  protected function castParamType($param_spec, $value) {
+  protected function castParamType(array $param_spec, string $value) {
     $type = $this->getParamType($param_spec);
     if (!$type) {
       return $value;
@@ -301,7 +301,7 @@ class ApiCommandBase extends CommandBase {
    *
    * @return null|string
    */
-  protected function getParamType($param_spec): ?string {
+  protected function getParamType(array $param_spec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
     if (array_key_exists('type', $param_spec)) {
       return $param_spec['type'];
@@ -333,19 +333,13 @@ class ApiCommandBase extends CommandBase {
         $constraints = $this->createLengthConstraint($schema, $constraints);
         $constraints = $this->createRegexConstraint($schema, $constraints);
       }
-      $validator = function ($value) use ($constraints) {
-        $violations = Validation::createValidator()->validate($value, $constraints);
-        if (count($violations)) {
-          throw new ValidatorException($violations->get(0)->getMessage());
-        }
-        return $value;
-      };
+      $validator = $this->createValidatorFromConstraints($constraints);
     }
     return $validator;
   }
 
   /**
-   * @param $schema
+   * @param array $schema
    * @param array $constraints
    *
    * @return array
@@ -365,7 +359,7 @@ class ApiCommandBase extends CommandBase {
   }
 
   /**
-   * @param $schema
+   * @param array $schema
    * @param array $constraints
    *
    * @return array
@@ -385,6 +379,22 @@ class ApiCommandBase extends CommandBase {
       ]);
     }
     return $constraints;
+  }
+
+  /**
+   * @param array $constraints
+   *
+   * @return \Closure
+   */
+  protected function createValidatorFromConstraints(array $constraints): \Closure {
+    return function ($value) use ($constraints) {
+      $violations = Validation::createValidator()
+        ->validate($value, $constraints);
+      if (count($violations)) {
+        throw new ValidatorException($violations->get(0)->getMessage());
+      }
+      return $value;
+    };
   }
 
 }
