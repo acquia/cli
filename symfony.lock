@@ -89,6 +89,9 @@
     "kevinrob/guzzle-cache-middleware": {
         "version": "v3.5.0"
     },
+    "laravel/serializable-closure": {
+        "version": "v1.1.1"
+    },
     "league/csv": {
         "version": "9.8.0"
     },
@@ -130,9 +133,6 @@
     },
     "ondram/ci-detector": {
         "version": "4.1.0"
-    },
-    "opis/closure": {
-        "version": "3.6.3"
     },
     "overtrue/phplint": {
         "version": "3.0.6"
