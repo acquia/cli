@@ -51,8 +51,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->command = $this->getApiCommandByName('api:environments:variable-update');
     try {
       $this->executeCommand([], [
-        'AH_',
-        'AH_',
+        '289576-53785bca-1946-4adc-a022-e50d24686c20',
+        'AH_SOMETHING',
+        'AH_SOMETHING',
       ]);
     }
     catch (MissingInputException $exception) {
