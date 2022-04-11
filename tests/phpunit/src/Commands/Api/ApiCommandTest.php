@@ -36,7 +36,7 @@ class ApiCommandTest extends CommandTestBase {
   public function testArgumentsInteraction() {
     $this->command = $this->getApiCommandByName('api:environments:log-download');
     $this->executeCommand([], [
-      'test',
+      '289576-53785bca-1946-4adc-a022-e50d24686c20',
       'apache-access',
     ]);
     $output = $this->getDisplay();

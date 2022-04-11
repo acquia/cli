@@ -361,6 +361,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
+
+    $this->fillMissingRequiredApplicationUuid($input, $output);
   }
 
   /**
@@ -372,7 +374,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function interact(InputInterface $input, OutputInterface $output) {
     $this->convertApplicationAliasToUuid($input);
-    $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
 

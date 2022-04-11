@@ -401,15 +401,16 @@ class ApiCommandBase extends CommandBase {
 
   /**
   * @param string $param_name
-  * @param array $param_spec
+  * @param array|null $param_spec
   * @param mixed $param_value
   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
   */
-  protected function addPostParamToClient(string $param_name, array $param_spec, $param_value, Client $acquia_cloud_client) {
+  protected function addPostParamToClient(string $param_name, $param_spec, $param_value, Client $acquia_cloud_client) {
     $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
-    $param_value = $this->castParamType($param_spec, $param_value);
-
-    if (array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
+    if ($param_spec) {
+      $param_value = $this->castParamType($param_spec, $param_value);
+    }
+    if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
       $acquia_cloud_client->addOption('multipart', [
         [
           'name' => $param_name,
