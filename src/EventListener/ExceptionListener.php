@@ -111,7 +111,7 @@ class ExceptionListener {
    * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
   protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
-    $message = "You can submit a support ticket at https://insight.acquia.com/support/tickets/new?product=p:cli";
+    $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
     if (!$event->getOutput()->isVeryVerbose()) {
       $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
     }
