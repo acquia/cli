@@ -8487,12 +8487,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpro/grumphp.git",
-                "reference": "de4402f0803f6ae2edd33cb259899dd23476953a"
+                "reference": "73d3a463bbbe2c09cb56402109399d25d1dce935"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpro/grumphp/zipball/de4402f0803f6ae2edd33cb259899dd23476953a",
-                "reference": "de4402f0803f6ae2edd33cb259899dd23476953a",
+                "url": "https://api.github.com/repos/phpro/grumphp/zipball/73d3a463bbbe2c09cb56402109399d25d1dce935",
+                "reference": "73d3a463bbbe2c09cb56402109399d25d1dce935",
                 "shasum": ""
             },
             "require": {
@@ -8596,7 +8596,7 @@
                 "issues": "https://github.com/phpro/grumphp/issues",
                 "source": "https://github.com/phpro/grumphp/tree/master"
             },
-            "time": "2022-04-08T17:58:38+00:00"
+            "time": "2022-04-12T13:50:17+00:00"
         },
         {
             "name": "phpspec/prophecy",
