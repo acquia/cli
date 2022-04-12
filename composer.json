@@ -45,7 +45,6 @@
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.0.17",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "webmozart/json": "^1.2",
         "webmozart/key-value-store": "^1.0",
         "zumba/amplitude-php": "^1.0"
     },
