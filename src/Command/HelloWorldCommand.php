@@ -8,7 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class HelloWorldCommand.
  */
-class HelloWorldCommand extends CommandBase {
+class HelloWorldCommand extends ApiCommandBase {
 
   protected static $defaultName = 'hello-world';
 

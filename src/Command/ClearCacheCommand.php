@@ -10,7 +10,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class ClearCacheCommand.
  */
-class ClearCacheCommand extends CommandBase {
+class ClearCacheCommand extends ApiCommandBase {
 
   protected static $defaultName = 'clear-caches';
 

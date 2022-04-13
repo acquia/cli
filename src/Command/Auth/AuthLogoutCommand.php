@@ -3,14 +3,14 @@
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class AuthLogoutCommand.
  */
-class AuthLogoutCommand extends CommandBase {
+class AuthLogoutCommand extends ApiCommandBase {
 
   protected static $defaultName = 'auth:logout';
 

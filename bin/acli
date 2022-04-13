@@ -16,6 +16,8 @@
 
 namespace Acquia\Cli;
 
+use Acquia\Cli\Command\Acsf\AcsfBaseCommand;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use SelfUpdate\SelfUpdateCommand;
@@ -67,7 +69,7 @@ $application->setName('Acquia CLI');
 $application->setVersion('@package_version@');
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
-$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api'));
-$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf'));
+$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api', ApiBaseCommand::class, $container));
+$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf', AcsfBaseCommand::class, $container));
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
 $application->run($input, $output);

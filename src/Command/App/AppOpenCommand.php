@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\App;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class AppOpenCommand.
  */
-class AppOpenCommand extends CommandBase {
+class AppOpenCommand extends ApiCommandBase {
 
   protected static $defaultName = 'app:open';
 

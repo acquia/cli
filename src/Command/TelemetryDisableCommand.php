@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class TelemetryDisableCommand.
  */
-class TelemetryDisableCommand extends CommandBase {
+class TelemetryDisableCommand extends ApiCommandBase {
 
   protected static $defaultName = 'telemetry:disable';
 

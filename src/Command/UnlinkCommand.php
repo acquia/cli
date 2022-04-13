@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class UnlinkCommand.
  */
-class UnlinkCommand extends CommandBase {
+class UnlinkCommand extends ApiCommandBase {
 
   protected static $defaultName = 'unlink';
 

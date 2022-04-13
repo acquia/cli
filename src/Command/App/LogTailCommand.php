@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\App;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class LogTailCommand.
  */
-class LogTailCommand extends CommandBase {
+class LogTailCommand extends ApiCommandBase {
 
   protected static $defaultName = 'app:log:tail';
 
