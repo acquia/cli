@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 
 /**
  * Class SSHBaseCommand
@@ -10,6 +10,6 @@ use Acquia\Cli\Command\ApiCommandBase;
  *
  * @package Acquia\Cli\Commands\Remote
  */
-abstract class SshBaseCommand extends ApiCommandBase {
+abstract class SshBaseCommand extends CommandBase {
 
 }

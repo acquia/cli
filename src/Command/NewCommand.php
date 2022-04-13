@@ -13,7 +13,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class NewCommand.
  */
-class NewCommand extends ApiCommandBase {
+class NewCommand extends CommandBase {
 
   protected static $defaultName = 'new';
 

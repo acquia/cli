@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Api;
 
-use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
@@ -21,7 +20,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * Class ApiBaseCommand.
  */
-class ApiBaseCommand extends ApiCommandBase {
+class ApiBaseCommand extends CommandBase {
 
   protected static $defaultName = 'api:base';
 

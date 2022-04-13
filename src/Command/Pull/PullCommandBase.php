@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Pull;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
@@ -29,7 +29,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class PullCommandBase.
  */
-abstract class PullCommandBase extends ApiCommandBase {
+abstract class PullCommandBase extends CommandBase {
 
   /**
    * @var Checklist
