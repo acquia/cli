@@ -13,6 +13,18 @@ use AcquiaCloudApi\Response\IdeResponse;
 abstract class IdeCommandBase extends CommandBase {
 
   /**
+   * @var string
+   */
+  private $phpVersionFilePath;
+
+  /**
+   * @var string
+   */
+  private $xdebugIniFilepath;
+
+  const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug.ini';
+
+  /**
    * @param string $question_text
    * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
    *
@@ -93,6 +105,64 @@ abstract class IdeCommandBase extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to restart ' . $service . ' in the IDE: {error}', ['error' => $process->getErrorOutput()]);
     }
+  }
+
+  /**
+   * @return false|string
+   */
+  protected function getIdePhpVersion() {
+    return $this->localMachineHelper->readFile($this->getIdePhpVersionFilePath());
+  }
+
+  /**
+   * @param string $file_path
+   */
+  public function setXdebugIniFilepath(string $file_path): void {
+    $this->xdebugIniFilepath = $file_path;
+  }
+
+  /**
+   *
+   * @return string
+   */
+  public function getXdebugIniFilePath(): string {
+    if (!isset($this->xdebugIniFilepath)) {
+      $this->xdebugIniFilepath = IdeCommandBase::DEFAULT_XDEBUG_INI_FILEPATH;
+    }
+    return $this->xdebugIniFilepath;
+  }
+
+  /**
+   * @param string $php_version
+   *   The current php version.
+   *
+   * @return string
+   *   The file path to the xdebug template.
+   */
+  protected function getXdebugTemplateFilePath(string $php_version): string {
+    switch ($php_version) {
+      case '7.4':
+        return '/home/ide/configs/php/xdebug2.ini';
+      default:
+        return '/home/ide/configs/php/xdebug3.ini';
+    }
+  }
+
+  /**
+   * @param string $path
+   */
+  public function setPhpVersionFilePath(string $path): void {
+    $this->phpVersionFilePath = $path;
+  }
+
+  /**
+   * @return string
+   */
+  public function getIdePhpVersionFilePath(): string {
+    if (!isset($this->phpVersionFilePath)) {
+      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
+    }
+    return $this->phpVersionFilePath;
   }
 
 }

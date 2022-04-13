@@ -23,11 +23,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @var string
    */
-  private $phpVersionFilePath;
-
-  /**
-   * @var string
-   */
   private $idePhpFilePathPrefix;
 
   /*
@@ -60,6 +55,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
+    $this->localMachineHelper->getFilesystem()->copy($this->getXdebugTemplateFilePath($version), IdeCommandBase::DEFAULT_XDEBUG_INI_FILEPATH, TRUE);
     $this->restartService('php-fpm');
 
     return 0;
@@ -78,25 +74,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @param string $path
    */
-  public function setIdePhpFilePathPrefix($path): void {
+  public function setIdePhpFilePathPrefix(string $path): void {
     $this->idePhpFilePathPrefix = $path;
-  }
-
-  /**
-   * @return string
-   */
-  public function getIdePhpVersionFilePath(): string {
-    if (!isset($this->phpVersionFilePath)) {
-      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
-    }
-    return $this->phpVersionFilePath;
-  }
-
-  /**
-   * @param string $path
-   */
-  public function setPhpVersionFilePath($path): void {
-    $this->phpVersionFilePath = $path;
   }
 
   /**
@@ -105,7 +84,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validatePhpVersion($version) {
+  protected function validatePhpVersion(string $version): string {
     $violations = Validation::createValidator()->validate($version, [
       new Length(['min' => 3]),
       new NotBlank(),

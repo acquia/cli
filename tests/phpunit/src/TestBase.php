@@ -823,8 +823,10 @@ abstract class TestBase extends TestCase {
    *
    * @return Filesystem
    */
-  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+
+    return $this->fs;
   }
 
   protected function removeMockConfigFiles(): void {

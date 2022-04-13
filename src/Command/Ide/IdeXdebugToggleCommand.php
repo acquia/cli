@@ -19,11 +19,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   private $xDebugEnabled;
 
   /**
-   * @var string
-   */
-  private $xdebugIniFilepath;
-
-  /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
@@ -68,23 +63,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   }
 
   /**
-   * @param string $file_path
-   */
-  public function setXdebugIniFilepath($file_path): void {
-    $this->xdebugIniFilepath = $file_path;
-  }
-
-  /**
-   * @return string
-   */
-  public function getXdebugIniFilePath(): string {
-    if (!isset($this->xdebugIniFilepath)) {
-      $this->xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
-    }
-    return $this->xdebugIniFilepath;
-  }
-
-  /**
    * Sets $this->xDebugEnabled.
    *
    * @param string $contents
@@ -119,6 +97,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   protected function enableXDebug($destination_file, $contents): void {
     $this->logger->notice("Enabling Xdebug PHP extension in $destination_file...");
+
     // Note that this replaces 1 or more ";" characters.
     $new_contents = preg_replace('/(;)+(zend_extension=xdebug\.so)/', '$2', $contents);
     file_put_contents($destination_file, $new_contents);
