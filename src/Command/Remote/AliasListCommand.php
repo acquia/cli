@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\Table;
@@ -12,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class AliasListCommand.
  */
-class AliasListCommand extends CommandBase {
+class AliasListCommand extends ApiCommandBase {
 
   protected static $defaultName = 'remote:aliases:list';
 

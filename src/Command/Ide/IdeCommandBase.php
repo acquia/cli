@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
@@ -10,7 +10,7 @@ use AcquiaCloudApi\Response\IdeResponse;
 /**
  * Class IdeCommandBase.
  */
-abstract class IdeCommandBase extends CommandBase {
+abstract class IdeCommandBase extends ApiCommandBase {
 
   /**
    * @var string

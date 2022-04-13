@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Archive;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class ArchiveExportCommand.
  */
-class ArchiveExportCommand extends CommandBase {
+class ArchiveExportCommand extends ApiCommandBase {
 
   /**
    * @var Checklist

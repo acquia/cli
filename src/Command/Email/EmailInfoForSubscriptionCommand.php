@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Email;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Terminal;
 /**
  * Class EmailInfoForSubscriptionCommand.
  */
-class EmailInfoForSubscriptionCommand extends CommandBase {
+class EmailInfoForSubscriptionCommand extends ApiCommandBase {
 
   protected static $defaultName = 'email:info';
 

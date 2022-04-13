@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Self;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Descriptor\ReStructuredTextDescriptor;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class MakeDocsCommand.
  */
-class MakeDocsCommand extends CommandBase {
+class MakeDocsCommand extends ApiCommandBase {
 
   protected static $defaultName = 'self:make-docs';
 

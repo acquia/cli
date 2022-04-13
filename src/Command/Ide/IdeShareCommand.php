@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
 use Ramsey\Uuid\Uuid;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class IdeShareCommand.
  */
-class IdeShareCommand extends CommandBase {
+class IdeShareCommand extends ApiCommandBase {
 
   protected static $defaultName = 'ide:share';
 

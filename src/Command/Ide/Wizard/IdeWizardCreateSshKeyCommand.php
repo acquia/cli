@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
+use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
 use Symfony\Component\Console\Input\InputInterface;

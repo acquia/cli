@@ -47,6 +47,7 @@ paths:
       summary: List audit events
       description: Gets a list of audit events.
       operationId: get_AuditEvent_getAuditEvents
+      x-cli-name: event-list
       parameters:
       - in: query
         name: limit
