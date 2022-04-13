@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshCommandTrait;
@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * Class SshKeyCommandBase.
  */
-abstract class SshKeyCommandBase extends ApiCommandBase {
+abstract class SshKeyCommandBase extends CommandBase {
 
   use SshCommandTrait;
 

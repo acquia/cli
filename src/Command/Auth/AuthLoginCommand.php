@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validation;
 /**
  * Class AuthLoginCommand.
  */
-class AuthLoginCommand extends ApiCommandBase {
+class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 

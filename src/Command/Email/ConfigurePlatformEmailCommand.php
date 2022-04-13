@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Email;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
@@ -24,7 +24,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Class ConfigurePlatformEmailCommand.
  */
-class ConfigurePlatformEmailCommand extends ApiCommandBase {
+class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected static $defaultName = 'email:configure';
 

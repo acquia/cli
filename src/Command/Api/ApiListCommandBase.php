@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\Api;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  *
  */
-class ApiListCommandBase extends ApiCommandBase {
+class ApiListCommandBase extends CommandBase {
 
   /**
    * @var string

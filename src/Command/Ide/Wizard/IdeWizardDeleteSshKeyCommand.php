@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide\Wizard;
 
-use Acquia\Cli\Command\ApiCommandBase;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;

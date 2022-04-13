@@ -2,14 +2,14 @@
 
 namespace Acquia\Cli\Command\App;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class LinkCommand.
  */
-class LinkCommand extends ApiCommandBase {
+class LinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:link';
 

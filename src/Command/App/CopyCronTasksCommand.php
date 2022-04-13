@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Command\App;
 
-use Acquia\Cli\Command\ApiCommandBase;
+use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class CopyCronTasksCommand.
  */
-class CopyCronTasksCommand extends ApiCommandBase {
+class CopyCronTasksCommand extends CommandBase {
 
   protected static $defaultName = 'app:cron-copy';
 
