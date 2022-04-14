@@ -166,6 +166,12 @@
         "box-compile": [
             "php build/box.phar compile"
         ],
+        "infection-install": [
+            "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
+        ],
+        "infection": [
+            "php build/infection.phar"
+        ],
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",

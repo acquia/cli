@@ -1,0 +1,42 @@
+name: Mutation Testing
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1']
+
+    name: Mutation Testing Code Review Annotations ${{ matrix.php-version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: composer:v2
+          extensions: pcov
+          coverage: pcov
+
+      - name: Install dependencies
+        run: |
+          composer install --no-progress --no-suggest --no-interaction
+
+      - name: Download Infection
+        run: composer infection-install
+
+      - name: Run Infection for added files only
+        env:
+          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
+        run: |
+          git fetch --depth=1 origin $GITHUB_BASE_REF
+          php infection.phar -j2 --git-diff-filter=A --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered
