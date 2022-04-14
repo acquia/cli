@@ -116,10 +116,10 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
     $config = new JsonFileStore($creds_file, JsonFileStore::NO_SERIALIZE_STRINGS);
-    $this->assertTrue($config->exists('acsf_factory'));
-    $factory_url = $config->get('acsf_factory');
-    $this->assertTrue($config->exists('acsf_keys'));
-    $factories = $config->get('acsf_keys');
+    $this->assertTrue($config->exists('acsf_active_factory'));
+    $factory_url = $config->get('acsf_active_factory');
+    $this->assertTrue($config->exists('acsf_factories'));
+    $factories = $config->get('acsf_factories');
     $this->assertArrayHasKey($factory_url, $factories);
     $factory = $factories[$factory_url];
     $this->assertArrayHasKey('users', $factory);

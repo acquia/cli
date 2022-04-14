@@ -57,8 +57,8 @@ class AcsfAuthLogoutCommandTest extends CommandTestBase {
         ],
         // $config.
         [
-          'acsf_factory' => $this->acsfCurrentFactoryUrl,
-          'acsf_keys' => [
+          'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
+          'acsf_factories' => [
             $this->acsfCurrentFactoryUrl => [
               'url' => $this->acsfCurrentFactoryUrl,
               'active_user' => $this->acsfActiveUser,
@@ -101,7 +101,7 @@ class AcsfAuthLogoutCommandTest extends CommandTestBase {
     $this->assertFileExists($this->cloudConfigFilepath);
     $config = new JsonFileStore($this->cloudConfigFilepath, JsonFileStore::NO_SERIALIZE_STRINGS);
     $this->assertFalse($config->exists('acli_key'));
-    $this->assertNull($config->get('acsf_factory'));
+    $this->assertNull($config->get('acsf_active_factory'));
   }
 
 }
