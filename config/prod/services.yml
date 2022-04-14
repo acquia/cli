@@ -86,7 +86,10 @@ services:
   Acquia\Cli\Command\Api\ApiCommandFactory: ~
   Acquia\Cli\Command\Api\ApiBaseCommand:
     class: Acquia\Cli\Command\Api\ApiBaseCommand
-    factory: '@Acquia\Cli\Command\Api\ApiCommandFactory'
+    factory: ['@Acquia\Cli\Command\Api\ApiCommandFactory', 'createCommand']
+  Acquia\Cli\Command\Api\ApiListCommandBase:
+    class: Acquia\Cli\Command\Api\ApiListCommandBase
+    factory: [ '@Acquia\Cli\Command\Api\ApiCommandFactory', 'createListCommand' ]
   AcquiaCloudApi\Connector\Client: ~
   Acquia\Cli\ClientServiceInterface:
       alias: Acquia\Cli\CloudApi\ClientService
@@ -120,7 +123,7 @@ services:
   Acquia\Cli\Command\Acsf\AcsfCommandFactory: ~
   Acquia\Cli\Command\Acsf\AcsfApiBaseCommand:
     class: Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
-    factory: '@Acquia\Cli\Command\Acsf\AcsfCommandFactory'
+    factory: ['@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createCommand']
 
   # Symfony services.
   Acquia\Cli\Application: ~
