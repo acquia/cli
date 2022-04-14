@@ -2,12 +2,13 @@
 
 namespace Acquia\Cli\CloudApi;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * @package Acquia\Cli\Helpers
  */
-class CloudCredentials {
+class CloudCredentials implements ApiCredentialsInterface {
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore

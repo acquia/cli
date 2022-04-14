@@ -3,8 +3,7 @@
 namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
-use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\CloudCredentials;
+use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -23,11 +22,11 @@ class AcsfCommandFactory {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
+   * @param \Acquia\Cli\AcsfApi\AcsfCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
-   * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
+   * @param \Acquia\Cli\AcsfApi\AcsfClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
@@ -40,7 +39,7 @@ class AcsfCommandFactory {
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
-    CloudCredentials $cloudCredentials,
+    AcsfCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,

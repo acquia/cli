@@ -69,6 +69,9 @@ services:
     arguments:
       $path: '%app.acli_config_filepath%'
 
+  Acquia\Cli\ApiCredentialsInterface:
+    alias: Acquia\Cli\CloudApi\CloudCredentials
+
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
     arguments:
@@ -87,6 +90,8 @@ services:
   AcquiaCloudApi\Connector\Client: ~
   Acquia\Cli\ClientServiceInterface:
       alias: Acquia\Cli\CloudApi\ClientService
+  Acquia\Cli\ConnectorFactoryInterface:
+    alias: Acquia\Cli\CloudApi\ConnectorFactory
   Acquia\Cli\CloudApi\ConnectorFactory:
     arguments:
       $config:

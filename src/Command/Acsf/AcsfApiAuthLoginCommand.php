@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Acsf;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 
 /**
  * Class AcsfLoginCommand.
@@ -40,31 +41,49 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if ($this->acsfClientService->isMachineAuthenticated($this->datastoreCloud)) {
-      $answer = $this->io->confirm('Your machine has already been authenticated with Site Factory API, would you like to re-authenticate?');
-      if (!$answer) {
-        return 0;
-      }
+    if ($input->getOption('factory-url')) {
+      $factory_url = $input->getOption('factory-url');
     }
-
-    // If keys already are saved locally, prompt to select.
-    if ($input->isInteractive() && $keys = $this->datastoreCloud->get('acsf_keys')) {
-      $keys['create_new'] = [
-        'username' => 'Enter a new API key',
+    elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_keys')) {
+      $factories = $this->datastoreCloud->get('acsf_keys');
+      $factory_choices = $factories;
+      $factory_choices['add_new'] = [
+        'url' => 'Enter a new factory URL',
       ];
-      $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'username', 'username', 'Choose which API key to use');
-      if ($selected_key['uuid'] !== 'create_new') {
-        $this->datastoreCloud->set('acsf_key', $selected_key['uuid']);
-        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info> for URL");
+      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Please choose a Factory to login to');
+      if ($factory['url'] === 'Enter a new factory URL') {
+        $factory_url = $this->io->ask('Enter the full URL of the factory');
+        $factory = [
+          'url' => $factory_url,
+          'users' => [],
+        ];
+      }
+      else {
+        $factory_url = $factory['url'];
+      }
+
+      $users = $factory['users'];
+      $users['add_new'] = [
+        'username' => 'Enter a new user',
+      ];
+      $selected_user = $this->promptChooseFromObjectsOrArrays($users, 'username', 'username', 'Choose which user to login as');
+      if ($selected_user['username'] !== 'Enter a new user') {
+        $this->datastoreCloud->set('acsf_factory', $factory_url);
+        $factories[$factory_url]['active_user'] = $selected_user['username'];
+        $this->datastoreCloud->set('acsf_keys', $factories);
+        $output->writeln([
+          "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selected_user['username']}</></info>",
+        ]);
         return 0;
       }
     }
+    else {
+      $factory_url = $this->askForOptionValue($input, 'factory-url');
+    }
 
-    $this->askForOptionValue($input, 'factory-url');
     $this->askForOptionValue($input, 'username');
     $this->askForOptionValue($input, 'password', TRUE);
 
-    $factory_url = $input->getOption('factory-url');
     $username = $input->getOption('username');
     $password = $input->getOption('password');
     $this->writeAcsfCredentialsToDisk($factory_url, $username, $password);
@@ -85,9 +104,34 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       'username' => $username,
       'password' => $password,
     ];
+    $keys[$factory_url]['url'] = $factory_url;
     $keys[$factory_url]['active_user'] = $username;
     $this->datastoreCloud->set('acsf_keys', $keys);
     $this->datastoreCloud->set('acsf_factory', $factory_url);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param string $option_name
+   * @param bool $hidden
+   *
+   * @return mixed|null
+   */
+  protected function askForOptionValue(InputInterface $input, string $option_name, $hidden = FALSE) {
+    if (!$input->getOption($option_name)) {
+      $option = $this->getDefinition()->getOption($option_name);
+      $this->io->note([
+        "Please a value for $option_name",
+        $option->getDescription(),
+      ]);
+      $question = new Question("Please enter a value for $option_name", $option->getDefault());
+      $question->setMaxAttempts(NULL);
+      $question->setHidden($hidden);
+      $answer = $this->io->askQuestion($question);
+      $input->setOption($option_name, $answer);
+      return $answer;
+    }
+    return NULL;
   }
 
 }

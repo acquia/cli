@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
@@ -178,7 +179,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param LocalMachineHelper $localMachineHelper
    * @param JsonFileStore $datastoreCloud
    * @param YamlStore $datastoreAcli
-   * @param CloudCredentials $cloudCredentials
+   * @param ApiCredentialsInterface $cloudCredentials
    * @param TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
@@ -193,7 +194,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
-    CloudCredentials $cloudCredentials,
+    ApiCredentialsInterface $cloudCredentials,
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,

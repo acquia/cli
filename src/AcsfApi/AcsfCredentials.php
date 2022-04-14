@@ -2,12 +2,13 @@
 
 namespace Acquia\Cli\AcsfApi;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * @package Acquia\Cli\Helpers
  */
-class AcsfCredentials {
+class AcsfCredentials implements ApiCredentialsInterface {
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
@@ -45,7 +46,7 @@ class AcsfCredentials {
    *
    * @return mixed|null
    */
-  protected function getFactoryActiveUser($factory) {
+  public function getFactoryActiveUser(array $factory) {
     if (array_key_exists('active_user', $factory)) {
       $active_user = $factory['active_user'];
       if (array_key_exists($active_user, $factory['users'])) {
@@ -59,7 +60,7 @@ class AcsfCredentials {
   /**
    * @return mixed|null
    */
-  protected function getCurrentFactory() {
+  public function getCurrentFactory() {
     if ($factory = $this->datastoreCloud->get('acsf_factory')) {
       if ($acsf_keys = $this->datastoreCloud->get('acsf_keys')) {
         if (array_key_exists($factory, $acsf_keys)) {
