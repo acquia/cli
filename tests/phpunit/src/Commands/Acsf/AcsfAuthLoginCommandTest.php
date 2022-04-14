@@ -58,6 +58,7 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
    * @param $args
    * @param $output_to_assert
    *
+   * @requires OS linux|darwin
    * @throws \Exception
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert): void {
