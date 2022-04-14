@@ -5,17 +5,9 @@ namespace Acquia\Cli\AcsfApi;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client as GuzzleClient;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Webmozart\PathUtil\Path;
 
 /**
- * Factory producing Acquia Cloud Api clients.
- *
- * This class is only necessary as a testing shim, so that we can prophesize
- * client queries. Consumers could otherwise just call
- * Client::factory($connector) directly.
- *
- * @package Acquia\Cli\Helpers
+ * AcsfConnector class.
  */
 class AcsfConnector extends Connector {
 
@@ -42,7 +34,7 @@ class AcsfConnector extends Connector {
    * @inheritdoc
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function sendRequest($verb, $path, $options) {
+  public function sendRequest($verb, $path, $options): \Psr\Http\Message\ResponseInterface {
     return $this->client->request($verb, $path, $options);
   }
 }

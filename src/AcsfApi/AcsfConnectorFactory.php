@@ -3,9 +3,10 @@
 namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\ConnectorFactoryInterface;
-use AcquiaCloudApi\Connector\Connector;
-use League\OAuth2\Client\Token\AccessToken;
 
+/**
+ * AcsfConnectorFactory class.
+ */
 class AcsfConnectorFactory implements ConnectorFactoryInterface {
 
   protected $config;
@@ -22,7 +23,10 @@ class AcsfConnectorFactory implements ConnectorFactoryInterface {
     $this->baseUri = $base_uri;
   }
 
-  public function createConnector() {
+  /**
+   * @return \Acquia\Cli\AcsfApi\AcsfConnector
+   */
+  public function createConnector(): AcsfConnector {
     return new AcsfConnector($this->config, $this->baseUri);
   }
 
