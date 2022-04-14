@@ -72,6 +72,6 @@ $application->setVersion('@package_version@');
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api', $container->get(ApiCommandFactory::class)));
-$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf', $container->get(AcsfCommandFactory::class), ));
+$application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf', $container->get(AcsfCommandFactory::class)));
 $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
 $application->run($input, $output);
