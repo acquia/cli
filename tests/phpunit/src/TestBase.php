@@ -218,7 +218,6 @@ abstract class TestBase extends TestCase {
 
     $this->setIo($input, $output);
 
-    $this->removeMockConfigFiles();
     $this->createMockConfigFiles();
     ClearCacheCommand::clearCaches();
 
@@ -229,7 +228,13 @@ abstract class TestBase extends TestCase {
    * @throws \Exception
    */
   private function getTempDir() {
-    $dir = '/private' . sys_get_temp_dir();
+    $dir = sys_get_temp_dir();
+
+    // /tmp is a symlink to /private/tmp on Mac, which causes inconsistency when
+    // normalizing paths.
+    if (PHP_OS_FAMILY === 'Darwin') {
+      $dir = Path::join('/private', $dir);
+    }
 
     /* If we don't have permission to create a directory, fail, otherwise we will
      * be stuck in an endless loop.
@@ -255,7 +260,7 @@ abstract class TestBase extends TestCase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $this->removeMockConfigFiles();
+    $this->fs->remove($this->fixtureDir);
     // $loop is statically cached by Loop::get() in some tests. To prevent it
     // persisting into other tests we must use Factory::create() to reset it.
     // @phpstan-ignore-next-line
