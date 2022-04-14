@@ -28,7 +28,9 @@ services:
     exclude:
       - ../../src/Kernel.php
       - ../../src/Command/Api/ApiBaseCommand.php
+      - ../../src/Command/Acsf/AcsfApiBaseCommand.php
       - ../../src/Command/Api/ApiListCommandBase.php
+      - ../../src/Command/Acsf/AcsfListCommandBase.php
       - ../../src/DataStore/YamlStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
     public: true
@@ -124,6 +126,9 @@ services:
   Acquia\Cli\Command\Acsf\AcsfApiBaseCommand:
     class: Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
     factory: ['@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createCommand']
+  Acquia\Cli\Command\Acsf\AcsfListCommandBase:
+    class: Acquia\Cli\Command\Acsf\AcsfListCommandBase
+    factory: [ '@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createListCommand' ]
 
   # Symfony services.
   Acquia\Cli\Application: ~

@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command\Api;
+namespace Acquia\Cli\Command\Acsf;
 
+use Acquia\Cli\Command\Api\ApiListCommandBase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

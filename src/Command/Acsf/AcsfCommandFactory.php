@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
-use Acquia\Cli\Command\Api\AcsfListCommand;
-use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -152,7 +150,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   }
 
   /**
-   * @return \Acquia\Cli\Command\Api\AcsfListCommand
+   * @return \Acquia\Cli\Command\Acsf\AcsfListCommand
    */
   public function createListCommand(): AcsfListCommand {
     return new AcsfListCommand(
