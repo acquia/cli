@@ -41,9 +41,9 @@ class ApiCommandFactory implements CommandFactoryInterface {
   private YamlStore $datastoreAcli;
 
   /**
-   * @var \Acquia\Cli\AcsfApi\AcsfCredentials
+   * @var CloudCredentials
    */
-  private AcsfCredentials $cloudCredentials;
+  private CloudCredentials $cloudCredentials;
 
   /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
