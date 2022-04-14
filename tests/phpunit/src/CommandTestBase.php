@@ -479,7 +479,7 @@ abstract class CommandTestBase extends TestBase {
   protected function getApiCommands(): array {
     $api_command_helper = new ApiCommandHelper($this->logger);
     $command_factory = $this->getCommandFactory();
-    return $api_command_helper->getApiCommands(__DIR__ . '/../../../../../assets/acquia-spec.yaml', 'api', $command_factory);
+    return $api_command_helper->getApiCommands(__DIR__ . '/../../../assets/acquia-spec.yaml', 'api', $command_factory);
   }
 
 }
