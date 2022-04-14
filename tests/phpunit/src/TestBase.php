@@ -196,11 +196,12 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
+    $this->fixtureDir = $this->tempdir();
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->sshDir = sys_get_temp_dir();
+    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
+    $this->sshDir = $this->tempdir();
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
@@ -222,6 +223,42 @@ abstract class TestBase extends TestCase {
     ClearCacheCommand::clearCaches();
 
     parent::setUp();
+  }
+
+  function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $maxAttempts = 1000) {
+    /* Use the system temp dir by default. */
+    if (is_null($dir)) {
+      $dir = sys_get_temp_dir();
+    }
+
+    /* Trim trailing slashes from $dir. */
+    $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+
+    /* If we don't have permission to create a directory, fail, otherwise we will
+     * be stuck in an endless loop.
+     */
+    if (!is_dir($dir) || !is_writable($dir)) {
+      return FALSE;
+    }
+
+    /* Make sure characters in prefix are safe. */
+    if (strpbrk($prefix, '\\/:*?"<>|') !== FALSE) {
+      return FALSE;
+    }
+
+    /* Attempt to create a random directory until it works. Abort if we reach
+     * $maxAttempts. Something screwy could be happening with the filesystem
+     * and our loop could otherwise become endless.
+     */
+    $attempts = 0;
+    do {
+      $path = sprintf('%s%s%s%s', $dir, DIRECTORY_SEPARATOR, $prefix, mt_rand(100000, mt_getrandmax()));
+    } while (
+      !mkdir($path, $mode) &&
+      $attempts++ < $maxAttempts
+    );
+
+    return $path;
   }
 
   protected function tearDown(): void {
