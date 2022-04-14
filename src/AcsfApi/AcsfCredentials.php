@@ -31,10 +31,42 @@ class AcsfCredentials {
       return getenv('ACSF_KEY');
     }
 
-    if ($this->datastoreCloud->get('acsf_key')) {
-      return $this->datastoreCloud->get('acsf_key');
+    if ($current_factory = $this->getCurrentFactory()) {
+      if ($active_user = $this->getFactoryActiveUser($current_factory)) {
+        return $active_user['username'];
+      }
     }
 
+    return NULL;
+  }
+
+  /**
+   * @param array $factory
+   *
+   * @return mixed|null
+   */
+  protected function getFactoryActiveUser($factory) {
+    if (array_key_exists('active_user', $factory)) {
+      $active_user = $factory['active_user'];
+      if (array_key_exists($active_user, $factory['users'])) {
+        return $factory['users'][$active_user];
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * @return mixed|null
+   */
+  protected function getCurrentFactory() {
+    if ($factory = $this->datastoreCloud->get('acsf_factory')) {
+      if ($acsf_keys = $this->datastoreCloud->get('acsf_keys')) {
+        if (array_key_exists($factory, $acsf_keys)) {
+          return $acsf_keys[$factory];
+        }
+      }
+    }
     return NULL;
   }
 
@@ -46,11 +78,9 @@ class AcsfCredentials {
       return getenv('ACSF_SECRET');
     }
 
-    $acsf_key = $this->getCloudKey();
-    if ($this->datastoreCloud->get('acsf_keys')) {
-      $keys = $this->datastoreCloud->get('acsf_keys');
-      if (is_array($keys) && array_key_exists($acsf_key, $keys)) {
-        return $this->datastoreCloud->get('acsf_keys')[$acsf_key]['secret'];
+    if ($current_factory = $this->getCurrentFactory()) {
+      if ($active_user = $this->getFactoryActiveUser($current_factory)) {
+        return $active_user['password'];
       }
     }
 
@@ -64,6 +94,10 @@ class AcsfCredentials {
     if (getenv('ACSF_API_BASE_URI')) {
       return getenv('ACSF_API_BASE_URI');
     }
+    if ($factory = $this->datastoreCloud->get('acsf_factory')) {
+      return $factory;
+    }
+
     return NULL;
   }
 

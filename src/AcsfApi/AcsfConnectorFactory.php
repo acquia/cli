@@ -2,10 +2,11 @@
 
 namespace Acquia\Cli\AcsfApi;
 
+use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Connector;
 use League\OAuth2\Client\Token\AccessToken;
 
-class AcsfConnectorFactory {
+class AcsfConnectorFactory implements ConnectorFactoryInterface {
 
   protected $config;
   protected $baseUri;
@@ -21,17 +22,8 @@ class AcsfConnectorFactory {
     $this->baseUri = $base_uri;
   }
 
-  /**
-   * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
-   */
   public function createConnector() {
-    // A defined key & secret takes priority.
-    if ($this->config['key'] && $this->config['secret']) {
-      return new Connector($this->config, $this->baseUri);
-    }
-
-    // Fall back to an unauthenticated request.
-    return new Connector($this->config, $this->baseUri);
+    return new AcsfConnector($this->config, $this->baseUri);
   }
 
 }

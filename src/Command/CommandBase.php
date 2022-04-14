@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
@@ -196,7 +197,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,
-    ClientService $cloudApiClientService,
+    ClientServiceInterface $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
