@@ -44,8 +44,8 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     if ($input->getOption('factory-url')) {
       $factory_url = $input->getOption('factory-url');
     }
-    elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_keys')) {
-      $factories = $this->datastoreCloud->get('acsf_keys');
+    elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
+      $factories = $this->datastoreCloud->get('acsf_factories');
       $factory_choices = $factories;
       $factory_choices['add_new'] = [
         'url' => 'Enter a new factory URL',
@@ -68,9 +68,9 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       ];
       $selected_user = $this->promptChooseFromObjectsOrArrays($users, 'username', 'username', 'Choose which user to login as');
       if ($selected_user['username'] !== 'Enter a new user') {
-        $this->datastoreCloud->set('acsf_factory', $factory_url);
+        $this->datastoreCloud->set('acsf_active_factory', $factory_url);
         $factories[$factory_url]['active_user'] = $selected_user['username'];
-        $this->datastoreCloud->set('acsf_keys', $factories);
+        $this->datastoreCloud->set('acsf_factories', $factories);
         $output->writeln([
           "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selected_user['username']}</></info>",
         ]);
@@ -99,15 +99,15 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    *
    */
   protected function writeAcsfCredentialsToDisk($factory_url, string $username, string $password): void {
-    $keys = $this->datastoreCloud->get('acsf_keys');
+    $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
       'username' => $username,
       'password' => $password,
     ];
     $keys[$factory_url]['url'] = $factory_url;
     $keys[$factory_url]['active_user'] = $username;
-    $this->datastoreCloud->set('acsf_keys', $keys);
-    $this->datastoreCloud->set('acsf_factory', $factory_url);
+    $this->datastoreCloud->set('acsf_factories', $keys);
+    $this->datastoreCloud->set('acsf_active_factory', $factory_url);
   }
 
   /**

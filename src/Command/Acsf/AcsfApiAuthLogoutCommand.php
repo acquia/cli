@@ -42,7 +42,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       $this->io->error(['You are not logged into any factories.']);
       return 1;
     }
-    $factories = $this->datastoreCloud->get('acsf_keys');
+    $factories = $this->datastoreCloud->get('acsf_factories');
     $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
     $factory_url = $factory['url'];
 
@@ -59,8 +59,8 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       return 0;
     }
     $factories[$factory_url]['active_user'] = NULL;
-    $this->datastoreCloud->set('acsf_keys', $factories);
-    $this->datastoreCloud->remove('acsf_factory');
+    $this->datastoreCloud->set('acsf_factories', $factories);
+    $this->datastoreCloud->remove('acsf_active_factory');
 
     $output->writeln("Logged {$active_user['username']} out of $factory_url in <options=bold>{$this->cloudConfigFilepath}</></info>");
 

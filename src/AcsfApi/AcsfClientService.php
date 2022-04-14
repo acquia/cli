@@ -45,8 +45,8 @@ class AcsfClientService extends ClientService {
       return $this->machineIsAuthenticated;
     }
 
-    $factory = $cloud_datastore->get('acsf_factory');
-    $keys = $cloud_datastore->get('acsf_keys');
+    $factory = $cloud_datastore->get('acsf_active_factory');
+    $keys = $cloud_datastore->get('acsf_factories');
     if ($factory && $keys && array_key_exists($factory, $keys)) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
