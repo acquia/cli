@@ -4,6 +4,7 @@ namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\ConnectorFactory;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -19,6 +20,14 @@ use Webmozart\KeyValueStore\JsonFileStore;
  * @package Acquia\Cli\Helpers
  */
 class AcsfClientService extends ClientService {
+
+  /**
+   * @param \Acquia\Cli\AcsfApi\AcsfConnectorFactory $connector_factory
+   * @param \Acquia\Cli\Application $application
+   */
+  public function __construct(AcsfConnectorFactory $connector_factory, Application $application) {
+    parent::__construct($connector_factory, $application);
+  }
 
   /**
    * @return \AcquiaCloudApi\Connector\Client
@@ -45,9 +54,9 @@ class AcsfClientService extends ClientService {
       return $this->machineIsAuthenticated;
     }
 
-    $acsf_key = $cloud_datastore->get('acsf_key');
+    $factory = $cloud_datastore->get('acsf_factory');
     $keys = $cloud_datastore->get('acsf_keys');
-    if ($acsf_key && $keys && array_key_exists($acsf_key, $keys)) {
+    if ($factory && $keys && array_key_exists($factory, $keys)) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class AcsfLoginCommand.
  */
-class AcsfAuthLoginCommand extends AcsfBaseCommand {
+class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
   protected static $defaultName = 'acsf:auth:login';
 
@@ -81,7 +81,7 @@ class AcsfAuthLoginCommand extends AcsfBaseCommand {
    */
   protected function writeAcsfCredentialsToDisk($factory_url, string $username, string $password): void {
     $keys = $this->datastoreCloud->get('acsf_keys');
-    $keys[$factory_url]['users'] = [
+    $keys[$factory_url]['users'][$username] = [
       'username' => $username,
       'password' => $password,
     ];

@@ -4,6 +4,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\ClientServiceInterface;
+use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -33,7 +34,7 @@ class ClientService implements ClientServiceInterface {
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
    */
-  public function __construct(ConnectorFactory $connector_factory, Application $application) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);

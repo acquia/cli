@@ -5,7 +5,8 @@ namespace Acquia\Cli\AcsfApi;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client as GuzzleClient;
-use League\OAuth2\Client\Provider\GenericProvider;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Webmozart\PathUtil\Path;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -28,16 +29,20 @@ class AcsfConnector extends Connector {
       $this->baseUri = $base_uri;
     }
 
-    $this->provider = new GenericProvider(
-      [
-        'clientId'                => $config['key'],
-        'clientSecret'            => $config['secret'],
-        'urlAuthorize'            => '',
-        'urlAccessToken'          => self::URL_ACCESS_TOKEN,
-        'urlResourceOwnerDetails' => '',
-      ]
-    );
+    $this->client = new GuzzleClient([
+      'base_uri' => $this->baseUri,
+      'auth' => [
+        $config['key'],
+        $config['secret'],
+      ],
+    ]);
+  }
 
-    $this->client = new GuzzleClient();
+  /**
+   * @inheritdoc
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   */
+  public function sendRequest($verb, $path, $options) {
+    return $this->client->request($verb, $path, $options);
   }
 }

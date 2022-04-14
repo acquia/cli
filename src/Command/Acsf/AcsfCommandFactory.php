@@ -33,7 +33,7 @@ class AcsfCommandFactory {
    * @param string $sshDir
    * @param \Psr\Log\LoggerInterface $logger
    *
-   * @return \Acquia\Cli\Command\Acsf\AcsfBaseCommand
+   * @return \Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
    */
   public function __invoke(
     string $cloudConfigFilepath,
@@ -44,10 +44,13 @@ class AcsfCommandFactory {
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,
-    AcsfClientService $acsfClientService,
+    AcsfClientService $cloudApiClientService,
+    LogstreamManager $logstreamManager,
+    SshHelper $sshHelper,
+    string $sshDir,
     LoggerInterface $logger
-  ): AcsfBaseCommand {
-    return new AcsfBaseCommand(
+  ): AcsfApiBaseCommand {
+    return new AcsfApiBaseCommand(
       $cloudConfigFilepath,
       $localMachineHelper,
       $datastoreCloud,
@@ -56,7 +59,10 @@ class AcsfCommandFactory {
       $telemetryHelper,
       $acliConfigFilepath,
       $repoRoot,
-      $acsfClientService,
+      $cloudApiClientService,
+      $logstreamManager,
+      $sshHelper,
+      $sshDir,
       $logger
     );
   }
