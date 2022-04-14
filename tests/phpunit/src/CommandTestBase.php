@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Api\ApiCommandFactory;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -448,6 +450,36 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper->getFinder()->willReturn($finder);
 
     return $file_name;
+  }
+
+  /**
+   * @return \Acquia\Cli\Command\Api\ApiCommandFactory
+   */
+  protected function getCommandFactory(): ApiCommandFactory {
+    return new ApiCommandFactory($this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliConfigFilename,
+      $this->projectFixtureDir,
+      $this->clientServiceProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
+    );
+  }
+
+  /**
+   * @return array
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getApiCommands(): array {
+    $api_command_helper = new ApiCommandHelper($this->logger);
+    $command_factory = $this->getCommandFactory();
+    return $api_command_helper->getApiCommands(__DIR__ . '/../../../../../assets/acquia-spec.yaml', 'api', $command_factory);
   }
 
 }
