@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\AcsfApi\AcsfClientService;
+use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CommandFactoryInterface;
@@ -19,6 +21,71 @@ use Webmozart\KeyValueStore\JsonFileStore;
 class ApiCommandFactory implements CommandFactoryInterface {
 
   /**
+   * @var string
+   */
+  private string $cloudConfigFilepath;
+
+  /**
+   * @var \Acquia\Cli\Helpers\LocalMachineHelper
+   */
+  private LocalMachineHelper $localMachineHelper;
+
+  /**
+   * @var \Webmozart\KeyValueStore\JsonFileStore
+   */
+  private JsonFileStore $datastoreCloud;
+
+  /**
+   * @var \Acquia\Cli\DataStore\YamlStore
+   */
+  private YamlStore $datastoreAcli;
+
+  /**
+   * @var \Acquia\Cli\AcsfApi\AcsfCredentials
+   */
+  private AcsfCredentials $cloudCredentials;
+
+  /**
+   * @var \Acquia\Cli\Helpers\TelemetryHelper
+   */
+  private TelemetryHelper $telemetryHelper;
+
+  /**
+   * @var string
+   */
+  private string $repoRoot;
+
+  /**
+   * @var string
+   */
+  private string $acliConfigFilepath;
+
+  /**
+   * @var \Acquia\Cli\AcsfApi\AcsfClientService
+   */
+  private AcsfClientService $cloudApiClientService;
+
+  /**
+   * @var \AcquiaLogstream\LogstreamManager
+   */
+  private LogstreamManager $logstreamManager;
+
+  /**
+   * @var \Acquia\Cli\Helpers\SshHelper
+   */
+  private SshHelper $sshHelper;
+
+  /**
+   * @var string
+   */
+  private string $sshDir;
+
+  /**
+   * @var \Psr\Log\LoggerInterface
+   */
+  private LoggerInterface $logger;
+
+  /**
    * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
    * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
@@ -32,8 +99,6 @@ class ApiCommandFactory implements CommandFactoryInterface {
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
    * @param \Psr\Log\LoggerInterface $logger
-   *
-   * @return ApiBaseCommand
    */
   public function __construct(
     string $cloudConfigFilepath,
@@ -65,7 +130,10 @@ class ApiCommandFactory implements CommandFactoryInterface {
     $this->logger = $logger;
   }
 
-  public function createCommand() {
+  /**
+   * @return \Acquia\Cli\Command\Api\ApiBaseCommand
+   */
+  public function createCommand(): ApiBaseCommand {
     return new ApiBaseCommand(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
@@ -83,7 +151,10 @@ class ApiCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  public function createListCommand() {
+  /**
+   * @return \Acquia\Cli\Command\Api\ApiListCommand
+   */
+  public function createListCommand(): ApiListCommand {
     return new ApiListCommand(
       $this->cloudConfigFilepath,
       $this->localMachineHelper,
