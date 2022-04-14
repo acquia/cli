@@ -28,27 +28,27 @@ class ApiCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
-  private LocalMachineHelper $localMachineHelper;
+  private $localMachineHelper;
 
   /**
    * @var \Webmozart\KeyValueStore\JsonFileStore
    */
-  private JsonFileStore $datastoreCloud;
+  private $datastoreCloud;
 
   /**
    * @var \Acquia\Cli\DataStore\YamlStore
    */
-  private YamlStore $datastoreAcli;
+  private $datastoreAcli;
 
   /**
    * @var CloudCredentials
    */
-  private CloudCredentials $cloudCredentials;
+  private $cloudCredentials;
 
   /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
    */
-  private TelemetryHelper $telemetryHelper;
+  private $telemetryHelper;
 
   /**
    * @var string
@@ -63,17 +63,17 @@ class ApiCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Acquia\Cli\AcsfApi\AcsfClientService
    */
-  private AcsfClientService $cloudApiClientService;
+  private $cloudApiClientService;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
    */
-  private LogstreamManager $logstreamManager;
+  private $logstreamManager;
 
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
-  private SshHelper $sshHelper;
+  private $sshHelper;
 
   /**
    * @var string
@@ -83,7 +83,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Psr\Log\LoggerInterface
    */
-  private LoggerInterface $logger;
+  private $logger;
 
   /**
    * @param string $cloudConfigFilepath
