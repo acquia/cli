@@ -16,15 +16,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
  * @property AcsfAuthLogoutCommandTest $command
  * @package Acquia\Cli\Tests
  */
-class AcsfAuthLogoutCommandTest extends CommandTestBase {
-
-  private $acsfCurrentFactoryUrl = 'https://www.test.com';
-
-  private $acsfActiveUser = 'tester';
-
-  private $acsfUsername = 'tester';
-
-  private $acsfPassword = 'h@x0r';
+class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
 
   /**
    * {@inheritdoc}
@@ -56,21 +48,7 @@ class AcsfAuthLogoutCommandTest extends CommandTestBase {
           0,
         ],
         // $config.
-        [
-          'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
-          'acsf_factories' => [
-            $this->acsfCurrentFactoryUrl => [
-              'url' => $this->acsfCurrentFactoryUrl,
-              'active_user' => $this->acsfActiveUser,
-              'users' => [
-                $this->acsfUsername => [
-                  'username' => $this->acsfUsername,
-                  'password' => $this->acsfPassword,
-                ],
-              ],
-            ],
-          ]
-        ]
+        $this->getAcsfCredentialsFileContents(),
       ]
     ];
   }

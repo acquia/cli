@@ -1211,7 +1211,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
     // Running on API commands would corrupt JSON output.
-    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE) {
+    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE
+      || strpos($this->input->getArgument('command'), 'acsf:') !== FALSE) {
       return FALSE;
     }
     // Bail for development builds.

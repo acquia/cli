@@ -117,7 +117,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    *
    * @return mixed|null
    */
-  protected function askForOptionValue(InputInterface $input, string $option_name, $hidden = FALSE) {
+  protected function askForOptionValue(InputInterface $input, string $option_name, bool $hidden) {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);
       $this->io->note([

@@ -388,21 +388,4 @@ class ApiCommandTest extends CommandTestBase {
     $this->fs->remove($blt_config_file_path);
   }
 
-  /**
-   * @param string $name
-   *
-   * @return \Acquia\Cli\Command\Api\ApiBaseCommand|null
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  protected function getApiCommandByName(string $name): ?ApiBaseCommand {
-    $api_commands = $this->getApiCommands();
-    foreach ($api_commands as $api_command) {
-      if ($api_command->getName() === $name) {
-        return $api_command;
-      }
-    }
-
-    return NULL;
-  }
-
 }
