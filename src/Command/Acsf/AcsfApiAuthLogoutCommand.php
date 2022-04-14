@@ -38,6 +38,10 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
+    if (!$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
+      $this->io->error(['You are not logged into any factories.']);
+      return 1;
+    }
     $factories = $this->datastoreCloud->get('acsf_keys');
     $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
     $factory_url = $factory['url'];
@@ -50,7 +54,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       $this->io->error("You're already logged out of $factory_url");
       return 1;
     }
-    $answer = $this->io->confirm("Are you sure you'd like to logout the user $active_user from $factory_url?");
+    $answer = $this->io->confirm("Are you sure you'd like to logout the user {$active_user['username']} from $factory_url?");
     if (!$answer) {
       return 0;
     }
@@ -58,7 +62,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     $this->datastoreCloud->set('acsf_keys', $factories);
     $this->datastoreCloud->remove('acsf_factory');
 
-    $output->writeln("Logged $active_user out of $factory_url in <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("Logged {$active_user['username']} out of $factory_url in <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }
