@@ -4,6 +4,8 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
+use Acquia\Cli\Command\Api\AcsfListCommand;
+use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -149,8 +151,25 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  public function createListCommand() {
-    // TODO: Implement createListCommand() method.
+  /**
+   * @return \Acquia\Cli\Command\Api\AcsfListCommand
+   */
+  public function createListCommand(): AcsfListCommand {
+    return new AcsfListCommand(
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliConfigFilepath,
+      $this->repoRoot,
+      $this->cloudApiClientService,
+      $this->logstreamManager,
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
+    );
   }
 
 }
