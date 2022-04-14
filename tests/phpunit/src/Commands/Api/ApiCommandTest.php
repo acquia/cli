@@ -397,22 +397,7 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommandByName(string $name): ?ApiBaseCommand {
-    $api_command_helper = new ApiCommandHelper($this->logger);
-    $command_factory = new ApiCommandFactory($this->cloudConfigFilepath,
-      $this->localMachineHelper,
-      $this->datastoreCloud,
-      $this->datastoreAcli,
-      $this->cloudCredentials,
-      $this->telemetryHelper,
-      $this->acliConfigFilename,
-      $this->projectFixtureDir,
-      $this->clientServiceProphecy->reveal(),
-      $this->logStreamManagerProphecy->reveal(),
-      $this->sshHelper,
-      $this->sshDir,
-      $this->logger
-    );
-    $api_commands = $api_command_helper->getApiCommands(__DIR__ . '/../../../../../assets/acquia-spec.yaml', 'api', $command_factory);
+    $api_commands = $this->getApiCommands();
     foreach ($api_commands as $api_command) {
       if ($api_command->getName() === $name) {
         return $api_command;
