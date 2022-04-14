@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\Api;
 
-use Acquia\Cli\Command\Api\ApiCommandBase;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -15,7 +15,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Class ApiCommandTest.
  *
- * @property ApiCommandBase $command
+ * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
  * @package Acquia\Cli\Tests\Api
  */
 class ApiCommandTest extends CommandTestBase {
@@ -30,7 +30,7 @@ class ApiCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(ApiCommandBase::class);
+    return $this->injectCommand(ApiBaseCommand::class);
   }
 
   public function testArgumentsInteraction() {
