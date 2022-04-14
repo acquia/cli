@@ -196,12 +196,12 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->fixtureDir = $this->tempdir();
+    $this->fixtureDir = $this->getTempDir();
+    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
-    $this->sshDir = $this->tempdir();
+    $this->sshDir = $this->getTempDir();
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
@@ -225,24 +225,16 @@ abstract class TestBase extends TestCase {
     parent::setUp();
   }
 
-  function tempdir($dir = NULL, $prefix = 'tmp_', $mode = 0700, $maxAttempts = 1000) {
-    /* Use the system temp dir by default. */
-    if (is_null($dir)) {
-      $dir = sys_get_temp_dir();
-    }
-
-    /* Trim trailing slashes from $dir. */
-    $dir = rtrim($dir, DIRECTORY_SEPARATOR);
+  /**
+   * @throws \Exception
+   */
+  private function getTempDir() {
+    $dir = '/private' . sys_get_temp_dir();
 
     /* If we don't have permission to create a directory, fail, otherwise we will
      * be stuck in an endless loop.
      */
     if (!is_dir($dir) || !is_writable($dir)) {
-      return FALSE;
-    }
-
-    /* Make sure characters in prefix are safe. */
-    if (strpbrk($prefix, '\\/:*?"<>|') !== FALSE) {
       return FALSE;
     }
 
@@ -252,10 +244,10 @@ abstract class TestBase extends TestCase {
      */
     $attempts = 0;
     do {
-      $path = sprintf('%s%s%s%s', $dir, DIRECTORY_SEPARATOR, $prefix, mt_rand(100000, mt_getrandmax()));
+      $path = sprintf('%s%s%s%s', $dir, DIRECTORY_SEPARATOR, 'tmp_', random_int(100000, mt_getrandmax()));
     } while (
-      !mkdir($path, $mode) &&
-      $attempts++ < $maxAttempts
+      !mkdir($path, 0700) &&
+      $attempts++ < 10
     );
 
     return $path;
@@ -455,10 +447,7 @@ abstract class TestBase extends TestCase {
    * @return string
    */
   protected function createLocalSshKey($contents): string {
-    $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
-    $this->fs->remove($finder->files());
-    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($private_key_filepath);
     $public_key_filepath = $private_key_filepath . '.pub';
     $this->fs->dumpFile($public_key_filepath, $contents);

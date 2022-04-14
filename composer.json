@@ -51,6 +51,7 @@
     },
     "require-dev": {
         "acquia/coding-standards": "*",
+        "brianium/paratest": "^6.4",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "overtrue/phplint": "^3.0",
         "php-coveralls/php-coveralls": "^2.2",
@@ -175,7 +176,8 @@
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
-        "unit": "phpunit tests/phpunit -vvv",
+        "unit": "paratest",
+        "coverage": "paratest --coverage-xml=build/logs",
         "lint": "phplint",
         "test": [
             "@lint",
