@@ -235,11 +235,11 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param array $param_spec
-   * @param string $value
+   * @param string|array $value
    *
    * @return bool|int|string
    */
-  protected function castParamType(array $param_spec, string $value) {
+  protected function castParamType(array $param_spec, $value) {
     $type = $this->getParamType($param_spec);
     if (!$type) {
       return $value;
