@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
+use Acquia\Cli\Command\Api\ApiCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -390,14 +391,14 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param $name
+   * @param string $name
    *
-   * @return \Acquia\Cli\Command\Api\ApiCommandBase|null
+   * @return \Acquia\Cli\Command\Api\ApiBaseCommand|null
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getApiCommandByName($name): ?ApiCommandBase {
-    $api_command_helper = new ApiCommandHelper(
-      $this->cloudConfigFilepath,
+  protected function getApiCommandByName(string $name): ?ApiBaseCommand {
+    $api_command_helper = new ApiCommandHelper($this->logger);
+    $command_factory = new ApiCommandFactory($this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
@@ -411,7 +412,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->sshDir,
       $this->logger
     );
-    $api_commands = $api_command_helper->getApiCommands();
+    $api_commands = $api_command_helper->getApiCommands(__DIR__ . '/../../../../../assets/acquia-spec.yaml', 'api', $command_factory);
     foreach ($api_commands as $api_command) {
       if ($api_command->getName() === $name) {
         return $api_command;

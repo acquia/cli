@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
+use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -15,7 +16,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
 /**
  * Class ApiCommandFactory.
  */
-class ApiCommandFactory {
+class ApiCommandFactory implements CommandFactoryInterface {
 
   /**
    * @param string $cloudConfigFilepath
@@ -34,7 +35,7 @@ class ApiCommandFactory {
    *
    * @return ApiBaseCommand
    */
-  public function __invoke(
+  public function __construct(
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
@@ -48,21 +49,56 @@ class ApiCommandFactory {
     SshHelper $sshHelper,
     string $sshDir,
     LoggerInterface $logger
-  ): ApiBaseCommand {
+  ) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
+    $this->localMachineHelper = $localMachineHelper;
+    $this->datastoreCloud = $datastoreCloud;
+    $this->datastoreAcli = $datastoreAcli;
+    $this->cloudCredentials = $cloudCredentials;
+    $this->telemetryHelper = $telemetryHelper;
+    $this->acliConfigFilepath = $acliConfigFilepath;
+    $this->repoRoot = $repoRoot;
+    $this->cloudApiClientService = $cloudApiClientService;
+    $this->logstreamManager = $logstreamManager;
+    $this->sshHelper = $sshHelper;
+    $this->sshDir = $sshDir;
+    $this->logger = $logger;
+  }
+
+  public function createCommand() {
     return new ApiBaseCommand(
-      $cloudConfigFilepath,
-      $localMachineHelper,
-      $datastoreCloud,
-      $datastoreAcli,
-      $cloudCredentials,
-      $telemetryHelper,
-      $acliConfigFilepath,
-      $repoRoot,
-      $cloudApiClientService,
-      $logstreamManager,
-      $sshHelper,
-      $sshDir,
-      $logger
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliConfigFilepath,
+      $this->repoRoot,
+      $this->cloudApiClientService,
+      $this->logstreamManager,
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
     );
   }
+
+  public function createListCommand() {
+    return new ApiListCommand(
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliConfigFilepath,
+      $this->repoRoot,
+      $this->cloudApiClientService,
+      $this->logstreamManager,
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
+    );
+  }
+
 }

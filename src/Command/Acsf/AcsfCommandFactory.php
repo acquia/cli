@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
+use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -15,7 +16,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
 /**
  * Class ApiCommandFactory.
  */
-class AcsfCommandFactory {
+class AcsfCommandFactory implements CommandFactoryInterface {
 
   /**
    * @param string $cloudConfigFilepath
@@ -31,10 +32,8 @@ class AcsfCommandFactory {
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
    * @param \Psr\Log\LoggerInterface $logger
-   *
-   * @return \Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
    */
-  public function __invoke(
+  public function __construct(
     string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
@@ -48,21 +47,45 @@ class AcsfCommandFactory {
     SshHelper $sshHelper,
     string $sshDir,
     LoggerInterface $logger
-  ): AcsfApiBaseCommand {
+  ) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
+    $this->localMachineHelper = $localMachineHelper;
+    $this->datastoreCloud = $datastoreCloud;
+    $this->datastoreAcli = $datastoreAcli;
+    $this->cloudCredentials = $cloudCredentials;
+    $this->telemetryHelper = $telemetryHelper;
+    $this->acliConfigFilepath = $acliConfigFilepath;
+    $this->repoRoot = $repoRoot;
+    $this->cloudApiClientService = $cloudApiClientService;
+    $this->logstreamManager = $logstreamManager;
+    $this->sshHelper = $sshHelper;
+    $this->sshDir = $sshDir;
+    $this->logger = $logger;
+  }
+
+  /**
+   * @return \Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
+   */
+  public function createCommand() {
     return new AcsfApiBaseCommand(
-      $cloudConfigFilepath,
-      $localMachineHelper,
-      $datastoreCloud,
-      $datastoreAcli,
-      $cloudCredentials,
-      $telemetryHelper,
-      $acliConfigFilepath,
-      $repoRoot,
-      $cloudApiClientService,
-      $logstreamManager,
-      $sshHelper,
-      $sshDir,
-      $logger
+      $this->cloudConfigFilepath,
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->acliConfigFilepath,
+      $this->repoRoot,
+      $this->cloudApiClientService,
+      $this->logstreamManager,
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
     );
   }
+
+  public function createListCommand() {
+    // TODO: Implement createListCommand() method.
+  }
+
 }
