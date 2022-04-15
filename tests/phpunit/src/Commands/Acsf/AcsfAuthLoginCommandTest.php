@@ -118,11 +118,10 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
     $this->assertKeySavedCorrectly();
-    if ($machine_is_authenticated) {
-      $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
-      $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
-      $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
-    }
+    $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
+    $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
+    $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+
   }
 
   public function providerTestAuthLoginInvalidInputCommand(): array {
