@@ -138,7 +138,7 @@ abstract class TestBase extends TestCase {
   protected $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\CloudApi\CloudCredentials
+   * @var \Acquia\Cli\ApiCredentialsInterface
    */
   protected $cloudCredentials;
 
