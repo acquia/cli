@@ -436,6 +436,7 @@ class ApiCommandHelper {
         $command->setDescription($schema['summary']);
         $command->setMethod($method);
         $command->setResponses($schema['responses']);
+        $command->setHidden(FALSE);
         if (array_key_exists('servers', $acquia_cloud_spec)) {
           $command->setServers($acquia_cloud_spec['servers']);
         }

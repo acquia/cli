@@ -27,10 +27,6 @@ services:
   Acquia\Cli\:
     exclude:
       - ../../src/Kernel.php
-      - ../../src/Command/Api/ApiBaseCommand.php
-      - ../../src/Command/Acsf/AcsfApiBaseCommand.php
-      - ../../src/Command/Api/ApiListCommandBase.php
-      - ../../src/Command/Acsf/AcsfListCommandBase.php
       - ../../src/DataStore/YamlStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
     public: true
@@ -43,6 +39,8 @@ services:
     exclude:
       - ../../src/Command/CommandBase.php
       - ../../src/Command/Acsf/AcsfCommandBase.php
+      - ../../src/Command/Acsf/AcsfListCommandBase.php
+      - ../../src/Command/Acsf/AcsfApiBaseCommand.php
       - ../../src/Command/Api/ApiBaseCommand.php
       - ../../src/Command/Api/ApiListCommandBase.php
   Acquia\Cli\Command\CommandBase:
