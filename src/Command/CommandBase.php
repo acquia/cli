@@ -1084,7 +1084,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvFromAlias($alias): EnvironmentResponse {
-    $cache = self::getAliasCache();
+    $cache = self::getAliasCache($this->tmpDir);
     $value = $cache->get($alias, function (ItemInterface $item) use ($alias) {
       return $this->doGetEnvFromAlias($alias);
     });
@@ -1125,7 +1125,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApplicationFromAlias($application_alias) {
-    $cache = $this->getAliasCache();
+    $cache = self::getAliasCache($this->tmpDir);
     return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
       return $this->doGetApplicationFromAlias($application_alias);
     });
@@ -1135,8 +1135,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Return the ACLI alias cache.
    * @return FilesystemAdapter
    */
-  public function getAliasCache() {
-    return new FilesystemAdapter('acli_aliases', 0, $this->tmpDir);
+  public static function getAliasCache(string $tmpDir) {
+    return new FilesystemAdapter('acli_aliases', 0, $tmpDir);
   }
 
   /**

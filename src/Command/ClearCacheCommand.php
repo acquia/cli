@@ -29,7 +29,7 @@ class ClearCacheCommand extends CommandBase {
    * @return int
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    self::clearCaches();
+    self::clearCaches($this->tmpDir);
     $output->writeln('Acquia CLI caches were cleared.');
 
     return 0;
@@ -39,7 +39,7 @@ class ClearCacheCommand extends CommandBase {
    * Clear caches.
    */
   public static function clearCaches(string $temp_dir): void {
-    $cache = self::getAliasCache();
+    $cache = self::getAliasCache($temp_dir);
     $cache->clear();
     $system_cache_dir = Path::join($temp_dir, 'symphony-cache');
     $fs = new Filesystem();
