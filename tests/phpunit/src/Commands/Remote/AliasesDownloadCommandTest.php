@@ -49,7 +49,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $alias_version = $inputs[0];
 
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
-    $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
+    $drush_aliases_tarball_fixture_filepath = tempnam($this->tmpDir, 'AcquiaDrushAliases');
     $archive_fixture = new PharData($drush_aliases_tarball_fixture_filepath . '.tar');
     $archive_fixture->buildFromDirectory($drush_aliases_fixture);
     $archive_fixture->compress(Phar::GZ);
@@ -58,8 +58,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->clientProphecy->addQuery('version', $alias_version);
     $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
-    $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
-
+    $drush_aliases_dir = Path::join($this->tmpDir, '.drush');
     if ($alias_version === '9' && !$all) {
       $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
       $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');

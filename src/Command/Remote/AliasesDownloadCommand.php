@@ -94,7 +94,7 @@ class AliasesDownloadCommand extends SshCommand {
    */
   public function getDrushArchiveTempFilepath(): string {
     if (!isset($this->drushArchiveFilepath)) {
-      $this->drushArchiveFilepath = tempnam(sys_get_temp_dir(),
+      $this->drushArchiveFilepath = tempnam($this->tmpDir,
           'AcquiaDrushAliases') . '.tar.gz';
     }
 

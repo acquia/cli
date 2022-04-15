@@ -169,6 +169,8 @@ abstract class TestBase extends TestCase {
    */
   protected $sshDir;
 
+  protected $tmpDir;
+
   /**
    * @var string|\Symfony\Component\Console\Command\Command
    */
@@ -202,6 +204,7 @@ abstract class TestBase extends TestCase {
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->sshDir = $this->getTempDir();
+    $this->tmpDir = $this->getTempDir();
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
@@ -219,7 +222,6 @@ abstract class TestBase extends TestCase {
     $this->setIo($input, $output);
 
     $this->createMockConfigFiles();
-    ClearCacheCommand::clearCaches();
 
     parent::setUp();
   }
@@ -260,7 +262,6 @@ abstract class TestBase extends TestCase {
 
   protected function tearDown(): void {
     parent::tearDown();
-    $this->fs->remove($this->fixtureDir);
     // $loop is statically cached by Loop::get() in some tests. To prevent it
     // persisting into other tests we must use Factory::create() to reset it.
     // @phpstan-ignore-next-line
@@ -370,7 +371,8 @@ abstract class TestBase extends TestCase {
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir,
-      $this->logger
+      $this->logger,
+      $this->tmpDir
     );
   }
 

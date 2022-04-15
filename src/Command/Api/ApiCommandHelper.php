@@ -95,6 +95,8 @@ class ApiCommandHelper {
    */
   protected $sshDir;
 
+  protected $tmpDir;
+
   /**
    * @var ConsoleLogger
    */
@@ -130,7 +132,8 @@ class ApiCommandHelper {
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
-    ConsoleLogger $logger
+    ConsoleLogger $logger,
+    string $tmpDir
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
@@ -145,6 +148,7 @@ class ApiCommandHelper {
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
     $this->logger = $logger;
+    $this->tmpDir = $tmpDir;
   }
 
   /**
@@ -523,7 +527,8 @@ class ApiCommandHelper {
           $this->logstreamManager,
           $this->sshHelper,
           $this->sshDir,
-          $this->logger
+          $this->logger,
+          $this->tmpDir
         );
         $command->setName($command_name);
         $command->setDescription($schema['summary']);
@@ -703,7 +708,8 @@ class ApiCommandHelper {
             $this->logstreamManager,
             $this->sshHelper,
             $this->sshDir,
-            $this->logger
+            $this->logger,
+            $this->tmpDir
         );
         $name = 'api:' . $namespace;
         $command->setName($name);

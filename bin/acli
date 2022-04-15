@@ -36,9 +36,12 @@ $loader->loadClass('Symfony\Component\Console\Event\ConsoleTerminateEvent');
 
 $input = new ArgvInput();
 
-// On some environments (looking at you, Windows), HOME may not be set.
+// On some environments (looking at you, Windows), variables may not be set.
 if (!getenv('HOME')) {
     putenv('HOME=' . LocalMachineHelper::getHomeDir());
+}
+if (!getenv('TMPDIR')) {
+    putenv('TMPDIR=' . sys_get_temp_dir());
 }
 $kernel = new Kernel('prod', false);
 

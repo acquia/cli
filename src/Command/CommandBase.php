@@ -153,6 +153,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $sshDir;
 
+  protected $tmpDir;
+
   protected $dir;
 
   protected $localDbUser;
@@ -200,7 +202,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
-    LoggerInterface $logger
+    LoggerInterface $logger,
+    string $tmpDir
   ) {
     $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
@@ -215,6 +218,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
     $this->logger = $logger;
+    $this->tmpDir = $tmpDir;
     parent::__construct();
   }
 
@@ -1121,7 +1125,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApplicationFromAlias($application_alias) {
-    $cache = self::getAliasCache();
+    $cache = $this->getAliasCache();
     return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
       return $this->doGetApplicationFromAlias($application_alias);
     });
@@ -1131,8 +1135,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Return the ACLI alias cache.
    * @return FilesystemAdapter
    */
-  public static function getAliasCache() {
-    return new FilesystemAdapter('acli_aliases');
+  public function getAliasCache() {
+    return new FilesystemAdapter('acli_aliases', 0, $this->tmpDir);
   }
 
   /**
