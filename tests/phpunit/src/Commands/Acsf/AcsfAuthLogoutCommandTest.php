@@ -49,7 +49,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
         ],
         // $config.
         $this->getAcsfCredentialsFileContents(),
-      ]
+      ],
     ];
   }
 

@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
-use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -16,7 +15,7 @@ use Webmozart\KeyValueStore\JsonFileStore;
  * @property AuthLoginCommand $command
  * @package Acquia\Cli\Tests
  */
-class AcsfAuthLoginCommandTest extends CommandTestBase {
+class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
   /**
    * {@inheritdoc}
@@ -27,23 +26,66 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
 
   public function providerTestAuthLoginCommand(): array {
     return [
+      // Data set 0.
       [
         // $machine_is_authenticated
         FALSE,
+        // $inputs
         [
           // Would you like to share anonymous performance usage and data? (yes/no) [yes]
           'yes',
           // Enter the full URL of the factory
-          'https://www.test.com',
+          $this->acsfCurrentFactoryUrl,
           // Please enter a value for username
-          $this->key,
+          $this->acsfUsername,
           //  Please enter a value for password
-          $this->secret,
+          $this->acsfPassword,
         ],
         // No arguments, all interactive.
         [],
         // Output to assert.
         'Saved credentials to',
+      ],
+      // Data set 1.
+      [
+        // $machine_is_authenticated
+        FALSE,
+        // $inputs
+        [
+          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
+          'yes',
+        ],
+        // Arguments.
+        [
+          // Enter the full URL of the factory
+          '--factory-url' => $this->acsfCurrentFactoryUrl,
+          // Please enter a value for username
+          '--username' => $this->acsfUsername,
+          //  Please enter a value for password
+          '--password' => $this->acsfPassword,
+        ],
+        // Output to assert.
+        'Saved credentials to',
+        // $config.
+        $this->getAcsfCredentialsFileContents(),
+      ],
+      // Data set 2.
+      [
+        // $machine_is_authenticated
+        TRUE,
+        // $inputs
+        [
+          // Please choose a factory to login to.
+          $this->acsfCurrentFactoryUrl,
+          // Choose which user to login as.
+          $this->acsfUsername,
+        ],
+        // Arguments.
+        [],
+        // Output to assert.
+        "Acquia CLI is now logged in to {$this->acsfCurrentFactoryUrl} as {$this->acsfUsername}",
+        // $config.
+        $this->getAcsfCredentialsFileContents(),
       ],
     ];
   }
@@ -61,10 +103,13 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    * @throws \Exception
    */
-  public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert): void {
+  public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
     if (!$machine_is_authenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
+    }
+    else {
+      $this->createMockCloudConfigFile($config);
     }
 
     $this->executeCommand($args, $inputs);
@@ -77,15 +122,15 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
     return [
       [
         [],
-        ['--username' => 'no spaces are allowed' , '--password' => $this->secret]
+        ['--username' => 'no spaces are allowed' , '--password' => $this->acsfPassword]
       ],
       [
         [],
-        ['--username' => 'shorty' , '--password' => $this->secret]
+        ['--username' => 'shorty' , '--password' => $this->acsfPassword]
       ],
       [
         [],
-        ['--username' => ' ', '--password' => $this->secret]
+        ['--username' => ' ', '--password' => $this->acsfPassword]
       ],
     ];
   }
@@ -126,14 +171,14 @@ class AcsfAuthLoginCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('users', $factory);
     $this->assertArrayHasKey('url', $factory);
     $this->assertArrayHasKey('active_user', $factory);
-    $this->assertEquals($this->key, $factory['active_user']);
+    $this->assertEquals($this->acsfUsername, $factory['active_user']);
     $users = $factory['users'];
     $this->assertArrayHasKey($factory['active_user'], $users);
     $user = $users[$factory['active_user']];
     $this->assertArrayHasKey('username', $user);
     $this->assertArrayHasKey('password', $user);
-    $this->assertEquals($this->key, $user['username']);
-    $this->assertEquals($this->secret, $user['password']);
+    $this->assertEquals($this->acsfUsername, $user['username']);
+    $this->assertEquals($this->acsfPassword, $user['password']);
   }
 
 }
