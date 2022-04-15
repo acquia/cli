@@ -97,7 +97,7 @@ class PushArtifactCommand extends PullCommandBase {
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
+      throw new AcquiaCliException('Pushing code was abborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
     $application_uuid = $this->determineCloudApplication();
