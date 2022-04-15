@@ -29,4 +29,4 @@ jobs:
       - name: Run Infection for added files only
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
-          php build/infection.phar -j2 --git-diff-filter=A --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
+          php build/infection.phar -j2 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
