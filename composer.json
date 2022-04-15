@@ -173,6 +173,12 @@
         "box-compile": [
             "php build/box.phar compile"
         ],
+        "infection-install": [
+            "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
+        ],
+        "infection": [
+            "XDEBUG_MODE=coverage php build/infection.phar --threads=8"
+        ],
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",
