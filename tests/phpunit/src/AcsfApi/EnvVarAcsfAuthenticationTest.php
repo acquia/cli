@@ -10,11 +10,14 @@ use Acquia\Cli\Tests\TestBase;
  */
 class EnvVarAcsfAuthenticationTest extends TestBase {
 
+  private string $acsfCurrentFactoryUrl = 'https://www.test.com';
+
   public function setUp($output = NULL): void {
     parent::setUp();
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     putenv('ACSF_USERNAME=' . $this->key);
     putenv('ACSF_PASSWORD=' . $this->secret);
+    putenv('ACSF_FACTORY_URI=' . $this->acsfCurrentFactoryUrl);
   }
 
   protected function tearDown(): void {
@@ -27,6 +30,7 @@ class EnvVarAcsfAuthenticationTest extends TestBase {
     $this->removeMockCloudConfigFile();
     self::assertEquals($this->key, $this->cloudCredentials->getCloudKey());
     self::assertEquals($this->secret, $this->cloudCredentials->getCloudSecret());
+    self::assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
   }
 
 }
