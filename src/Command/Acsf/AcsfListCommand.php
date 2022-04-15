@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Acsf;
 
-use Acquia\Cli\Command\Api\ApiListCommandBase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -10,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  *
  */
-class AcsfListCommand extends ApiListCommandBase {
+class AcsfListCommand extends AcsfListCommandBase {
 
   protected static $defaultName = 'acsf:list';
 

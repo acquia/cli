@@ -25,6 +25,18 @@ class AcsfListCommandBase extends CommandBase {
   }
 
   /**
+   * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    // Assume commands require authentication unless they opt out by overriding this method.
+    return FALSE;
+  }
+
+  /**
    * {@inheritdoc}
    *
    * @throws \Exception
