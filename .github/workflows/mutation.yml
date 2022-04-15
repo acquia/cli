@@ -27,8 +27,6 @@ jobs:
         run: composer infection-install
 
       - name: Run Infection for added files only
-        env:
-          INFECTION_BADGE_API_KEY: ${{ secrets.INFECTION_BADGE_API_KEY }}
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
-          php build/infection.phar -j2 --git-diff-filter=A --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --ignore-msi-with-no-mutations --only-covered
+          php build/infection.phar -j2 --git-diff-filter=A --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
