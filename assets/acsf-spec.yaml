@@ -188,6 +188,7 @@ paths:
         custom domains)|all'
       description: Get all cron jobs (paged).
       operationId: get_CronJobs_getCronJobs
+      x-cli-name: cron-jobs:list
       parameters:
       - in: query
         name: limit
@@ -213,6 +214,7 @@ paths:
       summary: Get cron job
       description: Get cron job by its id.
       operationId: get_CronJobs_getCronJob
+      x-cli-name: cron-jobs:find
       parameters:
       - required: true
         in: query
