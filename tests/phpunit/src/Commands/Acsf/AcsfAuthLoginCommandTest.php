@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
+use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Prophecy\Argument;
@@ -21,6 +22,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
+    $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AcsfApiAuthLoginCommand::class);
   }
 
@@ -116,6 +118,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
     $this->assertKeySavedCorrectly();
+    if ($machine_is_authenticated) {
+      $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
+      $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
+      $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+    }
   }
 
   public function providerTestAuthLoginInvalidInputCommand(): array {
