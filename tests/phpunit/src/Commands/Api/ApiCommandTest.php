@@ -2,8 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\Api;
 
-use Acquia\Cli\Command\Api\ApiCommandBase;
-use Acquia\Cli\Command\Api\ApiCommandHelper;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
@@ -15,7 +14,7 @@ use Symfony\Component\Yaml\Yaml;
 /**
  * Class ApiCommandTest.
  *
- * @property ApiCommandBase $command
+ * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
  * @package Acquia\Cli\Tests\Api
  */
 class ApiCommandTest extends CommandTestBase {
@@ -30,7 +29,7 @@ class ApiCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(ApiCommandBase::class);
+    return $this->injectCommand(ApiBaseCommand::class);
   }
 
   public function testArgumentsInteraction() {
@@ -387,38 +386,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->fs->remove($blt_config_file_path);
-  }
-
-  /**
-   * @param $name
-   *
-   * @return \Acquia\Cli\Command\Api\ApiCommandBase|null
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  protected function getApiCommandByName($name): ?ApiCommandBase {
-    $api_command_helper = new ApiCommandHelper(
-      $this->cloudConfigFilepath,
-      $this->localMachineHelper,
-      $this->datastoreCloud,
-      $this->datastoreAcli,
-      $this->cloudCredentials,
-      $this->telemetryHelper,
-      $this->acliConfigFilename,
-      $this->projectFixtureDir,
-      $this->clientServiceProphecy->reveal(),
-      $this->logStreamManagerProphecy->reveal(),
-      $this->sshHelper,
-      $this->sshDir,
-      $this->logger
-    );
-    $api_commands = $api_command_helper->getApiCommands();
-    foreach ($api_commands as $api_command) {
-      if ($api_command->getName() === $name) {
-        return $api_command;
-      }
-    }
-
-    return NULL;
   }
 
 }

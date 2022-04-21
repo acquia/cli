@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\Api;
+namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * ApiListCommandBase class.
  */
-class ApiListCommandBase extends CommandBase {
+class AcsfListCommandBase extends CommandBase {
 
   /**
    * @var string
@@ -22,6 +22,18 @@ class ApiListCommandBase extends CommandBase {
    */
   public function setNamespace(string $namespace): void {
     $this->namespace = $namespace;
+  }
+
+  /**
+   * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return bool
+   */
+  protected function commandRequiresAuthentication(InputInterface $input): bool {
+    // Assume commands require authentication unless they opt out by overriding this method.
+    return FALSE;
   }
 
   /**
@@ -45,7 +57,7 @@ class ApiListCommandBase extends CommandBase {
     $command = $this->getApplication()->find('list');
     $arguments = [
       'command' => 'list',
-      'namespace' => 'api',
+      'namespace' => 'acsf',
     ];
     $list_input = new ArrayInput($arguments);
 

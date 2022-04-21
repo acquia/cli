@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2e21879fee2a98b08cc59c18d0a7739d",
+    "content-hash": "e91a7dac23feb20d07442f11370676b7",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6665,16 +6665,16 @@
     "packages-dev": [
         {
             "name": "acquia/coding-standards",
-            "version": "v0.8.0",
+            "version": "dev-develop",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/coding-standards-php.git",
-                "reference": "614876e50250932d38ca1c75eeb5f3edd905b9db"
+                "reference": "05ec568568e8472a303e7da7bc8995fbd423da3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/614876e50250932d38ca1c75eeb5f3edd905b9db",
-                "reference": "614876e50250932d38ca1c75eeb5f3edd905b9db",
+                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/05ec568568e8472a303e7da7bc8995fbd423da3d",
+                "reference": "05ec568568e8472a303e7da7bc8995fbd423da3d",
                 "shasum": ""
             },
             "require": {
@@ -6687,6 +6687,7 @@
                 "brainmaestro/composer-git-hooks": "Easily manage Git hooks in your composer config.",
                 "dealerdirect/phpcodesniffer-composer-installer": "Automatically install PHP_CodeSniffer coding standards (rulesets)."
             },
+            "default-branch": true,
             "type": "phpcodesniffer-standard",
             "extra": {
                 "branch-alias": {
@@ -6719,7 +6720,7 @@
                 "issues": "https://github.com/acquia/coding-standards/issues",
                 "source": "https://github.com/acquia/coding-standards"
             },
-            "time": "2021-10-14T20:20:03+00:00"
+            "time": "2022-03-09T18:32:31+00:00"
         },
         {
             "name": "amphp/amp",
@@ -10612,6 +10613,7 @@
     "stability-flags": {
         "symfony/filesystem": 20,
         "symfony/yaml": 20,
+        "acquia/coding-standards": 20,
         "phpro/grumphp": 20
     },
     "prefer-stable": true,

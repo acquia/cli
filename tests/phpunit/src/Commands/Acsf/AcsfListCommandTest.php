@@ -1,15 +1,17 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\Api;
+namespace Acquia\Cli\Tests\Commands\Acsf;
 
-use Acquia\Cli\Command\Api\ApiCommandHelper;
-use Acquia\Cli\Command\Api\ApiListCommand;
-use Acquia\Cli\Command\Api\ApiListCommandBase;
+use Acquia\Cli\Command\Acsf\AcsfListCommand;
+use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
 use Acquia\Cli\Command\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
-class ApiListCommandTest extends CommandTestBase {
+class AcsfListCommandTest extends CommandTestBase {
+
+  protected $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
+  protected string $apiCommandPrefix = 'acsf';
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
@@ -23,35 +25,34 @@ class ApiListCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(ApiListCommand::class);
+    return $this->injectCommand(AcsfListCommand::class);
   }
 
   /**
-   * Tests the 'api:list' command.
+   * Tests the 'acsf:list' command.
    *
    * @throws \Exception
    */
-  public function testApiListCommand(): void {
+  public function testAcsfListCommand(): void {
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString(' api:accounts:ssh-keys-list', $output);
+    $this->assertStringContainsString('acsf:event-list', $output);
   }
 
   /**
-   * Tests the 'api:*' list commands.
+   * Tests the 'acsf:*' list commands.
    *
    * @throws \Exception
    */
   public function testApiNamespaceListCommand(): void {
-    $this->command = $this->injectCommand(ApiListCommandBase::class);
-    $name = 'api:accounts';
+    $this->command = $this->injectCommand(AcsfListCommandBase::class);
+    $name = 'acsf:cron-jobs';
     $this->command->setName($name);
     $this->command->setNamespace($name);
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('api:accounts:', $output);
-    $this->assertStringContainsString('api:accounts:ssh-keys-list', $output);
-    $this->assertStringNotContainsString('api:subscriptions', $output);
+    $this->assertStringContainsString('acsf:cron-jobs:find', $output);
+    $this->assertStringNotContainsString('acsf:event-list', $output);
   }
 
   /**
@@ -63,8 +64,8 @@ class ApiListCommandTest extends CommandTestBase {
     $this->command = $this->injectCommand(ListCommand::class);
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString(' api:accounts', $output);
-    $this->assertStringNotContainsString(' api:accounts:ssh-keys-list', $output);
+    $this->assertStringContainsString('acsf:cron-jobs', $output);
+    $this->assertStringNotContainsString('acsf:cron-jobs:find', $output);
   }
 
 }

@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Command;
 
+use Acquia\Cli\ApiCredentialsInterface;
+use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
@@ -177,7 +179,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param LocalMachineHelper $localMachineHelper
    * @param JsonFileStore $datastoreCloud
    * @param YamlStore $datastoreAcli
-   * @param CloudCredentials $cloudCredentials
+   * @param ApiCredentialsInterface $cloudCredentials
    * @param TelemetryHelper $telemetryHelper
    * @param string $acliConfigFilepath
    * @param string $repoRoot
@@ -192,11 +194,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LocalMachineHelper $localMachineHelper,
     JsonFileStore $datastoreCloud,
     YamlStore $datastoreAcli,
-    CloudCredentials $cloudCredentials,
+    ApiCredentialsInterface $cloudCredentials,
     TelemetryHelper $telemetryHelper,
     string $acliConfigFilepath,
     string $repoRoot,
-    ClientService $cloudApiClientService,
+    ClientServiceInterface $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
@@ -1209,7 +1211,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
     // Running on API commands would corrupt JSON output.
-    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE) {
+    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE
+      || strpos($this->input->getArgument('command'), 'acsf:') !== FALSE) {
       return FALSE;
     }
     // Bail for development builds.

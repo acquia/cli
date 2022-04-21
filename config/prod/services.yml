@@ -27,8 +27,6 @@ services:
   Acquia\Cli\:
     exclude:
       - ../../src/Kernel.php
-      - ../../src/Command/Api/ApiCommandBase.php
-      - ../../src/Command/Api/ApiListCommandBase.php
       - ../../src/DataStore/YamlStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
     public: true
@@ -38,7 +36,13 @@ services:
   Acquia\Cli\Command\:
     resource: ../../src/Command
     parent: Acquia\Cli\Command\CommandBase
-    exclude: [../../src/Command/CommandBase.php, ../../src/Command/Api/ApiCommandBase.php, ../../src/Command/Api/ApiListCommandBase.php,]
+    exclude:
+      - ../../src/Command/CommandBase.php
+      - ../../src/Command/Acsf/AcsfCommandBase.php
+      - ../../src/Command/Acsf/AcsfListCommandBase.php
+      - ../../src/Command/Acsf/AcsfApiBaseCommand.php
+      - ../../src/Command/Api/ApiBaseCommand.php
+      - ../../src/Command/Api/ApiListCommandBase.php
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
@@ -65,13 +69,32 @@ services:
     arguments:
       $path: '%app.acli_config_filepath%'
 
+  Acquia\Cli\ApiCredentialsInterface:
+    alias: Acquia\Cli\CloudApi\CloudCredentials
+
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
     arguments:
       $datastoreCloud: '@datastore.cloud'
 
+  acsf.credentials:
+    class: Acquia\Cli\AcsfApi\AcsfCredentials
+    arguments:
+      $datastoreCloud: '@datastore.cloud'
+
   # AcquiaCloudApi services.
+  Acquia\Cli\Command\Api\ApiCommandFactory: ~
+  Acquia\Cli\Command\Api\ApiBaseCommand:
+    class: Acquia\Cli\Command\Api\ApiBaseCommand
+    factory: ['@Acquia\Cli\Command\Api\ApiCommandFactory', 'createCommand']
+  Acquia\Cli\Command\Api\ApiListCommandBase:
+    class: Acquia\Cli\Command\Api\ApiListCommandBase
+    factory: [ '@Acquia\Cli\Command\Api\ApiCommandFactory', 'createListCommand' ]
   AcquiaCloudApi\Connector\Client: ~
+  Acquia\Cli\ClientServiceInterface:
+      alias: Acquia\Cli\CloudApi\ClientService
+  Acquia\Cli\ConnectorFactoryInterface:
+    alias: Acquia\Cli\CloudApi\ConnectorFactory
   Acquia\Cli\CloudApi\ConnectorFactory:
     arguments:
       $config:
@@ -86,6 +109,24 @@ services:
   AcquiaCloudApi\Connector\Connector:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaLogstream\LogstreamManager: ~
+
+  # Acquia Cloud Site Factory Services.
+  Acquia\Cli\AcsfApi\AcsfConnectorFactory:
+    arguments:
+      $config:
+        # @see https://symfony.com/doc/current/service_container/expression_language.html
+        key: '@=service("acsf.credentials").getCloudKey()'
+        secret: '@=service("acsf.credentials").getCloudSecret()'
+      $base_uri: '@=service("acsf.credentials").getBaseUri()'
+  Acquia\Cli\AcsfApi\AcsfConnector:
+    alias: Acquia\Cli\AcsfApi\AcsfConnectorFactory
+  Acquia\Cli\Command\Acsf\AcsfCommandFactory: ~
+  Acquia\Cli\Command\Acsf\AcsfApiBaseCommand:
+    class: Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
+    factory: ['@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createCommand']
+  Acquia\Cli\Command\Acsf\AcsfListCommandBase:
+    class: Acquia\Cli\Command\Acsf\AcsfListCommandBase
+    factory: [ '@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createListCommand' ]
 
   # Symfony services.
   Acquia\Cli\Application: ~

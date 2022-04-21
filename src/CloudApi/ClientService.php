@@ -3,6 +3,8 @@
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\ClientServiceInterface;
+use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -17,22 +19,22 @@ use Webmozart\KeyValueStore\JsonFileStore;
  *
  * @package Acquia\Cli\Helpers
  */
-class ClientService {
+class ClientService implements ClientServiceInterface {
 
   /** @var ConnectorInterface */
-  private $connector;
+  protected $connector;
   /** @var \Acquia\Cli\CloudApi\ConnectorFactory */
-  private $connectorFactory;
+  protected $connectorFactory;
   /** @var Application */
-  private $application;
+  protected $application;
   /** @var bool */
-  private $machineIsAuthenticated = NULL;
+  protected $machineIsAuthenticated = NULL;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
    */
-  public function __construct(ConnectorFactory $connector_factory, Application $application) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);

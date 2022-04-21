@@ -29,6 +29,7 @@ use Psr\Http\Message\StreamInterface;
 use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Command\Command;
@@ -49,6 +50,8 @@ use Webmozart\KeyValueStore\JsonFileStore;
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class TestBase extends TestCase {
+
+  protected $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.yaml';
 
   /**
    * @var \Symfony\Component\Console\Output\ConsoleOutput
@@ -135,7 +138,7 @@ abstract class TestBase extends TestCase {
   protected $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\CloudApi\CloudCredentials
+   * @var \Acquia\Cli\ApiCredentialsInterface
    */
   protected $cloudCredentials;
 
@@ -207,12 +210,7 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
     $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->clientProphecy = $this->prophet->prophesize(Client::class);
-    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
-    $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
-    $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(TRUE);
+    $this->setClientProphecies();
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
 
     $this->setIo($input, $output);
@@ -300,8 +298,15 @@ abstract class TestBase extends TestCase {
     elseif (array_key_exists('examples', $content)) {
       $response_body = json_encode($content['examples']);
     }
-    elseif (array_key_exists('example', $response['content'])) {
-      $response_body = json_encode($response['content']['example']);
+    elseif (array_key_exists('example', $content)) {
+      $response_body = json_encode($content['example']);
+    }
+    elseif (array_key_exists('schema', $content)
+      && array_key_exists('$ref', $content['schema'])) {
+      $ref = $content['schema']['$ref'];
+      $param_key = str_replace('#/components/schemas/', '', $ref);
+      $spec = $this->getCloudApiSpec();
+      return (object) $spec['components']['schemas'][$param_key]['properties'];
     }
     else {
       return (object) [];
@@ -360,12 +365,13 @@ abstract class TestBase extends TestCase {
   protected function getCloudApiSpec() {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
-    $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
+    $acquia_cloud_spec_file = $this->apiSpecFixtureFilePath;
     $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
 
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiSpec.cache', new FilesystemAdapter());
-    $is_command_cache_valid = $this->isApiSpecCacheValid($cache, $acquia_cloud_spec_file_checksum);
-    $api_spec_cache_item = $cache->getItem('api_spec.yaml');
+    $cache_key = basename($acquia_cloud_spec_file);
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new FilesystemAdapter());
+    $is_command_cache_valid = $this->isApiSpecCacheValid($cache, $cache_key, $acquia_cloud_spec_file_checksum);
+    $api_spec_cache_item = $cache->getItem($cache_key);
     if ($is_command_cache_valid && $api_spec_cache_item->isHit()) {
       return $api_spec_cache_item->get();
     }
@@ -384,8 +390,8 @@ abstract class TestBase extends TestCase {
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
-    $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
+  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, $acquia_cloud_spec_file_checksum): bool {
+    $api_spec_checksum_item = $cache->getItem($cache_key . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
     return !(!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit()
         && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum));
@@ -865,6 +871,17 @@ abstract class TestBase extends TestCase {
       Argument::type('array'))->willReturn($response->reveal());
 
     return $guzzle_client;
+  }
+
+  protected function setClientProphecies($client_service_class = ClientService::class): void {
+    $this->clientProphecy = $this->prophet->prophesize(Client::class);
+    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
+    $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
+    $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
+    $this->clientServiceProphecy->getClient()
+      ->willReturn($this->clientProphecy->reveal());
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))
+      ->willReturn(TRUE);
   }
 
 }
