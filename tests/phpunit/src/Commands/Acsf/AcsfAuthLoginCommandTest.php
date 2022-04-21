@@ -35,6 +35,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         FALSE,
         // $inputs
         [
+          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
+          'yes',
           // Enter the full URL of the factory
           $this->acsfCurrentFactoryUrl,
           // Please enter a value for username

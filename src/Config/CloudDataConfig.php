@@ -32,6 +32,7 @@ class CloudDataConfig implements ConfigurationInterface {
 
         ->arrayNode('keys')
             ->useAttributeAsKey('uuid')
+            ->normalizeKeys(FALSE)
             ->arrayPrototype()
                 ->children()
                   ->scalarNode('label')->end()

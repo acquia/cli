@@ -119,6 +119,8 @@ class AuthLoginCommandTest extends CommandTestBase {
     if (!$machine_is_authenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
+      $this->createDataStores();
+      $this->command = $this->createCommand();
     }
 
     $this->executeCommand($args, $inputs);
@@ -160,6 +162,8 @@ class AuthLoginCommandTest extends CommandTestBase {
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
+    $this->createDataStores();
+    $this->command = $this->createCommand();
     try {
       $this->executeCommand($args, $inputs);
     }
@@ -176,6 +180,8 @@ class AuthLoginCommandTest extends CommandTestBase {
       'secret' => 'test',
       DataStoreContract::SEND_TELEMETRY => FALSE,
     ]);
+    $this->createDataStores();
+    $this->command = $this->createCommand();
     $inputs = [
       // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
       'n',
@@ -205,7 +211,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertTrue($config->exists('keys'));
     $keys = $config->get('keys');
     $this->assertArrayHasKey($this->key, $keys);
-    $this->assertArrayHasKey('uuid', $keys[$this->key]);
     $this->assertArrayHasKey('label', $keys[$this->key]);
     $this->assertArrayHasKey('secret', $keys[$this->key]);
     $this->assertEquals($this->secret, $keys[$this->key]['secret']);
