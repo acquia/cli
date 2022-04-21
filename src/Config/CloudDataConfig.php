@@ -23,9 +23,10 @@ class CloudDataConfig implements ConfigurationInterface {
     $root_node
       ->children()
 
-        ->booleanNode('send_telemetry')
-          ->defaultNull()
-        ->end()
+        // I can't find a better node type that accepts TRUE, FALSE, and NULL.
+        // boolNode() will cast NULL to FALSE and enumNode()->values() will
+        // strip out a NULL value.
+        ->scalarNode('send_telemetry')->end()
 
         ->scalarNode('acli_key')->end()
 
