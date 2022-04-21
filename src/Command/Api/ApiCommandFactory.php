@@ -7,13 +7,13 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CommandFactoryInterface;
-use Acquia\Cli\DataStore\YamlStore;
+use Acquia\Cli\DataStore\AcquiaCliDatastore;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaLogstream\LogstreamManager;
 use Psr\Log\LoggerInterface;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class ApiCommandFactory.
@@ -21,17 +21,12 @@ use Webmozart\KeyValueStore\JsonFileStore;
 class ApiCommandFactory implements CommandFactoryInterface {
 
   /**
-   * @var string
-   */
-  private string $cloudConfigFilepath;
-
-  /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
   private $localMachineHelper;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\CloudDataStore
    */
   private $datastoreCloud;
 
@@ -54,11 +49,6 @@ class ApiCommandFactory implements CommandFactoryInterface {
    * @var string
    */
   private string $repoRoot;
-
-  /**
-   * @var string
-   */
-  private string $acliConfigFilepath;
 
   /**
    * @var \Acquia\Cli\AcsfApi\AcsfClientService
@@ -86,13 +76,11 @@ class ApiCommandFactory implements CommandFactoryInterface {
   private $logger;
 
   /**
-   * @param string $cloudConfigFilepath
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
-   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
+   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
+   * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
    * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
@@ -101,13 +89,11 @@ class ApiCommandFactory implements CommandFactoryInterface {
    * @param \Psr\Log\LoggerInterface $logger
    */
   public function __construct(
-    string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
-    JsonFileStore $datastoreCloud,
-    YamlStore $datastoreAcli,
+    CloudDataStore $datastoreCloud,
+    AcquiaCliDatastore $datastoreAcli,
     CloudCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
-    string $acliConfigFilepath,
     string $repoRoot,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
@@ -115,13 +101,11 @@ class ApiCommandFactory implements CommandFactoryInterface {
     string $sshDir,
     LoggerInterface $logger
   ) {
-    $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
-    $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
@@ -135,13 +119,11 @@ class ApiCommandFactory implements CommandFactoryInterface {
    */
   public function createCommand(): ApiBaseCommand {
     return new ApiBaseCommand(
-      $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilepath,
       $this->repoRoot,
       $this->cloudApiClientService,
       $this->logstreamManager,
@@ -156,13 +138,11 @@ class ApiCommandFactory implements CommandFactoryInterface {
    */
   public function createListCommand(): ApiListCommand {
     return new ApiListCommand(
-      $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilepath,
       $this->repoRoot,
       $this->cloudApiClientService,
       $this->logstreamManager,

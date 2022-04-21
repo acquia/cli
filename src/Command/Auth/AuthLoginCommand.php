@@ -50,7 +50,7 @@ class AuthLoginCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
+    /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
     if ($this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
@@ -60,6 +60,9 @@ class AuthLoginCommand extends CommandBase {
 
     // If keys already are saved locally, prompt to select.
     if ($input->isInteractive() && $keys = $this->datastoreCloud->get('keys')) {
+      foreach ($keys as $uuid => $key) {
+        $keys[$uuid]['uuid'] = $uuid;
+      }
       $keys['create_new'] = [
         'uuid' => 'create_new',
         'label' => 'Enter a new API key',
@@ -78,7 +81,7 @@ class AuthLoginCommand extends CommandBase {
     $api_secret = $this->determineApiSecret($input, $output);
     $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri());
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
-    $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("<info>Saved credentials</info>");
 
     return 0;
   }

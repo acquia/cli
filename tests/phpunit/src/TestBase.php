@@ -3,12 +3,14 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
-use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
-use Acquia\Cli\DataStore\YamlStore;
+use Acquia\Cli\Config\AcquiaCliConfig;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\AcquiaCliDatastore;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -19,7 +21,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PhpParser\Node\Arg;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -29,7 +30,6 @@ use Psr\Http\Message\StreamInterface;
 use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Console\Command\Command;
@@ -43,7 +43,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
@@ -128,12 +127,12 @@ abstract class TestBase extends TestCase {
   protected $acliConfigFilepath;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\AcquiaCliDatastore
    */
   protected $datastoreAcli;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\CloudDataStore
    */
   protected $datastoreCloud;
 
@@ -199,6 +198,9 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
+    $this->setClientProphecies();
+    $this->setIo($input, $output);
+
     $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
@@ -207,16 +209,13 @@ abstract class TestBase extends TestCase {
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
-    $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
-    $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
-    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->setClientProphecies();
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-
-    $this->setIo($input, $output);
-
     $this->removeMockConfigFiles();
     $this->createMockConfigFiles();
+    $this->datastoreAcli = new AcquiaCliDatastore($this->localMachineHelper, new AcquiaCliConfig(), $this->acliConfigFilepath);
+    $this->datastoreCloud = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     ClearCacheCommand::clearCaches();
 
     parent::setUp();
@@ -250,7 +249,6 @@ abstract class TestBase extends TestCase {
     $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
     // TTY should never be used for tests.
     $this->localMachineHelper->setIsTty(FALSE);
-    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }
 
@@ -329,13 +327,11 @@ abstract class TestBase extends TestCase {
    */
   protected function injectCommand(string $commandName): Command {
     return new $commandName(
-      $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilename,
       $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
@@ -880,7 +876,7 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))
       ->willReturn(TRUE);
   }
 

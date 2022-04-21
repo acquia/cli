@@ -55,13 +55,12 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   }
 
   protected function getCommandFactory(): CommandFactoryInterface {
-    return new AcsfCommandFactory($this->cloudConfigFilepath,
+    return new AcsfCommandFactory(
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilename,
       $this->projectFixtureDir,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),

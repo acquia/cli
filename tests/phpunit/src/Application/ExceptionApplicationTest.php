@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Kernel;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -35,7 +36,7 @@ class ExceptionApplicationTest extends TestBase {
     $this->fs->remove('var/cache');
     $this->kernel = new Kernel('dev', 0);
     $this->kernel->boot();
-    $this->kernel->getContainer()->set('datastore.cloud', $this->datastoreCloud);
+    $this->kernel->getContainer()->set(CloudDataStore::class, $this->datastoreCloud);
     $this->kernel->getContainer()->set(ClientService::class, $this->clientServiceProphecy->reveal());
     $output = new BufferedOutput();
     $this->kernel->getContainer()->set(OutputInterface::class, $output);

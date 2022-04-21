@@ -87,7 +87,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $username = $input->getOption('username');
     $password = $input->getOption('password');
     $this->writeAcsfCredentialsToDisk($factory_url, $username, $password);
-    $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("<info>Saved credentials</info>");
 
     return 0;
   }

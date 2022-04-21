@@ -5,10 +5,11 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthCommandTest.
@@ -107,7 +108,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
     else {
@@ -151,7 +152,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @throws \Exception
    */
   public function testAcsfAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
     try {
       $this->executeCommand($args, $inputs);
@@ -167,7 +168,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
-    $config = new JsonFileStore($creds_file, JsonFileStore::NO_SERIALIZE_STRINGS);
+    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $creds_file);
     $this->assertTrue($config->exists('acsf_active_factory'));
     $factory_url = $config->get('acsf_active_factory');
     $this->assertTrue($config->exists('acsf_factories'));
