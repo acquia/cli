@@ -24,7 +24,7 @@ class CloudDataConfig implements ConfigurationInterface {
       ->children()
 
         ->booleanNode('send_telemetry')
-          ->defaultFalse(FALSE)
+          ->defaultNull()
         ->end()
 
         ->scalarNode('acli_key')->end()

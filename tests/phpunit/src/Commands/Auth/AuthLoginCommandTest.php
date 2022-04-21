@@ -46,7 +46,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
       ],
       [
         // $machine_is_authenticated
@@ -68,7 +68,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
       ],
       [
         // $machine_is_authenticated
@@ -97,7 +97,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // Args.
         ['--key' => $this->key, '--secret' => $this->secret],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
       ],
     ];
   }

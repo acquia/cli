@@ -71,6 +71,15 @@ abstract class Datastore implements DataStoreInterface {
   }
 
   /**
+   * @param string $key
+   *
+   * @return bool
+   */
+  public function exists(string $key) {
+    return $this->data->has($key);
+  }
+
+  /**
    * @param array $config
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface $definition
    *

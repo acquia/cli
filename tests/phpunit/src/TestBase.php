@@ -211,8 +211,7 @@ abstract class TestBase extends TestCase {
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
     $this->removeMockConfigFiles();
     $this->createMockConfigFiles();
-    $this->datastoreAcli = new AcquiaCliDatastore($this->localMachineHelper, new AcquiaCliConfig(), $this->acliConfigFilepath);
-    $this->datastoreCloud = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+    $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
     $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
@@ -878,6 +877,11 @@ abstract class TestBase extends TestCase {
       ->willReturn($this->clientProphecy->reveal());
     $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))
       ->willReturn(TRUE);
+  }
+
+  protected function createDataStores(): void {
+    $this->datastoreAcli = new AcquiaCliDatastore($this->localMachineHelper, new AcquiaCliConfig(), $this->acliConfigFilepath);
+    $this->datastoreCloud = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
   }
 
 }

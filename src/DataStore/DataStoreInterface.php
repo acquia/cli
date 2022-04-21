@@ -11,4 +11,6 @@ interface DataStoreInterface {
   public function dump();
 
   public function remove(string $key);
+
+  public function exists(string $key);
 }

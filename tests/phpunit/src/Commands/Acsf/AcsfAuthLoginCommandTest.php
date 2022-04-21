@@ -47,7 +47,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
       ],
       // Data set 1.
       [
@@ -68,7 +68,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
           '--password' => $this->acsfPassword,
         ],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
         // $config.
         $this->getAcsfCredentialsFileContents(),
       ],
@@ -176,7 +176,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey($factory_url, $factories);
     $factory = $factories[$factory_url];
     $this->assertArrayHasKey('users', $factory);
-    $this->assertArrayHasKey('url', $factory);
+    //$this->assertArrayHasKey('url', $factory);
     $this->assertArrayHasKey('active_user', $factory);
     $this->assertEquals($this->acsfUsername, $factory['active_user']);
     $users = $factory['users'];
