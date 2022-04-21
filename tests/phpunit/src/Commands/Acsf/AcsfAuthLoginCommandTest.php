@@ -35,8 +35,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         FALSE,
         // $inputs
         [
-          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
-          'yes',
           // Enter the full URL of the factory
           $this->acsfCurrentFactoryUrl,
           // Please enter a value for username
@@ -54,10 +52,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         // $machine_is_authenticated
         FALSE,
         // $inputs
-        [
-          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
-          'yes',
-        ],
+        [],
         // Arguments.
         [
           // Enter the full URL of the factory
@@ -102,9 +97,10 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param $inputs
    * @param $args
    * @param $output_to_assert
+   * @param array $config
    *
-   * @requires OS linux|darwin
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
     if (!$machine_is_authenticated) {
@@ -112,8 +108,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
       $this->removeMockCloudConfigFile();
     }
     else {
+      $this->removeMockCloudConfigFile();
       $this->createMockCloudConfigFile($config);
     }
+    $this->createDataStores();
+    $this->command = $this->createCommand();
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
