@@ -60,7 +60,7 @@ class ApiListCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testListCommand(): void {
-    $this->command = $this->injectCommand(ListCommand::class);
+    $this->command = new ListCommand();
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString(' api:accounts', $output);
