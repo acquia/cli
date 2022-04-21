@@ -172,25 +172,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     }
   }
 
-  public function testMigrateLegacyApiKey() {
-    $mock_body = $this->mockTokenRequest();
-    $this->removeMockCloudConfigFile();
-    $this->createMockCloudConfigFile([
-      'key' => $mock_body->uuid,
-      'secret' => 'test',
-      DataStoreContract::SEND_TELEMETRY => FALSE,
-    ]);
-    $this->createDataStores();
-    $this->command = $this->createCommand();
-    $inputs = [
-      // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
-      'n',
-    ];
-    $this->executeCommand([], $inputs);
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?', $output);
-  }
-
   /**
    * @param string $output
    */
