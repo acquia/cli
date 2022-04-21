@@ -72,6 +72,8 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
       $this->createMockCloudConfigFile($config);
     }
 
+    $this->createDataStores();
+    $this->command = $this->createCommand();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     // Assert creds are removed locally.

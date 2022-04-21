@@ -68,6 +68,7 @@ abstract class Datastore implements DataStoreInterface {
    */
   public function remove(string $key) {
     $this->data->remove($key);
+    $this->dump();
   }
 
   /**
@@ -75,7 +76,7 @@ abstract class Datastore implements DataStoreInterface {
    *
    * @return bool
    */
-  public function exists(string $key) {
+  public function exists(string $key): bool {
     return $this->data->has($key);
   }
 

@@ -43,6 +43,9 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       return 1;
     }
     $factories = $this->datastoreCloud->get('acsf_factories');
+    foreach ($factories as $url => $factory) {
+      $factories[$url]['url'] = $url;
+    }
     $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
     $factory_url = $factory['url'];
 

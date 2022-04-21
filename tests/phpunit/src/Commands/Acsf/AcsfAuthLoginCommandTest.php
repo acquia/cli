@@ -180,7 +180,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey($factory_url, $factories);
     $factory = $factories[$factory_url];
     $this->assertArrayHasKey('users', $factory);
-    //$this->assertArrayHasKey('url', $factory);
     $this->assertArrayHasKey('active_user', $factory);
     $this->assertEquals($this->acsfUsername, $factory['active_user']);
     $users = $factory['users'];
