@@ -47,6 +47,9 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
       $factories = $this->datastoreCloud->get('acsf_factories');
       $factory_choices = $factories;
+      foreach ($factory_choices as $url => $factory_choice) {
+        $factory_choices[$url]['url'] = $url;
+      }
       $factory_choices['add_new'] = [
         'url' => 'Enter a new factory URL',
       ];

@@ -153,6 +153,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
   public function testAcsfAuthLoginInvalidInputCommand($inputs, $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
+    $this->createDataStores();
+    $this->command = $this->createCommand();
+
     try {
       $this->executeCommand($args, $inputs);
     }
