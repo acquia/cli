@@ -19,18 +19,24 @@ services:
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
       $repoRoot: "%app.repo_root%"
       $sshDir: "%app.ssh_dir%"
-      Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
-      Acquia\Cli\DataStore\YamlStore $datastoreAcli: '@datastore.acli'
     public: true
 
   # Register nearly all Acquia CLI classes as services.
   Acquia\Cli\:
     exclude:
       - ../../src/Kernel.php
+      - ../../src/DataStore/Datastore.php
       - ../../src/DataStore/YamlStore.php
+      - ../../src/DataStore/JsonDataStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
     public: true
     resource: ../../src
+
+  Acquia\Cli\Config\AcquiaCliConfig: ~
+  Acquia\Cli\Config\CloudDataConfig: ~
+
+  Acquia\Cli\DataStore\AcquiaCliDatastore: ~
+  Acquia\Cli\DataStore\CloudDataStore: ~
 
   # All commands inherit from a common base and use the same DI parameters.
   Acquia\Cli\Command\:
@@ -57,30 +63,14 @@ services:
       - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate}
       - { name: kernel.event_listener, event: console.command, method: onConsoleCommand}
 
-  # We have multiple datastores using the same class, just different arguments.
-  datastore.cloud:
-    class: Webmozart\KeyValueStore\JsonFileStore
-    arguments:
-      $path: '%app.cloud_config_filepath%'
-      # NO_SERIALIZE_STRINGS & NO_SERIALIZE_ARRAYS
-      $flags: 3
-  datastore.acli:
-    class: Acquia\Cli\DataStore\YamlStore
-    arguments:
-      $path: '%app.acli_config_filepath%'
-
   Acquia\Cli\ApiCredentialsInterface:
     alias: Acquia\Cli\CloudApi\CloudCredentials
 
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
-    arguments:
-      $datastoreCloud: '@datastore.cloud'
 
   acsf.credentials:
     class: Acquia\Cli\AcsfApi\AcsfCredentials
-    arguments:
-      $datastoreCloud: '@datastore.cloud'
 
   # AcquiaCloudApi services.
   Acquia\Cli\Command\Api\ApiCommandFactory: ~

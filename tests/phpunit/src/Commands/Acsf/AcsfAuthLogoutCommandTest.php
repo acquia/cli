@@ -3,12 +3,11 @@
 namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
-use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLogoutCommand;
-use Acquia\Cli\Tests\CommandTestBase;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AcsfAuthLogoutCommandTest.
@@ -66,7 +65,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
    */
   public function testAcsfAuthLogoutCommand(bool $machine_is_authenticated, array $inputs, array $config = []): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
     else {
@@ -77,7 +76,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
     $output = $this->getDisplay();
     // Assert creds are removed locally.
     $this->assertFileExists($this->cloudConfigFilepath);
-    $config = new JsonFileStore($this->cloudConfigFilepath, JsonFileStore::NO_SERIALIZE_STRINGS);
+    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
     $this->assertFalse($config->exists('acli_key'));
     $this->assertNull($config->get('acsf_active_factory'));
   }

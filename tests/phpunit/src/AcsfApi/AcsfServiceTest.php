@@ -5,8 +5,9 @@ namespace Acquia\Cli\Tests\AcsfApi;
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfConnectorFactory;
 use Acquia\Cli\Application;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CloudServiceTest.
@@ -41,7 +42,7 @@ class AcsfServiceTest extends TestBase {
   public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated) {
     self::setEnvVars($env_vars);
     $client_service = new AcsfClientService(new AcsfConnectorFactory(['key' => NULL, 'secret' => NULL]), $this->prophet->prophesize(Application::class)->reveal());
-    $cloud_datastore = $this->prophet->prophesize(JsonFileStore::class);
+    $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
     self::unsetEnvVars($env_vars);
   }

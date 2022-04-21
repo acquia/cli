@@ -2,19 +2,14 @@
 
 namespace Acquia\Cli\DataStore;
 
-use Dflydev\DotAccessData\Data;
-use Grasmash\Expander\Expander;
-use Grasmash\Expander\Stringifier;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class YamlStore
+ *
  * @package Acquia\Cli\DataStore
  */
-class YamlStore extends Datastore {
+class JsonDataStore extends Datastore implements DataStoreInterface {
 
   /**
    * Creates a new store.
@@ -25,7 +20,7 @@ class YamlStore extends Datastore {
   public function __construct(string $path, ConfigurationInterface $config_definition = NULL) {
     parent::__construct($path);
     if ($this->fileSystem->exists($path)) {
-      $array = Yaml::parseFile($path);
+      $array = json_decode(file_get_contents($path), TRUE);
       $array = $this->expander->expandArrayProperties($array);
       if ($config_definition) {
         $array = $this->processConfig($array, $config_definition);
@@ -38,7 +33,6 @@ class YamlStore extends Datastore {
    *
    */
   public function dump() {
-    $this->fileSystem->dumpFile($this->filepath, Yaml::dump($this->data->export()));
+    $this->fileSystem->dumpFile($this->filepath, json_encode($this->data->export(), JSON_PRETTY_PRINT));
   }
-
 }
