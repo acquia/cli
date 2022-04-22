@@ -284,6 +284,12 @@ abstract class CommandTestBase extends TestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
+    if (!$success) {
+      $process->getErrorOutput()->willReturn('error');
+    }
+    else {
+      $process->getErrorOutput()->willReturn('');
+    }
     return $process;
   }
 
