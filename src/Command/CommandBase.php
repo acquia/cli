@@ -2,13 +2,10 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\ApiCredentialsInterface;
-use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
-use Acquia\Cli\DataStore\AcquiaCliDatastore;
-use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
@@ -59,6 +56,8 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Contracts\Cache\ItemInterface;
+use Webmozart\KeyValueStore\JsonFileStore;
+use Webmozart\KeyValueStore\Util\Serializer;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -105,7 +104,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   public $localMachineHelper;
 
   /**
-   * @var CloudDataStore
+   * @var JsonFileStore
    */
   protected $datastoreCloud;
 
@@ -118,6 +117,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @var CloudCredentials
    */
   protected $cloudCredentials;
+
+  /**
+   * @var string
+   */
+  protected $cloudConfigFilepath;
+
+  /**
+   * @var string
+   */
+  protected $acliConfigFilepath;
 
   /**
    * @var string
@@ -164,11 +173,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * CommandBase constructor.
    *
+   * @param string $cloudConfigFilepath
    * @param LocalMachineHelper $localMachineHelper
-   * @param CloudDataStore $datastoreCloud
-   * @param AcquiaCliDatastore $datastoreAcli
-   * @param ApiCredentialsInterface $cloudCredentials
+   * @param JsonFileStore $datastoreCloud
+   * @param YamlStore $datastoreAcli
+   * @param CloudCredentials $cloudCredentials
    * @param TelemetryHelper $telemetryHelper
+   * @param string $acliConfigFilepath
    * @param string $repoRoot
    * @param ClientService $cloudApiClientService
    * @param LogstreamManager $logstreamManager
@@ -177,23 +188,27 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param ConsoleLogger $logger
    */
   public function __construct(
+    string $cloudConfigFilepath,
     LocalMachineHelper $localMachineHelper,
-    CloudDataStore $datastoreCloud,
-    AcquiaCliDatastore $datastoreAcli,
-    ApiCredentialsInterface $cloudCredentials,
+    JsonFileStore $datastoreCloud,
+    YamlStore $datastoreAcli,
+    CloudCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
+    string $acliConfigFilepath,
     string $repoRoot,
-    ClientServiceInterface $cloudApiClientService,
+    ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
     LoggerInterface $logger
   ) {
+    $this->cloudConfigFilepath = $cloudConfigFilepath;
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
+    $this->acliConfigFilepath = $acliConfigFilepath;
     $this->repoRoot = $repoRoot;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
@@ -333,6 +348,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->checkAndPromptTelemetryPreference();
+    $this->migrateLegacyApiKey();
     $this->telemetryHelper->initializeAmplitude();
 
     if ($this->commandRequiresAuthentication($this->input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
@@ -354,6 +370,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   public function checkAndPromptTelemetryPreference(): void {
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    if (!isset($send_telemetry) || is_null($send_telemetry)) {
+      $this->migrateLegacySendTelemetryPreference();
+      $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    }
+    // Convert from serialized to unserialized.
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('user')
+      && is_string($this->datastoreCloud->get('user'))
+      && strpos($this->datastoreCloud->get('user'), 'a:') === 0
+    ) {
+      $value = Serializer::unserialize($this->datastoreCloud->get('user'));
+      $this->datastoreCloud->set('user', $value);
+    }
     if ($this->getName() !== 'telemetry' && (!isset($send_telemetry) || is_null($send_telemetry)) && $this->input->isInteractive()) {
       $this->output->writeln('We strive to give you the best tools for development.');
       $this->output->writeln('You can really help us improve by sharing anonymous performance and usage data.');
@@ -379,7 +408,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return int
    * @throws \Exception
    */
-  public function run(InputInterface $input, OutputInterface $output): int {
+  public function run(InputInterface $input, OutputInterface $output) {
     $exit_code = parent::run($input, $output);
     if ($exit_code === 0 && in_array($input->getFirstArgument(), ['self-update', 'update'])) {
       // Exit immediately to avoid loading additional classes breaking updates.
@@ -1180,8 +1209,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
     // Running on API commands would corrupt JSON output.
-    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE
-      || strpos($this->input->getArgument('command'), 'acsf:') !== FALSE) {
+    if (strpos($this->input->getArgument('command'), 'api:') !== FALSE) {
       return FALSE;
     }
     // Bail for development builds.
@@ -1424,6 +1452,55 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->logger->debug("Multisite detected");
     $this->warnMultisite();
     return $this->io->choice('Choose a site', $sites, $sites[0]);
+  }
+
+  /**
+   * Migrate from storing preference in acquia-cli.json.
+   */
+  protected function migrateLegacySendTelemetryPreference(): void {
+    $legacy_acli_config_filepath = $this->localMachineHelper->getLocalFilepath(Path::join(dirname($this->cloudConfigFilepath),
+      'acquia-cli.json'));
+    if ($this->localMachineHelper->getFilesystem()->exists($legacy_acli_config_filepath)) {
+      $legacy_acli_config = json_decode(file_get_contents($legacy_acli_config_filepath), TRUE);
+      if (array_key_exists('send_telemetry', $legacy_acli_config)) {
+        $send_telemetry = $legacy_acli_config['send_telemetry'];
+        $this->datastoreCloud->set('send_telemetry', $send_telemetry);
+      }
+    }
+  }
+
+  /**
+   * Migrate from storing only a single API key to storing multiple.
+   */
+  protected function migrateLegacyApiKey(): void {
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('key')
+      && $this->datastoreCloud->get('secret')
+      && !$this->datastoreCloud->get('acli_key')
+      && !$this->datastoreCloud->get('keys')
+    ) {
+      $uuid = $this->datastoreCloud->get('key');
+      $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$uuid}");
+      $keys[$uuid] = [
+        'label' => $token_info->label,
+        'uuid' => $uuid,
+        'secret' => $this->datastoreCloud->get('secret'),
+      ];
+      $this->datastoreCloud->set('keys', $keys);
+      $this->datastoreCloud->set('acli_key', $uuid);
+    }
+
+    // Convert from serialized to unserialized.
+    if ($this->datastoreCloud
+      && $this->datastoreCloud->get('acli_key')
+      && $this->datastoreCloud->get('keys')
+      && is_string($this->datastoreCloud->get('keys'))
+      && strpos($this->datastoreCloud->get('keys'), 'a:') === 0
+    ) {
+      $value = Serializer::unserialize($this->datastoreCloud->get('keys'));
+      $this->datastoreCloud->set('keys', $value);
+      $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri());
+    }
   }
 
   public static function getLandoInfo() {

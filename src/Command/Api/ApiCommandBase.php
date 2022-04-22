@@ -18,12 +18,9 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
 /**
- * Class ApiBaseCommand.
+ * Class ApiCommandBase.
  */
-class ApiBaseCommand extends CommandBase {
-
-  protected static $defaultName = 'api:base';
-
+class ApiCommandBase extends CommandBase {
   /**
    * @var string
    */
@@ -56,14 +53,6 @@ class ApiBaseCommand extends CommandBase {
 
   /** @var array  */
   private $pathParams = [];
-
-  /**
-   *
-   */
-  protected function configure() {
-    $this->setHidden(TRUE);
-    parent::configure();
-  }
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input

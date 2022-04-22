@@ -3,11 +3,10 @@
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLogoutCommand;
-use Acquia\Cli\Config\CloudDataConfig;
-use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthLogoutCommandTest.
@@ -47,7 +46,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
    */
   public function testAuthLogoutCommand($machine_is_authenticated, $inputs): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
 
@@ -55,7 +54,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     // Assert creds are removed locally.
     $this->assertFileExists($this->cloudConfigFilepath);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
+    $config = new JsonFileStore($this->cloudConfigFilepath, JsonFileStore::NO_SERIALIZE_STRINGS);
     $this->assertFalse($config->exists('acli_key'));
   }
 

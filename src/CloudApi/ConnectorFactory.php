@@ -2,11 +2,10 @@
 
 namespace Acquia\Cli\CloudApi;
 
-use Acquia\Cli\ConnectorFactoryInterface;
 use AcquiaCloudApi\Connector\Connector;
 use League\OAuth2\Client\Token\AccessToken;
 
-class ConnectorFactory implements ConnectorFactoryInterface {
+class ConnectorFactory {
 
   protected $config;
   protected $baseUri;

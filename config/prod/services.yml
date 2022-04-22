@@ -19,36 +19,26 @@ services:
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
       $repoRoot: "%app.repo_root%"
       $sshDir: "%app.ssh_dir%"
+      Webmozart\KeyValueStore\JsonFileStore $datastoreCloud: '@datastore.cloud'
+      Acquia\Cli\DataStore\YamlStore $datastoreAcli: '@datastore.acli'
     public: true
 
   # Register nearly all Acquia CLI classes as services.
   Acquia\Cli\:
     exclude:
       - ../../src/Kernel.php
-      - ../../src/DataStore/Datastore.php
+      - ../../src/Command/Api/ApiCommandBase.php
+      - ../../src/Command/Api/ApiListCommandBase.php
       - ../../src/DataStore/YamlStore.php
-      - ../../src/DataStore/JsonDataStore.php
       - ../../src/CloudApi/AccessTokenConnector.php
     public: true
     resource: ../../src
-
-  Acquia\Cli\Config\AcquiaCliConfig: ~
-  Acquia\Cli\Config\CloudDataConfig: ~
-
-  Acquia\Cli\DataStore\AcquiaCliDatastore: ~
-  Acquia\Cli\DataStore\CloudDataStore: ~
 
   # All commands inherit from a common base and use the same DI parameters.
   Acquia\Cli\Command\:
     resource: ../../src/Command
     parent: Acquia\Cli\Command\CommandBase
-    exclude:
-      - ../../src/Command/CommandBase.php
-      - ../../src/Command/Acsf/AcsfCommandBase.php
-      - ../../src/Command/Acsf/AcsfListCommandBase.php
-      - ../../src/Command/Acsf/AcsfApiBaseCommand.php
-      - ../../src/Command/Api/ApiBaseCommand.php
-      - ../../src/Command/Api/ApiListCommandBase.php
+    exclude: [../../src/Command/CommandBase.php, ../../src/Command/Api/ApiCommandBase.php, ../../src/Command/Api/ApiListCommandBase.php,]
   Acquia\Cli\Command\CommandBase:
     abstract: true
 
@@ -63,28 +53,25 @@ services:
       - { name: kernel.event_listener, event: console.terminate, method: onConsoleTerminate}
       - { name: kernel.event_listener, event: console.command, method: onConsoleCommand}
 
-  Acquia\Cli\ApiCredentialsInterface:
-    alias: Acquia\Cli\CloudApi\CloudCredentials
+  # We have multiple datastores using the same class, just different arguments.
+  datastore.cloud:
+    class: Webmozart\KeyValueStore\JsonFileStore
+    arguments:
+      $path: '%app.cloud_config_filepath%'
+      # NO_SERIALIZE_STRINGS & NO_SERIALIZE_ARRAYS
+      $flags: 3
+  datastore.acli:
+    class: Acquia\Cli\DataStore\YamlStore
+    arguments:
+      $path: '%app.acli_config_filepath%'
 
   cloud.credentials:
     class: Acquia\Cli\CloudApi\CloudCredentials
-
-  acsf.credentials:
-    class: Acquia\Cli\AcsfApi\AcsfCredentials
+    arguments:
+      $datastoreCloud: '@datastore.cloud'
 
   # AcquiaCloudApi services.
-  Acquia\Cli\Command\Api\ApiCommandFactory: ~
-  Acquia\Cli\Command\Api\ApiBaseCommand:
-    class: Acquia\Cli\Command\Api\ApiBaseCommand
-    factory: ['@Acquia\Cli\Command\Api\ApiCommandFactory', 'createCommand']
-  Acquia\Cli\Command\Api\ApiListCommandBase:
-    class: Acquia\Cli\Command\Api\ApiListCommandBase
-    factory: [ '@Acquia\Cli\Command\Api\ApiCommandFactory', 'createListCommand' ]
   AcquiaCloudApi\Connector\Client: ~
-  Acquia\Cli\ClientServiceInterface:
-      alias: Acquia\Cli\CloudApi\ClientService
-  Acquia\Cli\ConnectorFactoryInterface:
-    alias: Acquia\Cli\CloudApi\ConnectorFactory
   Acquia\Cli\CloudApi\ConnectorFactory:
     arguments:
       $config:
@@ -99,24 +86,6 @@ services:
   AcquiaCloudApi\Connector\Connector:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaLogstream\LogstreamManager: ~
-
-  # Acquia Cloud Site Factory Services.
-  Acquia\Cli\AcsfApi\AcsfConnectorFactory:
-    arguments:
-      $config:
-        # @see https://symfony.com/doc/current/service_container/expression_language.html
-        key: '@=service("acsf.credentials").getCloudKey()'
-        secret: '@=service("acsf.credentials").getCloudSecret()'
-      $base_uri: '@=service("acsf.credentials").getBaseUri()'
-  Acquia\Cli\AcsfApi\AcsfConnector:
-    alias: Acquia\Cli\AcsfApi\AcsfConnectorFactory
-  Acquia\Cli\Command\Acsf\AcsfCommandFactory: ~
-  Acquia\Cli\Command\Acsf\AcsfApiBaseCommand:
-    class: Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
-    factory: ['@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createCommand']
-  Acquia\Cli\Command\Acsf\AcsfListCommandBase:
-    class: Acquia\Cli\Command\Acsf\AcsfListCommandBase
-    factory: [ '@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createListCommand' ]
 
   # Symfony services.
   Acquia\Cli\Application: ~
