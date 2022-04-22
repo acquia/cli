@@ -92,9 +92,4 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->removeMockGitConfig();
-  }
-
 }

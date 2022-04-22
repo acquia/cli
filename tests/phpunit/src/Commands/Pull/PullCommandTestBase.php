@@ -15,16 +15,6 @@ use Symfony\Component\Process\Process;
  */
 abstract class PullCommandTestBase extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
-    parent::setUp();
-    $this->removeMockGitConfig();
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->removeMockGitConfig();
-  }
-
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */

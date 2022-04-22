@@ -185,15 +185,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function createMockGitConfigFile(): void {
     // Create mock git config file.
-    $this->fs->remove([$this->getTargetGitConfigFixture()]);
     $this->fs->copy($this->getSourceGitConfigFixture(), $this->getTargetGitConfigFixture());
-  }
-
-  /**
-   * Remove mock .git/config.
-   */
-  protected function removeMockGitConfig(): void {
-    $this->fs->remove([$this->getTargetGitConfigFixture(), dirname($this->getTargetGitConfigFixture())]);
   }
 
   /**
