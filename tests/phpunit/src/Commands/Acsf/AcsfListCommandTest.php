@@ -61,7 +61,7 @@ class AcsfListCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testListCommand(): void {
-    $this->command = $this->injectCommand(ListCommand::class);
+    $this->command = new ListCommand('list');
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('acsf:cron-jobs', $output);

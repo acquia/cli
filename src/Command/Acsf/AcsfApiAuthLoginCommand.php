@@ -47,6 +47,9 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
       $factories = $this->datastoreCloud->get('acsf_factories');
       $factory_choices = $factories;
+      foreach ($factory_choices as $url => $factory_choice) {
+        $factory_choices[$url]['url'] = $url;
+      }
       $factory_choices['add_new'] = [
         'url' => 'Enter a new factory URL',
       ];
@@ -87,7 +90,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $username = $input->getOption('username');
     $password = $input->getOption('password');
     $this->writeAcsfCredentialsToDisk($factory_url, $username, $password);
-    $output->writeln("<info>Saved credentials to <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("<info>Saved credentials</info>");
 
     return 0;
   }

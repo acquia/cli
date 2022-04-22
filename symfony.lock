@@ -83,9 +83,6 @@
     "http-interop/http-factory-guzzle": {
         "version": "1.2.0"
     },
-    "justinrainbow/json-schema": {
-        "version": "1.6.1"
-    },
     "kevinrob/guzzle-cache-middleware": {
         "version": "v3.5.0"
     },
@@ -501,12 +498,6 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "webmozart/json": {
-        "version": "1.2.2"
-    },
-    "webmozart/key-value-store": {
-        "version": "1.0.0"
     },
     "webmozart/path-util": {
         "version": "2.3.0"

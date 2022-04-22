@@ -5,10 +5,10 @@ namespace Acquia\Cli\CloudApi;
 use Acquia\Cli\Application;
 use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\ConnectorFactoryInterface;
+use Acquia\Cli\DataStore\CloudDataStore;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -75,11 +75,11 @@ class ClientService implements ClientServiceInterface {
   }
 
   /**
-   * @param JsonFileStore $cloud_datastore
+   * @param CloudDataStore $cloud_datastore
    *
    * @return bool
    */
-  public function isMachineAuthenticated(JsonFileStore $cloud_datastore): ?bool {
+  public function isMachineAuthenticated(CloudDataStore $cloud_datastore): ?bool {
     if ($this->machineIsAuthenticated) {
       return $this->machineIsAuthenticated;
     }

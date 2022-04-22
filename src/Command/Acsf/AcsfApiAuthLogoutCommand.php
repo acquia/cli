@@ -43,6 +43,9 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       return 1;
     }
     $factories = $this->datastoreCloud->get('acsf_factories');
+    foreach ($factories as $url => $factory) {
+      $factories[$url]['url'] = $url;
+    }
     $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
     $factory_url = $factory['url'];
 
@@ -62,7 +65,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     $this->datastoreCloud->set('acsf_factories', $factories);
     $this->datastoreCloud->remove('acsf_active_factory');
 
-    $output->writeln("Logged {$active_user['username']} out of $factory_url in <options=bold>{$this->cloudConfigFilepath}</></info>");
+    $output->writeln("Logged {$active_user['username']} out of $factory_url</info>");
 
     return 0;
   }

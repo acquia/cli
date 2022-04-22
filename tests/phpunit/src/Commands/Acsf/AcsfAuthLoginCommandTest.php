@@ -5,10 +5,11 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthCommandTest.
@@ -46,17 +47,14 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
       ],
       // Data set 1.
       [
         // $machine_is_authenticated
         FALSE,
         // $inputs
-        [
-          // Would you like to share anonymous performance usage and data? (yes/no) [yes]
-          'yes',
-        ],
+        [],
         // Arguments.
         [
           // Enter the full URL of the factory
@@ -67,7 +65,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
           '--password' => $this->acsfPassword,
         ],
         // Output to assert.
-        'Saved credentials to',
+        'Saved credentials',
         // $config.
         $this->getAcsfCredentialsFileContents(),
       ],
@@ -101,28 +99,31 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param $inputs
    * @param $args
    * @param $output_to_assert
+   * @param array $config
    *
-   * @requires OS linux|darwin
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
     else {
+      $this->removeMockCloudConfigFile();
       $this->createMockCloudConfigFile($config);
     }
+    $this->createDataStores();
+    $this->command = $this->createCommand();
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
     $this->assertKeySavedCorrectly();
-    if ($machine_is_authenticated) {
-      $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
-      $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
-      $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
-    }
+    $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
+    $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
+    $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
+
   }
 
   public function providerTestAuthLoginInvalidInputCommand(): array {
@@ -152,8 +153,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @throws \Exception
    */
   public function testAcsfAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
+    $this->createDataStores();
+    $this->command = $this->createCommand();
+
     try {
       $this->executeCommand($args, $inputs);
     }
@@ -168,7 +172,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
-    $config = new JsonFileStore($creds_file, JsonFileStore::NO_SERIALIZE_STRINGS);
+    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $creds_file);
     $this->assertTrue($config->exists('acsf_active_factory'));
     $factory_url = $config->get('acsf_active_factory');
     $this->assertTrue($config->exists('acsf_factories'));
@@ -176,7 +180,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey($factory_url, $factories);
     $factory = $factories[$factory_url];
     $this->assertArrayHasKey('users', $factory);
-    $this->assertArrayHasKey('url', $factory);
     $this->assertArrayHasKey('active_user', $factory);
     $this->assertEquals($this->acsfUsername, $factory['active_user']);
     $users = $factory['users'];

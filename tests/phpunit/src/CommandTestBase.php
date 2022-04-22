@@ -458,13 +458,12 @@ abstract class CommandTestBase extends TestBase {
    * @return \Acquia\Cli\Command\Api\ApiCommandFactory
    */
   protected function getCommandFactory(): CommandFactoryInterface {
-    return new ApiCommandFactory($this->cloudConfigFilepath,
+    return new ApiCommandFactory(
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilename,
       $this->projectFixtureDir,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
