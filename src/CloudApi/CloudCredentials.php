@@ -2,25 +2,24 @@
 
 namespace Acquia\Cli\CloudApi;
 
-use Acquia\Cli\ApiCredentialsInterface;
-use Acquia\Cli\DataStore\CloudDataStore;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * @package Acquia\Cli\Helpers
  */
-class CloudCredentials implements ApiCredentialsInterface {
+class CloudCredentials {
 
   /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
+   * @var \Webmozart\KeyValueStore\JsonFileStore
    */
   private $datastoreCloud;
 
   /**
    * CloudCredentials constructor.
    *
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
+   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
    */
-  public function __construct(CloudDataStore $datastoreCloud) {
+  public function __construct(JsonFileStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
   }
 

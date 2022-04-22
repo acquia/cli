@@ -3,13 +3,12 @@
 namespace Acquia\Cli\Tests\Commands\Auth;
 
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
-use Acquia\Cli\Config\CloudDataConfig;
-use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
+use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class AuthCommandTest.
@@ -46,7 +45,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials',
+        'Saved credentials to',
       ],
       [
         // $machine_is_authenticated
@@ -68,7 +67,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // No arguments, all interactive.
         [],
         // Output to assert.
-        'Saved credentials',
+        'Saved credentials to',
       ],
       [
         // $machine_is_authenticated
@@ -97,7 +96,7 @@ class AuthLoginCommandTest extends CommandTestBase {
         // Args.
         ['--key' => $this->key, '--secret' => $this->secret],
         // Output to assert.
-        'Saved credentials',
+        'Saved credentials to',
       ],
     ];
   }
@@ -117,10 +116,8 @@ class AuthLoginCommandTest extends CommandTestBase {
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
     $mock_body = $this->mockTokenRequest();
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
-      $this->createDataStores();
-      $this->command = $this->createCommand();
     }
 
     $this->executeCommand($args, $inputs);
@@ -160,16 +157,31 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
-    $this->createDataStores();
-    $this->command = $this->createCommand();
     try {
       $this->executeCommand($args, $inputs);
     }
     catch (ValidatorException $exception) {
       $this->assertEquals(ValidatorException::class, get_class($exception));
     }
+  }
+
+  public function testMigrateLegacyApiKey() {
+    $mock_body = $this->mockTokenRequest();
+    $this->removeMockCloudConfigFile();
+    $this->createMockCloudConfigFile([
+      'key' => $mock_body->uuid,
+      'secret' => 'test',
+      DataStoreContract::SEND_TELEMETRY => FALSE,
+    ]);
+    $inputs = [
+      // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
+      'n',
+    ];
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?', $output);
   }
 
   /**
@@ -186,12 +198,13 @@ class AuthLoginCommandTest extends CommandTestBase {
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $creds_file);
+    $config = new JsonFileStore($creds_file, JsonFileStore::NO_SERIALIZE_STRINGS);
     $this->assertTrue($config->exists('acli_key'));
     $this->assertEquals($this->key, $config->get('acli_key'));
     $this->assertTrue($config->exists('keys'));
     $keys = $config->get('keys');
     $this->assertArrayHasKey($this->key, $keys);
+    $this->assertArrayHasKey('uuid', $keys[$this->key]);
     $this->assertArrayHasKey('label', $keys[$this->key]);
     $this->assertArrayHasKey('secret', $keys[$this->key]);
     $this->assertEquals($this->secret, $keys[$this->key]['secret']);

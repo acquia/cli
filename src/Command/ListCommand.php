@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command;
 
-use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
 use Acquia\Cli\Command\Api\ApiListCommandBase;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,18 +15,14 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
   /**
    * {@inheritdoc}
    */
-  protected function execute(InputInterface $input, OutputInterface $output): int {
-    foreach (['api', 'acsf'] as $prefix) {
-      if ($input->getArgument('namespace') !== $prefix) {
-        $all_commands = $this->getApplication()->all();
-        foreach ($all_commands as $command) {
-          if (
-            !is_a($command, ApiListCommandBase::class)
-            && !is_a($command, AcsfListCommandBase::class)
-            && strpos($command->getName(), $prefix . ':') !== FALSE
-          ) {
-            $command->setHidden(TRUE);
-          }
+  protected function execute(InputInterface $input, OutputInterface $output) {
+    if ($input->getArgument('namespace') !== 'api') {
+      $all_commands = $this->getApplication()->all();
+      foreach ($all_commands as $command) {
+        if (!is_a($command, ApiListCommandBase::class)
+          && strpos($command->getName(), 'api:') !== FALSE
+        ) {
+          $command->setHidden(TRUE);
         }
       }
     }

@@ -39,7 +39,7 @@ class AuthLogoutCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
+    /** @var \Webmozart\KeyValueStore\JsonFileStore $cloud_datastore */
     if ($this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       $answer = $this->io->confirm('Are you sure you\'d like to unset the Acquia Cloud API key for Acquia CLI?');
       if (!$answer) {
@@ -48,7 +48,7 @@ class AuthLogoutCommand extends CommandBase {
     }
     $this->datastoreCloud->remove('acli_key');
 
-    $output->writeln("Unset the Acquia Cloud API key for Acquia CLI</info>");
+    $output->writeln("Unset the Acquia Cloud API key for Acquia CLI in <options=bold>{$this->cloudConfigFilepath}</></info>");
 
     return 0;
   }
