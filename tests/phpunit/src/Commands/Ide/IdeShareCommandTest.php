@@ -36,7 +36,7 @@ class IdeShareCommandTest extends CommandTestBase {
   public function setUp($output = NULL): void {
     parent::setUp();
     $this->shareCode = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $shareCodeFilepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_share_uuid_');
+    $shareCodeFilepath = $this->fs->tempnam($this->tmpDir, 'acli_share_uuid_');
     $this->fs->dumpFile($shareCodeFilepath, $this->shareCode);
     $this->command->setShareCodeFilepaths([$shareCodeFilepath]);
     IdeRequiredTestTrait::setCloudIdeEnvVars();

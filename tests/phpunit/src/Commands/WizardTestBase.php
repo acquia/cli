@@ -97,7 +97,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
     // Remove SSH key if it exists.
-    $this->fs->remove(Path::join(sys_get_temp_dir(), $this->sshKeyFileName));
+    $this->fs->remove(Path::join($this->tmpDir, $this->sshKeyFileName));
 
     // Set properties and execute.
     $this->executeCommand([], [

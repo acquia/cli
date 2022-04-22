@@ -183,7 +183,7 @@
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "paratest",
-        "coverage": "paratest --coverage-xml=build/logs",
+        "coverage": "paratest --coverage-clover=build/logs/clover.xml",
         "lint": "phplint",
         "test": [
             "@lint",

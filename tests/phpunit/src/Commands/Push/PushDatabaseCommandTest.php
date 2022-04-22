@@ -93,7 +93,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
       'rsync',
       '-tDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
+      $this->tmpDir . '/acli-mysql-dump-drupal.sql.gz',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)

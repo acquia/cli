@@ -20,5 +20,12 @@
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
   <rule ref="AcquiaPHP"/>
-
+  <rule ref="Generic.PHP.ForbiddenFunctions">
+    <properties>
+      <property name="forbiddenFunctions" type="array">
+        <!-- sys_get_temp_dir is not thread safe. Use the $tmpDir provided via Symfony config instead. -->
+        <element key="sys_get_temp_dir" value="null"/>
+      </property>
+    </properties>
+  </rule>
 </ruleset>

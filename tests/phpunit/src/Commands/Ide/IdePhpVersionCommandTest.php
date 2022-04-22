@@ -55,10 +55,10 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     $this->mockRestartPhp($local_machine_helper);
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
     $mock_file_system->copy(Argument::type('string'), '/home/ide/configs/php/xdebug.ini', TRUE)->willReturn(TRUE);
-    $php_filepath_prefix = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_stub_');
+    $php_filepath_prefix = $this->fs->tempnam($this->tmpDir, 'acli_php_stub_');
     $php_stub_filepath = $php_filepath_prefix . $version;
     $mock_file_system->exists($php_stub_filepath)->willReturn(TRUE);
-    $php_version_file_path = $this->fs->tempnam(sys_get_temp_dir(), 'acli_php_version_file_');
+    $php_version_file_path = $this->fs->tempnam($this->tmpDir, 'acli_php_version_file_');
     $mock_file_system->dumpFile($php_version_file_path, $version)->shouldBeCalled();
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();

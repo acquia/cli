@@ -25,7 +25,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
   }
 
   public function testArchiveExport(): void {
-    $destination_dir = sys_get_temp_dir();
+    $destination_dir = $this->tmpDir;
     $local_machine_helper = $this->mockLocalMachineHelper();
     $file_system = $this->mockFileSystem($destination_dir);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();

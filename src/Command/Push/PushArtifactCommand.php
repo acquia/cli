@@ -88,7 +88,7 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $artifact_dir = Path::join($this->tmpDir, 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
     $this->docrootPath = Path::join($this->dir, 'docroot');
     $this->drupalCorePath = Path::join($this->docrootPath, 'core');

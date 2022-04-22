@@ -205,6 +205,7 @@ abstract class TestBase extends TestCase {
     $this->dataDir = $this->fixtureDir . '/.acquia';
     $this->sshDir = $this->getTempDir();
     $this->tmpDir = $this->getTempDir();
+    putenv("TMPDIR=" . $this->tmpDir);
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
@@ -227,9 +228,16 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * Create a guaranteed-unique temporary directory.
+   *
    * @throws \Exception
    */
   private function getTempDir() {
+    /**
+     * sys_get_temp_dir() is not thread-safe but it's okay to use here since
+     * we are specifically creating a thread-safe temporary directory.
+     */
+    // phpcs:ignore
     $dir = sys_get_temp_dir();
 
     // /tmp is a symlink to /private/tmp on Mac, which causes inconsistency when

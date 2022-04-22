@@ -1627,7 +1627,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): string {
     $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);
     $filename = "acli-mysql-dump-{$db_name}.sql.gz";
-    $local_temp_dir = sys_get_temp_dir();
+    $local_temp_dir = $this->tmpDir;
     $local_filepath = $local_temp_dir . '/' . $filename;
     $this->logger->debug("Dumping MySQL database to $local_filepath on this machine");
     $this->localMachineHelper->checkRequiredBinariesExist(['mysqldump', 'gzip']);

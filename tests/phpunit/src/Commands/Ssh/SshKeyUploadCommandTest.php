@@ -122,7 +122,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
       // Label
       'Test'
     ];
-    $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
+    $filepath = Path::join($this->tmpDir, 'notarealfile');
     $args = ['--filepath' => $filepath];
     try {
       $this->executeCommand($args, $inputs);

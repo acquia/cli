@@ -53,7 +53,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return string
    */
-  public static function getBackupPath($environment, $database, $backup_response): string {
+  public static function getBackupPath($environment, $database, $backup_response, $tmpDir): string {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', [
         $environment->name,
@@ -61,7 +61,7 @@ abstract class PullCommandBase extends CommandBase {
         trim(parse_url($database->url, PHP_URL_PATH), '/'),
         $backup_response->completedAt
       ]) . '.sql.gz';
-    return Path::join(sys_get_temp_dir(), $filename);
+    return Path::join($tmpDir, $filename);
   }
 
   /**
@@ -253,7 +253,7 @@ abstract class PullCommandBase extends CommandBase {
     if ($output_callback) {
       $output_callback('out', "Downloading backup {$backup_response->id}");
     }
-    $local_filepath = self::getBackupPath($environment, $database, $backup_response);
+    $local_filepath = self::getBackupPath($environment, $database, $backup_response, $this->tmpDir);
     if ($this->output instanceof ConsoleOutput) {
       $output = $this->output->section();
     }

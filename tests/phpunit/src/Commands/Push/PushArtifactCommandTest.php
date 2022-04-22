@@ -69,7 +69,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->setUpPushArtifact($local_machine_helper, '1.2.0', [$selected_environment->vcs->url]);
     $git_tag = '1.2.0-build';
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $artifact_dir = Path::join($this->tmpDir, 'acli-push-artifact');
     $this->mockGitTag($local_machine_helper, $git_tag, $artifact_dir);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -145,7 +145,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param $vcs_urls
    */
   protected function setUpPushArtifact($local_machine_helper, $vcs_path, $vcs_urls) {
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $artifact_dir = Path::join($this->tmpDir, 'acli-push-artifact');
     $this->createMockGitConfigFile();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());

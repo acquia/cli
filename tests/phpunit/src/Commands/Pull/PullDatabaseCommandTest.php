@@ -474,7 +474,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
     $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
-    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
+    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup, $this->tmpDir);
     $this->clientProphecy->addOption('sink', $local_filepath);
     $this->clientProphecy->addOption('curl.options', [
       'CURLOPT_RETURNTRANSFER' => FALSE,

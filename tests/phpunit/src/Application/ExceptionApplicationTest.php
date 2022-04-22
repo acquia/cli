@@ -30,9 +30,6 @@ class ExceptionApplicationTest extends TestBase {
 
   public function setUp($output = NULL):void {
     parent::setUp($output);
-    // If kernel is cached from a previous run, it doesn't get detected in code
-    // coverage reports.
-    $this->fs->remove('var/cache');
     $this->kernel = new Kernel('dev', 0);
     $this->kernel->boot();
     $this->kernel->getContainer()->set('datastore.cloud', $this->datastoreCloud);

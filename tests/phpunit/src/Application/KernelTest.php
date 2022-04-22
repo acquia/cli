@@ -4,7 +4,7 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\Kernel;
-use PHPUnit\Framework\TestCase;
+use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -13,13 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @package Acquia\Cli\Tests\Application
  */
-class KernelTest extends TestCase {
-
-  public function setUp():void {
-    // If kernel is cached from a previous run, it doesn't get detected in code
-    // coverage reports.
-    shell_exec('rm -rf var/cache');
-  }
+class KernelTest extends TestBase {
 
   public function testRun(): void {
     $kernel = new Kernel('dev', 0);

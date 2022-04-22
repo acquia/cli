@@ -373,7 +373,7 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess(TRUE);
     $process->getOutput()->willReturn('');
-    $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
+    $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . $this->tmpDir . '/acli-mysql-dump-drupal.sql.gz';
     $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
       ->shouldBeCalled();
   }
