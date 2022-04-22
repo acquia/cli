@@ -379,7 +379,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return int
    * @throws \Exception
    */
-  public function run(InputInterface $input, OutputInterface $output) {
+  public function run(InputInterface $input, OutputInterface $output): int {
     $exit_code = parent::run($input, $output);
     if ($exit_code === 0 && in_array($input->getFirstArgument(), ['self-update', 'update'])) {
       // Exit immediately to avoid loading additional classes breaking updates.
