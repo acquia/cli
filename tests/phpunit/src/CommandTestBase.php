@@ -2,7 +2,10 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Api\ApiCommandFactory;
+use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -17,7 +20,6 @@ use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -40,6 +42,8 @@ abstract class CommandTestBase extends TestBase {
    * @var \Acquia\Cli\Command\CommandBase
    */
   protected $command;
+
+  protected string $apiCommandPrefix = 'api';
 
   /**
    * Creates a command object to test.
@@ -280,6 +284,12 @@ abstract class CommandTestBase extends TestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
+    if (!$success) {
+      $process->getErrorOutput()->willReturn('error');
+    }
+    else {
+      $process->getErrorOutput()->willReturn('');
+    }
     return $process;
   }
 
@@ -448,6 +458,52 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper->getFinder()->willReturn($finder);
 
     return $file_name;
+  }
+
+  /**
+   * @return \Acquia\Cli\Command\Api\ApiCommandFactory
+   */
+  protected function getCommandFactory(): CommandFactoryInterface {
+    return new ApiCommandFactory(
+      $this->localMachineHelper,
+      $this->datastoreCloud,
+      $this->datastoreAcli,
+      $this->cloudCredentials,
+      $this->telemetryHelper,
+      $this->projectFixtureDir,
+      $this->clientServiceProphecy->reveal(),
+      $this->logStreamManagerProphecy->reveal(),
+      $this->sshHelper,
+      $this->sshDir,
+      $this->logger
+    );
+  }
+
+  /**
+   * @return array
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getApiCommands(): array {
+    $api_command_helper = new ApiCommandHelper($this->logger);
+    $command_factory = $this->getCommandFactory();
+    return $api_command_helper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $command_factory);
+  }
+
+  /**
+   * @param string $name
+   *
+   * @return \Acquia\Cli\Command\Api\ApiBaseCommand|\Acquia\Cli\Command\Acsf\AcsfCommandBase
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function getApiCommandByName(string $name) {
+    $api_commands = $this->getApiCommands();
+    foreach ($api_commands as $api_command) {
+      if ($api_command->getName() === $name) {
+        return $api_command;
+      }
+    }
+
+    return NULL;
   }
 
 }

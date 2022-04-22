@@ -75,11 +75,12 @@ class TelemetryCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testTelemetryPrompt(array $inputs, $message): void {
-    $this->command = $this->injectCommand(LinkCommand::class);
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
     $this->createMockConfigFiles();
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
+    $this->createDataStores();
     $this->mockApplicationRequest();
+    $this->command = $this->injectCommand(LinkCommand::class);
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
 

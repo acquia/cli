@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        php: ["7.4", "8.0", "8.1"]
+        php: ["8.0", "8.1"]
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.

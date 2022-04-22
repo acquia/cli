@@ -354,7 +354,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlDropDb(
-    ObjectProphecy $local_machine_helper,
+    $local_machine_helper,
     bool $success
   ): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
