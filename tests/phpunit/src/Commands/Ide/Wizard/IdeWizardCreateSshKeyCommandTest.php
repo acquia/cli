@@ -48,8 +48,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   protected function mockIdeRequest(): IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . $this::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
-    $ide = new IdeResponse((object) $ide_response);
-    return $ide;
+    return new IdeResponse((object) $ide_response);
   }
 
   public function testCreate(): void {

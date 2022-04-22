@@ -16,7 +16,7 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
   /**
    * {@inheritdoc}
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     foreach (['api', 'acsf'] as $prefix) {
       if ($input->getArgument('namespace') !== $prefix) {
         $all_commands = $this->getApplication()->all();
