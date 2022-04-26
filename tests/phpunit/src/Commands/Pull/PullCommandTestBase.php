@@ -17,12 +17,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   public function setUp($output = NULL): void {
     parent::setUp();
-    $this->removeMockGitConfig();
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->removeMockGitConfig();
   }
 
   /**

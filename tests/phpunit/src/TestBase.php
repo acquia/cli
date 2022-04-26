@@ -201,15 +201,15 @@ abstract class TestBase extends TestCase {
     $this->setClientProphecies();
     $this->setIo($input, $output);
 
-    $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
+    $this->fixtureDir = $this->getTempDir();
+    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->sshDir = sys_get_temp_dir();
+    $this->sshDir = $this->getTempDir();
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
-    $this->removeMockConfigFiles();
     $this->createMockConfigFiles();
     $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
@@ -220,9 +220,49 @@ abstract class TestBase extends TestCase {
     parent::setUp();
   }
 
+  /**
+   * Create a guaranteed-unique temporary directory.
+   *
+   * @throws \Exception
+   */
+  private function getTempDir() {
+    /**
+     * sys_get_temp_dir() is not thread-safe but it's okay to use here since
+     * we are specifically creating a thread-safe temporary directory.
+     */
+    // phpcs:ignore
+    $dir = sys_get_temp_dir();
+
+    // /tmp is a symlink to /private/tmp on Mac, which causes inconsistency when
+    // normalizing paths.
+    if (PHP_OS_FAMILY === 'Darwin') {
+      $dir = Path::join('/private', $dir);
+    }
+
+    /* If we don't have permission to create a directory, fail, otherwise we will
+     * be stuck in an endless loop.
+     */
+    if (!is_dir($dir) || !is_writable($dir)) {
+      return FALSE;
+    }
+
+    /* Attempt to create a random directory until it works. Abort if we reach
+     * $maxAttempts. Something screwy could be happening with the filesystem
+     * and our loop could otherwise become endless.
+     */
+    $attempts = 0;
+    do {
+      $path = sprintf('%s%s%s%s', $dir, DIRECTORY_SEPARATOR, 'tmp_', random_int(100000, mt_getrandmax()));
+    } while (
+      !mkdir($path, 0700) &&
+      $attempts++ < 10
+    );
+
+    return $path;
+  }
+
   protected function tearDown(): void {
     parent::tearDown();
-    $this->removeMockConfigFiles();
     // $loop is statically cached by Loop::get() in some tests. To prevent it
     // persisting into other tests we must use Factory::create() to reset it.
     // @phpstan-ignore-next-line
@@ -419,10 +459,7 @@ abstract class TestBase extends TestCase {
    * @return string
    */
   protected function createLocalSshKey($contents): string {
-    $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
-    $this->fs->remove($finder->files());
-    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($private_key_filepath);
     $public_key_filepath = $private_key_filepath . '.pub';
     $this->fs->dumpFile($public_key_filepath, $contents);
