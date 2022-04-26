@@ -162,7 +162,7 @@
         ],
         "update-acsf-api-spec": [
             "rm -rf gardener",
-            "git clone --single-branch -b 2.139-RC-1 --depth 1 git@github.com:acquia/gardener.git",
+            "git clone --single-branch -b master --depth 1 git@github.com:acquia/gardener.git",
             "composer install --working-dir=gardener",
             "php gardener/tools/openapi_spec_gen.php gen > assets/acsf-spec.yaml",
             "rm -rf gardener"
