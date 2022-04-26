@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\DocsCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -29,6 +30,9 @@ class DocsCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testDocsCommand($input, $expectedOutput): void {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper->startBrowser(Argument::any())->shouldBeCalled();
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->executeCommand([], [$input]);
     $output = $this->getDisplay();
     $this->assertStringContainsString('Please select the Acquia Product [Acquia CLI]:', $output);
