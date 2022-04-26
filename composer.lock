@@ -1583,16 +1583,16 @@
         },
         {
             "name": "m4tthumphrey/php-gitlab-api",
-            "version": "11.7.0",
+            "version": "11.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GitLabPHP/Client.git",
-                "reference": "999b98f14a90efb621dcad1aa9c4b6eb3fc9a3e7"
+                "reference": "38380c933ada8fd2099bc611f0de23c339cdb04a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/999b98f14a90efb621dcad1aa9c4b6eb3fc9a3e7",
-                "reference": "999b98f14a90efb621dcad1aa9c4b6eb3fc9a3e7",
+                "url": "https://api.github.com/repos/GitLabPHP/Client/zipball/38380c933ada8fd2099bc611f0de23c339cdb04a",
+                "reference": "38380c933ada8fd2099bc611f0de23c339cdb04a",
                 "shasum": ""
             },
             "require": {
@@ -1655,7 +1655,7 @@
             ],
             "support": {
                 "issues": "https://github.com/GitLabPHP/Client/issues",
-                "source": "https://github.com/GitLabPHP/Client/tree/11.7.0"
+                "source": "https://github.com/GitLabPHP/Client/tree/11.8.0"
             },
             "funding": [
                 {
@@ -1663,7 +1663,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-01-24T02:54:41+00:00"
+            "time": "2022-04-24T19:04:02+00:00"
         },
         {
             "name": "marc-mabe/php-enum",
@@ -5997,12 +5997,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-logstream.git",
-                "reference": "9d05a5686807aab320a524cae5285428bdfcf717"
+                "reference": "f5356e0220dab7391f5eb34524a82c7adf4bbe91"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/9d05a5686807aab320a524cae5285428bdfcf717",
-                "reference": "9d05a5686807aab320a524cae5285428bdfcf717",
+                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/f5356e0220dab7391f5eb34524a82c7adf4bbe91",
+                "reference": "f5356e0220dab7391f5eb34524a82c7adf4bbe91",
                 "shasum": ""
             },
             "require": {
@@ -6046,7 +6046,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-21T15:33:45+00:00"
+            "time": "2022-04-26T14:24:44+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
@@ -8368,16 +8368,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.4.4",
+            "version": "1.4.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "d8e9fd97ca11f2f24fc1aafbcfb1f78bce762267"
+                "reference": "129a63b3bc7caeb593c224c41f420675e63cfefc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/d8e9fd97ca11f2f24fc1aafbcfb1f78bce762267",
-                "reference": "d8e9fd97ca11f2f24fc1aafbcfb1f78bce762267",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/129a63b3bc7caeb593c224c41f420675e63cfefc",
+                "reference": "129a63b3bc7caeb593c224c41f420675e63cfefc",
                 "shasum": ""
             },
             "require": {
@@ -8406,22 +8406,22 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.4.4"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.4.5"
             },
-            "time": "2022-04-14T12:24:06+00:00"
+            "time": "2022-04-22T11:11:01+00:00"
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.5.7",
+            "version": "1.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "7fb7e2e1e9f3d59a26a413b2d3d5e47f0edb75ac"
+                "reference": "e8852764cf5ec8dcd2a3fa8ea03cbcf523639419"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/7fb7e2e1e9f3d59a26a413b2d3d5e47f0edb75ac",
-                "reference": "7fb7e2e1e9f3d59a26a413b2d3d5e47f0edb75ac",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/e8852764cf5ec8dcd2a3fa8ea03cbcf523639419",
+                "reference": "e8852764cf5ec8dcd2a3fa8ea03cbcf523639419",
                 "shasum": ""
             },
             "require": {
@@ -8447,7 +8447,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.5.7"
+                "source": "https://github.com/phpstan/phpstan/tree/1.6.1"
             },
             "funding": [
                 {
@@ -8467,7 +8467,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-20T12:20:27+00:00"
+            "time": "2022-04-26T18:09:31+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -10353,5 +10353,5 @@
     "platform-overrides": {
         "php": "8.0.3"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
