@@ -624,21 +624,6 @@ abstract class TestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockLogListRequest() {
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logs',
-      'get', '200');
-    $this->clientProphecy->request('get',
-      '/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/logs')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
-
-    return $response;
-  }
-
-  /**
-   * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockLogStreamRequest() {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
       'get', '200');
@@ -838,8 +823,10 @@ abstract class TestBase extends TestCase {
    *
    * @return Filesystem
    */
-  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper): void {
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+
+    return $this->fs;
   }
 
   protected function removeMockConfigFiles(): void {

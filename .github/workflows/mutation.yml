@@ -1,0 +1,32 @@
+name: Mutation Testing
+
+on: [pull_request]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    name: Mutation Testing Code Review Annotations
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          tools: composer:v2
+          extensions: pcov
+          coverage: pcov
+
+      - name: Install dependencies
+        run: |
+          composer install --no-progress --no-suggest --no-interaction
+
+      - name: Download Infection
+        run: composer infection-install
+
+      - name: Run Infection for added files only
+        run: |
+          git fetch --depth=1 origin $GITHUB_BASE_REF
+          php build/infection.phar -j2 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered

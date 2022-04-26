@@ -19,7 +19,6 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Endpoints\Logs;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -41,11 +40,9 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
@@ -222,6 +219,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @return \Symfony\Component\Validator\Constraints\Regex
+   */
+  protected static function getUuidRegexConstraint(): Regex {
+    return new Regex([
+      'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
+      'message' => 'This is not a valid UUID.',
+    ]);
+  }
+
+  /**
    * @param string $repoRoot
    */
   public function setRepoRoot(string $repoRoot): void {
@@ -348,10 +355,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
 
-    $this->convertApplicationAliasToUuid($input);
     $this->fillMissingRequiredApplicationUuid($input, $output);
+    $this->convertApplicationAliasToUuid($input);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source');
+
     if ($latest = $this->checkForNewVersion()) {
       $this->output->writeln("Acquia CLI {$latest} is available. Run <options=bold>acli self-update</> to update.");
     }
@@ -551,18 +559,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
    *
-   * @param Client $acquia_cloud_client
-   * @param string $environment_id
-   *
    * @return null|object|array
    */
-  protected function promptChooseLogs(
-    Client $acquia_cloud_client,
-    string $environment_id
-  ) {
-    $logs_resource = new Logs($acquia_cloud_client);
-    $logs = $logs_resource->getAll($environment_id);
-
+  protected function promptChooseLogs() {
+    $logs = array_map(static function ($log_type, $log_label) {
+      return [
+        'type' => $log_type,
+        'label' => $log_label,
+      ];
+    }, array_keys(LogstreamManager::AVAILABLE_TYPES), LogstreamManager::AVAILABLE_TYPES);
     return $this->promptChooseFromObjectsOrArrays(
       $logs,
       'type',
@@ -918,15 +923,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return string
    */
-  public static function validateUuid($uuid) {
+  public static function validateUuid(string $uuid) {
     $violations = Validation::createValidator()->validate($uuid, [
       new Length([
         'value' => 36,
       ]),
-      new Regex([
-        'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
-        'message' => 'This is not a valid UUID.',
-      ]),
+      self::getUuidRegexConstraint(),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
@@ -1043,7 +1045,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
       new NotBlank(),
-      new Regex(['pattern' => '/.+\..+/', 'message' => 'Environment alias must match the pattern [app-name].[env]']),
+      new Regex(['pattern' => '/.+\..+/', 'message' => 'You must enter either an environment ID or alias. Environment aliases must match the pattern [app-name].[env]']),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());
@@ -1248,16 +1250,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
 
-    /**
-     * @var $version string
-     */
-    $version = $releases[0]->tag_name;
-    $versionStability = VersionParser::parseStability($version);
-    $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
-    if ($versionStability === 'stable' && $versionIsNewer) {
-      return $version;
+    foreach ($releases as $release) {
+      if (!$release->prerelease) {
+        /**
+         * @var $version string
+         */
+        $version = $release->tag_name;
+        $versionStability = VersionParser::parseStability($version);
+        $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
+        if ($versionStability === 'stable' && $versionIsNewer) {
+          return $version;
+        }
+        return FALSE;
+      }
     }
-
     return FALSE;
   }
 
@@ -1313,18 +1319,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
     if ($input->hasArgument('applicationUuid') && $input->getArgument('applicationUuid')) {
       $application_uuid_argument = $input->getArgument('applicationUuid');
-      try {
-        self::validateUuid($application_uuid_argument);
-      } catch (ValidatorException $validator_exception) {
-        // Since this isn't a valid UUID, let's see if it's a valid alias.
-        $alias = $this->normalizeAlias($application_uuid_argument);
-        try {
-          $customer_application = $this->getApplicationFromAlias($alias);
-          $input->setArgument('applicationUuid', $customer_application->uuid);
-        } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
-        }
-      }
+      $application_uuid = $this->validateApplicationUuid($application_uuid_argument);
+      $input->setArgument('applicationUuid', $application_uuid);
     }
   }
 
@@ -1339,25 +1335,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function convertEnvironmentAliasToUuid(InputInterface $input, $argument_name): void {
     if ($input->hasArgument($argument_name) && $input->getArgument($argument_name)) {
       $env_uuid_argument = $input->getArgument($argument_name);
-      try {
-        // Environment IDs take the form of [env-num]-[app-uuid].
-        $uuid_parts = explode('-', $env_uuid_argument);
-        $env_id = $uuid_parts[0];
-        unset($uuid_parts[0]);
-        $application_uuid = implode('-', $uuid_parts);
-        self::validateUuid($application_uuid);
-      } catch (ValidatorException $validator_exception) {
-        try {
-          // Since this isn't a valid environment ID, let's see if it's a valid alias.
-          $alias = $env_uuid_argument;
-          $alias = $this->normalizeAlias($alias);
-          $alias = self::validateEnvironmentAlias($alias);
-          $environment = $this->getEnvironmentFromAliasArg($alias);
-          $input->setArgument($argument_name, $environment->uuid);
-        } catch (AcquiaCliException $exception) {
-          throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
-        }
-      }
+      $environment_uuid = $this->validateEnvironmentUuid($env_uuid_argument, $argument_name);
+      $input->setArgument($argument_name, $environment_uuid);
     }
   }
 
@@ -1764,6 +1743,58 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     return NULL;
+  }
+
+  /**
+   * @param $application_uuid_argument
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function validateApplicationUuid($application_uuid_argument) {
+    try {
+      self::validateUuid($application_uuid_argument);
+    } catch (ValidatorException $validator_exception) {
+      // Since this isn't a valid UUID, let's see if it's a valid alias.
+      $alias = $this->normalizeAlias($application_uuid_argument);
+      try {
+        $customer_application = $this->getApplicationFromAlias($alias);
+        return $customer_application->uuid;
+      } catch (AcquiaCliException $exception) {
+        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
+      }
+    }
+    return $application_uuid_argument;
+  }
+
+  /**
+   * @param $env_uuid_argument
+   * @param $argument_name
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function validateEnvironmentUuid($env_uuid_argument, $argument_name) {
+    try {
+      // Environment IDs take the form of [env-num]-[app-uuid].
+      $uuid_parts = explode('-', $env_uuid_argument);
+      $env_id = $uuid_parts[0];
+      unset($uuid_parts[0]);
+      $application_uuid = implode('-', $uuid_parts);
+      self::validateUuid($application_uuid);
+    } catch (ValidatorException $validator_exception) {
+      try {
+        // Since this isn't a valid environment ID, let's see if it's a valid alias.
+        $alias = $env_uuid_argument;
+        $alias = $this->normalizeAlias($alias);
+        $alias = self::validateEnvironmentAlias($alias);
+        $environment = $this->getEnvironmentFromAliasArg($alias);
+        return $environment->uuid;
+      } catch (AcquiaCliException $exception) {
+        throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
+      }
+    }
+    return $env_uuid_argument;
   }
 
 }

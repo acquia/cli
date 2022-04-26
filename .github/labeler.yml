@@ -1,4 +1,0 @@
-# Add 'dependencies' label to any change to composer.json or composer.lock in root directory.
-dependencies:
- - composer.json
- - composer.lock

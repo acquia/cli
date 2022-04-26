@@ -38,7 +38,7 @@ jobs:
         with:
           project: CLI
           issuetype: Release
-          summary: "${{ github.event.release.name }}"
+          summary: "Acquia CLI ${{ github.event.release.name }}"
           description: "${{ env.JIRA_DESCRIPTION }}"
           fields: '{"components": [{"id": "25474"}], "labels": ["ccb_std_017"]}'
       - name: Log created issue

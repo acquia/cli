@@ -3,10 +3,19 @@
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use GuzzleHttp\Psr7\Utils;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\Exception\ValidatorException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Class ApiCommandBase.
@@ -60,6 +69,35 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function interact(InputInterface $input, OutputInterface $output) {
+    $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
+    foreach ($this->getDefinition()->getArguments() as $argument) {
+      if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
+        $this->io->note([
+          "{$argument->getName()} is a required argument.",
+          $argument->getDescription(),
+        ]);
+        // Choice question.
+        if (array_key_exists($argument->getName(), $params)
+          && array_key_exists('schema', $params[$argument->getName()])
+          && array_key_exists('enum', $params[$argument->getName()]['schema'])) {
+          $choices = $params[$argument->getName()]['schema']['enum'];
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", $choices, $argument->getDefault());
+        }
+        // Free form.
+        else {
+          $answer = $this->askFreeFormQuestion($argument, $params);
+        }
+        $input->setArgument($argument->getName(), $answer);
+      }
+    }
+    parent::interact($input, $output);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -67,41 +105,8 @@ class ApiCommandBase extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     // Build query from non-null options.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    if ($this->queryParams) {
-      foreach ($this->queryParams as $key => $param_spec) {
-        // We may have a queryParam that is used in the path rather than the query string.
-        if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getOption($key));
-        }
-        elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
-        }
-      }
-    }
-    if ($this->postParams) {
-      foreach ($this->postParams as $param_name => $param_spec) {
-        $param = $this->getParamFromInput($input, $param_name);
-        if (!is_null($param)) {
-          $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
-          if ($param_spec) {
-            $param = $this->castParamType($param_spec, $param);
-          }
-          if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
-            $acquia_cloud_client->addOption('multipart', [
-              [
-                'name'     => $param_name,
-                'contents' => Utils::tryFopen($param, 'r'),
-              ],
-            ]);
-          }
-          else {
-            $acquia_cloud_client->addOption('json', [$param_name => $param]);
-          }
-        }
-      }
-    }
-
-    $path = $this->getRequestPath($input);
+    $this->addQueryParamsToClient($input, $acquia_cloud_client);
+    $this->addPostParamsToClient($input, $acquia_cloud_client);
     $acquia_cloud_client->addOption('headers', [
       'Accept' => 'application/json',
     ]);
@@ -110,6 +115,7 @@ class ApiCommandBase extends CommandBase {
       if ($this->output->isVeryVerbose()) {
         $acquia_cloud_client->addOption('debug', $this->output);
       }
+      $path = $this->getRequestPath($input);
       $response = $acquia_cloud_client->request($this->method, $path);
       $exit_code = 0;
     }
@@ -117,7 +123,7 @@ class ApiCommandBase extends CommandBase {
       $response = $exception->getResponseBody();
       $exit_code = 1;
     }
-    // @todo Add syntax highlighting to json output.
+
     $contents = json_encode($response, JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
 
@@ -127,28 +133,28 @@ class ApiCommandBase extends CommandBase {
   /**
    * @param string $method
    */
-  public function setMethod($method): void {
+  public function setMethod(string $method): void {
     $this->method = $method;
   }
 
   /**
    * @param array $responses
    */
-  public function setResponses($responses): void {
+  public function setResponses(array $responses): void {
     $this->responses = $responses;
   }
 
   /**
    * @param array $servers
    */
-  public function setServers($servers): void {
+  public function setServers(array $servers): void {
     $this->servers = $servers;
   }
 
   /**
    * @param string $path
    */
-  public function setPath($path): void {
+  public function setPath(string $path): void {
     $this->path = $path;
   }
 
@@ -204,7 +210,7 @@ class ApiCommandBase extends CommandBase {
   }
 
   /**
-   * @param $param_name
+   * @param string $param_name
    * @param $value
    */
   public function addPathParameter($param_name, $value): void {
@@ -213,11 +219,11 @@ class ApiCommandBase extends CommandBase {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param $param_name
+   * @param string $param_name
    *
    * @return bool|string|string[]|null
    */
-  protected function getParamFromInput(InputInterface $input, $param_name) {
+  protected function getParamFromInput(InputInterface $input, string $param_name) {
     if ($input->hasArgument($param_name)) {
       $param = $input->getArgument($param_name);
     }
@@ -228,20 +234,14 @@ class ApiCommandBase extends CommandBase {
   }
 
   /**
-   * @param $param_spec
-   * @param $value
+   * @param array $param_spec
+   * @param string|array $value
    *
-   * @return mixed
+   * @return bool|int|string
    */
-  protected function castParamType($param_spec, $value) {
-    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
-    if (array_key_exists('type', $param_spec)) {
-      $type = $param_spec['type'];
-    }
-    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
-      $type = $param_spec['schema']['type'];
-    }
-    else {
+  protected function castParamType(array $param_spec, $value) {
+    $type = $this->getParamType($param_spec);
+    if (!$type) {
       return $value;
     }
 
@@ -258,6 +258,196 @@ class ApiCommandBase extends CommandBase {
     }
 
     return $value;
+  }
+
+  /**
+   * @param array $param_spec
+   *
+   * @return null|string
+   */
+  protected function getParamType(array $param_spec): ?string {
+    // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
+    if (array_key_exists('type', $param_spec)) {
+      return $param_spec['type'];
+    }
+    elseif (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
+      return $param_spec['schema']['type'];
+    }
+    return NULL;
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputArgument $argument
+   * @param array $params
+   *
+   * @return callable|null
+   */
+  protected function createCallableValidator(InputArgument $argument, array $params): ?callable {
+    $validator = NULL;
+    if (array_key_exists($argument->getName(), $params)) {
+      $param_spec = $params[$argument->getName()];
+      $constraints = [
+        new NotBlank(),
+      ];
+      if ($type = $this->getParamType($param_spec)) {
+        $constraints[] = new Type($type);
+      }
+      if (array_key_exists('schema', $param_spec)) {
+        $schema = $param_spec['schema'];
+        $constraints = $this->createLengthConstraint($schema, $constraints);
+        $constraints = $this->createRegexConstraint($schema, $constraints);
+      }
+      $validator = $this->createValidatorFromConstraints($constraints);
+    }
+    return $validator;
+  }
+
+  /**
+   * @param array $schema
+   * @param array $constraints
+   *
+   * @return array
+   */
+  protected function createLengthConstraint($schema, array $constraints): array {
+    if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
+      $length_options = [];
+      if (array_key_exists('minLength', $schema)) {
+        $length_options['min'] = $schema['minLength'];
+      }
+      if (array_key_exists('maxLength', $schema)) {
+        $length_options['max'] = $schema['maxLength'];
+      }
+      $constraints[] = new Length($length_options);
+    }
+    return $constraints;
+  }
+
+  /**
+   * @param array $schema
+   * @param array $constraints
+   *
+   * @return array
+   */
+  protected function createRegexConstraint($schema, array $constraints): array {
+    if (array_key_exists('format', $schema)) {
+      switch ($schema['format']) {
+        case 'uuid';
+          $constraints[] = CommandBase::getUuidRegexConstraint();
+          break;
+      }
+    }
+    elseif (array_key_exists('pattern', $schema)) {
+      $constraints[] = new Regex([
+        'pattern' => '/' . $schema['pattern'] . '/',
+        'message' => 'It must match the pattern ' . $schema['pattern'],
+      ]);
+    }
+    return $constraints;
+  }
+
+  /**
+   * @param array $constraints
+   *
+   * @return \Closure
+   */
+  protected function createValidatorFromConstraints(array $constraints): \Closure {
+    return function ($value) use ($constraints) {
+      $violations = Validation::createValidator()
+        ->validate($value, $constraints);
+      if (count($violations)) {
+        throw new ValidatorException($violations->get(0)->getMessage());
+      }
+      return $value;
+    };
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   */
+  protected function addQueryParamsToClient(InputInterface $input, Client $acquia_cloud_client) {
+    if ($this->queryParams) {
+      foreach ($this->queryParams as $key => $param_spec) {
+        // We may have a queryParam that is used in the path rather than the query string.
+        if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getOption($key));
+        }
+        elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
+          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
+        }
+      }
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   */
+  protected function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
+    if ($this->postParams) {
+      foreach ($this->postParams as $param_name => $param_spec) {
+        $param_value = $this->getParamFromInput($input, $param_name);
+        if (!is_null($param_value)) {
+          $this->addPostParamToClient($param_name, $param_spec, $param_value, $acquia_cloud_client);
+        }
+      }
+    }
+  }
+
+  /**
+  * @param string $param_name
+  * @param array|null $param_spec
+  * @param mixed $param_value
+  * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+  */
+  protected function addPostParamToClient(string $param_name, $param_spec, $param_value, Client $acquia_cloud_client) {
+    $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
+    if ($param_spec) {
+      $param_value = $this->castParamType($param_spec, $param_value);
+    }
+    if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
+      $acquia_cloud_client->addOption('multipart', [
+        [
+          'name' => $param_name,
+          'contents' => Utils::tryFopen($param_value, 'r'),
+        ],
+      ]);
+    }
+    else {
+      $acquia_cloud_client->addOption('json', [$param_name => $param_value]);
+    }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputArgument $argument
+   * @param array $params
+   *
+   * @return mixed
+   */
+  protected function askFreeFormQuestion(InputArgument $argument, array $params) {
+    $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
+    switch ($argument->getName()) {
+      case 'applicationUuid':
+        $question->setValidator(function ($value) {
+          return $this->validateApplicationUuid($value);
+        });
+        break;
+      case 'environmentId':
+      case 'source':
+        $question->setValidator(function ($value) use ($argument) {
+          return $this->validateEnvironmentUuid($value, $argument->getName());
+        });
+        break;
+
+      default:
+        $validator = $this->createCallableValidator($argument, $params);
+        $question->setValidator($validator);
+        break;
+    }
+
+    // Allow unlimited attempts.
+    $question->setMaxAttempts(NULL);
+    return $this->io->askQuestion($question);
   }
 
 }
