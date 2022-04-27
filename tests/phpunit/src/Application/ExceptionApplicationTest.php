@@ -2,10 +2,7 @@
 
 namespace Acquia\Cli\Tests\Application;
 
-use Acquia\Cli\Application;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
+use Acquia\Cli\Tests\ApplicationTestBase;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -15,7 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @package Acquia\Cli\Tests\Application
  */
-class ExceptionApplicationTest extends KernelTest {
+class ExceptionApplicationTest extends ApplicationTestBase {
 
   public function testPreScripts(): void {
     $this->mockAccountRequest();
