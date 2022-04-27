@@ -28,11 +28,6 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->fs->remove($this->legacyAcliConfigFilepath);
   }
 
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->fs->remove($this->legacyAcliConfigFilepath);
-  }
-
   /**b
    * {@inheritdoc}
    */
