@@ -497,6 +497,15 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
+  protected function createMockLegacyCloudConfigFile() {
+    $config = [
+      'key' => $this->key,
+      'secret' => $this->secret,
+      DataStoreContract::SEND_TELEMETRY => FALSE,
+    ];
+    $this->createMockCloudConfigFile($config);
+  }
+
   protected function createMockAcliConfigFile($cloud_app_uuid): void {
     $this->datastoreAcli->set('cloud_app_uuid', $cloud_app_uuid);
   }

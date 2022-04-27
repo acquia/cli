@@ -46,4 +46,5 @@ class CloudServiceTest extends TestBase {
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
     self::unsetEnvVars($env_vars);
   }
+
 }
