@@ -186,6 +186,7 @@
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",
+        "coverage": "phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
             "@lint",
