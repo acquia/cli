@@ -58,12 +58,6 @@ class CloudCredentials implements ApiCredentialsInterface {
       return $this->datastoreCloud->get('acli_key');
     }
 
-    // Legacy format.
-    if ($this->datastoreCloud->get('key') &&
-      $this->datastoreCloud->get('secret')) {
-      return $this->datastoreCloud->get('key');
-    }
-
     return NULL;
   }
 
@@ -81,12 +75,6 @@ class CloudCredentials implements ApiCredentialsInterface {
       if (is_array($keys) && array_key_exists($acli_key, $keys)) {
         return $this->datastoreCloud->get('keys')[$acli_key]['secret'];
       }
-    }
-
-    // Legacy format.
-    if ($this->datastoreCloud->get('key') &&
-      $this->datastoreCloud->get('secret')) {
-      return $this->datastoreCloud->get('secret');
     }
 
     return NULL;
