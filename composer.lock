@@ -5997,12 +5997,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-logstream.git",
-                "reference": "3ba647c65bf956ec01abe8c36f56b82b77f1954f"
+                "reference": "61c4e8d3c5231e71fd3b9561fea60c31f23d525a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/3ba647c65bf956ec01abe8c36f56b82b77f1954f",
-                "reference": "3ba647c65bf956ec01abe8c36f56b82b77f1954f",
+                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/61c4e8d3c5231e71fd3b9561fea60c31f23d525a",
+                "reference": "61c4e8d3c5231e71fd3b9561fea60c31f23d525a",
                 "shasum": ""
             },
             "require": {
@@ -6046,7 +6046,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-27T14:34:33+00:00"
+            "time": "2022-04-28T13:52:28+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
@@ -6054,12 +6054,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "5044d4b22ac7fb231d8068fe8703ac2c8ae1c99d"
+                "reference": "9165d0fb741a83091313ffbfc07f873e17e28c93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/5044d4b22ac7fb231d8068fe8703ac2c8ae1c99d",
-                "reference": "5044d4b22ac7fb231d8068fe8703ac2c8ae1c99d",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9165d0fb741a83091313ffbfc07f873e17e28c93",
+                "reference": "9165d0fb741a83091313ffbfc07f873e17e28c93",
                 "shasum": ""
             },
             "require": {
@@ -6067,8 +6067,7 @@
                 "league/oauth2-client": "^2.4",
                 "php": "^7.4 | ^8.0.2 | ^8.1",
                 "symfony/cache": "^5 | ^6",
-                "symfony/filesystem": "^5.4 | ^6",
-                "webmozart/path-util": "^2.3"
+                "symfony/filesystem": "^5.4 | ^6"
             },
             "require-dev": {
                 "eloquent/phony-phpunit": "^7",
@@ -6110,7 +6109,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-03-21T17:41:57+00:00"
+            "time": "2022-04-27T22:28:50+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -6148,115 +6147,6 @@
                 "source": "https://github.com/violuke/rsa-ssh-key-fingerprint/tree/v1.1.1"
             },
             "time": "2020-11-29T11:08:48+00:00"
-        },
-        {
-            "name": "webmozart/assert",
-            "version": "1.10.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webmozarts/assert.git",
-                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webmozarts/assert/zipball/6964c76c7804814a842473e0c8fd15bab0f18e25",
-                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.2 || ^8.0",
-                "symfony/polyfill-ctype": "^1.8"
-            },
-            "conflict": {
-                "phpstan/phpstan": "<0.12.20",
-                "vimeo/psalm": "<4.6.1 || 4.6.2"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^8.5.13"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.10-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Webmozart\\Assert\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
-                }
-            ],
-            "description": "Assertions to validate method input/output with nice error messages.",
-            "keywords": [
-                "assert",
-                "check",
-                "validate"
-            ],
-            "support": {
-                "issues": "https://github.com/webmozarts/assert/issues",
-                "source": "https://github.com/webmozarts/assert/tree/1.10.0"
-            },
-            "time": "2021-03-09T10:59:23+00:00"
-        },
-        {
-            "name": "webmozart/path-util",
-            "version": "2.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/webmozart/path-util.git",
-                "reference": "d939f7edc24c9a1bb9c0dee5cb05d8e859490725"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/path-util/zipball/d939f7edc24c9a1bb9c0dee5cb05d8e859490725",
-                "reference": "d939f7edc24c9a1bb9c0dee5cb05d8e859490725",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3",
-                "webmozart/assert": "~1.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.6",
-                "sebastian/version": "^1.0.1"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.3-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Webmozart\\PathUtil\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Bernhard Schussek",
-                    "email": "bschussek@gmail.com"
-                }
-            ],
-            "description": "A robust cross-platform utility for normalizing, comparing and modifying file paths.",
-            "support": {
-                "issues": "https://github.com/webmozart/path-util/issues",
-                "source": "https://github.com/webmozart/path-util/tree/2.3.0"
-            },
-            "abandoned": "symfony/filesystem",
-            "time": "2015-12-17T08:42:14+00:00"
         },
         {
             "name": "zumba/amplitude-php",
@@ -10325,6 +10215,64 @@
                 }
             ],
             "time": "2022-04-06T06:47:41+00:00"
+        },
+        {
+            "name": "webmozart/assert",
+            "version": "1.10.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/webmozarts/assert.git",
+                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/webmozarts/assert/zipball/6964c76c7804814a842473e0c8fd15bab0f18e25",
+                "reference": "6964c76c7804814a842473e0c8fd15bab0f18e25",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2 || ^8.0",
+                "symfony/polyfill-ctype": "^1.8"
+            },
+            "conflict": {
+                "phpstan/phpstan": "<0.12.20",
+                "vimeo/psalm": "<4.6.1 || 4.6.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^8.5.13"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.10-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webmozart\\Assert\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bernhard Schussek",
+                    "email": "bschussek@gmail.com"
+                }
+            ],
+            "description": "Assertions to validate method input/output with nice error messages.",
+            "keywords": [
+                "assert",
+                "check",
+                "validate"
+            ],
+            "support": {
+                "issues": "https://github.com/webmozarts/assert/issues",
+                "source": "https://github.com/webmozarts/assert/tree/1.10.0"
+            },
+            "time": "2021-03-09T10:59:23+00:00"
         }
     ],
     "aliases": [
