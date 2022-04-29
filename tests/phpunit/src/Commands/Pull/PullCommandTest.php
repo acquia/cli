@@ -25,6 +25,7 @@ class PullCommandTest extends PullCommandTestBase {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
     // to re-inject the parameter into the command.
     $this->acliRepoRoot = '';
+    $this->removeMockGitConfig();
     $this->command = $this->createCommand();
     try {
       $inputs = [

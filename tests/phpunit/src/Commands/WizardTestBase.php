@@ -148,14 +148,9 @@ abstract class WizardTestBase extends CommandTestBase {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockGenerateSshKey($local_machine_helper, $file_system);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
+    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->mockSshAgentList($local_machine_helper);
-    $process = $this->mockProcess();
-    $local_machine_helper->executeFromCmd(Argument::type('string'), NULL, NULL, FALSE)
-      ->shouldBeCalled()
-      ->willReturn($process->reveal());
-    $local_machine_helper->writeFile(Argument::type('string'), Argument::type('string'))
-      ->shouldBeCalled();
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;

@@ -3,12 +3,14 @@
 namespace Acquia\Cli\Tests;
 
 use Acquia\Cli\Application;
-use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
-use Acquia\Cli\DataStore\YamlStore;
+use Acquia\Cli\Config\AcquiaCliConfig;
+use Acquia\Cli\Config\CloudDataConfig;
+use Acquia\Cli\DataStore\AcquiaCliDatastore;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -19,7 +21,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PhpParser\Node\Arg;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -42,13 +43,14 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Class CommandTestBase.
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class TestBase extends TestCase {
+
+  protected $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.yaml';
 
   /**
    * @var \Symfony\Component\Console\Output\ConsoleOutput
@@ -125,17 +127,17 @@ abstract class TestBase extends TestCase {
   protected $acliConfigFilepath;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\AcquiaCliDatastore
    */
   protected $datastoreAcli;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\CloudDataStore
    */
   protected $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\CloudApi\CloudCredentials
+   * @var \Acquia\Cli\ApiCredentialsInterface
    */
   protected $cloudCredentials;
 
@@ -196,37 +198,71 @@ abstract class TestBase extends TestCase {
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
-    $this->fixtureDir = realpath(__DIR__ . '/../../fixtures');
+    $this->setClientProphecies();
+    $this->setIo($input, $output);
+
+    $this->fixtureDir = $this->getTempDir();
+    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->sshDir = sys_get_temp_dir();
+    $this->sshDir = $this->getTempDir();
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
     $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
-    $this->datastoreAcli = new YamlStore($this->acliConfigFilepath);
-    $this->datastoreCloud = new JsonFileStore($this->cloudConfigFilepath, 1);
-    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->clientProphecy = $this->prophet->prophesize(Client::class);
-    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
-    $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize(ClientService::class);
-    $this->clientServiceProphecy->getClient()->willReturn($this->clientProphecy->reveal());
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(JsonFileStore::class))->willReturn(TRUE);
-    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
-
-    $this->setIo($input, $output);
-
-    $this->removeMockConfigFiles();
     $this->createMockConfigFiles();
+    $this->createDataStores();
+    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
+    $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     ClearCacheCommand::clearCaches();
 
     parent::setUp();
   }
 
+  /**
+   * Create a guaranteed-unique temporary directory.
+   *
+   * @throws \Exception
+   */
+  private function getTempDir() {
+    /**
+     * sys_get_temp_dir() is not thread-safe but it's okay to use here since
+     * we are specifically creating a thread-safe temporary directory.
+     */
+    // phpcs:ignore
+    $dir = sys_get_temp_dir();
+
+    // /tmp is a symlink to /private/tmp on Mac, which causes inconsistency when
+    // normalizing paths.
+    if (PHP_OS_FAMILY === 'Darwin') {
+      $dir = Path::join('/private', $dir);
+    }
+
+    /* If we don't have permission to create a directory, fail, otherwise we will
+     * be stuck in an endless loop.
+     */
+    if (!is_dir($dir) || !is_writable($dir)) {
+      return FALSE;
+    }
+
+    /* Attempt to create a random directory until it works. Abort if we reach
+     * $maxAttempts. Something screwy could be happening with the filesystem
+     * and our loop could otherwise become endless.
+     */
+    $attempts = 0;
+    do {
+      $path = sprintf('%s%s%s%s', $dir, DIRECTORY_SEPARATOR, 'tmp_', random_int(100000, mt_getrandmax()));
+    } while (
+      !mkdir($path, 0700) &&
+      $attempts++ < 10
+    );
+
+    return $path;
+  }
+
   protected function tearDown(): void {
     parent::tearDown();
-    $this->removeMockConfigFiles();
     // $loop is statically cached by Loop::get() in some tests. To prevent it
     // persisting into other tests we must use Factory::create() to reset it.
     // @phpstan-ignore-next-line
@@ -252,7 +288,6 @@ abstract class TestBase extends TestCase {
     $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
     // TTY should never be used for tests.
     $this->localMachineHelper->setIsTty(FALSE);
-    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
   }
 
@@ -300,8 +335,15 @@ abstract class TestBase extends TestCase {
     elseif (array_key_exists('examples', $content)) {
       $response_body = json_encode($content['examples']);
     }
-    elseif (array_key_exists('example', $response['content'])) {
-      $response_body = json_encode($response['content']['example']);
+    elseif (array_key_exists('example', $content)) {
+      $response_body = json_encode($content['example']);
+    }
+    elseif (array_key_exists('schema', $content)
+      && array_key_exists('$ref', $content['schema'])) {
+      $ref = $content['schema']['$ref'];
+      $param_key = str_replace('#/components/schemas/', '', $ref);
+      $spec = $this->getCloudApiSpec();
+      return (object) $spec['components']['schemas'][$param_key]['properties'];
     }
     else {
       return (object) [];
@@ -324,13 +366,11 @@ abstract class TestBase extends TestCase {
    */
   protected function injectCommand(string $commandName): Command {
     return new $commandName(
-      $this->cloudConfigFilepath,
       $this->localMachineHelper,
       $this->datastoreCloud,
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->acliConfigFilename,
       $this->acliRepoRoot,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
@@ -360,12 +400,13 @@ abstract class TestBase extends TestCase {
   protected function getCloudApiSpec() {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
-    $acquia_cloud_spec_file = __DIR__ . '/../../../assets/acquia-spec.yaml';
+    $acquia_cloud_spec_file = $this->apiSpecFixtureFilePath;
     $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
 
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../cache/ApiSpec.cache', new FilesystemAdapter());
-    $is_command_cache_valid = $this->isApiSpecCacheValid($cache, $acquia_cloud_spec_file_checksum);
-    $api_spec_cache_item = $cache->getItem('api_spec.yaml');
+    $cache_key = basename($acquia_cloud_spec_file);
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new FilesystemAdapter());
+    $is_command_cache_valid = $this->isApiSpecCacheValid($cache, $cache_key, $acquia_cloud_spec_file_checksum);
+    $api_spec_cache_item = $cache->getItem($cache_key);
     if ($is_command_cache_valid && $api_spec_cache_item->isHit()) {
       return $api_spec_cache_item->get();
     }
@@ -384,8 +425,8 @@ abstract class TestBase extends TestCase {
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $acquia_cloud_spec_file_checksum): bool {
-    $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
+  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, $acquia_cloud_spec_file_checksum): bool {
+    $api_spec_checksum_item = $cache->getItem($cache_key . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
     return !(!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit()
         && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum));
@@ -418,10 +459,7 @@ abstract class TestBase extends TestCase {
    * @return string
    */
   protected function createLocalSshKey($contents): string {
-    $finder = new Finder();
-    $finder->files()->in(sys_get_temp_dir())->name('*.pub')->ignoreUnreadableDirs();
-    $this->fs->remove($finder->files());
-    $private_key_filepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli');
+    $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($private_key_filepath);
     $public_key_filepath = $private_key_filepath . '.pub';
     $this->fs->dumpFile($public_key_filepath, $contents);
@@ -865,6 +903,22 @@ abstract class TestBase extends TestCase {
       Argument::type('array'))->willReturn($response->reveal());
 
     return $guzzle_client;
+  }
+
+  protected function setClientProphecies($client_service_class = ClientService::class): void {
+    $this->clientProphecy = $this->prophet->prophesize(Client::class);
+    $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
+    $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
+    $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
+    $this->clientServiceProphecy->getClient()
+      ->willReturn($this->clientProphecy->reveal());
+    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))
+      ->willReturn(TRUE);
+  }
+
+  protected function createDataStores(): void {
+    $this->datastoreAcli = new AcquiaCliDatastore($this->localMachineHelper, new AcquiaCliConfig(), $this->acliConfigFilepath);
+    $this->datastoreCloud = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $this->cloudConfigFilepath);
   }
 
 }

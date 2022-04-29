@@ -17,12 +17,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   public function setUp($output = NULL): void {
     parent::setUp();
-    $this->removeMockGitConfig();
-  }
-
-  public function tearDown(): void {
-    parent::tearDown();
-    $this->removeMockGitConfig();
   }
 
   /**
@@ -192,7 +186,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
     $finder->ignoreDotFiles(FALSE)->willReturn($finder);
     $finder->ignoreVCS(FALSE)->willReturn($finder);
     $finder->ignoreVCSIgnored(TRUE)->willReturn($finder);
-    $finder->hasResults()->willReturn($finder);
+    $finder->hasResults()->willReturn(TRUE);
     $finder->name(Argument::type('string'))->willReturn($finder);
     $finder->notName(Argument::type('string'))->willReturn($finder);
     $finder->directories()->willReturn($finder);

@@ -19,6 +19,6 @@
   <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
-  <rule ref="AcquiaPHP"/>
+  <rule ref="AcquiaPHP" />
 
 </ruleset>
