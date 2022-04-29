@@ -694,7 +694,8 @@ abstract class PullCommandBase extends CommandBase {
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
         $database_names = array_column($databases, 'name');
-        if ($database_key = array_search($site, $database_names)) {
+        $database_key = array_search($site, $database_names);
+        if ($database_key !== FALSE) {
           return [$databases[$database_key]];
         }
       }
