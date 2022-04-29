@@ -42,6 +42,7 @@ class AcsfClientService extends ClientService {
 
     if (getenv('ACSF_USERNAME') && getenv('ACSF_PASSWORD') ) {
       $this->machineIsAuthenticated = TRUE;
+
       return $this->machineIsAuthenticated;
     }
 
@@ -55,4 +56,5 @@ class AcsfClientService extends ClientService {
     $this->machineIsAuthenticated = FALSE;
     return $this->machineIsAuthenticated;
   }
+
 }
