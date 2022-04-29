@@ -138,7 +138,7 @@ class Spinner {
     $this->progressBar->setFormat($this->indentString . "%bar% %message%\n%detail%");
     $this->progressBar->setBarWidth(1);
     $this->progressBar->setMessage('', 'detail');
-    $this->progressBar->setOverwrite($output->getVerbosity() < OutputInterface::VERBOSITY_NORMAL);
+    $this->progressBar->setOverwrite($output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE);
   }
 
   /**
