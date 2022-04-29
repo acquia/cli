@@ -502,9 +502,6 @@
     "webmozart/assert": {
         "version": "1.10.0"
     },
-    "webmozart/path-util": {
-        "version": "2.3.0"
-    },
     "zumba/amplitude-php": {
         "version": "1.0.2"
     }
