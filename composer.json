@@ -181,12 +181,12 @@
             "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
         ],
         "infection": [
-            "XDEBUG_MODE=coverage php build/infection.phar --threads=8"
+            "php -d pcov.enabled=1 build/infection.phar --threads=8"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",
-        "coverage": "XDEBUG_MODE=coverage phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
+        "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
             "@lint",

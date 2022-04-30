@@ -24,7 +24,7 @@ jobs:
         include:
           - os: "ubuntu-latest"
             php: "8.1"
-            coverage: "xdebug"
+            coverage: "pcov"
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
@@ -47,10 +47,10 @@ jobs:
           composer validate --no-check-all --ansi
           composer test
       - name: Run coverage
-        if: matrix.coverage == 'xdebug'
+        if: matrix.coverage == 'pcov'
         run: composer coverage
       - name: Upload coverage results to Coveralls
-        if: matrix.coverage == 'xdebug'
+        if: matrix.coverage == 'pcov'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: composer coveralls
