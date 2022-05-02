@@ -29,9 +29,11 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
-          php build/infection.phar -j2 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --only-covered
+          php build/infection.phar -j8 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --only-covered
 
       - name: Run Infection for all files
         if: github.event_name == 'push'
+        env:
+          INFECTION_DASHBOARD_API_KEY: ${{ secrets.INFECTION_DASHBOARD_API_KEY }}
         run: |
-          php build/infection.phar -j2 --only-covered
+          php build/infection.phar -j8 --only-covered
