@@ -28,4 +28,4 @@ jobs:
       - name: Run Infection for all files
         if: github.event_name == 'pull_request'
         run: |
-          php build/infection.phar -j8 --only-covered
+          php build/infection.phar -j16 --only-covered
