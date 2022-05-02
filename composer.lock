@@ -4540,16 +4540,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.18.6",
+            "version": "v1.18.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "130851b90c1ea615ac5be6fce827971f4f55afbf"
+                "reference": "e74319d17ed4edc5f27b9d24757e172930a7ebc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/130851b90c1ea615ac5be6fce827971f4f55afbf",
-                "reference": "130851b90c1ea615ac5be6fce827971f4f55afbf",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/e74319d17ed4edc5f27b9d24757e172930a7ebc4",
+                "reference": "e74319d17ed4edc5f27b9d24757e172930a7ebc4",
                 "shasum": ""
             },
             "require": {
@@ -4585,7 +4585,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v1.18.6"
+                "source": "https://github.com/symfony/flex/tree/v1.18.7"
             },
             "funding": [
                 {
@@ -4601,7 +4601,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-15T08:20:34+00:00"
+            "time": "2022-05-02T10:18:23+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -8033,12 +8033,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpro/grumphp.git",
-                "reference": "b75d29d663d1ef5b52c48fe95504a4d0364672bb"
+                "reference": "71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpro/grumphp/zipball/b75d29d663d1ef5b52c48fe95504a4d0364672bb",
-                "reference": "b75d29d663d1ef5b52c48fe95504a4d0364672bb",
+                "url": "https://api.github.com/repos/phpro/grumphp/zipball/71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc",
+                "reference": "71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc",
                 "shasum": ""
             },
             "require": {
@@ -8140,9 +8140,9 @@
             "description": "A composer plugin that enables source code quality checks.",
             "support": {
                 "issues": "https://github.com/phpro/grumphp/issues",
-                "source": "https://github.com/phpro/grumphp/tree/v1.11.0"
+                "source": "https://github.com/phpro/grumphp/tree/master"
             },
-            "time": "2022-04-15T11:39:48+00:00"
+            "time": "2022-04-30T10:17:44+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -10301,5 +10301,5 @@
     "platform-overrides": {
         "php": "8.0.3"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.2.0"
 }
