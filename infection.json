@@ -5,6 +5,11 @@
             "src"
         ]
     },
+    "logs": {
+        "stryker": {
+            "report": "master"
+        }
+    },
     "mutators": {
         "@default": true
     }
