@@ -13,14 +13,6 @@ use AcquiaCloudApi\Connector\Client;
 class AcsfClientService extends ClientService {
 
   /**
-   * @param \Acquia\Cli\AcsfApi\AcsfConnectorFactory $connector_factory
-   * @param \Acquia\Cli\Application $application
-   */
-  public function __construct(AcsfConnectorFactory $connector_factory, Application $application) {
-    parent::__construct($connector_factory, $application);
-  }
-
-  /**
    * @return \AcquiaCloudApi\Connector\Client
    */
   public function getClient(): Client {
@@ -55,4 +47,5 @@ class AcsfClientService extends ClientService {
     $this->machineIsAuthenticated = FALSE;
     return $this->machineIsAuthenticated;
   }
+
 }

@@ -31,6 +31,10 @@ class AcsfServiceTest extends TestBase {
         ['ACSF_USERNAME' => NULL, 'ACSF_PASSWORD' => NULL],
         FALSE,
       ],
+      [
+        ['ACSF_USERNAME' => 'key', 'ACSF_PASSWORD' => NULL],
+        FALSE,
+      ],
     ];
   }
 
@@ -46,4 +50,5 @@ class AcsfServiceTest extends TestBase {
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
     self::unsetEnvVars($env_vars);
   }
+
 }
