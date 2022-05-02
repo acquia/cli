@@ -1,12 +1,12 @@
 name: Mutation Testing
 
-on: [pull_request]
+on: [pull_request, push]
 
 jobs:
   tests:
     runs-on: ubuntu-latest
 
-    name: Mutation Testing Code Review Annotations
+    name: Mutation Testing
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -25,7 +25,13 @@ jobs:
       - name: Download Infection
         run: composer infection-install
 
-      - name: Run Infection
+      - name: Run Infection for added files only
+        if: github.event_name == 'pull_request'
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
+          php build/infection.phar -j2 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --only-covered
+
+      - name: Run Infection for all files
+        if: github.event_name == 'push'
+        run: |
           php build/infection.phar -j2 --only-covered
