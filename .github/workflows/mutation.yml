@@ -25,7 +25,15 @@ jobs:
       - name: Download Infection
         run: composer infection-install
 
-      - name: Run Infection for all files
+      - name: Run Infection for added files only
         if: github.event_name == 'pull_request'
         run: |
-          php build/infection.phar -j16 --only-covered
+          git fetch --depth=1 origin $GITHUB_BASE_REF
+          php build/infection.phar -j8 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --only-covered
+
+      - name: Run Infection for all files
+        if: github.event_name == 'push'
+        env:
+          INFECTION_DASHBOARD_API_KEY: ${{ secrets.INFECTION_DASHBOARD_API_KEY }}
+        run: |
+          php build/infection.phar -j8 --only-covered
