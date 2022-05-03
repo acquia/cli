@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "162b86793f650383f25201f7697fabd8",
+    "content-hash": "98aa458aa6280c7b99758daf85d16eb1",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -5993,16 +5993,16 @@
         },
         {
             "name": "typhonius/acquia-logstream",
-            "version": "dev-master",
+            "version": "0.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-logstream.git",
-                "reference": "b53b1d20ab1b618c870b5df5105c80261c240376"
+                "reference": "8b37ea16de20be0a44786df6e9ef65d302233ac0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/b53b1d20ab1b618c870b5df5105c80261c240376",
-                "reference": "b53b1d20ab1b618c870b5df5105c80261c240376",
+                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/8b37ea16de20be0a44786df6e9ef65d302233ac0",
+                "reference": "8b37ea16de20be0a44786df6e9ef65d302233ac0",
                 "shasum": ""
             },
             "require": {
@@ -6018,7 +6018,6 @@
                 "phpunit/phpunit": "^9.4",
                 "squizlabs/php_codesniffer": "^3.1"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6038,7 +6037,7 @@
             "description": "PHP library to connect to Acquia Logstream service",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-logstream/issues",
-                "source": "https://github.com/typhonius/acquia-logstream/tree/master"
+                "source": "https://github.com/typhonius/acquia-logstream/tree/0.0.12"
             },
             "funding": [
                 {
@@ -6046,11 +6045,11 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-05-03T13:35:54+00:00"
+            "time": "2022-04-08T18:28:56+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
@@ -6078,7 +6077,6 @@
                 "phpunit/phpunit": "^9",
                 "squizlabs/php_codesniffer": "3.*"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -6101,7 +6099,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/master"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.1.0"
             },
             "funding": [
                 {
@@ -10276,19 +10274,10 @@
             "time": "2021-03-09T10:59:23+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "9999999-dev",
-            "alias": "2.0.17",
-            "alias_normalized": "2.0.17.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
-        "typhonius/acquia-logstream": 20,
-        "typhonius/acquia-php-sdk-v2": 20,
         "acquia/coding-standards": 20,
         "phpro/grumphp": 20
     },
@@ -10302,5 +10291,5 @@
     "platform-overrides": {
         "php": "8.0.3"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
