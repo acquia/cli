@@ -5997,12 +5997,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-logstream.git",
-                "reference": "61c4e8d3c5231e71fd3b9561fea60c31f23d525a"
+                "reference": "b53b1d20ab1b618c870b5df5105c80261c240376"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/61c4e8d3c5231e71fd3b9561fea60c31f23d525a",
-                "reference": "61c4e8d3c5231e71fd3b9561fea60c31f23d525a",
+                "url": "https://api.github.com/repos/typhonius/acquia-logstream/zipball/b53b1d20ab1b618c870b5df5105c80261c240376",
+                "reference": "b53b1d20ab1b618c870b5df5105c80261c240376",
                 "shasum": ""
             },
             "require": {
@@ -6046,7 +6046,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-28T13:52:28+00:00"
+            "time": "2022-05-03T13:35:54+00:00"
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
