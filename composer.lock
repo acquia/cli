@@ -6054,12 +6054,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "9165d0fb741a83091313ffbfc07f873e17e28c93"
+                "reference": "39c425f030aa40bf902b4a02c30deb364b768b86"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9165d0fb741a83091313ffbfc07f873e17e28c93",
-                "reference": "9165d0fb741a83091313ffbfc07f873e17e28c93",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/39c425f030aa40bf902b4a02c30deb364b768b86",
+                "reference": "39c425f030aa40bf902b4a02c30deb364b768b86",
                 "shasum": ""
             },
             "require": {
@@ -6109,7 +6109,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-27T22:28:50+00:00"
+            "time": "2022-05-03T13:37:32+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
