@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -39,22 +40,22 @@ class SshHelper implements LoggerAwareInterface {
   }
 
   /**
-   * Execute the command remotely.
+   * Execute the command in a remote environment.
    *
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
    * @param array $command_args
    * @param bool $print_output
-   * @param int $timeout
+   * @param int|null $timeout
    *
    * @return \Symfony\Component\Process\Process
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function executeCommand($environment, array $command_args, $print_output = TRUE, $timeout = NULL): Process {
+  public function executeCommand(EnvironmentResponse $environment, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
     $command_summary = $this->getCommandSummary($command_args);
 
     // Remove site_env arg.
     unset($command_args['alias']);
-    $process = $this->sendCommandViaSsh($environment, $command_args, $print_output, $timeout);
+    $process = $this->sendCommand($environment->sshUrl, $command_args, $print_output, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
       'env' => $environment->name,
@@ -70,20 +71,42 @@ class SshHelper implements LoggerAwareInterface {
   }
 
   /**
-   * Sends a command to an environment via SSH.
+   * Execute the command against an arbitrary URL.
    *
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
-   * @param array $command
-   *   The command to be run on the platform.
-   * @param $print_output
-   *
-   * @param int $timeout
+   * @param string $url
+   * @param array $command_args
+   * @param bool $print_output
+   * @param int|null $timeout
    *
    * @return \Symfony\Component\Process\Process
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  public function executeCommandUrl(string $url, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
+    $command_summary = $this->getCommandSummary($command_args);
+
+    // Remove site_env arg.
+    unset($command_args['alias']);
+    $process = $this->sendCommand($url, $command_args, $print_output, $timeout);
+
+    $this->logger->debug('Command: {command} [Exit: {exit}]', [
+      'url' => $url,
+      'command' => $command_summary,
+      'exit' => $process->getExitCode(),
+    ]);
+
+    if (!$process->isSuccessful() && $process->getExitCode() === 255) {
+      throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
+    }
+
+    return $process;
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function sendCommandViaSsh($environment, $command, $print_output, $timeout = NULL): Process {
-    $command = array_values($this->getSshCommand($environment, $command));
+  protected function sendCommand($url, $command, $print_output, $timeout = NULL): Process {
+    $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
     return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output, $timeout);
@@ -155,13 +178,13 @@ class SshHelper implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   * @param string $url
    * @param $command
    *
    * @return array
    */
-  protected function getSshCommand($environment, $command): array {
-    return array_merge($this->getConnectionArgs($environment->sshUrl), $command);
+  protected function getSshCommand(string $url, $command): array {
+    return array_merge($this->getConnectionArgs($url), $command);
   }
 
 }

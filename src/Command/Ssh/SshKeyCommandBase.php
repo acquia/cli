@@ -6,9 +6,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshCommandTrait;
-use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -149,22 +146,59 @@ EOT
   protected function pollAcquiaCloudUntilSshSuccess(
     OutputInterface $output
   ): void {
+    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
+    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
+    $perms = array_column($permissions, 'name');
+
+    if (in_array('add ssh key to git', $perms, TRUE)) {
+      $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
+      $url_parts = explode(':', $full_url);
+      $vcs_url = $url_parts[0];
+      $this->pollSshTarget($output, 'git', function () use ($vcs_url) {
+        $process = $this->sshHelper->executeCommandUrl($vcs_url, ['ls'], FALSE);
+        // Interactive Git shell is disabled, the best we can hope for is a 128 exit code.
+        return [$process, $process->getExitCode() === 128];
+      });
+    }
+    else {
+      $output->writeln('<comment>You do not have access to Cloud Platform git on this application and will not be able to clone your codebase to this IDE. Check that you have the <options=bold>add ssh key to git</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
+    }
+
+    if (in_array('add ssh key to non-prod', $perms, TRUE)) {
+      $environment = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+      $this->pollSshTarget($output, 'non-prod environments', function () use ($environment) {
+        $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
+        return [$process, $process->isSuccessful()];
+      });
+    }
+    else {
+      $output->writeln('<comment>You do not have access to Cloud Platform non-prod environments on this application and will not be able to clone your non-prod sites to this IDE. Check that you have the <options=bold>add ssh key to non-prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
+    }
+
+    if (in_array('add ssh key to prod', $perms, TRUE)) {
+      $environment = $this->getAnyProdAhEnvironment($cloud_app_uuid);
+      $this->pollSshTarget($output, 'prod environments', function () use ($environment) {
+        $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
+        return [$process, $process->isSuccessful()];
+      });
+    }
+    else {
+      $output->writeln('<comment>You do not have access to Cloud Platform prod environments on this application and will not be able to clone your prod sites to this IDE. Check that you have the <options=bold>add ssh key to prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
+    }
+  }
+
+  protected function pollSshTarget(OutputInterface $output, $target_name, $callback): void {
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
-
-    // Wait for SSH key to be available on a web.
-    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $environment = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available in Cloud Platform ' . $target_name, $output);
 
     // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
+    $loop->addPeriodicTimer(5, function () use ($loop, $callback, $spinner) {
       try {
-        $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
-        if ($process->isSuccessful()) {
+        [$process, $is_successful] = $callback();
+        if ($is_successful) {
           LoopHelper::finishSpinner($spinner);
           $loop->stop();
-          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
         }
         else {
           $this->logger->debug($process->getOutput() . $process->getErrorOutput());

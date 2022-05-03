@@ -1648,7 +1648,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Get the first environment for a given Cloud application.
+   * Get the first non-prod environment for a given Cloud application.
    *
    * @param string $cloud_app_uuid
    *
@@ -1666,6 +1666,43 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     return NULL;
+  }
+
+  /**
+   * Get the first prod environment for a given Cloud application.
+   *
+   * @param string $cloud_app_uuid
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
+   * @throws \Exception
+   */
+  protected function getAnyProdAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $environment_resource = new Environments($acquia_cloud_client);
+    /** @var EnvironmentResponse[] $application_environments */
+    $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
+    foreach ($application_environments as $environment) {
+      if ($environment->flags->production) {
+        return $environment;
+      }
+    }
+    return NULL;
+  }
+
+  /**
+   * Get the first VCS URL for a given Cloud application.
+   *
+   * @param string $cloud_app_uuid
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse|null
+   * @throws \Exception
+   */
+  protected function getAnyVcsUrl(string $cloud_app_uuid): string {
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $environment_resource = new Environments($acquia_cloud_client);
+    /** @var EnvironmentResponse[] $application_environments */
+    $application_environments = iterator_to_array($environment_resource->getAll($cloud_app_uuid));
+    return reset($application_environments)->vcs->url;
   }
 
   /**
