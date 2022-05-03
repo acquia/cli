@@ -72,6 +72,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
       ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
+      ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.')
       ->setAliases(['cs:wizard']);
     $this->acceptApplicationUuid();
     $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -96,6 +97,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         "Unable to authenticate with Code Studio",
         "Did you set a valid token with the <options=bold>api</> and <options=bold>write_repository</> scopes?",
         "Try running `glab auth login` to re-authenticate.",
+        "Alternatively,  pass the <options=bold>--gitlab-token</> option.",
         "Then try again.",
       ]);
       return 1;
@@ -189,8 +191,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function validateEnvironment() {
     //$this->requireCloudIdeEnvironment();
-    if (!getenv('GITLAB_HOST')) {
-      throw new AcquiaCliException('The GITLAB_HOST environmental variable must be set.');
+    if (self::isAcquiaCloudIde() && !getenv('GITLAB_HOST')) {
+      throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
   }
 
@@ -305,6 +307,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       "* Create a token and grant it both <comment>api</comment> and <comment>write repository</comment> scopes",
       "* Copy the token to your clipboard",
       "* Run <comment>glab auth login --hostname=$gitlab_host</comment> and paste the token when prompted",
+      "* Alternatively, pass the <options=bold>--gitlab-token</> option.",
       "* Try this command again.",
     ]);
 
@@ -316,6 +319,9 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getGitLabHost(): string {
+    if ($this->input->getOption('gitlab-host-name')) {
+      return $this->input->getOption('gitlab-host-name');
+    }
     $process = $this->localMachineHelper->execute([
       'glab',
       'config',
