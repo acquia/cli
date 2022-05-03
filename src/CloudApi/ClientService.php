@@ -3,10 +3,12 @@
 namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Application;
+use Acquia\Cli\ClientServiceInterface;
+use Acquia\Cli\ConnectorFactoryInterface;
+use Acquia\Cli\DataStore\CloudDataStore;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
-use Webmozart\KeyValueStore\JsonFileStore;
 
 /**
  * Factory producing Acquia Cloud Api clients.
@@ -17,22 +19,22 @@ use Webmozart\KeyValueStore\JsonFileStore;
  *
  * @package Acquia\Cli\Helpers
  */
-class ClientService {
+class ClientService implements ClientServiceInterface {
 
   /** @var ConnectorInterface */
-  private $connector;
+  protected $connector;
   /** @var \Acquia\Cli\CloudApi\ConnectorFactory */
-  private $connectorFactory;
+  protected $connectorFactory;
   /** @var Application */
-  private $application;
+  protected $application;
   /** @var bool */
-  private $machineIsAuthenticated = NULL;
+  protected $machineIsAuthenticated = NULL;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
    */
-  public function __construct(ConnectorFactory $connector_factory, Application $application) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);
@@ -73,11 +75,11 @@ class ClientService {
   }
 
   /**
-   * @param JsonFileStore $cloud_datastore
+   * @param CloudDataStore $cloud_datastore
    *
    * @return bool
    */
-  public function isMachineAuthenticated(JsonFileStore $cloud_datastore): ?bool {
+  public function isMachineAuthenticated(CloudDataStore $cloud_datastore): ?bool {
     if ($this->machineIsAuthenticated) {
       return $this->machineIsAuthenticated;
     }

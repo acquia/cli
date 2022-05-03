@@ -4,14 +4,14 @@ namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\DataStore\YamlStore;
+use Acquia\Cli\DataStore\AcquiaCliDatastore;
+use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\KeyValueStore\JsonFileStore;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
@@ -37,7 +37,7 @@ class TelemetryHelper {
   private $cloudApiClientService;
 
   /**
-   * @var \Webmozart\KeyValueStore\JsonFileStore
+   * @var \Acquia\Cli\DataStore\CloudDataStore
    */
   private $datastoreCloud;
 
@@ -47,15 +47,15 @@ class TelemetryHelper {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\CloudApi\ClientService $client_service
-   * @param \Acquia\Cli\DataStore\YamlStore $datastoreAcli
-   * @param \Webmozart\KeyValueStore\JsonFileStore $datastoreCloud
+   * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
+   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
    */
   public function __construct(
     InputInterface $input,
     OutputInterface $output,
     ClientService $client_service,
-    YamlStore $datastoreAcli,
-    JsonFileStore $datastoreCloud
+    AcquiaCliDatastore $datastoreAcli,
+    CloudDataStore $datastoreCloud
   ) {
     $this->input = $input;
     $this->output = $output;

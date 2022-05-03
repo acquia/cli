@@ -10,12 +10,18 @@
         }
     ],
     "minimum-stability": "dev",
+    "repositories": {
+        "dns-zone-tokenizer": {
+            "type": "vcs",
+            "url": "https://github.com/grasmash/dns-zone-configurator"
+        }
+    },
     "require": {
-        "php": "^7.4 | ^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
         "composer/semver": "^3.2",
-        "consolidation/self-update": "^2",
+        "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",
         "grasmash/expander": "^1.0",
         "guzzlehttp/guzzle": "^7.4",
@@ -23,36 +29,34 @@
         "kevinrob/guzzle-cache-middleware": "^3.3",
         "league/csv": "^9.8",
         "loophp/phposinfo": "^1.7.2",
-        "ltd-beget/dns-zone-configurator": "^1.2",
+        "ltd-beget/dns-zone-configurator": "dev-php-update",
         "m4tthumphrey/php-gitlab-api": "^11.5",
         "psr/log": "^1.1",
         "ramsey/uuid": "^4.1",
         "react/event-loop": "^1.1",
-        "symfony/cache": "^5.1",
-        "symfony/config": "^5.1",
-        "symfony/console": "^5.2.7",
-        "symfony/dependency-injection": "^5.1",
-        "symfony/dotenv": "^5.1",
-        "symfony/event-dispatcher": "^5.1",
-        "symfony/expression-language": "^5.1",
-        "symfony/filesystem": "^5.1@dev",
-        "symfony/finder": "^5.1",
-        "symfony/flex": "^1.7",
-        "symfony/http-kernel": "^5.1",
-        "symfony/process": "^5.1",
-        "symfony/validator": "^5.1",
-        "symfony/yaml": "^5.1@dev",
-        "typhonius/acquia-logstream": "^0.0.12",
-        "typhonius/acquia-php-sdk-v2": "^2.0.17",
+        "symfony/cache": "^6",
+        "symfony/config": "^6",
+        "symfony/console": "^6",
+        "symfony/dependency-injection": "^6",
+        "symfony/dotenv": "^6",
+        "symfony/event-dispatcher": "^6",
+        "symfony/expression-language": "^6",
+        "symfony/filesystem": "^6",
+        "symfony/finder": "^6",
+        "symfony/flex": "^1",
+        "symfony/http-kernel": "^6",
+        "symfony/process": "^6",
+        "symfony/validator": "^6",
+        "symfony/yaml": "^6",
+        "typhonius/acquia-logstream": "dev-master",
+        "typhonius/acquia-php-sdk-v2": "dev-master as 2.0.17",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "webmozart/json": "^1.2",
-        "webmozart/key-value-store": "^1.0",
         "zumba/amplitude-php": "^1.0"
     },
     "require-dev": {
-        "acquia/coding-standards": "*",
+        "acquia/coding-standards": "dev-develop",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-        "overtrue/phplint": "^3.0",
+        "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
         "phpro/grumphp": "dev-master",
         "phpspec/prophecy": "^1.10",
@@ -78,7 +82,7 @@
     ],
     "config": {
         "platform": {
-            "php": "7.4"
+            "php": "8.0.3"
         },
         "process-timeout": 3600,
         "optimize-autoloader": true,
@@ -177,11 +181,12 @@
             "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
         ],
         "infection": [
-            "XDEBUG_MODE=coverage php build/infection.phar --threads=8"
+            "php -d pcov.enabled=1 build/infection.phar --threads=8"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
         "unit": "phpunit tests/phpunit -vvv",
+        "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
             "@lint",

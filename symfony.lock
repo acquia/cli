@@ -83,11 +83,14 @@
     "http-interop/http-factory-guzzle": {
         "version": "1.2.0"
     },
-    "justinrainbow/json-schema": {
-        "version": "1.6.1"
-    },
     "kevinrob/guzzle-cache-middleware": {
         "version": "v3.5.0"
+    },
+    "laminas/laminas-stdlib": {
+        "version": "3.7.1"
+    },
+    "laminas/laminas-validator": {
+        "version": "2.17.0"
     },
     "laravel/serializable-closure": {
         "version": "v1.1.1"
@@ -439,9 +442,6 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.25.0"
     },
-    "symfony/polyfill-php73": {
-        "version": "v1.25.0"
-    },
     "symfony/polyfill-php80": {
         "version": "v1.25.0"
     },
@@ -501,21 +501,6 @@
     },
     "webmozart/assert": {
         "version": "1.10.0"
-    },
-    "webmozart/json": {
-        "version": "1.2.2"
-    },
-    "webmozart/key-value-store": {
-        "version": "1.0.0"
-    },
-    "webmozart/path-util": {
-        "version": "2.3.0"
-    },
-    "zendframework/zend-stdlib": {
-        "version": "3.2.1"
-    },
-    "zendframework/zend-validator": {
-        "version": "2.13.0"
     },
     "zumba/amplitude-php": {
         "version": "1.0.2"

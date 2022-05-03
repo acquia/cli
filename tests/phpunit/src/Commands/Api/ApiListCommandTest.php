@@ -11,24 +11,12 @@ use Symfony\Component\Console\Command\Command;
 
 class ApiListCommandTest extends CommandTestBase {
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
-    $api_command_helper = new ApiCommandHelper(
-      $this->cloudConfigFilepath,
-      $this->localMachineHelper,
-      $this->datastoreCloud,
-      $this->datastoreAcli,
-      $this->cloudCredentials,
-      $this->telemetryHelper,
-      $this->acliConfigFilename,
-      $this->projectFixtureDir,
-      $this->clientServiceProphecy->reveal(),
-      $this->logStreamManagerProphecy->reveal(),
-      $this->sshHelper,
-      $this->sshDir,
-      $this->logger
-    );
-    $this->application->addCommands($api_command_helper->getApiCommands());
+    $this->application->addCommands($this->getApiCommands());
   }
 
   /**
@@ -72,7 +60,7 @@ class ApiListCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testListCommand(): void {
-    $this->command = $this->injectCommand(ListCommand::class);
+    $this->command = new ListCommand();
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString(' api:accounts', $output);

@@ -19,7 +19,7 @@ class Kernel extends BaseKernel {
   /**
    * {@inheritdoc}
    */
-  public function registerBundles() {
+  public function registerBundles(): iterable {
     return [];
   }
 

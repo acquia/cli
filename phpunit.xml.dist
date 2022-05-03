@@ -1,13 +1,19 @@
 <?xml version="1.0"?>
 <!-- phpunit.xml.dist -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" cacheResultFile="build/.phpunit.result.cache">
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
+        cacheResultFile="build/.phpunit.result.cache"
+        failOnWarning="true"
+        failOnRisky="true"
+        convertErrorsToExceptions="true"
+        convertNoticesToExceptions="true"
+        convertWarningsToExceptions="true"
+>
   <coverage processUncoveredFiles="true">
     <include>
       <directory suffix=".php">src</directory>
     </include>
-    <report>
-      <clover outputFile="build/logs/clover.xml"/>
-    </report>
   </coverage>
   <testsuites>
     <testsuite name="Acquia CLI Test Suite">

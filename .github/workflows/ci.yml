@@ -16,11 +16,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       ACLI_PRINT_COMMAND_OUTPUT: 1
-      COVERAGE: ${{ (matrix.os == 'ubuntu-latest' && matrix.php == '8.1') && 'xdebug' || 'none' }}
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
-        php: ["7.4", "8.0", "8.1"]
+        php: ["8.0", "8.1"]
+        coverage: ["none"]
+        include:
+          - os: "ubuntu-latest"
+            php: "8.1"
+            coverage: "pcov"
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
@@ -30,18 +34,23 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           # Only report coverage once
-          coverage: ${{ env.COVERAGE }}
+          coverage: ${{ matrix.coverage }}
       - name: Check dependencies on Ubuntu
         if: matrix.os == 'ubuntu-latest'
         # Tests for the SSH key commands rely on ssh-agent running.
         run: eval "$(ssh-agent -s)"
+      - name: Composer install
+        run: composer install --prefer-dist --no-interaction --optimize-autoloader
       - name: Run tests
+        if: matrix.coverage == 'none'
         run: |
           composer validate --no-check-all --ansi
-          composer install --prefer-dist --no-interaction --optimize-autoloader
           composer test
+      - name: Run coverage
+        if: matrix.coverage == 'pcov'
+        run: composer coverage
       - name: Upload coverage results to Coveralls
-        if: env.COVERAGE == 'xdebug'
+        if: matrix.coverage == 'pcov'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: composer coveralls
