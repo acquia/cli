@@ -93,7 +93,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_name = $this->mockGetLocalSshKey($local_machine_helper, $file_system, $this->sshKeysRequestBody['public_key']);
-    $this->mockEnvironmentsRequest($applications_response);
 
     $local_machine_helper->getFilesystem()->willReturn($file_system);
     $file_system->exists(Argument::type('string'))->willReturn(TRUE);
@@ -103,7 +102,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     if ($perms) {
-      $environments_response = $this->getMockEnvironmentsResponse();
+      $environments_response = $this->mockEnvironmentsRequest($applications_response);
       $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
       $this->command->sshHelper = $ssh_helper->reveal();
     }
