@@ -53,6 +53,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
           'y',
         ],
+        // Perms.
+        TRUE,
       ],
       [
         // Args.
@@ -67,6 +69,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
           'y',
         ],
+        // Perms.
+        FALSE,
       ],
     ];
   }
@@ -77,13 +81,13 @@ class SshKeyUploadCommandTest extends CommandTestBase
    * Tests the 'ssh-key:upload' command.
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testUpload($args, $inputs): void {
+  public function testUpload($args, $inputs, $perms): void {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
     $applications_response = $this->mockApplicationsRequest();
     $application_response = $this->mockApplicationRequest();
-    $this->mockPermissionsRequest($application_response);
+    $this->mockPermissionsRequest($application_response, $perms);
 
     $local_machine_helper = $this->mockLocalMachineHelper();
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
@@ -99,8 +103,10 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->getMockEnvironmentsResponse();
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-    $this->command->sshHelper = $ssh_helper->reveal();
+    if ($perms) {
+      $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+      $this->command->sshHelper = $ssh_helper->reveal();
+    }
 
     // Choose a local SSH key to upload to the Cloud Platform.
     $this->executeCommand($args, $inputs);

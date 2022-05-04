@@ -559,9 +559,15 @@ abstract class TestBase extends TestCase {
     return $application_response;
   }
 
-  protected function mockPermissionsRequest($application_response) {
+  protected function mockPermissionsRequest($application_response, $perms = TRUE) {
     $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
+    if (!$perms) {
+      unset($permissions_response->_embedded->items['add ssh key to git'],
+        $permissions_response->_embedded->items['add ssh key to non-prod'],
+        $permissions_response->_embedded->items['add ssh key to prod']
+      );
+    }
     $this->clientProphecy->request('get',
       '/applications/' . $application_response->uuid . '/permissions')
       ->willReturn($permissions_response->_embedded->items)
