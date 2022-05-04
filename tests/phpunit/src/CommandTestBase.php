@@ -420,16 +420,45 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * @param object $environments_response
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockPollCloudViaSsh($environments_response): ObjectProphecy {
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+    $gitProcess = $this->prophet->prophesize(Process::class);
+    $gitProcess->isSuccessful()->willReturn(TRUE);
+    $gitProcess->getExitCode()->willReturn(128);
+    $ssh_helper = $this->mockSshHelper();
+    // Mock Git.
+    $url_parts = explode(':', $environments_response->_embedded->items[0]->vcs->url);
+    $ssh_helper->executeCommandUrl($url_parts[0], ['ls'], FALSE)
+      ->willReturn($gitProcess->reveal())
+      ->shouldBeCalled();
+    // Mock non-prod.
+    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response->_embedded->items[0]), ['ls'], FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    // Mock prod.
+    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response->_embedded->items[1]), ['ls'], FALSE)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+    return $ssh_helper;
+  }
+
+  /**
    * @param object $environment_response
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockPollCloudViaSsh($environment_response): ObjectProphecy {
+  protected function mockPollCloudGitViaSsh($environment_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
-    $process->getExitCode()->willReturn(0);
+    $process->getExitCode()->willReturn(128);
     $ssh_helper = $this->mockSshHelper();
-    $ssh_helper->executeCommand(new EnvironmentResponse($environment_response), ['ls'], FALSE)
+    $ssh_helper->executeCommandUrl($environment_response->vcs->url, ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;

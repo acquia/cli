@@ -17,6 +17,7 @@ use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
@@ -556,6 +557,17 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
 
     return $application_response;
+  }
+
+  protected function mockPermissionsRequest($application_response) {
+    $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
+      'get', '200');
+    $this->clientProphecy->request('get',
+      '/applications/' . $application_response->uuid . '/permissions')
+      ->willReturn($permissions_response->_embedded->items)
+      ->shouldBeCalled();
+
+    return $permissions_response;
   }
 
   /**

@@ -82,7 +82,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
     $applications_response = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
+    $application_response = $this->mockApplicationRequest();
+    $this->mockPermissionsRequest($application_response);
 
     $local_machine_helper = $this->mockLocalMachineHelper();
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
@@ -98,7 +99,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->getMockEnvironmentsResponse();
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response->_embedded->items[0]);
+    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->command->sshHelper = $ssh_helper->reveal();
 
     // Choose a local SSH key to upload to the Cloud Platform.
