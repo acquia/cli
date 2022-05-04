@@ -29,6 +29,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
+          # Explicitly specify GitHub logger since our Stryker reporting will otherwise disable it.
           php build/infection.phar -j8 --git-diff-filter=AM --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
 
       - name: Run Infection for all files
