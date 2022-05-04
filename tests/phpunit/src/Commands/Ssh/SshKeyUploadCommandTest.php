@@ -102,8 +102,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    $environments_response = $this->getMockEnvironmentsResponse();
     if ($perms) {
+      $environments_response = $this->getMockEnvironmentsResponse();
       $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
       $this->command->sshHelper = $ssh_helper->reveal();
     }
