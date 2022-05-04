@@ -563,10 +563,16 @@ abstract class TestBase extends TestCase {
     $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
     if (!$perms) {
-      unset($permissions_response->_embedded->items['add ssh key to git'],
-        $permissions_response->_embedded->items['add ssh key to non-prod'],
-        $permissions_response->_embedded->items['add ssh key to prod']
-      );
+      $delete_perms = [
+        'add ssh key to git',
+        'add ssh key to non-prod',
+        'add ssh key to prod',
+      ];
+      foreach ($permissions_response->_embedded->items as $index => $item) {
+        if (in_array($item->name, $delete_perms, TRUE)) {
+          unset($permissions_response->_embedded->items[$index]);
+        }
+      }
     }
     $this->clientProphecy->request('get',
       '/applications/' . $application_response->uuid . '/permissions')
