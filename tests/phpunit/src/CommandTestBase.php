@@ -434,7 +434,7 @@ abstract class CommandTestBase extends TestBase {
     $ssh_helper = $this->mockSshHelper();
     // Mock Git.
     $url_parts = explode(':', $environments_response->_embedded->items[0]->vcs->url);
-    $ssh_helper->executeCommandUrl($url_parts[0], ['ls'], FALSE)
+    $ssh_helper->executeCommand($url_parts[0], ['ls'], FALSE)
       ->willReturn($gitProcess->reveal())
       ->shouldBeCalled();
     // Mock non-prod.
@@ -458,7 +458,7 @@ abstract class CommandTestBase extends TestBase {
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(128);
     $ssh_helper = $this->mockSshHelper();
-    $ssh_helper->executeCommandUrl($environment_response->vcs->url, ['ls'], FALSE)
+    $ssh_helper->executeCommand($environment_response->vcs->url, ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     return $ssh_helper;

@@ -172,9 +172,7 @@ class PushArtifactCommand extends PullCommandBase {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
     }
 
-    $environment = $this->getAnyNonProdAhEnvironment($application_uuid);
-    $destination_git_url = $environment->vcs->url;
-    return [$destination_git_url];
+    return [$this->getAnyVcsUrl($application_uuid)];
   }
 
   /**
