@@ -42,7 +42,7 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse|string $target
    * @param array $command_args
    * @param bool $print_output
    * @param int|null $timeout
@@ -50,46 +50,19 @@ class SshHelper implements LoggerAwareInterface {
    * @return \Symfony\Component\Process\Process
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function executeCommand(EnvironmentResponse $environment, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
+  public function executeCommand(EnvironmentResponse|string $target, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
     $command_summary = $this->getCommandSummary($command_args);
 
-    // Remove site_env arg.
-    unset($command_args['alias']);
-    $process = $this->sendCommand($environment->sshUrl, $command_args, $print_output, $timeout);
-
-    $this->logger->debug('Command: {command} [Exit: {exit}]', [
-      'env' => $environment->name,
-      'command' => $command_summary,
-      'exit' => $process->getExitCode(),
-    ]);
-
-    if (!$process->isSuccessful() && $process->getExitCode() === 255) {
-      throw new AcquiaCliException($process->getOutput() . $process->getErrorOutput());
+    if (is_a($target, EnvironmentResponse::class)) {
+      $target = $target->sshUrl;
     }
 
-    return $process;
-  }
-
-  /**
-   * Execute the command against an arbitrary URL.
-   *
-   * @param string $url
-   * @param array $command_args
-   * @param bool $print_output
-   * @param int|null $timeout
-   *
-   * @return \Symfony\Component\Process\Process
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  public function executeCommandUrl(string $url, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
-    $command_summary = $this->getCommandSummary($command_args);
-
     // Remove site_env arg.
     unset($command_args['alias']);
-    $process = $this->sendCommand($url, $command_args, $print_output, $timeout);
+    $process = $this->sendCommand($target, $command_args, $print_output, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
-      'url' => $url,
+      'env' => $target,
       'command' => $command_summary,
       'exit' => $process->getExitCode(),
     ]);

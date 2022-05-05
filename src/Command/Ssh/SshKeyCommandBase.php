@@ -148,89 +148,30 @@ EOT
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
-    $spinner_git = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available in Cloud Platform git', $output);
-    $spinner_nonprod = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available in Cloud Platform non-prod environments', $output);
-    $spinner_prod = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available in Cloud Platform prod environments', $output);
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
     $perms = array_column($permissions, 'name');
-    $vcs_url = $environment_nonprod = $environment_prod = NULL;
-    if (in_array('add ssh key to git', $perms, TRUE)) {
-      $poll_git = TRUE;
-      $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
-      $url_parts = explode(':', $full_url);
-      $vcs_url = $url_parts[0];
+    $mappings = $this->checkPermissions($perms, $cloud_app_uuid, $output);
+    foreach ($mappings as $env_name => $config) {
+      $mappings[$env_name]['spinner'] = LoopHelper::addSpinnerToLoop($loop, "Waiting for the key to become available in Cloud Platform $env_name environments", $output);
     }
-    else {
-      $poll_git = FALSE;
-      $output->writeln('<comment>You do not have access to Cloud Platform git on this application and will not be able to clone your codebase to this IDE. Check that you have the <options=bold>add ssh key to git</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
-    }
-    if (in_array('add ssh key to non-prod', $perms, TRUE)) {
-      $poll_nonprod = TRUE;
-      $environment_nonprod = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
-    }
-    else {
-      $poll_nonprod = FALSE;
-      $output->writeln('<comment>You do not have access to Cloud Platform <options=bold>non-prod</> environments on this application and will not be able to clone your non-prod sites to this IDE. Check that you have the <options=bold>add ssh key to non-prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
-    }
-    if (in_array('add ssh key to prod', $perms, TRUE)) {
-      $poll_prod = TRUE;
-      $environment_prod = $this->getAnyProdAhEnvironment($cloud_app_uuid);
-    }
-    else {
-      $poll_prod = FALSE;
-      $output->writeln('<comment>You do not have access to Cloud Platform <options=bold>prod</> environments on this application and will not be able to clone your prod sites to this IDE. Check that you have the <options=bold>add ssh key to prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
-    }
-
     // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, $spinner_git, $spinner_nonprod, $spinner_prod, &$poll_git, &$poll_nonprod, &$poll_prod, $vcs_url, $environment_nonprod, $environment_prod) {
-      if ($poll_git) {
+    $loop->addPeriodicTimer(5, function () use ($output, $loop, &$mappings) {
+      foreach ($mappings as $env_name => $config) {
         try {
-          $process = $this->sshHelper->executeCommandUrl($vcs_url, ['ls'], FALSE);
-          // Interactive Git shell is disabled, the best we can hope for is a 128 exit code.
-          if ($process->getExitCode() === 128) {
-            $poll_git = FALSE;
-            LoopHelper::finishSpinner($spinner_git);
+          $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
+          if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+            LoopHelper::finishSpinner($config['spinner']);
+            unset($mappings[$env_name]);
           }
           else {
             $this->logger->debug($process->getOutput() . $process->getErrorOutput());
           }
         } catch (AcquiaCliException $exception) {
-          // Do nothing. Keep waiting and looping and logging.
           $this->logger->debug($exception->getMessage());
         }
       }
-      if ($poll_nonprod) {
-        try {
-          $process = $this->sshHelper->executeCommand($environment_nonprod, ['ls'], FALSE);
-          if ($process->isSuccessful()) {
-            $poll_nonprod = FALSE;
-            LoopHelper::finishSpinner($spinner_nonprod);
-          }
-          else {
-            $this->logger->debug($process->getOutput() . $process->getErrorOutput());
-          }
-        } catch (AcquiaCliException $exception) {
-          // Do nothing. Keep waiting and looping and logging.
-          $this->logger->debug($exception->getMessage());
-        }
-      }
-      if ($poll_prod) {
-        try {
-          $process = $this->sshHelper->executeCommand($environment_prod, ['ls'], FALSE);
-          if ($process->isSuccessful()) {
-            $poll_prod = FALSE;
-            LoopHelper::finishSpinner($spinner_prod);
-          }
-          else {
-            $this->logger->debug($process->getOutput() . $process->getErrorOutput());
-          }
-        } catch (AcquiaCliException $exception) {
-          // Do nothing. Keep waiting and looping and logging.
-          $this->logger->debug($exception->getMessage());
-        }
-      }
-      if (!$poll_git && !$poll_nonprod && !$poll_prod) {
+      if (empty($mappings)) {
         $loop->stop();
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
       }
@@ -238,10 +179,39 @@ EOT
     $loop->addTimer(10 * 60, function () use ($output) {
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
     });
-    LoopHelper::addTimeoutToLoop($loop, 30, $spinner_git);
-    LoopHelper::addTimeoutToLoop($loop, 30, $spinner_nonprod);
-    LoopHelper::addTimeoutToLoop($loop, 30, $spinner_prod);
+    foreach ($mappings as $config) {
+      LoopHelper::addTimeoutToLoop($loop, 30, $config['spinner']);
+    }
     $loop->run();
+  }
+
+  protected function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
+    $mappings = [];
+    $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+    foreach ($needed_perms as $index => $perm) {
+      if (in_array($perm, $perms, TRUE)) {
+        switch ($perm) {
+          case 'add ssh key to git':
+            $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
+            $url_parts = explode(':', $full_url);
+            $mappings['git']['ssh_target'] = $url_parts[0];
+            break;
+          case 'add ssh key to non-prod':
+            $mappings['nonprod']['ssh_target'] = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+            break;
+          case 'add ssh key to prod':
+            $mappings['prod']['ssh_target'] = $this->getAnyProdAhEnvironment($cloud_app_uuid);
+            break;
+        }
+        unset($needed_perms[$index]);
+      }
+    }
+    if (!empty($needed_perms)) {
+      $perm_string = implode(", ", $needed_perms);
+      $output->writeln('<comment>You do not have access to some environments on this application.</comment>');
+      $output->writeln("<comment>Check that you have the following permissions: <options=bold>$perm_string</></comment>");
+    }
+    return $mappings;
   }
 
   /**
