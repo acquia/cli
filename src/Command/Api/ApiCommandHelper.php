@@ -574,7 +574,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $prop_key
+   * @param string $prop_key
    *
    * @return mixed
    */
@@ -588,6 +588,8 @@ class ApiCommandHelper {
 
   /**
    * @param array $api_commands
+   * @param $command_prefix
+   * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return ApiListCommandBase[]
    */
@@ -600,10 +602,12 @@ class ApiCommandHelper {
       }
       $namespace = $command_name_parts[1];
       if (!array_key_exists($namespace, $api_list_commands)) {
+        /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand $command */
         $command = $command_factory->createListCommand();
         $name = $command_prefix . ':' . $namespace;
         $command->setName($name);
         $command->setNamespace($name);
+        $command->setAliases([]);
         $command->setDescription("List all API commands for the {$namespace} resource");
         $api_list_commands[$name] = $command;
       }
