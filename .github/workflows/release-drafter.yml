@@ -4,16 +4,14 @@ on:
   push:
     branches:
       - master
-
   pull_request:
-  pull_request_target:
 
 jobs:
   update_release_draft:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: read
+      pull-requests: write
     steps:
       - uses: release-drafter/release-drafter@v5
         env:
