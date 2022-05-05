@@ -171,7 +171,7 @@ EOT
     }
     else {
       $poll_nonprod = FALSE;
-      $output->writeln('<comment>You do not have access to Cloud Platform non-prod environments on this application and will not be able to clone your non-prod sites to this IDE. Check that you have the <options=bold>add ssh key to non-prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
+      $output->writeln('<comment>You do not have access to Cloud Platform <options=bold>non-prod</> environments on this application and will not be able to clone your non-prod sites to this IDE. Check that you have the <options=bold>add ssh key to non-prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
     }
     if (in_array('add ssh key to prod', $perms, TRUE)) {
       $poll_prod = TRUE;
@@ -179,7 +179,7 @@ EOT
     }
     else {
       $poll_prod = FALSE;
-      $output->writeln('<comment>You do not have access to Cloud Platform prod environments on this application and will not be able to clone your prod sites to this IDE. Check that you have the <options=bold>add ssh key to prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
+      $output->writeln('<comment>You do not have access to Cloud Platform <options=bold>prod</> environments on this application and will not be able to clone your prod sites to this IDE. Check that you have the <options=bold>add ssh key to prod environments</> permission. Documentation on Cloud Teams permissions: <href=https://docs.acquia.com/cloud-platform/access/teams/permissions/default/>https://docs.acquia.com/cloud-platform/access/teams/permissions/default/</>');
     }
 
     // Poll Cloud every 5 seconds.
