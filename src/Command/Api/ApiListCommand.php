@@ -17,7 +17,8 @@ class ApiListCommand extends ApiListCommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription("List all API commands");
+    $this->setDescription("List all API commands")
+      ->setAliases(['api']);
   }
 
   public function initialize(InputInterface $input, OutputInterface $output) {

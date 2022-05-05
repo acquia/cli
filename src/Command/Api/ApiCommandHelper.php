@@ -602,7 +602,7 @@ class ApiCommandHelper {
       }
       $namespace = $command_name_parts[1];
       if (!array_key_exists($namespace, $api_list_commands)) {
-        /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand $command */
+        /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
         $command = $command_factory->createListCommand();
         $name = $command_prefix . ':' . $namespace;
         $command->setName($name);
