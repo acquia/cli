@@ -8,5 +8,4 @@ use Acquia\Cli\Command\CommandBase;
  * Class ApiCommandFactory.
  */
 abstract class AcsfCommandBase extends CommandBase {
-
 }

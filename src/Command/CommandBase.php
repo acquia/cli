@@ -334,10 +334,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->output->writeln('Acquia CLI version: ' . $this->getApplication()->getVersion(), OutputInterface::VERBOSITY_DEBUG);
     $this->checkAndPromptTelemetryPreference();
     $this->telemetryHelper->initializeAmplitude();
-
-    if ($this->commandRequiresAuthentication($this->input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
-      throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
-    }
+    $this->checkAuthentication();
 
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertApplicationAliasToUuid($input);
@@ -1757,6 +1754,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       }
     }
     return $env_uuid_argument;
+  }
+
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function checkAuthentication(): void {
+    if ($this->commandRequiresAuthentication($this->input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
+      throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
+    }
   }
 
 }

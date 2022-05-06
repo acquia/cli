@@ -119,6 +119,12 @@ services:
   Acquia\Cli\Command\Acsf\AcsfListCommandBase:
     class: Acquia\Cli\Command\Acsf\AcsfListCommandBase
     factory: [ '@Acquia\Cli\Command\Acsf\AcsfCommandFactory', 'createListCommand' ]
+  Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand:
+    arguments:
+      Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
+  Acquia\Cli\Command\Acsf\AcsfApiAuthLogoutCommand:
+    arguments:
+      Acquia\Cli\ApiCredentialsInterface: '@acsf.credentials'
 
   # Symfony services.
   Acquia\Cli\Application: ~
