@@ -12,7 +12,7 @@ use Symfony\Component\Console\Question\Question;
  */
 class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
-  protected static $defaultName = 'acsf:auth:login';
+  protected static $defaultName = 'auth:acsf-login';
 
   /**
    * {inheritdoc}.
