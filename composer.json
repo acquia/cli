@@ -20,7 +20,7 @@
         "php": "^8.0",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
-        "composer/semver": "^3.2",
+        "composer/semver": "^3.3",
         "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",
         "grasmash/expander": "^1.0",
@@ -105,7 +105,8 @@
                 "symfony-fs-mirror.patch"
             ],
             "consolidation/self-update": [
-                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch"
+                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch",
+                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/21.patch"
             ]
         },
         "patchLevel": {
