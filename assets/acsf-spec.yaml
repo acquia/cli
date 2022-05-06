@@ -8,7 +8,7 @@ paths:
     delete:
       summary: 'Regenerate ALL users API keys'
       description: 'Regenerate ALL users API keys.'
-      x-cli-name: 'api_key:regenerate_all'
+      x-cli-name: 'api-key:regenerate-all'
       operationId: delete_ApiKey_resetKeys
       parameters: []
       responses:
@@ -24,7 +24,7 @@ paths:
     delete:
       summary: 'Regenerate a user''s API key'
       description: 'Regenerate a user''s API key.'
-      x-cli-name: 'api_key:regenerate'
+      x-cli-name: 'api-key:regenerate'
       operationId: delete_ApiKey_resetUserKeys
       parameters:
         -
@@ -47,7 +47,7 @@ paths:
     get:
       summary: 'List audit events'
       description: 'Gets a list of audit events.'
-      x-cli-name: 'audit_events:list'
+      x-cli-name: 'audit-events:find'
       operationId: get_AuditEvent_getAuditEvents
       parameters:
         -
@@ -117,7 +117,7 @@ paths:
     get:
       summary: 'Get current centralized role management settings.'
       description: 'Get current centralized role management settings.'
-      x-cli-name: 'role_mgr:get'
+      x-cli-name: 'role-mgr:get'
       operationId: get_CentralizedRoleManagement_executeGetActions
       parameters: []
       responses:
@@ -133,7 +133,7 @@ paths:
     put:
       summary: 'Set the centralized role management settings for a given role.'
       description: 'Set the centralized role management settings for a given role.'
-      x-cli-name: 'role_mgr:set'
+      x-cli-name: 'role-mgr:set'
       operationId: put_CentralizedRoleManagement_executePutActions
       parameters:
         -
@@ -162,7 +162,7 @@ paths:
     delete:
       summary: 'Disable the centralized role management settings for a given role.'
       description: 'Disable the centralized role management settings for a given role.'
-      x-cli-name: 'role_mgr:disable'
+      x-cli-name: 'role-mgr:disable'
       operationId: delete_CentralizedRoleManagement_executeDeleteActions
       parameters:
         -
@@ -185,7 +185,7 @@ paths:
     get:
       summary: 'Get list of available stacks.'
       description: 'Fetches the list of available stacks.'
-      x-cli-name: 'stacks:list'
+      x-cli-name: 'stacks:find'
       operationId: get_CodeBases_getCodeBaseNames
       parameters: []
       responses:
@@ -201,7 +201,7 @@ paths:
     get:
       summary: 'Get cron jobs. sites_affected: dev-sites(without custom domains)|prod-sites(with custom domains)|all'
       description: 'Get all cron jobs (paged).'
-      x-cli-name: 'cron:list_jobs'
+      x-cli-name: 'cron:find-jobs'
       operationId: get_CronJobs_getCronJobs
       parameters:
         -
@@ -229,7 +229,7 @@ paths:
     get:
       summary: 'Get cron job'
       description: 'Get cron job by its id.'
-      x-cli-name: 'cron:get_job'
+      x-cli-name: 'cron:get-job'
       operationId: get_CronJobs_getCronJob
       parameters:
         -
@@ -275,7 +275,7 @@ paths:
     get:
       summary: 'Get domain status'
       description: 'Get domain status.'
-      x-cli-name: 'domains:get_status'
+      x-cli-name: 'domains:get-status'
       operationId: get_Domains_getDomainStatus
       parameters:
         -
@@ -358,7 +358,7 @@ paths:
     post:
       summary: 'Backfill the current factory standard domain templates.'
       description: 'Backfill the current factory standard domain templates.'
-      x-cli-name: 'std_domains:backfill'
+      x-cli-name: 'std-domains:backfill'
       operationId: post_FactoryStandardDomains_backfillFactoryStandardDomains
       parameters: []
       responses:
@@ -373,7 +373,7 @@ paths:
     get:
       summary: 'Get the current factory standard domain templates.'
       description: 'Get the current factory standard domain templates.'
-      x-cli-name: 'std_domains:get_templates'
+      x-cli-name: 'std-domains:get-templates'
       operationId: get_FactoryStandardDomains_getFactoryStandardDomains
       parameters: []
       responses:
@@ -389,7 +389,7 @@ paths:
     put:
       summary: 'Set the factory standard domain template.'
       description: 'Set the factory standard domain template.'
-      x-cli-name: 'std_domains:set_templates'
+      x-cli-name: 'std-domains:set-templates'
       operationId: put_FactoryStandardDomains_setFactoryStandardDomains
       parameters:
         -
@@ -420,7 +420,7 @@ paths:
     delete:
       summary: 'Remove the factory standard domain template.'
       description: 'Remove the factory standard domain template.'
-      x-cli-name: 'std_domains:remove_templates'
+      x-cli-name: 'std-domains:remove-templates'
       operationId: delete_FactoryStandardDomains_removeFactoryStandardDomains
       parameters:
         -
@@ -443,7 +443,7 @@ paths:
     get:
       summary: 'List group members'
       description: 'Get the members of a group.'
-      x-cli-name: 'groups:list_members'
+      x-cli-name: 'groups:find-members'
       operationId: get_Groups_getMembers
       parameters:
         -
@@ -477,7 +477,7 @@ paths:
     post:
       summary: 'Add members to a group'
       description: 'Add members to a group.'
-      x-cli-name: 'groups:add_members'
+      x-cli-name: 'groups:add-members'
       operationId: post_Groups_addMembers
       parameters:
         -
@@ -512,7 +512,7 @@ paths:
     delete:
       summary: 'Remove members from a group'
       description: 'Remove members from a group.'
-      x-cli-name: 'groups:remove_members'
+      x-cli-name: 'groups:remove-members'
       operationId: delete_Groups_removeMembers
       parameters:
         -
@@ -593,7 +593,7 @@ paths:
     get:
       summary: 'List groups'
       description: 'Get a list of groups.'
-      x-cli-name: 'groups:list'
+      x-cli-name: 'groups:find'
       operationId: get_Groups_getGroups
       parameters:
         -
@@ -671,7 +671,7 @@ paths:
     post:
       summary: 'Make members group admin'
       description: 'Make members group admin.'
-      x-cli-name: 'groups:make_members_admins'
+      x-cli-name: 'groups:make-members-admins'
       operationId: post_Groups_addAdmins
       parameters:
         -
@@ -706,7 +706,7 @@ paths:
     delete:
       summary: 'Remove group admin from members'
       description: 'Remove group admin from members.'
-      x-cli-name: 'groups:remove_admins'
+      x-cli-name: 'groups:remove-admins'
       operationId: delete_Groups_removeAdmins
       parameters:
         -
@@ -742,7 +742,7 @@ paths:
     post:
       summary: 'Add site(s) to a site group.'
       description: 'Add site(s) to a site group.'
-      x-cli-name: 'groups:add_sites'
+      x-cli-name: 'groups:add-sites'
       operationId: post_Groups_addSites
       parameters:
         -
@@ -777,7 +777,7 @@ paths:
     delete:
       summary: 'Remove site(s) from a site group.'
       description: 'Remove site(s) from a site group.'
-      x-cli-name: 'groups:remove_sites'
+      x-cli-name: 'groups:remove-sites'
       operationId: delete_Groups_removeSites
       parameters:
         -
@@ -812,7 +812,7 @@ paths:
     get:
       summary: 'List sites in a group.'
       description: 'Get the sites of a group.'
-      x-cli-name: 'groups:list_sites'
+      x-cli-name: 'groups:find-sites'
       operationId: get_Groups_getSites
       parameters:
         -
@@ -847,7 +847,7 @@ paths:
     get:
       summary: 'List installation profiles.'
       description: 'List installation profiles.'
-      x-cli-name: 'install_profiles:list'
+      x-cli-name: 'install-profiles:find'
       operationId: get_InstallationProfiles_getInstallationProfiles
       parameters:
         -
@@ -875,7 +875,7 @@ paths:
     post:
       summary: 'Enable installation profile.'
       description: 'Enable installation profile.'
-      x-cli-name: 'install_profiles:enable'
+      x-cli-name: 'install-profiles:enable'
       operationId: post_InstallationProfiles_enableProfile
       parameters:
         -
@@ -904,7 +904,7 @@ paths:
     post:
       summary: 'Disable installation profile.'
       description: 'Disable installation profile.'
-      x-cli-name: 'install_profiles:disable'
+      x-cli-name: 'install-profiles:disable'
       operationId: post_InstallationProfiles_disableProfile
       parameters:
         -
@@ -933,7 +933,7 @@ paths:
     post:
       summary: 'Sets the installation profile as default.'
       description: 'Sets the installation profile as default.'
-      x-cli-name: 'install_profiles:set_default'
+      x-cli-name: 'install-profiles:set-default'
       operationId: post_InstallationProfiles_setDefault
       parameters:
         -
@@ -962,7 +962,7 @@ paths:
     get:
       summary: 'List monthly aggregated dynamic request statistics.'
       description: 'Gets the monthly aggregated dynamic request statistics.'
-      x-cli-name: 'page_views:aggregated'
+      x-cli-name: 'page-views:aggregated'
       operationId: get_PageView_getPageViewDataMonthly
       parameters:
         -
@@ -1009,7 +1009,7 @@ paths:
     get:
       summary: 'List monthly dynamic request statistics by domain.'
       description: 'Gets the monthly dynamic request statistics by domain.'
-      x-cli-name: 'page_views:by_domain'
+      x-cli-name: 'page-views:by-domain'
       operationId: get_PageView_getPageViewDataMonthlyPerDomain
       parameters:
         -
@@ -1063,7 +1063,7 @@ paths:
     post:
       summary: 'Pause/resume task processing'
       description: 'Pause or resume task processing.'
-      x-cli-name: 'pause:all_tasks'
+      x-cli-name: 'pause:all-tasks'
       operationId: post_Pause_pause
       parameters: []
       responses:
@@ -1111,7 +1111,7 @@ paths:
     get:
       summary: 'List roles'
       description: 'Gets a list of roles.'
-      x-cli-name: 'roles:list'
+      x-cli-name: 'roles:find'
       operationId: get_Role_getRoles
       parameters:
         -
@@ -1242,7 +1242,7 @@ paths:
     get:
       summary: 'Get the version of the Site Factory'
       description: 'Gets the (release) version the Site Factory is on.'
-      x-cli-name: 'sf_info:get'
+      x-cli-name: 'sf-info:get'
       operationId: get_SfInfo_getSfVersion
       parameters: []
       responses:
@@ -1550,7 +1550,7 @@ paths:
     get:
       summary: 'Get current site ownership settings.'
       description: 'Get current site ownership settings.'
-      x-cli-name: 'site_owner:get'
+      x-cli-name: 'site-owner:get'
       operationId: get_SiteOwnership_executeGetActions
       parameters: []
       responses:
@@ -1565,7 +1565,7 @@ paths:
     put:
       summary: 'Set the site ownership settings.'
       description: 'Set the site ownership settings.'
-      x-cli-name: 'site_owner:set'
+      x-cli-name: 'site-owner:set'
       operationId: put_SiteOwnership_executePutActions
       parameters:
         -
@@ -1587,7 +1587,7 @@ paths:
     delete:
       summary: 'Delete the site ownership settings.'
       description: 'Delete the site ownership settings.'
-      x-cli-name: 'site_owner:delete'
+      x-cli-name: 'site-owner:delete'
       operationId: delete_SiteOwnership_executeDeleteActions
       parameters: []
       responses:
@@ -1603,7 +1603,7 @@ paths:
     post:
       summary: 'Transfer the site ownership.'
       description: 'Transfer the site ownership.'
-      x-cli-name: 'site_owner:transfer'
+      x-cli-name: 'site-owner:transfer'
       operationId: post_SiteOwnership_transferSiteOwnership
       parameters:
         -
@@ -1690,7 +1690,7 @@ paths:
     get:
       summary: 'List sites'
       description: 'Gets a list of sites.'
-      x-cli-name: 'sites:list'
+      x-cli-name: 'sites:find'
       operationId: get_Sites_getSites
       parameters:
         -
@@ -1954,7 +1954,7 @@ paths:
     get:
       summary: 'List site backups'
       description: "List site backups.\n\n Note that the results are sorted from newest backup to oldest."
-      x-cli-name: 'sites:list_backups'
+      x-cli-name: 'sites:find-backups'
       operationId: get_Sites_getSiteBackups
       parameters:
         -
@@ -1989,7 +1989,7 @@ paths:
     get:
       summary: 'Get a temporary site backup URL'
       description: 'Get temporary site backup URL.'
-      x-cli-name: 'sites:backup_url'
+      x-cli-name: 'sites:backup-url'
       operationId: get_Sites_getSiteBackupUrl
       parameters:
         -
@@ -2025,7 +2025,7 @@ paths:
     delete:
       summary: 'Delete a site backup'
       description: 'Delete a site backup.'
-      x-cli-name: 'sites:delete_backup'
+      x-cli-name: 'sites:delete-backup'
       operationId: delete_Sites_deleteSiteBackup
       parameters:
         -
@@ -2073,7 +2073,7 @@ paths:
     post:
       summary: 'Restore a site backup'
       description: 'Restore a site backup.'
-      x-cli-name: 'sites:restore_backup'
+      x-cli-name: 'sites:restore-backup'
       operationId: post_Sites_restoreSite
       parameters:
         -
@@ -2134,7 +2134,7 @@ paths:
     post:
       summary: 'Clear a site''s caches'
       description: 'Clear Drupal and Varnish caches for a site.'
-      x-cli-name: 'sites:clear_cache'
+      x-cli-name: 'sites:clear-cache'
       operationId: post_Sites_clearCaches
       parameters:
         -
@@ -2157,7 +2157,7 @@ paths:
     get:
       summary: 'Retrieve available environments'
       description: 'Retrieves available environments user can stage to.'
-      x-cli-name: 'stage_v2:list_envs'
+      x-cli-name: 'stage-v2:find-envs'
       operationId: get_StageV2_stagingEnvironments
       parameters: []
       responses:
@@ -2172,7 +2172,7 @@ paths:
     post:
       summary: 'Start staging process'
       description: 'Starts the staging process.'
-      x-cli-name: 'stage_v2:start'
+      x-cli-name: 'stage-v2:start'
       operationId: post_StageV2_stage
       parameters: []
       responses:
@@ -2219,7 +2219,7 @@ paths:
     get:
       summary: '(Internal use only) Get Task class information.'
       description: 'Return data about WIP classes'
-      x-cli-name: 'tasks:list_wip_classes'
+      x-cli-name: 'tasks:find-wip-classes'
       operationId: get_Task_classes
       parameters:
         -
@@ -2384,7 +2384,7 @@ paths:
     post:
       summary: 'Process theme modifications'
       description: 'Processes the stored theme change notifications.'
-      x-cli-name: 'themes:process_notifications'
+      x-cli-name: 'themes:process-notifications'
       operationId: post_Theme_processThemes
       parameters:
         -
@@ -2429,7 +2429,7 @@ paths:
     put:
       summary: 'Set site external theme'
       description: 'Sets the site''s external theme data.'
-      x-cli-name: 'themes:unlink_vcs'
+      x-cli-name: 'themes:link-vcs'
       operationId: put_Theme_setSiteExternalTheme
       parameters:
         -
@@ -2464,7 +2464,7 @@ paths:
     delete:
       summary: 'Delete site external theme'
       description: 'Deletes the site''s external theme data.'
-      x-cli-name: 'themes:link_vcs'
+      x-cli-name: 'themes:unlink-vcs'
       operationId: delete_Theme_deleteSiteExternalTheme
       parameters:
         -
@@ -2487,7 +2487,7 @@ paths:
     post:
       summary: 'Send a theme notification'
       description: 'Sends a theme event notification.'
-      x-cli-name: 'theme_notification:send'
+      x-cli-name: 'theme-notification:send'
       operationId: post_ThemeNotification_handleNotification
       parameters:
         -
@@ -2550,7 +2550,7 @@ paths:
     get:
       summary: 'List updates'
       description: ''
-      x-cli-name: 'updates:list'
+      x-cli-name: 'updates:find'
       operationId: get_Update_updateList
       parameters: []
       responses:
@@ -2609,7 +2609,7 @@ paths:
     get:
       summary: 'List users'
       description: 'Gets a list of users.'
-      x-cli-name: 'users:list'
+      x-cli-name: 'users:find'
       operationId: get_User_getUsers
       parameters:
         -
@@ -2878,7 +2878,7 @@ paths:
     get:
       summary: 'List deployable refs'
       description: 'Get a list of VCS refs.'
-      x-cli-name: 'vcs:list'
+      x-cli-name: 'vcs:find'
       operationId: get_Vcs_getRefs
       parameters:
         -
@@ -2907,7 +2907,7 @@ paths:
     get:
       summary: 'Wip task status'
       description: 'Gets the status of a Wip task.'
-      x-cli-name: 'wip_task_status:get'
+      x-cli-name: 'wip-task-status:get'
       operationId: get_WipTaskStatus_getWipTaskStatus
       parameters:
         -

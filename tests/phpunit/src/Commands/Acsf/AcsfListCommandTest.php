@@ -38,7 +38,7 @@ class AcsfListCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('acsf:api', $output);
     $this->assertStringContainsString('acsf:api:ping', $output);
-    $this->assertStringContainsString('acsf:audit_events', $output);
+    $this->assertStringContainsString('acsf:audit-events', $output);
   }
 
   /**

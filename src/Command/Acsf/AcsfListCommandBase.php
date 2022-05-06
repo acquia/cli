@@ -45,7 +45,8 @@ class AcsfListCommandBase extends CommandBase {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {
       if ($command->getName() !== $this->namespace
-        && strpos($command->getName(), $this->namespace . ':') !== FALSE
+        // E.g., if the namespace is acsf:api, show all acsf:api:* commands.
+        && str_contains($command->getName(), $this->namespace . ':')
         ) {
         $command->setHidden(FALSE);
       }

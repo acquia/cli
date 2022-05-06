@@ -33,7 +33,9 @@ class ApiListCommandBase extends CommandBase {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {
       if ($command->getName() !== $this->namespace
-        && strpos($command->getName(), $this->namespace . ':') !== FALSE
+        && str_contains($command->getName(), $this->namespace . ':')
+        // This is a lazy way to exclude api:base and acsf:base.
+        && $command->getDescription()
         ) {
         $command->setHidden(FALSE);
       }
