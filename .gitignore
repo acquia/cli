@@ -28,6 +28,7 @@ tests/fixtures/project/blt/blt.yml
 ###< phpunit/phpunit ###
 
 cx-api-spec
+gardener
 
 # Generated files from Platform Email configuration/info commands
 dns-records.yaml

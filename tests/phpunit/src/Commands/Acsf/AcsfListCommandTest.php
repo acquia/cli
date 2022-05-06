@@ -36,7 +36,9 @@ class AcsfListCommandTest extends CommandTestBase {
   public function testAcsfListCommand(): void {
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('acsf:event-list', $output);
+    $this->assertStringContainsString('acsf:api', $output);
+    $this->assertStringContainsString('acsf:api:ping', $output);
+    $this->assertStringContainsString('acsf:audit_events', $output);
   }
 
   /**
@@ -46,13 +48,13 @@ class AcsfListCommandTest extends CommandTestBase {
    */
   public function testApiNamespaceListCommand(): void {
     $this->command = $this->injectCommand(AcsfListCommandBase::class);
-    $name = 'acsf:cron-jobs';
+    $name = 'acsf:api';
     $this->command->setName($name);
     $this->command->setNamespace($name);
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('acsf:cron-jobs:find', $output);
-    $this->assertStringNotContainsString('acsf:event-list', $output);
+    $this->assertStringContainsString('acsf:api:ping', $output);
+    $this->assertStringNotContainsString('acsf:groups', $output);
   }
 
   /**
@@ -64,8 +66,8 @@ class AcsfListCommandTest extends CommandTestBase {
     $this->command = new ListCommand('list');
     $this->executeCommand();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('acsf:cron-jobs', $output);
-    $this->assertStringNotContainsString('acsf:cron-jobs:find', $output);
+    $this->assertStringContainsString('acsf:api', $output);
+    $this->assertStringNotContainsString('acsf:api:ping', $output);
   }
 
 }
