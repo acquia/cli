@@ -588,7 +588,7 @@ class ApiCommandHelper {
 
   /**
    * @param array $api_commands
-   * @param $command_prefix
+   * @param string $command_prefix
    * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return ApiListCommandBase[]
