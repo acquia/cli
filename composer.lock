@@ -8032,12 +8032,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpro/grumphp.git",
-                "reference": "71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc"
+                "reference": "feca81aeeaaead40bc659e1d03956b4bfb2e0968"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpro/grumphp/zipball/71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc",
-                "reference": "71c085cfdbec9a4cd7378c52f6cd558e4dcfd3cc",
+                "url": "https://api.github.com/repos/phpro/grumphp/zipball/feca81aeeaaead40bc659e1d03956b4bfb2e0968",
+                "reference": "feca81aeeaaead40bc659e1d03956b4bfb2e0968",
                 "shasum": ""
             },
             "require": {
@@ -8139,9 +8139,9 @@
             "description": "A composer plugin that enables source code quality checks.",
             "support": {
                 "issues": "https://github.com/phpro/grumphp/issues",
-                "source": "https://github.com/phpro/grumphp/tree/master"
+                "source": "https://github.com/phpro/grumphp/tree/v1.12.0"
             },
-            "time": "2022-04-30T10:17:44+00:00"
+            "time": "2022-05-06T13:58:06+00:00"
         },
         {
             "name": "phpspec/prophecy",
