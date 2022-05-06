@@ -71,9 +71,9 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function deleteThisSshKeyFromCloud(): void {
+  protected function deleteThisSshKeyFromCloud($output): void {
     if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
-      $this->deleteSshKeyFromCloud($cloud_key);
+      $this->deleteSshKeyFromCloud($output, $cloud_key);
     }
   }
 
