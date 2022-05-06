@@ -71,7 +71,6 @@ abstract class WizardTestBase extends CommandTestBase {
    */
   protected function runTestCreate(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
-    $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
 
     // List uploaded keys.
@@ -80,7 +79,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
+    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->command->sshHelper = $ssh_helper->reveal();
 
     /** @var Filesystem|ObjectProphecy $file_system */
@@ -132,7 +131,6 @@ abstract class WizardTestBase extends CommandTestBase {
       ->shouldBeCalled();
 
     $environments_response = $this->getMockEnvironmentsResponse();
-    $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -141,7 +139,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->mockUploadSshKey();
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($selected_environment);
+    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
     $this->command->sshHelper = $ssh_helper->reveal();
 
     /** @var Filesystem|ObjectProphecy $file_system */

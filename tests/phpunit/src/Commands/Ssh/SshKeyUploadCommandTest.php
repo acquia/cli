@@ -53,6 +53,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
           'y',
         ],
+        // Perms.
+        TRUE,
       ],
       [
         // Args.
@@ -67,6 +69,8 @@ class SshKeyUploadCommandTest extends CommandTestBase
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
           'y',
         ],
+        // Perms.
+        FALSE,
       ],
     ];
   }
@@ -77,18 +81,18 @@ class SshKeyUploadCommandTest extends CommandTestBase
    * Tests the 'ssh-key:upload' command.
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testUpload($args, $inputs): void {
+  public function testUpload($args, $inputs, $perms): void {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
     $applications_response = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
+    $application_response = $this->mockApplicationRequest();
+    $this->mockPermissionsRequest($application_response, $perms);
 
     $local_machine_helper = $this->mockLocalMachineHelper();
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_name = $this->mockGetLocalSshKey($local_machine_helper, $file_system, $this->sshKeysRequestBody['public_key']);
-    $this->mockEnvironmentsRequest($applications_response);
 
     $local_machine_helper->getFilesystem()->willReturn($file_system);
     $file_system->exists(Argument::type('string'))->willReturn(TRUE);
@@ -97,9 +101,11 @@ class SshKeyUploadCommandTest extends CommandTestBase
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response->_embedded->items[0]);
-    $this->command->sshHelper = $ssh_helper->reveal();
+    if ($perms) {
+      $environments_response = $this->mockEnvironmentsRequest($applications_response);
+      $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
+      $this->command->sshHelper = $ssh_helper->reveal();
+    }
 
     // Choose a local SSH key to upload to the Cloud Platform.
     $this->executeCommand($args, $inputs);
