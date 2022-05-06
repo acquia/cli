@@ -366,10 +366,9 @@ class ApiCommandHelper {
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApiSpec($spec_file_path): array {
+  protected function getCloudApiSpec(string $spec_file_path): array {
     $cache_key = basename($spec_file_path);
     $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new NullAdapter());
-    $checksum = md5_file($spec_file_path);
     $cache_item_checksum = $cache->getItem($cache_key . '.checksum');
     $cache_item_spec = $cache->getItem($cache_key);
 
@@ -381,6 +380,7 @@ class ApiCommandHelper {
     }
 
     // Otherwise, only use cache when it is valid.
+    $checksum = md5_file($spec_file_path);
     if ($this->useCloudApiSpecCache()
       && $this->isApiSpecChecksumCacheValid($cache_item_checksum, $checksum)
     ) {
