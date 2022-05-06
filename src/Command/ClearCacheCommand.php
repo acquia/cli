@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class ClearCacheCommand extends CommandBase {
 
-  protected static $defaultName = 'clear-caches';
+  protected static $defaultName = 'self:clear-caches';
 
   /**
    * {inheritdoc}.

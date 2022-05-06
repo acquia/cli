@@ -24,7 +24,7 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
           if (
             !is_a($command, ApiListCommandBase::class)
             && !is_a($command, AcsfListCommandBase::class)
-            && strpos($command->getName(), $prefix . ':') !== FALSE
+            && str_starts_with($command->getName(), $prefix . ':')
           ) {
             $command->setHidden(TRUE);
           }
