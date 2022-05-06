@@ -439,11 +439,13 @@ class ApiBaseCommand extends CommandBase {
     $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
     switch ($argument->getName()) {
       case 'applicationUuid':
+        // @todo Provide a list of application UUIDs.
         $question->setValidator(function ($value) {
           return $this->validateApplicationUuid($value);
         });
         break;
       case 'environmentId':
+        // @todo Provide a list of environment IDs.
       case 'source':
         $question->setValidator(function ($value) use ($argument) {
           return $this->validateEnvironmentUuid($value, $argument->getName());
