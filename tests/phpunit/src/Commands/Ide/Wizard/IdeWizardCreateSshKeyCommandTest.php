@@ -26,10 +26,14 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   protected $ide;
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
-    $this->mockApplicationRequest();
+    $application_response = $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();
+    $this->mockPermissionsRequest($application_response);
     $this->ide = $this->mockIdeRequest();
     $this->sshKeyFileName = IdeWizardCreateSshKeyCommand::getSshKeyFilename(IdeRequiredTestTrait::$remote_ide_uuid);
   }

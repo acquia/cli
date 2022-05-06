@@ -45,7 +45,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Just in case the public key exists and the private doesn't, remove the public key.
       $this->deleteLocalSshKey();
       // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
-      $this->deleteThisSshKeyFromCloud();
+      $this->deleteThisSshKeyFromCloud($output);
 
       $this->checklist->addItem('Creating a local SSH key');
 
@@ -68,7 +68,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
       // Just in case there is an uploaded key,  but it doesn't actually match
       // the local key, delete remote key!
-      $this->deleteThisSshKeyFromCloud();
+      $this->deleteThisSshKeyFromCloud($output);
       $public_key = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
       $chosen_local_key = basename($this->publicSshKeyFilepath);
       $this->uploadSshKey($this->getSshKeyLabel(), $chosen_local_key, $public_key);

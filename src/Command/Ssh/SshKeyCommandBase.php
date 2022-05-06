@@ -6,9 +6,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshCommandTrait;
-use AcquiaCloudApi\Endpoints\Applications;
-use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -151,34 +148,70 @@ EOT
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the key to become available on the Cloud Platform', $output);
-
-    // Wait for SSH key to be available on a web.
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $environment = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
-
+    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
+    $perms = array_column($permissions, 'name');
+    $mappings = $this->checkPermissions($perms, $cloud_app_uuid, $output);
+    foreach ($mappings as $env_name => $config) {
+      $mappings[$env_name]['spinner'] = LoopHelper::addSpinnerToLoop($loop, "Waiting for the key to become available in Cloud Platform $env_name environments", $output);
+    }
     // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, $environment, $spinner) {
-      try {
-        $process = $this->sshHelper->executeCommand($environment, ['ls'], FALSE);
-        if ($process->isSuccessful()) {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
+    $loop->addPeriodicTimer(5, function () use ($output, $loop, &$mappings) {
+      foreach ($mappings as $env_name => $config) {
+        try {
+          $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
+          if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+            LoopHelper::finishSpinner($config['spinner']);
+            unset($mappings[$env_name]);
+          }
+          else {
+            $this->logger->debug($process->getOutput() . $process->getErrorOutput());
+          }
+        } catch (AcquiaCliException $exception) {
+          $this->logger->debug($exception->getMessage());
         }
-        else {
-          $this->logger->debug($process->getOutput() . $process->getErrorOutput());
-        }
-      } catch (AcquiaCliException $exception) {
-        // Do nothing. Keep waiting and looping and logging.
-        $this->logger->debug($exception->getMessage());
+      }
+      if (empty($mappings)) {
+        $loop->stop();
+        $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
       }
     });
     $loop->addTimer(10 * 60, function () use ($output) {
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
     });
-    LoopHelper::addTimeoutToLoop($loop, 30, $spinner);
+    foreach ($mappings as $config) {
+      LoopHelper::addTimeoutToLoop($loop, 30, $config['spinner']);
+    }
     $loop->run();
+  }
+
+  protected function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
+    $mappings = [];
+    $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+    foreach ($needed_perms as $index => $perm) {
+      if (in_array($perm, $perms, TRUE)) {
+        switch ($perm) {
+          case 'add ssh key to git':
+            $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
+            $url_parts = explode(':', $full_url);
+            $mappings['git']['ssh_target'] = $url_parts[0];
+            break;
+          case 'add ssh key to non-prod':
+            $mappings['nonprod']['ssh_target'] = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+            break;
+          case 'add ssh key to prod':
+            $mappings['prod']['ssh_target'] = $this->getAnyProdAhEnvironment($cloud_app_uuid);
+            break;
+        }
+        unset($needed_perms[$index]);
+      }
+    }
+    if (!empty($needed_perms)) {
+      $perm_string = implode(", ", $needed_perms);
+      $output->writeln('<comment>You do not have access to some environments on this application.</comment>');
+      $output->writeln("<comment>Check that you have the following permissions: <options=bold>$perm_string</></comment>");
+    }
+    return $mappings;
   }
 
   /**
