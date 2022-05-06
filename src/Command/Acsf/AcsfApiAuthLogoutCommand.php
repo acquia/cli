@@ -11,14 +11,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
-  protected static $defaultName = 'acsf:auth:logout';
+  protected static $defaultName = 'auth:acsf-logout';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Remove Cloud API key and secret from local machine.')
-      ->setAliases(['logout']);
+    $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }
 
   /**
