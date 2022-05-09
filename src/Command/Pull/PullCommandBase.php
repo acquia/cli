@@ -319,6 +319,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param string $notification_uuid
    * @param $acquia_cloud_client
+   * @infection-ignore-all
    */
   protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
     $loop = Loop::get();

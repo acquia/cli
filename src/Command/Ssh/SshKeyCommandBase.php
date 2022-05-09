@@ -142,6 +142,7 @@ EOT
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @throws \Exception
+   * @infection-ignore-all
    */
   protected function pollAcquiaCloudUntilSshSuccess(
     OutputInterface $output

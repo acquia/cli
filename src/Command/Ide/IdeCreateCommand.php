@@ -108,6 +108,7 @@ class IdeCreateCommand extends IdeCommandBase {
    * @param $ide_url
    *
    * @return int
+   * @infection-ignore-all
    */
   protected function waitForDnsPropagation($ide_url): int {
     if (!$this->getClient()) {
