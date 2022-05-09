@@ -155,8 +155,7 @@ EOT
     foreach ($mappings as $env_name => $config) {
       $mappings[$env_name]['spinner'] = LoopHelper::addSpinnerToLoop($loop, "Waiting for the key to become available in Cloud Platform $env_name environments", $output);
     }
-    // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, function () use ($output, $loop, &$mappings) {
+    $callback = function () use ($output, $loop, &$mappings) {
       foreach ($mappings as $env_name => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
@@ -175,7 +174,11 @@ EOT
         $loop->stop();
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
       }
-    });
+    };
+    // Run once immediately to speed up tests.
+    $loop->addTimer(0.1, $callback);
+    // Poll Cloud every 5 seconds.
+    $loop->addPeriodicTimer(5, $callback);
     $loop->addTimer(10 * 60, function () use ($output) {
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
     });

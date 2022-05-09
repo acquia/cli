@@ -117,7 +117,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.', $this->output);
 
-    $loop->addPeriodicTimer(5, function () use ($loop, $spinner) {
+    $callback = function () use ($loop, $spinner) {
       try {
         $response = $this->client->request('GET', '/health');
         if ($response->getStatusCode() === 200) {
@@ -130,7 +130,10 @@ class IdeCreateCommand extends IdeCommandBase {
       catch (Exception $e) {
         $this->logger->debug($e->getMessage());
       }
-    });
+    };
+    // Run once immediately to speed up tests.
+    $loop->addTimer(0.1, $callback);
+    $loop->addPeriodicTimer(5, $callback);
     LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
 
     // Start the loop.
