@@ -7,7 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Response\SubscriptionResponse;
-use Hoa\Stream\IStream\Out;
 use League\Csv\Writer;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
