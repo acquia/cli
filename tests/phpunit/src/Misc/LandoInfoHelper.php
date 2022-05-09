@@ -3,9 +3,9 @@
 namespace Acquia\Cli\Tests\Misc;
 
 /**
- * Class LandoInfoTrait
+ * Class LandoInfoHelper
  */
-trait LandoInfoTrait {
+class LandoInfoHelper {
 
   public static function setLandoInfo($lando_info) {
     putenv('LANDO_INFO=' . json_encode($lando_info));

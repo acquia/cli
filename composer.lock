@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7684fffe626e51af6bebd129b4d30ac4",
+    "content-hash": "17a7bc6118254a4ec199bf97740b8cfb",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -942,35 +942,36 @@
         },
         {
             "name": "kevinrob/guzzle-cache-middleware",
-            "version": "v3.5.0",
+            "version": "v4.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Kevinrob/guzzle-cache-middleware.git",
-                "reference": "c699f4623a7be6c92468876a1b2404d499a4f22f"
+                "reference": "0a61532ee8bf278a0d875a86a536aeeab592da5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/c699f4623a7be6c92468876a1b2404d499a4f22f",
-                "reference": "c699f4623a7be6c92468876a1b2404d499a4f22f",
+                "url": "https://api.github.com/repos/Kevinrob/guzzle-cache-middleware/zipball/0a61532ee8bf278a0d875a86a536aeeab592da5a",
+                "reference": "0a61532ee8bf278a0d875a86a536aeeab592da5a",
                 "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^6.0 || ^7.0",
                 "guzzlehttp/psr7": "^1.7.0 || ^2.0.0",
-                "php": ">=5.5.0"
+                "php": ">=7.2.0"
             },
             "require-dev": {
                 "cache/array-adapter": "^0.4 || ^0.5 || ^1.0",
                 "cache/simple-cache-bridge": "^0.1 || ^1.0",
-                "doctrine/cache": "^1.0",
+                "doctrine/cache": "^1.10",
                 "illuminate/cache": "^5.0",
                 "league/flysystem": "^1.0",
-                "phpunit/phpunit": "^4.8.36 || ^5.0",
+                "phpunit/phpunit": "^8.5.15 || ^9.5",
                 "psr/cache": "^1.0",
+                "symfony/cache": "^4.4 || ^5.0",
                 "symfony/phpunit-bridge": "^4.4 || ^5.0"
             },
             "suggest": {
-                "doctrine/cache": "This library has a lot of ready-to-use cache storage (to be used with Kevinrob\\GuzzleCache\\Storage\\DoctrineCacheStorage).",
+                "doctrine/cache": "This library has a lot of ready-to-use cache storage (to be used with Kevinrob\\GuzzleCache\\Storage\\DoctrineCacheStorage). Use only versions >=1.4.0 < 2.0.0",
                 "guzzlehttp/guzzle": "For using this library. It was created for Guzzle6 (but you can use it with any PSR-7 HTTP client).",
                 "laravel/framework": "To be used with Kevinrob\\GuzzleCache\\Storage\\LaravelCacheStorage",
                 "league/flysystem": "To be used with Kevinrob\\GuzzleCache\\Storage\\FlysystemStorage",
@@ -1019,9 +1020,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Kevinrob/guzzle-cache-middleware/issues",
-                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/v3.5.0"
+                "source": "https://github.com/Kevinrob/guzzle-cache-middleware/tree/v4.0.1"
             },
-            "time": "2022-01-04T16:40:46+00:00"
+            "time": "2022-03-15T21:47:10+00:00"
         },
         {
             "name": "laminas/laminas-stdlib",
@@ -6148,20 +6149,15 @@
         },
         {
             "name": "zumba/amplitude-php",
-            "version": "1.0.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/zumba/amplitude-php.git",
-                "reference": "d6d163b52bfa32af3a3ae391d73d94e7740b70f7"
-            },
+            "version": "dev-master",
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/zumba/amplitude-php/zipball/d6d163b52bfa32af3a3ae391d73d94e7740b70f7",
-                "reference": "d6d163b52bfa32af3a3ae391d73d94e7740b70f7",
-                "shasum": ""
+                "type": "path",
+                "url": "../../zumba/amplitude-php",
+                "reference": "d6d163b52bfa32af3a3ae391d73d94e7740b70f7"
             },
             "require": {
                 "ext-curl": "*",
+                "ext-json": "*",
                 "php": ">=7.2",
                 "psr/log": "^1.0 | ^2.0"
             },
@@ -6177,7 +6173,6 @@
                     "Zumba\\Amplitude\\Test\\": "./test/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6200,11 +6195,9 @@
                 "sdk",
                 "tracking"
             ],
-            "support": {
-                "issues": "https://github.com/zumba/amplitude-php/issues",
-                "source": "https://github.com/zumba/amplitude-php/tree/1.0.3"
-            },
-            "time": "2022-05-02T20:36:39+00:00"
+            "transport-options": {
+                "relative": true
+            }
         }
     ],
     "packages-dev": [
@@ -7027,11 +7020,11 @@
         },
         {
             "name": "drupal/coder",
-            "version": "8.3.14",
+            "version": "8.3.15",
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/coder.git",
-                "reference": "adb06efa79ba8b91afed2f351014a6b94192622f"
+                "reference": "0cfad3a21f1168bdc3030ae73351c31f88abba74"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
@@ -7043,8 +7036,8 @@
                 "symfony/yaml": ">=2.0.5"
             },
             "require-dev": {
-                "phpstan/phpstan": "^1.2.0",
-                "phpunit/phpunit": "^6.0 || ^7.0 || ^8.0"
+                "phpstan/phpstan": "^1.4.9",
+                "phpunit/phpunit": "^7.0 || ^8.0"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -7068,7 +7061,7 @@
                 "issues": "https://www.drupal.org/project/issues/coder",
                 "source": "https://www.drupal.org/project/coder"
             },
-            "time": "2022-01-28T09:33:01+00:00"
+            "time": "2022-04-02T17:56:30+00:00"
         },
         {
             "name": "gitonomy/gitlib",
@@ -10278,6 +10271,7 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
+        "zumba/amplitude-php": 20,
         "acquia/coding-standards": 20,
         "phpro/grumphp": 20
     },
@@ -10291,5 +10285,5 @@
     "platform-overrides": {
         "php": "8.0.3"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

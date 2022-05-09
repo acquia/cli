@@ -30,11 +30,11 @@ trait IdeRequiredTestTrait {
     self::unsetCloudIdeEnvVars();
   }
 
-  public static function setCloudIdeEnvVars() {
+  public static function setCloudIdeEnvVars(): void {
     TestBase::setEnvVars(self::getEnvVars());
   }
 
-  public static function unsetCloudIdeEnvVars() {
+  public static function unsetCloudIdeEnvVars(): void {
     TestBase::unsetEnvVars(self::getEnvVars());
   }
 

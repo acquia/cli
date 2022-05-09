@@ -107,7 +107,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
   }
 
   public function testInvalidCwd(): void {
-    IdeRequiredTestTrait::setCloudIdeEnvVars();
+    self::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockDrupalSettingsRefresh($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -116,7 +116,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     } catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
     }
-    IdeRequiredTestTrait::unsetCloudIdeEnvVars();
+    self::unsetCloudIdeEnvVars();
   }
 
   /**

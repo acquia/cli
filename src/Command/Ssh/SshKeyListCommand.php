@@ -84,22 +84,9 @@ class SshKeyListCommand extends SshKeyCommandBase {
    * @return \Symfony\Component\Console\Helper\Table
    */
   protected function createSshKeyTable(OutputInterface $output, string $title): Table {
-    $terminal_width = (new Terminal())->getWidth();
-    $terminal_width *= .90;
-    $table = new Table($output);
-    $table->setHeaders([
-      'Cloud Platform label',
-      'Local filename',
-      'Fingerprint (sha256)',
-    ]);
-    $table->setHeaderTitle($title);
-    $table->setColumnWidths([
-      $terminal_width * .4,
-      $terminal_width * .2,
-      $terminal_width * .2,
-    ]);
-
-    return $table;
+    $headers = ['Cloud Platform label', 'Local filename', 'Fingerprint (sha256)'];
+    $widths = [.4, .2, .2];
+    return $this->createTable($output, $title, $headers, $widths);
   }
 
 }

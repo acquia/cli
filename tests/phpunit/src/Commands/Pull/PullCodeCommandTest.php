@@ -226,7 +226,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testMatchPhpVersion(): void {
-    IdeRequiredTestTrait::setCloudIdeEnvVars();
+    self::setCloudIdeEnvVars();
     $this->application->addCommands([
       $this->injectCommand(IdePhpVersionCommand::class),
     ]);
@@ -266,7 +266,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString("Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?", $output);
-    IdeRequiredTestTrait::unsetCloudIdeEnvVars();
+    self::unsetCloudIdeEnvVars();
   }
 
   /**
