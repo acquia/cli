@@ -32,6 +32,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: shivammathur/setup-php@v2
         with:
+          ini-file: development
           php-version: ${{ matrix.php }}
           # Only report coverage once
           coverage: ${{ matrix.coverage }}
