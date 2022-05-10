@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17a7bc6118254a4ec199bf97740b8cfb",
+    "content-hash": "a74fa353fac4abb7bad19a64c00f5958",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6149,11 +6149,17 @@
         },
         {
             "name": "zumba/amplitude-php",
-            "version": "dev-master",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/zumba/amplitude-php.git",
+                "reference": "c0d14d5fce750c76710024601b0d698df2bdf365"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../zumba/amplitude-php",
-                "reference": "d6d163b52bfa32af3a3ae391d73d94e7740b70f7"
+                "type": "zip",
+                "url": "https://api.github.com/repos/zumba/amplitude-php/zipball/c0d14d5fce750c76710024601b0d698df2bdf365",
+                "reference": "c0d14d5fce750c76710024601b0d698df2bdf365",
+                "shasum": ""
             },
             "require": {
                 "ext-curl": "*",
@@ -6173,6 +6179,7 @@
                     "Zumba\\Amplitude\\Test\\": "./test/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6195,9 +6202,11 @@
                 "sdk",
                 "tracking"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/zumba/amplitude-php/issues",
+                "source": "https://github.com/zumba/amplitude-php/tree/1.0.4"
+            },
+            "time": "2022-05-09T20:55:33+00:00"
         }
     ],
     "packages-dev": [
@@ -7065,16 +7074,16 @@
         },
         {
             "name": "gitonomy/gitlib",
-            "version": "v1.3.4",
+            "version": "v1.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gitonomy/gitlib.git",
-                "reference": "3c2f67a2fa6e7b26dbc9b9d0ca272ed33ba5895e"
+                "reference": "793ffe5826c30e64ea499ea9e4bb353dd0892bef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gitonomy/gitlib/zipball/3c2f67a2fa6e7b26dbc9b9d0ca272ed33ba5895e",
-                "reference": "3c2f67a2fa6e7b26dbc9b9d0ca272ed33ba5895e",
+                "url": "https://api.github.com/repos/gitonomy/gitlib/zipball/793ffe5826c30e64ea499ea9e4bb353dd0892bef",
+                "reference": "793ffe5826c30e64ea499ea9e4bb353dd0892bef",
                 "shasum": ""
             },
             "require": {
@@ -7127,7 +7136,7 @@
             "description": "Library for accessing git",
             "support": {
                 "issues": "https://github.com/gitonomy/gitlib/issues",
-                "source": "https://github.com/gitonomy/gitlib/tree/v1.3.4"
+                "source": "https://github.com/gitonomy/gitlib/tree/v1.3.5"
             },
             "funding": [
                 {
@@ -7135,7 +7144,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-14T09:07:07+00:00"
+            "time": "2022-03-01T10:56:00+00:00"
         },
         {
             "name": "laravel/serializable-closure",
@@ -7198,16 +7207,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "2.5.0",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "4192345e260f1d51b365536199744b987e160edc"
+                "reference": "247918972acd74356b0a91dfaa5adcaec069b6c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/4192345e260f1d51b365536199744b987e160edc",
-                "reference": "4192345e260f1d51b365536199744b987e160edc",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/247918972acd74356b0a91dfaa5adcaec069b6c0",
+                "reference": "247918972acd74356b0a91dfaa5adcaec069b6c0",
                 "shasum": ""
             },
             "require": {
@@ -7220,18 +7229,23 @@
             "require-dev": {
                 "aws/aws-sdk-php": "^2.4.9 || ^3.0",
                 "doctrine/couchdb": "~1.0@dev",
-                "elasticsearch/elasticsearch": "^7",
+                "elasticsearch/elasticsearch": "^7 || ^8",
+                "ext-json": "*",
                 "graylog2/gelf-php": "^1.4.2",
+                "guzzlehttp/guzzle": "^7.4",
+                "guzzlehttp/psr7": "^2.2",
                 "mongodb/mongodb": "^1.8",
                 "php-amqplib/php-amqplib": "~2.4 || ^3",
                 "php-console/php-console": "^3.1.3",
-                "phpspec/prophecy": "^1.6.1",
+                "phpspec/prophecy": "^1.15",
                 "phpstan/phpstan": "^0.12.91",
-                "phpunit/phpunit": "^8.5",
+                "phpunit/phpunit": "^8.5.14",
                 "predis/predis": "^1.1",
                 "rollbar/rollbar": "^1.3 || ^2 || ^3",
-                "ruflin/elastica": ">=0.90@dev",
-                "swiftmailer/swiftmailer": "^5.3|^6.0"
+                "ruflin/elastica": "^7",
+                "swiftmailer/swiftmailer": "^5.3|^6.0",
+                "symfony/mailer": "^5.4 || ^6",
+                "symfony/mime": "^5.4 || ^6"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -7281,7 +7295,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/2.5.0"
+                "source": "https://github.com/Seldaek/monolog/tree/2.6.0"
             },
             "funding": [
                 {
@@ -7293,7 +7307,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-08T15:43:54+00:00"
+            "time": "2022-05-10T09:36:00+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -8294,16 +8308,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.6.7",
+            "version": "1.6.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d41c39cb2e487663bce9bbd97c660e244b73abad"
+                "reference": "d76498c5531232cb8386ceb6004f7e013138d3ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d41c39cb2e487663bce9bbd97c660e244b73abad",
-                "reference": "d41c39cb2e487663bce9bbd97c660e244b73abad",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d76498c5531232cb8386ceb6004f7e013138d3ba",
+                "reference": "d76498c5531232cb8386ceb6004f7e013138d3ba",
                 "shasum": ""
             },
             "require": {
@@ -8329,7 +8343,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.6.7"
+                "source": "https://github.com/phpstan/phpstan/tree/1.6.8"
             },
             "funding": [
                 {
@@ -8349,7 +8363,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-04T22:55:41+00:00"
+            "time": "2022-05-10T06:54:21+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -10271,7 +10285,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
-        "zumba/amplitude-php": 20,
         "acquia/coding-standards": 20,
         "phpro/grumphp": 20
     },

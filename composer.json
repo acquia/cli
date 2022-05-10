@@ -14,10 +14,6 @@
         "dns-zone-tokenizer": {
             "type": "vcs",
             "url": "https://github.com/grasmash/dns-zone-configurator"
-        },
-        "zumba/amplitude-php": {
-            "type": "path",
-            "url": "../../zumba/amplitude-php"
         }
     },
     "require": {
@@ -55,7 +51,7 @@
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.1.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "zumba/amplitude-php": "dev-master"
+        "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
         "acquia/coding-standards": "dev-develop",
