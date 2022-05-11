@@ -73,9 +73,15 @@ class CreateCdeCommand extends CommandBase {
           break;
         }
       }
-      $this->output->writeln('');
-      $this->output->writeln("<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>");
-      return 0;
+      if (isset($environment)) {
+        $this->output->writeln('');
+        $this->output->writeln("<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>");
+        return 0;
+      }
+      else {
+        $this->io->error(['Unable to find URL for newly created environment.']);
+      }
+
     }
 
     return 1;
