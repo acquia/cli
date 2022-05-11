@@ -23,13 +23,28 @@ class CreateCdeCommandTest extends CommandTestBase {
   }
 
   /**
+   * @return array
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function providerTestCreateCde(): array {
+    $applications_response = $this->getMockResponseFromSpec('/applications',
+      'get', '200');
+    $application_response = $applications_response->{'_embedded'}->items[0];
+    return [
+      [$application_response->uuid],
+      [NULL],
+    ];
+  }
+
+  /**
    * Tests the 'app:environment:create' command.
+   *
+   * @dataProvider providerTestCreateCde
    *
    * @throws \Exception
    */
-  public function testCreateCde(): void {
+  public function testCreateCde($application_uuid): void {
     $label = "New CDE";
-    $branch = 'main';
     $applications_response = $this->mockApplicationsRequest();
     $application_response = $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -71,6 +86,7 @@ class CreateCdeCommandTest extends CommandTestBase {
       [
         'label' => $label,
         'branch' => $code_response->_embedded->items[0]->name,
+        'applicationUuid' => $application_uuid,
       ],
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
