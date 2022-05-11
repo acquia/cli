@@ -298,7 +298,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return array
    */
-  protected function mockDatabasesResponse(
+  protected function mockAcsfDatabasesResponse(
     $environments_response
   ) {
     $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/acsf_db_response.json')));

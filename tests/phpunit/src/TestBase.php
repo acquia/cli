@@ -623,11 +623,9 @@ abstract class TestBase extends TestCase {
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getMockEnvironmentResponse($method = 'get', $http_code = '200') {
-    $response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+  protected function getMockEnvironmentResponse(string $method = 'get', string $http_code = '200'): object {
+    return $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $http_code);
-
-    return $response;
   }
 
   /**

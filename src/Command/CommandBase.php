@@ -1787,7 +1787,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
     $notifications_resource = new Notifications($acquia_cloud_client);
 
-    $loop->addPeriodicTimer(5, function () use ($loop, $spinner, $notifications_resource, $uuid) {
+    $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
       try {
         $notification = $notifications_resource->get($uuid);
         if ($notification->status === 'completed') {
@@ -1798,7 +1798,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       catch (\Exception $e) {
         $this->logger->debug($e->getMessage());
       }
-    });
+    };
+    // Run once immediately to speed up tests.
+    $loop->addTimer(0.1, $callback);
+    $loop->addPeriodicTimer(5, $callback);
     LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
 
     // Start the loop.
@@ -1811,6 +1814,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
 
     return TRUE;
+  }
+
+  /**
+   * @param object $response
+   *
+   * @return string
+   */
+  protected function getNotificationUuidFromResponse(object $response): string {
+    $notification_url = $response->links->notification->href;
+    $url_parts = explode('/', $notification_url);
+    return $url_parts[5];
   }
 
 }

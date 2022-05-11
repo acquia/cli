@@ -41,7 +41,7 @@ class CreateCdeCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
-    $this->addArgument('title', InputArgument::REQUIRED, 'The title of the new environment');
+    $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');
     $this->addArgument('branch', InputArgument::OPTIONAL, 'The vcs path (git branch name) to deploy to the new environment');
     $this->acceptApplicationUuid();
   }
@@ -56,24 +56,64 @@ class CreateCdeCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->output = $output;
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $title = $input->getArgument('title');
+    $label = $input->getArgument('label');
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-
-    $this->checklist = new Checklist($output);
-    $this->checklist->addItem("Checking to see that label is unique");
     $environments_resource = new Environments($acquia_cloud_client);
+    $this->checklist = new Checklist($output);
+
+    $this->validateLabel($environments_resource, $cloud_app_uuid, $label);
+    $branch = $this->getBranch($acquia_cloud_client, $cloud_app_uuid, $input);
+    $database_names = $this->getDatabaseNames($acquia_cloud_client, $cloud_app_uuid);
+
+    $this->checklist->addItem("Initiating environment creation");
+    $response = $environments_resource->create($cloud_app_uuid, $label, $branch, $database_names);
+    $notification_uuid = $this->getNotificationUuidFromResponse($response);
+    $this->checklist->completePreviousItem();
+
+    $success = $this->waitForNotificationSuccess($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.");
+    if ($success) {
+      $environments = $environments_resource->getAll($cloud_app_uuid);
+      foreach ($environments as $environment) {
+        if ($environment->label === $label) {
+          break;
+        }
+      }
+      $this->output->writeln('');
+      $this->output->writeln("<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>");
+      return 0;
+    }
+
+    return 1;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
+   * @param string|null $cloud_app_uuid
+   * @param mixed $title
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateLabel(Environments $environments_resource, ?string $cloud_app_uuid, mixed $title): void {
+    $this->checklist->addItem("Checking to see that label is unique");
     /** @var \AcquiaCloudApi\Response\EnvironmentResponse[] $environments */
     $environments = $environments_resource->getAll($cloud_app_uuid);
     foreach ($environments as $environment) {
       if ($environment->label == $title) {
-        $this->io->error([
-          "An environment named $title already exists.",
-        ]);
-        return 1;
+        throw new AcquiaCliException("An environment named $title already exists.");
       }
     }
     $this->checklist->completePreviousItem();
+  }
 
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param string|null $cloud_app_uuid
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return array|mixed|object|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): mixed {
     $branches_and_tags = $acquia_cloud_client->request('get', "/applications/$cloud_app_uuid/code");
     if ($input->getArgument('branch')) {
       $branch = $input->getArgument('branch');
@@ -82,16 +122,22 @@ class CreateCdeCommand extends CommandBase {
         $branch_names[] = $branches_or_tag->name;
       }
       if (!array_search($branch, $branch_names)) {
-        $this->io->error([
-          "There is no branch or tag with the name $branch on the remote VCS.",
-        ]);
-        return 1;
+        throw new AcquiaCliException("There is no branch or tag with the name $branch on the remote VCS.", );
       }
     }
     else {
       $branch = $this->promptChooseFromObjectsOrArrays($branches_and_tags, 'name', 'name', "Choose a branch or tag to deploy to the new environment");
     }
+    return $branch;
+  }
 
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param string|null $cloud_app_uuid
+   *
+   * @return array
+   */
+  protected function getDatabaseNames(Client $acquia_cloud_client, ?string $cloud_app_uuid): array {
     $this->checklist->addItem("Determining default database");
     $databases_resource = new Databases($acquia_cloud_client);
     $databases = $databases_resource->getAll($cloud_app_uuid);
@@ -100,27 +146,7 @@ class CreateCdeCommand extends CommandBase {
       $database_names[] = $database->name;
     }
     $this->checklist->completePreviousItem();
-
-    $this->checklist->addItem("Creating environment");
-    $response = $environments_resource->create($cloud_app_uuid, $title, $branch, $database_names);
-
-    $notification_url = $response->links->notification->href;
-    $url_parts = explode('/', $notification_url);
-    $notification_uuid = $url_parts[5];
-
-    $cde_url = str_replace('api/', 'a/', $response->links->self->href);
-    $url_parts = explode('/', $cde_url);
-    $cde_uuid = $url_parts[5];
-
-    $success = $this->waitForNotificationSuccess($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.");
-    if ($success) {
-      $this->checklist->completePreviousItem();
-      $this->output->writeln('');
-      $this->output->writeln("<comment>Your CDE URL:</comment> <href=$cde_url>$cde_url</>");
-      return 0;
-    }
-
-    return 1;
+    return $database_names;
   }
 
 }
