@@ -319,13 +319,14 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param string $notification_uuid
    * @param $acquia_cloud_client
+   * @infection-ignore-all
    */
   protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
     $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
     $notifications = new Notifications($acquia_cloud_client);
 
-    $loop->addPeriodicTimer(5, function () use ($loop, $spinner, $notification_uuid, $notifications) {
+    $callback = function () use ($loop, $spinner, $notification_uuid, $notifications) {
       try {
         $response = $notifications->get($notification_uuid);
         if ($response->status === 'completed') {
@@ -337,7 +338,10 @@ abstract class PullCommandBase extends CommandBase {
       } catch (Exception $e) {
         $this->logger->debug($e->getMessage());
       }
-    });
+    };
+    // Run once immediately to speed up tests.
+    $loop->addTimer(0.1, $callback);
+    $loop->addPeriodicTimer(5, $callback);
     LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
 
     // Start the loop.
