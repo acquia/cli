@@ -6,7 +6,6 @@ use Acquia\Cli\Command\App\EnvironmentMirrorCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * Class EnvironmentMirrorCommandTest.
@@ -29,12 +28,7 @@ class EnvironmentMirrorCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testEnvironmentMirror(): void {
-    $environment_response = $this->getMockEnvironmentResponse();
-    $this->clientProphecy->request('get',
-      "/environments/" . $environment_response->id)
-      ->willReturn($environment_response)
-      ->shouldBeCalled();
-
+    $environment_response = $this->mockGetEnvironments();
     $code_switch_response = $this->getMockResponseFromSpec("/environments/{environmentId}/code/actions/switch", 'post', '202');
     $response = $code_switch_response->{'Switching code'}->value;
     $response->links = $response->{'_links'};
@@ -101,5 +95,4 @@ class EnvironmentMirrorCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Are you sure that you want to overwrite everything on Dev (dev) and replace it with source data from Dev (dev)', $output);
     $this->assertStringContainsString('[OK] Done! Dev now matches Dev ', $output);
   }
-
 }

@@ -32,11 +32,6 @@ class CreateCdeCommand extends CommandBase {
   private Checklist $checklist;
 
   /**
-   * @var \GuzzleHttp\Client
-   */
-  private $client;
-
-  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -121,7 +116,7 @@ class CreateCdeCommand extends CommandBase {
       foreach ($branches_and_tags as $branches_or_tag) {
         $branch_names[] = $branches_or_tag->name;
       }
-      if (!array_search($branch, $branch_names)) {
+      if (array_search($branch, $branch_names) === FALSE) {
         throw new AcquiaCliException("There is no branch or tag with the name $branch on the remote VCS.", );
       }
     }
