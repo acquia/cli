@@ -12,6 +12,7 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
 use Acquia\Cli\Output\Checklist;
@@ -22,6 +23,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
+use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
@@ -38,6 +40,8 @@ use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
+use React\EventLoop\Factory;
+use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
@@ -339,6 +343,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertApplicationAliasToUuid($input);
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
+    $this->convertEnvironmentAliasToUuid($input, 'source-environment');
+    $this->convertEnvironmentAliasToUuid($input, 'destination-environment');
     $this->convertEnvironmentAliasToUuid($input, 'source');
 
     if ($latest = $this->checkForNewVersion()) {
@@ -1763,6 +1769,62 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($this->commandRequiresAuthentication($this->input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
     }
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param string $uuid
+   * @param string $message
+   *
+   * @return bool
+   */
+  protected function waitForNotificationSuccess(Client $acquia_cloud_client, string $uuid, string $message): bool {
+    // $loop is statically cached by Loop::get(). To prevent it
+    // persisting into other instances we must use Factory::create() to reset it.
+    // @phpstan-ignore-next-line
+    Loop::set(Factory::create());
+    $loop = Loop::get();
+    $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
+    $notifications_resource = new Notifications($acquia_cloud_client);
+
+    $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
+      try {
+        $notification = $notifications_resource->get($uuid);
+        if ($notification->status === 'completed') {
+          LoopHelper::finishSpinner($spinner);
+          $loop->stop();
+        }
+      }
+      catch (\Exception $e) {
+        $this->logger->debug($e->getMessage());
+      }
+    };
+    // Run once immediately to speed up tests.
+    $loop->addTimer(0.1, $callback);
+    $loop->addPeriodicTimer(5, $callback);
+    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
+
+    // Start the loop.
+    try {
+      $loop->run();
+    }
+    catch (AcquiaCliException $exception) {
+      $this->io->error($exception->getMessage());
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+  /**
+   * @param object $response
+   *
+   * @return string
+   */
+  protected function getNotificationUuidFromResponse(object $response): string {
+    $notification_url = $response->links->notification->href;
+    $url_parts = explode('/', $notification_url);
+    return $url_parts[5];
   }
 
 }

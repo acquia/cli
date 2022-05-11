@@ -281,7 +281,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $databases_response = $this->mockDatabasesResponse($selected_environment);
+    $databases_response = $this->mockAcsfDatabasesResponse($selected_environment);
     $database_response = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'))];
     $selected_database = $this->mockDownloadBackup($database_response, $selected_environment);
 

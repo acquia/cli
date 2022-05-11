@@ -222,6 +222,19 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockGetEnvironments(): object {
+    $environment_response = $this->getMockEnvironmentResponse();
+    $this->clientProphecy->request('get',
+      "/environments/" . $environment_response->id)
+      ->willReturn($environment_response)
+      ->shouldBeCalled();
+    return $environment_response;
+  }
+
+  /**
    * @param object $applications_response
    *
    * @return object
@@ -298,7 +311,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return array
    */
-  protected function mockDatabasesResponse(
+  protected function mockAcsfDatabasesResponse(
     $environments_response
   ) {
     $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/acsf_db_response.json')));

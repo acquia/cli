@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CopyCronTasksCommand extends CommandBase {
 
-  protected static $defaultName = 'app:cron-copy';
+  protected static $defaultName = 'app:environment:cron-copy';
 
   /**
    * {inheritdoc}.
