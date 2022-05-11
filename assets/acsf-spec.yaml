@@ -8,7 +8,7 @@ paths:
     delete:
       summary: 'Regenerate ALL users API keys'
       description: 'Regenerate ALL users API keys.'
-      x-cli-name: 'api-key:regenerate-all'
+      x-cli-name: 'api:regenerate-all-keys'
       operationId: delete_ApiKey_resetKeys
       parameters: []
       responses:
@@ -24,7 +24,7 @@ paths:
     delete:
       summary: 'Regenerate a user''s API key'
       description: 'Regenerate a user''s API key.'
-      x-cli-name: 'api-key:regenerate'
+      x-cli-name: 'api:regenerate-key'
       operationId: delete_ApiKey_resetUserKeys
       parameters:
         -
@@ -117,7 +117,7 @@ paths:
     get:
       summary: 'Get current centralized role management settings.'
       description: 'Get current centralized role management settings.'
-      x-cli-name: 'role-mgr:get'
+      x-cli-name: 'role:get-mgr'
       operationId: get_CentralizedRoleManagement_executeGetActions
       parameters: []
       responses:
@@ -133,7 +133,7 @@ paths:
     put:
       summary: 'Set the centralized role management settings for a given role.'
       description: 'Set the centralized role management settings for a given role.'
-      x-cli-name: 'role-mgr:set'
+      x-cli-name: 'role:set-mgr'
       operationId: put_CentralizedRoleManagement_executePutActions
       parameters:
         -
@@ -162,7 +162,7 @@ paths:
     delete:
       summary: 'Disable the centralized role management settings for a given role.'
       description: 'Disable the centralized role management settings for a given role.'
-      x-cli-name: 'role-mgr:disable'
+      x-cli-name: 'role:disable-mgr'
       operationId: delete_CentralizedRoleManagement_executeDeleteActions
       parameters:
         -
@@ -358,7 +358,7 @@ paths:
     post:
       summary: 'Backfill the current factory standard domain templates.'
       description: 'Backfill the current factory standard domain templates.'
-      x-cli-name: 'std-domains:backfill'
+      x-cli-name: 'domains:backfill-std'
       operationId: post_FactoryStandardDomains_backfillFactoryStandardDomains
       parameters: []
       responses:
@@ -373,7 +373,7 @@ paths:
     get:
       summary: 'Get the current factory standard domain templates.'
       description: 'Get the current factory standard domain templates.'
-      x-cli-name: 'std-domains:get-templates'
+      x-cli-name: 'domains:get-std-templates'
       operationId: get_FactoryStandardDomains_getFactoryStandardDomains
       parameters: []
       responses:
@@ -389,7 +389,7 @@ paths:
     put:
       summary: 'Set the factory standard domain template.'
       description: 'Set the factory standard domain template.'
-      x-cli-name: 'std-domains:set-templates'
+      x-cli-name: 'domains:set-std-templates'
       operationId: put_FactoryStandardDomains_setFactoryStandardDomains
       parameters:
         -
@@ -420,7 +420,7 @@ paths:
     delete:
       summary: 'Remove the factory standard domain template.'
       description: 'Remove the factory standard domain template.'
-      x-cli-name: 'std-domains:remove-templates'
+      x-cli-name: 'domains:remove-std-templates'
       operationId: delete_FactoryStandardDomains_removeFactoryStandardDomains
       parameters:
         -
@@ -1063,7 +1063,7 @@ paths:
     post:
       summary: 'Pause/resume task processing'
       description: 'Pause or resume task processing.'
-      x-cli-name: 'pause:all-tasks'
+      x-cli-name: 'tasks:pause-all'
       operationId: post_Pause_pause
       parameters: []
       responses:
@@ -1079,7 +1079,7 @@ paths:
     post:
       summary: 'Pause/resume task processing for a specific task'
       description: 'Pause or resume task processing.'
-      x-cli-name: 'pause:task'
+      x-cli-name: 'tasks:pause'
       operationId: post_Pause_pauseTask
       parameters: []
       responses:
@@ -1242,7 +1242,7 @@ paths:
     get:
       summary: 'Get the version of the Site Factory'
       description: 'Gets the (release) version the Site Factory is on.'
-      x-cli-name: 'sf-info:get'
+      x-cli-name: 'api:factory-version'
       operationId: get_SfInfo_getSfVersion
       parameters: []
       responses:
@@ -2220,6 +2220,7 @@ paths:
       summary: '(Internal use only) Get Task class information.'
       description: 'Return data about WIP classes'
       x-cli-name: 'tasks:find-wip-classes'
+      x-internal: true
       operationId: get_Task_classes
       parameters:
         -
@@ -2243,6 +2244,7 @@ paths:
       summary: '(Internal use only) Get Task information.'
       description: 'Returns data about WIP tasks.'
       x-cli-name: 'tasks:get'
+      x-internal: true
       operationId: get_Task_tasks
       parameters:
         -
@@ -2289,6 +2291,7 @@ paths:
       summary: '(Internal use only) Get Task log information.'
       description: 'Returns log entries about WIP tasks.'
       x-cli-name: 'tasks:log'
+      x-internal: true
       operationId: get_Task_logs
       parameters:
         -
@@ -2487,7 +2490,7 @@ paths:
     post:
       summary: 'Send a theme notification'
       description: 'Sends a theme event notification.'
-      x-cli-name: 'theme-notification:send'
+      x-cli-name: 'themes:send-notification'
       operationId: post_ThemeNotification_handleNotification
       parameters:
         -
@@ -2907,7 +2910,7 @@ paths:
     get:
       summary: 'Wip task status'
       description: 'Gets the status of a Wip task.'
-      x-cli-name: 'wip-task-status:get'
+      x-cli-name: 'tasks:status'
       operationId: get_WipTaskStatus_getWipTaskStatus
       parameters:
         -
