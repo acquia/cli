@@ -97,6 +97,7 @@ class CreateCdeCommandTest extends CommandTestBase {
     );
 
     $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString("Your CDE URL: {$response2->_embedded->items[3]->domains[0]}", $output);
 
   }

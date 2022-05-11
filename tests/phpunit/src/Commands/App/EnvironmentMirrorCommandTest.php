@@ -92,6 +92,7 @@ class EnvironmentMirrorCommandTest extends CommandTestBase {
     );
 
     $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString('Are you sure that you want to overwrite everything on Dev (dev) and replace it with source data from Dev (dev)', $output);
     $this->assertStringContainsString("Switching to {$environment_response->vcs->path}", $output);
     $this->assertStringContainsString("Copying {$databases_response->_embedded->items[0]->name}", $output);

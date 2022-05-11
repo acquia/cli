@@ -74,8 +74,10 @@ class CreateCdeCommand extends CommandBase {
         }
       }
       if (isset($environment)) {
-        $this->output->writeln('');
-        $this->output->writeln("<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>");
+        $this->output->writeln([
+          '',
+          "<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>",
+        ]);
         return 0;
       }
       else {
@@ -94,7 +96,7 @@ class CreateCdeCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validateLabel(Environments $environments_resource, ?string $cloud_app_uuid, mixed $title): void {
+  private function validateLabel(Environments $environments_resource, ?string $cloud_app_uuid, mixed $title): void {
     $this->checklist->addItem("Checking to see that label is unique");
     /** @var \AcquiaCloudApi\Response\EnvironmentResponse[] $environments */
     $environments = $environments_resource->getAll($cloud_app_uuid);
@@ -111,10 +113,10 @@ class CreateCdeCommand extends CommandBase {
    * @param string|null $cloud_app_uuid
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
-   * @return array|mixed|object|null
+   * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): mixed {
+  private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): mixed {
     $branches_and_tags = $acquia_cloud_client->request('get', "/applications/$cloud_app_uuid/code");
     if ($input->getArgument('branch')) {
       $branch = $input->getArgument('branch');
@@ -138,7 +140,7 @@ class CreateCdeCommand extends CommandBase {
    *
    * @return array
    */
-  protected function getDatabaseNames(Client $acquia_cloud_client, ?string $cloud_app_uuid): array {
+  private function getDatabaseNames(Client $acquia_cloud_client, ?string $cloud_app_uuid): array {
     $this->checklist->addItem("Determining default database");
     $databases_resource = new Databases($acquia_cloud_client);
     $databases = $databases_resource->getAll($cloud_app_uuid);
