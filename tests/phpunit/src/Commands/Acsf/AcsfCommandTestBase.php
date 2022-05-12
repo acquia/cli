@@ -42,4 +42,5 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
       DataStoreContract::SEND_TELEMETRY => FALSE,
     ];
   }
+
 }

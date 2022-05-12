@@ -20,4 +20,5 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
       throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Please run `acli auth:acsf-login`');
     }
   }
+
 }

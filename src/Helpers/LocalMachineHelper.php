@@ -321,8 +321,8 @@ class LocalMachineHelper {
       getcwd(),
     ];
     // Check for PWD - some local environments will not have this key.
-    if (isset($_SERVER['PWD']) && !in_array($_SERVER['PWD'], $possible_project_roots, TRUE)) {
-      array_unshift($possible_project_roots, $_SERVER['PWD']);
+    if (!in_array(getenv('PWD'), $possible_project_roots, TRUE)) {
+      array_unshift($possible_project_roots, getenv('PWD'));
     }
     foreach ($possible_project_roots as $possible_project_root) {
       if ($project_root = self::find_directory_containing_files($possible_project_root, ['docroot'])) {
