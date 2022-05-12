@@ -40,13 +40,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
-    self::setCloudIdeEnvVars();
     TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
   public function tearDown(): void {
     parent::tearDown();
-    self::unsetCloudIdeEnvVars();
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 

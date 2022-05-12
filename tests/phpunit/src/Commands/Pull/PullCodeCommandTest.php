@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -226,7 +227,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testMatchPhpVersion(): void {
-    self::setCloudIdeEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
     $this->application->addCommands([
       $this->injectCommand(IdePhpVersionCommand::class),
     ]);
@@ -266,7 +267,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertStringContainsString("Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?", $output);
-    self::unsetCloudIdeEnvVars();
+    IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**

@@ -39,7 +39,7 @@ class IdeShareCommandTest extends CommandTestBase {
     $shareCodeFilepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_share_uuid_');
     $this->fs->dumpFile($shareCodeFilepath, $this->shareCode);
     $this->command->setShareCodeFilepaths([$shareCodeFilepath]);
-    self::setCloudIdeEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
   }
 
   /**
@@ -56,7 +56,7 @@ class IdeShareCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(self::$remote_ide_uuid);
+    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
     $ide = new IdeResponse((object) $ide_get_response);
     $this->executeCommand([], []);
 
@@ -74,7 +74,7 @@ class IdeShareCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareRegenerateCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(self::$remote_ide_uuid);
+    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
     $ide = new IdeResponse((object) $ide_get_response);
     $this->executeCommand(['--regenerate' => TRUE], []);
 

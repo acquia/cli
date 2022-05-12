@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -90,7 +91,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testPullMultipleDatabasesInCloudIde(): void {
-    self::setCloudIdeEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -114,7 +115,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     } catch (\Exception $e) {
       $this->assertEquals('The --multiple-dbs option is not supported in Cloud IDE.', $e->getMessage());
     }
-    self::unsetCloudIdeEnvVars();
+    IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**
