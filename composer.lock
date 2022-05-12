@@ -6215,12 +6215,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/coding-standards-php.git",
-                "reference": "f5ee6f4c8a45137a345d072ca05228e15d11552e"
+                "reference": "9ace5cebdb427d1e4a649134e52772f934c79621"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/f5ee6f4c8a45137a345d072ca05228e15d11552e",
-                "reference": "f5ee6f4c8a45137a345d072ca05228e15d11552e",
+                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/9ace5cebdb427d1e4a649134e52772f934c79621",
+                "reference": "9ace5cebdb427d1e4a649134e52772f934c79621",
                 "shasum": ""
             },
             "require": {
@@ -6266,7 +6266,7 @@
                 "issues": "https://github.com/acquia/coding-standards/issues",
                 "source": "https://github.com/acquia/coding-standards"
             },
-            "time": "2022-05-11T20:08:50+00:00"
+            "time": "2022-05-12T15:03:42+00:00"
         },
         {
             "name": "amphp/amp",
