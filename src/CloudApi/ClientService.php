@@ -7,7 +7,6 @@ use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\ConnectorFactoryInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 
 /**
@@ -21,7 +20,7 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
  */
 class ClientService implements ClientServiceInterface {
 
-  /** @var ConnectorInterface */
+  /** @var \AcquiaCloudApi\Connector\ConnectorInterface */
   protected $connector;
   /** @var \Acquia\Cli\CloudApi\ConnectorFactory */
   protected $connectorFactory;

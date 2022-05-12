@@ -3,12 +3,9 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use AcquiaCloudApi\Response\IdeResponse;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * Class IdeWizardCreateSshKeyCommandTest.

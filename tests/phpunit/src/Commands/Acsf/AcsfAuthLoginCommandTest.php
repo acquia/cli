@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
-use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Prophecy\Argument;
