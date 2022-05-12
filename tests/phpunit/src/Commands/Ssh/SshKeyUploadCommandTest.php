@@ -82,6 +82,7 @@ class SshKeyUploadCommandTest extends CommandTestBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUpload($args, $inputs, $perms): void {
+    $this->createMockGitConfigFile();
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
@@ -102,7 +103,6 @@ class SshKeyUploadCommandTest extends CommandTestBase
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
-
     if ($perms) {
       $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
       $this->command->sshHelper = $ssh_helper->reveal();
