@@ -161,7 +161,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function writeFullWidthLine($message, OutputInterface $output): void {
     $terminal_width = (new Terminal())->getWidth();
-    $padding_len = ($terminal_width - strlen($message)) / 2;
+    $padding_len = (int) (($terminal_width - strlen($message)) / 2);
     $pad = $padding_len > 0 ? str_repeat('-', $padding_len) : '';
     $output->writeln("<comment>{$pad}{$message}{$pad}</comment>");
   }
