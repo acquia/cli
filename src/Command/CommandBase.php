@@ -705,9 +705,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $table = new Table($output);
     $table->setHeaders($headers);
     $table->setHeaderTitle($title);
-    foreach ($widths as $index => $width) {
-      $table->setColumnWidth($index, (int) ($terminal_width * $width));
-    }
+    $set_widths = static function ($width) use ($terminal_width) {
+      return (int) ($terminal_width * $width);
+    };
+    $table->setColumnWidths(array_map($set_widths, $widths));
     return $table;
   }
 
