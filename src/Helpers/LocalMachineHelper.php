@@ -321,7 +321,7 @@ class LocalMachineHelper {
       getcwd(),
     ];
     // Check for PWD - some local environments will not have this key.
-    if (!in_array(getenv('PWD'), $possible_project_roots, TRUE)) {
+    if (getenv('PWD') && !in_array(getenv('PWD'), $possible_project_roots, TRUE)) {
       array_unshift($possible_project_roots, getenv('PWD'));
     }
     foreach ($possible_project_roots as $possible_project_root) {
