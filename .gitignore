@@ -12,10 +12,6 @@ build
 *.bak
 *.phar
 .DS_STORE
-tests/fixtures/.acquia/acquia-cli.json
-tests/fixtures/.acquia/cloud_api.conf
-tests/fixtures/project/.acquia-cli.yml
-tests/fixtures/project/blt/blt.yml
 
 ###> squizlabs/php_codesniffer ###
 /phpcs.xml
