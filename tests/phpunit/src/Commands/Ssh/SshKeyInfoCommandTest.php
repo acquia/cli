@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyInfoCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 class SshKeyInfoCommandTest extends CommandTestBase {

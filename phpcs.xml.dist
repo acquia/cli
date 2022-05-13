@@ -21,4 +21,6 @@
 
   <rule ref="AcquiaPHP" />
 
+  <rule ref="Drupal.Classes.UnusedUseStatement" />
+
 </ruleset>

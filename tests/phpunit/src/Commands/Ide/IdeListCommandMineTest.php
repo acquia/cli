@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands\Ide;
 
-use Acquia\Cli\Command\Ide\IdeListCommand;
 use Acquia\Cli\Command\Ide\IdeListMineCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;

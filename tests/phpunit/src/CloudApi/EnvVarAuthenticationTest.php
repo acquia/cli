@@ -2,15 +2,7 @@
 
 namespace Acquia\Cli\Tests\CloudApi;
 
-use Acquia\Cli\CloudApi\AccessTokenConnector;
-use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Tests\TestBase;
-use AcquiaCloudApi\Connector\Connector;
-use AcquiaCloudApi\Connector\ConnectorInterface;
-use League\OAuth2\Client\Provider\GenericProvider;
-use League\OAuth2\Client\Token\AccessTokenInterface;
-use Prophecy\Argument;
-use Psr\Http\Message\RequestInterface;
 
 /**
  * Class EnvVarAuthenticationTest.

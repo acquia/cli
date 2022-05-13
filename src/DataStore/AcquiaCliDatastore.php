@@ -3,7 +3,6 @@
 namespace Acquia\Cli\DataStore;
 
 use Acquia\Cli\Config\AcquiaCliConfig;
-use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 
 class AcquiaCliDatastore extends YamlStore implements DataStoreInterface {
