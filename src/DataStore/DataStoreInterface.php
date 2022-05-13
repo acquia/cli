@@ -13,4 +13,5 @@ interface DataStoreInterface {
   public function remove(string $key);
 
   public function exists(string $key);
+
 }

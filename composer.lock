@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a74fa353fac4abb7bad19a64c00f5958",
+    "content-hash": "6b402c66496ad1aba93a54b6cd9e483f",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6212,16 +6212,16 @@
     "packages-dev": [
         {
             "name": "acquia/coding-standards",
-            "version": "dev-develop",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/coding-standards-php.git",
-                "reference": "f5ee6f4c8a45137a345d072ca05228e15d11552e"
+                "reference": "81ded5bf94829265eae688d1a8e41c08577b5fb1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/f5ee6f4c8a45137a345d072ca05228e15d11552e",
-                "reference": "f5ee6f4c8a45137a345d072ca05228e15d11552e",
+                "url": "https://api.github.com/repos/acquia/coding-standards-php/zipball/81ded5bf94829265eae688d1a8e41c08577b5fb1",
+                "reference": "81ded5bf94829265eae688d1a8e41c08577b5fb1",
                 "shasum": ""
             },
             "require": {
@@ -6234,7 +6234,6 @@
                 "brainmaestro/composer-git-hooks": "Easily manage Git hooks in your composer config.",
                 "dealerdirect/phpcodesniffer-composer-installer": "Automatically install PHP_CodeSniffer coding standards (rulesets)."
             },
-            "default-branch": true,
             "type": "phpcodesniffer-standard",
             "extra": {
                 "branch-alias": {
@@ -6267,7 +6266,7 @@
                 "issues": "https://github.com/acquia/coding-standards/issues",
                 "source": "https://github.com/acquia/coding-standards"
             },
-            "time": "2022-05-11T20:08:50+00:00"
+            "time": "2022-05-12T15:06:06+00:00"
         },
         {
             "name": "amphp/amp",
@@ -10285,7 +10284,6 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
-        "acquia/coding-standards": 20,
         "phpro/grumphp": 20
     },
     "prefer-stable": true,

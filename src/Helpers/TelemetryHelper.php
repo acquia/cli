@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;

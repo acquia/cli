@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardDeleteSshKeyCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 

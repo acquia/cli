@@ -2,12 +2,7 @@
 
 namespace Acquia\Cli\DataStore;
 
-use Dflydev\DotAccessData\Data;
-use Grasmash\Expander\Expander;
-use Grasmash\Expander\Stringifier;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\Config\Definition\Processor;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Yaml;
 
 /**

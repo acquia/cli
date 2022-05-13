@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\Commands\Api;
 
-use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\Command\Api\ApiListCommandBase;
 use Acquia\Cli\Command\ListCommand;

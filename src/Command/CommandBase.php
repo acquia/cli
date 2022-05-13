@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\ClientServiceInterface;
-use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -50,7 +48,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\Question;
@@ -120,7 +117,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $datastoreAcli;
 
   /**
-   * @var CloudCredentials
+   * @var \Acquia\Cli\CloudApi\CloudCredentials
    */
   protected $cloudCredentials;
 
@@ -130,7 +127,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected $repoRoot;
 
   /**
-   * @var ClientService
+   * @var \Acquia\Cli\CloudApi\ClientService
    */
   protected $cloudApiClientService;
 
