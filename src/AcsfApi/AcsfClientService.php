@@ -4,7 +4,6 @@ namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\ConnectorFactoryInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 use AcquiaCloudApi\Connector\Client;
 

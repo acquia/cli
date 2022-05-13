@@ -4,17 +4,10 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Endpoints\Ides;
-use AcquiaCloudApi\Endpoints\Notifications;
-use AcquiaCloudApi\Response\EnvironmentResponse;
-use AcquiaCloudApi\Response\IdeResponse;
-use AcquiaCloudApi\Response\OperationResponse;
-use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;

@@ -6,7 +6,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Spinner\Spinner;
 use React\EventLoop\LoopInterface;
 use React\EventLoop\TimerInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class LoopHelper {
 

@@ -2,17 +2,9 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Cli\Exception\AcquiaCliException;
-use Closure;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Regex;
-use Symfony\Component\Validator\Exception\ValidatorException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Class SshKeyCreateCommand.

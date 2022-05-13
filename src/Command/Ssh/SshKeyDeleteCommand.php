@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;

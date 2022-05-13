@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\AcsfApi;
 use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\AcsfApi\AcsfConnectorFactory;
 use Acquia\Cli\Application;
-use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
