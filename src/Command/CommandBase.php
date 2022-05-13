@@ -45,6 +45,7 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -699,6 +700,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $progressBar->clear();
 
     return NULL;
+  }
+
+  protected function createTable(OutputInterface $output, string $title, $headers, $widths): Table {
+    $terminal_width = (new Terminal())->getWidth();
+    $terminal_width *= .90;
+    $table = new Table($output);
+    $table->setHeaders($headers);
+    $table->setHeaderTitle($title);
+    $set_widths = static function ($width) use ($terminal_width) {
+      return (int) ($terminal_width * $width);
+    };
+    $table->setColumnWidths(array_map($set_widths, $widths));
+    return $table;
   }
 
   /**

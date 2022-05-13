@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\Pull;
 
+use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -14,6 +15,8 @@ use Symfony\Component\Process\Process;
  * @package Acquia\Cli\Tests\Commands\Pull
  */
 abstract class PullCommandTestBase extends CommandTestBase {
+
+  use IdeRequiredTestTrait;
 
   public function setUp($output = NULL): void {
     parent::setUp();

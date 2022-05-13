@@ -11,8 +11,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class LandoInfoTest extends CommandTestBase {
 
-  use LandoInfoTrait;
-
   /**
    * {@inheritdoc}
    */
@@ -24,18 +22,18 @@ class LandoInfoTest extends CommandTestBase {
    *
    */
   public function testLandoInfoTest(): void {
-    $lando_info = LandoInfoTrait::getLandoInfo();
+    $lando_info = LandoInfoHelper::getLandoInfo();
     $lando_info->database->creds = [
       'database' => 'drupal9',
       'password' => 'drupal9',
       'user' => 'drupal9',
     ];
-    LandoInfoTrait::setLandoInfo($lando_info);
+    LandoInfoHelper::setLandoInfo($lando_info);
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbPassword());
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbName());
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbUser());
     $this->assertEquals('database.mynewapp.internal', $this->command->getDefaultLocalDbHost());
-    LandoInfoTrait::unsetLandoInfo();
+    LandoInfoHelper::unsetLandoInfo();
   }
 
 }

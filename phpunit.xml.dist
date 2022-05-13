@@ -9,6 +9,7 @@
         convertErrorsToExceptions="true"
         convertNoticesToExceptions="true"
         convertWarningsToExceptions="true"
+        convertDeprecationsToExceptions="true"
 >
   <coverage processUncoveredFiles="true">
     <include>

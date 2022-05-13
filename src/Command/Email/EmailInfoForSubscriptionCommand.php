@@ -274,22 +274,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return \Symfony\Component\Console\Helper\Table
    */
   protected function createTotalDomainTable(OutputInterface $output, string $title): Table {
-    $terminal_width = (new Terminal())->getWidth();
-    $terminal_width *= .90;
-    $table = new Table($output);
-    $table->setHeaders([
-      'Domain Name',
-      'Domain UUID',
-      'Verification Status',
-    ]);
-    $table->setHeaderTitle($title);
-    $table->setColumnWidths([
-      $terminal_width * .2,
-      $terminal_width * .2,
-      $terminal_width * .1,
-    ]);
-
-    return $table;
+    $headers = ['Domain Name', 'Domain UUID', 'Verification Status'];
+    $widths = [.2, .2, .1];
+    return $this->createTable($output, $title, $headers, $widths);
   }
 
   /**
@@ -301,20 +288,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return \Symfony\Component\Console\Helper\Table
    */
   protected function createDomainStatusTable(OutputInterface $output, string $title): Table {
-    $terminal_width = (new Terminal())->getWidth();
-    $terminal_width *= .90;
-    $table = new Table($output);
-    $table->setHeaders([
-      'Domain Name',
-      'Summary',
-    ]);
-    $table->setHeaderTitle($title);
-    $table->setColumnWidths([
-      $terminal_width * .2,
-      $terminal_width * .2,
-    ]);
-
-    return $table;
+    $headers = ['Domain Name', 'Summary'];
+    $widths = [.2, .2];
+    return $this->createTable($output, $title, $headers, $widths);
   }
 
   /**
@@ -327,20 +303,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return \Symfony\Component\Console\Helper\Table
    */
   protected function createApplicationDomainsTable(OutputInterface $output, string $title): Table {
-    $terminal_width = (new Terminal())->getWidth();
-    $terminal_width *= .90;
-    $table = new Table($output);
-    $table->setHeaders([
-      'Domain Name',
-      'Associated?',
-    ]);
-    $table->setHeaderTitle($title);
-    $table->setColumnWidths([
-      $terminal_width * .2,
-      $terminal_width * .1,
-    ]);
-
-    return $table;
+    $headers = ['Domain Name', 'Associated?'];
+    $widths = [.2, .1];
+    return $this->createTable($output, $title, $headers, $widths);
   }
 
   /**

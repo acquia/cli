@@ -105,7 +105,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command outside of IDE environment.
    */
   public function testIdePhpVersionCommandOutsideIde(): void {
-    $this->unsetCloudIdeEnvVars();
+    IdeHelper::unsetCloudIdeEnvVars();
     try {
       $this->executeCommand([
         'version' => '7.3',

@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Ide\Wizard;
 
 use Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
@@ -32,7 +32,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     $this->mockListSshKeysRequest();
     $this->mockPermissionsRequest($application_response);
     $this->ide = $this->mockIdeRequest();
-    $this->sshKeyFileName = IdeWizardCreateSshKeyCommand::getSshKeyFilename(IdeRequiredTestTrait::$remote_ide_uuid);
+    $this->sshKeyFileName = IdeWizardCreateSshKeyCommand::getSshKeyFilename(IdeHelper::$remote_ide_uuid);
   }
 
   /**
@@ -48,7 +48,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
    */
   protected function mockIdeRequest(): IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $this::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/ides/' . IdeHelper::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     return new IdeResponse((object) $ide_response);
   }
 
