@@ -26,7 +26,7 @@
         "grasmash/expander": "^1.0",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.0",
-        "kevinrob/guzzle-cache-middleware": "^3.3",
+        "kevinrob/guzzle-cache-middleware": "^4",
         "league/csv": "^9.8",
         "loophp/phposinfo": "^1.7.2",
         "ltd-beget/dns-zone-configurator": "dev-php-update",
@@ -51,10 +51,10 @@
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.1.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "zumba/amplitude-php": "^1.0"
+        "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
-        "acquia/coding-standards": "dev-develop",
+        "acquia/coding-standards": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",

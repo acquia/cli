@@ -3,7 +3,6 @@
 namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\Push\PushArtifactCommand;
-use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;

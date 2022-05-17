@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Auth;
 use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;

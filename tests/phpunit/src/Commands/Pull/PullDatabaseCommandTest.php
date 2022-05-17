@@ -5,8 +5,8 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
-use Acquia\Cli\Tests\Misc\LandoInfoTrait;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
+use Acquia\Cli\Tests\Misc\LandoInfoHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -74,8 +74,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testPullDatabasesIntoLando(): void {
-    $lando_info = LandoInfoTrait::getLandoInfo();
-    LandoInfoTrait::setLandoInfo($lando_info);
+    $lando_info = LandoInfoHelper::getLandoInfo();
+    LandoInfoHelper::setLandoInfo($lando_info);
     $this->dbUser = 'root';
     $this->dbPassword = '';
     $this->dbHost = $lando_info->database->hostnames[0];
@@ -84,14 +84,14 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--no-scripts' => TRUE,
     ], $inputs);
-    LandoInfoTrait::unsetLandoInfo();
+    LandoInfoHelper::unsetLandoInfo();
   }
 
   /**
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testPullMultipleDatabasesInCloudIde(): void {
-    IdeRequiredTestTrait::setCloudIdeEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -115,7 +115,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     } catch (\Exception $e) {
       $this->assertEquals('The --multiple-dbs option is not supported in Cloud IDE.', $e->getMessage());
     }
-    IdeRequiredTestTrait::unsetCloudIdeEnvVars();
+    IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**

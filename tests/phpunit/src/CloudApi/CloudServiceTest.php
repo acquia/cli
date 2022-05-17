@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\CloudApi;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
-use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
@@ -46,4 +45,5 @@ class CloudServiceTest extends TestBase {
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
     self::unsetEnvVars($env_vars);
   }
+
 }

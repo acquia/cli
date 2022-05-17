@@ -2,8 +2,6 @@
 
 namespace Acquia\Cli\Command\Api;
 
-use Acquia\Cli\AcsfApi\AcsfClientService;
-use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CommandFactoryInterface;

@@ -2,17 +2,9 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
-use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
-use AcquiaCloudApi\Connector\Client;
-use Closure;
-use React\EventLoop\Loop;
-use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Class SshKeyUploadCommand.

@@ -99,4 +99,5 @@ class EnvironmentMirrorCommandTest extends CommandTestBase {
     $this->assertStringContainsString("Copying PHP version, acpu memory limit, etc.", $output);
     $this->assertStringContainsString("[OK] Done! {$environment_response->label} now matches {$environment_response->label}", $output);
   }
+
 }

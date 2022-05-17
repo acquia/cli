@@ -5,7 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -107,7 +107,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
   }
 
   public function testInvalidCwd(): void {
-    IdeRequiredTestTrait::setCloudIdeEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockDrupalSettingsRefresh($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -116,7 +116,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     } catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
     }
-    IdeRequiredTestTrait::unsetCloudIdeEnvVars();
+    IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**
