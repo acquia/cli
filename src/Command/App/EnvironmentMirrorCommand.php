@@ -162,6 +162,7 @@ class EnvironmentMirrorCommand extends CommandBase {
         'branch' => $source_environment->vcs->path,
       ],
     ]);
+    $code_copy_response->links = $code_copy_response->_links;
     $this->checklist->completePreviousItem();
     return $code_copy_response;
   }
