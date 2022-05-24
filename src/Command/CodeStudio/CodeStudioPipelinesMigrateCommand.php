@@ -48,7 +48,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * @var string
    */
-  private $acquia_pipeline_file_parse;
+  private $acquiaPipelineFileParse;
 
   /**
    * @var array
@@ -58,7 +58,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * @var array
    */
-  private $avlChoice = ['yes', 'no'];
+  private $availableChoices = ['yes', 'no'];
 
   /**
    * @var string
@@ -71,10 +71,15 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   private $defaultChoice = 'no';
 
   /**
+   * @var string
+   */
+  private $projects;
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Migrate acquia-pipeline file to gitlab file for a given Acquia Cloud application')
+    $this->setDescription('Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
       ->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
@@ -143,18 +148,19 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $project = $this->determineGitLabProject($cloud_application);
 
     // Migrate acquia-pipeline file
-    $this->getGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret);
-    $this->checkPipelineExists($project);
-    $this->migrateCSStandardTemplate();
-    $this->migrateVariables();
-    $this->migrateBuild();
-    $this->migratePostDeploy();
+    $this->getGitLabCiCdVariables($project);
+    $this->checkCurrectDirectory();
+    $this->checkPipelinesFileExists($project);
+    $this->migrateToCodeStudioStandardTemplate();
+    $this->migrateVariablesSection();
+    $this->migrateBuildSection();
+    $this->migratePostDeploySection();
     $this->io->success([
       "",
-      "*********** Migration completed successfully. *********\n",
-      "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.\n",
-      "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.\n",
-      "Check your pipeline is running in Code Studio for your project.\n"
+      "*********** Migration completed successfully. *********",
+      "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.",
+      "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.",
+      "Check your pipeline is running in Code Studio for your project."
     ]);
 
     // Get Cloud account.
@@ -188,11 +194,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param ApplicationResponse $cloud_application
    *
    * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineGitLabProject(ApplicationResponse $cloud_application) {
-    $projects = $this->gitLabClient->projects()->all(['search' => $cloud_application->uuid]);
-    if (count($projects) == 1) {
-      return reset($projects);
+    $this->projects = $this->gitLabClient->projects()->all(['search' => $cloud_application->uuid]);
+    if (count($this->projects) == 1) {
+      return reset($this->projects);
     }
     else {
       throw new AcquiaCliException("[ERROR] '{$cloud_application->name}' is not configured as Code Studio project.\n [Help] You can configure the '{$cloud_application->name}' project in Code Studio by using 'acli cs:wizard' command \n You can find Code Studio documentation at https://docs.acquia.com/code-studio/getting-started/#create-code-studio-project \n");
@@ -202,48 +209,45 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Check wether wizard command is executed by checking the env variable of codestudio project.
    * @param array $project
-   * @param string $cloud_application_uuid
-   * @param string $cloud_key
-   * @param string $cloud_secret
-   * @param string $project_access_token_name
-   * @param string $project_access_token
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret): array {
-    //todo check all 5 variables
-    $GLAB_TOKEN_NAME = "ACQUIA_GLAB_TOKEN_SECRET";
+  protected function getGitLabCiCdVariables(array $project) {
+    $code_studio_cicd_variables = ['ACQUIA_APPLICATION_UUID','ACQUIA_CLOUD_API_TOKEN_KEY','ACQUIA_CLOUD_API_TOKEN_SECRET','ACQUIA_GLAB_TOKEN_NAME','ACQUIA_GLAB_TOKEN_SECRET'];
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()->variables($project['id']);
-    foreach ($gitlab_cicd_existing_variables as $variable) {
-      if ($variable['key'] == $GLAB_TOKEN_NAME) {
-        return $variable;
-      }
-    }
-    foreach ($gitlab_cicd_existing_variables as $variable) {
-      if ($variable['key'] != $GLAB_TOKEN_NAME) {
-        throw new AcquiaCliException("[Error] Code Studio CI/CD environment 'Variable_Name' variable is not configured properly. \n[Help] To set all the CI/CD environment variables, configure the project in Code Studio by using 'acli cs:wizard' command \n You can find Code Studio documentation at https://docs.acquia.com/code-studio/getting-started/#create-code-studio-project \n OR \n Set the above required CI/CD environment variables in Code Studio project.\n");
-      }
+    $diff_keys_count = count(array_intersect($code_studio_cicd_variables, array_column($gitlab_cicd_existing_variables, 'key')));
+    if(!(count($code_studio_cicd_variables) == $diff_keys_count)){
+      throw new AcquiaCliException("[Error] Code Studio CI/CD environment 'Variable_Name' variable is not configured properly. \n[Help] To set all the CI/CD environment variables, configure the project in Code Studio by using 'acli cs:wizard' command \n You can find Code Studio documentation at https://docs.acquia.com/code-studio/getting-started/#create-code-studio-project \n OR \n Set the above required CI/CD environment variables in Code Studio project.\n");
     }
   }
 
-  //todo : check the current directry == projects;
+  /**
+   * Check the current directory is thr project which required to migrate.
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function checkCurrectDirectory() {
+    $currentDirectoryName = basename(getcwd());
+    $projectName = $this->projects[0]['name'];
+    if ($currentDirectoryName != $projectName) {
+      throw new AcquiaCliException("Your current working directory does not appear to be Drupal repository");
+    }
+  }
 
   /**
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    * @param array $project
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function checkPipelineExists(array $project) {
+  protected function checkPipelinesFileExists(array $project) {
     $pipelines_filepath_yml = Path::join($this->repoRoot, 'acquia-pipelines.yml');
     $pipelines_filepath_yaml = Path::join($this->repoRoot, 'acquia-pipelines.yaml');
     if ($this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yml) or $this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yaml)) {
-      // print("file exists");
       $this->gitLabClient->projects()
         ->update($project['id'], ['ci_config_path' => '']);
-      // print_r("\nRemoved ci_config_path \n");
       foreach (glob("acquia-pipelines.*") as $this->filename) {
         echo "File name is : $this->filename\n";
       }
       $file_contents = file_get_contents($this->filename);
-      $this->acquia_pipeline_file_parse = Yaml::parse($file_contents, Yaml::PARSE_OBJECT);
+      $this->acquiaPipelineFileParse = Yaml::parse($file_contents, Yaml::PARSE_OBJECT);
     }
     else {
       throw new AcquiaCliException("[Error] Missing 'acquia-pipelines.yaml' file which is required to migrate the project to Code Studio.");
@@ -253,7 +257,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating standard template to .gitlab-ci.yml file.
    */
-  protected function migrateCSStandardTemplate() {
+  protected function migrateToCodeStudioStandardTemplate() {
     $auto_devops_pipeline = [
         'include' => ['project' => 'acquia/standard-template', 'file' => '/gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml'],
       ];
@@ -268,8 +272,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating varibales to .gitlab-ci.yml file.
    */
-  protected function migrateVariables() {
-    $varData = isset($this->acquia_pipeline_file_parse['variables'])?$this->acquia_pipeline_file_parse['variables']:FALSE;
+  protected function migrateVariablesSection() {
+    $varData = isset($this->acquiaPipelineFileParse['variables'])?$this->acquiaPipelineFileParse['variables']:FALSE;
     if ($varData){
       $variables_dump = Yaml::dump(['variables' => $varData]);
       $remove_global = preg_replace('/global:/', '', $variables_dump);
@@ -278,13 +282,13 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $this->createGitlabCiFile($this->emptyArray);
       $this->io->writeln([
         "",
-        "\n*********** Migration completed for variables section. *********\n",
+        "*********** Migration completed for variables section. *********",
       ]);
     }
     else {
       $this->io->writeln([
         "",
-        "\n*********** acquia-pipeline file does not contain variables to migrate. *********\n",
+        "*********** acquia-pipeline file does not contain variables to migrate. *********",
       ]);
     }
   }
@@ -292,8 +296,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating build job to .gitlab-ci.yml file.
    */
-  protected function migrateBuild() {
-    $buildJob=isset($this->acquia_pipeline_file_parse['events']['build']['steps'])?$this->acquia_pipeline_file_parse['events']['build']['steps']:[];
+  protected function migrateBuildSection() {
+    $buildJob=isset($this->acquiaPipelineFileParse['events']['build']['steps'])?$this->acquiaPipelineFileParse['events']['build']['steps']:[];
     if (!empty($buildJob)){
       $response_composer = NULL;
       $response_BLT = NULL;
@@ -308,7 +312,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           if(strstr ($script, 'composer')) {
             if(empty($response_composer)){
               $ques = "Composer script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate Composer script?(yes,no)";
-              $response_composer = $this->getCustResponse($ques, $this->avlChoice, $this->defaultChoice);
+              $response_composer = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
             }
             if($response_composer == 'yes'){
               $arrayempty[$keysvar]['script'][] = $script;
@@ -319,7 +323,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           else if(strstr ($script, '${BLT_DIR}')) {
             if(empty($response_BLT)){
               $ques = "BLT script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate BLT script?(yes,no)";
-              $response_BLT = $this->getCustResponse($ques, $this->avlChoice, $this->defaultChoice);
+              $response_BLT = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
             }
             if($response_BLT == 'yes'){
               $arrayempty[$keysvar]['script'][] = $script;
@@ -351,12 +355,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Getting customer response.
    * @param string $question
-   * @param array $avlChoice
+   * @param array $availableChoices
    * @param string $defaultChoice
    */
-  protected function getCustResponse($question,$avlChoice,$defaultChoice) {
+  protected function getCustResponse($question,$availableChoices,$defaultChoice) {
     $ques = new Question($question, 'no');
-    $ques->setAutocompleterValues($avlChoice);
+    $ques->setAutocompleterValues($availableChoices);
     $defaultChoice = $this->io->askQuestion($ques);
     return $defaultChoice;
   }
@@ -412,8 +416,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating post build job to .gitlab-ci.yml file.
    */
-  protected function migratePostDeploy() {
-    $postDeployJob=isset($this->acquia_pipeline_file_parse['events']['post-deploy']['steps'])?$this->acquia_pipeline_file_parse['events']['post-deploy']['steps']:[];
+  protected function migratePostDeploySection() {
+    $postDeployJob=isset($this->acquiaPipelineFileParse['events']['post-deploy']['steps'])?$this->acquiaPipelineFileParse['events']['post-deploy']['steps']:[];
     if(!empty($postDeployJob)){
       $reply = NULL;
 
@@ -427,7 +431,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           if(strstr ($scripting, 'launch_ode')){
             if(empty($reply)){
               $ques = "launch_ode script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate launch_ode script?(yes,no)";
-              $reply = $this->getCustResponse($ques, $this->avlChoice, $this->defaultChoice);
+              $reply = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
             }
             if($reply == 'yes'){
               $arrayempty[$keysvariable]['script'][] = $scripting;
