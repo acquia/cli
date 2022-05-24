@@ -38,12 +38,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * @var string
    */
-  private $gitlabToken;
+  private $gitLabToken;
 
   /**
    * @var string
    */
-  private $gitlabHost;
+  private $gitLabHost;
 
   /**
    * @var string
@@ -53,7 +53,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * @var array
    */
-  private $emptyArray;
+  private $migrateScriptData;
 
   /**
    * @var array
@@ -97,10 +97,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->emptyArray=[];
-    $this->gitlabHost = $this->getGitLabHost();
+    $this->setMigrateScriptData([]);
+    $this->gitLabHost = $this->getGitLabHost();
     $this->env = $this->validateEnvironment();
-    $this->gitlabToken = $this->getGitLabToken($this->gitlabHost);
+    $this->gitLabToken = $this->getGitLabToken($this->gitLabHost);
     $this->getGitLabClient();
     try {
       $this->gitLabAccount = $this->gitLabClient->users()->me();
@@ -144,7 +144,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $this->appUuid = $this->determineCloudApplication();
     // Get Cloud application.
     $cloud_application = $this->getCloudApplication($this->appUuid);
-    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$this->appUuid</comment>";
+    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>{$this->appUuid}</comment>";
     $project = $this->determineGitLabProject($cloud_application);
 
     // Migrate acquia-pipeline file
@@ -263,8 +263,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       ];
     $auto_devops_dump_file = Yaml::dump($auto_devops_pipeline);
     $auto_devops_parse_file = Yaml::parse($auto_devops_dump_file);
-    $this->emptyArray = array_merge($this->emptyArray, $auto_devops_parse_file);
-    $this->createGitlabCiFile($this->emptyArray);
+    $this->migrateScriptData = array_merge($this->migrateScriptData, $auto_devops_parse_file);
+    $this->createGitLabCiFile($this->migrateScriptData);
   }
 
   //todo : catch execpetion if any and throw error.
@@ -278,8 +278,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $variables_dump = Yaml::dump(['variables' => $varData]);
       $remove_global = preg_replace('/global:/', '', $variables_dump);
       $variables_parse = Yaml::parse($remove_global);
-      $this->emptyArray = array_merge($this->emptyArray, $variables_parse);
-      $this->createGitlabCiFile($this->emptyArray);
+      $this->migrateScriptData = array_merge($this->migrateScriptData, $variables_parse);
+      $this->createGitLabCiFile($this->migrateScriptData);
       $this->io->writeln([
         "",
         "*********** Migration completed for variables section. *********",
@@ -298,17 +298,18 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    */
   protected function migrateBuildSection() {
     $buildJob=isset($this->acquiaPipelineFileParse['events']['build']['steps'])?$this->acquiaPipelineFileParse['events']['build']['steps']:[];
+    $arrayempty = [];
     if (!empty($buildJob)){
       $response_composer = NULL;
       $response_BLT = NULL;
 
-      $chunck = array_chunk($buildJob, 1);
-      foreach ($chunck as $key => $value){
-        $keysvar = array_keys($value[0])[0];
-        if(empty($value[0][$keysvar]['script'])){
+      foreach ($buildJob as $key => $value){
+        $keysvar = array_keys($value)[0];
+
+        if(empty($value[$keysvar]['script'])){
           continue;
         }
-        foreach ($value[0][$keysvar]['script'] as $script){
+        foreach ($value[$keysvar]['script'] as $script){
           if(strstr ($script, 'composer')) {
             if(empty($response_composer)){
               $ques = "Composer script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate Composer script?(yes,no)";
@@ -400,16 +401,16 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function mergeBuildCode($arrayempty) {
     $build_dump = Yaml::dump($arrayempty);
     $build_parse = Yaml::parse($build_dump);
-    $this->emptyArray = array_merge($this->emptyArray, $build_parse);
-    $this->createGitlabCiFile($this->emptyArray);
+    $this->migrateScriptData = array_merge($this->migrateScriptData, $build_parse);
+    $this->createGitLabCiFile($this->migrateScriptData);
   }
 
   /**
    * Creating .gitla-ci.yml file.
    */
-  protected function createGitlabCiFile() {
+  protected function createGitLabCiFile() {
     $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
-    $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($this->emptyArray, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+    $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($this->migrateScriptData, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($this->filename);
   }
 
@@ -420,14 +421,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $postDeployJob=isset($this->acquiaPipelineFileParse['events']['post-deploy']['steps'])?$this->acquiaPipelineFileParse['events']['post-deploy']['steps']:[];
     if(!empty($postDeployJob)){
       $reply = NULL;
-
-      $chunckbuild = array_chunk($postDeployJob, 1);
-      foreach ($chunckbuild as $keyss => $valuess){
-        $keysvariable = array_keys($valuess[0])[0];
-        if(empty($valuess[0][$keysvariable]['script'])){
+      foreach ($postDeployJob as $keyss => $valuess){
+        $keysvariable = array_keys($valuess)[0];
+        if(empty($valuess[$keysvariable]['script'])){
           continue;
         }
-        foreach ($valuess[0][$keysvariable]['script'] as $scripting){
+        foreach ($valuess[$keysvariable]['script'] as $scripting){
           if(strstr ($scripting, 'launch_ode')){
             if(empty($reply)){
               $ques = "launch_ode script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate launch_ode script?(yes,no)";
@@ -492,8 +491,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function mergePostDeployCode($arrayempty) {
     $build_dump = Yaml::dump($arrayempty);
     $build_parse = Yaml::parse($build_dump);
-    $this->emptyArray = array_merge($this->emptyArray, $build_parse);
-    $this->createGitlabCiFile($this->emptyArray);
+    $this->migrateScriptData = array_merge($this->migrateScriptData, $build_parse);
+    $this->createGitLabCiFile($this->migrateScriptData);
   }
 
   /**
@@ -599,8 +598,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
       $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
-      $gitlab_client->setUrl('https://' . $this->gitlabHost);
-      $gitlab_client->authenticate($this->gitlabToken, Client::AUTH_OAUTH_TOKEN);
+      $gitlab_client->setUrl('https://' . $this->gitLabHost);
+      $gitlab_client->authenticate($this->gitLabToken, Client::AUTH_OAUTH_TOKEN);
       $this->setGitLabClient($gitlab_client);
     }
     return $this->gitLabClient;
@@ -611,6 +610,20 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    */
   public function setGitLabClient($client) {
     $this->gitLabClient = $client;
+  }
+
+  /**
+   * @return array
+   */
+  public function getMigrateScriptData() {
+    return $this->migrateScriptData;
+  }
+
+  /**
+   * @param array $migrateScriptData
+   */
+  public function setMigrateScriptData($migrateScriptData): void {
+    $this->migrateScriptData = $migrateScriptData;
   }
 
 }
