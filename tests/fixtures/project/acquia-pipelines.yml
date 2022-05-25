@@ -1,0 +1,52 @@
+# This file is used by Acquia Pipelines continuous integration. Upon success, an
+# artifact is deployed to the `orionacms` subscription on Acquia Cloud.
+version: 1.3.0
+services:
+  - composer:
+      version: 2
+  - php:
+      version: 7.4
+
+events:
+  build:
+    steps:
+      - setup:
+          type: script
+          script:
+            - composer validate --no-check-all --ansi --no-interaction
+            - composer install
+            - mkdir -p docroot/profiles/acquia_cms
+            - composer archive --format zip --file acquia_cms
+            - unzip acquia_cms.zip -d docroot/profiles/acquia_cms
+            # The acquia_cms_development module is ignored for export in .gitattributes,
+            # but we DO want to deploy it to our Cloud environment for testing.
+            # We can probably remove this, along with the acquia_cms_development module
+            # itself, once we have a permanent demo site in place.
+            - cp -R modules/acquia_cms_development docroot/profiles/acquia_cms/modules
+            - cp config/optional/views.view.acquia_search.yml docroot/profiles/acquia_cms/config/optional
+      - front-end:
+          type: script
+          script:
+            - cd themes/acquia_claro
+            - npm install
+            - npm run build
+            - cd -
+            # Theme directory is already copied to profiles in previous step without compiled css.
+            # So we need to copy compile css to theme in this step.
+            - cp -R themes/acquia_claro/css docroot/profiles/acquia_cms/themes/acquia_claro
+            - mkdir -p docroot/profiles/acquia_cms/modules/acquia_cms_tour/css
+            - cp modules/acquia_cms_tour/css/acquia_cms_tour.css docroot/profiles/acquia_cms/modules/acquia_cms_tour/css
+      - cleanup:
+          type: script
+          script:
+            - rm acquia_cms.zip
+            # Prepare settings.php with the minimum required for Cloud.
+            - chmod -R +w docroot/sites/default
+            - cp docroot/sites/default/default.settings.php docroot/sites/default/settings.php
+            # Clear any config directories that Cloud tries to set in the include file.
+            - echo "\$config_directories = [];" >> docroot/sites/default/settings.php
+            # Use the existing `config` directory we already have. Cloud gets confused
+            # because we already have a config directory above docroot and manipulating it
+            # in Pipelines doesn't seem to work. This deployment is ephemeral, so using
+            # the existing config directory isn't a problem.
+            - echo "\$config_directories['sync'] = '../config';" >> docroot/sites/default/settings.php

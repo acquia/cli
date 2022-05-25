@@ -187,44 +187,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-    $gitlab_cicd_variables = [
-      [
-        'key' => 'ACQUIA_APPLICATION_UUID',
-        'value' => $cloud_application_uuid,
-        'masked' => FALSE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
-      [
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-        'value' => $cloud_key,
-        'masked' => FALSE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
-      [
-        'key' => 'ACQUIA_CLOUD_API_TOKEN_SECRET',
-        'value' => $cloud_secret,
-        'masked' => FALSE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
-      [
-        'key' => 'ACQUIA_GLAB_TOKEN_NAME',
-        'value' => $project_access_token_name,
-        'masked' => FALSE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
-      [
-        'key' => 'ACQUIA_GLAB_TOKEN_SECRET',
-        'value' => $project_access_token,
-        'masked' => TRUE,
-        'protected' => FALSE,
-        'variable_type' => 'env_var',
-      ],
-    ];
-
+    $gitlab_cicd_variables = $this->getGitLabCiCdVariableDefaults($cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()
       ->variables($project['id']);
     $gitlab_cicd_existing_variables_keyed = [];
