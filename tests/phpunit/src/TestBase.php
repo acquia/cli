@@ -5,7 +5,7 @@ namespace Acquia\Cli\Tests;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
-use Acquia\Cli\Command\ClearCacheCommand;
+use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Config\AcquiaCliConfig;
 use Acquia\Cli\Config\CloudDataConfig;

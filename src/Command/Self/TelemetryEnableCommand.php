@@ -1,17 +1,18 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\Self;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class TelemetryDisableCommand.
+ * Class TelemetryEnableCommand.
  */
-class TelemetryDisableCommand extends CommandBase {
+class TelemetryEnableCommand extends CommandBase {
 
-  protected static $defaultName = 'telemetry:disable';
+  protected static $defaultName = 'self:telemetry:enable';
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
@@ -26,7 +27,8 @@ class TelemetryDisableCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Disable anonymous sharing of usage and performance data');
+    $this->setDescription('Enable anonymous sharing of usage and performance data')
+      ->setAliases(['telemetry:enable']);
   }
 
   /**
@@ -38,8 +40,8 @@ class TelemetryDisableCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $datastore = $this->datastoreCloud;
-    $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
-    $this->io->success('Telemetry has been disabled.');
+    $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
+    $this->io->success('Telemetry has been enabled.');
 
     return 0;
   }
