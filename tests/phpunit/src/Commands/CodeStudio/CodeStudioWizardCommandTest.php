@@ -31,8 +31,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   use IdeRequiredTestTrait;
 
-  private $gitlabHost = 'gitlabhost';
-  private $gitlabToken = 'gitlabtoken';
+  private $gitLabHost = 'gitlabhost';
+  private $gitLabToken = 'gitlabtoken';
 
   private $gitLabProjectId = 33;
   private $gitLabTokenId = 118;
@@ -394,13 +394,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    */
   protected function mockGitlabGetToken($local_machine_helper, $success = TRUE): void {
     $process = $this->mockProcess($success);
-    $process->getOutput()->willReturn($this->gitlabToken);
+    $process->getOutput()->willReturn($this->gitLabToken);
     $local_machine_helper->execute([
       'glab',
       'config',
       'get',
       'token',
-      '--host=' . $this->gitlabHost
+      '--host=' . $this->gitLabHost
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
@@ -409,7 +409,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    */
   protected function mockGitlabGetHost($local_machine_helper): void {
     $process = $this->mockProcess();
-    $process->getOutput()->willReturn($this->gitlabHost);
+    $process->getOutput()->willReturn($this->gitLabHost);
     $local_machine_helper->execute([
       'glab',
       'config',
