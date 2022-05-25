@@ -14,7 +14,6 @@ use Gitlab\HttpClient\Builder;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Yaml\Yaml;
 use Webmozart\PathUtil\Path;
 
@@ -243,14 +242,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     if ($this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yml) or $this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yaml)) {
       $this->gitLabClient->projects()
         ->update($project['id'], ['ci_config_path' => '']);
-      foreach (glob("acquia-pipelines.*") as $this->filename) {
-        echo "File name is : $this->filename\n";
-      }
-      $file_contents = file_get_contents($this->filename);
+      $filename = implode('', glob("acquia-pipelines.*"));
+      $file_contents = file_get_contents($filename);
       $this->acquiaPipelineFileParse = Yaml::parse($file_contents, Yaml::PARSE_OBJECT);
     }
     else {
-      throw new AcquiaCliException("[Error] Missing 'acquia-pipelines.yaml' file which is required to migrate the project to Code Studio.");
+      throw new AcquiaCliException("Missing 'acquia-pipelines.yaml' file which is required to migrate the project to Code Studio.");
     }
   }
 
@@ -282,13 +279,13 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $this->createGitLabCiFile($this->migrateScriptData);
       $this->io->writeln([
         "",
-        "*********** Migration completed for variables section. *********",
+        "***********Migration completed for variables section.*********",
       ]);
     }
     else {
       $this->io->writeln([
         "",
-        "*********** acquia-pipeline file does not contain variables to migrate. *********",
+        "***********acquia-pipeline file does not contain variables to migrate.*********",
       ]);
     }
   }
@@ -306,64 +303,49 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       foreach ($buildJob as $key => $value){
         $keysvar = array_keys($value)[0];
 
-        if(empty($value[$keysvar]['script'])){
+        if((!array_key_exists('script', $value[$keysvar])) || empty($value[$keysvar]['script'])){
           continue;
         }
         foreach ($value[$keysvar]['script'] as $script){
           if(strstr ($script, 'composer')) {
             if(empty($response_composer)){
-              $ques = "Composer script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate Composer script?(yes,no)";
-              $response_composer = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
+              $ques = "Composer script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate Composer script?";
+              $response_composer = ($this->io->confirm($ques, FALSE))?'yes':'no';
+
             }
             if($response_composer == 'yes'){
               $arrayempty[$keysvar]['script'][] = $script;
               continue;
             }
-            // print_r("Using job from code studio\n\n");
           }
           else if(strstr ($script, '${BLT_DIR}')) {
             if(empty($response_BLT)){
-              $ques = "BLT script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate BLT script?(yes,no)";
-              $response_BLT = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
+              $ques = "BLT script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate BLT script?";
+              $response_BLT = ($this->io->confirm($ques, FALSE))?'yes':'no';
             }
             if($response_BLT == 'yes'){
               $arrayempty[$keysvar]['script'][] = $script;
               continue;
             }
-            // print_r("Using job from code studio\n\n");
           }
           else{
             $arrayempty[$keysvar]['script'][] = $script;
           }
         }
         $arrayempty=$this->assignBuildStages($arrayempty, $keysvar);
-
       }
       $this->io->writeln([
         "",
-        "\n*********** Migration completed for Build job section. *********\n",
+        "***********Migration completed for Build job section.*********",
       ]);
       $this->mergeBuildCode($arrayempty);
     }
     else{
       $this->io->writeln([
         "",
-        "\n*********** acquia-pipeline file does not contain Build job to migrate. *********\n",
+        "***********acquia-pipeline file does not contain Build job to migrate.*********",
       ]);
     }
-  }
-
-  /**
-   * Getting customer response.
-   * @param string $question
-   * @param array $availableChoices
-   * @param string $defaultChoice
-   */
-  protected function getCustResponse($question,$availableChoices,$defaultChoice) {
-    $ques = new Question($question, 'no');
-    $ques->setAutocompleterValues($availableChoices);
-    $defaultChoice = $this->io->askQuestion($ques);
-    return $defaultChoice;
   }
 
   /**
@@ -377,8 +359,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       'npm run build' => 'Build Drupal',
       'validate' => 'Test Drupal',
       'tests' => 'Test Drupal',
+      'test'  => 'Test Drupal',
       'npm test' => 'Test Drupal',
       'artifact' => 'Deploy Drupal',
+      'deploy' => 'Deploy Drupal',
     ];
     if(!empty($arrayempty[$keysvar])){
       foreach($stages as $job => $stage){
@@ -420,7 +404,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function migratePostDeploySection() {
     $postDeployJob=isset($this->acquiaPipelineFileParse['events']['post-deploy']['steps'])?$this->acquiaPipelineFileParse['events']['post-deploy']['steps']:[];
     if(!empty($postDeployJob)){
-      $reply = NULL;
+      $response_launch_ode = NULL;
       foreach ($postDeployJob as $keyss => $valuess){
         $keysvariable = array_keys($valuess)[0];
         if(empty($valuess[$keysvariable]['script'])){
@@ -428,11 +412,11 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         }
         foreach ($valuess[$keysvariable]['script'] as $scripting){
           if(strstr ($scripting, 'launch_ode')){
-            if(empty($reply)){
-              $ques = "launch_ode script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate launch_ode script?(yes,no)";
-              $reply = $this->getCustResponse($ques, $this->availableChoices, $this->defaultChoice);
+            if(empty($response_launch_ode)){
+              $ques = "launch_ode script is part of Code Studio Auto DevOps Pipeline, do you still want to migrate launch_ode script?";
+              $response_launch_ode = ($this->io->confirm($ques, FALSE))?'yes':'no';
             }
-            if($reply == 'yes'){
+            if($response_launch_ode == 'yes'){
               $arrayempty[$keysvariable]['script'][] = $scripting;
               continue;
             }
@@ -448,13 +432,13 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $this->mergePostDeployCode($arrayempty);
       $this->io->writeln([
         "",
-        "\n*********** Migration completed for Post-Deploy job section. *********\n",
+        "***********Migration completed for Post-Deploy job section.*********",
       ]);
     }
     else{
       $this->io->writeln([
         "",
-        "\n*********** acquia-pipeline file does not contain Post-Deploy job to migrate. *********\n",
+        "***********acquia-pipeline file does not contain Post-Deploy job to migrate.*********",
       ]);
     }
   }
