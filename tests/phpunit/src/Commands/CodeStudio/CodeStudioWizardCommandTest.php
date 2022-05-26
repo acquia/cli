@@ -11,7 +11,6 @@ use Gitlab\Api\Groups;
 use Gitlab\Api\ProjectNamespaces;
 use Gitlab\Api\Schedules;
 use Gitlab\Client;
-use Gitlab\Exception\RuntimeException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -174,7 +173,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitLabNamespaces($gitlab_client);
 
     $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
-    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject($this->gitLabToken));
+    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
     $this->mockGitLabProjectsTokens($projects);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
@@ -221,10 +220,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         '--secret' => $this->secret,
       ], []);
     }
-    catch (RuntimeException $exception) {
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Unable to authenticate with Code Studio', $this->getDisplay());
     }
-    $this->assertEquals(1, $this->getStatusCode());
   }
 
   public function testMissingGitLabCredentials() {
