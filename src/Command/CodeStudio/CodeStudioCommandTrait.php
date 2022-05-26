@@ -260,8 +260,8 @@ trait CodeStudioCommandTrait {
   /**
    *
    */
-  protected function setGitLabProjectDescription(): void {
-    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$this->appUuid</comment>";
+  protected function setGitLabProjectDescription($cloud_application_uuid): void {
+    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
   }
 
   /**
