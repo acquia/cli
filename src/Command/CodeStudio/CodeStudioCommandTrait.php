@@ -340,4 +340,15 @@ trait CodeStudioCommandTrait {
     ];
   }
 
+  /**
+   * @return array
+   */
+  protected function getGitLabProjectDefaults(): array {
+    return [
+      'description' => $this->gitLabProjectDescription,
+      'topics' => 'Acquia Cloud Application',
+      'container_registry_access_level' => 'disabled',
+    ];
+  }
+
 }
