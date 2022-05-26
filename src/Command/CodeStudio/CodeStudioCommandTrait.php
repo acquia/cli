@@ -8,6 +8,7 @@ use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Gitlab\HttpClient\Builder;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 trait CodeStudioCommandTrait {
 
@@ -255,6 +256,32 @@ trait CodeStudioCommandTrait {
         );
       }
     }
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\ApplicationResponse $cloud_application
+   *
+   * @return array
+   */
+  protected function createGitLabProject(ApplicationResponse $cloud_application): array {
+    $user_groups = $this->gitLabClient->groups()->all([
+      'all_available' => TRUE,
+      'min_access_level' => 40,
+    ]);
+    $parameters = $this->getGitLabProjectDefaults();
+    if ($user_groups) {
+      $user_groups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
+      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Please choose which group this new project should belong to:');
+      $parameters['namespace_id'] = $project_group['id'];
+    }
+
+    $slugger = new AsciiSlugger();
+    $project_name = $slugger->slug($cloud_application->name);
+    $project = $this->gitLabClient->projects()->create($project_name, $parameters);
+    $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+    $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
+
+    return $project;
   }
 
   /**

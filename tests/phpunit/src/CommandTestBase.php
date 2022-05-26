@@ -577,9 +577,9 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
    */
-  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|\Gitlab\Client {
-    $this->mockGitlabGetHost($local_machine_helper);
-    $this->mockGitlabGetToken($local_machine_helper);
+  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper, $gitlab_host, $gitlab_token): ObjectProphecy|\Gitlab\Client {
+    $this->mockGitlabGetHost($local_machine_helper, $gitlab_host);
+    $this->mockGitlabGetToken($local_machine_helper, $gitlab_token);
     $gitlab_client = $this->prophet->prophesize(\Gitlab\Client::class);
     $gitlab_client->users()->willThrow(RuntimeException::class);
     return $gitlab_client;
@@ -681,7 +681,7 @@ abstract class CommandTestBase extends TestBase {
     $permission = reset($permissions);
     $permission->name = "administer environment variables on non-prod";
     $permissions[] = $permission;
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/permissions")
+    $this->clientProphecy->request('get', "/applications/{$application_uuid}/permissions")
       ->willReturn($permissions)
       ->shouldBeCalled();
     return $permissions;

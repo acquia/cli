@@ -7,11 +7,9 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
-use AcquiaCloudApi\Response\ApplicationResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * Class CodeStudioWizardCommand.
@@ -71,7 +69,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $account_adapter = new Account($acquia_cloud_client);
     $account = $account_adapter->get();
     $this->validateRequiredCloudPermissions($acquia_cloud_client, $this->appUuid, $account);
-    $this->setGitLabProjectDescription();
+    $this->setGitLabProjectDescription($this->appUuid);
 
     // Get Cloud application.
     $cloud_application = $this->getCloudApplication($this->appUuid);
@@ -278,32 +276,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       'topics' => 'Acquia Cloud Application',
       'container_registry_access_level' => 'disabled',
     ];
-  }
-
-  /**
-   * @param \AcquiaCloudApi\Response\ApplicationResponse $cloud_application
-   *
-   * @return array
-   */
-  protected function createGitLabProject(ApplicationResponse $cloud_application): array {
-    $user_groups = $this->gitLabClient->groups()->all([
-      'all_available' => TRUE,
-      'min_access_level' => 40,
-    ]);
-    $parameters = $this->getGitLabProjectDefaults();
-    if ($user_groups) {
-      $user_groups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
-      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Please choose which group this new project should belong to:');
-      $parameters['namespace_id'] = $project_group['id'];
-    }
-
-    $slugger = new AsciiSlugger();
-    $project_name = $slugger->slug($cloud_application->name);
-    $project = $this->gitLabClient->projects()->create($project_name, $parameters);
-    $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
-    $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
-
-    return $project;
   }
 
 }

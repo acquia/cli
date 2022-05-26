@@ -166,14 +166,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
     $this->mockAccountRequest();
-    $this->mockGitLabPermissionsRequest($application_uuid);
+    $this->mockGitLabPermissionsRequest($this::$application_uuid);
 
     $gitlab_client = $this->prophet->prophesize(Client::class);
     $this->mockGitLabUsersMe($gitlab_client);
     $this->mockGitLabGroups($gitlab_client);
     $this->mockGitLabNamespaces($gitlab_client);
 
-    $projects = $this->mockGetGitLabProjects($application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
+    $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
     $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject());
     $this->mockGitLabProjectsTokens($projects);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
@@ -212,7 +212,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   public function testInvalidGitLabCredentials() {
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $gitlab_client = $this->mockGitLabAuthenticate($local_machine_helper);
+    $gitlab_client = $this->mockGitLabAuthenticate($local_machine_helper, $this->gitLabHost, $this->gitLabToken);
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     try {
