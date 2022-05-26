@@ -174,7 +174,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->mockGitLabNamespaces($gitlab_client);
 
     $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
-    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject());
+    $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject($this->gitLabToken));
     $this->mockGitLabProjectsTokens($projects);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $this->mockGitLabVariables($this->gitLabProjectId, $projects);
@@ -196,7 +196,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     $this->mockGetCurrentBranchName($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
-    $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabToken, $this->gitLabToken);
+    $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost);
 
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);

@@ -579,7 +579,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper, $gitlab_host, $gitlab_token): ObjectProphecy|\Gitlab\Client {
     $this->mockGitlabGetHost($local_machine_helper, $gitlab_host);
-    $this->mockGitlabGetToken($local_machine_helper, $gitlab_token);
+    $this->mockGitlabGetToken($local_machine_helper, $gitlab_token, $gitlab_host);
     $gitlab_client = $this->prophet->prophesize(\Gitlab\Client::class);
     $gitlab_client->users()->willThrow(RuntimeException::class);
     return $gitlab_client;

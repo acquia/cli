@@ -126,6 +126,9 @@ class ApiCommandHelper {
         elseif($parameter_specification['in'] === 'path') {
           $command->addPathParameter($parameter_definition->getName(), $parameter_specification);
         }
+        elseif($parameter_specification['in'] === 'header') {
+          $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
+        }
       }
       $usage .= $query_param_usage_suffix;
       $input_definition = array_merge($input_definition, $query_input_definition);
