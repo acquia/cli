@@ -11,6 +11,7 @@ use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class CodeStudioWizardCommandTest.
@@ -98,9 +99,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCommandTrait::getGitLabCiCdVariableDefaults(NULL, NULL, NULL, NULL, NULL));
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $gitlab_client->projects()->willReturn($projects);
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $file_system->exists(Argument::containingString('acquia-pipelines'))->willReturn(TRUE);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+    $local_machine_helper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->mockApplicationsRequest();
@@ -109,6 +108,17 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
+    $gitlab_ci_yml_file_path = $this->projectFixtureDir . '/.gitlab-ci.yml';
+    $this->assertFileExists($gitlab_ci_yml_file_path);
+    // @todo Assert things about skips. Composer install, BLT, launch_ode.
+    $contents = Yaml::parseFile($gitlab_ci_yml_file_path);
+    $this->assertArrayHasKey('include', $contents);
+    $this->assertArrayHasKey('setup', $contents);
+    $this->assertArrayHasKey('script', $contents['setup']);
+    $this->assertArrayHasKey('stage', $contents['setup']);
+    $this->assertEquals('Build Drupal', $contents['setup']['stage']);
+    $this->assertArrayHasKey('needs', $contents['setup']);
+    $this->assertEmpty($contents['setup']['needs']);
   }
 
 }

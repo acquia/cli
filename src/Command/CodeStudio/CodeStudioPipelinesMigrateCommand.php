@@ -71,6 +71,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $gitlab_ci_file_contents = $this->getGitLabCiFileTemplate();
     $this->migrateVariablesSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
     $this->migrateEventsSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
+    $this->createGitLabCiFile($gitlab_ci_file_contents);
     $this->io->success([
       "",
       "Migration completed successfully.",
@@ -162,7 +163,13 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     }
   }
 
-  protected function getPipelinesSection($acquia_pipelines_file_contents, $event_name) {
+  /**
+   * @param array $acquia_pipelines_file_contents
+   * @param string $event_name
+   *
+   * @return null
+   */
+  protected function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name) {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
@@ -176,15 +183,21 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   * @param $acquia_pipelines_file_contents
-   * @param $gitlab_ci_file_contents
+   * @param array $acquia_pipelines_file_contents
+   * @param array $gitlab_ci_file_contents
    */
-  protected function migrateEventsSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents) {
+  protected function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents) {
     $events_map = [
       'build' => [
         'skip' => [
-          'composer install' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
-          '${BLT_DIR}' => 'Code Studio AutoDevOps will run BLT commands for you by default. Skipping migration of this command in your acquia-pipelines.yml file:',
+          'composer install' => [
+            'message' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
+            'prompt' => FALSE,
+            ],
+          '${BLT_DIR}' => [
+            'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to skip migrating the following command?',
+            'prompt' => TRUE,
+          ],
         ],
         'default_stage' => 'Test Drupal',
         'stage' => [
@@ -201,7 +214,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       ],
       'post-deploy' => [
         'skip' => [
-          'launch_ode' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
+          'launch_ode' => [
+            'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
+            'prompt' => FALSE,
+            ]
         ],
         'default_stage' => 'Deploy Drupal',
         'stage' => [
@@ -222,24 +238,33 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           if (!array_key_exists('script', $step[$script_name]) || empty($step[$script_name]['script'])) {
             continue;
           }
+          if ($stage = $this->assignStageFromKeywords($event_map['stage'], $script_name)) {
+            $code_studio_jobs[$script_name]['stage'] = $stage;
+          }
           foreach ($step[$script_name]['script'] as $command) {
-            foreach ($event_map['skip'] as $needle => $message) {
+            foreach ($event_map['skip'] as $needle => $message_config) {
               if (str_contains($command, $needle)) {
-                $this->io->note([
-                  $message,
-                  $command,
-                ]);
+                if ($message_config['prompt']) {
+                  $answer = $this->io->confirm($message_config['message'] . PHP_EOL . $command);
+                  if (!$answer) {
+                    $code_studio_jobs[$script_name]['script'][] = $command;
+                  }
+                }
+                else {
+                  $this->io->note([
+                    $message_config['message'],
+                    $command,
+                  ]);
+                }
                 break;
               }
-            }
-            $code_studio_jobs[$script_name]['script'][] = $command;
-            if (!array_key_exists('stage', $code_studio_jobs[$script_name])) {
-              foreach ($event_map['stage'] as $needle => $stage) {
-                if (str_contains($command, $needle)) {
-                  $code_studio_jobs[$script_name]['stage'] = $stage;
-                  break;
-                }
+              else {
+                $code_studio_jobs[$script_name]['script'][] = $command;
               }
+            }
+            if (!array_key_exists('stage', $code_studio_jobs[$script_name])
+              && $stage = $this->assignStageFromKeywords($event_map['stage'], $command)) {
+              $code_studio_jobs[$script_name]['stage'] = $stage;
             }
           }
           if (!array_key_exists('stage', $code_studio_jobs[$script_name])) {
@@ -267,6 +292,21 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function createGitLabCiFile(array $contents) {
     $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+  }
+
+  /**
+   * @param array $keywords
+   * @param string $haystack
+   *
+   * @return string|null
+   */
+  protected function assignStageFromKeywords(array $keywords, string $haystack): ?string {
+    foreach ($keywords as $needle => $stage) {
+      if (str_contains($haystack, $needle)) {
+        return $stage;
+      }
+    }
+    return NULL;
   }
 
 }
