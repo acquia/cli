@@ -16,7 +16,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class NewCommand extends CommandBase {
 
-  protected static $defaultName = 'app:new';
+  protected static $defaultName = 'app:new:local';
 
   /**
    * {inheritdoc}.
