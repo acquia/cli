@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Misc;
 
-use Acquia\Cli\Command\ClearCacheCommand;
+use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 

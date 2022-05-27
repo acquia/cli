@@ -4,7 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Acsf;
 
 use Acquia\Cli\Command\Acsf\AcsfListCommand;
 use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
-use Acquia\Cli\Command\ListCommand;
+use Acquia\Cli\Command\Self\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 

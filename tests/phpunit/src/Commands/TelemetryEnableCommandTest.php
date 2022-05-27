@@ -2,14 +2,14 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\TelemetryEnableCommand;
+use Acquia\Cli\Command\Self\TelemetryEnableCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class TelemetryEnableCommandTest.
  *
- * @property \Acquia\Cli\Command\TelemetryEnableCommand $command
+ * @property \Acquia\Cli\Command\Self\TelemetryEnableCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class TelemetryEnableCommandTest extends CommandTestBase {

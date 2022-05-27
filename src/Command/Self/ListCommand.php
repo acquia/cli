@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
 use Acquia\Cli\Command\Api\ApiListCommandBase;
@@ -12,6 +12,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ListCommand.
  */
 class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
+
+  protected function configure(): void {
+    parent::configure();
+    $this->setName('self:list')
+      ->setAliases(['list']);
+  }
 
   /**
    * {@inheritdoc}
