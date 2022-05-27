@@ -2,13 +2,20 @@
 
 namespace Acquia\Cli;
 
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderInterface;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\DependencyInjection\Argument\ServiceClosureArgument;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Loader\DirectoryLoader;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
 
 /**
@@ -28,6 +35,36 @@ class Kernel extends BaseKernel {
    */
   public function registerContainerConfiguration(LoaderInterface $loader): void {
     $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
+    $this->registerExtensionConfiguration($loader);
+  }
+
+  protected function registerExtensionConfiguration($loader) {
+    // Search for plugins.
+    $finder = new Finder();
+    $extensions = $finder->files()
+      ->in([
+        __DIR__ . '/../../',
+      ])
+      ->depth(1)
+      ->name('acli.services.yml');
+    foreach ($extensions as $extension) {
+      $loader->load($extension->getRealPath());
+    }
+  }
+
+  /**
+   * Returns a loader for the container.
+   *
+   * @return \Symfony\Component\Config\Loader\DelegatingLoader The loader
+   */
+  protected function getContainerLoader(ContainerInterface $container): DelegatingLoader {
+    $locator = new FileLocator([$this->getProjectDir()]);
+    $resolver = new LoaderResolver([
+      new YamlFileLoader($container, $locator),
+      new DirectoryLoader($container, $locator),
+    ]);
+
+    return new DelegatingLoader($resolver);
   }
 
   /**
