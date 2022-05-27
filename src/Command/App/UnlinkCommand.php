@@ -1,7 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Command;
+namespace Acquia\Cli\Command\App;
 
+use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,13 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class UnlinkCommand extends CommandBase {
 
-  protected static $defaultName = 'unlink';
+  protected static $defaultName = 'app:unlink';
 
   /**
    * {inheritdoc}.
    */
   protected function configure() {
-    $this->setDescription('Remove local association between your project and a Cloud Platform application');
+    $this->setDescription('Remove local association between your project and a Cloud Platform application')
+      ->setAliases(['unlink']);
   }
 
   /**
