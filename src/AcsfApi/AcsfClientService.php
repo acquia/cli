@@ -5,7 +5,6 @@ namespace Acquia\Cli\AcsfApi;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
-use AcquiaCloudApi\Connector\Client;
 
 /**
  * AcsfClientService class.
@@ -23,8 +22,8 @@ class AcsfClientService extends ClientService {
   /**
    * @return \AcquiaCloudApi\Connector\Client
    */
-  public function getClient(): Client {
-    $client = Client::factory($this->connector);
+  public function getClient(): AcsfClient {
+    $client = AcsfClient::factory($this->connector);
     $this->configureClient($client);
 
     return $client;
