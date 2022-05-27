@@ -185,7 +185,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   protected function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-    $gitlab_cicd_variables = $this->getGitLabCiCdVariableDefaults($cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
+    $gitlab_cicd_variables = CodeStudioCiCdVariables::getDefaults($cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()
       ->variables($project['id']);
     $gitlab_cicd_existing_variables_keyed = [];

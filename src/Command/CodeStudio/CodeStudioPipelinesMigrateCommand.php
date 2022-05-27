@@ -98,12 +98,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function checkGitLabCiCdVariables(array $project) {
-    $gitlab_cicd_variables = $this->getGitLabCiCdVariableDefaults(NULL, NULL, NULL, NULL, NULL);
+    $gitlab_cicd_variables = CodeStudioCiCdVariables::getList();
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()->variables($project['id']);
     $existing_keys = array_column($gitlab_cicd_existing_variables, 'key');
     foreach ($gitlab_cicd_variables as $gitlab_cicd_variable) {
-      if (array_search($gitlab_cicd_variable['key'], $existing_keys) === FALSE) {
-        throw new AcquiaCliException("Code Studio CI/CD variable {$gitlab_cicd_variable['key']} is not configured properly");
+      if (array_search($gitlab_cicd_variable, $existing_keys) === FALSE) {
+        throw new AcquiaCliException("Code Studio CI/CD variable {$gitlab_cicd_variable} is not configured properly");
       }
     }
   }

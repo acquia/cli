@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
-use Acquia\Cli\Command\CodeStudio\CodeStudioCommandTrait;
+use Acquia\Cli\Command\CodeStudio\CodeStudioCiCdVariables;
 use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -96,7 +96,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->mockAccountRequest();
     $this->mockGitLabPermissionsRequest($this::$application_uuid);
     $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
-    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCommandTrait::getGitLabCiCdVariableDefaults(NULL, NULL, NULL, NULL, NULL));
+    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaults());
     $projects->update($this->gitLabProjectId, Argument::type('array'));
     $gitlab_client->projects()->willReturn($projects);
     $local_machine_helper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
