@@ -301,7 +301,13 @@ class ApiBaseCommand extends CommandBase {
         new NotBlank(),
       ];
       if ($type = $this->getParamType($param_spec)) {
-        $constraints[] = new Type($type);
+        if (in_array($type, ['int', 'integer'])) {
+          // Need to evaluate whether a string contains only digits.
+          $constraints[] = new Type('digit');
+        }
+        else {
+          $constraints[] = new Type($type);
+        }
       }
       if (array_key_exists('schema', $param_spec)) {
         $schema = $param_spec['schema'];
