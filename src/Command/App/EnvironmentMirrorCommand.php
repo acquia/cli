@@ -30,11 +30,11 @@ class EnvironmentMirrorCommand extends CommandBase {
    */
   protected function configure() {
     $this->setDescription('Makes one environment identical to another in terms of code, database, files, and configuration.');
-    $this->addArgument('source-environment', InputArgument::OPTIONAL, 'The Cloud Platform source environment ID or alias')
+    $this->addArgument('source-environment', InputArgument::REQUIRED, 'The Cloud Platform source environment ID or alias')
       ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp.dev')
       ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
-    $this->addArgument('destination-environment', InputArgument::OPTIONAL, 'The Cloud Platform destination environment ID or alias')
+    $this->addArgument('destination-environment', InputArgument::REQUIRED, 'The Cloud Platform destination environment ID or alias')
       ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp.dev')
       ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
@@ -162,6 +162,7 @@ class EnvironmentMirrorCommand extends CommandBase {
         'branch' => $source_environment->vcs->path,
       ],
     ]);
+    $code_copy_response->links = $code_copy_response->_links;
     $this->checklist->completePreviousItem();
     return $code_copy_response;
   }
