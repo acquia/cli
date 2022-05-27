@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\NewCommand;
+use Acquia\Cli\Command\App\NewCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -12,7 +12,7 @@ use Symfony\Component\Process\Process;
 /**
  * Class NewCommandTest.
  *
- * @property \Acquia\Cli\Command\NewCommand $command
+ * @property \Acquia\Cli\Command\App\NewCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class NewCommandTest extends CommandTestBase {

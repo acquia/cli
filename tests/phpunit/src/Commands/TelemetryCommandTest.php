@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Tests\Commands;
 
 use Acquia\Cli\Command\App\LinkCommand;
-use Acquia\Cli\Command\TelemetryCommand;
+use Acquia\Cli\Command\Self\TelemetryCommand;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
@@ -12,7 +12,7 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class TelemetryCommandTest.
  *
- * @property \Acquia\Cli\Command\TelemetryCommand $command
+ * @property \Acquia\Cli\Command\Self\TelemetryCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class TelemetryCommandTest extends CommandTestBase {

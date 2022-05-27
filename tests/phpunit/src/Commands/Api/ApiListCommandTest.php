@@ -4,7 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiListCommand;
 use Acquia\Cli\Command\Api\ApiListCommandBase;
-use Acquia\Cli\Command\ListCommand;
+use Acquia\Cli\Command\Self\ListCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 

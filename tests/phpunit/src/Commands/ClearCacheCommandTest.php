@@ -2,16 +2,16 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\ClearCacheCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
+use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
  * Class ClearCacheCommandTest.
  *
- * @property \Acquia\Cli\Command\UnlinkCommand $command
+ * @property \Acquia\Cli\Command\App\UnlinkCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class ClearCacheCommandTest extends CommandTestBase {

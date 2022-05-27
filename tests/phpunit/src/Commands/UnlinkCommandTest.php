@@ -2,7 +2,7 @@
 
 namespace Acquia\Cli\Tests\Commands;
 
-use Acquia\Cli\Command\UnlinkCommand;
+use Acquia\Cli\Command\App\UnlinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
 use Symfony\Component\Console\Command\Command;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class UnlinkCommandTest.
  *
- * @property \Acquia\Cli\Command\UnlinkCommand $command
+ * @property \Acquia\Cli\Command\App\UnlinkCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class UnlinkCommandTest extends CommandTestBase {
