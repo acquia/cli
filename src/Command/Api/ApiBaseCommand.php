@@ -256,19 +256,11 @@ class ApiBaseCommand extends CommandBase {
       return $value;
     }
 
-    switch ($type) {
-      case 'int':
-      case 'integer':
-        $value = (int) $value;
-        break;
-
-      case 'bool':
-      case 'boolean':
-        $value = (bool) $value;
-        break;
-    }
-
-    return $value;
+    return match ($type) {
+      'int', 'integer' => (int) $value,
+      'bool', 'boolean' => (bool) $value,
+      'array' => (array) $value,
+    };
   }
 
   /**
@@ -304,6 +296,9 @@ class ApiBaseCommand extends CommandBase {
         if (in_array($type, ['int', 'integer'])) {
           // Need to evaluate whether a string contains only digits.
           $constraints[] = new Type('digit');
+        }
+        elseif ($type === 'array') {
+          $constraints[] = new Type('string');
         }
         else {
           $constraints[] = new Type($type);
