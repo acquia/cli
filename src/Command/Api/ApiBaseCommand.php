@@ -182,7 +182,7 @@ class ApiBaseCommand extends CommandBase {
     array_shift($arguments);
     foreach ($arguments as $key => $value) {
       $token = '{' . $key . '}';
-      if (strpos($path, $token) !== FALSE) {
+      if (str_contains($path, $token)) {
         $path = str_replace($token, $value, $path);
       }
     }
