@@ -260,6 +260,7 @@ class ApiBaseCommand extends CommandBase {
       'int', 'integer' => (int) $value,
       'bool', 'boolean' => (bool) $value,
       'array' => (array) $value,
+      'string' => (string) $value,
     };
   }
 
