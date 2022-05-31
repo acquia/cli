@@ -24,6 +24,7 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @todo Remove this method when CLI-791 is resolved.
    *
    * @return string
    */
