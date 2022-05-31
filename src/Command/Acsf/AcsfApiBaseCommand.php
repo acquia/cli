@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Acsf;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class CommandBase.
@@ -19,6 +20,27 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
     if ($this->commandRequiresAuthentication($this->input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Please run `acli auth:acsf-login`');
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   *
+   * @return string
+   */
+  protected function getRequestPath(InputInterface $input): string {
+    $path = $this->path;
+
+    $arguments = $input->getArguments();
+    // The command itself is the first argument. Remove it.
+    array_shift($arguments);
+    foreach ($arguments as $key => $value) {
+      $token = '%' . $key;
+      if (str_contains($path, $token)) {
+        $path = str_replace($token, $value, $path);
+      }
+    }
+
+    return $path;
   }
 
 }
