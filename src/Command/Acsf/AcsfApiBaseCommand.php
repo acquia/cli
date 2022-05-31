@@ -36,7 +36,7 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
     foreach ($arguments as $key => $value) {
       $token = '%' . $key;
       if (str_contains($path, $token)) {
-        $path = str_replace($token, $value, $path);
+        return str_replace($token, $value, $path);
       }
     }
 
