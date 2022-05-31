@@ -24,6 +24,7 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @todo Remove this method when CLI-791 is resolved.
    *
    * @return string
    */
@@ -36,11 +37,11 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
     foreach ($arguments as $key => $value) {
       $token = '%' . $key;
       if (str_contains($path, $token)) {
-        $path = str_replace($token, $value, $path);
+        return str_replace($token, $value, $path);
       }
     }
 
-    return $path;
+    return parent::getRequestPath($input);
   }
 
 }
