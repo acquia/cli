@@ -40,7 +40,7 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
       }
     }
 
-    return $path;
+    return parent::getRequestPath($input);
   }
 
 }
