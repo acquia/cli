@@ -71,6 +71,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $gitlab_ci_file_contents = $this->getGitLabCiFileTemplate();
     $this->migrateVariablesSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
     $this->migrateEventsSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
+    // print_r($gitlab_ci_file_contents);
+    $this->removeEmptyScript($gitlab_ci_file_contents);
     $this->createGitLabCiFile($gitlab_ci_file_contents);
     $this->io->success([
       "",
@@ -245,9 +247,15 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
             foreach ($event_map['skip'] as $needle => $message_config) {
               if (str_contains($command, $needle)) {
                 if ($message_config['prompt']) {
-                  $answer = $this->io->confirm($message_config['message'] . PHP_EOL . $command);
-                  if (!$answer) {
+                  $answer = $this->io->confirm($message_config['message'] . PHP_EOL . $command, FALSE);
+                  if ($answer == 1) {
                     $code_studio_jobs[$script_name]['script'][] = $command;
+                    $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                  }
+                  else{
+                    if (($key = array_search($command, $code_studio_jobs[$script_name]['script'])) !== FALSE) {
+                      unset($code_studio_jobs[$script_name]['script'][$key]);
+                    }
                   }
                 }
                 else {
@@ -259,10 +267,16 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                 break;
               }
               else {
-                $code_studio_jobs[$script_name]['script'][] = $command;
+                if(array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'])){
+                  break;
+                }
+                if(!array_key_exists($script_name, $event_map['skip']) ){
+                  $code_studio_jobs[$script_name]['script'][] = $command;
+                  $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                }
               }
             }
-            if (!array_key_exists('stage', $code_studio_jobs[$script_name])
+            if (array_key_exists($script_name, $code_studio_jobs) && !array_key_exists('stage', $code_studio_jobs[$script_name])
               && $stage = $this->assignStageFromKeywords($event_map['stage'], $command)) {
               $code_studio_jobs[$script_name]['stage'] = $stage;
             }
@@ -284,6 +298,14 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       }
     }
 
+  }
+
+  protected function removeEmptyScript(array &$gitlab_ci_file_contents) {
+    foreach($gitlab_ci_file_contents as $key => $value){
+      if(array_key_exists('script', $value) && empty($value['script'])){
+        unset($gitlab_ci_file_contents[$key]);
+      }
+    }
   }
 
   /**
