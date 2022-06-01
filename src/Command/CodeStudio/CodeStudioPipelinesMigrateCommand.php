@@ -300,6 +300,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   }
 
+  /**
+   * Removing empty script.
+   */
   protected function removeEmptyScript(array &$gitlab_ci_file_contents) {
     foreach($gitlab_ci_file_contents as $key => $value){
       if(array_key_exists('script', $value) && empty($value['script'])){
