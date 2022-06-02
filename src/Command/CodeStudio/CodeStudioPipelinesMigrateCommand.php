@@ -189,7 +189,47 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $gitlab_ci_file_contents
    */
   protected function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents) {
-    $events_map = $this->getEventsMap();
+    $events_map = [
+      'build' => [
+        'skip' => [
+          'composer install' => [
+            'message' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
+            'prompt' => FALSE,
+            ],
+          '${BLT_DIR}' => [
+            'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to skip migrating the following command?',
+            'prompt' => TRUE,
+          ],
+        ],
+        'default_stage' => 'Test Drupal',
+        'stage' => [
+          'setup' => 'Build Drupal',
+          'npm run build' => 'Build Drupal',
+          'validate' => 'Test Drupal',
+          'tests' => 'Test Drupal',
+          'test'  => 'Test Drupal',
+          'npm test' => 'Test Drupal',
+          'artifact' => 'Deploy Drupal',
+          'deploy' => 'Deploy Drupal',
+        ],
+        'needs' => [],
+      ],
+      'post-deploy' => [
+        'skip' => [
+          'launch_ode' => [
+            'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
+            'prompt' => FALSE,
+            ]
+        ],
+        'default_stage' => 'Deploy Drupal',
+        'stage' => [
+          'launch_ode' => 'Deploy Drupal',
+        ],
+        'needs' => [
+          'Create artifact from branch'
+        ]
+      ]
+    ];
 
     $code_studio_jobs = [];
     foreach ($events_map as $event_name => $event_map) {
@@ -258,50 +298,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       }
     }
 
-  }
-
-  public function getEventsMap() {
-    return [
-      'build' => [
-        'skip' => [
-          'composer install' => [
-            'message' => 'Code Studio AutoDevOps will run `composer install` by default. Skipping migration of this command in your acquia-pipelines.yml file:',
-            'prompt' => FALSE,
-            ],
-          '${BLT_DIR}' => [
-            'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to skip migrating the following command?',
-            'prompt' => TRUE,
-          ],
-        ],
-        'default_stage' => 'Test Drupal',
-        'stage' => [
-          'setup' => 'Build Drupal',
-          'npm run build' => 'Build Drupal',
-          'validate' => 'Test Drupal',
-          'tests' => 'Test Drupal',
-          'test'  => 'Test Drupal',
-          'npm test' => 'Test Drupal',
-          'artifact' => 'Deploy Drupal',
-          'deploy' => 'Deploy Drupal',
-        ],
-        'needs' => [],
-      ],
-      'post-deploy' => [
-        'skip' => [
-          'launch_ode' => [
-            'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
-            'prompt' => FALSE,
-            ]
-        ],
-        'default_stage' => 'Deploy Drupal',
-        'stage' => [
-          'launch_ode' => 'Deploy Drupal',
-        ],
-        'needs' => [
-          'Create artifact from branch'
-        ]
-      ]
-        ];
   }
 
   /**
