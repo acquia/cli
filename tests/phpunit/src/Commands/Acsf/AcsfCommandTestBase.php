@@ -19,7 +19,7 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
 
   protected $acsfUsername = 'tester';
 
-  protected $acsfPassword = 'h@x0r';
+  protected $acsfKey = 'h@x0r';
 
   /**
    * @return array
@@ -34,7 +34,7 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
           'users' => [
             $this->acsfUsername => [
               'username' => $this->acsfUsername,
-              'password' => $this->acsfPassword,
+              'key' => $this->acsfKey,
             ],
           ],
         ],

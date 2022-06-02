@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 /**
  * Class AuthCommandTest.
  *
- * @property AuthLoginCommand $command
+ * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
  * @package Acquia\Cli\Tests
  */
 class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
@@ -40,8 +40,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
           $this->acsfCurrentFactoryUrl,
           // Please enter a value for username
           $this->acsfUsername,
-          //  Please enter a value for password
-          $this->acsfPassword,
+          //  Please enter a value for key
+          $this->acsfKey,
         ],
         // No arguments, all interactive.
         [],
@@ -60,8 +60,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
           '--factory-url' => $this->acsfCurrentFactoryUrl,
           // Please enter a value for username
           '--username' => $this->acsfUsername,
-          //  Please enter a value for password
-          '--password' => $this->acsfPassword,
+          //  Please enter a value for key
+          '--key' => $this->acsfKey,
         ],
         // Output to assert.
         'Saved credentials',
@@ -120,7 +120,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertStringContainsString($output_to_assert, $output);
     $this->assertKeySavedCorrectly();
     $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
-    $this->assertEquals($this->acsfPassword, $this->cloudCredentials->getCloudSecret());
+    $this->assertEquals($this->acsfKey, $this->cloudCredentials->getCloudSecret());
     $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
 
   }
@@ -129,15 +129,15 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     return [
       [
         [],
-        ['--username' => 'no spaces are allowed' , '--password' => $this->acsfPassword]
+        ['--username' => 'no spaces are allowed' , '--key' => $this->acsfKey]
       ],
       [
         [],
-        ['--username' => 'shorty' , '--password' => $this->acsfPassword]
+        ['--username' => 'shorty' , '--key' => $this->acsfKey]
       ],
       [
         [],
-        ['--username' => ' ', '--password' => $this->acsfPassword]
+        ['--username' => ' ', '--key' => $this->acsfKey]
       ],
     ];
   }
@@ -185,9 +185,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey($factory['active_user'], $users);
     $user = $users[$factory['active_user']];
     $this->assertArrayHasKey('username', $user);
-    $this->assertArrayHasKey('password', $user);
+    $this->assertArrayHasKey('key', $user);
     $this->assertEquals($this->acsfUsername, $user['username']);
-    $this->assertEquals($this->acsfPassword, $user['password']);
+    $this->assertEquals($this->acsfKey, $user['key']);
   }
 
 }

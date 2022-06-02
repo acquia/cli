@@ -27,6 +27,11 @@ class AcsfClient extends Client {
     if (property_exists($body, 'error') && property_exists($body, 'message')) {
       throw new ApiErrorException($body);
     }
+    // Throw error for 4xx and 5xx responses.
+    if (in_array(substr($response->getStatusCode(), 0, 1), [4, 5]) && property_exists($body, 'message')) {
+      $body->error = $response->getStatusCode();
+      throw new ApiErrorException($body);
+    }
 
     return $body;
   }
