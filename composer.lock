@@ -8145,7 +8145,7 @@
             "description": "A composer plugin that enables source code quality checks.",
             "support": {
                 "issues": "https://github.com/phpro/grumphp/issues",
-                "source": "https://github.com/phpro/grumphp/tree/v1.12.0"
+                "source": "https://github.com/phpro/grumphp/tree/master"
             },
             "time": "2022-05-06T13:58:06+00:00"
         },
@@ -10296,5 +10296,5 @@
     "platform-overrides": {
         "php": "8.0.3"
     },
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }
