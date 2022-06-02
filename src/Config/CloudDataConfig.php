@@ -59,7 +59,7 @@ class CloudDataConfig implements ConfigurationInterface {
                         ->arrayPrototype()
                             ->children()
                                 ->scalarNode('username')->end()
-                                ->scalarNode('password')->end()
+                                ->scalarNode('key')->end()
                             ->end()
                         ->end()
                     ->end()

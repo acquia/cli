@@ -19,19 +19,19 @@ class AcsfServiceTest extends TestBase {
   public function providerTestIsMachineAuthenticated(): array {
     return [
       [
-        ['ACSF_USERNAME' => 'key', 'ACSF_PASSWORD' => 'secret'],
+        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
         TRUE,
       ],
       [
-        ['ACSF_USERNAME' => 'key', 'ACSF_PASSWORD' => 'secret'],
+        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => 'secret'],
         TRUE,
       ],
       [
-        ['ACSF_USERNAME' => NULL, 'ACSF_PASSWORD' => NULL],
+        ['ACSF_USERNAME' => NULL, 'ACSF_KEY' => NULL],
         FALSE,
       ],
       [
-        ['ACSF_USERNAME' => 'key', 'ACSF_PASSWORD' => NULL],
+        ['ACSF_USERNAME' => 'key', 'ACSF_KEY' => NULL],
         FALSE,
       ],
     ];
