@@ -76,7 +76,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
    */
   public function getCloudSecret(): ?string {
     if (getenv('ACSF_KEY')) {
-      $this->output->writeln('Setting ACSF key using environment variable ACSF_KEY', OutputInterface::VERBOSITY_VERBOSE);
       return getenv('ACSF_KEY');
     }
 
