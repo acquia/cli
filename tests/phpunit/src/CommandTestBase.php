@@ -10,6 +10,9 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
+use Gitlab\Api\Projects;
+use Gitlab\Api\Users;
+use Gitlab\Exception\RuntimeException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Prophecy\Argument;
@@ -546,6 +549,183 @@ abstract class CommandTestBase extends TestBase {
     }
 
     return NULL;
+  }
+
+  /**
+   * @return array
+   */
+  protected function getMockedGitLabProject($project_id): array {
+    return [
+      'id' => $project_id,
+      'description' => '',
+      'name' => 'codestudiodemo',
+      'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
+      'path' => 'codestudiodemo',
+      'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
+      'default_branch' => 'master',
+      'topics' =>
+        [
+          0 => 'Acquia Cloud Application',
+        ],
+      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
+      'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
+    ];
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
+   */
+  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper, $gitlab_host, $gitlab_token): ObjectProphecy|\Gitlab\Client {
+    $this->mockGitlabGetHost($local_machine_helper, $gitlab_host);
+    $this->mockGitlabGetToken($local_machine_helper, $gitlab_token, $gitlab_host);
+    $gitlab_client = $this->prophet->prophesize(\Gitlab\Client::class);
+    $gitlab_client->users()->willThrow(RuntimeException::class);
+    return $gitlab_client;
+  }
+
+  /**
+   * @param $local_machine_helper
+   * @param string $gitlab_token
+   * @param string $gitlab_host
+   * @param bool $success
+   */
+  protected function mockGitlabGetToken($local_machine_helper, $gitlab_token, string $gitlab_host, bool $success = TRUE): void {
+    $process = $this->mockProcess($success);
+    $process->getOutput()->willReturn($gitlab_token);
+    $local_machine_helper->execute([
+      'glab',
+      'config',
+      'get',
+      'token',
+      '--host=' . $gitlab_host
+    ], NULL, NULL, FALSE)->willReturn($process->reveal());
+  }
+
+  /**
+   * @param $local_machine_helper
+   * @param string $gitlab_host
+   */
+  protected function mockGitlabGetHost($local_machine_helper, string $gitlab_host): void {
+    $process = $this->mockProcess();
+    $process->getOutput()->willReturn($gitlab_host);
+    $local_machine_helper->execute([
+      'glab',
+      'config',
+      'get',
+      'host'
+    ], NULL, NULL, FALSE)->willReturn($process->reveal());
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   */
+  protected function mockGitLabUsersMe(ObjectProphecy $gitlab_client): void {
+    $users = $this->prophet->prophesize(Users::class);
+    $me = [
+      'id' => 20,
+      'username' => 'matthew.grasmick',
+      'name' => 'Matthew Grasmick',
+      'state' => 'active',
+      'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
+      'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
+      'created_at' => '2021-12-21T02:26:52.240Z',
+      'bio' => '',
+      'location' => NULL,
+      'public_email' => '',
+      'skype' => '',
+      'linkedin' => '',
+      'twitter' => '',
+      'website_url' => '',
+      'organization' => NULL,
+      'job_title' => '',
+      'pronouns' => NULL,
+      'bot' => FALSE,
+      'work_information' => NULL,
+      'followers' => 0,
+      'following' => 0,
+      'local_time' => '2:00 AM',
+      'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
+      'confirmed_at' => '2021-12-21T02:26:51.898Z',
+      'last_activity_on' => '2022-01-22',
+      'email' => 'matthew.grasmick@acquia.com',
+      'theme_id' => 1,
+      'color_scheme_id' => 1,
+      'projects_limit' => 100000,
+      'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
+      'identities' =>
+        [],
+      'can_create_group' => TRUE,
+      'can_create_project' => TRUE,
+      'two_factor_enabled' => FALSE,
+      'external' => FALSE,
+      'private_profile' => FALSE,
+      'commit_email' => 'matthew.grasmick@acquia.com',
+      'is_admin' => TRUE,
+      'note' => '',
+    ];
+    $users->me()->willReturn($me);
+    $gitlab_client->users()->willReturn($users->reveal());
+  }
+
+  /**
+   * @param $application_uuid
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockGitLabPermissionsRequest($application_uuid) {
+    $permissions_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
+    $permissions = $permissions_response->_embedded->items;
+    $permission = reset($permissions);
+    $permission->name = "administer environment variables on non-prod";
+    $permissions[] = $permission;
+    $this->clientProphecy->request('get', "/applications/{$application_uuid}/permissions")
+      ->willReturn($permissions)
+      ->shouldBeCalled();
+    return $permissions;
+  }
+
+  /**
+   * @param $application_uuid
+   * @param $mocked_gitlab_projects
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockGetGitLabProjects($application_uuid, $gitlab_project_id, $mocked_gitlab_projects): ObjectProphecy {
+    $projects = $this->prophet->prophesize(Projects::class);
+    $projects->all(['search' => $application_uuid])
+      ->willReturn($mocked_gitlab_projects);
+    $projects->all()
+      ->willReturn([$this->getMockedGitLabProject($gitlab_project_id)]);
+    return $projects;
+  }
+
+  /**
+   * @return array[]
+   */
+  protected function getMockGitLabVariables(): array {
+    return [
+      0 =>
+        [
+          'variable_type' => 'env_var',
+          'key' => 'ACQUIA_APPLICATION_UUID',
+          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
+          'protected' => FALSE,
+          'masked' => FALSE,
+          'environment_scope' => '*',
+        ],
+      1 =>
+        [
+          'variable_type' => 'env_var',
+          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
+          'protected' => FALSE,
+          'masked' => FALSE,
+          'environment_scope' => '*',
+        ],
+    ];
   }
 
 }
