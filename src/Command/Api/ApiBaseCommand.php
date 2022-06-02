@@ -182,7 +182,7 @@ class ApiBaseCommand extends CommandBase {
     array_shift($arguments);
     foreach ($arguments as $key => $value) {
       $token = '{' . $key . '}';
-      if (strpos($path, $token) !== FALSE) {
+      if (str_contains($path, $token)) {
         $path = str_replace($token, $value, $path);
       }
     }
@@ -251,24 +251,41 @@ class ApiBaseCommand extends CommandBase {
    * @return bool|int|string
    */
   protected function castParamType(array $param_spec, $value) {
+    if (array_key_exists('schema', $param_spec) && array_key_exists('oneOf', $param_spec['schema'])) {
+      $types = [];
+      foreach ($param_spec['schema']['oneOf'] as $type) {
+        $types[] = $type['type'];
+      }
+      if (array_search('array', $types) && str_contains($value, ',')) {
+        return $this->doCastParamType('array', $value);
+      }
+      if ((array_search('integer', $types) !== FALSE || array_search('int', $types) !== FALSE)
+        && ctype_digit($value)) {
+        return $this->doCastParamType('integer', $value);
+      }
+    }
+
     $type = $this->getParamType($param_spec);
     if (!$type) {
       return $value;
     }
 
-    switch ($type) {
-      case 'int':
-      case 'integer':
-        $value = (int) $value;
-        break;
+    return $this->doCastParamType($type, $value);
+  }
 
-      case 'bool':
-      case 'boolean':
-        $value = (bool) $value;
-        break;
-    }
-
-    return $value;
+  /**
+   * @param array $param_spec
+   * @param string|array $value
+   *
+   * @return bool|int|string
+   */
+  protected function doCastParamType($type, $value) {
+    return match ($type) {
+      'int', 'integer' => (int) $value,
+      'bool', 'boolean' => (bool) $value,
+      'array' => explode(',', $value),
+      'string' => (string) $value,
+    };
   }
 
   /**
@@ -304,6 +321,9 @@ class ApiBaseCommand extends CommandBase {
         if (in_array($type, ['int', 'integer'])) {
           // Need to evaluate whether a string contains only digits.
           $constraints[] = new Type('digit');
+        }
+        elseif ($type === 'array') {
+          $constraints[] = new Type('string');
         }
         else {
           $constraints[] = new Type($type);

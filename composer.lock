@@ -7147,16 +7147,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v1.1.1",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "9e4b005daa20b0c161f3845040046dc9ddc1d74e"
+                "reference": "09f0e9fb61829f628205b7c94906c28740ff9540"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/9e4b005daa20b0c161f3845040046dc9ddc1d74e",
-                "reference": "9e4b005daa20b0c161f3845040046dc9ddc1d74e",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/09f0e9fb61829f628205b7c94906c28740ff9540",
+                "reference": "09f0e9fb61829f628205b7c94906c28740ff9540",
                 "shasum": ""
             },
             "require": {
@@ -7202,7 +7202,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2022-02-11T19:23:53+00:00"
+            "time": "2022-05-16T17:09:47+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -8038,12 +8038,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpro/grumphp.git",
-                "reference": "feca81aeeaaead40bc659e1d03956b4bfb2e0968"
+                "reference": "e29e8f5d34e89292fcd40ff8af97bf8e4b741abb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpro/grumphp/zipball/feca81aeeaaead40bc659e1d03956b4bfb2e0968",
-                "reference": "feca81aeeaaead40bc659e1d03956b4bfb2e0968",
+                "url": "https://api.github.com/repos/phpro/grumphp/zipball/e29e8f5d34e89292fcd40ff8af97bf8e4b741abb",
+                "reference": "e29e8f5d34e89292fcd40ff8af97bf8e4b741abb",
                 "shasum": ""
             },
             "require": {
@@ -8147,7 +8147,7 @@
                 "issues": "https://github.com/phpro/grumphp/issues",
                 "source": "https://github.com/phpro/grumphp/tree/master"
             },
-            "time": "2022-05-06T13:58:06+00:00"
+            "time": "2022-05-30T19:52:13+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -8307,16 +8307,16 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "1.7.2",
+            "version": "1.7.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "c602f80d66ba425943b0f4aaa27010c822dd8f87"
+                "reference": "22e7559489776846e7c9d92ca43e8d1e53d18b94"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/c602f80d66ba425943b0f4aaa27010c822dd8f87",
-                "reference": "c602f80d66ba425943b0f4aaa27010c822dd8f87",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/22e7559489776846e7c9d92ca43e8d1e53d18b94",
+                "reference": "22e7559489776846e7c9d92ca43e8d1e53d18b94",
                 "shasum": ""
             },
             "require": {
@@ -8342,7 +8342,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.7.2"
+                "source": "https://github.com/phpstan/phpstan/tree/1.7.9"
             },
             "funding": [
                 {
@@ -8362,7 +8362,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-26T12:59:20+00:00"
+            "time": "2022-06-02T13:27:46+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
