@@ -112,7 +112,22 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->assertFileExists($gitlab_ci_yml_file_path);
     // @todo Assert things about skips. Composer install, BLT, launch_ode.
     $contents = Yaml::parseFile($gitlab_ci_yml_file_path);
+
+    $testArray = ["a" => "value ba", "b" => "value b"];
+    $value = "value";
+    // assert function to test whether 'value' is a value of array
+    $this->assertNotContains($value, $testArray, "testArray contains value as value");
+
+    $array_skip_map = ['composer install','${BLT_DIR}','launch_ode'];
+    foreach ($contents as $values) {
+      if(array_key_exists('script', $values)){
+        foreach($array_skip_map as $map){
+          $this->assertNotContains($map, $values['script'], "Skip option found");
+        }
+      }
+    }
     $this->assertArrayHasKey('include', $contents);
+    $this->assertArrayHasKey('variables', $contents);
     $this->assertArrayHasKey('setup', $contents);
     $this->assertArrayHasKey('script', $contents['setup']);
     $this->assertArrayHasKey('stage', $contents['setup']);
