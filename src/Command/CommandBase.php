@@ -1855,7 +1855,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     foreach ($required_permissions as $name) {
       if (!array_key_exists($name, $keyed_permissions)) {
-        throw new AcquiaCliException("The Acquia Cloud account {account} does not have the required '{name}' permission. Please add the permissions to this user or use an API Token belonging to a different Acquia Cloud user.", [
+        throw new AcquiaCliException("The Acquia Cloud Platform account {account} does not have the required '{name}' permission. Please add the permissions to this user or use an API Token belonging to a different Acquia Cloud Platform user.", [
           'account' => $account->mail,
           'name' => $name
         ]);
