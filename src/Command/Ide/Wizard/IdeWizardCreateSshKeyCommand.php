@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
+use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -38,8 +39,24 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $this->checklist = new Checklist($output);
-    $key_was_uploaded = FALSE;
 
+    // Get Cloud account.
+    $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    $account_adapter = new Account($acquia_cloud_client);
+    $account = $account_adapter->get();
+    $this->validateRequiredCloudPermissions(
+      $acquia_cloud_client,
+      self::getThisCloudIdeCloudAppUuid(),
+      $account,
+      [
+        # Add SSH key to git repository
+        "add ssh key to git",
+        # Add SSH key to non-production environments
+        "add ssh key to non-prod",
+      ]
+    );
+
+    $key_was_uploaded = FALSE;
     // Create local SSH key.
     if (!$this->localSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.

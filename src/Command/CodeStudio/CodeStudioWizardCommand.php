@@ -68,7 +68,24 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $account = $account_adapter->get();
-    $this->validateRequiredCloudPermissions($acquia_cloud_client, $this->appUuid, $account);
+    $this->validateRequiredCloudPermissions(
+      $acquia_cloud_client,
+      $this->appUuid,
+      $account,
+      [
+        "deploy to non-prod",
+        # Add SSH key to git repository
+        "add ssh key to git",
+        # Add SSH key to non-production environments
+        "add ssh key to non-prod",
+        # Add a CD environment
+        "add an environment",
+        # Delete a CD environment
+        "delete an environment",
+        # Manage environment variables on a non-production environment
+        "administer environment variables on non-prod",
+      ]
+    );
     $this->setGitLabProjectDescription($this->appUuid);
 
     // Get Cloud application.

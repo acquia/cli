@@ -57,7 +57,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_adapter = new Account($acquia_cloud_client);
     $account = $account_adapter->get();
-    $this->validateRequiredCloudPermissions($acquia_cloud_client, $cloud_application_uuid, $account);
     $this->setGitLabProjectDescription($cloud_application_uuid);
 
     // Get Cloud application.
@@ -71,7 +70,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $gitlab_ci_file_contents = $this->getGitLabCiFileTemplate();
     $this->migrateVariablesSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
     $this->migrateEventsSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
-    // print_r($gitlab_ci_file_contents);
     $this->removeEmptyScript($gitlab_ci_file_contents);
     $this->createGitLabCiFile($gitlab_ci_file_contents);
     $this->io->success([

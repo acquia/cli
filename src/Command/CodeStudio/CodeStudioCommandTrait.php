@@ -98,43 +98,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string|null $cloud_application_uuid
-   * @param \AcquiaCloudApi\Response\AccountResponse $account
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function validateRequiredCloudPermissions(\AcquiaCloudApi\Connector\Client $acquia_cloud_client, ?string $cloud_application_uuid, \AcquiaCloudApi\Response\AccountResponse $account): void {
-    $required_permissions = [
-      "deploy to non-prod",
-      # Add SSH key to git repository
-      "add ssh key to git",
-      # Add SSH key to non-production environments
-      "add ssh key to non-prod",
-      # Add a CD environment
-      "add an environment",
-      # Delete a CD environment
-      "delete an environment",
-      # Manage environment variables on a non-production environment
-      "administer environment variables on non-prod",
-    ];
-
-    $permissions = $acquia_cloud_client->request('get', "/applications/{$cloud_application_uuid}/permissions");
-    $keyed_permissions = [];
-    foreach ($permissions as $permission) {
-      $keyed_permissions[$permission->name] = $permission;
-    }
-    foreach ($required_permissions as $name) {
-      if (!array_key_exists($name, $keyed_permissions)) {
-        throw new AcquiaCliException("The Acquia Cloud account {account} does not have the required '{name}' permission. Please add the permissions to this user or use an API Token belonging to a different Acquia Cloud user.", [
-          'account' => $account->mail,
-          'name' => $name
-        ]);
-      }
-    }
-  }
-
-  /**
    * @return \Gitlab\Client
    */
   protected function getGitLabClient(): Client {

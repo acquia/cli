@@ -23,6 +23,7 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Endpoints\Subscriptions;
+use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -1836,6 +1837,30 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $notification_url = $response->links->notification->href;
     $url_parts = explode('/', $notification_url);
     return $url_parts[5];
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param string|null $cloud_application_uuid
+   * @param \AcquiaCloudApi\Response\AccountResponse $account
+   * @param array $required_permissions
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validateRequiredCloudPermissions(Client $acquia_cloud_client, ?string $cloud_application_uuid, AccountResponse $account, array $required_permissions): void {
+    $permissions = $acquia_cloud_client->request('get', "/applications/{$cloud_application_uuid}/permissions");
+    $keyed_permissions = [];
+    foreach ($permissions as $permission) {
+      $keyed_permissions[$permission->name] = $permission;
+    }
+    foreach ($required_permissions as $name) {
+      if (!array_key_exists($name, $keyed_permissions)) {
+        throw new AcquiaCliException("The Acquia Cloud Platform account {account} does not have the required '{name}' permission. Please add the permissions to this user or use an API Token belonging to a different Acquia Cloud Platform user.", [
+          'account' => $account->mail,
+          'name' => $name
+        ]);
+      }
+    }
   }
 
 }
