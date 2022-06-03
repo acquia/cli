@@ -1,0 +1,69 @@
+# This file is used by Acquia Pipelines continuous integration. Upon success, an
+# artifact is deployed to the `orionacms` subscription on Acquia Cloud.
+version: 1.3.0
+services:
+  - composer:
+      version: 2
+  - php:
+      version: 7.4
+
+variables:
+  global:
+    COMPOSER_BIN: $SOURCE_DIR/vendor/bin
+    BLT_DIR: $SOURCE_DIR/vendor/acquia/blt
+
+events:
+  build:
+    steps:
+      - setup:
+          type: script
+          script:
+            - composer validate --no-check-all --ansi --no-interaction
+            - composer install
+            - mkdir -p docroot/profiles/acquia_cms
+            - composer archive --format zip --file acquia_cms
+            - unzip acquia_cms.zip -d docroot/profiles/acquia_cmsort 
+            - cp -R modules/acquia_cms_development docroot/profiles/acquia_cms/modules
+            - cp config/optional/views.view.acquia_search.yml docroot/profiles/acquia_cms/config/optional
+      - setup-env:
+          type: script
+          script:
+            - composer validate --no-check-all --ansi
+            - composer install --ansi
+            - source ${BLT_DIR}/scripts/pipelines/setup_env
+      - validate:
+          type: script
+          script:
+            - source ${BLT_DIR}/scripts/pipelines/validate
+      - front-end:
+          type: script
+          script:
+            - cd themes/acquia_claro
+            - npm install
+            - npm run build
+            - cd -
+            - cp -R themes/acquia_claro/css docroot/profiles/acquia_cms/themes/acquia_claro
+            - mkdir -p docroot/profiles/acquia_cms/modules/acquia_cms_tour/css
+            - cp modules/acquia_cms_tour/css/acquia_cms_tour.css docroot/profiles/acquia_cms/modules/acquia_cms_tour/css
+  post-deploy:
+    steps:
+      - launch_ode:
+          script:
+            - 'alias run="node $SOURCE_DIR/scripts/run.js"'
+            - 'run launch_ode "pipelines-deploy"'
+            - export PIPELINES_DEPLOYMENT_NAME=$(node -pe 'JSON.parse(process.argv[1]).environment.PIPELINES_DEPLOYMENT_NAME' "$(cat $PIPELINES_SCRIPT_DATA_FILE)")
+            - export PIPELINES_DEPLOYMENT_LINK=$(node -pe 'JSON.parse(process.argv[1]).environment.PIPELINES_DEPLOYMENT_LINK' "$(cat $PIPELINES_SCRIPT_DATA_FILE)")
+      - e2e_test:
+          script:
+            - 'run launch_ode "node $SOURCE_DIR/scripts/clear-cloud-varnish.js"'
+            - export PIPELINES_URL=$PIPELINES_DEPLOYMENT_LINK/index.html#
+            - '\[ $PIPELINE_DEPLOY_VCS_PATH == "pipelines-build-master" \] && export PIPELINES_URL=$PIPELINES_DEV_URL || echo Not master.'
+            - '\[ $PIPELINE_DEPLOY_VCS_PATH == "pipelines-build-staging" \] && export PIPELINES_URL=$PIPELINES_STAGING_URL || echo Not staging.'
+            - '\[ $PIPELINE_DEPLOY_VCS_PATH == "pipelines-build-production" \] && run e2e_test "npm run e2e:acceptance"'
+            - 'run end'
+      - release:
+          script:
+            - chmod +x ./scripts/post_deploy.sh
+            - echo "switching the directory to $SOURCE_DIR"
+            - 'cd $SOURCE_DIR'
+            - ./scripts/post_deploy.sh $PIPELINE_DEPLOY_VCS_PATH

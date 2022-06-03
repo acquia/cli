@@ -20,7 +20,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   protected function configure() {
     $this->setDescription('Register your Site Factory API key and secret to use API functionality')
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "The username for the Site Factory that you'd like to login to")
-      ->addOption('password', 'p', InputOption::VALUE_REQUIRED, "The password for your Site Factory user")
+      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "The key for your Site Factory user")
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "The URL of your factory. E.g., https://www.acquia.com");
   }
 
@@ -85,11 +85,11 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     }
 
     $this->askForOptionValue($input, 'username');
-    $this->askForOptionValue($input, 'password', TRUE);
+    $this->askForOptionValue($input, 'key', TRUE);
 
     $username = $input->getOption('username');
-    $password = $input->getOption('password');
-    $this->writeAcsfCredentialsToDisk($factory_url, $username, $password);
+    $key = $input->getOption('key');
+    $this->writeAcsfCredentialsToDisk($factory_url, $username, $key);
     $output->writeln("<info>Saved credentials</info>");
 
     return 0;
@@ -98,14 +98,14 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   /**
    * @param string $factory_url
    * @param string $username
-   * @param string $password
+   * @param string $key
    *
    */
-  protected function writeAcsfCredentialsToDisk($factory_url, string $username, string $password): void {
+  protected function writeAcsfCredentialsToDisk($factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
       'username' => $username,
-      'password' => $password,
+      'key' => $key,
     ];
     $keys[$factory_url]['url'] = $factory_url;
     $keys[$factory_url]['active_user'] = $username;

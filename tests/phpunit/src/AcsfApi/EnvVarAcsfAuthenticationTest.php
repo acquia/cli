@@ -16,14 +16,14 @@ class EnvVarAcsfAuthenticationTest extends TestBase {
     parent::setUp();
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     putenv('ACSF_USERNAME=' . $this->key);
-    putenv('ACSF_PASSWORD=' . $this->secret);
+    putenv('ACSF_KEY=' . $this->secret);
     putenv('ACSF_FACTORY_URI=' . $this->acsfCurrentFactoryUrl);
   }
 
   protected function tearDown(): void {
     parent::tearDown();
     putenv('ACSF_USERNAME');
-    putenv('ACSF_PASSWORD');
+    putenv('ACSF_KEY');
   }
 
   public function testKeyAndSecret() {
