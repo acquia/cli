@@ -102,7 +102,7 @@ class UpdateScriptUtility
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
       $this->rrmdir($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       // handle errors
     }
   }
@@ -122,7 +122,7 @@ class UpdateScriptUtility
       $this->rrmdir($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
       rename($save_to . '/' . $folder_name, $save_to . '/drupal');
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
       // handle errors
     }
     if($package == 'drupal'){
@@ -300,6 +300,18 @@ class UpdateScriptUtility
 
     }
     return $string_count;
+  }
+
+  public function setDrupalRootDirPath(){
+      if (!defined('DRUPAL_ROOT')) {
+          define('DRUPAL_ROOT', getcwd());
+      }
+  }
+
+  public function setDrupalCoreVersion(){
+      if (!defined('VERSION')) {
+          define('VERSION', '');
+      }
   }
 
 }
