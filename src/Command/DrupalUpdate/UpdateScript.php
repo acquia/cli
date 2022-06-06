@@ -17,7 +17,16 @@ class UpdateScript
    * Drupal directory folder path.
    * @var string
    */
-  private $dir = DRUPAL_ROOT . "/docroot";
+  private $dir;
+
+  /**
+   * @param string $dir
+   */
+  public function setDir(string $dir): void
+  {
+        $this->updateScriptUtility->setDrupalRootDirPath();
+        $this->dir = DRUPAL_ROOT . "/docroot";
+  }
 
   /**
    * @var CheckInfo
@@ -36,6 +45,7 @@ class UpdateScript
   public function __construct() {
     $this->checkinfo_obj = new CheckInfo();
     $this->updateScriptUtility = new UpdateScriptUtility();
+    $this->setDir();
   }
 
   /**

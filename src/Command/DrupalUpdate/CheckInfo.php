@@ -113,6 +113,7 @@ class CheckInfo
 
     // When Drupal Core version is defined in bootstrap.inc file.
     if($current_v == 'VERSION'){
+      $this->updateScriptUtility->setDrupalCoreVersion();
       $current_v = VERSION;
     }
     if($package_v == ''){
