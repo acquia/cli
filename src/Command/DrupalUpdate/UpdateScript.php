@@ -22,10 +22,9 @@ class UpdateScript
   /**
    * @param string $dir
    */
-  public function setDir(string $dir): void
-  {
-        $this->updateScriptUtility->setDrupalRootDirPath();
-        $this->dir = DRUPAL_ROOT . "/docroot";
+  public function setDir(string $dir): void {
+    $this->updateScriptUtility->setDrupalRootDirPath();
+    $this->dir = DRUPAL_ROOT . "/docroot";
   }
 
   /**

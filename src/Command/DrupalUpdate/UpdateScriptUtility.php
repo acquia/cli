@@ -302,16 +302,16 @@ class UpdateScriptUtility
     return $string_count;
   }
 
-  public function setDrupalRootDirPath(){
-      if (!defined('DRUPAL_ROOT')) {
-          define('DRUPAL_ROOT', getcwd());
-      }
+  public function setDrupalRootDirPath() {
+    if (!defined('DRUPAL_ROOT')) {
+      define('DRUPAL_ROOT', getcwd());
+    }
   }
 
-  public function setDrupalCoreVersion(){
-      if (!defined('VERSION')) {
-          define('VERSION', '');
-      }
+  public function setDrupalCoreVersion() {
+    if (!defined('VERSION')) {
+      define('VERSION', '');
+    }
   }
 
 }
