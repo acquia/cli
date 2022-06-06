@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\CodeStudio;
 
-use Acquia\Cli\Command\Utitlity\CodeStudioUtitlity;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
@@ -11,7 +10,6 @@ use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 /**
  * Class CodeStudioWizardCommand.
