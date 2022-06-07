@@ -99,7 +99,7 @@ class ApiBaseCommand extends CommandBase {
         elseif (array_key_exists($argument->getName(), $params)
           && array_key_exists('type', $params[$argument->getName()])
           && $params[$argument->getName()]['type'] === 'boolean') {
-          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['true', 'false'], $argument->getDefault());
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
           $answer = $answer === 'true';
         }
         // Free form.
