@@ -83,6 +83,9 @@ class CheckInfo
    * @param $package
    */
   public function fileGetInfo($filepath, $package) {
+    if (!defined('VERSION')) {
+      define('VERSION', getcwd());
+    }
     $info_extention_file    = file_get_contents($filepath);
     $rows = explode("\n", $info_extention_file);
     $current_v = '';
