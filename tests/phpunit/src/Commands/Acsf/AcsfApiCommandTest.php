@@ -56,10 +56,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertNotNull($output);
-    $this->assertJson($output);
-    $contents = json_decode($output, TRUE);
-    $this->assertEquals((array) $mock_body, $contents);
   }
 
   public function testAcsfCommandExecutionBool(): void {
