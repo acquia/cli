@@ -22,7 +22,7 @@ class UpdateScript
   /**
    * @param string $dir
    */
-  public function setDir(string $dir = getcwd()): void {
+  public function setDir(string $dir): void {
     if (!defined('DRUPAL_ROOT')) {
       define('DRUPAL_ROOT', $dir);
     }
@@ -47,7 +47,7 @@ class UpdateScript
   public function __construct() {
     $this->checkinfo_obj = new CheckInfo();
     $this->updateScriptUtility = new UpdateScriptUtility();
-    $this->setDir();
+    $this->setDir(getcwd());
   }
 
   /**
