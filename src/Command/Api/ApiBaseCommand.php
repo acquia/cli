@@ -96,6 +96,12 @@ class ApiBaseCommand extends CommandBase {
           $choices = $params[$argument->getName()]['schema']['enum'];
           $answer = $this->io->choice("Please select a value for {$argument->getName()}", $choices, $argument->getDefault());
         }
+        elseif (array_key_exists($argument->getName(), $params)
+          && array_key_exists('type', $params[$argument->getName()])
+          && $params[$argument->getName()]['type'] === 'boolean') {
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['true', 'false'], $argument->getDefault());
+          $answer = $answer === 'true';
+        }
         // Free form.
         else {
           $answer = $this->askFreeFormQuestion($argument, $params);
