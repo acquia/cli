@@ -23,6 +23,9 @@ class UpdateScript
    * @param string $dir
    */
   public function setDir(string $dir): void {
+    if (!defined('DRUPAL_ROOT')) {
+      define('DRUPAL_ROOT', getcwd());
+    }
     $this->updateScriptUtility->setDrupalRootDirPath();
     $this->dir = DRUPAL_ROOT . "/docroot";
   }
