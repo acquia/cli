@@ -289,7 +289,7 @@ class ApiBaseCommand extends CommandBase {
     return match ($type) {
       'int', 'integer' => (int) $value,
       'bool', 'boolean' => $this->castBool($value),
-      'array' => is_string($value) ? explode(',', $value): $value,
+      'array' => is_string($value) ? explode(',', $value): (array) $value,
       'string' => (string) $value,
       'mixed' => $value,
     };
