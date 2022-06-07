@@ -22,9 +22,9 @@ class UpdateScript
   /**
    * @param string $dir
    */
-  public function setDir(string $dir): void {
+  public function setDir(string $dir = getcwd()): void {
     if (!defined('DRUPAL_ROOT')) {
-      define('DRUPAL_ROOT', getcwd());
+      define('DRUPAL_ROOT', $dir);
     }
     $this->updateScriptUtility->setDrupalRootDirPath();
     $this->dir = DRUPAL_ROOT . "/docroot";
@@ -130,6 +130,9 @@ class UpdateScript
   }
 
   public function securityUpdateVersion() {
+    if (!defined('DRUPAL_ROOT')) {
+      define('DRUPAL_ROOT', getcwd());
+    }
     $version_detail = $this->getAvailableUpdatesinfo();
     $info_files = $this->getInfoFiles();
     $git_commit_message_detail = [];
