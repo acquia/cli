@@ -64,7 +64,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $mock_body = $this->getMockResponseFromSpec('/api/v1/audit', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
     $this->clientProphecy->request('get', '/api/v1/audit')->willReturn($mock_body)->shouldBeCalled();
-    $this->command = $this->getApiCommandByName('acsf:audit-events:find');
+    $this->command = $this->getApiCommandByName('acsf:info:audit-events-find');
     // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
     // client's query correctly.
     $this->executeCommand(['--limit' => '1']);

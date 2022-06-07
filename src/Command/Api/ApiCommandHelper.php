@@ -176,7 +176,7 @@ class ApiCommandHelper {
       if ($is_required) {
         $input_definition[] = new InputArgument(
           $prop_key,
-              $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
+          array_key_exists('type', $param_definition) && $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $param_definition['description']
           );
         $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $prop_key, $param_definition, 'argument', $usage);
@@ -185,7 +185,7 @@ class ApiCommandHelper {
         $input_definition[] = new InputOption(
           $prop_key,
               NULL,
-              $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
+              array_key_exists('type', $param_definition) && $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
               array_key_exists('description', $param_definition) ? $param_definition['description'] : $prop_key
                 );
         $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $prop_key, $param_definition, 'option', $usage);

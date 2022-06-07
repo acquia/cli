@@ -96,6 +96,12 @@ class ApiBaseCommand extends CommandBase {
           $choices = $params[$argument->getName()]['schema']['enum'];
           $answer = $this->io->choice("Please select a value for {$argument->getName()}", $choices, $argument->getDefault());
         }
+        elseif (array_key_exists($argument->getName(), $params)
+          && array_key_exists('type', $params[$argument->getName()])
+          && $params[$argument->getName()]['type'] === 'boolean') {
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['true', 'false'], $argument->getDefault());
+          $answer = $answer === 'true';
+        }
         // Free form.
         else {
           $answer = $this->askFreeFormQuestion($argument, $params);
@@ -274,18 +280,28 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param array $param_spec
-   * @param string|array $value
+   * @param $type
+   * @param $value
    *
    * @return bool|int|string
    */
   protected function doCastParamType($type, $value) {
     return match ($type) {
       'int', 'integer' => (int) $value,
-      'bool', 'boolean' => (bool) $value,
+      'bool', 'boolean' => $this->castBool($value),
       'array' => explode(',', $value),
       'string' => (string) $value,
+      'mixed' => $value,
     };
+  }
+
+  /**
+   * @param $val
+   *
+   * @return bool
+   */
+  function castBool($val): bool {
+    return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
   }
 
   /**

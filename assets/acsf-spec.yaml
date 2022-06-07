@@ -10,7 +10,6 @@ paths:
       description: 'Regenerate ALL users API keys.'
       x-cli-name: 'api:regenerate-all-keys'
       operationId: delete_ApiKey_resetKeys
-      parameters: []
       responses:
         200:
           description: 'ApiKey_resetKeys response'
@@ -47,7 +46,7 @@ paths:
     get:
       summary: 'List audit events'
       description: 'Gets a list of audit events.'
-      x-cli-name: 'audit-events:find'
+      x-cli-name: 'info:audit-events-find'
       operationId: get_AuditEvent_getAuditEvents
       parameters:
         -
@@ -56,18 +55,22 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
         -
           in: query
           name: order
           description: 'Either "ASC" or "DESC".'
           schema:
             type: string
+            pattern: ^(ASC|DESC)$
         -
           in: query
           name: source
@@ -117,9 +120,8 @@ paths:
     get:
       summary: 'Get current centralized role management settings.'
       description: 'Get current centralized role management settings.'
-      x-cli-name: 'role:get-mgr'
+      x-cli-name: 'roles:get-mgr'
       operationId: get_CentralizedRoleManagement_executeGetActions
-      parameters: []
       responses:
         200:
           description: 'CentralizedRoleManagement_executeGetActions response'
@@ -133,7 +135,7 @@ paths:
     put:
       summary: 'Set the centralized role management settings for a given role.'
       description: 'Set the centralized role management settings for a given role.'
-      x-cli-name: 'role:set-mgr'
+      x-cli-name: 'roles:set-mgr'
       operationId: put_CentralizedRoleManagement_executePutActions
       parameters:
         -
@@ -143,13 +145,17 @@ paths:
           description: 'The site factory role. Currently the only supported ones are "content_editor", "platform_admin" and "site_builder".'
           schema:
             type: string
-        -
-          required: true
-          in: header
-          name: site_role
-          description: 'The corresponding role on the site.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_role:
+                  description: 'The corresponding role on the site.'
+                  type: string
+              required:
+                - site_role
       responses:
         200:
           description: 'CentralizedRoleManagement_executePutActions response'
@@ -162,7 +168,7 @@ paths:
     delete:
       summary: 'Disable the centralized role management settings for a given role.'
       description: 'Disable the centralized role management settings for a given role.'
-      x-cli-name: 'role:disable-mgr'
+      x-cli-name: 'roles:disable-mgr'
       operationId: delete_CentralizedRoleManagement_executeDeleteActions
       parameters:
         -
@@ -185,9 +191,8 @@ paths:
     get:
       summary: 'Get list of available stacks.'
       description: 'Fetches the list of available stacks.'
-      x-cli-name: 'stacks:find'
+      x-cli-name: 'info:stacks-find'
       operationId: get_CodeBases_getCodeBaseNames
-      parameters: []
       responses:
         200:
           description: 'CodeBases_getCodeBaseNames response'
@@ -198,6 +203,57 @@ paths:
         400:
           description: 'bad input parameter'
   /api/v1/cronjobs:
+    post:
+      summary: 'Create a new cron job.'
+      description: 'Create a new cron job.'
+      x-cli-name: 'crons:create'
+      operationId: post_CronJobs_createCronJob
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The cron job name.'
+                  type: string
+                command:
+                  description: 'The command that should be executed.'
+                  type: string
+                interval:
+                  description: 'A unix cron expression.'
+                  type: string
+                sites_affected:
+                  description: 'Possible values: dev-sites - sites without custom domains, prod-sites - sites with custom domains, all'
+                  type: string
+                enabled:
+                  description: 'If the cron should be enabled.'
+                  type: integer
+                thread_percentage:
+                  description: 'The percentage of cron threads that should be used for this cron. Value has to be an integer between 0 and 100.'
+                  type: integer
+                stacks:
+                  description: 'An array of stack ids for which the cron should be enabled.'
+                  type: array
+                  items:
+                    type: integer
+              required:
+                - name
+                - command
+                - interval
+                - sites_affected
+                - enabled
+                - thread_percentage
+                - stacks
+      responses:
+        200:
+          description: 'CronJobs_createCronJob response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CronJobs_createCronJobResponse'
+        400:
+          description: 'bad input parameter'
     get:
       summary: 'Get cron jobs. sites_affected: dev-sites(without custom domains)|prod-sites(with custom domains)|all'
       description: 'Get all cron jobs (paged).'
@@ -210,12 +266,15 @@ paths:
           description: 'A positive integer (max 1000).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 1000
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'CronJobs_getCronJobs response'
@@ -225,7 +284,88 @@ paths:
                 $ref: '#/components/schemas/CronJobs_getCronJobsResponse'
         400:
           description: 'bad input parameter'
-  /api/v1/cronjobs/%job_id:
+  '/api/v1/cronjobs/{job_id}':
+    put:
+      summary: 'Edit a cron job.'
+      description: 'Edit a cron job.'
+      x-cli-name: 'crons:edit'
+      operationId: put_CronJobs_editCronJob
+      parameters:
+        -
+          in: path
+          required: true
+          name: job_id
+          description: 'Cron job id.'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The cron job name.'
+                  type: string
+                command:
+                  description: 'The command that should be executed.'
+                  type: string
+                interval:
+                  description: 'A unix cron expression.'
+                  type: string
+                sites_affected:
+                  description: 'Possible values: dev-sites - sites without custom domains, prod-sites - sites with custom domains, all'
+                  type: string
+                enabled:
+                  description: 'If the cron should be enabled.'
+                  type: integer
+                thread_percentage:
+                  description: 'The percentage of cron threads that should be used for this cron. Value has to be an integer between 0 and 100.'
+                  type: integer
+                stacks:
+                  description: 'An array of stack ids for which the cron should be enabled.'
+                  type: array
+                  items:
+                    type: integer
+              required:
+                - name
+                - command
+                - interval
+                - sites_affected
+                - enabled
+                - thread_percentage
+                - stacks
+      responses:
+        200:
+          description: 'CronJobs_editCronJob response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CronJobs_editCronJobResponse'
+        400:
+          description: 'bad input parameter'
+    delete:
+      summary: 'Delete a cron job.'
+      description: 'Delete a cron job.'
+      x-cli-name: 'crons:delete'
+      operationId: delete_CronJobs_deleteCronJob
+      parameters:
+        -
+          in: path
+          required: true
+          name: job_id
+          description: 'Cron job id.'
+          schema:
+            type: integer
+      responses:
+        200:
+          description: 'CronJobs_deleteCronJob response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CronJobs_deleteCronJobResponse'
+        400:
+          description: 'bad input parameter'
     get:
       summary: 'Get cron job'
       description: 'Get cron job by its id.'
@@ -233,8 +373,8 @@ paths:
       operationId: get_CronJobs_getCronJob
       parameters:
         -
+          in: path
           required: true
-          in: query
           name: job_id
           description: 'Cron job id'
           schema:
@@ -308,13 +448,17 @@ paths:
           description: 'Site node id.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: domain_name
-          description: 'The domain name to add.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_name:
+                  description: 'The domain name to add.'
+                  type: string
+              required:
+                - domain_name
       responses:
         200:
           description: 'Domains_addDomain response'
@@ -338,13 +482,17 @@ paths:
           description: 'Site node id.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: domain_name
-          description: 'The domain name to remove.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                domain_name:
+                  description: 'The domain name to remove.'
+                  type: string
+              required:
+                - domain_name
       responses:
         200:
           description: 'Domains_removeDomain response'
@@ -360,7 +508,6 @@ paths:
       description: 'Backfill the current factory standard domain templates.'
       x-cli-name: 'domains:backfill-std'
       operationId: post_FactoryStandardDomains_backfillFactoryStandardDomains
-      parameters: []
       responses:
         200:
           description: 'FactoryStandardDomains_backfillFactoryStandardDomains response'
@@ -375,7 +522,6 @@ paths:
       description: 'Get the current factory standard domain templates.'
       x-cli-name: 'domains:get-std-templates'
       operationId: get_FactoryStandardDomains_getFactoryStandardDomains
-      parameters: []
       responses:
         200:
           description: 'FactoryStandardDomains_getFactoryStandardDomains response'
@@ -399,15 +545,19 @@ paths:
           description: 'The template name to change. Currently the only supported ones are "site_prod", "site_nonprod", "collection_prod" and "collection_nonprod".'
           schema:
             type: string
-        -
-          required: true
-          in: header
-          name: new_template
-          description: 'The new template.'
-          schema:
-            type: array
-            items:
-              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_template:
+                  description: 'The new template.'
+                  type: array
+                  items:
+                    type: string
+              required:
+                - new_template
       responses:
         200:
           description: 'FactoryStandardDomains_setFactoryStandardDomains response'
@@ -459,12 +609,15 @@ paths:
           description: 'A positive integer (max 1000).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 1000
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'Groups_getMembers response'
@@ -487,19 +640,23 @@ paths:
           description: 'Group id.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: uids
-          description: 'A single user ID, or an array of user IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uids:
+                  description: 'A single user ID, or an array of user IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - uids
       responses:
         200:
           description: 'Groups_addMembers response'
@@ -524,7 +681,7 @@ paths:
             type: integer
         -
           required: true
-          in: header
+          in: query
           name: uids
           description: 'A single user ID, or an array of user IDs.'
           schema:
@@ -602,12 +759,15 @@ paths:
           description: 'A positive integer not higher than 100.'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'Groups_getGroups response'
@@ -622,20 +782,20 @@ paths:
       description: 'Create a site group.'
       x-cli-name: 'groups:create'
       operationId: post_Groups_createGroup
-      parameters:
-        -
-          required: true
-          in: header
-          name: group_name
-          description: 'The name of the site group to create.'
-          schema:
-            type: string
-        -
-          in: header
-          name: parent_id
-          description: 'The parent group ID, if applicable.'
-          schema:
-            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_name:
+                  description: 'The name of the site group to create.'
+                  type: string
+                parent_id:
+                  description: 'The parent group ID, if applicable.'
+                  type: integer
+              required:
+                - group_name
       responses:
         200:
           description: 'Groups_createGroup response'
@@ -645,6 +805,7 @@ paths:
                 $ref: '#/components/schemas/Groups_createGroupResponse'
         400:
           description: 'bad input parameter'
+  '/api/v1/groups/{group_id}/update':
     put:
       summary: 'Edit a group'
       description: 'Edit a group.'
@@ -652,12 +813,23 @@ paths:
       operationId: put_Groups_editGroup
       parameters:
         -
+          in: path
           required: true
-          in: header
-          name: group_name
-          description: 'New name for the group.'
+          name: group_id
+          description: 'Group ID.'
           schema:
-            type: string
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                group_name:
+                  description: 'New name for the group.'
+                  type: string
+              required:
+                - group_name
       responses:
         200:
           description: 'Groups_editGroup response'
@@ -681,19 +853,23 @@ paths:
           description: 'Group id.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: uids
-          description: 'A single user ID, or an array of user IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uids:
+                  description: 'A single user ID, or an array of user IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - uids
       responses:
         200:
           description: 'Groups_addAdmins response'
@@ -718,7 +894,7 @@ paths:
             type: integer
         -
           required: true
-          in: header
+          in: query
           name: uids
           description: 'A single user ID, or an array of user IDs.'
           schema:
@@ -752,19 +928,23 @@ paths:
           description: 'Group id.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: site_ids
-          description: 'Either a single site ID, or an array of site IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_ids:
+                  description: 'Either a single site ID, or an array of site IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - site_ids
       responses:
         200:
           description: 'Groups_addSites response'
@@ -789,7 +969,7 @@ paths:
             type: integer
         -
           required: true
-          in: header
+          in: query
           name: site_ids
           description: 'Either a single site ID, or an array of site IDs.'
           schema:
@@ -828,12 +1008,15 @@ paths:
           description: 'A positive integer (max 1000).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 1000
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'Groups_getSites response'
@@ -886,7 +1069,7 @@ paths:
           schema:
             type: string
         -
-          in: header
+          in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
@@ -915,7 +1098,7 @@ paths:
           schema:
             type: string
         -
-          in: header
+          in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
@@ -944,7 +1127,7 @@ paths:
           schema:
             type: string
         -
-          in: header
+          in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
@@ -990,12 +1173,15 @@ paths:
           description: 'The number of months to be listed. Maximum value is 120.'
           schema:
             type: integer
+            minimum: 1
+            maximum: 120
         -
           in: query
           name: page
           description: 'The page number to show in the list.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'PageView_getPageViewDataMonthly response'
@@ -1044,12 +1230,15 @@ paths:
           description: 'The number of domains to be listed. (max 100)'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'The page number to show in the list.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'PageView_getPageViewDataMonthlyPerDomain response'
@@ -1065,7 +1254,20 @@ paths:
       description: 'Pause or resume task processing.'
       x-cli-name: 'tasks:pause-all'
       operationId: post_Pause_pause
-      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paused:
+                  description: 'Pauses/resumes the WIP task processing.'
+                  type: boolean
+                reason:
+                  description: 'Brief explanation for pausing workers.'
+                  type: string
+              required:
+                - paused
       responses:
         200:
           description: 'Pause_pause response'
@@ -1075,13 +1277,34 @@ paths:
                 $ref: '#/components/schemas/Pause_pauseResponse'
         400:
           description: 'bad input parameter'
-  /api/v1/pause/%task_id:
+  '/api/v1/pause/{task_id}':
     post:
       summary: 'Pause/resume task processing for a specific task'
       description: 'Pause or resume task processing.'
       x-cli-name: 'tasks:pause'
       operationId: post_Pause_pauseTask
-      parameters: []
+      parameters:
+        -
+          in: path
+          required: true
+          name: task_id
+          description: TaskID.
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                paused:
+                  description: 'leave the task in paused or unpaused state.'
+                  type: boolean
+                level:
+                  description: 'pauses/unpauses just the specified task or all its children.'
+                  type: string
+              required:
+                - paused
       responses:
         200:
           description: 'Pause_pauseTask response'
@@ -1097,7 +1320,6 @@ paths:
       description: 'Checks whether the API is responding.'
       x-cli-name: 'api:ping'
       operationId: get_Ping_ping
-      parameters: []
       responses:
         200:
           description: 'Ping_ping response'
@@ -1120,18 +1342,22 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
         -
           in: query
           name: order
           description: 'Either "ASC" or "DESC".'
           schema:
             type: string
+            pattern: ^(ASC|DESC)$
       responses:
         200:
           description: 'Role_getRoles response'
@@ -1146,14 +1372,17 @@ paths:
       description: 'Create a role.'
       x-cli-name: 'roles:create'
       operationId: post_Role_createRole
-      parameters:
-        -
-          required: true
-          in: header
-          name: name
-          description: 'The name of the role.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The name of the role.'
+                  type: string
+              required:
+                - name
       responses:
         200:
           description: 'Role_createRole response'
@@ -1222,13 +1451,17 @@ paths:
           description: 'The role ID of the user role.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: new_name
-          description: 'The new name for the user role.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                new_name:
+                  description: 'The new name for the user role.'
+                  type: string
+              required:
+                - new_name
       responses:
         200:
           description: 'Role_updateRole response'
@@ -1244,7 +1477,6 @@ paths:
       description: 'Gets the (release) version the Site Factory is on.'
       x-cli-name: 'api:factory-version'
       operationId: get_SfInfo_getSfVersion
-      parameters: []
       responses:
         200:
           description: 'SfInfo_getSfVersion response'
@@ -1272,12 +1504,15 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'SiteCollections_getCollections response'
@@ -1291,46 +1526,40 @@ paths:
       summary: 'Create a site collection'
       description: 'Create a new site collection.'
       operationId: post_SiteCollections_createCollection
-      parameters:
-        -
-          required: true
-          in: header
-          name: name
-          description: 'The name of the new site collection.'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: site_ids
-          description: 'Either a single site ID, or an array of site IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
-        -
-          required: true
-          in: header
-          name: group_ids
-          description: 'Either a single group ID, or an array of group IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
-        -
-          in: header
-          name: internal_domain_prefix
-          description: 'The site collection''s internal domain prefix. Uses the "name" parameter''s value if not set.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The name of the new site collection.'
+                  type: string
+                site_ids:
+                  description: 'Either a single site ID, or an array of site IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+                group_ids:
+                  description: 'Either a single group ID, or an array of group IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+                internal_domain_prefix:
+                  description: 'The site collection''s internal domain prefix. Uses the "name" parameter''s value if not set.'
+                  type: string
+              required:
+                - name
+                - site_ids
+                - group_ids
       responses:
         200:
           description: 'SiteCollections_createCollection response'
@@ -1396,19 +1625,23 @@ paths:
           description: 'Collection ID.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: site_ids
-          description: 'A site ID or an array of site IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_ids:
+                  description: 'A site ID or an array of site IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - site_ids
       responses:
         200:
           description: 'SiteCollections_addSiteToCollection response'
@@ -1431,19 +1664,23 @@ paths:
           description: 'Collection ID.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: site_ids
-          description: 'A site ID, or an array of site IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_ids:
+                  description: 'A site ID, or an array of site IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - site_ids
       responses:
         200:
           description: 'SiteCollections_removeSiteFromCollection response'
@@ -1466,13 +1703,17 @@ paths:
           description: 'Collection ID.'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: site_id
-          description: 'A single site ID.'
-          schema:
-            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_id:
+                  description: 'A single site ID.'
+                  type: integer
+              required:
+                - site_id
       responses:
         200:
           description: 'SiteCollections_setPrimarySite response'
@@ -1487,7 +1728,6 @@ paths:
       summary: 'Get current site guard config.'
       description: 'Get current site guard config.'
       operationId: get_SiteGuardConfig_getSiteGuardConfig
-      parameters: []
       responses:
         200:
           description: 'SiteGuardConfig_getSiteGuardConfig response'
@@ -1501,28 +1741,25 @@ paths:
       summary: 'Enable and set the site guard settings.'
       description: 'Enable the site guard config.'
       operationId: put_SiteGuardConfig_setSiteGuardConfig
-      parameters:
-        -
-          required: true
-          in: header
-          name: message
-          description: 'The message which the site guard should output.'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: username
-          description: 'The username for the site guard.'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: password
-          description: 'The password for the site guard.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  description: 'The message which the site guard should output.'
+                  type: string
+                username:
+                  description: 'The username for the site guard.'
+                  type: string
+                password:
+                  description: 'The password for the site guard.'
+                  type: string
+              required:
+                - message
+                - username
+                - password
       responses:
         200:
           description: 'SiteGuardConfig_setSiteGuardConfig response'
@@ -1536,7 +1773,6 @@ paths:
       summary: 'Disable the site guard config.'
       description: 'Disable the site guard config.'
       operationId: delete_SiteGuardConfig_removeSiteGuardConfig
-      parameters: []
       responses:
         200:
           description: 'SiteGuardConfig_removeSiteGuardConfig response'
@@ -1552,7 +1788,6 @@ paths:
       description: 'Get current site ownership settings.'
       x-cli-name: 'site-owner:get'
       operationId: get_SiteOwnership_executeGetActions
-      parameters: []
       responses:
         200:
           description: 'SiteOwnership_executeGetActions response'
@@ -1567,14 +1802,17 @@ paths:
       description: 'Set the site ownership settings.'
       x-cli-name: 'site-owner:set'
       operationId: put_SiteOwnership_executePutActions
-      parameters:
-        -
-          required: true
-          in: header
-          name: username
-          description: 'The default owner username. The user has to have the "Platform admin" role.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: 'The default owner username. The user has to have the "Platform admin" role.'
+                  type: string
+              required:
+                - username
       responses:
         200:
           description: 'SiteOwnership_executePutActions response'
@@ -1589,7 +1827,6 @@ paths:
       description: 'Delete the site ownership settings.'
       x-cli-name: 'site-owner:delete'
       operationId: delete_SiteOwnership_executeDeleteActions
-      parameters: []
       responses:
         200:
           description: 'SiteOwnership_executeDeleteActions response'
@@ -1599,47 +1836,11 @@ paths:
                 $ref: '#/components/schemas/SiteOwnership_executeDeleteActionsResponse'
         400:
           description: 'bad input parameter'
-  '/api/v1/site-ownership/{site_id}':
-    post:
-      summary: 'Transfer the site ownership.'
-      description: 'Transfer the site ownership.'
-      x-cli-name: 'site-owner:transfer'
-      operationId: post_SiteOwnership_transferSiteOwnership
-      parameters:
-        -
-          in: path
-          required: true
-          name: site_id
-          description: 'Site ID'
-          schema:
-            type: integer
-        -
-          in: header
-          name: username
-          description: 'New owner username to which site needs to be transferred (either username or email field is required).'
-          schema:
-            type: string
-        -
-          in: header
-          name: email
-          description: 'New owner email id to which site needs to be transferred.'
-          schema:
-            type: string
-      responses:
-        200:
-          description: 'SiteOwnership_transferSiteOwnership response'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SiteOwnership_transferSiteOwnershipResponse'
-        400:
-          description: 'bad input parameter'
   /api/v1/site-update-priority:
     get:
       summary: 'Get current site update priority.'
       description: 'Get current site update priority.'
       operationId: get_SiteUpdatePriority_getSiteUpdatePriority
-      parameters: []
       responses:
         200:
           description: 'SiteUpdatePriority_getSiteUpdatePriority response'
@@ -1653,16 +1854,19 @@ paths:
       summary: 'Set the site update priority.'
       description: 'Set the site update priority.'
       operationId: put_SiteUpdatePriority_setSiteUpdatePriority
-      parameters:
-        -
-          required: true
-          in: header
-          name: priority
-          description: 'An array of site node ids in the desired update order.'
-          schema:
-            type: array
-            items:
-              type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                priority:
+                  description: 'An array of site node ids in the desired update order.'
+                  type: array
+                  items:
+                    type: integer
+              required:
+                - priority
       responses:
         200:
           description: 'SiteUpdatePriority_setSiteUpdatePriority response'
@@ -1676,7 +1880,6 @@ paths:
       summary: 'Reset the site update priority.'
       description: 'Reset the site update priority.'
       operationId: delete_SiteUpdatePriority_resetSiteUpdatePriority
-      parameters: []
       responses:
         200:
           description: 'SiteUpdatePriority_resetSiteUpdatePriority response'
@@ -1699,12 +1902,15 @@ paths:
           description: 'A positive integer (max 1000).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 1000
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
         -
           in: query
           name: canary
@@ -1769,34 +1975,28 @@ paths:
       description: 'Create a new site.'
       x-cli-name: 'sites:create'
       operationId: post_Sites_createSite
-      parameters:
-        -
-          required: true
-          in: header
-          name: site_name
-          description: 'The new site name.'
-          schema:
-            type: string
-        -
-          in: header
-          name: group_ids
-          description: 'Either a single group ID, or an array of group IDs.'
-          schema:
-            type: array
-            items:
-              type: integer
-        -
-          in: header
-          name: install_profile
-          description: 'The install profile to be used to install the site.'
-          schema:
-            type: string
-        -
-          in: header
-          name: stack_id
-          description: 'The stack id where the site should go.'
-          schema:
-            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_name:
+                  description: 'The new site name.'
+                  type: string
+                group_ids:
+                  description: 'Either a single group ID, or an array of group IDs.'
+                  type: array
+                  items:
+                    type: integer
+                install_profile:
+                  description: 'The install profile to be used to install the site.'
+                  type: string
+                stack_id:
+                  description: 'The stack id where the site should go.'
+                  type: integer
+              required:
+                - site_name
       responses:
         200:
           description: 'Sites_createSite response'
@@ -1865,27 +2065,25 @@ paths:
           description: 'Site ID'
           schema:
             type: integer
-        -
-          required: true
-          in: header
-          name: site_name
-          description: 'The new site name.'
-          schema:
-            type: string
-        -
-          in: header
-          name: group_ids
-          description: 'Either a single group ID, or an array of group IDs.'
-          schema:
-            type: array
-            items:
-              type: integer
-        -
-          in: header
-          name: exact_copy
-          description: 'A boolean indicating whether or not to create an exact copy.'
-          schema:
-            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_name:
+                  description: 'The new site name.'
+                  type: string
+                group_ids:
+                  description: 'Either a single group ID, or an array of group IDs.'
+                  type: array
+                  items:
+                    type: integer
+                exact_copy:
+                  description: 'A boolean indicating whether or not to create an exact copy.'
+                  type: boolean
+              required:
+                - site_name
       responses:
         200:
           description: 'Sites_duplicateSite response'
@@ -1909,38 +2107,29 @@ paths:
           description: 'Site ID'
           schema:
             type: integer
-        -
-          in: header
-          name: label
-          description: 'The human-readable description of this backup.'
-          schema:
-            type: string
-        -
-          in: header
-          name: callback_url
-          description: 'The callback URL, which is invoked upon completion.'
-          schema:
-            type: string
-        -
-          in: header
-          name: callback_method
-          description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
-          schema:
-            type: string
-        -
-          in: header
-          name: caller_data
-          description: 'Data that should be included in the callback, json encoded.'
-          schema:
-            type: string
-        -
-          in: header
-          name: components
-          description: 'Array of components to be included in the backup. The following component names are accepted: codebase, database, public files, private files, themes. When omitting this parameter it will default to a backup with every component.'
-          schema:
-            type: array
-            items:
-              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                label:
+                  description: 'The human-readable description of this backup.'
+                  type: string
+                callback_url:
+                  description: 'The callback URL, which is invoked upon completion.'
+                  type: string
+                callback_method:
+                  description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
+                  type: string
+                caller_data:
+                  description: 'Data that should be included in the callback, json encoded.'
+                  type: string
+                components:
+                  description: 'Array of components to be included in the backup. The following component names are accepted: codebase, database, public files, private files, themes. When omitting this parameter it will default to a backup with every component.'
+                  type: array
+                  items:
+                    type: string
       responses:
         200:
           description: 'Sites_backupSite response'
@@ -1970,12 +2159,15 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
       responses:
         200:
           description: 'Sites_getSiteBackups response'
@@ -2043,19 +2235,19 @@ paths:
           schema:
             type: integer
         -
-          in: header
+          in: query
           name: callback_url
           description: 'The callback URL, which is invoked upon completion.'
           schema:
             type: string
         -
-          in: header
+          in: query
           name: callback_method
           description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
           schema:
             type: string
         -
-          in: header
+          in: query
           name: caller_data
           description: 'Data that should be included in the callback, json encoded.'
           schema:
@@ -2083,44 +2275,32 @@ paths:
           description: 'Site ID'
           schema:
             type: integer
-        -
-          in: header
-          name: target_site_id
-          description: 'ID of the site to restore the backup onto.'
-          schema:
-            type: integer
-        -
-          in: header
-          name: backup_id
-          description: 'ID of the backup to restore defaults to the most recent.'
-          schema:
-            type: integer
-        -
-          in: header
-          name: callback_url
-          description: 'The callback URL, which is invoked upon completion.'
-          schema:
-            type: string
-        -
-          in: header
-          name: callback_method
-          description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
-          schema:
-            type: string
-        -
-          in: header
-          name: caller_data
-          description: 'Data that should be included in the callback, json encoded.'
-          schema:
-            type: string
-        -
-          in: header
-          name: components
-          description: 'Array of components to be restored from the backup. The following component names are accepted: database, public files, private files, themes. When omitting this parameter it will default to the backup''s every component.'
-          schema:
-            type: array
-            items:
-              type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                target_site_id:
+                  description: 'ID of the site to restore the backup onto.'
+                  type: integer
+                backup_id:
+                  description: 'ID of the backup to restore defaults to the most recent.'
+                  type: integer
+                callback_url:
+                  description: 'The callback URL, which is invoked upon completion.'
+                  type: string
+                callback_method:
+                  description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
+                  type: string
+                caller_data:
+                  description: 'Data that should be included in the callback, json encoded.'
+                  type: string
+                components:
+                  description: 'Array of components to be restored from the backup. The following component names are accepted: database, public files, private files, themes. When omitting this parameter it will default to the backup''s every component.'
+                  type: array
+                  items:
+                    type: string
       responses:
         200:
           description: 'Sites_restoreSite response'
@@ -2159,7 +2339,6 @@ paths:
       description: 'Retrieves available environments user can stage to.'
       x-cli-name: 'stage-v2:find-envs'
       operationId: get_StageV2_stagingEnvironments
-      parameters: []
       responses:
         200:
           description: 'StageV2_stagingEnvironments response'
@@ -2174,7 +2353,44 @@ paths:
       description: 'Starts the staging process.'
       x-cli-name: 'stage-v2:start'
       operationId: post_StageV2_stage
-      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                to_env:
+                  description: 'Environment to deploy to.'
+                  type: string
+                sites:
+                  description: 'Node IDs of sites to deploy.'
+                  type: array
+                  items:
+                    type: integer
+                wipe_target_environment:
+                  description: 'Use this option to wipe the management console and all stacks on the selected environment before deploying sites.'
+                  type: boolean
+                wipe_stacks:
+                  description: 'Stack ids to wipe. It will be ignored if wipe_target_environment is true.'
+                  type: array
+                  items:
+                    type: integer
+                synchronize_all_users:
+                  description: 'Use this parameter to only stage the user accounts that are required for the provided sites and the related site collections and site groups.'
+                  type: boolean
+                detailed_status:
+                  description: 'Provide a status email for each site as it completes.'
+                  type: boolean
+                skip_site_files:
+                  description: 'Skip copying the staged down sites'' files.'
+                  type: boolean
+                skip_site_files_overwrite:
+                  description: 'File patterns to skip copying during the stage down process. Ignored if skip_site_files is false.'
+                  type: array
+                  items:
+                    type: string
+              required:
+                - to_env
       responses:
         200:
           description: 'StageV2_stage response'
@@ -2186,11 +2402,10 @@ paths:
           description: 'bad input parameter'
   /api/v1/status:
     get:
-      summary: 'Get status information'
-      description: 'Get a status report.'
-      x-cli-name: 'status:get'
+      summary: 'Get service status information'
+      description: 'Get a service status report.'
+      x-cli-name: 'service-status:get'
       operationId: get_Status_getStatus
-      parameters: []
       responses:
         200:
           description: 'Status_getStatus response'
@@ -2201,11 +2416,31 @@ paths:
         400:
           description: 'bad input parameter'
     put:
-      summary: 'Modify status'
-      description: 'Modify the status.'
-      x-cli-name: 'status:modify'
+      summary: 'Modify service status'
+      description: 'Modify the status of the services.'
+      x-cli-name: 'service-status:modify'
       operationId: put_Status_setStatus
-      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                all:
+                  description: 'on, off, or something strtotime accepts'
+                  type: string
+                site_creation:
+                  description: 'on, off, or something strtotime accepts'
+                  type: string
+                site_duplication:
+                  description: 'on, off, or something strtotime accepts'
+                  type: string
+                domain_management:
+                  description: 'on, off, or something strtotime accepts'
+                  type: string
+                bulk_operations:
+                  description: 'on, off, or something strtotime accepts'
+                  type: string
       responses:
         200:
           description: 'Status_setStatus response'
@@ -2253,12 +2488,15 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
         -
           in: query
           name: status
@@ -2345,6 +2583,7 @@ paths:
                 $ref: '#/components/schemas/Task_deleteResponse'
         400:
           description: 'bad input parameter'
+  '/api/v1/tasks/{task_id}/terminate':
     put:
       summary: 'Terminate tasks in the work pool.'
       description: 'Terminate a task and its descendants.'
@@ -2367,13 +2606,67 @@ paths:
                 $ref: '#/components/schemas/Task_terminateResponse'
         400:
           description: 'bad input parameter'
+  /api/v1/task-log-settings:
+    get:
+      summary: 'Get current task log settings.'
+      description: 'Get current task log settings.'
+      x-cli-name: 'tasks:get-task-log-settings'
+      operationId: get_TaskLogSettings_getTaskLogSettings
+      responses:
+        200:
+          description: 'TaskLogSettings_getTaskLogSettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskLogSettings_getTaskLogSettingsResponse'
+        400:
+          description: 'bad input parameter'
+    put:
+      summary: 'Edit current task log settings.'
+      description: 'Edit task log settings.'
+      x-cli-name: 'tasks:set-task-log-settings'
+      operationId: put_TaskLogSettings_editTaskLogSettings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                wip_log_level:
+                  description: 'Level of Wip log messages to keep on successful completion.'
+                  type: string
+                wip_log_maximum_level:
+                  description: 'The maximum log level that will be written to the log.'
+                  type: string
+      responses:
+        200:
+          description: 'TaskLogSettings_editTaskLogSettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskLogSettings_editTaskLogSettingsResponse'
+        400:
+          description: 'bad input parameter'
+    delete:
+      summary: 'Reset task log settings.'
+      description: 'Reset task log settings.'
+      x-cli-name: 'tasks:reset-task-log-settings'
+      operationId: delete_TaskLogSettings_resetTaskLogSettings
+      responses:
+        200:
+          description: 'TaskLogSettings_resetTaskLogSettings response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskLogSettings_resetTaskLogSettingsResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/theme/deploy-key:
     get:
       summary: 'External theme repository deploy key'
       description: "Gets the deploy key that needs to be added to external theme repositories.\n\n Add this deploy key to your theme repositories, so that the Acquia Cloud\n Site Factory platform gets access to your repository and is able to deploy\n updated themes to your sites."
       x-cli-name: 'themes:key'
       operationId: get_Theme_getThemePublicKey
-      parameters: []
       responses:
         200:
           description: 'Theme_getThemePublicKey response'
@@ -2389,13 +2682,15 @@ paths:
       description: 'Processes the stored theme change notifications.'
       x-cli-name: 'themes:process-notifications'
       operationId: post_Theme_processThemes
-      parameters:
-        -
-          in: header
-          name: sitegroup_id
-          description: 'The ID of a specific sitegroup to process e.g. "tangle001".'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sitegroup_id:
+                  description: 'The ID of a specific sitegroup to process e.g. "tangle001".'
+                  type: string
       responses:
         200:
           description: 'Theme_processThemes response'
@@ -2442,19 +2737,20 @@ paths:
           description: 'Site ID.'
           schema:
             type: integer
-        -
-          in: header
-          name: vcs_url
-          description: 'The external theme repository''s url.'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: vcs_path
-          description: 'The VCS path to use.'
-          schema:
-            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                vcs_url:
+                  description: 'The external theme repository''s url.'
+                  type: string
+                vcs_path:
+                  description: 'The VCS path to use.'
+                  type: string
+              required:
+                - vcs_path
       responses:
         200:
           description: 'Theme_setSiteExternalTheme response'
@@ -2492,39 +2788,32 @@ paths:
       description: 'Sends a theme event notification.'
       x-cli-name: 'themes:send-notification'
       operationId: post_ThemeNotification_handleNotification
-      parameters:
-        -
-          required: true
-          in: header
-          name: scope
-          description: 'The scope. Either "theme", "site", "group", or "global".'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: event
-          description: 'The type of theme event. Either "create", "modify", or "delete".'
-          schema:
-            type: string
-        -
-          in: header
-          name: nid
-          description: 'The node ID of the related entity (site or group). Not relevant for the "global" scope.'
-          schema:
-            type: integer
-        -
-          in: header
-          name: theme
-          description: 'The system name of the theme. Only relevant for "theme" scope notifications.'
-          schema:
-            type: string
-        -
-          in: header
-          name: uid
-          description: 'The user id owning the notification and who should get notified if an error occurs during processing.'
-          schema:
-            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scope:
+                  description: 'The scope. Either "theme", "site", "group", or "global".'
+                  type: string
+                  pattern: ^(theme|site|group|global)$
+                event:
+                  description: 'The type of theme event. Either "create", "modify", or "delete".'
+                  type: string
+                  pattern: ^(create|modify|delete)$
+                nid:
+                  description: 'The node ID of the related entity (site or group). Not relevant for the "global" scope.'
+                  type: integer
+                theme:
+                  description: 'The system name of the theme. Only relevant for "theme" scope notifications.'
+                  type: string
+                uid:
+                  description: 'The user id owning the notification and who should get notified if an error occurs during processing.'
+                  type: integer
+              required:
+                - scope
+                - event
       responses:
         200:
           description: 'ThemeNotification_handleNotification response'
@@ -2534,13 +2823,83 @@ paths:
                 $ref: '#/components/schemas/ThemeNotification_handleNotificationResponse'
         400:
           description: 'bad input parameter'
+  '/api/v1/site-ownership/{site_id}':
+    post:
+      summary: 'Transfer the site ownership.'
+      description: 'Transfer the site ownership.'
+      x-cli-name: 'site-owner:transfer'
+      operationId: post_TransferSiteOwnership_transferSiteOwner
+      parameters:
+        -
+          in: path
+          required: true
+          name: site_id
+          description: 'Site ID'
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  description: 'New owner username to which site needs to be transferred (either username or email field is required).'
+                  type: string
+                email:
+                  description: 'New owner email id to which site needs to be transferred.'
+                  type: string
+                force_transfer:
+                  description: 'Transfer site ownership without mail confirmation from owner and recipient.'
+                  type: boolean
+      responses:
+        200:
+          description: 'TransferSiteOwnership_transferSiteOwner response'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferSiteOwnership_transferSiteOwnerResponse'
+        400:
+          description: 'bad input parameter'
   /api/v1/update:
     post:
       summary: 'Start an update'
       description: 'Start the update process.'
       x-cli-name: 'updates:start'
       operationId: post_Update_update
-      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scope:
+                  description: 'Either "sites", "factory", or "both".'
+                  type: string
+                start_time:
+                  description: 'A start time string, parseable by strtotime(). Interpreted as UTC if no timezone is specified.'
+                  type: string
+                sites_ref:
+                  description: 'A VCS ref to deploy to the sites.'
+                  type: string
+                factory_ref:
+                  description: 'A VCS ref to deploy to the Factory.'
+                  type: string
+                sites_type:
+                  description: 'Either "code", "code, db", or "code, db, registry"'
+                  type: string
+                factory_type:
+                  description: 'Either "code" or "code, db"'
+                  type: string
+                stack_id:
+                  description: 'The stack id to release to.'
+                  type: integer
+                site_update_fail_action:
+                  description: 'Action to be performed on sites when updates fail. Either "online" or "offline"'
+                  type: string
+                db_update_arguments:
+                  description: 'Custom arguments to supply to the db-update hooks. Space separated alphanumeric characters only.'
+                  type: string
       responses:
         200:
           description: 'Update_update response'
@@ -2555,7 +2914,6 @@ paths:
       description: ''
       x-cli-name: 'updates:find'
       operationId: get_Update_updateList
-      parameters: []
       responses:
         200:
           description: 'Update_updateList response'
@@ -2598,7 +2956,17 @@ paths:
       description: 'Pause a running update process.'
       x-cli-name: 'updates:pause'
       operationId: post_Update_pauseUpdate
-      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pause:
+                  description: 'leave the task in paused or unpaused state.'
+                  type: boolean
+              required:
+                - pause
       responses:
         200:
           description: 'Update_pauseUpdate response'
@@ -2621,18 +2989,22 @@ paths:
           description: 'A positive integer (max 100).'
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
         -
           in: query
           name: page
           description: 'A positive integer.'
           schema:
             type: integer
+            minimum: 1
         -
           in: query
           name: order
           description: 'Either "ASC" or "DESC".'
           schema:
             type: string
+            pattern: ^(ASC|DESC)$
         -
           in: query
           name: ids
@@ -2713,45 +3085,36 @@ paths:
       description: 'Create a user.'
       x-cli-name: 'users:create'
       operationId: post_User_createUser
-      parameters:
-        -
-          required: true
-          in: header
-          name: name
-          description: 'The name of the user.'
-          schema:
-            type: string
-        -
-          required: true
-          in: header
-          name: mail
-          description: 'The email address of the user.'
-          schema:
-            type: string
-        -
-          in: header
-          name: pass
-          description: 'The user''s password. (Included in the response, if not provided.)'
-          schema:
-            type: string
-        -
-          in: header
-          name: status
-          description: 'The user''s status, either 0 or 1.'
-          schema:
-            type: integer
-        -
-          in: header
-          name: roles
-          description: 'Either a single role name, or an array of role names.'
-          schema:
-            oneOf:
-              -
-                type: string
-              -
-                type: array
-                items:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The name of the user.'
                   type: string
+                mail:
+                  description: 'The email address of the user.'
+                  type: string
+                pass:
+                  description: 'The user''s password. (Included in the response, if not provided.)'
+                  type: string
+                status:
+                  description: 'The user''s status, either 0 or 1.'
+                  type: integer
+                roles:
+                  description: 'Either a single role name, or an array of role names.'
+                  oneOf:
+                    -
+                      type: string
+                    -
+                      type: array
+                      items:
+                        type: string
+              required:
+                - name
+                - mail
       responses:
         200:
           description: 'User_createUser response'
@@ -2826,48 +3189,40 @@ paths:
           description: 'The user ID of the user.'
           schema:
             type: integer
-        -
-          in: header
-          name: name
-          description: 'The name of the user.'
-          schema:
-            type: string
-        -
-          in: header
-          name: mail
-          description: 'The email address of the user.'
-          schema:
-            type: string
-        -
-          in: header
-          name: pass
-          description: 'The user''s password.'
-          schema:
-            type: string
-        -
-          in: header
-          name: status
-          description: 'The user''s status, either 0 or 1.'
-          schema:
-            type: integer
-        -
-          in: header
-          name: roles
-          description: 'Single role name, or an array of them.'
-          schema:
-            oneOf:
-              -
-                type: string
-              -
-                type: array
-                items:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  description: 'The name of the user.'
                   type: string
-        -
-          in: header
-          name: tfa_status
-          description: 'The user''s TFA status, either 0 or 1.'
-          schema:
-            type: integer
+                mail:
+                  description: 'The email address of the user.'
+                  type: string
+                pass:
+                  description: 'The user''s password.'
+                  type: string
+                status:
+                  description: 'The user''s status, either 0 or 1.'
+                  type: integer
+                  minimum: 0
+                  maximum: 1
+                roles:
+                  description: 'Single role name, or an array of them.'
+                  oneOf:
+                    -
+                      type: string
+                    -
+                      type: array
+                      items:
+                        type: string
+                tfa_status:
+                  description: 'The user''s TFA status, either 0 or 1.'
+                  type: integer
+                  minimum: 0
+                  maximum: 1
       responses:
         200:
           description: 'User_updateUser response'
@@ -2881,7 +3236,7 @@ paths:
     get:
       summary: 'List deployable refs'
       description: 'Get a list of VCS refs.'
-      x-cli-name: 'vcs:find'
+      x-cli-name: 'info:vcs-find'
       operationId: get_Vcs_getRefs
       parameters:
         -
@@ -2906,7 +3261,7 @@ paths:
                 $ref: '#/components/schemas/Vcs_getRefsResponse'
         400:
           description: 'bad input parameter'
-  /api/v1/wip/task/%task_id/status:
+  '/api/v1/wip/task/{task_id}/status':
     get:
       summary: 'Wip task status'
       description: 'Gets the status of a Wip task.'
@@ -2914,8 +3269,8 @@ paths:
       operationId: get_WipTaskStatus_getWipTaskStatus
       parameters:
         -
+          in: path
           required: true
-          in: query
           name: task_id
           description: 'The Wip task ID'
           schema:
@@ -3136,6 +3491,36 @@ components:
           type: object
           additionalProperties:
             type: string
+    CronJobs_createCronJobResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: '2021-11-25T13:18:44+00:00'
+        nid:
+          type: integer
+          example: 1234
+        message:
+          type: string
+          example: 'The cron job has been created'
+    CronJobs_editCronJobResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: '2021-11-25T13:18:44+00:00'
+        message:
+          type: string
+          example: 'The cron job has been saved'
+    CronJobs_deleteCronJobResponse:
+      type: object
+      properties:
+        time:
+          type: string
+          example: '2021-11-25T13:18:44+00:00'
+        message:
+          type: string
+          example: 'The cron job has been deleted'
     CronJobs_getCronJobsResponse_cronjobs:
       type: object
       properties:
@@ -4216,12 +4601,6 @@ components:
         time:
           type: string
           example: '2022-01-19T08:38:09+00:00'
-    SiteOwnership_transferSiteOwnershipResponse:
-      type: object
-      properties:
-        message:
-          type: string
-          example: 'To transfer your site, please follow the instructions in the e-mail that was sent to site-owner@email.com'
     SiteUpdatePriority_getSiteUpdatePriorityResponse_priority:
       type: object
       properties:
@@ -4674,6 +5053,49 @@ components:
         task_id:
           type: integer
           example: 123
+    TaskLogSettings_getTaskLogSettingsResponse_wip_log_maximum_level:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Overall tasks logging level'
+        value:
+          type: string
+          example: trace
+    TaskLogSettings_getTaskLogSettingsResponse_wip_log_level:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Successful tasks logging level'
+        value:
+          type: string
+          example: warn
+    TaskLogSettings_getTaskLogSettingsResponse:
+      type: object
+      properties:
+        wip_log_maximum_level:
+          $ref: '#/components/schemas/TaskLogSettings_getTaskLogSettingsResponse_wip_log_maximum_level'
+        wip_log_level:
+          $ref: '#/components/schemas/TaskLogSettings_getTaskLogSettingsResponse_wip_log_level'
+    TaskLogSettings_editTaskLogSettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been saved.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
+    TaskLogSettings_resetTaskLogSettingsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'The configuration options have been reset to their default values.'
+        time:
+          type: string
+          example: '2022-01-19T08:38:09+00:00'
     Theme_getThemePublicKeyResponse:
       type: object
       properties:
@@ -4759,6 +5181,12 @@ components:
           example: '2014-02-16T20:04:12-06:00'
         notification:
           $ref: '#/components/schemas/ThemeNotification_handleNotificationResponse_notification'
+    TransferSiteOwnership_transferSiteOwnerResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'To transfer your site, please follow the instructions in the e-mail that was sent to site-owner@email.com'
     Update_updateResponse:
       type: object
       properties:
