@@ -99,7 +99,7 @@ class ApiBaseCommand extends CommandBase {
         elseif (array_key_exists($argument->getName(), $params)
           && array_key_exists('type', $params[$argument->getName()])
           && $params[$argument->getName()]['type'] === 'boolean') {
-          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['true', 'false'], $argument->getDefault());
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
           $answer = $answer === 'true';
         }
         // Free form.
@@ -257,9 +257,15 @@ class ApiBaseCommand extends CommandBase {
    * @return bool|int|string
    */
   protected function castParamType(array $param_spec, $value) {
+    if (array_key_exists('oneOf', $param_spec)) {
+      $one_of = $param_spec['oneOf'];
+    }
     if (array_key_exists('schema', $param_spec) && array_key_exists('oneOf', $param_spec['schema'])) {
+      $one_of = $param_spec['schema']['oneOf'];
+    }
+    if (isset($one_of)) {
       $types = [];
-      foreach ($param_spec['schema']['oneOf'] as $type) {
+      foreach ($one_of as $type) {
         $types[] = $type['type'];
       }
       if (array_search('array', $types) && str_contains($value, ',')) {
