@@ -67,13 +67,14 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     // Migrate acquia-pipeline file
     $this->checkGitLabCiCdVariables($project);
     $this->validateCwdIsValidDrupalProject();
-    $acquia_pipelines_file_contents = $this->getAcquiaPipelinesFileContents($project);
+    $acquia_pipelines_file_details = $this->getAcquiaPipelinesFileContents($project);
+    $acquia_pipelines_file_contents = $acquia_pipelines_file_details['file_contents'];
+    $acquia_pipelines_file_name = $acquia_pipelines_file_details['filename'];
     $gitlab_ci_file_contents = $this->getGitLabCiFileTemplate();
     $this->migrateVariablesSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
     $this->migrateEventsSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
-    // print_r($gitlab_ci_file_contents);
     $this->removeEmptyScript($gitlab_ci_file_contents);
-    $this->createGitLabCiFile($gitlab_ci_file_contents);
+    $this->createGitLabCiFile($gitlab_ci_file_contents, $acquia_pipelines_file_name);
     $this->io->success([
       "",
       "Migration completed successfully.",
@@ -127,7 +128,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $this->gitLabClient->projects()->update($project['id'], ['ci_config_path' => '']);
       $filename = implode('', glob("acquia-pipelines.*"));
       $file_contents = file_get_contents($filename);
-      return Yaml::parse($file_contents, Yaml::PARSE_OBJECT);
+      return [
+        'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
+         'filename' =>  $filename
+        ];
     }
     else {
       throw new AcquiaCliException("Missing 'acquia-pipelines.yml' file which is required to migrate the project to Code Studio.");
@@ -212,7 +216,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           'artifact' => 'Deploy Drupal',
           'deploy' => 'Deploy Drupal',
         ],
-        'needs' => [],
+        'needs' => [
+          'Build Code',
+          'Manage Secrets'
+        ],
       ],
       'post-deploy' => [
         'skip' => [
@@ -315,9 +322,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  protected function createGitLabCiFile(array $contents) {
+  protected function createGitLabCiFile(array $contents,$acquia_pipelines_file_name) {
     $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+    $this->localMachineHelper->getFilesystem()->remove($acquia_pipelines_file_name);
   }
 
   /**
