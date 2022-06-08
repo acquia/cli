@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\Environment;
+namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
@@ -14,9 +14,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class EnvironmentMirrorCommand.
+ * Class EnvMirrorCommand.
  */
-class EnvironmentMirrorCommand extends CommandBase {
+class EnvMirrorCommand extends CommandBase {
 
   protected static $defaultName = 'env:mirror';
 

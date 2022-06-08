@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\Environment;
+namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class CreateCdeCommand.
  */
-class CreateCdeCommand extends CommandBase {
+class EnvCreateCommand extends CommandBase {
 
   protected static $defaultName = 'env:create';
 

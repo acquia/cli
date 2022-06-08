@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\Environment;
+namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -10,9 +10,9 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class DeleteCdeCommand.
+ * Class EnvDeleteCommand.
  */
-class DeleteCdeCommand extends CommandBase {
+class EnvDeleteCommand extends CommandBase {
 
   protected static $defaultName = 'env:delete';
 

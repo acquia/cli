@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\Environment;
+namespace Acquia\Cli\Tests\Commands\Env;
 
-use Acquia\Cli\Command\App\DeleteCdeCommand;
+use Acquia\Cli\Command\Env\EnvDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -10,16 +10,16 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class DeleteCdeCommandTest.
  *
- * @property \Acquia\Cli\Command\App\DeleteCdeCommand $command
- * @package Acquia\Cli\Tests\Commands\Environment
+ * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
+ * @package Acquia\Cli\Tests\Commands\Env
  */
-class DeleteCdeCommandTest extends CommandTestBase {
+class EnvDeleteCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(DeleteCdeCommand::class);
+    return $this->injectCommand(EnvDeleteCommand::class);
   }
 
   /**

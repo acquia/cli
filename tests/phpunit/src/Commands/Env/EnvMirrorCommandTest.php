@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\Environment;
+namespace Acquia\Cli\Tests\Commands\Env;
 
-use Acquia\Cli\Command\App\EnvironmentMirrorCommand;
+use Acquia\Cli\Command\Env\EnvMirrorCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class EnvironmentMirrorCommandTest.
  *
- * @property \Acquia\Cli\Command\App\EnvironmentMirrorCommand $command
+ * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
 class EnvironmentMirrorCommandTest extends CommandTestBase {
@@ -19,7 +19,7 @@ class EnvironmentMirrorCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(EnvironmentMirrorCommand::class);
+    return $this->injectCommand(EnvMirrorCommand::class);
   }
 
   /**
