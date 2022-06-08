@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Command\App;
+namespace Acquia\Cli\Command\Environment;
 
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CopyCronTasksCommand extends CommandBase {
 
-  protected static $defaultName = 'app:environment:cron-copy';
+  protected static $defaultName = 'env:cron-copy';
 
   /**
    * {inheritdoc}.

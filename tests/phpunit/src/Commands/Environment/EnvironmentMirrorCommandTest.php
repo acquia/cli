@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\App;
+namespace Acquia\Cli\Tests\Commands\Environment;
 
 use Acquia\Cli\Command\App\EnvironmentMirrorCommand;
 use Acquia\Cli\Tests\CommandTestBase;

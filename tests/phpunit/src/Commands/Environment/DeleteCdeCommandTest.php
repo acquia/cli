@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\App;
+namespace Acquia\Cli\Tests\Commands\Environment;
 
 use Acquia\Cli\Command\App\DeleteCdeCommand;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
  * Class DeleteCdeCommandTest.
  *
  * @property \Acquia\Cli\Command\App\DeleteCdeCommand $command
- * @package Acquia\Cli\Tests\Commands\App
+ * @package Acquia\Cli\Tests\Commands\Environment
  */
 class DeleteCdeCommandTest extends CommandTestBase {
 
