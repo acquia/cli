@@ -174,10 +174,16 @@ class ApiCommandHelper {
       $prop_key = self::renameParameter($prop_key);
 
       if ($is_required) {
+        if (!array_key_exists('description', $param_definition)) {
+          $description = $param_definition["additionalProperties"]["description"];
+        }
+        else {
+          $description = $param_definition['description'];
+        }
         $input_definition[] = new InputArgument(
           $prop_key,
           array_key_exists('type', $param_definition) && $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
-              $param_definition['description']
+              $description
           );
         $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $prop_key, $param_definition, 'argument', $usage);
       }
