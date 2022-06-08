@@ -144,7 +144,7 @@ trait CodeStudioCommandTrait {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    if (self::isAcquiaCloudIde() && !getenv('GITLAB_HOST')) {
+    if (empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
   }
@@ -153,6 +153,7 @@ trait CodeStudioCommandTrait {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function authenticateWithGitLab(): void {
+    $this->validateEnvironment();
     $this->gitLabHost = $this->getGitLabHost();
     $this->gitLabToken = $this->getGitLabToken($this->gitLabHost);
     $this->getGitLabClient();
