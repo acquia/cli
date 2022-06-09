@@ -19,25 +19,24 @@ class PackageUpdateScript
    * Drupal docroot directory folder path.
    * @var string
    */
-    private string $drupalDocrootDirPath;
+  private string $drupalDocrootDirPath;
 
-    /**
-     * @return string
-     */
-    public function getDrupalDocrootDirPath(): string
-    {
-        return $this->drupalDocrootDirPath;
-    }
+  /**
+   * @return string
+   */
+  public function getDrupalDocrootDirPath(): string {
+    return $this->drupalDocrootDirPath;
+  }
 
-    /**
-     * SymfonyStyle io
-     * @var SymfonyStyle
-     */
-    private SymfonyStyle $io;
+  /**
+   * SymfonyStyle io
+   * @var SymfonyStyle
+   */
+  private SymfonyStyle $io;
 
-    /**
-     * @param string $drupal_root_dir_path
-     */
+  /**
+   * @param string $drupal_root_dir_path
+   */
   public function setDrupalDocrootDirPath(string $drupal_root_dir_path): void {
     $this->drupalDocrootDirPath = $drupal_root_dir_path . "/docroot";
   }
@@ -45,18 +44,18 @@ class PackageUpdateScript
   /**
    * @var CheckPackageInfo
    */
-    public CheckPackageInfo $checkPackageInfo;
+  public CheckPackageInfo $checkPackageInfo;
 
   /**
    * @var UpdateScriptUtility
    */
-    private UpdateScriptUtility $updateScriptUtility;
+  private UpdateScriptUtility $updateScriptUtility;
 
-    /**
-     * UpdateScript constructor.
-     * @param String $drupal_dir_path
-     * @param SymfonyStyle $io
-     */
+  /**
+   * UpdateScript constructor.
+   * @param String $drupal_dir_path
+   * @param SymfonyStyle $io
+   */
   public function __construct(string $drupal_dir_path, SymfonyStyle $io, string $drupal_core_version) {
     $this->checkPackageInfo = new CheckPackageInfo($drupal_core_version);
     $this->updateScriptUtility = $this->checkPackageInfo->getUpdateScriptUtility();
