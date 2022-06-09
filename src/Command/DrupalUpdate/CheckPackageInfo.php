@@ -3,22 +3,22 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
-class CheckInfo
+class CheckPackageInfo
 {
   /**
    * @var array
    */
-  public  $info_files = [];
+  public  $infoPackageFiles = [];
 
   /**
    * @var array
    */
-  public  $info_details_packages = [];
+  public  $infoDetailPackages = [];
 
   /**
    * @var string[]
    */
-  public  $packageinfo_key = [
+  public  $packageInfoKey = [
         'name',
         'description',
         'package',
@@ -30,49 +30,84 @@ class CheckInfo
   /**
    * @var array
    */
-  public $available_updates = [];
+  public $availablePackageUpdates = [];
+
+  public $drupalCoreVersion;
+
+    /**
+     * @return mixed
+     */
+    public function getDrupalCoreVersion()
+    {
+        return $this->drupalCoreVersion;
+    }
+
+    /**
+     * @param mixed $drupalCoreVersion
+     */
+    public function setDrupalCoreVersion($drupalCoreVersion): void
+    {
+        $this->drupalCoreVersion = $drupalCoreVersion;
+    }
 
   /**
    * Flag for drupal core update only single time.
    * Get updates only single time of core for all core modules, themes, profile.
    * @var bool
    */
-  public $is_core_get = FALSE;
+  public $isCoreUpdated = FALSE;
 
   /**
    * @var UpdateScriptUtility
    */
   private $updateScriptUtility;
 
+    /**
+     * @return UpdateScriptUtility
+     */
+    public function getUpdateScriptUtility(): UpdateScriptUtility
+    {
+        return $this->updateScriptUtility;
+    }
+
+    /**
+     * @param UpdateScriptUtility $updateScriptUtility
+     */
+    public function setUpdateScriptUtility(UpdateScriptUtility $updateScriptUtility): void
+    {
+        $this->updateScriptUtility = $updateScriptUtility;
+    }
+
   /**
    * CheckInfo constructor.
    */
-  public function __construct() {
-    $this->updateScriptUtility = new UpdateScriptUtility();
+  public function __construct($drupal_core_version) {
+    $this->setUpdateScriptUtility(new UpdateScriptUtility());
+      $this->setDrupalCoreVersion($drupal_core_version);
   }
 
   /**
    * @param $files1
-   * @param $dir
+   * @param $package_dir
    */
-  public function getFilesInfo($scanned_file_path, $dir) {
-    foreach($scanned_file_path as $c_dir){
-      $tm_path = $dir . "/" . $c_dir;
-      if(is_dir($tm_path)){
-        $scanned_file_path_c = array_diff(scandir($tm_path), ['.', '..']);
-        $this->getFilesInfo($scanned_file_path_c, $tm_path);
-      }elseif($this->endsWith($c_dir, '.info')){
-        if(isset($this->info_files[$c_dir])){
-          if(is_array($this->info_files[$c_dir])){
-            $this->info_files[$c_dir][] = $dir . "/" . $c_dir;
+  public function getFilesInfo($scanned_file_path, $package_dir) {
+    foreach($scanned_file_path as $package_dir_path){
+      $full_package_path = $package_dir . "/" . $package_dir_path;
+      if(is_dir($full_package_path)){
+        $scanned_file_path_c = array_diff(scandir($full_package_path), ['.', '..']);
+        $this->getFilesInfo($scanned_file_path_c, $full_package_path);
+      }elseif($this->endsWith($package_dir_path, '.info')){
+        if(isset($this->infoPackageFiles[$package_dir_path])){
+          if(is_array($this->infoPackageFiles[$package_dir_path])){
+            $this->infoPackageFiles[$package_dir_path][] = $package_dir . "/" . $package_dir_path;
           }else{
-            $temp_p = $this->info_files[$c_dir];
-            $this->info_files[$c_dir]=[];
-            $this->info_files[$c_dir][]=$temp_p;
-            $this->info_files[$c_dir][] = $dir . "/" . $c_dir;
+            $temp_p = $this->infoPackageFiles[$package_dir_path];
+            $this->infoPackageFiles[$package_dir_path]=[];
+            $this->infoPackageFiles[$package_dir_path][]=$temp_p;
+            $this->infoPackageFiles[$package_dir_path][] = $package_dir . "/" . $package_dir_path;
           }
         }else{
-          $this->info_files[$c_dir]=$dir . "/" . $c_dir;
+          $this->infoPackageFiles[$package_dir_path]=$package_dir . "/" . $package_dir_path;
         }
       }
     }
@@ -83,10 +118,11 @@ class CheckInfo
    * @param $package
    */
   public function fileGetInfo($filepath, $package) {
-    if (!defined('VERSION')) {
-      define('VERSION', getcwd());
-    }
-    $info_extention_file    = file_get_contents($filepath);
+
+
+    // @todo parse_ini_file($filepath);
+
+    $info_extention_file = file_get_contents($filepath,true);
     $rows = explode("\n", $info_extention_file);
     $current_v = '';
     $package_v = '';
@@ -99,9 +135,9 @@ class CheckInfo
       //get raw data in key value pair with seprator.
       $row_data = explode('=', $data);
       $package = str_replace(".info", "", $package);
-      if(in_array(trim($row_data[0]), $this->packageinfo_key)){
+      if(in_array(trim($row_data[0]), $this->packageInfoKey)){
         $project_value = str_replace(['\'', '"'], '', $row_data[1]);
-        $this->info_details_packages[$package][$row_data[0]]=$project_value;
+        $this->infoDetailPackages[$package][$row_data[0]]=$project_value;
         if( trim($row_data[0]) == "project" ){
           $package_v = trim($project_value);
         }
@@ -116,17 +152,16 @@ class CheckInfo
 
     // When Drupal Core version is defined in bootstrap.inc file.
     if($current_v == 'VERSION'){
-      $this->updateScriptUtility->setDrupalCoreVersion();
-      $current_v = VERSION;
+      $current_v = $this->getDrupalCoreVersion();
     }
     if($package_v == ''){
       $package_v = ($package_alternet == 'core')?'drupal':'';
     }
-    if( ($this->is_core_get === FALSE) || ($package_v !== 'drupal') ){
+    if( ($this->isCoreUpdated === FALSE) || ($package_v !== 'drupal') ){
       $this->getSecurityRelease(trim($package_v), $current_v);
     }
     if($package_v == 'drupal'){
-      $this->is_core_get = TRUE;
+      $this->isCoreUpdated = TRUE;
     }
   }
 
@@ -151,13 +186,13 @@ class CheckInfo
 
     if(isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
       $version1 = $current_version;
-      $this->available_updates[$project]['current_version'] = $version1;
-      $this->available_updates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
+      $this->availablePackageUpdates[$project]['current_version'] = $version1;
+      $this->availablePackageUpdates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($t = 0; $t < count($release_detail['releases']['release']); $t++) {
         $version2 = $release_detail['releases']['release'][$t]['version'];
         $version_comparision = $this->updateScriptUtility->versionCompare($version1, $version2);
         if ( $version_comparision < 0 ) {
-          $this->available_updates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
+          $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
           return;
         }
         elseif ($version_comparision > 0){continue;}
