@@ -494,8 +494,6 @@ EOT
       throw new AcquiaCliException($response->getBody()->getContents());
     }
 
-    $this->output->writeln("<info>Uploaded $chosen_local_key to the Cloud Platform with label $label</info>");
-
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {
       if ($this->input->isInteractive()) {
