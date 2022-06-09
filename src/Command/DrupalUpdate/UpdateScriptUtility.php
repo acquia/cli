@@ -151,11 +151,11 @@ class UpdateScriptUtility
     }
   }
 
-    /**
-     * After extraction copy code temp to main folder replace.
-     * Core modules, themes, profile.
-     * @param $core_dir_path
-     */
+  /**
+   * After extraction copy code temp to main folder replace.
+   * Core modules, themes, profile.
+   * @param $core_dir_path
+   */
   function coreUpdate($core_dir_path) {
     $dir    = $core_dir_path;
     $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
@@ -227,7 +227,6 @@ class UpdateScriptUtility
     }
   }
 
-  
   /**
    * Get column wise string max charcter count.
    * @param $version_detail
