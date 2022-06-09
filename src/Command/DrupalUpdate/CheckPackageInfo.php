@@ -10,17 +10,17 @@ class CheckPackageInfo
   /**
    * @var array
    */
-    public array $infoPackageFiles = [];
+  public array $infoPackageFiles = [];
 
   /**
    * @var array
    */
-    public array $infoDetailPackages = [];
+  public array $infoDetailPackages = [];
 
   /**
    * @var string[]
    */
-    public array $packageInfoKey = [
+  public array $packageInfoKey = [
         'name',
         'description',
         'package',
@@ -32,7 +32,7 @@ class CheckPackageInfo
   /**
    * @var array
    */
-    public array $availablePackageUpdates = [];
+  public array $availablePackageUpdates = [];
 
   public string $drupalCoreVersion;
 
