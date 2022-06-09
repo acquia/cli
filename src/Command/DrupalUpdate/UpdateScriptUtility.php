@@ -7,13 +7,13 @@ use PharData;
 
 class UpdateScriptUtility
 {
-  private $ignore_updates_files;
+  private $ignoreUpdatesFiles;
 
   /**
    * UpdateScriptUtility constructor.
    */
   public function __construct() {
-    $this->ignore_updates_files = [
+    $this->ignoreUpdatesFiles = [
           '.gitignore','.htaccess','CHANGELOG.txt','sites',
       ];
   }
@@ -151,20 +151,19 @@ class UpdateScriptUtility
     }
   }
 
-  /**
-   * After extraction copy code temp to main folder replace.
-   * Core modules, themes, profile.
-   * @param $actual_di_path
-   * @param $replace_dir_path
-   */
-  function coreUpdate($actual_di_path) {
-    $dir    = $actual_di_path;
-    $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $actual_di_path);
+    /**
+     * After extraction copy code temp to main folder replace.
+     * Core modules, themes, profile.
+     * @param $core_dir_path
+     */
+  function coreUpdate($core_dir_path) {
+    $dir    = $core_dir_path;
+    $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
     $files1 = array_diff(scandir($dir), ['.', '..']);
 
     foreach($files1 as $r_dir => $c_dir){
       $tm_path = $dir . "/" . $c_dir;
-      if(!in_array($c_dir, $this->ignore_updates_files)){
+      if(!in_array($c_dir, $this->ignoreUpdatesFiles)){
         if(is_dir($tm_path)){
           $this->custom_copy($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
           continue;
@@ -191,8 +190,7 @@ class UpdateScriptUtility
     while( $file = readdir($dir) ) {
 
       if (( $file != '.' ) && ( $file != '..' )) {
-        if ( is_dir($src . '/' . $file) )
-                {
+        if ( is_dir($src . '/' . $file) ) {
 
           // Recursively calling custom copy function
           // for sub directory
@@ -229,50 +227,7 @@ class UpdateScriptUtility
     }
   }
 
-  /**
-   * Compare two versions.
-   * @param $v1
-   * @param $v2
-   * @return int
-   */
-  function versionCompare($v1, $v2) {
-    // vnum stores each numeric
-    // part of version
-    $vnum1 = 0;
-    $vnum2 = 0;
-
-    // loop until both string are
-    // processed
-    for ($i = 0, $j = 0; ($i < strlen($v1)
-          || $j < strlen($v2));) {
-      // storing numeric part of
-      // version 1 in vnum1
-      while ($i < strlen($v1) && $v1[$i] != '.') {
-        $vnum1 = $vnum1 * 10 + ( (int) ($v1[$i]) );
-        $i++;
-      }
-
-      // storing numeric part of
-      // version 2 in vnum2
-      while ($j < strlen($v2) && $v2[$j] != '.') {
-        $vnum2 = $vnum2 * 10 + ( (int) ($v2[$j]));
-        $j++;
-      }
-
-      if ($vnum1 > $vnum2)
-                return 1;
-      if ($vnum2 > $vnum1)
-                return -1;
-
-      // if equal, reset variables and
-      // go for next numeric part
-      $vnum1 = $vnum2 = 0;
-      $i++;
-      $j++;
-    }
-    return 0;
-  }
-
+  
   /**
    * Get column wise string max charcter count.
    * @param $version_detail

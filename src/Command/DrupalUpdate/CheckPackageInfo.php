@@ -3,22 +3,24 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Composer\Semver\Comparator;
+
 class CheckPackageInfo
 {
   /**
    * @var array
    */
-  public  $infoPackageFiles = [];
+    public array $infoPackageFiles = [];
 
   /**
    * @var array
    */
-  public  $infoDetailPackages = [];
+    public array $infoDetailPackages = [];
 
   /**
    * @var string[]
    */
-  public  $packageInfoKey = [
+    public array $packageInfoKey = [
         'name',
         'description',
         'package',
@@ -30,9 +32,9 @@ class CheckPackageInfo
   /**
    * @var array
    */
-  public $availablePackageUpdates = [];
+    public array $availablePackageUpdates = [];
 
-  public $drupalCoreVersion;
+  public string $drupalCoreVersion;
 
   /**
    * @return mixed
@@ -185,7 +187,7 @@ class CheckPackageInfo
       $this->availablePackageUpdates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($t = 0; $t < count($release_detail['releases']['release']); $t++) {
         $version2 = $release_detail['releases']['release'][$t]['version'];
-        $version_comparision = $this->updateScriptUtility->versionCompare($version1, $version2);
+        $version_comparision = Comparator::lessThan($version1, $version2);
         if ( $version_comparision < 0 ) {
           $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
           return;
