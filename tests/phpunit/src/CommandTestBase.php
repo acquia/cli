@@ -678,7 +678,7 @@ abstract class CommandTestBase extends TestBase {
   protected function mockGitLabPermissionsRequest($application_uuid) {
     $permissions_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
     $permissions = $permissions_response->_embedded->items;
-    $permission = reset($permissions);
+    $permission = clone reset($permissions);
     $permission->name = "administer environment variables on non-prod";
     $permissions[] = $permission;
     $this->clientProphecy->request('get', "/applications/{$application_uuid}/permissions")

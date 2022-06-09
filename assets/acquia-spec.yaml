@@ -2018,6 +2018,63 @@ components:
           legacy:
             type: boolean
             description: Whether this is a legacy CSR (meant for use with ELB certificates).
+    CloudAction:
+      type: object
+      required:
+        - id
+        - label
+        - description
+        - type
+        - flags
+        - _links
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The Cloud Action ID.
+        label:
+          type: string
+          description: The human-readable Cloud Action label.
+        description:
+          type: string
+          description: The description of a Cloud Action.
+        type:
+          type: string
+          description: The type of Cloud Action.
+        flags:
+          $ref: '#/components/schemas/CloudActionsFlags'
+        _links:
+          $ref: '#/components/schemas/Links'
+    CloudActions:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of Cloud Actions.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/CloudAction'
+    CloudActionsFlags:
+      type: object
+      description: Various flags for the Cloud Action.
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether the Cloud Action is enabled.
+        default:
+          type: boolean
+          description: Indicates whether the Cloud Action is a default action.
+    CloudActionId:
+      type: string
+      format: uuid
+      description: A Cloud Action ID.
     Cron:
       type: object
       required:
@@ -2573,6 +2630,9 @@ components:
           cdn:
             type: boolean
             description: Determines if the environment has Platform CDN enabled.
+          cloud-actions:
+            type: boolean
+            description: Determines if the environment has Cloud Actions enabled.
           email:
             type: boolean
             description: Determines if the environment has Platform Email enabled.
@@ -2994,6 +3054,17 @@ components:
           items:
             type: string
             format: uri
+    PutCloudActions:
+      type: object
+      description: A Cloud Action or a series of Cloud Actions paired with enable or disable boolean value.
+      required:
+        - cloud-actions
+      properties:
+        cloud-actions:
+          type: object
+          additionalProperties:
+            type: boolean
+            description: Whether this Cloud Action is enabled.
     PutCron:
       type: object
       properties:
@@ -3105,6 +3176,11 @@ components:
         message:
           type: string
           description: An optional commit message to include when creating a new tag.
+        cloud-actions:
+          type: array
+          description: An optional array of Cloud Actions.
+          items:
+            $ref: '#/components/schemas/CloudActionId'
     ImportSiteRequest:
       type: object
       required:
@@ -3125,6 +3201,11 @@ components:
         branch:
           type: string
           description: The name of the branch or tag to switch to.
+        cloud-actions:
+          type: array
+          description: An optional array of Cloud Actions.
+          items:
+            $ref: '#/components/schemas/CloudActionId'
     Ides:
       type: object
       required:
@@ -3241,405 +3322,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/IdentityProvider'
-    Insight:
-      type: object
-      required:
-        - uuid
-        - label
-        - hostname
-        - status
-        - updated_at
-        - last_connected_at
-        - scores
-        - counts
-        - flags
-        - _links
-      description: Insight site response object.
-      properties:
-        uuid:
-          type: string
-          format: uuid
-          description: The site UUID.
-        label:
-          type: string
-          description: The site label.
-        hostname:
-          type: string
-          format: uri
-          description: The site uri.
-        status:
-          type: string
-          description: The site status.
-          enum:
-            - ok
-            - not-found
-            - not-processed
-            - no-data
-            - error
-        updated_at:
-          type: string
-          format: date-time
-          description: Last updated time.
-        last_connected_at:
-          type: string
-          format: date-time
-          description: Last connected time.
-        scores:
-          type: object
-          description: An array of Insight scores for various categories.
-          additionalProperties:
-            type: object
-            properties:
-              insight:
-                type: integer
-              seo:
-                type: integer
-        counts:
-          type: object
-          description: Site scores counts.
-          properties:
-            best_practices:
-              $ref: '#/components/schemas/InsightScoreCounts'
-            performance:
-              $ref: '#/components/schemas/InsightScoreCounts'
-            security:
-              $ref: '#/components/schemas/InsightScoreCounts'
-        flags:
-          $ref: '#/components/schemas/InsightFlags'
-        _links:
-          $ref: '#/components/schemas/Links'
-    InsightAlert:
-      type: object
-      required:
-        - alert_id
-        - uuid
-        - name
-        - message
-        - article_link
-        - severity
-        - severity_label
-        - failed_value
-        - fix_details
-        - categories
-        - flags
-        - _links
-      description: Insight alert response object.
-      properties:
-        alert_id:
-          type: integer
-          description: The alert id.
-        uuid:
-          type: string
-          description: The alert UUID.
-          format: uuid
-        name:
-          type: string
-          description: The alert name.
-        message:
-          type: string
-          description: The alert message.
-        article_link:
-          type: string
-          description: The article link.
-          format: uri
-        severity:
-          type: integer
-          description: The alert severity.
-        severity_label:
-          type: string
-          description: The alert severity label.
-        failed_value:
-          type: string
-          description: The failed value.
-        fix_details:
-          type: string
-          description: Details on how to fix the alert.
-        categories:
-          type: object
-          description: Alert categories.
-          properties:
-            value:
-              description: Alert category.
-              type: string
-              enum:
-                - insight
-                - security
-                - best_practices
-                - seo
-        flags:
-          $ref: '#/components/schemas/InsightAlertFlags'
-        _links:
-          $ref: '#/components/schemas/Links'
-    InsightAlertFlags:
-      type: object
-      description: An array of various flags that indicate functionality associated with Insight alerts.
-      additionalProperties:
-        type: object
-        properties:
-          ignored:
-            type: boolean
-          cleared:
-            type: boolean
-          resolved:
-            type: boolean
-          pass_hide:
-            type: boolean
-          free_tier_hide:
-            type: boolean
-    InsightAlerts:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of Insight alerts.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/InsightAlert'
-    InsightDataBySites:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of insight data by site matching the request parameters.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/Insight'
-    InsightFlags:
-      type: object
-      description: An array of various flags that indicate functionality associated with Insight.
-      additionalProperties:
-        type: object
-        properties:
-          acquia_hosted:
-            type: boolean
-          revoked:
-            type: boolean
-    InsightHistory:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of this site's historical connections to Acquia.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/InsightHistoryItem'
-    InsightHistoryItem:
-      type: object
-      required:
-        - id
-        - time
-        - site_examined
-        - code_examined
-      description: Insight history item.
-      properties:
-        id:
-          type: integer
-          description: History item id.
-        time:
-          type: string
-          description: The history item time.
-          format: date-time
-        site_examined:
-          type: boolean
-          description: If site was examined.
-        code_examined:
-          type: boolean
-          description: If site code was examined.
-    InsightModule:
-      type: object
-      required:
-        - module_id
-        - name
-        - filename
-        - version
-        - supported_majors
-        - recommended_major
-        - package
-        - core
-        - project
-        - release_date
-        - flags
-        - tags
-      description: Insight module object.
-      properties:
-        module_id:
-          type: integer
-          description: The module id.
-        name:
-          type: string
-          description: The module name.
-        filename:
-          type: string
-          description: The module file location.
-        version:
-          type: string
-          description: The module version.
-        supported_majors:
-          type: string
-          description: The supported major versions of the module.
-        recommended_major:
-          type: string
-          description: The recommended major version.
-        package:
-          type: string
-          description: The module package.
-        core:
-          type: string
-          description: The core version.
-        project:
-          type: string
-          description: The module project name.
-        release_date:
-          type: string
-          description: The module release date.
-          format: date-time
-        flags:
-          type: object
-          description: Additional module status info.
-          properties:
-            enabled:
-              type: boolean
-              description: If the module is enabled.
-        tags:
-          type: array
-          description: Additional module release info.
-          items:
-            type: string
-    InsightModules:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of modules installed on a site.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/InsightModule'
-    InsightScore:
-      type: object
-      required:
-        - id
-        - insight
-        - seo
-        - performance
-        - security
-        - best_practices
-        - time
-      description: Insight score object.
-      properties:
-        id:
-          type: integer
-          description: The score object id.
-        insight:
-          type: integer
-          description: The insight score.
-          minimum: 0
-          maximum: 100
-        seo:
-          type: integer
-          description: The SEO score.
-        performance:
-          type: integer
-          description: The performance score.
-        security:
-          type: integer
-          description: The security score.
-        best_practices:
-          type: integer
-          description: The best practices score.
-        time:
-          type: string
-          description: The time of the site examination.
-          format: date-time
-    InsightScoreCounts:
-      type: object
-      required:
-        - pass
-        - fail
-        - ignored
-        - total
-        - percent
-      properties:
-        pass:
-          type: integer
-          description: The number of passing tests.
-        fail:
-          type: integer
-          description: The number of failing tests.
-        ignored:
-          type: integer
-          description: The number of ignored tests.
-        total:
-          type: integer
-          description: The number of total tests.
-        percent:
-          type: integer
-          description: The percentage of passing tests.
-          minimum: 0
-          maximum: 100
-    InsightScores:
-      type: object
-      required:
-        - total
-        - _links
-        - _embedded
-      properties:
-        total:
-          type: integer
-          description: The number of items returned in the collection.
-        _links:
-          $ref: '#/components/schemas/Links'
-        _embedded:
-          type: object
-          description: A collection of Insight scores.
-          properties:
-            items:
-              type: array
-              items:
-                $ref: '#/components/schemas/InsightScore'
     ApplicationUsageMetric:
       type: object
       description: Provides details about views and visits for an application.
@@ -5103,7 +4785,7 @@ components:
       type: object
       description: |
         A subscription is the product that allows for applications to be hosted with Acquia.
-        In addition, a subscription grants access to various additional services, such as Acquia Insight.
+        In addition, a subscription grants access to various additional services.
       required:
         - id
         - uuid
@@ -5113,8 +4795,6 @@ components:
         - product
         - applications_total
         - applications_used
-        - advisory_hours_total
-        - advisory_hours_used
         - organization
         - flags
         - _links
@@ -5157,12 +4837,6 @@ components:
         applications_used:
           type: integer
           description: The number of applications used.
-        advisory_hours_total:
-          type: number
-          description: The number of advisory hours this subscription is entitled to.
-        advisory_hours_used:
-          type: number
-          description: The number of hours used.
         organization:
           type: object
           deprecated: true
@@ -8501,8 +8175,6 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/features'
                   ides:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/ides'
-                  insight:
-                    href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/insight'
                   permissions:
                     href: 'https://cloud.acquia.com/api/applications/185f07c7-9c4f-407b-8968-67892ebcb38a/permissions'
                   search:
@@ -9878,7 +9550,7 @@ paths:
                 No data or permission:
                   value:
                     error: not_found
-                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+                    message: 'The data you are trying to access does not exist, or you do not have permission to access it.'
   '/applications/{applicationUuid}/permissions':
     get:
       tags:
@@ -9897,7 +9569,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApplicationsPermissions'
               example:
-                total: 51
+                total: 49
                 flags:
                   administrator: false
                 _links:
@@ -9907,18 +9579,6 @@ paths:
                     href: 'https://cloud.acquia.com/api/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470'
                 _embedded:
                   items:
-                    - name: administer alerts
-                      label: Manage Insight alerts
-                      description: Grants the ability to ignore alerts and change settings on a Drupal website using the "Fix it Now" feature.
-                      group_label: Insight
-                      flags:
-                        deprecated: false
-                    - name: revoke insight installs
-                      title: Revoke Insight sites
-                      description: Grants the ability to revoke sites so they can no longer submit data.
-                      group_label: Insight
-                      flags:
-                        deprecated: false
                     - name: deploy to non-prod
                       label: 'Pull and deploy code, files, or databases to non-production environments'
                       description: Grants the ability to enable or disable live development and non-production work.
@@ -12705,139 +12365,6 @@ paths:
                     - name: example-feature
                       label: Example feature.
                       description: Allows access to Example feature.
-  '/applications/{applicationUuid}/insight':
-    get:
-      tags:
-        - Applications
-      summary: Returns Insight data for all sites associated with the application by its UUID.
-      description: Returns Insight data for all sites associated with the application.
-      deprecated: true
-      operationId: getInsightDataBySites
-      x-cli-name: 'applications:insight-data-find'
-      parameters:
-        - $ref: '#/components/parameters/ApplicationUuid'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-      security:
-        - OAuth2: []
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightDataBySites'
-              example:
-                total: 2
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/applications/74b0835e-2665-11e9-ab14-d663bd873d93/insight'
-                  parent:
-                    href: |
-                      https://cloud.acquia.com/api/applications/7829437c-2665-11e9-ab14-d663bd873d93
-                _embedded:
-                  items:
-                    - uuid: 1bc0b462-2665-11e9-ab14-d663bd873d93
-                      label: Example local development
-                      hostname: 'local.example.com:8443'
-                      status: ok
-                      updated_at: '2011-03-28T13:28:00-05:00'
-                      last_connected_at: '2011-03-28T13:11:00-05:00'
-                      scores:
-                        insight: '62'
-                        seo: '15'
-                      counts:
-                        best_practices:
-                          pass: 5
-                          fail: 1
-                          ignored: 0
-                          total: 6
-                          percent: 83
-                        performance:
-                          pass: 9
-                          fail: 10
-                          ignored: 0
-                          total: 19
-                          percent: 47
-                        security:
-                          pass: 10
-                          fail: 10
-                          ignored: 0
-                          total: 20
-                          percent: 50
-                      flags:
-                        acquia_hosted: false
-                        revoked: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/1bc0b462-2665-11e9-ab14-d663bd873d93'
-                        alerts:
-                          href: 'https://cloud.acquia.com/api/557026fc-2665-11e9-ab14-d663bd873d93/alerts'
-                        connection-history:
-                          href: 'https://cloud.acquia.com/api/insight/58e838a6-2665-11e9-ab14-d663bd873d93/connection-history'
-                        modules:
-                          href: 'https://cloud.acquia.com/api/insight/5d335bc0-2665-11e9-ab14-d663bd873d93/modules'
-                        score-history:
-                          href: 'https://cloud.acquia.com/api/insight/600c0df6-2665-11e9-ab14-d663bd873d93/score-history'
-                    - uuid: 63645c1a-2665-11e9-ab14-d663bd873d93
-                      label: 'Test Site: prod'
-                      hostname: test.example.com
-                      status: ok
-                      updated_at: '2017-03-28T13:28:00-05:00'
-                      last_connected_at: '2017-03-28T13:11:00-05:00'
-                      scores:
-                        insight: '62'
-                        seo: '15'
-                      counts:
-                        best_practices:
-                          pass: 5
-                          fail: 1
-                          ignored: 0
-                          total: 6
-                          percent: 83
-                        performance:
-                          pass: 10
-                          fail: 9
-                          ignored: 0
-                          total: 19
-                          percent: 53
-                        security:
-                          pass: 11
-                          fail: 9
-                          ignored: 0
-                          total: 20
-                          percent: 55
-                      flags:
-                        acquia_hosted: true
-                        revoked: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/63645c1a-2665-11e9-ab14-d663bd873d93'
-                        alerts:
-                          href: 'https://cloud.acquia.com/api/insight/6968be3a-2665-11e9-ab14-d663bd873d93/alerts'
-                        connection-history:
-                          href: 'https://cloud.acquia.com/api/insight/6ca73fa4-2665-11e9-ab14-d663bd873d93/connection-history'
-                        modules:
-                          href: 'https://cloud.acquia.com/api/insight/6f21bb7e-2665-11e9-ab14-d663bd873d93/modules'
-                        score-history:
-                          href: 'https://cloud.acquia.com/api/insight/71b7ba46-2665-11e9-ab14-d663bd873d93/score-history'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Application not found:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Application not supported:
-                  value:
-                    error: not_available
-                    message: Insight is not available on Node.js applications.
   '/environments/{environmentId}':
     get:
       tags:
@@ -12901,6 +12428,7 @@ paths:
                 flags:
                   cde: false
                   cdn: false
+                  cloud-actions: false
                   email: false
                   hsd: false
                   livedev: false
@@ -12933,14 +12461,12 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470'
                   parent:
                     href: 'https://cloud.acquia.com/api/environments'
-                  alerts:
-                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/alerts'
                   available-runtimes:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/available-runtimes'
                   cdn:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cdn'
-                  connection-history:
-                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/connection-history'
+                  cloud-actions:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cloud-actions'
                   crons:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons'
                   databases:
@@ -12949,16 +12475,10 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/dns'
                   domains:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/domains'
-                  insight:
-                    href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/insight'
                   logs:
                     href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/logs'
                   metrics:
                     href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/metrics'
-                  modules:
-                    href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/modules'
-                  score-history:
-                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/score-history'
                   search:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/search'
                   servers:
@@ -13947,6 +13467,320 @@ paths:
                   value:
                     error: conflict
                     message: Platform CDN is not enabled for this environment.
+  '/environments/{environmentId}/cloud-actions':
+    get:
+      tags:
+        - Environments
+      summary: Returns a list of Cloud Actions.
+      description: Returns a list of Cloud Actions on an environment.
+      operationId: getEnvironmentCloudActions
+      x-cli-name: 'environments:cloud-actions-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudActions'
+              example:
+                total: 3
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - id: f668295f-cbba-472d-8b75-c76ab89e553a
+                      label: Backup all databases
+                      description: Backs up all environment databases
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/f668295f-cbba-472d-8b75-c76ab89e553a'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                    - id: fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70
+                      label: Turn on Drupal maintenance mode
+                      description: Turns on maintenance mode on the Drupal site
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                    - id: 102590e4-382b-4726-8b3f-855d5ca4225d
+                      label: Clear all Drupal caches
+                      description: Clears all Drupal caches
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: false
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/102590e4-382b-4726-8b3f-855d5ca4225d'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Cloud Actions unavailable:
+                  value:
+                    error: not_found
+                    message: Cloud Actions are not available for this environment.
+    put:
+      tags:
+        - Environments
+      summary: Modifies an existing list of Cloud Actions.
+      description: Modifies an existing list of Cloud Actions on an environment.
+      operationId: putEnvironmentCloudActions
+      x-cli-name: 'environments:cloud-actions-update'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutCloudActions'
+            example:
+              cloud-actions:
+                fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70: true
+                9440be70-c042-47ae-9134-e85acbbd6edf: false
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PutCloudActions'
+            example:
+              $ref: '#/paths/~1environments~1%7BenvironmentId%7D~1cloud-actions/put/requestBody/content/application~1json/example'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been updated.
+                notification: 42047305-e30c-4c7e-931f-5407ce55a9e9
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/42047305-e30c-4c7e-931f-5407ce55a9e9'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/disable':
+    post:
+      tags:
+        - Environments
+      summary: Disables Cloud Actions.
+      description: Disables Cloud Actions on an environment.
+      operationId: postEnvironmentCloudActionsDisable
+      x-cli-name: 'environments:cloud-actions-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been disabled.
+                notification: 2d49d11c-f81d-46dd-89f2-fb7f2f54335f
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/2d49d11c-f81d-46dd-89f2-fb7f2f54335f'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/enable':
+    post:
+      tags:
+        - Environments
+      summary: Enables Cloud Actions.
+      description: Enables Cloud Actions on an environment.
+      operationId: postEnvironmentCloudActionsEnable
+      x-cli-name: 'environments:cloud-actions-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been enabled.
+                notification: 003e8200-6105-48bc-80a7-6ba378ac8e91
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/003e8200-6105-48bc-80a7-6ba378ac8e91'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/reset':
+    post:
+      tags:
+        - Environments
+      summary: Resets Cloud Actions.
+      description: Resets Cloud Actions to the default on an environment.
+      operationId: postEnvironmentCloudActionsReset
+      x-cli-name: 'environments:cloud-actions-reset'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been reset to the default.
+                notification: e5a15d33-ee5a-4af1-bfeb-4e76b3d33b4b
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions/reset'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/e5a15d33-ee5a-4af1-bfeb-4e76b3d33b4b'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
   '/environments/{environmentId}/code':
     post:
       tags:
@@ -13966,12 +13800,14 @@ paths:
             example:
               source: 14-0c7e79ab-1c4a-424e-8446-76ae8be7e851
               message: Optional commit message
+              cloud-actions: []
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/DeployCodeRequest'
             example:
               source: 14-0c7e79ab-1c4a-424e-8446-76ae8be7e851
               message: Optional commit message
+              cloud-actions: []
       security:
         - OAuth2: []
       responses:
@@ -14072,11 +13908,13 @@ paths:
               $ref: '#/components/schemas/SwitchCodeRequest'
             example:
               branch: my-feature-branch
+              cloud-actions: []
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/SwitchCodeRequest'
             example:
               branch: my-feature-branch
+              cloud-actions: []
       security:
         - OAuth2: []
       responses:
@@ -16591,144 +16429,6 @@ paths:
                   value:
                     error: conflict
                     message: File copying is not allowed on the Migrate Environment.
-  '/environments/{environmentId}/insight':
-    get:
-      tags:
-        - Environments
-      summary: Returns insight data.
-      description: |
-        Returns insight data for all sites associated with the environment.
-
-        Filterable fields:
-        * `label`
-        * `hostname`
-        * `revoked`
-
-        Sortable fields:
-        * `label`
-        * `hostname`
-      deprecated: true
-      operationId: getInsightForEnvironment
-      x-cli-name: 'environments:insight-data-list'
-      parameters:
-        - $ref: '#/components/parameters/EnvironmentId'
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightDataBySites'
-              example:
-                total: 2
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/environments/363261e6-2a53-11e9-b210-d663bd873d93/insight'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/environments/363261e6-2a53-11e9-b210-d663bd873d93'
-                _embedded:
-                  items:
-                    - uuid: 50227ff0-2a53-11e9-b210-d663bd873d93
-                      label: Example local development
-                      hostname: 'local.example.com:8443'
-                      status: ok
-                      updated_at: '2011-03-28T13:28:00-05:00'
-                      last_connected_at: '2011-03-28T13:11:00-05:00'
-                      scores:
-                        insight: '62'
-                        seo: '15'
-                      counts:
-                        best_practices:
-                          pass: 5
-                          fail: 1
-                          ignored: 0
-                          total: 6
-                          percent: 83
-                        performance:
-                          pass: 9
-                          fail: 10
-                          ignored: 0
-                          total: 19
-                          percent: 47
-                        security:
-                          pass: 10
-                          fail: 10
-                          ignored: 0
-                          total: 20
-                          percent: 50
-                      flags:
-                        acquia_hosted: false
-                        revoked: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93'
-                        alerts:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/alerts'
-                        connection-history:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/connection-history'
-                        modules:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/modules'
-                        score-history:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/score-history'
-                    - uuid: 50227ff0-2a53-11e9-b210-d663bd873d93
-                      label: 'Test Site: prod'
-                      hostname: test.example.com
-                      status: ok
-                      updated_at: '2017-03-28T13:28:00-05:00'
-                      last_connected_at: '2017-03-28T13:11:00-05:00'
-                      scores:
-                        insight: '62'
-                        seo: '15'
-                      counts:
-                        best_practices:
-                          pass: 5
-                          fail: 1
-                          ignored: 0
-                          total: 6
-                          percent: 83
-                        performance:
-                          pass: 10
-                          fail: 9
-                          ignored: 0
-                          total: 19
-                          percent: 53
-                        security:
-                          pass: 11
-                          fail: 9
-                          ignored: 0
-                          total: 20
-                          percent: 55
-                      flags:
-                        acquia_hosted: true
-                        revoked: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/69b1269c-2a53-11e9-b210-d663bd873d93'
-                        alerts:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/alerts'
-                        connection-history:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/connection-history'
-                        modules:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/modules'
-                        score-history:
-                          href: 'https://cloud.acquia.com/api/insight/50227ff0-2a53-11e9-b210-d663bd873d93/score-history'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not found:
-                  value:
-                    error: not_found
-                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
   '/environments/{environmentId}/logs':
     get:
       tags:
@@ -21999,691 +21699,6 @@ paths:
                   value:
                     error: conflict
                     message: The identity provider is already disabled.
-  '/insight/{siteId}':
-    get:
-      tags:
-        - Insight
-      summary: Returns insight data for a particular site.
-      deprecated: true
-      operationId: findInsightDataBySiteId
-      x-cli-name: 'insights:alert-find'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Insight'
-              example:
-                uuid: 3bb226da-9808-42df-bded-41a348b25314
-                label: 'Test Site: prod'
-                hostname: test.example.com
-                status: ok
-                updated_at: '2011-03-28T13:28:00-05:00'
-                last_connected_at: '2011-03-28T13:11:00-05:00'
-                scores:
-                  insight: '62'
-                  seo: '15'
-                counts:
-                  best_practices:
-                    pass: 5
-                    fail: 1
-                    ignored: 0
-                    total: 6
-                    percent: 83
-                  performance:
-                    pass: 9
-                    fail: 10
-                    ignored: 0
-                    total: 19
-                    percent: 47
-                  security:
-                    pass: 10
-                    fail: 10
-                    ignored: 0
-                    total: 20
-                    percent: 50
-                flags:
-                  acquia_hosted: true
-                  revoked: true
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/site_id'
-                  alerts:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/alerts'
-                  connection-history:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/connection-history'
-                  modules:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/modules'
-                  score-history:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/score-history'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No data or permission:
-                  value:
-                    error: not_found
-                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
-  '/insight/{siteId}/actions/revoke':
-    post:
-      tags:
-        - Insight
-      summary: Revokes an Insight install so it can no longer submit data using the Acquia Connector module.
-      deprecated: true
-      operationId: postRevokeInsight
-      x-cli-name: 'insights:revoke'
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Site revoked:
-                  value:
-                    message: Site revoked from submitting Insight score data.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to revoke this site.
-                Node.js app cannot be revoked:
-                  value:
-                    error: node_js_app
-                    message: Sites cannot be revoked from submitting Insight score data on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-  '/insight/{siteId}/actions/unrevoke':
-    post:
-      tags:
-        - Insight
-      summary: Un-revokes an Insight site so it can once again submit data using the Acquia Connector module. Note that the site must also be unblocked using the Acquia Connector module.
-      deprecated: true
-      operationId: postUnrevokeInsight
-      x-cli-name: 'insights:unrevoke'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              examples:
-                Site un-revoked:
-                  value:
-                    message: Site un-revoked.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to un-revoke this site.
-                Node.js app cannot be revoked:
-                  value:
-                    error: node_js_app
-                    message: Sites cannot be un-revoked from submitting Insight score data on Node.js applications.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-  '/insight/{siteId}/alerts':
-    get:
-      tags:
-        - Insight
-      summary: Returns a list of Insight alerts for this site.
-      description: |
-        Filterable fields:
-        * name
-        * severity
-        * severity_label
-
-        Sortable fields:
-        * name
-        * severity
-        * severity_label
-      deprecated: true
-      operationId: getFindInsightAlertsForSite
-      x-cli-name: 'insights:alert-list'
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightAlerts'
-              example:
-                total: 3
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/alerts'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/insight/site_id'
-                _embedded:
-                  items:
-                    - alert_id: 40
-                      uuid: a47ac10b-58cc-4372-a567-0e02b2c3d470
-                      name: PHP errors visible
-                      message: <p>Your website is configured to display PHP error messages to users. These error messages can reveal sensitive information about your website and its server to site visitors.</p>
-                      article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
-                      severity: 8
-                      severity_label: WARNING
-                      failed_value: display_errors
-                      fix_details: '<p>To suppress the error messages, edit your settings.php file.</p>'
-                      categories:
-                        - insight
-                        - security
-                      flags:
-                        ignored: false
-                        cleared: false
-                        resolved: false
-                        pass_hide: false
-                        free_tier_hide: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/a47ac10b-58cc-4372-a567-0e02b2c3d470'
-                    - alert_id: 43
-                      uuid: f938d912-a6a0-11e2-b0d3-12313931d529
-                      name: Scheduler module not enabled
-                      message: '<p>Writing content and scheduling its publishing is an easy way to keep your site current and appealing to site visitors. The Scheduler module makes it easy to release content over a period of time, and thus maintain freshness.</p>'
-                      article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
-                      severity: 0
-                      severity_label: DEBUG
-                      failed_value: scheduler
-                      fix_details: <p>Enable the Scheduler module for your website.</p>
-                      categories:
-                        - seo
-                      flags:
-                        ignored: false
-                        cleared: false
-                        resolved: false
-                        pass_hide: false
-                        free_tier_hide: false
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f938d912-a6a0-11e2-b0d3-12313931d529'
-                    - alert_id: 82
-                      uuid: f93dbb1f-a6a0-11e2-b0d3-12313931d529
-                      name: CSS optimization disabled
-                      message: '<p>With CSS optimization disabled, your website visitors are experiencing slower page performance and the server load is increased.</p>'
-                      article_link: 'https://docs.acquia.com/acquia-cloud/performance/#sts=CSS%20and%20JavaScript%20aggregation%C2%B6'
-                      severity: 16
-                      severity_label: ERROR
-                      failed_value: preprocess_css
-                      fix_details: '<p>To enable CSS optimization, on your website, open the Performance page at <code>/admin/config/development/performance</code>, and then select <strong>Aggregate and compress CSS files</strong>.</p>'
-                      categories:
-                        - insight
-                        - performance
-                      flags:
-                        ignored: false
-                        cleared: true
-                        resolved: true
-                        pass_hide: false
-                        free_tier_hide: true
-                      _links:
-                        self:
-                          href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/f93dbb1f-a6a0-11e2-b0d3-12313931d529'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No data or permission:
-                  value:
-                    error: not_found
-                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_found
-                    message: Insight alerts are not available on Node.js applications.
-  '/insight/{siteId}/alerts/{alertUuid}':
-    get:
-      tags:
-        - Insight
-      summary: Returns a specific Insight alert for this site.
-      deprecated: true
-      operationId: getInsightByUuid
-      x-cli-name: 'insights:find'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/AlertUuid'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightAlert'
-              example:
-                alert_id: 40
-                uuid: a47ac10b-58cc-4372-a567-0e02b2c3d470
-                name: PHP errors visible
-                message: <p>Your website is configured to display PHP error messages to users. These error messages can reveal sensitive information about your website and its server to site visitors.</p>
-                article_link: 'https://docs.acquia.com/acquia-cloud/insight/alerts/'
-                severity: 8
-                severity_label: WARNING
-                failed_value: display_errors
-                fix_details: '<p>To suppress the error messages, edit your settings.php file.</p>'
-                categories:
-                  - insight
-                  - security
-                flags:
-                  ignored: false
-                  cleared: false
-                  resolved: false
-                  pass_hide: false
-                  free_tier_hide: true
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts/a47ac10b-58cc-4372-a567-0e02b2c3d470'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/insight/d97bd970-3c0f-102f-a581-1231390f9c94/alerts'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No alert or permission:
-                  value:
-                    error: not_found
-                    message: 'The alert you are trying to access does not exist, or you do not have permission to access it.'
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_available
-                    message: Insight alerts are not available on Node.js applications.
-  '/insight/{siteId}/alerts/{alertUuid}/actions/ignore':
-    post:
-      tags:
-        - Insight
-      summary: Ignores an alert. An ignored alert will not be counted in the Insight score calculation.
-      deprecated: true
-      operationId: postIgnoreInsightAlert
-      x-cli-name: 'insights:alert-ignore'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/AlertUuid'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Alert ignored.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to ignore this alert.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not available on Node.js:
-                  value:
-                    error: not_found
-                    message: Insight alerts are not available on Node.js applications.
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-  '/insight/{siteId}/alerts/{alertUuid}/actions/restore':
-    post:
-      tags:
-        - Insight
-      summary: Restores an alert. A restored alert will be included in the calculation of the Insight score.
-      deprecated: true
-      operationId: postRestoreInsightAlert
-      x-cli-name: 'insights:alert-restore'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/AlertUuid'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-              example:
-                message: Alert restored.
-        '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No permission:
-                  value:
-                    error: forbidden
-                    message: You do not have permission to restore this alert.
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                Not Found:
-                  value:
-                    error: not_found
-                    message: No alert found for UUID f92f1522-a6a0-11e2-b0d3-12313931d520.
-  '/insight/{siteId}/connection-history':
-    get:
-      tags:
-        - Insight
-      summary: Returns a list of historical Insight connections for this site.
-      description: |
-        Filterable fields:
-        * code_examined
-        * site_examined
-
-        Sortable fields:
-        * code_examined
-        * site_examined
-      deprecated: true
-      operationId: getConnectionHistoryForSite
-      x-cli-name: 'insights:connection-history-list'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightHistory'
-              example:
-                total: 3
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/connection-history'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/insight/site_id'
-                _embedded:
-                  items:
-                    - id: 5
-                      connected_at: '2015-09-09T00:08:43-0400'
-                      flags:
-                        site_examined: true
-                        code_examined: false
-                    - id: 4
-                      connected_at: '2015-09-09T00:08:35-0400'
-                      flags:
-                        site_examined: true
-                        code_examined: true
-                    - id: 3
-                      connected_at: '2015-09-04T14:50:13-0400'
-                      flags:
-                        site_examined: true
-                        code_examined: true
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_available
-                    message: Insight is not available on Node.js applications.
-  '/insight/{siteId}/modules':
-    get:
-      tags:
-        - Insight
-      summary: Returns a list of Drupal modules for this site.
-      description: |
-        Filterable fields:
-        * name
-        * package
-        * project
-        * release_date
-        * version
-
-        Sortable fields:
-        * name
-        * package
-        * project
-        * release_date
-        * version
-      deprecated: true
-      operationId: getDrupalModulesForSite
-      x-cli-name: 'insights:drupal-module-list'
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightModules'
-              example:
-                total: 3
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/modules'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/insight/site_id'
-                _embedded:
-                  items:
-                    - module_id: 2
-                      name: Acquia agent
-                      filename: sites/all/modules/acquia_connector/acquia_agent/acquia_agent.module
-                      version: 7.x-3.0-alpha1
-                      supported_majors: '2,1'
-                      recommended_major: '2'
-                      package: Acquia Connector
-                      core: 7.x
-                      project: acquia_connector
-                      release_date: '2015-11-17T14:08:59-0500'
-                      flags:
-                        enabled: true
-                      tags:
-                        - contrib
-                        - upgradeable
-                        - bugfix
-                    - module_id: 7
-                      name: Aggregator
-                      filename: modules/aggregator/aggregator.module
-                      version: '7.50'
-                      supported_majors: null
-                      recommended_major: null
-                      package: Core
-                      core: 7.x
-                      project: drupal
-                      release_date: null
-                      flags:
-                        enabled: false
-                      tags:
-                        - core
-                    - module_id: 141
-                      name: A Custom Module
-                      filename: sites/all/modules/custom_module/custom_module.module
-                      version: ''
-                      supported_majors: null
-                      recommended_major: null
-                      package: Custom Module
-                      core: 7.x
-                      project: ''
-                      release_date: null
-                      flags:
-                        enabled: false
-                      tags:
-                        - custom
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_available
-                    message: Insight is not available on Node.js applications.
-  '/insight/{siteId}/score-history':
-    get:
-      tags:
-        - Insight
-      summary: Returns a list of historical Insight scores for this site.
-      description: |
-        Filterable fields:
-        * time
-
-        Sortable fields:
-        * time
-      deprecated: true
-      operationId: getScoreHistoryForSite
-      x-cli-name: 'insights:score-list'
-      security:
-        - OAuth2: []
-      parameters:
-        - $ref: '#/components/parameters/SiteId'
-        - $ref: '#/components/parameters/Sort'
-        - $ref: '#/components/parameters/Filter'
-        - $ref: '#/components/parameters/Limit'
-        - $ref: '#/components/parameters/Offset'
-        - $ref: '#/components/parameters/From'
-        - $ref: '#/components/parameters/To'
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/InsightScores'
-              example:
-                total: 2
-                _links:
-                  self:
-                    href: 'https://cloud.acquia.com/api/insight/site_id/score-history'
-                  parent:
-                    href: 'https://cloud.acquia.com/api/insight/site_id'
-                _embedded:
-                  items:
-                    - id: '8'
-                      insight: '88'
-                      seo: '15'
-                      performance: '85'
-                      security: '55'
-                      best_practices: '83'
-                      module: '100'
-                      time: '2015-09-09T00:14:26-0400'
-                    - id: '6'
-                      insight: '62'
-                      seo: '15'
-                      performance: '53'
-                      security: '55'
-                      best_practices: '83'
-                      module: '100'
-                      time: '2015-09-09T00:12:23-0400'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              examples:
-                No application or permission:
-                  value:
-                    error: not_found
-                    message: 'The application you are trying to access does not exist, or you do not have permission to access it.'
-                Not available on Node.js:
-                  value:
-                    error: not_available
-                    message: Insight is not available on Node.js applications.
   '/invites/{token}':
     get:
       tags:
@@ -23052,7 +22067,7 @@ paths:
                 No data or permission:
                   value:
                     error: not_found
-                    message: 'The Insight data you are trying to access does not exist, or you do not have permission to access it.'
+                    message: 'The data you are trying to access does not exist, or you do not have permission to access it.'
   /options:
     get:
       tags:
@@ -25667,24 +24682,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Permissions'
               example:
-                total: 51
+                total: 49
                 _links:
                   self:
                     href: 'https://cloud.acquia.com/api/permissions'
                 _embedded:
                   items:
-                    - name: administer alerts
-                      label: Manage Insight alerts
-                      description: Grants the ability to ignore alerts and change settings on a Drupal website using the "Fix it Now" feature.
-                      group_label: Insight
-                      flags:
-                        deprecated: false
-                    - name: revoke insight installs
-                      title: Revoke Insight sites
-                      description: Grants the ability to revoke sites so they can no longer submit data.
-                      group_label: Insight
-                      flags:
-                        deprecated: false
                     - name: deploy to non-prod
                       label: 'Pull and deploy code, files, or databases to non-production environments'
                       description: Grants the ability to enable or disable live development and non-production work.
@@ -26229,8 +25232,6 @@ paths:
                         type: free
                       applications_total: 3
                       applications_used: 1
-                      advisory_hours_total: 1.23
-                      advisory_hours_used: 4.56
                       organization:
                         uuid: 39f38840-c494-4622-80a5-fc40269cb42d
                         name: Acquia Inc.
@@ -26261,8 +25262,6 @@ paths:
                         type: enterprise
                       applications_total: 5
                       applications_used: 2
-                      advisory_hours_total: 2.34
-                      advisory_hours_used: 5.67
                       organization:
                         uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
                         name: My Organization
@@ -26293,8 +25292,6 @@ paths:
                         type: enterprise
                       applications_total: 5
                       applications_used: 2
-                      advisory_hours_total: 3.45
-                      advisory_hours_used: 6.78
                       organization:
                         uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
                         name: My Organization
@@ -26356,8 +25353,6 @@ paths:
                   type: enterprise
                 applications_total: 10
                 applications_used: 0
-                advisory_hours_total: 0
-                advisory_hours_used: 0
                 organization:
                   uuid: 93c97126-2870-47f0-9ffd-9a92033c443e
                   name: My Organization

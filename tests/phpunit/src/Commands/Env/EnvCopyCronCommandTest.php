@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\App;
+namespace Acquia\Cli\Tests\Commands\Env;
 
-use Acquia\Cli\Command\App\CopyCronTasksCommand;
+use Acquia\Cli\Command\Env\EnvCopyCronCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -10,16 +10,16 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class CopyCronTasksCommandTest.
  *
- * @property \Acquia\Cli\Command\App\CopyCronTasksCommand $command
+ * @property \Acquia\Cli\Command\Env\EnvCopyCronCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class CopyCronTasksCommandTest extends CommandTestBase {
+class EnvCopyCronCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(CopyCronTasksCommand::class);
+    return $this->injectCommand(EnvCopyCronCommand::class);
   }
 
   /**

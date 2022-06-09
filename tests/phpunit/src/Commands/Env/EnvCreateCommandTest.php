@@ -1,8 +1,8 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands\App;
+namespace Acquia\Cli\Tests\Commands\Env;
 
-use Acquia\Cli\Command\App\CreateCdeCommand;
+use Acquia\Cli\Command\Env\EnvCreateCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -10,8 +10,8 @@ use Symfony\Component\Console\Command\Command;
 /**
  * Class CreateCdeCommandTest.
  *
- * @property \Acquia\Cli\Command\App\CreateCdeCommand $command
- * @package Acquia\Cli\Tests\Commands\App
+ * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
+ * @package Acquia\Cli\Tests\Commands\Env
  */
 class CreateCdeCommandTest extends CommandTestBase {
 
@@ -19,7 +19,7 @@ class CreateCdeCommandTest extends CommandTestBase {
    * {@inheritdoc}
    */
   protected function createCommand(): Command {
-    return $this->injectCommand(CreateCdeCommand::class);
+    return $this->injectCommand(EnvCreateCommand::class);
   }
 
   /**

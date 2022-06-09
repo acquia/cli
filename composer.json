@@ -49,7 +49,7 @@
         "symfony/validator": "^6",
         "symfony/yaml": "^6",
         "typhonius/acquia-logstream": "^0.0.12",
-        "typhonius/acquia-php-sdk-v2": "^2.1.0",
+        "typhonius/acquia-php-sdk-v2": "^2.2.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
         "zumba/amplitude-php": "^1.0.4"
     },
