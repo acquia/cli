@@ -7,13 +7,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class PackageUpdateScript
 {
-  /**
-   * Ignore files and folders list.
-   * @var string[]
-   */
-  private $ignore_updates_files = [
-        '.gitignore','.htaccess','CHANGELOG.txt','sites',
-    ];
 
   /**
    * Drupal docroot directory folder path.
@@ -128,7 +121,7 @@ class PackageUpdateScript
   /**
    * @return array
    */
-  public function getAvailableUpdatesinfo() {
+  public function getAvailableUpdatesInfo() {
     return $this->checkPackageInfo->availablePackageUpdates;
   }
 
@@ -140,7 +133,7 @@ class PackageUpdateScript
   }
 
   public function securityUpdateVersion() {
-    $version_detail = $this->getAvailableUpdatesinfo();
+    $version_detail = $this->getAvailableUpdatesInfo();
     $package_info_files = $this->getInfoFiles();
     $drupal_docroot_path = $this->getDrupalDocrootDirPath();
     $git_commit_message_detail = [];
