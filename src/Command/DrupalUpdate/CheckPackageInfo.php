@@ -34,21 +34,19 @@ class CheckPackageInfo
 
   public $drupalCoreVersion;
 
-    /**
-     * @return mixed
-     */
-    public function getDrupalCoreVersion()
-    {
-        return $this->drupalCoreVersion;
-    }
+  /**
+   * @return mixed
+   */
+  public function getDrupalCoreVersion() {
+    return $this->drupalCoreVersion;
+  }
 
-    /**
-     * @param mixed $drupalCoreVersion
-     */
-    public function setDrupalCoreVersion($drupalCoreVersion): void
-    {
-        $this->drupalCoreVersion = $drupalCoreVersion;
-    }
+  /**
+   * @param mixed $drupalCoreVersion
+   */
+  public function setDrupalCoreVersion($drupalCoreVersion): void {
+    $this->drupalCoreVersion = $drupalCoreVersion;
+  }
 
   /**
    * Flag for drupal core update only single time.
@@ -62,28 +60,26 @@ class CheckPackageInfo
    */
   private $updateScriptUtility;
 
-    /**
-     * @return UpdateScriptUtility
-     */
-    public function getUpdateScriptUtility(): UpdateScriptUtility
-    {
-        return $this->updateScriptUtility;
-    }
+  /**
+   * @return UpdateScriptUtility
+   */
+  public function getUpdateScriptUtility(): UpdateScriptUtility {
+    return $this->updateScriptUtility;
+  }
 
-    /**
-     * @param UpdateScriptUtility $updateScriptUtility
-     */
-    public function setUpdateScriptUtility(UpdateScriptUtility $updateScriptUtility): void
-    {
-        $this->updateScriptUtility = $updateScriptUtility;
-    }
+  /**
+   * @param UpdateScriptUtility $updateScriptUtility
+   */
+  public function setUpdateScriptUtility(UpdateScriptUtility $updateScriptUtility): void {
+    $this->updateScriptUtility = $updateScriptUtility;
+  }
 
   /**
    * CheckInfo constructor.
    */
   public function __construct($drupal_core_version) {
     $this->setUpdateScriptUtility(new UpdateScriptUtility());
-      $this->setDrupalCoreVersion($drupal_core_version);
+    $this->setDrupalCoreVersion($drupal_core_version);
   }
 
   /**
@@ -119,10 +115,9 @@ class CheckPackageInfo
    */
   public function fileGetInfo($filepath, $package) {
 
-
     // @todo parse_ini_file($filepath);
 
-    $info_extention_file = file_get_contents($filepath,true);
+    $info_extention_file = file_get_contents($filepath, TRUE);
     $rows = explode("\n", $info_extention_file);
     $current_v = '';
     $package_v = '';
