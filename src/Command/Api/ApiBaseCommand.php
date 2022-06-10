@@ -242,12 +242,12 @@ class ApiBaseCommand extends CommandBase {
    */
   protected function getParamFromInput(InputInterface $input, string $param_name) {
     if ($input->hasArgument($param_name)) {
-      $param = $input->getArgument($param_name);
+      return $input->getArgument($param_name);
     }
-    else {
-      $param = $input->getOption($param_name);
+    elseif ($input->hasParameterOption('--' . $param_name)) {
+      return $input->getOption($param_name);
     }
-    return $param;
+    return NULL;
   }
 
   /**
