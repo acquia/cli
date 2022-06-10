@@ -244,7 +244,7 @@ class ApiBaseCommand extends CommandBase {
     if ($input->hasArgument($param_name)) {
       return $input->getArgument($param_name);
     }
-    elseif ($input->hasParameterOption($param_name)) {
+    elseif ($input->hasParameterOption('--' . $param_name)) {
       return $input->getOption($param_name);
     }
     return NULL;
