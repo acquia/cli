@@ -1,5 +1,3 @@
-{
-    "name": "acquia/cli",
     "description": "Acquia CLI",
     "type": "library",
     "license": "GPL-2.0-only",
