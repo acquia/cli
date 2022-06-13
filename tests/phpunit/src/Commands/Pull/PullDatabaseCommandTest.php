@@ -219,9 +219,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('The certificate for www.example.com is invalid, trying alternative host other.example.com', $output);
+    try {
+      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    } catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString('Could not download remote database dump', $exception->getMessage());
+    }
   }
 
   /**
@@ -277,11 +279,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
 
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Could not download remote database dump', $exception->getMessage());
-    }
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('The certificate for www.example.com is invalid, trying alternative host other.example.com', $output);
   }
 
   /**
