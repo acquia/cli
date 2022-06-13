@@ -99,7 +99,7 @@ class ApiBaseCommand extends CommandBase {
         elseif (array_key_exists($argument->getName(), $params)
           && array_key_exists('type', $params[$argument->getName()])
           && $params[$argument->getName()]['type'] === 'boolean') {
-          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['true', 'false'], $argument->getDefault());
+          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
           $answer = $answer === 'true';
         }
         // Free form.
@@ -242,12 +242,12 @@ class ApiBaseCommand extends CommandBase {
    */
   protected function getParamFromInput(InputInterface $input, string $param_name) {
     if ($input->hasArgument($param_name)) {
-      $param = $input->getArgument($param_name);
+      return $input->getArgument($param_name);
     }
-    else {
-      $param = $input->getOption($param_name);
+    elseif ($input->hasParameterOption('--' . $param_name)) {
+      return $input->getOption($param_name);
     }
-    return $param;
+    return NULL;
   }
 
   /**
@@ -295,7 +295,7 @@ class ApiBaseCommand extends CommandBase {
     return match ($type) {
       'int', 'integer' => (int) $value,
       'bool', 'boolean' => $this->castBool($value),
-      'array' => explode(',', $value),
+      'array' => is_string($value) ? explode(',', $value): (array) $value,
       'string' => (string) $value,
       'mixed' => $value,
     };

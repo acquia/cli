@@ -28,11 +28,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: user_id
           description: 'The user ID of the user.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'ApiKey_resetUserKeys response'
@@ -57,6 +57,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -64,6 +65,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
         -
           in: query
           name: order
@@ -71,42 +73,49 @@ paths:
           schema:
             type: string
             pattern: ^(ASC|DESC)$
+          required: false
         -
           in: query
           name: source
           description: 'The source of the event.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: module
           description: 'The system name of the module.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: scope
           description: 'The general scope of the changes.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: type
           description: 'The specific type of changes.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: nid
           description: 'An associated node ID.'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: uid
           description: 'The user who made the change.'
           schema:
             type: integer
+          required: false
       responses:
         200:
           description: 'AuditEvent_getAuditEvents response'
@@ -140,11 +149,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: factory_role
           description: 'The site factory role. Currently the only supported ones are "content_editor", "platform_admin" and "site_builder".'
           schema:
             type: string
+          required: true
       requestBody:
         content:
           application/json:
@@ -173,11 +182,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: factory_role
           description: 'The site factory role. Currently the only supported ones are "content_editor", "platform_admin" and "site_builder".'
           schema:
             type: string
+          required: true
       responses:
         200:
           description: 'CentralizedRoleManagement_executeDeleteActions response'
@@ -268,6 +277,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 1000
+          required: false
         -
           in: query
           name: page
@@ -275,6 +285,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'CronJobs_getCronJobs response'
@@ -293,11 +304,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: job_id
           description: 'Cron job id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -352,11 +363,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: job_id
           description: 'Cron job id.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'CronJobs_deleteCronJob response'
@@ -374,11 +385,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: job_id
           description: 'Cron job id'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'CronJobs_getCronJob response'
@@ -397,11 +408,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: node_id
           description: 'Site node id.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Domains_getDomains response'
@@ -420,11 +431,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: domain_name
           description: 'The domain name.'
           schema:
             type: string
+          required: true
       responses:
         200:
           description: 'Domains_getDomainStatus response'
@@ -443,11 +454,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: node_id
           description: 'Site node id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -477,11 +488,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: node_id
           description: 'Site node id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -540,11 +551,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: template_name
           description: 'The template name to change. Currently the only supported ones are "site_prod", "site_nonprod", "collection_prod" and "collection_nonprod".'
           schema:
             type: string
+          required: true
       requestBody:
         content:
           application/json:
@@ -575,11 +586,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: template_name
           description: 'The template name to remove. Currently the only supported ones are "site_prod", "site_nonprod", "collection_prod" and "collection_nonprod".'
           schema:
             type: string
+          required: true
       responses:
         200:
           description: 'FactoryStandardDomains_removeFactoryStandardDomains response'
@@ -598,11 +609,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: limit
@@ -611,6 +622,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 1000
+          required: false
         -
           in: query
           name: page
@@ -618,6 +630,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'Groups_getMembers response'
@@ -635,11 +648,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -674,13 +687,12 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
-        -
           required: true
+        -
           in: query
           name: uids
           description: 'A single user ID, or an array of user IDs.'
@@ -692,6 +704,7 @@ paths:
                 type: array
                 items:
                   type: integer
+          required: true
       responses:
         200:
           description: 'Groups_removeMembers response'
@@ -710,11 +723,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Groups_getGroupById response'
@@ -732,11 +745,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Groups_deleteGroup response'
@@ -761,6 +774,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -768,6 +782,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'Groups_getGroups response'
@@ -814,11 +829,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group ID.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -848,11 +863,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -887,13 +902,12 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
-        -
           required: true
+        -
           in: query
           name: uids
           description: 'A single user ID, or an array of user IDs.'
@@ -905,6 +919,7 @@ paths:
                 type: array
                 items:
                   type: integer
+          required: true
       responses:
         200:
           description: 'Groups_removeAdmins response'
@@ -923,11 +938,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -962,13 +977,12 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
-        -
           required: true
+        -
           in: query
           name: site_ids
           description: 'Either a single site ID, or an array of site IDs.'
@@ -980,6 +994,7 @@ paths:
                 type: array
                 items:
                   type: integer
+          required: true
       responses:
         200:
           description: 'Groups_removeSites response'
@@ -997,11 +1012,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: group_id
           description: 'Group id.'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: limit
@@ -1010,6 +1025,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 1000
+          required: false
         -
           in: query
           name: page
@@ -1017,6 +1033,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'Groups_getSites response'
@@ -1039,12 +1056,14 @@ paths:
           description: 'Get only the profiles on the given stack.'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: is_enabled
           description: 'Get only the enabled/disabled profiles.'
           schema:
             type: boolean
+          required: false
       responses:
         200:
           description: 'InstallationProfiles_getInstallationProfiles response'
@@ -1063,17 +1082,18 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: profile_name
           description: 'The installation profile name.'
           schema:
             type: string
+          required: true
         -
           in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
             type: integer
+          required: false
       responses:
         200:
           description: 'InstallationProfiles_enableProfile response'
@@ -1092,17 +1112,18 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: profile_name
           description: 'The installation profile name.'
           schema:
             type: string
+          required: true
         -
           in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
             type: integer
+          required: false
       responses:
         200:
           description: 'InstallationProfiles_disableProfile response'
@@ -1121,17 +1142,18 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: profile_name
           description: 'The installation profile name.'
           schema:
             type: string
+          required: true
         -
           in: query
           name: stack_id
           description: 'The installation profile''s stack.'
           schema:
             type: integer
+          required: false
       responses:
         200:
           description: 'InstallationProfiles_setDefault response'
@@ -1149,24 +1171,26 @@ paths:
       operationId: get_PageView_getPageViewDataMonthly
       parameters:
         -
-          required: true
           in: query
           name: stack_id
           description: 'The stack id for which to fetch the dynamic request statistics. If there is only one stack, this parameter can be omitted.'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: start_from
           description: 'The first date from which to start showing the statistics in the format of YYYY-MM.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: sort_order
           description: 'The sort order direction. Either asc or desc.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: limit
@@ -1175,6 +1199,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 120
+          required: false
         -
           in: query
           name: page
@@ -1182,6 +1207,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'PageView_getPageViewDataMonthly response'
@@ -1199,31 +1225,33 @@ paths:
       operationId: get_PageView_getPageViewDataMonthlyPerDomain
       parameters:
         -
-          required: true
           in: query
           name: stack_id
           description: 'The stack id for which to fetch the dynamic request statistics. If there is only one stack, this parameter can be omitted.'
           schema:
             type: integer
-        -
           required: true
+        -
           in: query
           name: date
           description: 'The month in the format of YYYY-MM.'
           schema:
             type: string
+          required: true
         -
           in: query
           name: domain_name
           description: 'Full domain name or a prefix for filtering the results.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: sort_order
           description: 'The sort order direction. Either asc or desc.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: limit
@@ -1232,6 +1260,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -1239,6 +1268,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'PageView_getPageViewDataMonthlyPerDomain response'
@@ -1286,11 +1316,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: task_id
           description: TaskID.
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -1298,11 +1328,12 @@ paths:
               type: object
               properties:
                 paused:
-                  description: 'leave the task in paused or unpaused state.'
+                  description: 'Leave the task in paused or unpaused state.'
                   type: boolean
                 level:
-                  description: 'pauses/unpauses just the specified task or all its children.'
+                  description: 'Pause/unpause just the specified task or all its children (task|family).'
                   type: string
+                  pattern: ^(task|family)$
               required:
                 - paused
       responses:
@@ -1344,6 +1375,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -1351,6 +1383,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
         -
           in: query
           name: order
@@ -1358,6 +1391,7 @@ paths:
           schema:
             type: string
             pattern: ^(ASC|DESC)$
+          required: false
       responses:
         200:
           description: 'Role_getRoles response'
@@ -1401,11 +1435,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: role_id
           description: 'The role ID of the user role.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Role_getRole response'
@@ -1423,11 +1457,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: role_id
           description: 'The role ID of the user role.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Role_deleteRole response'
@@ -1446,11 +1480,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: role_id
           description: 'The role ID of the user role.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -1498,6 +1532,7 @@ paths:
           description: 'True to only return collections containing active sites.'
           schema:
             type: boolean
+          required: false
         -
           in: query
           name: limit
@@ -1506,6 +1541,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -1513,6 +1549,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'SiteCollections_getCollections response'
@@ -1577,11 +1614,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: collection_id
           description: 'Collection ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'SiteCollections_getCollection response'
@@ -1598,11 +1635,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: collection_id
           description: 'Collection ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'SiteCollections_deleteCollection response'
@@ -1620,11 +1657,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: collection_id
           description: 'Collection ID.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -1659,11 +1696,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: collection_id
           description: 'Collection ID.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -1698,11 +1735,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: collection_id
           description: 'Collection ID.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -1904,6 +1941,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 1000
+          required: false
         -
           in: query
           name: page
@@ -1911,42 +1949,49 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
         -
           in: query
           name: canary
           description: 'No value necessary.'
           schema:
             type: boolean
+          required: false
         -
           in: query
           name: show_incomplete
           description: 'Show sites that are incomplete.'
           schema:
             type: boolean
+          required: false
         -
           in: query
           name: stack_id
           description: 'Show sites on a specific stack.'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: domain_contains
           description: 'Show sites whose domain contains this value.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: domain_not_contains
           description: 'Show sites whose domain does not contain this value.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: has_custom_domain
           description: 'Whether to only show sites with custom domains.'
           schema:
             type: boolean
+          required: false
         -
           in: query
           name: site_owner
@@ -1955,12 +2000,14 @@ paths:
             type: array
             items:
               type: integer
+          required: false
         -
           in: query
           name: show_custom_domain
           description: 'Return the first custom domain if the site has one instead of the internal one.'
           schema:
             type: boolean
+          required: false
       responses:
         200:
           description: 'Sites_getSites response'
@@ -2015,11 +2062,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Sites_getSite response'
@@ -2037,11 +2084,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Sites_deleteSite response'
@@ -2060,11 +2107,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -2102,11 +2149,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -2148,11 +2195,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: limit
@@ -2161,6 +2208,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -2168,6 +2216,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
       responses:
         200:
           description: 'Sites_getSiteBackups response'
@@ -2186,24 +2235,25 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
         -
           in: path
-          required: true
           name: backup_id
           description: 'Backup ID'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: lifetime
           description: 'The number of seconds the temporary URL is good for.'
           schema:
             type: integer
+          required: false
       responses:
         200:
           description: 'Sites_getSiteBackupUrl response'
@@ -2222,36 +2272,39 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
         -
           in: path
-          required: true
           name: backup_id
           description: 'Backup ID'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: callback_url
           description: 'The callback URL, which is invoked upon completion.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: callback_method
           description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: caller_data
           description: 'Data that should be included in the callback, json encoded.'
           schema:
             type: string
+          required: false
       responses:
         200:
           description: 'Sites_deleteSiteBackup response'
@@ -2270,11 +2323,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -2319,11 +2372,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Sites_clearCaches response'
@@ -2460,11 +2513,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: type
           description: 'Either "softpaused" or "softpause-for-update"'
           schema:
             type: string
+          required: true
       responses:
         200:
           description: 'Task_classes response'
@@ -2490,6 +2543,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -2497,24 +2551,28 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
         -
           in: query
           name: status
           description: 'processing, error or not-started'
           schema:
             type: string
+          required: false
         -
           in: query
           name: class
           description: 'A WIP class name to filter on.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: group
           description: 'A WIP group name to filter on.'
           schema:
             type: string
+          required: false
       responses:
         200:
           description: 'Task_tasks response'
@@ -2534,23 +2592,25 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: task_id
           description: 'Task ID.'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: level
           description: 'The minimum status level to display'
           schema:
             type: string
+          required: false
         -
           in: query
           name: descendants
           description: 'Include the logs of all descendant tasks.'
           schema:
             type: boolean
+          required: false
       responses:
         200:
           description: 'Task_logs response'
@@ -2569,11 +2629,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: task_id
           description: 'Task ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Task_delete response'
@@ -2592,11 +2652,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: task_id
           description: 'Task ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Task_terminate response'
@@ -2709,11 +2769,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Theme_refreshSiteExternalThemes response'
@@ -2732,11 +2792,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -2768,11 +2828,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'Theme_deleteSiteExternalTheme response'
@@ -2832,11 +2892,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: site_id
           description: 'Site ID'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -2932,7 +2992,6 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: update_id
           description: 'Either int value or ''last''.'
           schema:
@@ -2941,6 +3000,7 @@ paths:
                 type: integer
               -
                 type: string
+          required: true
       responses:
         200:
           description: 'Update_status response'
@@ -2991,6 +3051,7 @@ paths:
             type: integer
             minimum: 1
             maximum: 100
+          required: false
         -
           in: query
           name: page
@@ -2998,6 +3059,7 @@ paths:
           schema:
             type: integer
             minimum: 1
+          required: false
         -
           in: query
           name: order
@@ -3005,72 +3067,84 @@ paths:
           schema:
             type: string
             pattern: ^(ASC|DESC)$
+          required: false
         -
           in: query
           name: ids
           description: 'A comma-separated list of user IDs.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: role_ids
           description: 'A comma-separated list of role IDs.'
           schema:
             type: string
+          required: false
         -
           in: query
           name: status
           description: 'Either "active" or "blocked".'
           schema:
             type: string
+          required: false
         -
           in: query
           name: uid_min
           description: 'First uid value to start with.'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: uid_max
           description: 'Last uid value to fetch.'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: created_min
           description: 'Lowest ''created'' value (timestamp).'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: created_max
           description: 'Highest ''created'' value (timestamp).'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: login_min
           description: 'Lowest ''login'' value (timestamp).'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: login_max
           description: 'Highest ''login'' value (timestamp).'
           schema:
             type: integer
+          required: false
         -
           in: query
           name: tfa_status
           description: 'Either "active" or "disabled".'
           schema:
             type: string
+          required: false
         -
           in: query
           name: fields
           description: 'A comma-separated list of Drupal user fields.'
           schema:
             type: string
+          required: false
       responses:
         200:
           description: 'User_getUsers response'
@@ -3133,17 +3207,18 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: user_id
           description: 'The user ID of the user.'
           schema:
             type: integer
+          required: true
         -
           in: query
           name: fields
           description: 'A comma-separated list of fields to retrieve.'
           schema:
             type: string
+          required: false
       responses:
         200:
           description: 'User_getUser response'
@@ -3161,11 +3236,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: user_id
           description: 'The user ID of the user.'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'User_deleteUser response'
@@ -3184,11 +3259,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: user_id
           description: 'The user ID of the user.'
           schema:
             type: integer
+          required: true
       requestBody:
         content:
           application/json:
@@ -3240,18 +3315,19 @@ paths:
       operationId: get_Vcs_getRefs
       parameters:
         -
-          required: true
           in: query
           name: type
           description: 'Either "sites" or "factory". (Note: "factory" is restricted to Acquia employees.)'
           schema:
             type: string
+          required: true
         -
           in: query
           name: stack_id
           description: 'The stack id.'
           schema:
             type: string
+          required: false
       responses:
         200:
           description: 'Vcs_getRefs response'
@@ -3270,11 +3346,11 @@ paths:
       parameters:
         -
           in: path
-          required: true
           name: task_id
           description: 'The Wip task ID'
           schema:
             type: integer
+          required: true
       responses:
         200:
           description: 'WipTaskStatus_getWipTaskStatus response'

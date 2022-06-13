@@ -2018,6 +2018,63 @@ components:
           legacy:
             type: boolean
             description: Whether this is a legacy CSR (meant for use with ELB certificates).
+    CloudAction:
+      type: object
+      required:
+        - id
+        - label
+        - description
+        - type
+        - flags
+        - _links
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The Cloud Action ID.
+        label:
+          type: string
+          description: The human-readable Cloud Action label.
+        description:
+          type: string
+          description: The description of a Cloud Action.
+        type:
+          type: string
+          description: The type of Cloud Action.
+        flags:
+          $ref: '#/components/schemas/CloudActionsFlags'
+        _links:
+          $ref: '#/components/schemas/Links'
+    CloudActions:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of Cloud Actions.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/CloudAction'
+    CloudActionsFlags:
+      type: object
+      description: Various flags for the Cloud Action.
+      properties:
+        enabled:
+          type: boolean
+          description: Indicates whether the Cloud Action is enabled.
+        default:
+          type: boolean
+          description: Indicates whether the Cloud Action is a default action.
+    CloudActionId:
+      type: string
+      format: uuid
+      description: A Cloud Action ID.
     Cron:
       type: object
       required:
@@ -2573,6 +2630,9 @@ components:
           cdn:
             type: boolean
             description: Determines if the environment has Platform CDN enabled.
+          cloud-actions:
+            type: boolean
+            description: Determines if the environment has Cloud Actions enabled.
           email:
             type: boolean
             description: Determines if the environment has Platform Email enabled.
@@ -2994,6 +3054,17 @@ components:
           items:
             type: string
             format: uri
+    PutCloudActions:
+      type: object
+      description: A Cloud Action or a series of Cloud Actions paired with enable or disable boolean value.
+      required:
+        - cloud-actions
+      properties:
+        cloud-actions:
+          type: object
+          additionalProperties:
+            type: boolean
+            description: Whether this Cloud Action is enabled.
     PutCron:
       type: object
       properties:
@@ -3105,6 +3176,11 @@ components:
         message:
           type: string
           description: An optional commit message to include when creating a new tag.
+        cloud-actions:
+          type: array
+          description: An optional array of Cloud Actions.
+          items:
+            $ref: '#/components/schemas/CloudActionId'
     ImportSiteRequest:
       type: object
       required:
@@ -3125,6 +3201,11 @@ components:
         branch:
           type: string
           description: The name of the branch or tag to switch to.
+        cloud-actions:
+          type: array
+          description: An optional array of Cloud Actions.
+          items:
+            $ref: '#/components/schemas/CloudActionId'
     Ides:
       type: object
       required:
@@ -12347,6 +12428,7 @@ paths:
                 flags:
                   cde: false
                   cdn: false
+                  cloud-actions: false
                   email: false
                   hsd: false
                   livedev: false
@@ -12383,6 +12465,8 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/available-runtimes'
                   cdn:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cdn'
+                  cloud-actions:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/cloud-actions'
                   crons:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/crons'
                   databases:
@@ -13383,6 +13467,320 @@ paths:
                   value:
                     error: conflict
                     message: Platform CDN is not enabled for this environment.
+  '/environments/{environmentId}/cloud-actions':
+    get:
+      tags:
+        - Environments
+      summary: Returns a list of Cloud Actions.
+      description: Returns a list of Cloud Actions on an environment.
+      operationId: getEnvironmentCloudActions
+      x-cli-name: 'environments:cloud-actions-find'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloudActions'
+              example:
+                total: 3
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  sort:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - id: f668295f-cbba-472d-8b75-c76ab89e553a
+                      label: Backup all databases
+                      description: Backs up all environment databases
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/f668295f-cbba-472d-8b75-c76ab89e553a'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                    - id: fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70
+                      label: Turn on Drupal maintenance mode
+                      description: Turns on maintenance mode on the Drupal site
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: true
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                    - id: 102590e4-382b-4726-8b3f-855d5ca4225d
+                      label: Clear all Drupal caches
+                      description: Clears all Drupal caches
+                      type: pre-deployment
+                      flags:
+                        enabled: false
+                        default: false
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/102590e4-382b-4726-8b3f-855d5ca4225d'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+                Cloud Actions unavailable:
+                  value:
+                    error: not_found
+                    message: Cloud Actions are not available for this environment.
+    put:
+      tags:
+        - Environments
+      summary: Modifies an existing list of Cloud Actions.
+      description: Modifies an existing list of Cloud Actions on an environment.
+      operationId: putEnvironmentCloudActions
+      x-cli-name: 'environments:cloud-actions-update'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PutCloudActions'
+            example:
+              cloud-actions:
+                fb4aa87a-8be2-42c6-bdf0-ef9d09a3de70: true
+                9440be70-c042-47ae-9134-e85acbbd6edf: false
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PutCloudActions'
+            example:
+              $ref: '#/paths/~1environments~1%7BenvironmentId%7D~1cloud-actions/put/requestBody/content/application~1json/example'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been updated.
+                notification: 42047305-e30c-4c7e-931f-5407ce55a9e9
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/42047305-e30c-4c7e-931f-5407ce55a9e9'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/disable':
+    post:
+      tags:
+        - Environments
+      summary: Disables Cloud Actions.
+      description: Disables Cloud Actions on an environment.
+      operationId: postEnvironmentCloudActionsDisable
+      x-cli-name: 'environments:cloud-actions-disable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been disabled.
+                notification: 2d49d11c-f81d-46dd-89f2-fb7f2f54335f
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/2d49d11c-f81d-46dd-89f2-fb7f2f54335f'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/enable':
+    post:
+      tags:
+        - Environments
+      summary: Enables Cloud Actions.
+      description: Enables Cloud Actions on an environment.
+      operationId: postEnvironmentCloudActionsEnable
+      x-cli-name: 'environments:cloud-actions-enable'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been enabled.
+                notification: 003e8200-6105-48bc-80a7-6ba378ac8e91
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions/enable'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/003e8200-6105-48bc-80a7-6ba378ac8e91'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
+  '/environments/{environmentId}/cloud-actions/actions/reset':
+    post:
+      tags:
+        - Environments
+      summary: Resets Cloud Actions.
+      description: Resets Cloud Actions to the default on an environment.
+      operationId: postEnvironmentCloudActionsReset
+      x-cli-name: 'environments:cloud-actions-reset'
+      security:
+        - OAuth2: []
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageWithLinks'
+              example:
+                message: Cloud Actions have been reset to the default.
+                notification: e5a15d33-ee5a-4af1-bfeb-4e76b3d33b4b
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions/reset'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/123-af127084-204d-430c-a2b7-3a6130269b27/cloud-actions/actions'
+                  notification:
+                    href: 'https://cloud.acquia.com/api/notifications/e5a15d33-ee5a-4af1-bfeb-4e76b3d33b4b'
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                No permission:
+                  value:
+                    error: forbidden
+                    message: You do not have permission to manage Cloud Actions on this environment.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
   '/environments/{environmentId}/code':
     post:
       tags:
@@ -13402,12 +13800,14 @@ paths:
             example:
               source: 14-0c7e79ab-1c4a-424e-8446-76ae8be7e851
               message: Optional commit message
+              cloud-actions: []
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/DeployCodeRequest'
             example:
               source: 14-0c7e79ab-1c4a-424e-8446-76ae8be7e851
               message: Optional commit message
+              cloud-actions: []
       security:
         - OAuth2: []
       responses:
@@ -13508,11 +13908,13 @@ paths:
               $ref: '#/components/schemas/SwitchCodeRequest'
             example:
               branch: my-feature-branch
+              cloud-actions: []
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/SwitchCodeRequest'
             example:
               branch: my-feature-branch
+              cloud-actions: []
       security:
         - OAuth2: []
       responses:
