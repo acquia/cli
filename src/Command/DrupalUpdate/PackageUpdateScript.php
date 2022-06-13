@@ -3,7 +3,11 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Console\Helper\Table;
 
 class PackageUpdateScript
 {
@@ -44,16 +48,18 @@ class PackageUpdateScript
    */
   private UpdateScriptUtility $updateScriptUtility;
 
-  /**
-   * UpdateScript constructor.
-   * @param String $drupal_dir_path
-   * @param SymfonyStyle $io
-   */
-  public function __construct(string $drupal_dir_path, SymfonyStyle $io, string $drupal_core_version) {
-    $this->checkPackageInfo = new CheckPackageInfo($drupal_core_version);
+    /**
+     * UpdateScript constructor.
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @param CheckPackageInfo $checkPackageInfo
+     */
+  public function __construct(InputInterface $input,
+                              OutputInterface $output,CheckPackageInfo $checkPackageInfo ) {
+    $this->checkPackageInfo = $checkPackageInfo;
     $this->updateScriptUtility = $this->checkPackageInfo->getUpdateScriptUtility();
-    $this->setDrupalDocrootDirPath($drupal_dir_path);
-    $this->io = $io;
+    $this->setDrupalDocrootDirPath($this->checkPackageInfo->getDrupalRootDirPath());
+    $this->io = new SymfonyStyle($input, $output);
   }
 
   /**
@@ -78,29 +84,30 @@ class PackageUpdateScript
   /**
    * Scan the directory and sub directory recorsive.
    * Get the list of all .info files list with path.
-   *
    */
   public function getInfoFilesList() {
-    $dir = $this->drupalDocrootDirPath;
-    $scaned_files = array_diff(scandir($dir), ['.', '..']);
-    foreach($scaned_files as $child_dir){
-      $package_path = $dir . "/" . $child_dir;
-      if(is_dir($package_path)){
-        $scanned_file_path = array_diff(scandir($package_path), ['.', '..']);
-        $this->checkPackageInfo->getFilesInfo($scanned_file_path, $package_path);
-      }elseif($this->checkPackageInfo->endsWith($child_dir, '.info')){
-        if(isset($this->checkPackageInfo->infoPackageFiles[$child_dir])){
-          if(is_array($this->checkPackageInfo->infoPackageFiles[$child_dir])){
-            $this->checkPackageInfo->infoPackageFiles[$child_dir][] = $dir . "/" . $child_dir;
-          }else{
-            $this->checkPackageInfo->infoPackageFiles[$child_dir][] = $this->checkPackageInfo->infoPackageFiles[$child_dir];
-            $this->checkPackageInfo->infoPackageFiles[$child_dir] = $dir . "/" . $child_dir;
+      $dir = $this->drupalDocrootDirPath;
+      $finder = new Finder();
+      $finder->files()->in($dir)->name('*.info');
+      foreach ($finder as $file) {
+          $package_dir_path = $file->getRealPath();
+          $package_dir = basename($package_dir_path);
+          if($this->checkPackageInfo->endsWith($package_dir_path, '.info')){
+              if(isset($this->checkPackageInfo->infoPackageFiles[$package_dir])){
+                  if(is_array($this->checkPackageInfo->infoPackageFiles[$package_dir])){
+                      $this->checkPackageInfo->infoPackageFiles[$package_dir][] = $package_dir_path;
+                  }else{
+                      $directory_temp_path = $this->checkPackageInfo->infoPackageFiles[$package_dir];
+                      $this->checkPackageInfo->infoPackageFiles[$package_dir]=[];
+                      $this->checkPackageInfo->infoPackageFiles[$package_dir][] = $directory_temp_path;
+                      $this->checkPackageInfo->infoPackageFiles[$package_dir][] = $package_dir_path;
+                  }
+              }else{
+                  $this->checkPackageInfo->infoPackageFiles[$package_dir] = $package_dir_path;
+              }
           }
-        }else{
-          $this->checkPackageInfo->infoPackageFiles[$child_dir] = $dir . "/" . $child_dir;
-        }
       }
-    }
+
   }
 
   /**
@@ -134,6 +141,7 @@ class PackageUpdateScript
 
   public function securityUpdateVersion() {
     $version_detail = $this->getAvailableUpdatesInfo();
+    //print_r($version_detail);
     $package_info_files = $this->getInfoFiles();
     $drupal_docroot_path = $this->getDrupalDocrootDirPath();
     $git_commit_message_detail = [];
@@ -179,6 +187,60 @@ class PackageUpdateScript
       $git_commit_message_detail[] = $git_commit_message;
     }
     return $git_commit_message_detail;
+  }
+
+  public function printPackageDetail(OutputInterface $output){
+      $version_detail = $this->getAvailableUpdatesInfo();
+      //print_r($version_detail);
+      $package_info_files = $this->getInfoFiles();
+      $drupal_docroot_path = $this->getDrupalDocrootDirPath();
+      $table = new Table($output);
+      $git_commit_message_detail=[];
+      foreach ($version_detail as $package => $versions){
+          if(!isset($versions['available_versions'][0])){
+              continue;
+          }
+          $git_commit_message=[];
+          $git_commit_message[] = $package;
+          $git_commit_message[] = $versions['package_type'];
+          $git_commit_message[] = isset($versions['current_version'])?$versions['current_version']:'';
+          $git_commit_message[] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['version']:'';
+          $git_commit_message[] = isset($versions['available_versions'][0]['terms'])?$this->checkPackageInfo->getUpdateType($versions['available_versions'][0]['terms']['term']):'';
+          $git_commit_message[] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['download_link']:'';
+          if(isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])){
+              $file_paths=[];
+              foreach ($package_info_files[$package . '.info'] as $p => $path_location){
+                  $file_path_temp =isset($path_location)?(str_replace($package . '/' . $package . '.info', '', $path_location)):'';
+                  if(($file_path_temp =='') && ($versions['package_type'] == 'module')){
+                      $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
+                  }else{
+                      $file_paths[] = ($file_path_temp !='')?realpath($file_path_temp):$drupal_docroot_path;
+                  }
+              }
+              $git_commit_message[] =$file_paths;
+          }else{
+              $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
+              $git_commit_message[] = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
+              // In some Cases where module name or directory name different then we pickup sites/all/modules as file path
+              // ex. googleanalytics, acquia_connector etc.
+              if(($file_path =='') && ($versions['package_type'] == 'module')){
+                  $git_commit_message[] = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
+              }
+          }
+          $git_commit_message_detail[] = $git_commit_message;
+      }
+      $table
+          ->setHeaders([
+              'Package Name',
+              'Package Type',
+              'Current Version',
+              'Latest Version',
+              'Update Type',
+              'Download Link',
+              'File Path'
+          ])
+          ->setRows($git_commit_message_detail);
+      $table->render();
   }
 
 }
