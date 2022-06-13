@@ -34,21 +34,6 @@ class CheckPackageInfo
    */
   public array $availablePackageUpdates = [];
 
-  public string $drupalCoreVersion;
-
-  /**
-   * @return mixed
-   */
-  public function getDrupalCoreVersion() {
-    return $this->drupalCoreVersion;
-  }
-
-  /**
-   * @param mixed $drupalCoreVersion
-   */
-  public function setDrupalCoreVersion($drupalCoreVersion): void {
-    $this->drupalCoreVersion = $drupalCoreVersion;
-  }
 
   /**
    * Flag for drupal core update only single time.
@@ -76,18 +61,52 @@ class CheckPackageInfo
     $this->updateScriptUtility = $updateScriptUtility;
   }
 
-  /**
-   * CheckInfo constructor.
-   */
-  public function __construct($drupal_core_version) {
+  private $drupalRootDirPath;
+
+  private $drupalCoreVersion;
+
+    /**
+     * @return mixed
+     */
+    public function getDrupalCoreVersion()
+    {
+        return $this->drupalCoreVersion;
+    }
+
+    /**
+     * @param mixed $drupalCoreVersion
+     */
+    public function setDrupalCoreVersion($drupalCoreVersion): void
+    {
+        $this->drupalCoreVersion = $drupalCoreVersion;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDrupalRootDirPath()
+    {
+        return $this->drupalRootDirPath;
+    }
+
+    /**
+     * @param mixed $drupalRootDirPath
+     */
+    public function setDrupalRootDirPath($drupalRootDirPath): void
+    {
+        $this->drupalRootDirPath = $drupalRootDirPath;
+    }
+    /**
+     * CheckPackageInfo constructor.
+     */
+  public function __construct() {
     $this->setUpdateScriptUtility(new UpdateScriptUtility());
-    $this->setDrupalCoreVersion($drupal_core_version);
   }
 
-  /**
-   * @param $files1
-   * @param $package_dir
-   */
+    /**
+     * @param $scanned_file_path
+     * @param $package_dir
+     */
   public function getFilesInfo($scanned_file_path, $package_dir) {
     foreach($scanned_file_path as $package_dir_path){
       $full_package_path = $package_dir . "/" . $package_dir_path;
@@ -188,7 +207,7 @@ class CheckPackageInfo
       for ($t = 0; $t < count($release_detail['releases']['release']); $t++) {
         $version2 = $release_detail['releases']['release'][$t]['version'];
         $version_comparision = Comparator::lessThan($version1, $version2);
-        if ( $version_comparision < 0 ) {
+        if ( $version_comparision !== false ) {
           $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
           return;
         }

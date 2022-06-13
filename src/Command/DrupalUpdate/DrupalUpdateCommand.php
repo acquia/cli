@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\DrupalUpdate;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Acquia\Cli\Command\DrupalUpdate\PackageUpdateScript;
 
 class DrupalUpdateCommand extends  CommandBase
 {
@@ -69,8 +70,10 @@ class DrupalUpdateCommand extends  CommandBase
         $this->setDrupalCoreVersion($constraint_matches[2]);
       }
     }
-
-    $package_update_script = new PackageUpdateScript($this->drupalRootPath, $this->io, $this->drupalCoreVersion);
+    $check_package_info = new CheckPackageInfo();
+    $check_package_info->setDrupalRootDirPath($drupal_root_path);
+    $check_package_info->setDrupalCoreVersion($this->getDrupalCoreVersion());
+    $package_update_script = new PackageUpdateScript($input, $output, $check_package_info);
     $this->io->note('Reading all packages .info files.');
     $package_update_script->getInfoFilesList();
 
@@ -78,7 +81,7 @@ class DrupalUpdateCommand extends  CommandBase
     $package_update_script->getPackageDetailInfo();
 
     $this->io->note('Checking available updates of packages.');
-    $latest_updates = $package_update_script->securityUpdateVersion();
+    $latest_updates = $package_update_script->printPackageDetail($output);
 
     $this->io->note('Updated packages details');
     $package_update_script->updateAvailableUpdates($latest_updates);
