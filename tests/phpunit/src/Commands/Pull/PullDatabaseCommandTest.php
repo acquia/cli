@@ -481,6 +481,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       'CURLOPT_FILE' => $local_filepath
     ]);
     $this->clientProphecy->addOption('progress', Argument::type('Closure'));
+    $this->clientProphecy->addOption('on_stats', Argument::type('Closure'));
+    $this->clientProphecy->getOptions()->willReturn([]);
+
     return $selected_database;
   }
 
