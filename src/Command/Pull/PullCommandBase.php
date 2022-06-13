@@ -281,22 +281,24 @@ abstract class PullCommandBase extends CommandBase {
     }
     catch (RequestException $exception) {
       if ($exception->getHandlerContext()['errno'] === 60) {
-        $this->io->warning('The certificate for ' . $url->getHost() . ' is invalid, trying alternative domains');
         $domains_resource = new Domains($acquia_cloud_client);
         $domains = $domains_resource->getAll($environment->uuid);
         foreach ($domains as $domain) {
-          if ($domain->hostname == $url->getHost()) {
+          if ($domain->hostname === $url->getHost()) {
             continue;
           }
+          $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative domain</comment>');
           $download_url = $url->withHost($domain->hostname);
           try {
             $response = $acquia_cloud_client->stream("get", $download_url, $acquia_cloud_client->getOptions());
             return $local_filepath;
           }
           catch (\Exception $exception) {
-            throw new AcquiaCliException('Could not download backup');
+            // Continue in the foreach() loop.
           }
         }
+        // If we looped through all domains and got here, we didn't download anything.
+        throw new AcquiaCliException('Could not download backup');
       }
     }
   }
