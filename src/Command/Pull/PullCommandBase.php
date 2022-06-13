@@ -18,6 +18,7 @@ use Closure;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
+use Psr\Http\Message\UriInterface;
 use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -48,6 +49,8 @@ abstract class PullCommandBase extends CommandBase {
    * @var string
    */
   private $site;
+
+  private UriInterface $backupDownloadUrl;
 
   /**
    * @param $environment
@@ -271,6 +274,9 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
       self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
     });
+    // This is really just used to allow us to inject values for $url during testing.
+    // It should be empty during normal operations.
+    $url = $this->getBackupDownloadUrl();
     $acquia_cloud_client->addOption('on_stats', function (TransferStats $stats) use (&$url) {
       $url = $stats->getEffectiveUri();
     });
@@ -303,6 +309,23 @@ abstract class PullCommandBase extends CommandBase {
 
     // If we looped through all domains and got here, we didn't download anything.
     throw new AcquiaCliException('Could not download backup');
+  }
+
+  /**
+   * @param \Psr\Http\Message\UriInterface $url
+   */
+  public function setBackupDownloadUrl(UriInterface $url) {
+    $this->backupDownloadUrl = $url;
+  }
+
+  /**
+   * @return \Psr\Http\Message\UriInterface|null
+   */
+  public function getBackupDownloadUrl(): ?UriInterface {
+    if (isset($this->backupDownloadUrl)) {
+      return $this->backupDownloadUrl;
+    }
+    return NULL;
   }
 
   /**

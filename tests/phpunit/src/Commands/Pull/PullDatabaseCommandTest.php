@@ -8,6 +8,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\StreamInterface;
@@ -271,12 +272,27 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testPullDatabaseWithInvalidSslCertificate(): void {
+    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE);
+    $inputs = $this->getInputs();
+
+    try {
+      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
+    } catch (AcquiaCliException $exception) {
+      $this->assertStringContainsString('Could not download remote database dump', $exception->getMessage());
+    }
+  }
+
+  /**
    * @param $mysql_connect_successful *
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function setupPullDatabase($mysql_connect_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE): void {
+  protected function setupPullDatabase($mysql_connect_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE, $valid_cert = TRUE): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
@@ -285,11 +301,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $databases_response = $this->mockAcsfDatabasesResponse($selected_environment);
     $database_response = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'))];
-    $selected_database = $this->mockDownloadBackup($database_response, $selected_environment);
+    $selected_database = $this->mockDownloadBackup($database_response, $selected_environment, $valid_cert);
 
     if ($multidb) {
       $database_response_2 = $databases_response[array_search('profserv2', array_column($databases_response, 'name'))];
-      $selected_database_2 = $this->mockDownloadBackup($database_response_2, $selected_environment);
+      $selected_database_2 = $this->mockDownloadBackup($database_response_2, $selected_environment, $valid_cert);
     }
 
     $ssh_helper = $this->mockSshHelper();
@@ -471,17 +487,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    *
    * @return object
    */
-  protected function mockDownloadBackup($databases_response, $selected_environment, $throw_exception = FALSE) {
+  protected function mockDownloadBackup($databases_response, $selected_environment, $valid_cert) {
     $selected_database = $databases_response;
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
-    if ($throw_exception) {
+    if (!$valid_cert) {
       $stream = $this->prophet->prophesize(StreamInterface::class);
+      /** @var RequestException|ObjectProphecy $request_exception */
       $request_exception = $this->prophet->prophesize(RequestException::class);
-      // @todo Request get context!
+      $request_exception->getHandlerContext()->willReturn(['errno' => 51]);
       $this->clientProphecy->stream('get', "/environments/{$selected_environment->id}/databases/{$selected_database->name}/backups/1/actions/download", [])
         ->willThrow($request_exception->reveal())
         ->shouldBeCalled();
+      $this->clientProphecy->stream("get", "https://other.example.com/download-backup", [])->willReturn($stream->reveal());
+      $domains_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
+      $this->clientProphecy->request('get', "/environments/{$selected_environment->id}/domains")->willReturn($domains_response->_embedded->items);
+      $this->command->setBackupDownloadUrl(new Uri( 'https://www.example.com/download-backup'));
     }
     else {
       $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
