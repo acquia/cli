@@ -7,8 +7,10 @@ use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
+use GuzzleHttp\Exception\RequestException;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
@@ -469,11 +471,21 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    *
    * @return object
    */
-  protected function mockDownloadBackup($databases_response, $selected_environment) {
+  protected function mockDownloadBackup($databases_response, $selected_environment, $throw_exception = FALSE) {
     $selected_database = $databases_response;
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
-    $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
+    if ($throw_exception) {
+      $stream = $this->prophet->prophesize(StreamInterface::class);
+      $request_exception = $this->prophet->prophesize(RequestException::class);
+      // @todo Request get context!
+      $this->clientProphecy->stream('get', "/environments/{$selected_environment->id}/databases/{$selected_database->name}/backups/1/actions/download", [])
+        ->willThrow($request_exception->reveal())
+        ->shouldBeCalled();
+    }
+    else {
+      $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
+    }
     $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
     $this->clientProphecy->addOption('sink', $local_filepath);
     $this->clientProphecy->addOption('curl.options', [
