@@ -9,12 +9,15 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
+use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
 use Exception;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\TransferStats;
 use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -145,7 +148,7 @@ abstract class PullCommandBase extends CommandBase {
       }
 
       $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
-      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
+      $local_filepath = $this->downloadDatabaseBackup($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
 
       if ($no_import) {
@@ -243,8 +246,9 @@ abstract class PullCommandBase extends CommandBase {
    * @param callable|null $output_callback
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function downloadDatabaseDump(
+  protected function downloadDatabaseBackup(
     $environment,
     $database,
     BackupResponse $backup_response,
@@ -267,9 +271,34 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
       self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
     });
-    $database_backups = new DatabaseBackups($acquia_cloud_client);
-    $database_backups->download($environment->uuid, $database->name, $backup_response->id);
-    return $local_filepath;
+    $acquia_cloud_client->addOption('on_stats', function (TransferStats $stats) use (&$url) {
+      $url = $stats->getEffectiveUri();
+    });
+
+    try {
+      $response = $acquia_cloud_client->stream("get", "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $acquia_cloud_client->getOptions());
+      return $local_filepath;
+    }
+    catch (RequestException $exception) {
+      if ($exception->getHandlerContext()['errno'] === 60) {
+        $this->io->warning('The certificate for ' . $url->getHost() . ' is invalid, trying alternative domains');
+        $domains_resource = new Domains($acquia_cloud_client);
+        $domains = $domains_resource->getAll($environment->uuid);
+        foreach ($domains as $domain) {
+          if ($domain->hostname == $url->getHost()) {
+            continue;
+          }
+          $download_url = $url->withHost($domain->hostname);
+          try {
+            $response = $acquia_cloud_client->stream("get", $download_url, $acquia_cloud_client->getOptions());
+            return $local_filepath;
+          }
+          catch (\Exception $exception) {
+            throw new AcquiaCliException('Could not download backup');
+          }
+        }
+      }
+    }
   }
 
   /**
