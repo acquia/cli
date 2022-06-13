@@ -240,7 +240,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $environment
+   * @param EnvironmentResponse $environment
    * @param $database
    * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
    * @param callable|null $output_callback
@@ -288,7 +288,7 @@ abstract class PullCommandBase extends CommandBase {
           if ($domain->hostname === $url->getHost()) {
             continue;
           }
-          $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative domain</comment>');
+          $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative host ' . $domain->hostname . ' </comment>');
           $download_url = $url->withHost($domain->hostname);
           try {
             $response = $acquia_cloud_client->stream("get", $download_url, $acquia_cloud_client->getOptions());
@@ -298,10 +298,11 @@ abstract class PullCommandBase extends CommandBase {
             // Continue in the foreach() loop.
           }
         }
-        // If we looped through all domains and got here, we didn't download anything.
-        throw new AcquiaCliException('Could not download backup');
       }
     }
+
+    // If we looped through all domains and got here, we didn't download anything.
+    throw new AcquiaCliException('Could not download backup');
   }
 
   /**
