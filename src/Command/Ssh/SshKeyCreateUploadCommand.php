@@ -47,6 +47,7 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
     $chosen_local_key = basename($this->privateSshKeyFilepath);
     $label = $this->determineSshKeyLabel($input, $output);
     $this->uploadSshKey($label, $chosen_local_key, $public_key);
+    $this->io->success("Uploaded $chosen_local_key to the Cloud Platform with label $label");
 
     return 0;
   }
