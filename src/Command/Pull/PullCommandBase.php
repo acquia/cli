@@ -280,7 +280,8 @@ abstract class PullCommandBase extends CommandBase {
       return $local_filepath;
     }
     catch (RequestException $exception) {
-      if ($exception->getHandlerContext()['errno'] === 60) {
+      // @see https://timi.eu/docs/anatella/5_1_9_1_list-of-curl-error-co.html
+      if (in_array($exception->getHandlerContext()['errno'], [51, 60])) {
         $domains_resource = new Domains($acquia_cloud_client);
         $domains = $domains_resource->getAll($environment->uuid);
         foreach ($domains as $domain) {
