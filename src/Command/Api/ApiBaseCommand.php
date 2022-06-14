@@ -266,10 +266,19 @@ class ApiBaseCommand extends CommandBase {
     if (isset($one_of)) {
       $types = [];
       foreach ($one_of as $type) {
+        if ($type['type'] === 'array' && str_contains($value, ',')) {
+          if (array_key_exists('items', $type) && array_key_exists('type', $type['items'])) {
+            /** @var array $array */
+            $array = $this->doCastParamType('array', $value);
+            $item_type = $type['items']['type'];
+            foreach ($array as $key => $value) {
+              $array[$key] = $this->doCastParamType($item_type, $value);
+            }
+            return $array;
+          }
+          return $this->doCastParamType('array', $value);
+        }
         $types[] = $type['type'];
-      }
-      if (array_search('array', $types) && str_contains($value, ',')) {
-        return $this->doCastParamType('array', $value);
       }
       if ((array_search('integer', $types) !== FALSE || array_search('int', $types) !== FALSE)
         && ctype_digit($value)) {
@@ -286,10 +295,10 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param $type
-   * @param $value
+   * @param string $type
+   * @param mixed $value
    *
-   * @return bool|int|string
+   * @return array|bool|int|string
    */
   protected function doCastParamType($type, $value) {
     return match ($type) {
