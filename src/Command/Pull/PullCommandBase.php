@@ -9,12 +9,16 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
+use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
 use Exception;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\TransferStats;
+use Psr\Http\Message\UriInterface;
 use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -45,6 +49,8 @@ abstract class PullCommandBase extends CommandBase {
    * @var string
    */
   private $site;
+
+  private UriInterface $backupDownloadUrl;
 
   /**
    * @param $environment
@@ -145,7 +151,7 @@ abstract class PullCommandBase extends CommandBase {
       }
 
       $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
-      $local_filepath = $this->downloadDatabaseDump($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
+      $local_filepath = $this->downloadDatabaseBackup($source_environment, $database, $backup_response, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
 
       if ($no_import) {
@@ -237,14 +243,15 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $environment
+   * @param EnvironmentResponse $environment
    * @param $database
    * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
    * @param callable|null $output_callback
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function downloadDatabaseDump(
+  protected function downloadDatabaseBackup(
     $environment,
     $database,
     BackupResponse $backup_response,
@@ -267,9 +274,58 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
       self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
     });
-    $database_backups = new DatabaseBackups($acquia_cloud_client);
-    $database_backups->download($environment->uuid, $database->name, $backup_response->id);
-    return $local_filepath;
+    // This is really just used to allow us to inject values for $url during testing.
+    // It should be empty during normal operations.
+    $url = $this->getBackupDownloadUrl();
+    $acquia_cloud_client->addOption('on_stats', function (TransferStats $stats) use (&$url) {
+      $url = $stats->getEffectiveUri();
+    });
+
+    try {
+      $response = $acquia_cloud_client->stream("get", "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $acquia_cloud_client->getOptions());
+      return $local_filepath;
+    }
+    catch (RequestException $exception) {
+      // @see https://timi.eu/docs/anatella/5_1_9_1_list-of-curl-error-co.html
+      if (in_array($exception->getHandlerContext()['errno'], [51, 60])) {
+        $domains_resource = new Domains($acquia_cloud_client);
+        $domains = $domains_resource->getAll($environment->uuid);
+        foreach ($domains as $domain) {
+          if ($domain->hostname === $url->getHost()) {
+            continue;
+          }
+          $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative host ' . $domain->hostname . ' </comment>');
+          $download_url = $url->withHost($domain->hostname);
+          try {
+            $response = $acquia_cloud_client->stream("get", $download_url, $acquia_cloud_client->getOptions());
+            return $local_filepath;
+          }
+          catch (\Exception $exception) {
+            // Continue in the foreach() loop.
+          }
+        }
+      }
+    }
+
+    // If we looped through all domains and got here, we didn't download anything.
+    throw new AcquiaCliException('Could not download backup');
+  }
+
+  /**
+   * @param \Psr\Http\Message\UriInterface $url
+   */
+  public function setBackupDownloadUrl(UriInterface $url) {
+    $this->backupDownloadUrl = $url;
+  }
+
+  /**
+   * @return \Psr\Http\Message\UriInterface|null
+   */
+  public function getBackupDownloadUrl(): ?UriInterface {
+    if (isset($this->backupDownloadUrl)) {
+      return $this->backupDownloadUrl;
+    }
+    return NULL;
   }
 
   /**
