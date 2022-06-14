@@ -366,7 +366,7 @@ abstract class CommandTestBase extends TestBase {
     $backup_id
   ) {
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $this->clientProphecy->stream('get', "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download")
+    $this->clientProphecy->stream('get', "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download", [])
       ->willReturn($stream->reveal())
       ->shouldBeCalled();
   }
