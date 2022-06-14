@@ -54,9 +54,7 @@ class PackageUpdateScript
    * @param OutputInterface $output
    * @param CheckPackageInfo $checkPackageInfo
    */
-  public function __construct(InputInterface $input,
-                              OutputInterface $output,
-  CheckPackageInfo $checkPackageInfo ) {
+  public function __construct(InputInterface $input, OutputInterface $output, CheckPackageInfo $checkPackageInfo) {
     $this->checkPackageInfo = $checkPackageInfo;
     $this->updateScriptUtility = $this->checkPackageInfo->getUpdateScriptUtility();
     $this->setDrupalDocrootDirPath($this->checkPackageInfo->getDrupalRootDirPath());
@@ -70,11 +68,8 @@ class PackageUpdateScript
     if(count($latest_security_updates)>1){
       $this->io->note('List view of available updates.');
       $this->printPackageDetail($output);
-
       $this->io->note('Start package updating.');
-
       $this->updateScriptUtility->updateCode($latest_security_updates);
-
       $this->io->note('Removing downloaded files,tar.gz files');
       $this->updateScriptUtility->unlinktarfiles($latest_security_updates);
     }else{
@@ -93,37 +88,28 @@ class PackageUpdateScript
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();
       $package_dir = basename($package_dir_path);
-        if(isset($this->checkPackageInfo->infoPackageFiles[$package_dir])){
-            $directory_temp_path = $this->checkPackageInfo->infoPackageFiles[$package_dir].",".$package_dir_path;
-            $this->checkPackageInfo->infoPackageFiles[$package_dir] = $directory_temp_path;
-        }else{
-          $this->checkPackageInfo->infoPackageFiles[$package_dir] = $package_dir_path;
-        }
+      if(isset($this->checkPackageInfo->infoPackageFiles[$package_dir])){
+        $directory_temp_path = $this->checkPackageInfo->infoPackageFiles[$package_dir] . "," . $package_dir_path;
+        $this->checkPackageInfo->infoPackageFiles[$package_dir] = $directory_temp_path;
+      }else{
+        $this->checkPackageInfo->infoPackageFiles[$package_dir] = $package_dir_path;
+      }
     }
-
   }
 
   /**
    * Get the detail information of info files.
    */
   public function getPackageDetailInfo() {
-
-
-
-
     foreach ($this->checkPackageInfo->infoPackageFiles as $key => $value){
-        if( strpos($value,"," ) !== false ) {
-            $value = explode(",",$value);
-            foreach ($value as $k => $v){
-
-                $this->checkPackageInfo->fileGetInfo($v, $key);
-
-            }
-        } else{
-
-          $this->checkPackageInfo->fileGetInfo($value, $key);
-
+      if( strpos($value, "," ) !== FALSE ) {
+        $value = explode(",", $value);
+        foreach ($value as $k => $v){
+          $this->checkPackageInfo->fileGetInfo($v, $key);
         }
+      } else{
+        $this->checkPackageInfo->fileGetInfo($value, $key);
+      }
     }
   }
 
@@ -141,6 +127,9 @@ class PackageUpdateScript
     return $this->checkPackageInfo->infoPackageFiles;
   }
 
+  /**
+   * @return array
+   */
   public function securityUpdateVersion() {
     $version_detail = $this->getAvailableUpdatesInfo();
     $package_info_files = $this->getInfoFiles();
@@ -179,8 +168,8 @@ class PackageUpdateScript
       }else{
         $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
         $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
-        // In some Cases where module name or directory name different then we pickup sites/all/modules as file path
-        // ex. googleanalytics, acquia_connector etc.
+        $this->io->note("In some Cases where module name or directory name different then we pickup sites/all/modules as file path
+         ex. googleanalytics, acquia_connector etc.");
         if(($file_path =='') && ($versions['package_type'] == 'module')){
           $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
         }
@@ -190,8 +179,10 @@ class PackageUpdateScript
     return $git_commit_message_detail;
   }
 
+  /**
+   * @param OutputInterface $output
+   */
   public function printPackageDetail(OutputInterface $output) {
-
     $version_detail = $this->getAvailableUpdatesInfo();
     $table = new Table($output);
     $git_commit_message_detail=[];
@@ -205,34 +196,9 @@ class PackageUpdateScript
       $git_commit_message[] = isset($versions['current_version'])?$versions['current_version']:'';
       $git_commit_message[] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['version']:'';
       $git_commit_message[] = isset($versions['available_versions'][0]['terms'])?$this->checkPackageInfo->getUpdateType($versions['available_versions'][0]['terms']['term']):'';
-//      $git_commit_message[] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['download_link']:'';
-//      if(isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])){
-//        $file_paths=[];
-//        foreach ($package_info_files[$package . '.info'] as $p => $path_location){
-//          $file_path_temp =isset($path_location)?(str_replace($package . '/' . $package . '.info', '', $path_location)):'';
-//          if(($file_path_temp =='') && ($versions['package_type'] == 'module')){
-//            $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
-//          }else{
-//            $file_paths[] = ($file_path_temp !='')?realpath($file_path_temp):$drupal_docroot_path;
-//          }
-//        }
-//        $git_commit_message[] =implode(",",$file_paths);
-//      }else{
-//        $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
-//        $file_path_temp = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
-//        // In some Cases where module name or directory name different then we pickup sites/all/modules as file path
-//        // ex. googleanalytics, acquia_connector etc.
-//        if(($file_path =='') && ($versions['package_type'] == 'module')){
-//            $file_path_temp_2 = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
-//            $file_path_temp = $file_path_temp.",".$file_path_temp_2;
-//        }
-//          $git_commit_message[] = $file_path_temp;
-//      }
       $git_commit_message_detail[] = $git_commit_message;
     }
-    //print_r($git_commit_message_detail);
-    $table
-          ->setHeaders([
+    $table->setHeaders([
               'Package Name',
               'Package Type',
               'Current Version',
@@ -242,7 +208,5 @@ class PackageUpdateScript
           ->setRows($git_commit_message_detail);
     $table->render();
   }
-
-
 
 }

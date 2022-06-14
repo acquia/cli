@@ -4,21 +4,32 @@
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use PharData;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class UpdateScriptUtility
 {
-  private $ignoreUpdatesFiles;
+  /**
+   * @var string[]
+   */
+  private array $ignoreUpdatesFiles;
+  /**
+   * @var SymfonyStyle
+   */
+  private SymfonyStyle $io;
 
   /**
    * UpdateScriptUtility constructor.
+   * @param InputInterface $input
+   * @param OutputInterface $output
    */
-  public function __construct() {
+  public function __construct(InputInterface $input, OutputInterface $output) {
+    $this->io = new SymfonyStyle($input, $output);
     $this->ignoreUpdatesFiles = [
           '.gitignore','.htaccess','CHANGELOG.txt','sites',
       ];
   }
-
-
 
   /**
    * Update code based on available security update.
@@ -39,7 +50,7 @@ class UpdateScriptUtility
           umask($oldmask);
           $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
         } else {
-          echo "The directory $dirname exists.";
+          $this->io->note("The directory $dirname exists.");
         }
       }
       if(is_array($value['file_path'])){
@@ -49,9 +60,7 @@ class UpdateScriptUtility
       }else{
         $this->download_remote_file($value['package'], $value['download_link'], $value['file_path']);
       }
-
     }
-
   }
 
   /**
@@ -95,7 +104,7 @@ class UpdateScriptUtility
       // @todo handle errors
     }
     if($package == 'drupal'){
-      // Replace the folder to inside docroot folder.
+      $this->io->note("Start core update.");
       $this->coreUpdate($save_to . '/drupal');
       $this->rrmdir($save_to);
     }
@@ -185,7 +194,6 @@ class UpdateScriptUtility
       if( ($k == 0) || ($value['package_type']=='core') ){
         continue;
       }
-      //echo $value['file_path']."/".$value['package'].".tar.gz \n";
       if(is_array($value['file_path'])){
         foreach ($value['file_path'] as $item){
           unlink($item . "/" . $value['package'] . ".tar.gz");
@@ -195,6 +203,5 @@ class UpdateScriptUtility
       }
     }
   }
-
 
 }
