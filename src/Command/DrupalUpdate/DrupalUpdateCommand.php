@@ -69,7 +69,7 @@ class DrupalUpdateCommand extends  CommandBase
         $this->setDrupalCoreVersion($constraint_matches[2]);
       }
     }
-    $check_package_info = new CheckPackageInfo();
+    $check_package_info = new CheckPackageInfo($input, $output);
     $check_package_info->setDrupalRootDirPath($drupal_root_path);
     $check_package_info->setDrupalCoreVersion($this->getDrupalCoreVersion());
     $package_update_script = new PackageUpdateScript($input, $output, $check_package_info);

@@ -4,7 +4,9 @@
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Composer\Semver\Comparator;
-use PHPUnit\Framework\Warning;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CheckPackageInfo
 {
@@ -28,12 +30,20 @@ class CheckPackageInfo
         'version',
         'core',
         'project',
-    ];
+  ];
 
   /**
    * @var array
    */
   public array $availablePackageUpdates = [];
+  /**
+   * @var string
+   */
+  private string $drupalRootDirPath;
+  /**
+   * @var string
+   */
+  private string $drupalCoreVersion;
 
 
   /**
@@ -41,16 +51,20 @@ class CheckPackageInfo
    * Get updates only single time of core for all core modules, themes, profile.
    * @var bool
    */
-  public $isCoreUpdated = FALSE;
+  public bool $isCoreUpdated = FALSE;
 
   /**
    * @var UpdateScriptUtility
    */
-  private $updateScriptUtility;
+  private UpdateScriptUtility $updateScriptUtility;
+  /**
+   * @var SymfonyStyle
+   */
+  private SymfonyStyle $io;
 
   /**
-   * @return UpdateScriptUtility
-   */
+ * @return UpdateScriptUtility
+ */
   public function getUpdateScriptUtility(): UpdateScriptUtility {
     return $this->updateScriptUtility;
   }
@@ -61,10 +75,6 @@ class CheckPackageInfo
   public function setUpdateScriptUtility(UpdateScriptUtility $updateScriptUtility): void {
     $this->updateScriptUtility = $updateScriptUtility;
   }
-
-  private $drupalRootDirPath;
-
-  private $drupalCoreVersion;
 
   /**
    * @return mixed
@@ -96,36 +106,13 @@ class CheckPackageInfo
 
   /**
    * CheckPackageInfo constructor.
+   * @param InputInterface $input
+   * @param OutputInterface $output
    */
-  public function __construct() {
-    $this->setUpdateScriptUtility(new UpdateScriptUtility());
-  }
-
-  /**
-   * @param $scanned_file_path
-   * @param $package_dir
-   */
-  public function getFilesInfo($scanned_file_path, $package_dir) {
-    foreach($scanned_file_path as $package_dir_path){
-      $full_package_path = $package_dir . "/" . $package_dir_path;
-      if(is_dir($full_package_path)){
-        $scanned_file_path_c = array_diff(scandir($full_package_path), ['.', '..']);
-        $this->getFilesInfo($scanned_file_path_c, $full_package_path);
-      }elseif($this->endsWith($package_dir_path, '.info')){
-        if(isset($this->infoPackageFiles[$package_dir_path])){
-          if(is_array($this->infoPackageFiles[$package_dir_path])){
-            $this->infoPackageFiles[$package_dir_path][] = $package_dir . "/" . $package_dir_path;
-          }else{
-            $temp_p = $this->infoPackageFiles[$package_dir_path];
-            $this->infoPackageFiles[$package_dir_path]=[];
-            $this->infoPackageFiles[$package_dir_path][]=$temp_p;
-            $this->infoPackageFiles[$package_dir_path][] = $package_dir . "/" . $package_dir_path;
-          }
-        }else{
-          $this->infoPackageFiles[$package_dir_path]=$package_dir . "/" . $package_dir_path;
-        }
-      }
-    }
+  public function __construct(InputInterface $input,
+                              OutputInterface $output) {
+    $this->setUpdateScriptUtility(new UpdateScriptUtility($input, $output));
+    $this->io = new SymfonyStyle($input, $output);
   }
 
   /**
@@ -133,47 +120,44 @@ class CheckPackageInfo
    * @param $package
    */
   public function fileGetInfo($filepath, $package) {
-    set_error_handler(function() {
-        // @todo when multidimension array in .info file.
-         });
-    $info_extention_file =  parse_ini_file($filepath,false,INI_SCANNER_RAW) ;
-
-    $current_v = '';
-    $package_v = '';
-    $package_alternet = '';
+    set_error_handler(function () {
+        // @todo when multi-dimension array in .info file.
+    });
+    $info_extention_file =  parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
+    $current_version = '';
+    $package_type = '';
+    $package_alternative_name = '';
     $package = str_replace(".info", "", $package);
     foreach($info_extention_file as $row => $data) {
-      //get raw data in key value pair with seprator.
-
       if(in_array(trim($row), $this->packageInfoKey)){
         $project_value = str_replace(['\'', '"'], '', $data);
         $this->infoDetailPackages[$package][$row]=$project_value;
         if( trim($row) == "project" ){
-          $package_v = trim($project_value);
+          $package_type = trim($project_value);
         }
         if( trim($row) == "version" ){
-          $current_v = trim($project_value);
+          $current_version = trim($project_value);
         }
         if( trim($row) == "package" ){
-          $package_alternet = strtolower(trim($project_value));
+          $package_alternative_name = strtolower(trim($project_value));
         }
       }
     }
 
-    // When Drupal Core version is defined in bootstrap.inc file.
-    if($current_v == 'VERSION'){
-      $current_v = $this->getDrupalCoreVersion();
+    if($current_version == 'VERSION'){
+      $this->io->note("Getting drupal core version from bootstrap.inc file.");
+      $current_version = $this->getDrupalCoreVersion();
     }
-    if($package_v == ''){
-      $package_v = ($package_alternet == 'core')?'drupal':'';
+    if($package_type == ''){
+      $package_type = ($package_alternative_name == 'core')?'drupal':'';
     }
-    if( ($this->isCoreUpdated === FALSE) || ($package_v !== 'drupal') ){
-      $this->getSecurityRelease(trim($package_v), $current_v);
+    if( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ){
+      $this->getSecurityRelease(trim($package_type), $current_version);
     }
-    if($package_v == 'drupal'){
+    if($package_type == 'drupal'){
       $this->isCoreUpdated = TRUE;
     }
-      restore_error_handler();
+    restore_error_handler();
   }
 
   /**
@@ -196,14 +180,13 @@ class CheckPackageInfo
     $release_detail = json_decode($json, TRUE);
 
     if(isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
-      $version1 = $current_version;
-      $this->availablePackageUpdates[$project]['current_version'] = $version1;
+      $this->availablePackageUpdates[$project]['current_version'] = $current_version;
       $this->availablePackageUpdates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
-      for ($t = 0; $t < count($release_detail['releases']['release']); $t++) {
-        $version2 = $release_detail['releases']['release'][$t]['version'];
-        $version_comparision = Comparator::lessThan($version1, $version2);
+      for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {
+        $available_version = $release_detail['releases']['release'][$index]['version'];
+        $version_comparision = Comparator::lessThan($current_version, $available_version);
         if ( $version_comparision !== FALSE ) {
-          $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
+          $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$index];
           return;
         }
         elseif ($version_comparision > 0){continue;}
@@ -225,20 +208,6 @@ class CheckPackageInfo
       return $update_type_array['value'];
     }
     return '';
-  }
-
-  /**
-   * Check file extentions .info or not.
-   * @param $string
-   * @param $endString
-   * @return bool
-   */
-  function endsWith($string, $endString) {
-    $len = strlen($endString);
-    if ($len == 0) {
-      return TRUE;
-    }
-    return (substr($string, -$len) === $endString);
   }
 
 }
