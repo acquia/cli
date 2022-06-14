@@ -71,7 +71,7 @@ class PackageUpdateScript
       $this->io->note('Start package updating.');
       $this->updateScriptUtility->updateCode($latest_security_updates);
       $this->io->note('Removing downloaded files,tar.gz files');
-      $this->updateScriptUtility->unlinktarfiles($latest_security_updates);
+      $this->updateScriptUtility->unlinkTarFiles($latest_security_updates);
     }else{
       $this->io->success('Branch already upto date.');
     }
