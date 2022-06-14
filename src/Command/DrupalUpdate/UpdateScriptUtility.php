@@ -55,10 +55,10 @@ class UpdateScriptUtility
       }
       if(is_array($value['file_path'])){
         foreach ($value['file_path'] as $item) {
-          $this->download_remote_file($value['package'], $value['download_link'], $item);
+          $this->downloadRemoteFile($value['package'], $value['download_link'], $item);
         }
       }else{
-        $this->download_remote_file($value['package'], $value['download_link'], $value['file_path']);
+        $this->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
       }
     }
   }
@@ -69,9 +69,9 @@ class UpdateScriptUtility
    * @param $file_url
    * @param $save_to
    */
-  function download_remote_file($package, $file_url, $save_to) {
+  function downloadRemoteFile($package, $file_url, $save_to) {
     if($package == 'drupal'){
-      $this->download_remote_file_drupal_core($package, $file_url, $save_to);
+      $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
     }
     $content = file_get_contents($file_url);
@@ -91,13 +91,13 @@ class UpdateScriptUtility
    * @param $file_url
    * @param $save_to
    */
-  function download_remote_file_drupal_core($package, $file_url, $save_to) {
+  function downloadRemoteFileDrupalCore($package, $file_url, $save_to) {
     $content = file_get_contents($file_url);
     $folder_name = str_replace('.tar.gz', '', basename($file_url));
     file_put_contents($save_to . '/' . $package . '.tar.gz', $content);
     try {
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-      $this->rrmdir($save_to . '/' . $package);
+      $this->rrmDir($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
       rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     } catch (\Exception $e) {
@@ -106,7 +106,7 @@ class UpdateScriptUtility
     if($package == 'drupal'){
       $this->io->note("Start core update.");
       $this->coreUpdate($save_to . '/drupal');
-      $this->rrmdir($save_to);
+      $this->rrmDir($save_to);
     }
   }
 
@@ -114,13 +114,13 @@ class UpdateScriptUtility
    * Remove directory and sub directory.
    * @param $dir
    */
-  function rrmdir($dir) {
+  function rrmDir($dir) {
     if (is_dir($dir)) {
       $objects = scandir($dir);
       foreach ($objects as $object) {
         if ($object != "." && $object != "..") {
           if (filetype($dir . "/" . $object) == "dir")
-                        $this->rrmdir($dir . "/" . $object);
+                        $this->rrmDir($dir . "/" . $object);
           else unlink   ($dir . "/" . $object);
         }
       }
@@ -143,7 +143,7 @@ class UpdateScriptUtility
       $tm_path = $dir . "/" . $c_dir;
       if(!in_array($c_dir, $this->ignoreUpdatesFiles)){
         if(is_dir($tm_path)){
-          $this->custom_copy($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
+          $this->customCopy($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
           continue;
         }
         rename($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
@@ -156,7 +156,7 @@ class UpdateScriptUtility
    * @param $src
    * @param $dst
    */
-  function custom_copy($src, $dst) {
+  function customCopy($src, $dst) {
 
     // open the source directory
     $dir = opendir($src);
@@ -172,7 +172,7 @@ class UpdateScriptUtility
 
           // Recursively calling custom copy function
           // for sub directory
-          $this->custom_copy($src . '/' . $file, $dst . '/' . $file);
+          $this->customCopy($src . '/' . $file, $dst . '/' . $file);
 
         }
         else {
@@ -188,7 +188,7 @@ class UpdateScriptUtility
    * Remove after copy tar files and temp folder.
    * @param $remove_file_list
    */
-  function unlinktarfiles($remove_file_list) {
+  function unlinkTarFiles($remove_file_list) {
 
     foreach ($remove_file_list as $k => $value){
       if( ($k == 0) || ($value['package_type']=='core') ){
