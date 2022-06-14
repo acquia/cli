@@ -10,4 +10,3 @@ services:
   Symfony\Component\Console\Input\InputInterface:
     alias: Symfony\Component\Console\Input\ArrayInput
     public: true
-  Symfony\Component\Console\Style\SymfonyStyle

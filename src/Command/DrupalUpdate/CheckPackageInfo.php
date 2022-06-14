@@ -4,6 +4,7 @@
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Composer\Semver\Comparator;
+use PHPUnit\Framework\Warning;
 
 class CheckPackageInfo
 {
@@ -65,48 +66,45 @@ class CheckPackageInfo
 
   private $drupalCoreVersion;
 
-    /**
-     * @return mixed
-     */
-    public function getDrupalCoreVersion()
-    {
-        return $this->drupalCoreVersion;
-    }
+  /**
+   * @return mixed
+   */
+  public function getDrupalCoreVersion() {
+    return $this->drupalCoreVersion;
+  }
 
-    /**
-     * @param mixed $drupalCoreVersion
-     */
-    public function setDrupalCoreVersion($drupalCoreVersion): void
-    {
-        $this->drupalCoreVersion = $drupalCoreVersion;
-    }
+  /**
+   * @param mixed $drupalCoreVersion
+   */
+  public function setDrupalCoreVersion($drupalCoreVersion): void {
+    $this->drupalCoreVersion = $drupalCoreVersion;
+  }
 
-    /**
-     * @return mixed
-     */
-    public function getDrupalRootDirPath()
-    {
-        return $this->drupalRootDirPath;
-    }
+  /**
+   * @return mixed
+   */
+  public function getDrupalRootDirPath() {
+    return $this->drupalRootDirPath;
+  }
 
-    /**
-     * @param mixed $drupalRootDirPath
-     */
-    public function setDrupalRootDirPath($drupalRootDirPath): void
-    {
-        $this->drupalRootDirPath = $drupalRootDirPath;
-    }
-    /**
-     * CheckPackageInfo constructor.
-     */
+  /**
+   * @param mixed $drupalRootDirPath
+   */
+  public function setDrupalRootDirPath($drupalRootDirPath): void {
+    $this->drupalRootDirPath = $drupalRootDirPath;
+  }
+
+  /**
+   * CheckPackageInfo constructor.
+   */
   public function __construct() {
     $this->setUpdateScriptUtility(new UpdateScriptUtility());
   }
 
-    /**
-     * @param $scanned_file_path
-     * @param $package_dir
-     */
+  /**
+   * @param $scanned_file_path
+   * @param $package_dir
+   */
   public function getFilesInfo($scanned_file_path, $package_dir) {
     foreach($scanned_file_path as $package_dir_path){
       $full_package_path = $package_dir . "/" . $package_dir_path;
@@ -135,32 +133,28 @@ class CheckPackageInfo
    * @param $package
    */
   public function fileGetInfo($filepath, $package) {
+    set_error_handler(function() {
+        // @todo when multidimension array in .info file.
+         });
+    $info_extention_file =  parse_ini_file($filepath,false,INI_SCANNER_RAW) ;
 
-    // @todo parse_ini_file($filepath);
-
-    $info_extention_file = file_get_contents($filepath, TRUE);
-    $rows = explode("\n", $info_extention_file);
     $current_v = '';
     $package_v = '';
     $package_alternet = '';
-    foreach($rows as $row => $data) {
-      // If no key value exist in info file.
-      if (strpos($data, '=') === FALSE){
-        continue;
-      }
+    $package = str_replace(".info", "", $package);
+    foreach($info_extention_file as $row => $data) {
       //get raw data in key value pair with seprator.
-      $row_data = explode('=', $data);
-      $package = str_replace(".info", "", $package);
-      if(in_array(trim($row_data[0]), $this->packageInfoKey)){
-        $project_value = str_replace(['\'', '"'], '', $row_data[1]);
-        $this->infoDetailPackages[$package][$row_data[0]]=$project_value;
-        if( trim($row_data[0]) == "project" ){
+
+      if(in_array(trim($row), $this->packageInfoKey)){
+        $project_value = str_replace(['\'', '"'], '', $data);
+        $this->infoDetailPackages[$package][$row]=$project_value;
+        if( trim($row) == "project" ){
           $package_v = trim($project_value);
         }
-        if( trim($row_data[0]) == "version" ){
+        if( trim($row) == "version" ){
           $current_v = trim($project_value);
         }
-        if( trim($row_data[0]) == "package" ){
+        if( trim($row) == "package" ){
           $package_alternet = strtolower(trim($project_value));
         }
       }
@@ -179,6 +173,7 @@ class CheckPackageInfo
     if($package_v == 'drupal'){
       $this->isCoreUpdated = TRUE;
     }
+      restore_error_handler();
   }
 
   /**
@@ -207,7 +202,7 @@ class CheckPackageInfo
       for ($t = 0; $t < count($release_detail['releases']['release']); $t++) {
         $version2 = $release_detail['releases']['release'][$t]['version'];
         $version_comparision = Comparator::lessThan($version1, $version2);
-        if ( $version_comparision !== false ) {
+        if ( $version_comparision !== FALSE ) {
           $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$t];
           return;
         }

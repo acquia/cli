@@ -18,38 +18,7 @@ class UpdateScriptUtility
       ];
   }
 
-  /**
-   * Generate tabular view of available updates
-   * @param $version_detail
-   */
-  function printReleaseDetail($version_detail) {
-    $string_count = $this->getStringCountOfColumn($version_detail);
-    foreach ($version_detail as $key => $value){
-      echo str_repeat("-", array_sum($string_count)+6);
-      echo "\n";
-      echo "| ";
-      $i=0;
-      foreach ($value as $v){
-        if(is_array($v)){
-          foreach ($v as $t => $a){
-            echo $a . ",";
-          }
-          echo " | ";
-        } else{
-          $repetor = $string_count[$i]-strlen($v);
-          if($repetor > 0){
-            echo $v . str_repeat(" ", $string_count[$i]-strlen($v)) . " | ";
-          }else{
-            echo $v . str_repeat(" ", 1) . " | ";
-          }
 
-        }
-        $i++;
-      }
-      echo "\n";
-    }
-    echo "\n";
-  }
 
   /**
    * Update code based on available security update.
@@ -123,7 +92,7 @@ class UpdateScriptUtility
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
       rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     } catch (\Exception $e) {
-      // handle errors
+      // @todo handle errors
     }
     if($package == 'drupal'){
       // Replace the folder to inside docroot folder.
@@ -227,33 +196,5 @@ class UpdateScriptUtility
     }
   }
 
-  /**
-   * Get column wise string max charcter count.
-   * @param $version_detail
-   * @return array
-   */
-  public function getStringCountOfColumn($version_detail) {
-    $temp = [];
-    $string_count=[];
-    $i=0;
-    foreach ($version_detail as $key => $value){
-      $j=0;
-      foreach ($value as $k => $v){
-        $temp[$j][$i]=$v;
-        $j++;
-      }
-      $i++;
-    }
-    foreach ($temp as $key => $value){
-
-      if(is_array($value)){
-        $string_count[] = strlen($value[1]);
-      }else{
-        $string_count[] = strlen($value);
-      }
-
-    }
-    return $string_count;
-  }
 
 }
