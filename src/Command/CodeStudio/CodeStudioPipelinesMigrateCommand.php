@@ -236,7 +236,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         ]
       ]
     ];
-
     $code_studio_jobs = [];
     foreach ($events_map as $event_name => $event_map) {
       $event_steps = $this->getPipelinesSection($acquia_pipelines_file_contents, $event_name);
