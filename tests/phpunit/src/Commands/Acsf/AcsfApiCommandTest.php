@@ -90,6 +90,39 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey('count', $contents);
   }
 
+  public function providerTestAcsfCommandExecutionForHttpGetMultiple() {
+    return [
+      ['get', '/api/v1/audit', '/api/v1/audit', 'acsf:info:audit-events-find', [], []],
+      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91,81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
+      ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91','81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],
+      ['post', '/api/v1/sites/{site_id}/backup', '/api/v1/sites/1/backup', 'acsf:sites:backup', ['--label' => 'foo', 'site_id' => '1'], ['label' => 'foo']],
+      ['post', '/api/v1/groups/{group_id}/members', '/api/v1/groups/2/members', 'acsf:groups:add-members', ['group_id' => '2', 'uids' => '1'], ['group_id' => 'foo', 'uids' => 1]],
+      ['post', '/api/v1/groups/{group_id}/members', '/api/v1/groups/2/members', 'acsf:groups:add-members', ['group_id' => '2', 'uids' => '1,3'], ['group_id' => 'foo', 'uids' => [1, 3]]],
+    ];
+  }
+
+  /**
+   * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testAcsfCommandExecutionForHttpGetMultiple($method, $spec_path, $path, $command, $arguments = [], $json_arguments = []): void {
+    $mock_body = $this->getMockResponseFromSpec($spec_path, $method, '200');
+    $this->clientProphecy->request($method, $path)->willReturn($mock_body)->shouldBeCalled();
+    foreach ($json_arguments as $argument_name => $value) {
+      $this->clientProphecy->addOption('json', [$argument_name => $value]);
+    }
+    $this->command = $this->getApiCommandByName($command);
+    $this->executeCommand($arguments, []);
+
+    // Assert.
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertNotNull($output);
+    $this->assertJson($output);
+    $contents = json_decode($output, TRUE);
+  }
+
   protected function setClientProphecies($client_service_class = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(AcsfClient::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
