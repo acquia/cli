@@ -145,7 +145,6 @@ class CheckPackageInfo
     }
 
     if($current_version == 'VERSION'){
-      $this->io->note("Getting drupal core version from bootstrap.inc file.");
       $current_version = $this->getDrupalCoreVersion();
     }
     if($package_type == ''){

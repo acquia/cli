@@ -68,10 +68,10 @@ class PackageUpdateScript
     if(count($latest_security_updates)>1){
       $this->io->note('List view of available updates.');
       $this->printPackageDetail($output);
-      $this->io->note('Start package updating.');
+      $this->io->note('Start package update process.');
       $this->updateScriptUtility->updateCode($latest_security_updates);
-      $this->io->note('Removing downloaded files,tar.gz files');
       $this->updateScriptUtility->unlinkTarFiles($latest_security_updates);
+      $this->io->note('Update process completed.');
     }else{
       $this->io->success('Branch already upto date.');
     }
@@ -154,6 +154,9 @@ class PackageUpdateScript
       $git_commit_message['latest_version'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['version']:'';
       $git_commit_message['update_notes'] = isset($versions['available_versions'][0]['terms'])?$this->checkPackageInfo->getUpdateType($versions['available_versions'][0]['terms']['term']):'';
       $git_commit_message['download_link'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['download_link']:'';
+        if(isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== false ) {
+            $package_info_files[$package . '.info']=explode(',', $package_info_files[$package . '.info']);
+        }
       if(isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])){
         $file_paths=[];
         foreach ($package_info_files[$package . '.info'] as $p => $path_location){
@@ -168,12 +171,11 @@ class PackageUpdateScript
       }else{
         $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
         $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
-        $this->io->note("In some Cases where module name or directory name different then we pickup sites/all/modules as file path
-         ex. googleanalytics, acquia_connector etc.");
         if(($file_path =='') && ($versions['package_type'] == 'module')){
           $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
         }
       }
+
       $git_commit_message_detail[] = $git_commit_message;
     }
     return $git_commit_message_detail;
