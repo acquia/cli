@@ -53,8 +53,10 @@ class TaskWaitCommand extends CommandBase {
         LoopHelper::finishSpinner($spinner);
         $loop->stop();
         $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
+        $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
         $this->io->success([
-          "The task with notification uuid {$notification_uuid} completed with status \"{$notification->status}.\"",
+          "The task with notification uuid {$notification_uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
+          "on " . $completed_at,
           "Task type: " . $notification->label . PHP_EOL .
           "Duration: $duration seconds",
         ]);
@@ -84,17 +86,24 @@ class TaskWaitCommand extends CommandBase {
    * @param InputInterface $input
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getNotificationUuid(InputInterface $input): string {
     $stdin= $this->getStandardInput();
     if ($stdin) {
       $json = json_decode($stdin);
       if (json_last_error() === JSON_ERROR_NONE) {
-        return $this->getNotificationUuidFromResponse($json);
+        if (property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
+          return $this->getNotificationUuidFromResponse($json);
+        }
+        throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
       }
       else {
-        throw new MissingInputException('Not enough arguments (missing: "notification-uuid")');
+        throw new MissingInputException('Standard input must contain valid a JSON string');
       }
+    }
+    elseif (!$input->getArgument('notification-uuid')) {
+      throw new MissingInputException('Not enough arguments (missing: "notification-uuid")');
     }
 
     return $this->validateUuid($input->getArgument('notification-uuid'));
