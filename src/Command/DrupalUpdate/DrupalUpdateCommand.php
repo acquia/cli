@@ -6,6 +6,7 @@ namespace Acquia\Cli\Command\DrupalUpdate;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class DrupalUpdateCommand extends  CommandBase
 {
@@ -81,6 +82,7 @@ class DrupalUpdateCommand extends  CommandBase
 
     $this->io->note('Checking available updates of packages.');
     $latest_updates = $package_update_script->securityUpdateVersion();
+    //print_r($latest_updates);
 
     $this->io->note('Updated packages details');
     $package_update_script->updateAvailableUpdates($output, $latest_updates);

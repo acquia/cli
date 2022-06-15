@@ -7,6 +7,9 @@ use PharData;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 
 class UpdateScriptUtility
 {
@@ -18,8 +21,12 @@ class UpdateScriptUtility
    * @var SymfonyStyle
    */
   private SymfonyStyle $io;
+    /**
+     * @var Filesystem
+     */
+    private Filesystem $fileSystem;
 
-  /**
+    /**
    * UpdateScriptUtility constructor.
    * @param InputInterface $input
    * @param OutputInterface $output
@@ -29,6 +36,7 @@ class UpdateScriptUtility
     $this->ignoreUpdatesFiles = [
           '.gitignore','.htaccess','CHANGELOG.txt','sites',
       ];
+      $this->fileSystem = new Filesystem();
   }
 
   /**
@@ -44,10 +52,10 @@ class UpdateScriptUtility
       if($value['package']=='drupal'){
         $dirname = 'temp_drupal_core';
         $filename = $value['file_path'] . "/" . $dirname . "";
-        if (!file_exists($filename)) {
-          $oldmask = umask(0);
-          mkdir($value['file_path'] . "/" . $dirname, 0777);
-          umask($oldmask);
+        if (!$this->fileSystem->exists($filename)) {
+            $old = umask(0);
+            $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
+            umask($old);
           $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
         } else {
           $this->io->note("The directory $dirname exists.");
@@ -74,14 +82,15 @@ class UpdateScriptUtility
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
     }
-    $content = file_get_contents($file_url);
-    file_put_contents($save_to . '/' . $package . '.tar.gz', $content);
+
     try {
+      $content = file_get_contents($file_url);
+      $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-      $this->rrmdir($save_to . '/' . $package);
-      $phar->extractTo($save_to, NULL, TRUE); // extract all files
+      $this->fileSystem->remove($save_to . '/' . $package);
+      $phar->extractTo($save_to, NULL, TRUE);
     } catch (\Exception $e) {
-      // handle errors
+      // @todo handle errors
     }
   }
 
@@ -94,40 +103,23 @@ class UpdateScriptUtility
   function downloadRemoteFileDrupalCore($package, $file_url, $save_to) {
     $content = file_get_contents($file_url);
     $folder_name = str_replace('.tar.gz', '', basename($file_url));
-    file_put_contents($save_to . '/' . $package . '.tar.gz', $content);
+    $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
     try {
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-      $this->rrmDir($save_to . '/' . $package);
+      $this->fileSystem->remove($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
-      rename($save_to . '/' . $folder_name, $save_to . '/drupal');
+      $this->fileSystem->rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     } catch (\Exception $e) {
       // @todo handle errors
     }
     if($package == 'drupal'){
       $this->io->note("Start core update.");
       $this->coreUpdate($save_to . '/drupal');
-      $this->rrmDir($save_to);
+      $this->fileSystem->remove($save_to);
     }
   }
 
-  /**
-   * Remove directory and sub directory.
-   * @param $dir
-   */
-  function rrmDir($dir) {
-    if (is_dir($dir)) {
-      $objects = scandir($dir);
-      foreach ($objects as $object) {
-        if ($object != "." && $object != "..") {
-          if (filetype($dir . "/" . $object) == "dir")
-                        $this->rrmDir($dir . "/" . $object);
-          else unlink   ($dir . "/" . $object);
-        }
-      }
-      reset($objects);
-      rmdir($dir);
-    }
-  }
+
 
   /**
    * After extraction copy code temp to main folder replace.
@@ -135,54 +127,21 @@ class UpdateScriptUtility
    * @param $core_dir_path
    */
   function coreUpdate($core_dir_path) {
-    $dir    = $core_dir_path;
-    $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
-    $files1 = array_diff(scandir($dir), ['.', '..']);
-
-    foreach($files1 as $r_dir => $c_dir){
-      $tm_path = $dir . "/" . $c_dir;
-      if(!in_array($c_dir, $this->ignoreUpdatesFiles)){
-        if(is_dir($tm_path)){
-          $this->customCopy($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
-          continue;
-        }
-        rename($dir . '/' . $c_dir, $replace_dir_path . '/' . $c_dir);
+      $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
+      $finder = new Finder();
+      $finder->in($core_dir_path)->ignoreVCSIgnored(true)->notPath($this->ignoreUpdatesFiles)->depth('== 0')->sortByName();
+      foreach ($finder as $file) {
+          $fileNameWithExtension = $file->getRelativePathname();
+          $tm_path = $core_dir_path ."/".$fileNameWithExtension;
+          if(is_dir($tm_path)){
+              $this->fileSystem->mirror($core_dir_path . '/' . $fileNameWithExtension, $replace_dir_path . '/' . $fileNameWithExtension);
+              continue;
+          }
+          $this->fileSystem->copy($core_dir_path . '/' . $fileNameWithExtension, $replace_dir_path . '/' . $fileNameWithExtension,true);
       }
-    }
   }
 
-  /**
-   * Copy folders and subfolder from temp to main folder.
-   * @param $src
-   * @param $dst
-   */
-  function customCopy($src, $dst) {
 
-    // open the source directory
-    $dir = opendir($src);
-
-    // Make the destination directory if not exist
-    @mkdir($dst);
-
-    // Loop through the files in source directory
-    while( $file = readdir($dir) ) {
-
-      if (( $file != '.' ) && ( $file != '..' )) {
-        if ( is_dir($src . '/' . $file) ) {
-
-          // Recursively calling custom copy function
-          // for sub directory
-          $this->customCopy($src . '/' . $file, $dst . '/' . $file);
-
-        }
-        else {
-          copy($src . '/' . $file, $dst . '/' . $file);
-        }
-      }
-    }
-
-    closedir($dir);
-  }
 
   /**
    * Remove after copy tar files and temp folder.
@@ -196,12 +155,20 @@ class UpdateScriptUtility
       }
       if(is_array($value['file_path'])){
         foreach ($value['file_path'] as $item){
-          unlink($item . "/" . $value['package'] . ".tar.gz");
+            $this->removeFile($item . "/" . $value['package'] . ".tar.gz");
         }
       }else{
-        unlink($value['file_path'] . "/" . $value['package'] . ".tar.gz");
+          $this->removeFile($value['file_path'] . "/" . $value['package'] . ".tar.gz");
       }
     }
+  }
+
+  function removeFile($file_path){
+      if($this->fileSystem->exists($file_path)){
+          $this->fileSystem->remove($file_path);
+      }else{
+          $this->io->note("File not exist for remove operation-".$file_path);
+      }
   }
 
 }
