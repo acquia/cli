@@ -154,9 +154,9 @@ class PackageUpdateScript
       $git_commit_message['latest_version'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['version']:'';
       $git_commit_message['update_notes'] = isset($versions['available_versions'][0]['terms'])?$this->checkPackageInfo->getUpdateType($versions['available_versions'][0]['terms']['term']):'';
       $git_commit_message['download_link'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['download_link']:'';
-        if(isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== false ) {
-            $package_info_files[$package . '.info']=explode(',', $package_info_files[$package . '.info']);
-        }
+      if(isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== FALSE ) {
+        $package_info_files[$package . '.info']=explode(',', $package_info_files[$package . '.info']);
+      }
       if(isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])){
         $file_paths=[];
         foreach ($package_info_files[$package . '.info'] as $p => $path_location){

@@ -6,7 +6,6 @@ namespace Acquia\Cli\Command\DrupalUpdate;
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 
 class DrupalUpdateCommand extends  CommandBase
 {
