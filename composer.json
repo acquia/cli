@@ -192,7 +192,6 @@
         "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
-            "@abandoned",
             "@lint",
             "@cs",
             "@stan",
@@ -203,9 +202,6 @@
         ],
         "coveralls": [
             "php-coveralls -vvv"
-        ],
-        "abandoned":  [
-            "cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0"
         ]
     }
 }
