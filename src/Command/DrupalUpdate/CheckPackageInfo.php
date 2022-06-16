@@ -1,6 +1,4 @@
 <?php
-
-
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Composer\Semver\Comparator;
