@@ -178,7 +178,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
-    if (!array_key_exists('build', $acquia_pipelines_file_contents)) {
+    if (array_key_exists('build', $acquia_pipelines_file_contents['events']) && empty($acquia_pipelines_file_contents['events']['build'])) {
       return NULL;
     }
     if (!array_key_exists($event_name, $acquia_pipelines_file_contents['events'])) {
