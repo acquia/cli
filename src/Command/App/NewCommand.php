@@ -50,7 +50,8 @@ class NewCommand extends CommandBase {
     }
     else if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       $dir = '/home/ide/project';
-    } else {
+    }
+    else {
       $dir = Path::makeAbsolute('drupal', getcwd());
     }
 
