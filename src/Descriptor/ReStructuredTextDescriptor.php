@@ -279,7 +279,8 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
           // If the namespace contained only aliases or hidden commands, skip the namespace.
           continue;
         }
-      } catch (\Exception $exception) {
+      }
+      catch (\Exception $exception) {
 
       }
       $this->visibleNamespaces[] = $namespace['id'];

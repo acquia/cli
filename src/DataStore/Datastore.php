@@ -3,6 +3,7 @@
 namespace Acquia\Cli\DataStore;
 
 use Dflydev\DotAccessData\Data;
+use Dflydev\DotAccessData\Exception\MissingPathException;
 use Grasmash\Expander\Expander;
 use Grasmash\Expander\Stringifier;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -60,7 +61,12 @@ abstract class Datastore implements DataStoreInterface {
    * @return array|mixed|null
    */
   public function get(string $key, $default = NULL) {
-    return $this->data->get($key);
+    try {
+      return $this->data->get($key);
+    }
+    catch (MissingPathException $e) {
+      return NULL;
+    }
   }
 
   /**

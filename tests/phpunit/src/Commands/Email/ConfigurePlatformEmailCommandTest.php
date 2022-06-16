@@ -264,7 +264,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
-    foreach($expected_text as $text) {
+    foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
     }
   }
@@ -518,7 +518,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
-    foreach($expected_text as $text) {
+    foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
     }
   }
@@ -575,7 +575,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
-    foreach($expected_text as $text) {
+    foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
     }
 

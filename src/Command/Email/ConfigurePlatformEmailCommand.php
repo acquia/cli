@@ -235,7 +235,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       try {
         $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domain_uuid}/actions/associate");
         $this->io->success("Domain $base_domain has been associated with Application {$application->name}");
-      } catch (ApiErrorException $e) {
+      }
+      catch (ApiErrorException $e) {
         if (!$this->domainAlreadyAssociated($application, $e)) {
           return FALSE;
         }
@@ -388,7 +389,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $this->logger->debug(json_encode($response));
         return FALSE;
       }
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->logger->debug($exception->getMessage());
       return FALSE;
     }

@@ -13,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
  * @package Acquia\Cli\Tests\Commands
  */
-class EnvironmentMirrorCommandTest extends CommandTestBase {
+class EnvMirrorCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}

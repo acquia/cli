@@ -22,5 +22,6 @@
   <rule ref="AcquiaPHP" />
 
   <rule ref="Drupal.Classes.UnusedUseStatement" />
+  <rule ref="Drupal.ControlStructures.ControlSignature" />
 
 </ruleset>

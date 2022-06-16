@@ -261,7 +261,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                     $code_studio_jobs[$script_name]['script'][] = $command;
                     $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
                   }
-                  else{
+                  else {
                     if (($key = array_search($command, $code_studio_jobs[$script_name]['script'])) !== FALSE) {
                       unset($code_studio_jobs[$script_name]['script'][$key]);
                     }
@@ -276,10 +276,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                 break;
               }
               else {
-                if(array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'])){
+                if (array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'])) {
                   break;
                 }
-                if(!array_key_exists($script_name, $event_map['skip']) ){
+                if (!array_key_exists($script_name, $event_map['skip']) ) {
                   $code_studio_jobs[$script_name]['script'][] = $command;
                   $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
                 }
@@ -319,8 +319,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Removing empty script.
    */
   protected function removeEmptyScript(array &$gitlab_ci_file_contents) {
-    foreach($gitlab_ci_file_contents as $key => $value){
-      if(array_key_exists('script', $value) && empty($value['script'])){
+    foreach ($gitlab_ci_file_contents as $key => $value) {
+      if (array_key_exists('script', $value) && empty($value['script'])) {
         unset($gitlab_ci_file_contents[$key]);
       }
     }

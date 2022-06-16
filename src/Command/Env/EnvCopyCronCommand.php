@@ -95,7 +95,8 @@ class EnvCopyCronCommand extends CommandBase {
             $cron->label,
           );
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
           $this->io->error('There was some error while copying the cron task "' . $cron->label . '"');
           // Log the error for debugging purpose.
           $this->logger->debug('Error @error while copying the cron task @cron from @source env to @dest env', [
