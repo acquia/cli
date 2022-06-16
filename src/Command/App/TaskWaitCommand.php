@@ -9,7 +9,6 @@ use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\NotificationResponse;
 use React\EventLoop\Factory;
 use React\EventLoop\Loop;
-use Symfony\Component\Console\Exception\MissingInputException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,16 +20,14 @@ class TaskWaitCommand extends CommandBase {
 
   protected static $defaultName = 'app:task-wait';
 
-  private string $standardInput;
-
   /**
    * {inheritdoc}.
    */
   protected function configure() {
     $this->setDescription('Wait for a task to complete')
-      ->addArgument('notification-uuid', InputArgument::OPTIONAL)
+      ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The UUID of the task notification returned by the Cloud API')
       ->setHelp('This command will accepts either a notification uuid as an argument or else a json string passed through standard input. The json string must contain the _links->notification->href property.')
-      ->addUsage('api:environments:domain-clear-caches [environmentId] [domain] | acli app:task-wait');
+      ->addUsage('acli app:task-wait "$(api:environments:domain-clear-caches [environmentId] [domain])"');
   }
 
   /**
@@ -85,50 +82,16 @@ class TaskWaitCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getNotificationUuid(InputInterface $input): string {
-    $stdin= $this->getStandardInput();
-    if ($stdin) {
-      $json = json_decode($stdin);
-      if (json_last_error() === JSON_ERROR_NONE) {
-        if (property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
-          return $this->getNotificationUuidFromResponse($json);
-        }
-        throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
+    $notification_uuid = $input->getArgument('notification-uuid');
+    $json = json_decode($notification_uuid);
+    if (json_last_error() === JSON_ERROR_NONE) {
+      if (property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
+        return $this->getNotificationUuidFromResponse($json);
       }
-      else {
-        throw new MissingInputException('Standard input must contain valid a JSON string');
-      }
-    }
-    elseif (!$input->getArgument('notification-uuid')) {
-      throw new MissingInputException('Not enough arguments (missing: "notification-uuid")');
+      throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
     }
 
     return $this->validateUuid($input->getArgument('notification-uuid'));
-  }
-
-  public function setStandardInput($string) {
-    $this->standardInput = $string;
-  }
-
-  /**
-   * @return string
-   */
-  protected function getStandardInput(): string {
-    // This is used only for testing.
-    if (isset($this->standardInput)) {
-      return $this->standardInput;
-    }
-    $stdin = '';
-    $fh = fopen('php://stdin', 'r');
-    $read = [$fh];
-    $write = NULL;
-    $except = NULL;
-    if (stream_select($read, $write, $except, 0) === 1) {
-      while ($line = fgets($fh)) {
-        $stdin .= $line;
-      }
-    }
-    fclose($fh);
-    return $stdin;
   }
 
   /**

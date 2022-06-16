@@ -6,7 +6,6 @@ use Acquia\Cli\Command\App\TaskWaitCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Exception\MissingInputException;
 
 /**
  * Class TaskWaitCommand.
@@ -45,8 +44,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     $task_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
     $json = json_encode($task_response->{'Clearing cache'}->value);
-    $this->command->setStandardInput($json);
-    $this->executeCommand([], []);
+    $this->executeCommand(['notification-uuid' => $json], []);
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -56,36 +54,9 @@ class TaskWaitCommandTest extends CommandTestBase {
   /**
    * @throws \Exception
    */
-  public function testTaskWaitCommandWithInvalidStandardInput(): void {
-    $this->expectException(MissingInputException::class);
-    $this->command->setStandardInput('blah');
-    $this->executeCommand([], []);
-
-    // Assert.
-    $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
-  }
-
-  /**
-   * @throws \Exception
-   */
-  public function testTaskWaitCommandWithStandardInputWrongObject(): void {
+  public function testTaskWaitCommandWithInvalidInput(): void {
     $this->expectException(AcquiaCliException::class);
-    $this->command->setStandardInput('{}');
-    $this->executeCommand([], []);
-
-    // Assert.
-    $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
-  }
-
-  /**
-   * @throws \Exception
-   */
-  public function testTaskWaitCommandMissingInput(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->expectException(MissingInputException::class);
-    $this->executeCommand([], []);
+    $this->executeCommand(['notification-uuid' => '{}'], []);
 
     // Assert.
     $this->prophet->checkPredictions();
