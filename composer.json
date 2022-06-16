@@ -24,7 +24,7 @@
         "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",
         "dflydev/dot-access-data": "^3",
-        "grasmash/expander": "^1 | ^2 | ^3",
+        "grasmash/expander": "^3",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.0",
         "kevinrob/guzzle-cache-middleware": "^4",
