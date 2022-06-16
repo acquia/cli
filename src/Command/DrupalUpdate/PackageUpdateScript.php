@@ -17,7 +17,20 @@ class PackageUpdateScript
    * @var string
    */
   private string $drupalDocrootDirPath;
+    /**
+     * @var CheckPackageInfo
+     */
+    public CheckPackageInfo $checkPackageInfo;
 
+    /**
+     * @var UpdateScriptUtility
+     */
+    private UpdateScriptUtility $updateScriptUtility;
+    /**
+     * SymfonyStyle io
+     * @var SymfonyStyle
+     */
+    private SymfonyStyle $io;
   /**
    * @return string
    */
@@ -25,11 +38,7 @@ class PackageUpdateScript
     return $this->drupalDocrootDirPath;
   }
 
-  /**
-   * SymfonyStyle io
-   * @var SymfonyStyle
-   */
-  private SymfonyStyle $io;
+
 
   /**
    * @param string $drupal_root_dir_path
@@ -38,15 +47,7 @@ class PackageUpdateScript
     $this->drupalDocrootDirPath = $drupal_root_dir_path . "/docroot";
   }
 
-  /**
-   * @var CheckPackageInfo
-   */
-  public CheckPackageInfo $checkPackageInfo;
 
-  /**
-   * @var UpdateScriptUtility
-   */
-  private UpdateScriptUtility $updateScriptUtility;
 
   /**
    * UpdateScript constructor.
