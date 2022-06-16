@@ -178,6 +178,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
+    if (!array_key_exists('build', $acquia_pipelines_file_contents)) {
+      return NULL;
+    }
     if (!array_key_exists($event_name, $acquia_pipelines_file_contents['events'])) {
       return NULL;
     }
@@ -236,6 +239,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         ]
       ]
     ];
+
     $code_studio_jobs = [];
     foreach ($events_map as $event_name => $event_map) {
       $event_steps = $this->getPipelinesSection($acquia_pipelines_file_contents, $event_name);
