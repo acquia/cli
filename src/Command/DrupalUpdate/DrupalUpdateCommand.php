@@ -81,9 +81,8 @@ class DrupalUpdateCommand extends  CommandBase
 
     $this->io->note('Checking available updates of packages.');
     $latest_updates = $package_update_script->securityUpdateVersion();
-    //print_r($latest_updates);
 
-    $this->io->note('Updated packages details');
+
     $package_update_script->updateAvailableUpdates($output, $latest_updates);
     return 0;
   }
