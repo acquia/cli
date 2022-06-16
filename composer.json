@@ -27,6 +27,7 @@
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.0",
         "kevinrob/guzzle-cache-middleware": "^4",
+        "laminas/laminas-validator": "2.20.0",
         "league/csv": "^9.8",
         "loophp/phposinfo": "^1.7.2",
         "ltd-beget/dns-zone-configurator": "dev-php-update",

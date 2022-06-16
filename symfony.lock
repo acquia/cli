@@ -41,9 +41,6 @@
     "consolidation/self-update": {
         "version": "2.0.0-alpha1"
     },
-    "container-interop/container-interop": {
-        "version": "1.2.0"
-    },
     "cweagans/composer-patches": {
         "version": "1.7.2"
     },
