@@ -156,6 +156,9 @@ class UpdateScriptUtility
     }
   }
 
+  /**
+   * @param $file_path
+   */
   function removeFile($file_path) {
     if($this->fileSystem->exists($file_path)){
       $this->fileSystem->remove($file_path);
