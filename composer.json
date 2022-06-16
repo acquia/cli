@@ -1,7 +1,7 @@
 {
     "name": "acquia/cli",
     "description": "Acquia CLI",
-    "type": "library",
+    "type": "project",
     "license": "GPL-2.0-only",
     "authors": [
         {
@@ -23,7 +23,8 @@
         "composer/semver": "^3.3",
         "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",
-        "grasmash/expander": "^1.0",
+        "dflydev/dot-access-data": "^3",
+        "grasmash/expander": "^1 | ^2 | ^3",
         "guzzlehttp/guzzle": "^7.4",
         "http-interop/http-factory-guzzle": "^1.0",
         "kevinrob/guzzle-cache-middleware": "^4",
@@ -32,7 +33,7 @@
         "loophp/phposinfo": "^1.7.2",
         "ltd-beget/dns-zone-configurator": "dev-php-update",
         "m4tthumphrey/php-gitlab-api": "^11.5",
-        "psr/log": "^1.1",
+        "psr/log": "^2 | ^3",
         "ramsey/uuid": "^4.1",
         "react/event-loop": "^1.1",
         "symfony/cache": "^6",
@@ -44,7 +45,7 @@
         "symfony/expression-language": "^6",
         "symfony/filesystem": "^6",
         "symfony/finder": "^6",
-        "symfony/flex": "^1",
+        "symfony/flex": "^2",
         "symfony/http-kernel": "^6",
         "symfony/process": "^6",
         "symfony/validator": "^6",
@@ -191,6 +192,7 @@
         "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
+            "@abandoned",
             "@lint",
             "@cs",
             "@stan",
@@ -201,6 +203,9 @@
         ],
         "coveralls": [
             "php-coveralls -vvv"
+        ],
+        "abandoned":  [
+            "cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0"
         ]
     }
 }
