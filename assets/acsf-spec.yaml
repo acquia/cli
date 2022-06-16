@@ -692,19 +692,23 @@ paths:
           schema:
             type: integer
           required: true
-        -
-          in: query
-          name: uids
-          description: 'A single user ID, or an array of user IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
-          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uids:
+                  description: 'A single user ID, or an array of user IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - uids
       responses:
         200:
           description: 'Groups_removeMembers response'
@@ -907,19 +911,23 @@ paths:
           schema:
             type: integer
           required: true
-        -
-          in: query
-          name: uids
-          description: 'A single user ID, or an array of user IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
-          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                uids:
+                  description: 'A single user ID, or an array of user IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - uids
       responses:
         200:
           description: 'Groups_removeAdmins response'
@@ -982,19 +990,23 @@ paths:
           schema:
             type: integer
           required: true
-        -
-          in: query
-          name: site_ids
-          description: 'Either a single site ID, or an array of site IDs.'
-          schema:
-            oneOf:
-              -
-                type: integer
-              -
-                type: array
-                items:
-                  type: integer
-          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                site_ids:
+                  description: 'Either a single site ID, or an array of site IDs.'
+                  oneOf:
+                    -
+                      type: integer
+                    -
+                      type: array
+                      items:
+                        type: integer
+              required:
+                - site_ids
       responses:
         200:
           description: 'Groups_removeSites response'
@@ -1336,6 +1348,7 @@ paths:
                   pattern: ^(task|family)$
               required:
                 - paused
+                - level
       responses:
         200:
           description: 'Pause_pauseTask response'
@@ -2284,27 +2297,21 @@ paths:
           schema:
             type: integer
           required: true
-        -
-          in: query
-          name: callback_url
-          description: 'The callback URL, which is invoked upon completion.'
-          schema:
-            type: string
-          required: false
-        -
-          in: query
-          name: callback_method
-          description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
-          schema:
-            type: string
-          required: false
-        -
-          in: query
-          name: caller_data
-          description: 'Data that should be included in the callback, json encoded.'
-          schema:
-            type: string
-          required: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callback_url:
+                  description: 'The callback URL, which is invoked upon completion.'
+                  type: string
+                callback_method:
+                  description: 'The callback method, "GET", or "POST". Uses "POST" if empty.'
+                  type: string
+                caller_data:
+                  description: 'Data that should be included in the callback, json encoded.'
+                  type: string
       responses:
         200:
           description: 'Sites_deleteSiteBackup response'
@@ -2517,6 +2524,7 @@ paths:
           description: 'Either "softpaused" or "softpause-for-update"'
           schema:
             type: string
+            pattern: ^(softpaused|softpause-for-update)$
           required: true
       responses:
         200:
@@ -2558,6 +2566,7 @@ paths:
           description: 'processing, error or not-started'
           schema:
             type: string
+            pattern: ^(processing|error|not-started)$
           required: false
         -
           in: query
