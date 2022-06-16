@@ -254,26 +254,29 @@ class ApiBaseCommand extends CommandBase {
    * @param array $param_spec
    * @param string|array $value
    *
-   * @return bool|int|string
+   * @return bool|int|string|array
    */
   protected function castParamType(array $param_spec, $value) {
-    if (array_key_exists('oneOf', $param_spec)) {
-      $one_of = $param_spec['oneOf'];
-    }
-    if (array_key_exists('schema', $param_spec) && array_key_exists('oneOf', $param_spec['schema'])) {
-      $one_of = $param_spec['schema']['oneOf'];
-    }
+    $one_of = $this->getParamTypeOneOf($param_spec);
     if (isset($one_of)) {
       $types = [];
       foreach ($one_of as $type) {
+        if ($type['type'] === 'array' && str_contains($value, ',')) {
+          return $this->castParamToArray($type, $value);
+        }
         $types[] = $type['type'];
-      }
-      if (array_search('array', $types) && str_contains($value, ',')) {
-        return $this->doCastParamType('array', $value);
       }
       if ((array_search('integer', $types) !== FALSE || array_search('int', $types) !== FALSE)
         && ctype_digit($value)) {
         return $this->doCastParamType('integer', $value);
+      }
+    }
+    elseif ($param_spec['type'] === 'array') {
+      if (count($value) === 1) {
+        return $this->castParamToArray($param_spec, $value[0]);
+      }
+      else {
+        return $this->castParamToArray($param_spec, $value);
       }
     }
 
@@ -286,10 +289,10 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param $type
-   * @param $value
+   * @param string $type
+   * @param mixed $value
    *
-   * @return bool|int|string
+   * @return array|bool|int|string
    */
   protected function doCastParamType($type, $value) {
     return match ($type) {
@@ -509,6 +512,43 @@ class ApiBaseCommand extends CommandBase {
     // Allow unlimited attempts.
     $question->setMaxAttempts(NULL);
     return $this->io->askQuestion($question);
+  }
+
+  /**
+   * @param array $param_spec
+   *
+   * @return null|array
+   */
+  protected function getParamTypeOneOf(array $param_spec): ?array {
+    $one_of = NULL;
+    if (array_key_exists('oneOf', $param_spec)) {
+      $one_of = $param_spec['oneOf'];
+    }
+    if (array_key_exists('schema', $param_spec) && array_key_exists('oneOf', $param_spec['schema'])) {
+      $one_of = $param_spec['schema']['oneOf'];
+    }
+    return $one_of;
+  }
+
+  /**
+   * @param mixed $param_spec
+   * @param array|string $original_value
+   *
+   * @return array|bool|int|string
+   */
+  protected function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
+    if (array_key_exists('items', $param_spec) && array_key_exists('type', $param_spec['items'])) {
+      if (!is_array($original_value)) {
+        $original_value = $this->doCastParamType('array', $original_value);
+      }
+      $item_type = $param_spec['items']['type'];
+      $array = [];
+      foreach ($original_value as $key => $v) {
+        $array[$key] = $this->doCastParamType($item_type, $v);
+      }
+      return $array;
+    }
+    return $this->doCastParamType('array', $original_value);
   }
 
 }
