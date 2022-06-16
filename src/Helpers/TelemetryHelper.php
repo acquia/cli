@@ -84,7 +84,8 @@ class TelemetryHelper {
       $amplitude->setUserProperties($this->getTelemetryUserData());
       $amplitude->setUserId($this->getUserId());
       $amplitude->logQueuedEvents();
-    } catch (IdentityProviderException $e) {
+    }
+    catch (IdentityProviderException $e) {
       // If something is wrong with the Cloud API client, don't bother users.
     }
   }

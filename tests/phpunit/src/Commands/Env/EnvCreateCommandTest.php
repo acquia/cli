@@ -13,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
  * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
  * @package Acquia\Cli\Tests\Commands\Env
  */
-class CreateCdeCommandTest extends CommandTestBase {
+class EnvCreateCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}

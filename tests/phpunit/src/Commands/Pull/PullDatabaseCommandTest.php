@@ -68,7 +68,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       $this->executeCommand([
         '--no-scripts' => TRUE,
       ], $inputs);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $this->assertStringContainsString('Unable to connect', $e->getMessage());
     }
   }
@@ -115,7 +116,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       '--no-scripts' => TRUE,
       '--multiple-dbs' => TRUE,
     ], $inputs);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       $this->assertEquals('The --multiple-dbs option is not supported in Cloud IDE.', $e->getMessage());
     }
     IdeHelper::unsetCloudIdeEnvVars();
@@ -221,7 +223,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     try {
       $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Could not download remote database dump', $exception->getMessage());
     }
   }
@@ -236,7 +239,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     try {
       $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Unable to drop a local database', $exception->getMessage());
     }
   }
@@ -251,7 +255,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     try {
       $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Unable to create a local database', $exception->getMessage());
     }
   }
@@ -266,7 +271,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     try {
       $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Unable to import local database', $exception->getMessage());
     }
   }

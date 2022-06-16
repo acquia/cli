@@ -123,11 +123,11 @@ class ApiCommandHelper {
         if ($parameter_specification['in'] === 'query') {
           $command->addQueryParameter($parameter_definition->getName(), $parameter_specification);
         }
-        elseif($parameter_specification['in'] === 'path') {
+        elseif ($parameter_specification['in'] === 'path') {
           $command->addPathParameter($parameter_definition->getName(), $parameter_specification);
         }
         // @todo Remove this! It is a workaround for CLI-769.
-        elseif($parameter_specification['in'] === 'header') {
+        elseif ($parameter_specification['in'] === 'header') {
           $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
         }
       }
