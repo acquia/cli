@@ -68,7 +68,7 @@ class DrupalUpdateCommand extends  CommandBase
     $this->io->note('Start checking of available updates.');
     $this->setDrupalRootPath(getcwd());
     $drupal_root_path = $this->getDrupalRootPath();
-    $this->setCorePackageVersion($drupal_root_path);
+    $this->determineCorePackageVersion($drupal_root_path);
     $check_package_info = new CheckPackageInfo($input, $output);
     $check_package_info->setDrupalRootDirPath($drupal_root_path);
     $check_package_info->setDrupalCoreVersion($this->getDrupalCoreVersion());
@@ -92,7 +92,7 @@ class DrupalUpdateCommand extends  CommandBase
    * @param $constraint_matches
    * @return mixed
    */
-  protected function setCorePackageVersion($drupal_root_path) {
+  protected function determineCorePackageVersion($drupal_root_path) {
     if (file_exists($drupal_root_path . '/docroot/includes/bootstrap.inc')) {
       $boostrap_file_contents = file_get_contents($drupal_root_path . '/docroot/includes/bootstrap.inc');
       preg_match("/define\(\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/i", $boostrap_file_contents, $constraint_matches);
