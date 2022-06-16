@@ -1790,7 +1790,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return bool
    */
-  protected function waitForNotificationSuccess(Client $acquia_cloud_client, string $uuid, string $message): bool {
+  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message) {
     // $loop is statically cached by Loop::get(). To prevent it
     // persisting into other instances we must use Factory::create() to reset it.
     // @phpstan-ignore-next-line
@@ -1802,9 +1802,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
       try {
         $notification = $notifications_resource->get($uuid);
-        if ($notification->status === 'completed') {
+        if ($notification->progress === 100) {
           LoopHelper::finishSpinner($spinner);
           $loop->stop();
+          $this->logger->debug("Notification is complete with status {$notification->status}.");
         }
       }
       catch (\Exception $e) {
@@ -1834,7 +1835,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string
    */
   protected function getNotificationUuidFromResponse(object $response): string {
-    $notification_url = $response->links->notification->href;
+    if (property_exists($response, 'links')) {
+      $links = $response->links;
+    }
+    else {
+      $links = $response->_links;
+    }
+    $notification_url = $links->notification->href;
     $url_parts = explode('/', $notification_url);
     return $url_parts[5];
   }

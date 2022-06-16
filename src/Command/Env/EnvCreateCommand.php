@@ -58,7 +58,7 @@ class EnvCreateCommand extends CommandBase {
     $notification_uuid = $this->getNotificationUuidFromResponse($response);
     $this->checklist->completePreviousItem();
 
-    $success = $this->waitForNotificationSuccess($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.");
+    $success = $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.");
     if ($success) {
       $environments = $environments_resource->getAll($cloud_app_uuid);
       foreach ($environments as $environment) {
