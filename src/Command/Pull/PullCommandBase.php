@@ -391,7 +391,8 @@ abstract class PullCommandBase extends CommandBase {
           $this->output->writeln('');
           $this->output->writeln('<info>Database backup is ready!</info>');
         }
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         $this->logger->debug($e->getMessage());
       }
     };
