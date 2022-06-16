@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use AcquiaCloudApi\Endpoints\Notifications;
+use AcquiaCloudApi\Response\NotificationResponse;
 use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Exception\MissingInputException;
@@ -19,6 +20,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class TaskWaitCommand extends CommandBase {
 
   protected static $defaultName = 'app:task-wait';
+
+  private string $standardInput;
 
   /**
    * {inheritdoc}.
@@ -52,14 +55,7 @@ class TaskWaitCommand extends CommandBase {
       if ($notification->progress === 100) {
         LoopHelper::finishSpinner($spinner);
         $loop->stop();
-        $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
-        $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
-        $this->io->success([
-          "The task with notification uuid {$notification_uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
-          "on " . $completed_at,
-          "Task type: " . $notification->label . PHP_EOL .
-          "Duration: $duration seconds",
-        ]);
+        $this->writeCompletedMessage($notification);
       }
       else {
         $spinner->setMessage("Task of type {$notification->label} is {$notification->progress}% complete");
@@ -109,10 +105,18 @@ class TaskWaitCommand extends CommandBase {
     return $this->validateUuid($input->getArgument('notification-uuid'));
   }
 
+  public function setStandardInput($string) {
+    $this->standardInput = $string;
+  }
+
   /**
    * @return string
    */
   protected function getStandardInput(): string {
+    // This is used only for testing.
+    if (isset($this->standardInput)) {
+      return $this->standardInput;
+    }
     $stdin = '';
     $fh = fopen('php://stdin', 'r');
     $read = [$fh];
@@ -125,6 +129,21 @@ class TaskWaitCommand extends CommandBase {
     }
     fclose($fh);
     return $stdin;
+  }
+
+  /**
+   * @param \AcquiaCloudApi\Response\NotificationResponse $notification
+   * @param string $notification_uuid
+   */
+  protected function writeCompletedMessage(NotificationResponse $notification): void {
+    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
+    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
+    $this->io->success([
+      "The task with notification uuid {$notification->uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
+      "on " . $completed_at,
+      "Task type: " . $notification->label . PHP_EOL .
+      "Duration: $duration seconds",
+    ]);
   }
 
 }
