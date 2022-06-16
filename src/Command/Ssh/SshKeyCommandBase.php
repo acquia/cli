@@ -167,7 +167,8 @@ EOT
           else {
             $this->logger->debug($process->getOutput() . $process->getErrorOutput());
           }
-        } catch (AcquiaCliException $exception) {
+        }
+        catch (AcquiaCliException $exception) {
           $this->logger->debug($exception->getMessage());
         }
       }

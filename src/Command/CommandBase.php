@@ -1211,7 +1211,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       if ($latest = $this->hasUpdate()) {
         return $latest;
       }
-    } catch (Exception $e) {
+    }
+    catch (Exception $e) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
     return FALSE;
@@ -1731,13 +1732,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function validateApplicationUuid($application_uuid_argument) {
     try {
       self::validateUuid($application_uuid_argument);
-    } catch (ValidatorException $validator_exception) {
+    }
+    catch (ValidatorException $validator_exception) {
       // Since this isn't a valid UUID, let's see if it's a valid alias.
       $alias = $this->normalizeAlias($application_uuid_argument);
       try {
         $customer_application = $this->getApplicationFromAlias($alias);
         return $customer_application->uuid;
-      } catch (AcquiaCliException $exception) {
+      }
+      catch (AcquiaCliException $exception) {
         throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
       }
     }
@@ -1759,7 +1762,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       unset($uuid_parts[0]);
       $application_uuid = implode('-', $uuid_parts);
       self::validateUuid($application_uuid);
-    } catch (ValidatorException $validator_exception) {
+    }
+    catch (ValidatorException $validator_exception) {
       try {
         // Since this isn't a valid environment ID, let's see if it's a valid alias.
         $alias = $env_uuid_argument;
@@ -1767,7 +1771,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $alias = self::validateEnvironmentAlias($alias);
         $environment = $this->getEnvironmentFromAliasArg($alias);
         return $environment->uuid;
-      } catch (AcquiaCliException $exception) {
+      }
+      catch (AcquiaCliException $exception) {
         throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
       }
     }

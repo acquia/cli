@@ -159,7 +159,8 @@ trait CodeStudioCommandTrait {
     $this->getGitLabClient();
     try {
       $this->gitLabAccount = $this->gitLabClient->users()->me();
-    } catch (RuntimeException $exception) {
+    }
+    catch (RuntimeException $exception) {
       $this->io->error([
         "Unable to authenticate with Code Studio",
         "Did you set a valid token with the <options=bold>api</> and <options=bold>write_repository</> scopes?",

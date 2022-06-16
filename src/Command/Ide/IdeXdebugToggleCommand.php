@@ -52,10 +52,12 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     if ($this->getXDebugStatus() === FALSE) {
       $this->enableXDebug($ini_file, $contents);
       $this->restartService('php-fpm');
-    } elseif ($this->getXDebugStatus() === TRUE) {
+    }
+    elseif ($this->getXDebugStatus() === TRUE) {
       $this->disableXDebug($ini_file, $contents);
       $this->restartService('php-fpm');
-    } else {
+    }
+    else {
       $this->logger->error("Could not find xdebug zend extension in $ini_file!");
     }
 
@@ -71,9 +73,11 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   protected function setXDebugStatus($contents): void {
     if (strpos($contents, ';zend_extension=xdebug.so') !== FALSE) {
       $this->xDebugEnabled = FALSE;
-    } elseif (strpos($contents, 'zend_extension=xdebug.so') !== FALSE) {
+    }
+    elseif (strpos($contents, 'zend_extension=xdebug.so') !== FALSE) {
       $this->xDebugEnabled = TRUE;
-    } else {
+    }
+    else {
       $this->xDebugEnabled = NULL;
     }
   }

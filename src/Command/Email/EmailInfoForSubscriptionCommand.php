@@ -139,7 +139,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
         $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
       ]);
 
-      foreach($domain->dns_records as $index => $record) {
+      foreach ($domain->dns_records as $index => $record) {
         if ($index === 0) {
           $writer_all_domains_dns_health->insertOne([
             $domain->domain_name,
@@ -234,15 +234,15 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
     $apps_domains_header = ['Application', 'Domain Name', 'Associated?'];
     $writer_apps_domains->insertOne($apps_domains_header);
 
-    foreach($subscription_applications as $index => $app) {
+    foreach ($subscription_applications as $index => $app) {
       $app_domains = $client->request('get', "/applications/{$app->uuid}/email/domains");
 
       if ($index !== 0) {
         $apps_domains_table->addRow([new TableSeparator(['colspan' => 2])]);
       }
       $apps_domains_table->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
-      if(count($app_domains)) {
-        foreach($app_domains as $domain) {
+      if (count($app_domains)) {
+        foreach ($app_domains as $domain) {
           $apps_domains_table->addRow([
             $domain->domain_name,
             var_export($domain->flags->associated, TRUE)

@@ -138,7 +138,8 @@ class ExceptionListener {
         $this->helpMessages[] = $message;
       }
       // This command may not exist during some testing.
-    } catch (CommandNotFoundException $exception) {
+    }
+    catch (CommandNotFoundException $exception) {
     }
   }
 

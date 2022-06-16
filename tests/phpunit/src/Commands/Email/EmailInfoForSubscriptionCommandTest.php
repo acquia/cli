@@ -70,7 +70,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString('Application: ', $output);
-    foreach($get_app_domains_response->_embedded->items as $app_domain) {
+    foreach ($get_app_domains_response->_embedded->items as $app_domain) {
       $this->assertEquals(3, substr_count($output, $app_domain->domain_name));
     }
 
@@ -145,7 +145,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
     $this->clientProphecy->request('get', '/applications')->willReturn($applications_response->_embedded->items);
 
-    foreach($applications_response->_embedded->items as $app) {
+    foreach ($applications_response->_embedded->items as $app) {
       $this->clientProphecy->request('get', "/applications/{$app->uuid}/email/domains")->willReturn([]);
     }
 

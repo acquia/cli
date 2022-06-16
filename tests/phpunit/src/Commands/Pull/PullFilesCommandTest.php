@@ -113,7 +113,8 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     try {
       $this->executeCommand([], []);
-    } catch (AcquiaCliException $exception) {
+    }
+    catch (AcquiaCliException $exception) {
       $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
     }
     IdeHelper::unsetCloudIdeEnvVars();
