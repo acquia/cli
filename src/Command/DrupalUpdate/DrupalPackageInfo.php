@@ -6,29 +6,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class CheckPackageInfo
+class DrupalPackageInfo
 {
   /**
    * @var array
    */
   public array $infoPackageFiles = [];
 
-  /**
-   * @var array
-   */
-  public array $infoDetailPackages = [];
 
-  /**
-   * @var string[]
-   */
-  public array $packageInfoKey = [
-        'name',
-        'description',
-        'package',
-        'version',
-        'core',
-        'project',
-  ];
+
 
   /**
    * @var array
@@ -103,7 +89,7 @@ class CheckPackageInfo
   }
 
   /**
-   * CheckPackageInfo constructor.
+   * DrupalPackageInfo constructor.
    * @param InputInterface $input
    * @param OutputInterface $output
    */
@@ -118,6 +104,14 @@ class CheckPackageInfo
    * @param $package
    */
   public function fileGetInfo($filepath, $package) {
+    $package_info_key = [
+          'name',
+          'description',
+          'package',
+          'version',
+          'core',
+          'project',
+      ];
     set_error_handler(function () {
         // @todo when multi-dimension array in .info file.
     });
@@ -126,32 +120,31 @@ class CheckPackageInfo
     $package_type = '';
     $package_alternative_name = '';
     $package = str_replace(".info", "", $package);
-    foreach($info_extention_file as $row => $data) {
-      if(in_array(trim($row), $this->packageInfoKey)){
+    foreach ($info_extention_file as $row => $data) {
+      if (in_array(trim($row), $package_info_key)) {
         $project_value = str_replace(['\'', '"'], '', $data);
-        $this->infoDetailPackages[$package][$row]=$project_value;
-        if( trim($row) == "project" ){
+        if ( trim($row) == "project" ) {
           $package_type = trim($project_value);
         }
-        if( trim($row) == "version" ){
+        if ( trim($row) == "version" ) {
           $current_version = trim($project_value);
         }
-        if( trim($row) == "package" ){
+        if ( trim($row) == "package" ) {
           $package_alternative_name = strtolower(trim($project_value));
         }
       }
     }
 
-    if($current_version == 'VERSION'){
+    if ($current_version == 'VERSION') {
       $current_version = $this->getDrupalCoreVersion();
     }
-    if($package_type == ''){
+    if ($package_type == '') {
       $package_type = ($package_alternative_name == 'core')?'drupal':'';
     }
-    if( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ){
+    if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
       $this->getSecurityRelease(trim($package_type), $current_version);
     }
-    if($package_type == 'drupal'){
+    if ($package_type == 'drupal') {
       $this->isCoreUpdated = TRUE;
     }
     restore_error_handler();
@@ -176,7 +169,7 @@ class CheckPackageInfo
     $json = json_encode($simpleXml);
     $release_detail = json_decode($json, TRUE);
 
-    if(isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
+    if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
       $this->availablePackageUpdates[$project]['current_version'] = $current_version;
       $this->availablePackageUpdates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {
@@ -186,8 +179,10 @@ class CheckPackageInfo
           $this->availablePackageUpdates[$project]['available_versions'][] = $release_detail['releases']['release'][$index];
           return;
         }
-        elseif ($version_comparision > 0){continue;}
-        else {return;}
+        elseif ($version_comparision > 0) {
+          continue;}
+        else {
+          return;}
       }
     }
   }
@@ -199,9 +194,10 @@ class CheckPackageInfo
    */
 
   function getUpdateType($update_type_array) {
-    if(isset($update_type_array[0]['value'])){
+    if (isset($update_type_array[0]['value'])) {
       return $update_type_array[0]['value'];
-    }elseif(isset($update_type_array['value'])){
+    }
+    elseif (isset($update_type_array['value'])) {
       return $update_type_array['value'];
     }
     return '';

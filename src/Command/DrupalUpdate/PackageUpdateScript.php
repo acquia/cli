@@ -16,9 +16,9 @@ class PackageUpdateScript
    */
   private string $drupalDocrootDirPath;
   /**
-   * @var CheckPackageInfo
+   * @var DrupalPackageInfo
    */
-  public CheckPackageInfo $checkPackageInfo;
+  public DrupalPackageInfo $checkPackageInfo;
 
   /**
    * @var UpdateScriptUtility
@@ -48,9 +48,9 @@ class PackageUpdateScript
    * UpdateScript constructor.
    * @param InputInterface $input
    * @param OutputInterface $output
-   * @param CheckPackageInfo $checkPackageInfo
+   * @param DrupalPackageInfo $checkPackageInfo
    */
-  public function __construct(InputInterface $input, OutputInterface $output, CheckPackageInfo $checkPackageInfo) {
+  public function __construct(InputInterface $input, OutputInterface $output, DrupalPackageInfo $checkPackageInfo) {
     $this->checkPackageInfo = $checkPackageInfo;
     $this->updateScriptUtility = $this->checkPackageInfo->getUpdateScriptUtility();
     $this->setDrupalDocrootDirPath($this->checkPackageInfo->getDrupalRootDirPath());
@@ -61,14 +61,15 @@ class PackageUpdateScript
    * @param array $latest_security_updates
    */
   public function updateAvailableUpdates($output, array $latest_security_updates) {
-    if(count($latest_security_updates)>1){
+    if (count($latest_security_updates)>1) {
       $this->io->note('List view of available updates.');
       $this->printPackageDetail($output);
       $this->io->note('Start package update process.');
       $this->updateScriptUtility->updateCode($latest_security_updates);
       $this->updateScriptUtility->unlinkTarFiles($latest_security_updates);
       $this->io->note('Update process completed.');
-    }else{
+    }
+    else {
       $this->io->success('Branch already upto date.');
     }
   }
@@ -84,10 +85,11 @@ class PackageUpdateScript
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();
       $package_dir = basename($package_dir_path);
-      if(isset($this->checkPackageInfo->infoPackageFiles[$package_dir])){
+      if (isset($this->checkPackageInfo->infoPackageFiles[$package_dir])) {
         $directory_temp_path = $this->checkPackageInfo->infoPackageFiles[$package_dir] . "," . $package_dir_path;
         $this->checkPackageInfo->infoPackageFiles[$package_dir] = $directory_temp_path;
-      }else{
+      }
+      else {
         $this->checkPackageInfo->infoPackageFiles[$package_dir] = $package_dir_path;
       }
     }
@@ -97,13 +99,14 @@ class PackageUpdateScript
    * Get the detail information of info files.
    */
   public function getPackageDetailInfo() {
-    foreach ($this->checkPackageInfo->infoPackageFiles as $key => $value){
-      if( strpos($value, "," ) !== FALSE ) {
+    foreach ($this->checkPackageInfo->infoPackageFiles as $key => $value) {
+      if ( strpos($value, "," ) !== FALSE ) {
         $value = explode(",", $value);
-        foreach ($value as $k => $v){
+        foreach ($value as $k => $v) {
           $this->checkPackageInfo->fileGetInfo($v, $key);
         }
-      } else{
+      }
+      else {
         $this->checkPackageInfo->fileGetInfo($value, $key);
       }
     }
@@ -140,8 +143,8 @@ class PackageUpdateScript
           'Download Link',
           'File Path'
       ];
-    foreach ($version_detail as $package => $versions){
-      if(!isset($versions['available_versions'][0])){
+    foreach ($version_detail as $package => $versions) {
+      if (!isset($versions['available_versions'][0])) {
         continue;
       }
       $git_commit_message['package'] = $package;
@@ -150,24 +153,26 @@ class PackageUpdateScript
       $git_commit_message['latest_version'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['version']:'';
       $git_commit_message['update_notes'] = isset($versions['available_versions'][0]['terms'])?$this->checkPackageInfo->getUpdateType($versions['available_versions'][0]['terms']['term']):'';
       $git_commit_message['download_link'] = isset($versions['available_versions'][0])?$versions['available_versions'][0]['download_link']:'';
-      if(isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== FALSE ) {
+      if (isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== FALSE ) {
         $package_info_files[$package . '.info']=explode(',', $package_info_files[$package . '.info']);
       }
-      if(isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])){
+      if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
         $file_paths=[];
-        foreach ($package_info_files[$package . '.info'] as $p => $path_location){
+        foreach ($package_info_files[$package . '.info'] as $p => $path_location) {
           $file_path_temp =isset($path_location)?(str_replace($package . '/' . $package . '.info', '', $path_location)):'';
-          if(($file_path_temp =='') && ($versions['package_type'] == 'module')){
+          if (($file_path_temp =='') && ($versions['package_type'] == 'module')) {
             $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
-          }else{
+          }
+          else {
             $file_paths[] = ($file_path_temp !='')?realpath($file_path_temp):$drupal_docroot_path;
           }
         }
         $git_commit_message['file_path'] =$file_paths;
-      }else{
+      }
+      else {
         $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
         $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
-        if(($file_path =='') && ($versions['package_type'] == 'module')){
+        if (($file_path =='') && ($versions['package_type'] == 'module')) {
           $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
         }
       }
@@ -184,8 +189,8 @@ class PackageUpdateScript
     $version_detail = $this->getAvailableUpdatesInfo();
     $table = new Table($output);
     $git_commit_message_detail=[];
-    foreach ($version_detail as $package => $versions){
-      if(!isset($versions['available_versions'][0])){
+    foreach ($version_detail as $package => $versions) {
+      if (!isset($versions['available_versions'][0])) {
         continue;
       }
       $git_commit_message=[];

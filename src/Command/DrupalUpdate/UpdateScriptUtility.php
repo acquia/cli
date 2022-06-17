@@ -10,10 +10,7 @@ use Symfony\Component\Finder\Finder;
 
 class UpdateScriptUtility
 {
-  /**
-   * @var string[]
-   */
-  private array $ignoreUpdatesFiles;
+
   /**
    * @var SymfonyStyle
    */
@@ -30,9 +27,6 @@ class UpdateScriptUtility
  */
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->io = new SymfonyStyle($input, $output);
-    $this->ignoreUpdatesFiles = [
-          '.gitignore','.htaccess','CHANGELOG.txt','sites',
-      ];
     $this->fileSystem = new Filesystem();
   }
 
@@ -42,11 +36,11 @@ class UpdateScriptUtility
    */
 
   function updateCode($latest_security_updates) {
-    foreach ($latest_security_updates as $k => $value){
-      if(!isset($value['download_link'])){
+    foreach ($latest_security_updates as $k => $value) {
+      if (!isset($value['download_link'])) {
         continue;
       }
-      if($value['package']=='drupal'){
+      if ($value['package']=='drupal') {
         $dirname = 'temp_drupal_core';
         $filename = $value['file_path'] . "/" . $dirname . "";
         if (!$this->fileSystem->exists($filename)) {
@@ -54,15 +48,17 @@ class UpdateScriptUtility
           $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
           umask($old);
           $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
-        } else {
+        }
+        else {
           $this->io->note("The directory $dirname exists.");
         }
       }
-      if(is_array($value['file_path'])){
+      if (is_array($value['file_path'])) {
         foreach ($value['file_path'] as $item) {
           $this->downloadRemoteFile($value['package'], $value['download_link'], $item);
         }
-      }else{
+      }
+      else {
         $this->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
       }
     }
@@ -75,7 +71,7 @@ class UpdateScriptUtility
    * @param $save_to
    */
   function downloadRemoteFile($package, $file_url, $save_to) {
-    if($package == 'drupal'){
+    if ($package == 'drupal') {
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
     }
@@ -86,7 +82,8 @@ class UpdateScriptUtility
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
       $this->fileSystem->remove($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE);
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // @todo handle errors
     }
   }
@@ -106,10 +103,11 @@ class UpdateScriptUtility
       $this->fileSystem->remove($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
       $this->fileSystem->rename($save_to . '/' . $folder_name, $save_to . '/drupal');
-    } catch (\Exception $e) {
+    }
+    catch (\Exception $e) {
       // @todo handle errors
     }
-    if($package == 'drupal'){
+    if ($package == 'drupal') {
       $this->io->note("Start core update.");
       $this->coreUpdate($save_to . '/drupal');
       $this->fileSystem->remove($save_to);
@@ -122,13 +120,16 @@ class UpdateScriptUtility
    * @param $core_dir_path
    */
   function coreUpdate($core_dir_path) {
+    $ignore_files = [
+        '.gitignore','.htaccess','CHANGELOG.txt','sites',
+    ];
     $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
     $finder = new Finder();
-    $finder->in($core_dir_path)->ignoreVCSIgnored(TRUE)->notPath($this->ignoreUpdatesFiles)->depth('== 0')->sortByName();
+    $finder->in($core_dir_path)->ignoreVCSIgnored(TRUE)->notPath($ignore_files)->depth('== 0')->sortByName();
     foreach ($finder as $file) {
       $fileNameWithExtension = $file->getRelativePathname();
       $tm_path = $core_dir_path . "/" . $fileNameWithExtension;
-      if(is_dir($tm_path)){
+      if (is_dir($tm_path)) {
         $this->fileSystem->mirror($core_dir_path . '/' . $fileNameWithExtension, $replace_dir_path . '/' . $fileNameWithExtension);
         continue;
       }
@@ -142,15 +143,16 @@ class UpdateScriptUtility
    */
   function unlinkTarFiles($remove_file_list) {
 
-    foreach ($remove_file_list as $k => $value){
-      if( ($k == 0) || ($value['package_type']=='core') ){
+    foreach ($remove_file_list as $k => $value) {
+      if ( ($k == 0) || ($value['package_type']=='core') ) {
         continue;
       }
-      if(is_array($value['file_path'])){
-        foreach ($value['file_path'] as $item){
+      if (is_array($value['file_path'])) {
+        foreach ($value['file_path'] as $item) {
           $this->removeFile($item . "/" . $value['package'] . ".tar.gz");
         }
-      }else{
+      }
+      else {
         $this->removeFile($value['file_path'] . "/" . $value['package'] . ".tar.gz");
       }
     }
@@ -160,9 +162,10 @@ class UpdateScriptUtility
    * @param $file_path
    */
   function removeFile($file_path) {
-    if($this->fileSystem->exists($file_path)){
+    if ($this->fileSystem->exists($file_path)) {
       $this->fileSystem->remove($file_path);
-    }else{
+    }
+    else {
       $this->io->note("File not exist for remove operation-" . $file_path);
     }
   }
