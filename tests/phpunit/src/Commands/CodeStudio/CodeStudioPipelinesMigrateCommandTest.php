@@ -123,6 +123,9 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('include', $contents);
     $this->assertArrayHasKey('variables', $contents);
     $this->assertArrayHasKey('setup', $contents);
+    $this->assertArrayHasKey('launch_ode', $contents);
+    $this->assertArrayHasKey('script', $contents['launch_ode']);
+    $this->assertNotEmpty($contents['launch_ode']['script']);
     $this->assertArrayHasKey('script', $contents['setup']);
     $this->assertArrayHasKey('stage', $contents['setup']);
     $this->assertEquals('Build Drupal', $contents['setup']['stage']);

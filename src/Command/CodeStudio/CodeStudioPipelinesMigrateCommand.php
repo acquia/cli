@@ -178,6 +178,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
+    if (array_key_exists('build', $acquia_pipelines_file_contents['events']) && empty($acquia_pipelines_file_contents['events']['build'])) {
+      return NULL;
+    }
     if (!array_key_exists($event_name, $acquia_pipelines_file_contents['events'])) {
       return NULL;
     }
@@ -200,7 +203,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
             'prompt' => FALSE,
             ],
           '${BLT_DIR}' => [
-            'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to skip migrating the following command?',
+            'message' => 'Code Studio AutoDevOps will run BLT commands for you by default. Do you want to migrate the following command?',
             'prompt' => TRUE,
           ],
         ],
@@ -279,6 +282,11 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                 if (!array_key_exists($script_name, $event_map['skip']) ) {
                   $code_studio_jobs[$script_name]['script'][] = $command;
                   $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                }
+                else {
+                  if ($script_name == 'launch_ode') {
+                    $code_studio_jobs[$script_name]['script'][] = $command;
+                  }
                 }
               }
             }
