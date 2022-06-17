@@ -283,8 +283,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                   $code_studio_jobs[$script_name]['script'][] = $command;
                   $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
                 }
-                else{
-                  if($script_name == 'launch_ode'){
+                else {
+                  if ($script_name == 'launch_ode') {
                     $code_studio_jobs[$script_name]['script'][] = $command;
                   }
                 }
