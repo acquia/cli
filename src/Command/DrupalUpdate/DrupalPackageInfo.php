@@ -13,22 +13,20 @@ class DrupalPackageInfo
    */
   public array $infoPackageFiles = [];
 
-
-
-
   /**
    * @var array
    */
   public array $availablePackageUpdates = [];
+
   /**
    * @var string
    */
   private string $drupalRootDirPath;
+
   /**
-   * @var string
+   * @var string|null
    */
   private string $drupalCoreVersion;
-
 
   /**
    * Flag for drupal core update only single time.
@@ -41,6 +39,7 @@ class DrupalPackageInfo
    * @var UpdateScriptUtility
    */
   private UpdateScriptUtility $updateScriptUtility;
+
   /**
    * @var SymfonyStyle
    */
@@ -119,7 +118,6 @@ class DrupalPackageInfo
     $current_version = '';
     $package_type = '';
     $package_alternative_name = '';
-    $package = str_replace(".info", "", $package);
     foreach ($info_extention_file as $row => $data) {
       if (in_array(trim($row), $package_info_key)) {
         $project_value = str_replace(['\'', '"'], '', $data);
@@ -162,12 +160,7 @@ class DrupalPackageInfo
     else {
       $project = str_replace(['drupal/', 'acquia/'], '', $project);
     }
-    $xml = file_get_contents("https://updates.drupal.org/release-history/$project/7.x/current");
-    $xml = str_replace(["\n", "\r", "\t"], '', $xml);
-    $xml = trim(str_replace('"', "'", $xml));
-    $simpleXml = simplexml_load_string($xml);
-    $json = json_encode($simpleXml);
-    $release_detail = json_decode($json, TRUE);
+    $release_detail = $this->determineAvailablePackageReleases($project);
 
     if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
       $this->availablePackageUpdates[$project]['current_version'] = $current_version;
@@ -201,6 +194,27 @@ class DrupalPackageInfo
       return $update_type_array['value'];
     }
     return '';
+  }
+
+  /**
+   * @param array|string $project
+   * @return mixed
+   */
+  protected function determineAvailablePackageReleases(string|array $project): mixed {
+    try {
+      $xml = file_get_contents("https://updates.drupal.org/release-history/$project/7.x/current");
+      $xml = str_replace(["\n", "\r", "\t"], '', $xml);
+      $xml = trim(str_replace('"', "'", $xml));
+      $simpleXml = simplexml_load_string($xml);
+      $json = json_encode($simpleXml);
+      $release_detail = json_decode($json, TRUE);
+      return $release_detail;
+    }
+    catch (\Exception $exception) {
+      $this->io->warning("Failed to get {$project} package latest release.");
+      return ['releases' => []];
+    }
+
   }
 
 }

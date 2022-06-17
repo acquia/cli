@@ -16,7 +16,7 @@ class DrupalUpdateCommand extends  CommandBase
    */
   private $drupalRootPath;
   /**
-   * @var mixed
+   * @var mixed|null
    */
   private  $drupalCoreVersion;
 

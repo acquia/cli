@@ -62,11 +62,14 @@ class PackageUpdateScript
    */
   public function updateAvailableUpdates($output, array $latest_security_updates) {
     if (count($latest_security_updates)>1) {
+
       $this->io->note('List view of available updates.');
       $this->printPackageDetail($output);
+
       $this->io->note('Start package update process.');
       $this->updateScriptUtility->updateCode($latest_security_updates);
       $this->updateScriptUtility->unlinkTarFiles($latest_security_updates);
+
       $this->io->note('Update process completed.');
     }
     else {
