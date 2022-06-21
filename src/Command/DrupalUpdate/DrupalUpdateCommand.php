@@ -2,6 +2,8 @@
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
+use Composer\Semver\Comparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -64,7 +66,12 @@ class DrupalUpdateCommand extends  CommandBase
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->validateCwdIsValidDrupalProject();
+
+    if (!$this->drupalProjectValidation()) {
+      $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
+      return 1;
+    }
+
     $this->io->note('Start checking of available updates.');
     $this->setDrupalRootPath(getcwd());
     $drupal_root_path = $this->getDrupalRootPath();
@@ -100,6 +107,31 @@ class DrupalUpdateCommand extends  CommandBase
         $this->setDrupalCoreVersion($constraint_matches[2]);
       }
     }
+  }
+
+  /**
+   * @return bool
+   * @throws AcquiaCliException
+   */
+  protected function drupalProjectValidation() {
+    $this->validateCwdIsValidDrupalProject();
+    if ($this->repoRoot === getcwd()) {
+      $process = $this->localMachineHelper->execute(['drush', 'status', 'drupal-version', '--format=json'], NULL, $this->repoRoot . '/docroot', FALSE)->enableOutput();
+      if ($process->isSuccessful()) {
+        $drupal_version = json_decode($process->getOutput(), TRUE);
+        if (isset($drupal_version['drupal-version']) && Comparator::lessThan($drupal_version['drupal-version'], '8.0.0')) {
+          $this->io->note("Current Drupal version : " . $drupal_version['drupal-version']);
+          return TRUE;
+        }
+        else {
+          throw new AcquiaCliException("Drupal 7 project not found, current drupal version - {$drupal_version['drupal-version']}");
+        }
+      }
+      else {
+        $this->io->error("Drush command not working in current directory path.");
+      }
+    }
+    return FALSE;
   }
 
 }
