@@ -199,27 +199,30 @@ trait CodeStudioCommandTrait {
         );
       }
     }
-    // Prompt to create project.
     else {
-      $this->io->writeln([
+      $this->io->error([
         "",
-        "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
-        "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
+        "Could not find any existing Code Studio project for Acquia Cloud Platform application {$cloud_application->name}.",
+        "Searched for UUID {$cloud_application->uuid} in project descriptions.",
       ]);
-      $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
-      if ($create_project) {
-        return $this->createGitLabProject($cloud_application);
-      }
+      throw new AcquiaCliException("Contact an account manager for further assistance");
+
+      // Can use in future : creation of codestudio project.
+
+      // $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
+      // if ($create_project) {
+      // return $this->createGitLabProject($cloud_application);
+      // }
       // Prompt to choose from full list, regardless of description.
-      else {
-        return $this->promptChooseFromObjectsOrArrays(
-          $this->gitLabClient->projects()->all(),
-          'id',
-          'path_with_namespace',
-          "Please choose a Code Studio project to configure for the {$cloud_application->name} application",
-          FALSE
-        );
-      }
+      // else {
+      // return $this->promptChooseFromObjectsOrArrays(
+      // $this->gitLabClient->projects()->all(),
+      // 'id',
+      // 'path_with_namespace',
+      // "Please choose a Code Studio project to configure for the {$cloud_application->name} application",
+      // FALSE
+      // );
+      // }
     }
   }
 
