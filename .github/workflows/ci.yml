@@ -43,12 +43,15 @@ jobs:
         run: |
           eval "$(ssh-agent -s)"
           cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
+      - name: Composer self-update
+        run: composer self-update --snapshot
       - name: Composer install
         run: composer install --prefer-dist --no-interaction --optimize-autoloader
       - name: Run tests
         if: matrix.coverage == 'none'
         run: |
           composer validate --no-check-all --ansi
+          composer dump-autoload --strict-psr
           composer test
       - name: Run coverage
         if: matrix.coverage == 'pcov'
