@@ -177,7 +177,7 @@ trait CodeStudioCommandTrait {
    *
    * @return array
    */
-  protected function determineGitLabProject(ApplicationResponse $cloud_application): array {
+  protected function determineGitLabProject(ApplicationResponse $cloud_application, Bool $create_new_cs_project = TRUE): array {
     // Use command option.
     if ($this->input->getOption('gitlab-project-id')) {
       $id = $this->input->getOption('gitlab-project-id');
@@ -201,11 +201,16 @@ trait CodeStudioCommandTrait {
     }
     // Prompt to create project.
     else {
-      $this->io->writeln([
+      $error_message = [
         "",
-        "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
-        "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
-      ]);
+        "Could not find any existing Code Studio project for Acquia Cloud Platform application {$cloud_application->name}.",
+        "Searched for UUID {$cloud_application->uuid} in project descriptions.",
+      ];
+      if (!$create_new_cs_project) {
+        $this->io->error($error_message);
+        throw new AcquiaCliException("Contact an account manager for further assistance");
+      }
+      $this->io->writeln($error_message);
       $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
       if ($create_project) {
         return $this->createGitLabProject($cloud_application);
