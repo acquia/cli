@@ -78,6 +78,12 @@ trait CodeStudioCommandTrait {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getGitLabHost(): string {
+    // If hostname is available as argument, use that.
+    if ($this->input->hasOption('gitlab-host-name')
+     && $this->input->getOption('gitlab-host-name')) {
+      return $this->input->getOption('gitlab-host-name');
+    }
+
     $process = $this->localMachineHelper->execute([
       'glab',
       'config',
@@ -144,7 +150,7 @@ trait CodeStudioCommandTrait {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateEnvironment() {
-    if (empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
+    if (!empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
   }
