@@ -13,6 +13,7 @@ autolabeler:
   - label: 'chore'
     body:
       - '/This is an automated pull request from \[Violinist\]/'
+      - '/Dependabot will resolve any conflicts/'
 change-template: '- $TITLE @$AUTHOR (#$NUMBER)'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
