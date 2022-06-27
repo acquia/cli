@@ -899,7 +899,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return string
    */
   protected function getCurrentPhpVersion(): string {
-    return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+    return getenv('PHP_VERSION') ?: PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**
