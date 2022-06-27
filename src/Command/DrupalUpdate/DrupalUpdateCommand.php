@@ -13,28 +13,11 @@ class DrupalUpdateCommand extends  CommandBase
    * @var string
    */
   protected static $defaultName = 'app:update-d7-packages';
-  /**
-   * @var mixed
-   */
-  private $drupalRootPath;
+
   /**
    * @var mixed|null
    */
   private  $drupalCoreVersion;
-
-  /**
-   * @return mixed
-   */
-  public function getDrupalRootPath() {
-    return $this->drupalRootPath;
-  }
-
-  /**
-   * @param mixed $drupalRootPath
-   */
-  public function setDrupalRootPath($drupalRootPath): void {
-    $this->drupalRootPath = $drupalRootPath;
-  }
 
   /**
    * @return mixed
@@ -72,41 +55,14 @@ class DrupalUpdateCommand extends  CommandBase
       return 1;
     }
 
-    $this->io->note('Start checking of available updates.');
-    $this->setDrupalRootPath(getcwd());
-    $drupal_root_path = $this->getDrupalRootPath();
-    $this->determineCorePackageVersion($drupal_root_path);
-    $check_package_info = new DrupalPackageInfo($input, $output);
-    $check_package_info->setDrupalRootDirPath($drupal_root_path);
-    $check_package_info->setDrupalCoreVersion($this->getDrupalCoreVersion());
-    $package_update_script = new PackageUpdateScript($input, $output, $check_package_info);
+    $drupal_package_update = new DrupalPackageUpdate($input, $output);
+    $detail_package_data= $drupal_package_update->getPackagesMetaData();
 
-    $this->io->note('Reading all packages.');
-    $package_update_script->getInfoFilesList();
-
-    $this->io->note('Preparing all packages detail list(package name, package type,current version etc.).');
-    $package_update_script->getPackageDetailInfo();
-
-    $this->io->note('Checking available updates of packages.');
-    $latest_updates = $package_update_script->securityUpdateVersion();
-
-    $package_update_script->updateAvailableUpdates($output, $latest_updates);
-    return 0;
-  }
-
-  /**
-   * @param $drupal_root_path
-   * @param $constraint_matches
-   * @return mixed
-   */
-  protected function determineCorePackageVersion($drupal_root_path) {
-    if (file_exists($drupal_root_path . '/docroot/includes/bootstrap.inc')) {
-      $boostrap_file_contents = file_get_contents($drupal_root_path . '/docroot/includes/bootstrap.inc');
-      preg_match("/define\(\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/i", $boostrap_file_contents, $constraint_matches);
-      if ((count($constraint_matches) > 2) && ($constraint_matches[1] == 'VERSION')) {
-        $this->setDrupalCoreVersion($constraint_matches[2]);
-      }
+    if ($drupal_package_update->packageUpdate($detail_package_data)) {
+      $drupal_package_update->printUpdatedPackageDetail($detail_package_data);
     }
+
+    return 0;
   }
 
   /**

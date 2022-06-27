@@ -1,6 +1,7 @@
 <?php
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use PharData;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -8,60 +9,31 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
-class UpdateScriptUtility
+/**
+ * Class FileSystemUtility
+ * @package Acquia\Cli\Command\DrupalUpdate
+ */
+class FileSystemUtility
 {
-
   /**
-   * @var SymfonyStyle
-   */
-  private SymfonyStyle $io;
-  /**
-   * @var Filesystem
+   * @var
    */
   private Filesystem $fileSystem;
 
   /**
- * UpdateScriptUtility constructor.
- * @param InputInterface $input
- * @param OutputInterface $output
- */
-  public function __construct(InputInterface $input, OutputInterface $output) {
-    $this->io = new SymfonyStyle($input, $output);
-    $this->fileSystem = new Filesystem();
-  }
+   * @var
+   */
+  private SymfonyStyle $io;
 
   /**
-   * Update code based on available security update.
-   * @param $latest_security_updates
+   * FileSystemUtility constructor.
+   * @param InputInterface $input
+   * @param OutputInterface $output
    */
-
-  function updateCode($latest_security_updates) {
-    foreach ($latest_security_updates as $k => $value) {
-      if (!isset($value['download_link'])) {
-        continue;
-      }
-      if ($value['package']=='drupal') {
-        $dirname = 'temp_drupal_core';
-        $filename = $value['file_path'] . "/" . $dirname . "";
-        if (!$this->fileSystem->exists($filename)) {
-          $old = umask(0);
-          $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
-          umask($old);
-          $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
-        }
-        else {
-          $this->io->note("The directory $dirname exists.");
-        }
-      }
-      if (is_array($value['file_path'])) {
-        foreach ($value['file_path'] as $item) {
-          $this->downloadRemoteFile($value['package'], $value['download_link'], $item);
-        }
-      }
-      else {
-        $this->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
-      }
-    }
+  public function __construct(InputInterface $input,
+                                OutputInterface $output) {
+    $this->io = new SymfonyStyle($input, $output);
+    $this->fileSystem =  new Filesystem();
   }
 
   /**
@@ -71,7 +43,9 @@ class UpdateScriptUtility
    * @param $save_to
    */
   function downloadRemoteFile($package, $file_url, $save_to) {
+    echo $package . "==" . $file_url . "==" . $save_to . PHP_EOL;
     if ($package == 'drupal') {
+
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
     }
@@ -85,6 +59,7 @@ class UpdateScriptUtility
     }
     catch (\Exception $e) {
       // @todo handle errors
+      throw new AcquiaCliException("Failed to update package {$package}.");
     }
   }
 
@@ -93,12 +68,12 @@ class UpdateScriptUtility
    * @param $package
    * @param $file_url
    * @param $save_to
+   * @throws AcquiaCliException
    */
   function downloadRemoteFileDrupalCore($package, $file_url, $save_to) {
-    $content = file_get_contents($file_url);
-    $folder_name = str_replace('.tar.gz', '', basename($file_url));
-    $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
+
     try {
+      $folder_name = $this->dumpPackageTarFile($file_url, $save_to, $package);
       $phar = new PharData($save_to . '/' . $package . '.tar.gz');
       $this->fileSystem->remove($save_to . '/' . $package);
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
@@ -106,6 +81,7 @@ class UpdateScriptUtility
     }
     catch (\Exception $e) {
       // @todo handle errors
+      throw new AcquiaCliException("Unable to download {$package} file.");
     }
     if ($package == 'drupal') {
       $this->io->note("Start core update.");
@@ -121,8 +97,8 @@ class UpdateScriptUtility
    */
   function coreUpdate($core_dir_path) {
     $ignore_files = [
-        '.gitignore','.htaccess','CHANGELOG.txt','sites',
-    ];
+          '.gitignore','.htaccess','CHANGELOG.txt','sites',
+      ];
     $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
     $finder = new Finder();
     $finder->in($core_dir_path)->ignoreVCSIgnored(TRUE)->notPath($ignore_files)->depth('== 0')->sortByName();
@@ -167,6 +143,26 @@ class UpdateScriptUtility
     }
     else {
       $this->io->note("File not exist for remove operation-" . $file_path);
+    }
+  }
+
+  /**
+   * @param $file_url
+   * @param $save_to
+   * @param $package
+   * @return string|string[]
+   * @throws AcquiaCliException
+   */
+  protected function dumpPackageTarFile($file_url, $save_to, $package) {
+    try {
+      $content = file_get_contents($file_url);
+      $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
+      $folder_name = str_replace('.tar.gz', '', basename($file_url));
+      return $folder_name;
+    }
+    catch (\Exception $e) {
+      // @todo handle errors
+      throw new AcquiaCliException("Unable to download {$package} file.");
     }
   }
 
