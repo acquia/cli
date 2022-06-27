@@ -39,7 +39,7 @@ class DrupalPackageUpdate
 
   public function __construct(InputInterface $input,
                                 OutputInterface $output) {
-    $this->packageInfo = new DrupalAllPackagesInfo($input, $output);
+    $this->packageInfo = new DrupalAllPackagesInfo();
     $this->io = new SymfonyStyle($input, $output);
     $this->fileSystemUtility = new FileSystemUtility($input, $output);
     $this->fileSystem = new Filesystem();
@@ -53,9 +53,7 @@ class DrupalPackageUpdate
 
     $this->io->note('Preparing all packages detail list(package name, package type,current version etc.).');
     $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
-    $detail_package_data = $this->listOfPackageAvailableUpdates();
-
-    return $detail_package_data;
+    return $this->listOfPackageAvailableUpdates();
 
   }
 
@@ -117,6 +115,8 @@ class DrupalPackageUpdate
 
   /**
    * @param array $latest_security_updates
+   * @return bool
+   * @throws AcquiaCliException
    */
   public function packageUpdate(array $latest_security_updates) {
     if (count($latest_security_updates)>1) {
@@ -133,6 +133,7 @@ class DrupalPackageUpdate
   /**
    * Update code based on available security update.
    * @param $latest_security_updates
+   * @throws AcquiaCliException
    */
 
   function updateCode($latest_security_updates) {
@@ -162,7 +163,7 @@ class DrupalPackageUpdate
 
   /**
    * @param $value
-   * @return mixed
+   * @throws AcquiaCliException
    */
   protected function packageCodeUpdate($value) {
     if ($value['package'] == 'drupal') {

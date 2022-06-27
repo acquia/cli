@@ -3,8 +3,6 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
 class DrupalAllPackagesInfo
@@ -33,8 +31,7 @@ class DrupalAllPackagesInfo
     return $this->packageData;
   }
 
-  public function __construct(InputInterface $input,
-                                OutputInterface $output) {
+  public function __construct() {
     $this->setIsCoreUpdated(FALSE);
   }
 
