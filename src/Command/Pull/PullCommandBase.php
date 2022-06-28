@@ -896,6 +896,10 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * Get current PHP version using IDE-specific variables when possible.
+   *
+   * Disable mutation testing because we cannot mock PHP constants.
+   * @infection-ignore-all
    * @return string
    */
   private function getCurrentPhpVersion(): string {
