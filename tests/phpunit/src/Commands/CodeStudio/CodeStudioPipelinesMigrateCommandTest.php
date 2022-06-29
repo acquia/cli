@@ -4,9 +4,11 @@ namespace Acquia\Cli\Tests\Commands\CodeStudio;
 
 use Acquia\Cli\Command\CodeStudio\CodeStudioCiCdVariables;
 use Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
+use AcquiaCloudApi\Response\ApplicationResponse;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -131,6 +133,39 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->assertEquals('Build Drupal', $contents['setup']['stage']);
     $this->assertArrayHasKey('needs', $contents['setup']);
     $this->assertIsArray($contents['setup']['needs']);
+  }
+
+  public function testdetermineGitLabProjectMethod() {
+    $this->expectException(AcquiaCliException::class);
+
+    $class = new \ReflectionClass(CodeStudioPipelinesMigrateCommand::class);
+    $sut = $this->getMockBuilder(CodeStudioPipelinesMigrateCommand::class)
+      ->setMethods(['determineGitLabProject', 'setInput'])
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $input = $this->getMockBuilder(InputInterface::class)
+      ->setMethods(['getOption'])
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $input->expects($this->any())
+      ->method('getOption')
+      ->willReturn('');
+
+    $property = $class->getProperty('input');
+    $property->setAccessible(TRUE);
+    $property->setValue($class, $input);
+
+    // $sut->setInput($input);
+
+    $app_response = $this->getMockBuilder(ApplicationResponse::class)
+      ->disableOriginalConstructor()
+      ->getMock();
+
+    $method = $class->getMethod('determineGitLabProject');
+    $method->setAccessible(TRUE);
+    return $method->invokeArgs($sut, [$app_response, FALSE]);
   }
 
 }
