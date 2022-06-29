@@ -18,6 +18,24 @@ class DrupalUpdateCommand extends  CommandBase
    * @var mixed|null
    */
   private  $drupalCoreVersion;
+  /**
+   * @var DrupalPackageUpdate
+   */
+  private DrupalPackageUpdate $drupalPackageUpdate;
+
+  /**
+   * @return DrupalPackageUpdate
+   */
+  public function getDrupalPackageUpdate(): DrupalPackageUpdate {
+    return $this->drupalPackageUpdate;
+  }
+
+  /**
+   * @param DrupalPackageUpdate $drupalPackageUpdate
+   */
+  public function setDrupalPackageUpdate(DrupalPackageUpdate $drupalPackageUpdate): void {
+    $this->drupalPackageUpdate = $drupalPackageUpdate;
+  }
 
   /**
    * @return mixed
@@ -42,26 +60,22 @@ class DrupalUpdateCommand extends  CommandBase
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param InputInterface $input
+   * @param OutputInterface $output
    *
    * @return int
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-
     if (!$this->drupalProjectValidation()) {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
     }
-
-    $drupal_package_update = new DrupalPackageUpdate($input, $output);
-    $detail_package_data= $drupal_package_update->getPackagesMetaData();
-
-    if ($drupal_package_update->packageUpdate($detail_package_data)) {
-      $drupal_package_update->printUpdatedPackageDetail($detail_package_data);
+    $this->setDrupalPackageUpdate(new DrupalPackageUpdate($input, $output));
+    $detail_package_data= $this->drupalPackageUpdate->getPackagesMetaData();
+    if ($this->drupalPackageUpdate->packageUpdate($detail_package_data)) {
+      $this->drupalPackageUpdate->printUpdatedPackageDetail($detail_package_data);
     }
-
     return 0;
   }
 

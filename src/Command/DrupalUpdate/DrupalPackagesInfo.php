@@ -1,11 +1,11 @@
 <?php
-
-
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
-class DrupalAllPackagesInfo
+class DrupalPackagesInfo
 {
   /**
    * @var array
@@ -16,6 +16,25 @@ class DrupalAllPackagesInfo
    * @var bool
    */
   private bool $isCoreUpdated;
+
+  /**
+   * @var DrupalOrgClient
+   */
+  private DrupalOrgClient $drupalOrgClient;
+
+  /**
+   * @return DrupalOrgClient
+   */
+  public function getDrupalOrgClient(): DrupalOrgClient {
+    return $this->drupalOrgClient;
+  }
+
+  /**
+   * @param DrupalOrgClient $drupalOrgClient
+   */
+  public function setDrupalOrgClient(DrupalOrgClient $drupalOrgClient): void {
+    $this->drupalOrgClient = $drupalOrgClient;
+  }
 
   /**
    * @param bool $isCoreUpdated
@@ -31,8 +50,9 @@ class DrupalAllPackagesInfo
     return $this->packageData;
   }
 
-  public function __construct() {
+  public function __construct(InputInterface $input, OutputInterface $output) {
     $this->setIsCoreUpdated(FALSE);
+    $this->setDrupalOrgClient(new DrupalOrgClient($input, $output));
   }
 
   /**
@@ -46,10 +66,8 @@ class DrupalAllPackagesInfo
       if ((count($constraint_matches) > 2) && ($constraint_matches[1] == 'VERSION')) {
         return $constraint_matches[2];
       }
-      else {
-        return '';
-      }
     }
+    return '';
   }
 
   /**
@@ -74,8 +92,8 @@ class DrupalAllPackagesInfo
   }
 
   /**
-   * Get the detail information of info files.
    * @param $info_packages_file_path
+   * @throws AcquiaCliException
    */
   public function getPackageDetailInfo($info_packages_file_path) {
     foreach ($info_packages_file_path as $package_name => $package_path) {
@@ -93,10 +111,10 @@ class DrupalAllPackagesInfo
 
   /**
    * @param $filepath
-   * @param $package
+   * @throws AcquiaCliException
    */
   public function fileGetInfo($filepath) {
-    $drupal_client = new DrupalOrgClient();
+    $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
           'name',
           'description',

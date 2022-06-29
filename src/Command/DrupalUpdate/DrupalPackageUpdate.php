@@ -1,8 +1,7 @@
 <?php
-
-
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -15,9 +14,10 @@ class DrupalPackageUpdate
    */
   public array $infoPackageFilesPath=[];
   /**
-   * @var DrupalAllPackagesInfo
+   * @var DrupalPackagesInfo
    */
-  private DrupalAllPackagesInfo $packageInfo;
+  private DrupalPackagesInfo $packageInfo;
+
   /**
    * @var SymfonyStyle
    */
@@ -37,24 +37,54 @@ class DrupalPackageUpdate
    */
   private OutputInterface $output;
 
-  public function __construct(InputInterface $input,
-                                OutputInterface $output) {
-    $this->packageInfo = new DrupalAllPackagesInfo();
-    $this->io = new SymfonyStyle($input, $output);
-    $this->fileSystemUtility = new FileSystemUtility($input, $output);
-    $this->fileSystem = new Filesystem();
+  /**
+   * @return DrupalPackagesInfo
+   */
+  public function getPackageInfo(): DrupalPackagesInfo {
+    return $this->packageInfo;
+  }
+
+  /**
+   * @param DrupalPackagesInfo $packageInfo
+   */
+  public function setPackageInfo(DrupalPackagesInfo $packageInfo): void {
+    $this->packageInfo = $packageInfo;
+  }
+
+  /**
+   * @return FileSystemUtility
+   */
+  public function getFileSystemUtility(): FileSystemUtility {
+    return $this->fileSystemUtility;
+  }
+
+  /**
+   * @param FileSystemUtility $fileSystemUtility
+   */
+  public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+    $this->fileSystemUtility = $fileSystemUtility;
+  }
+
+  public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
+    $this->setPackageInfo(new DrupalPackagesInfo($input, $output));
+    $this->io = new SymfonyStyle($input, $output);
+    $this->setFileSystemUtility(new FileSystemUtility($input, $output));
+    $this->fileSystem = new Filesystem();
   }
 
   public function getPackagesMetaData() {
     $this->io->note('Start checking of available updates..');
     $this->infoPackageFilesPath = $this->packageInfo->getInfoFilesList();
-
     $this->io->note('Preparing all packages detail list(package name, package type,current version etc.).');
-    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
+    try {
+      $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
+    }
+    catch (AcquiaCliException $e) {
+      // @todo handle exception.
+    }
     return $this->listOfPackageAvailableUpdates();
-
   }
 
   /**
@@ -131,7 +161,6 @@ class DrupalPackageUpdate
   }
 
   /**
-   * Update code based on available security update.
    * @param $latest_security_updates
    * @throws AcquiaCliException
    */

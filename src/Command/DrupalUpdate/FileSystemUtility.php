@@ -2,6 +2,9 @@
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Exception;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\GuzzleException;
 use PharData;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,12 +19,12 @@ use Symfony\Component\Finder\Finder;
 class FileSystemUtility
 {
   /**
-   * @var
+   * @var Filesystem
    */
   private Filesystem $fileSystem;
 
   /**
-   * @var
+   * @var SymfonyStyle
    */
   private SymfonyStyle $io;
 
@@ -37,10 +40,10 @@ class FileSystemUtility
   }
 
   /**
-   * Download and extract tar files in given directory path.
    * @param $package
    * @param $file_url
    * @param $save_to
+   * @throws AcquiaCliException
    */
   function downloadRemoteFile($package, $file_url, $save_to) {
     echo $package . "==" . $file_url . "==" . $save_to . PHP_EOL;
@@ -51,13 +54,14 @@ class FileSystemUtility
     }
 
     try {
-      $content = file_get_contents($file_url);
-      $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
-      $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-      $this->fileSystem->remove($save_to . '/' . $package);
-      $phar->extractTo($save_to, NULL, TRUE);
+      if ($this->fileDownloadGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
+        // $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
+        $phar = new PharData($save_to . '/' . $package . '.tar.gz');
+        $this->fileSystem->remove($save_to . '/' . $package);
+        $phar->extractTo($save_to, NULL, TRUE);
+      }
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo handle errors
       throw new AcquiaCliException("Failed to update package {$package}.");
     }
@@ -79,7 +83,7 @@ class FileSystemUtility
       $phar->extractTo($save_to, NULL, TRUE); // extract all files
       $this->fileSystem->rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo handle errors
       throw new AcquiaCliException("Unable to download {$package} file.");
     }
@@ -155,15 +159,62 @@ class FileSystemUtility
    */
   protected function dumpPackageTarFile($file_url, $save_to, $package) {
     try {
-      $content = file_get_contents($file_url);
-      $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
-      $folder_name = str_replace('.tar.gz', '', basename($file_url));
-      return $folder_name;
+      if ($this->fileDownloadGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
+        return str_replace('.tar.gz', '', basename($file_url));
+      }
     }
-    catch (\Exception $e) {
+    catch (Exception $e) {
       // @todo handle errors
       throw new AcquiaCliException("Unable to download {$package} file.");
     }
+  }
+
+  /**
+   * @param $file_url
+   * @param string $method
+   * @param string $header_type
+   * @return false|mixed
+   * @throws AcquiaCliException
+   * @throws GuzzleException
+   */
+  public function fileGetContentsGuzzleClient($file_url, $method = 'GET', $header_type = '') {
+    try {
+      $client = new GuzzleClient();
+      $response = $client->request($method, $file_url);
+
+      if ($response->getStatusCode() !== 200) {
+        return FALSE;
+      }
+      switch ($header_type) {
+        case "application/xml":
+          $response = simplexml_load_string($response->getBody()->getContents());
+          $response = json_decode(json_encode($response), TRUE);
+                 break;
+        default :
+          $response = $response->getBody()->getContents();
+          $response =  json_decode(json_encode($response), TRUE);
+                 break;
+      }
+      return $response;
+    }
+    catch (Exception $e) {
+      // @todo handle errors
+      throw new AcquiaCliException("Failed to read {$file_url} .");
+    }
+  }
+
+  public function fileDownloadGuzzleClient($file_url,$save_file_path) {
+    $client = new GuzzleClient();
+    try {
+      $response = $client->request('GET', $file_url, ['sink' => $save_file_path]);
+      if ($response->getStatusCode() !== 200) {
+        throw new AcquiaCliException("Failed to download {$file_url} .");
+      }
+    }
+    catch (GuzzleException $e) {
+      throw new AcquiaCliException("Failed to download {$file_url} .");
+    }
+    return TRUE;
   }
 
 }
