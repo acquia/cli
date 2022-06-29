@@ -150,13 +150,13 @@ class FileSystemUtility
     }
   }
 
-    /**
-     * @param $file_url
-     * @param $save_to
-     * @param $package
-     * @return false|string|string[]
-     * @throws AcquiaCliException
-     */
+  /**
+   * @param $file_url
+   * @param $save_to
+   * @param $package
+   * @return false|string|string[]
+   * @throws AcquiaCliException
+   */
   protected function dumpPackageTarFile($file_url, $save_to, $package) {
     try {
       if ($this->fileDownloadGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
