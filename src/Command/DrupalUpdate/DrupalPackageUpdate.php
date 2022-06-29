@@ -27,6 +27,9 @@ class DrupalPackageUpdate
    */
   private FileSystemUtility $fileSystemUtility;
 
+/**
+* @var Filesystem
+*/
   private Filesystem $fileSystem;
   /**
    * @var InputInterface
