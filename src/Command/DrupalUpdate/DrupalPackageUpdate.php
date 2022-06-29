@@ -27,8 +27,8 @@ class DrupalPackageUpdate
    */
   private FileSystemUtility $fileSystemUtility;
 
-/**
-* @var Filesystem
+  /**
+   @var Filesystem
 */
   private Filesystem $fileSystem;
   /**

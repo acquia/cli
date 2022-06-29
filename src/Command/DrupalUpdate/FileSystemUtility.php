@@ -54,9 +54,7 @@ class FileSystemUtility
 
     try {
       if ($this->fileDownloadGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
-        $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-        $this->fileSystem->remove($save_to . '/' . $package);
-        $phar->extractTo($save_to, NULL, TRUE);
+        $this->untargzPackage($save_to, $package);
       }
     }
     catch (Exception $e) {
@@ -76,13 +74,10 @@ class FileSystemUtility
 
     try {
       $folder_name = $this->dumpPackageTarFile($file_url, $save_to, $package);
-      $phar = new PharData($save_to . '/' . $package . '.tar.gz');
-      $this->fileSystem->remove($save_to . '/' . $package);
-      $phar->extractTo($save_to, NULL, TRUE); // extract all files
+      $this->untargzPackage($save_to, $package);
       $this->fileSystem->rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     }
     catch (Exception $e) {
-      // @todo handle errors
       throw new AcquiaCliException("Unable to download {$package} file.");
     }
     if ($package == 'drupal') {
@@ -105,13 +100,13 @@ class FileSystemUtility
     $finder = new Finder();
     $finder->in($core_dir_path)->ignoreVCSIgnored(TRUE)->notPath($ignore_files)->depth('== 0')->sortByName();
     foreach ($finder as $file) {
-      $fileNameWithExtension = $file->getRelativePathname();
-      $tm_path = $core_dir_path . "/" . $fileNameWithExtension;
-      if (is_dir($tm_path)) {
-        $this->fileSystem->mirror($core_dir_path . '/' . $fileNameWithExtension, $replace_dir_path . '/' . $fileNameWithExtension);
+      $file_name_with_extension = $file->getRelativePathname();
+      $temp_core_path = $core_dir_path . "/" . $file_name_with_extension;
+      if (is_dir($temp_core_path)) {
+        $this->fileSystem->mirror($temp_core_path, $replace_dir_path . '/' . $file_name_with_extension);
         continue;
       }
-      $this->fileSystem->copy($core_dir_path . '/' . $fileNameWithExtension, $replace_dir_path . '/' . $fileNameWithExtension, TRUE);
+      $this->fileSystem->copy($temp_core_path, $replace_dir_path . '/' . $file_name_with_extension, TRUE);
     }
   }
 
@@ -121,8 +116,8 @@ class FileSystemUtility
    */
   function unlinkTarFiles($remove_file_list) {
 
-    foreach ($remove_file_list as $k => $value) {
-      if ( ($k == 0) || ($value['package_type']=='core') ) {
+    foreach ($remove_file_list as $key => $value) {
+      if ( ($key == 0) || ($value['package_type']=='core') ) {
         continue;
       }
       if (is_array($value['file_path'])) {
@@ -214,6 +209,16 @@ class FileSystemUtility
       throw new AcquiaCliException("Failed to download {$file_url} .");
     }
     return TRUE;
+  }
+
+  /**
+   * @param $save_to
+   * @param $package
+   */
+  protected function untargzPackage($save_to, $package): void {
+    $phar = new PharData($save_to . '/' . $package . '.tar.gz');
+    $this->fileSystem->remove($save_to . '/' . $package);
+    $phar->extractTo($save_to, NULL, TRUE); // extract all files
   }
 
 }
