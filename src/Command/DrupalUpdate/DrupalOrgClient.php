@@ -3,7 +3,7 @@ namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Composer\Semver\Comparator;
-use GuzzleHttp\Exception\GuzzleException;
+use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -30,7 +30,8 @@ class DrupalOrgClient
 
   /**
    * DrupalOrgClient constructor.
-   * @param FileSystemUtility $file_system_utility
+   * @param InputInterface $input
+   * @param OutputInterface $output
    */
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
@@ -40,7 +41,8 @@ class DrupalOrgClient
    * Get available updates security, bug fixes, new feature releases.
    * @param $project
    * @param $current_version
-   * @throws AcquiaCliException
+   * @return array
+   * @throws AcquiaCliException|GuzzleException
    */
   function getSecurityRelease($project, $current_version) {
     if ( $project === 'drupal/core') {
@@ -64,35 +66,23 @@ class DrupalOrgClient
         elseif ($version_comparision > 0) {
           continue;
         }
-        else {
-          return [];
-        }
       }
     }
+    return [];
   }
 
   /**
-   * @param array|string $project
-   * @return mixed
-   * @throws AcquiaCliException
+   * @param string $project
+   * @return false|mixed
+   * @throws AcquiaCliException|GuzzleException
    */
-  protected function determineAvailablePackageReleases(string|array $project): mixed {
+  protected function determineAvailablePackageReleases(string $project) {
     try {
-      $response = $this->fileSystemUtility->fileGetContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
-      //      $xml = str_replace(["\n", "\r", "\t"], '', $xml);
-      //      $xml = trim(str_replace('"', "'", $xml));
-      //      $simpleXml = simplexml_load_string($xml);
-      //      $json = json_encode($simpleXml);
-      //      return json_decode($json, TRUE);
-
-      return $response;
+      return $this->fileSystemUtility->fileGetContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
     }
-    catch (\Exception $exception) {
+    catch (Exception $exception) {
       throw new AcquiaCliException("Failed to get '{$project}' package latest release data.");
     }
-    catch (GuzzleException $e) {
-    }
-
   }
 
 }
