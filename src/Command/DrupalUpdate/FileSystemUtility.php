@@ -46,7 +46,6 @@ class FileSystemUtility
    * @throws AcquiaCliException
    */
   function downloadRemoteFile($package, $file_url, $save_to) {
-    echo $package . "==" . $file_url . "==" . $save_to . PHP_EOL;
     if ($package == 'drupal') {
 
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
@@ -55,7 +54,6 @@ class FileSystemUtility
 
     try {
       if ($this->fileDownloadGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
-        // $this->fileSystem->dumpFile($save_to . '/' . $package . '.tar.gz', $content);
         $phar = new PharData($save_to . '/' . $package . '.tar.gz');
         $this->fileSystem->remove($save_to . '/' . $package);
         $phar->extractTo($save_to, NULL, TRUE);
