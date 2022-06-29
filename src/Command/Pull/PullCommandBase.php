@@ -896,10 +896,14 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * Get current PHP version using IDE-specific variables when possible.
+   *
+   * Disable mutation testing because we cannot mock PHP constants.
+   * @infection-ignore-all
    * @return string
    */
-  protected function getCurrentPhpVersion(): string {
-    return PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
+  private function getCurrentPhpVersion(): string {
+    return getenv('PHP_VERSION') ?: PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**
