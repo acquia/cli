@@ -1,4 +1,5 @@
 <?php
+
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Command\CommandBase;
@@ -7,8 +8,7 @@ use Composer\Semver\Comparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalUpdateCommand extends  CommandBase
-{
+class DrupalUpdateCommand extends  CommandBase{
   /**
    * @var string
    */
@@ -17,7 +17,7 @@ class DrupalUpdateCommand extends  CommandBase
   /**
    * @var mixed|null
    */
-  private  $drupalCoreVersion;
+  private $drupalCoreVersion;
   /**
    * @var DrupalPackageUpdate
    */
@@ -56,7 +56,7 @@ class DrupalUpdateCommand extends  CommandBase
    */
   protected function configure() {
     $this->setDescription('Updates modules, themes, and distributions for a Drupal 7 application.')
-            ->setHidden(TRUE);
+         ->setHidden(TRUE);
   }
 
   /**
@@ -67,23 +67,25 @@ class DrupalUpdateCommand extends  CommandBase
    * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if (!$this->drupalProjectValidation()) {
+    if (!$this->validateDrupal7Project()) {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
     }
     $this->setDrupalPackageUpdate(new DrupalPackageUpdate($input, $output));
     $detail_package_data= $this->drupalPackageUpdate->getPackagesMetaData();
-    if ($this->drupalPackageUpdate->packageUpdate($detail_package_data)) {
+    if ($this->drupalPackageUpdate->updateDrupalPackages($detail_package_data)) {
       $this->drupalPackageUpdate->printUpdatedPackageDetail($detail_package_data);
     }
     return 0;
   }
 
   /**
+   * Validate the drupal 7 project or not.
+   * It validate current drupal project is not d8 or d9 project.
    * @return bool
    * @throws AcquiaCliException
    */
-  protected function drupalProjectValidation() {
+  protected function validateDrupal7Project() {
     $this->validateCwdIsValidDrupalProject();
     if ($this->repoRoot === getcwd()) {
       $process = $this->localMachineHelper->execute(['drush', 'status', 'drupal-version', '--format=json'], NULL, $this->repoRoot . '/docroot', FALSE)->enableOutput();
@@ -94,11 +96,11 @@ class DrupalUpdateCommand extends  CommandBase
           return TRUE;
         }
         else {
-          throw new AcquiaCliException("Drupal 7 project not found, current drupal version - {$drupal_version['drupal-version']}");
+          throw new AcquiaCliException("Drupal 7 project not found. Current Drupal version is {$drupal_version['drupal-version']}.");
         }
       }
       else {
-        $this->io->error("Drush command not working in current directory path.");
+        throw new AcquiaCliException('Drush command not working in current directory path : {message}', ['message' => $process->getErrorOutput()]);
       }
     }
     return FALSE;

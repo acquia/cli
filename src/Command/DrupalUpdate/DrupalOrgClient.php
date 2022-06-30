@@ -1,4 +1,5 @@
 <?php
+
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -7,8 +8,7 @@ use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalOrgClient
-{
+class DrupalOrgClient{
   /**
    * @var FileSystemUtility
    */
@@ -38,13 +38,13 @@ class DrupalOrgClient
   }
 
   /**
-   * Get available updates security, bug fixes, new feature releases.
+   * Get available updates: security, bug fixes or regular releases.
    * @param $project
    * @param $current_version
    * @return array
    * @throws AcquiaCliException|GuzzleException
    */
-  function getSecurityRelease($project, $current_version) {
+  public function getSecurityRelease($project, $current_version) {
     if ( $project === 'drupal/core') {
       $project = 'drupal';
     }
@@ -58,12 +58,12 @@ class DrupalOrgClient
       $available_package_updates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {
         $available_version = $release_detail['releases']['release'][$index]['version'];
-        $version_comparision = Comparator::lessThan($current_version, $available_version);
-        if ( $version_comparision !== FALSE ) {
+        $version_comparison = Comparator::lessThan($current_version, $available_version);
+        if ( $version_comparison !== FALSE ) {
           $available_package_updates[$project]['available_versions'] = $release_detail['releases']['release'][$index];
           return $available_package_updates;
         }
-        elseif ($version_comparision > 0) {
+        elseif ($version_comparison > 0) {
           continue;
         }
       }
@@ -78,7 +78,7 @@ class DrupalOrgClient
    */
   protected function determineAvailablePackageReleases(string $project) {
     try {
-      return $this->fileSystemUtility->fileGetContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
+      return $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
     }
     catch (Exception $exception) {
       throw new AcquiaCliException("Failed to get '{$project}' package latest release data.");

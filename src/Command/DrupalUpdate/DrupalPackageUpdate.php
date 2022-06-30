@@ -1,4 +1,5 @@
 <?php
+
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -7,12 +8,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
-class DrupalPackageUpdate
-{
+class DrupalPackageUpdate{
+
   /**
    * @var array
    */
   public array $infoPackageFilesPath=[];
+
   /**
    * @var DrupalPackagesInfo
    */
@@ -22,19 +24,22 @@ class DrupalPackageUpdate
    * @var SymfonyStyle
    */
   private SymfonyStyle $io;
+
   /**
    * @var FileSystemUtility
    */
   private FileSystemUtility $fileSystemUtility;
 
   /**
-   @var Filesystem
-*/
+   * @var Filesystem
+   */
   private Filesystem $fileSystem;
+
   /**
    * @var InputInterface
    */
   private InputInterface $input;
+
   /**
    * @var OutputInterface
    */
@@ -77,23 +82,28 @@ class DrupalPackageUpdate
     $this->fileSystem = new Filesystem();
   }
 
+  /**
+   * Get Packages detail information.
+   * Package name, package type, package current version etc.
+   * @return array
+   */
   public function getPackagesMetaData() {
-    $this->io->note('Start checking of available updates..');
+    $this->io->note('Checking available updates.');
     $this->infoPackageFilesPath = $this->packageInfo->getInfoFilesList();
-    $this->io->note('Preparing all packages detail list(package name, package type,current version etc.).');
+    $this->io->note('Preparing packages.');
     try {
       $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
     }
     catch (AcquiaCliException $e) {
       // @todo handle exception.
     }
-    return $this->listOfPackageAvailableUpdates();
+    return $this->availablePackageUpdatesList();
   }
 
   /**
    * @return array
    */
-  public function listOfPackageAvailableUpdates() {
+  public function availablePackageUpdatesList() {
     $version_detail = $this->packageInfo->getPackageData();
     $package_info_files = $this->infoPackageFilesPath;
     $drupal_docroot_path = getcwd() . '/docroot';
@@ -113,31 +123,31 @@ class DrupalPackageUpdate
       }
       $git_commit_message['package'] = $package;
       $git_commit_message['package_type'] = $versions['package_type'];
-      $git_commit_message['current_version'] = isset($versions['current_version'])?$versions['current_version']:'';
-      $git_commit_message['latest_version'] = isset($versions['available_versions'])?$versions['available_versions']['version']:'';
-      $git_commit_message['update_notes'] = isset($versions['available_versions']['terms'])?$this->getUpdateType($versions['available_versions']['terms']['term']):'';
-      $git_commit_message['download_link'] = isset($versions['available_versions'])?$versions['available_versions']['download_link']:'';
+      $git_commit_message['current_version'] = isset($versions['current_version']) ? $versions['current_version'] : '';
+      $git_commit_message['latest_version'] = isset($versions['available_versions']) ? $versions['available_versions']['version'] : '';
+      $git_commit_message['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
+      $git_commit_message['download_link'] = isset($versions['available_versions']) ? $versions['available_versions']['download_link'] : '';
       if (isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== FALSE ) {
-        $package_info_files[$package . '.info']=explode(',', $package_info_files[$package . '.info']);
+        $package_info_files[$package . '.info'] = explode(',', $package_info_files[$package . '.info']);
       }
       if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
         $file_paths=[];
         foreach ($package_info_files[$package . '.info'] as $p => $path_location) {
-          $file_path_temp =isset($path_location)?(str_replace($package . '/' . $package . '.info', '', $path_location)):'';
-          if (($file_path_temp =='') && ($versions['package_type'] == 'module')) {
+          $file_path_temp = isset($path_location) ? (str_replace($package . '/' . $package . '.info', '', $path_location)) : '';
+          if (($file_path_temp == '') && ($versions['package_type'] == 'module')) {
             $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
           }
           else {
-            $file_paths[] = ($file_path_temp !='')?realpath($file_path_temp):$drupal_docroot_path;
+            $file_paths[] = ($file_path_temp != '') ? realpath($file_path_temp) : $drupal_docroot_path;
           }
         }
-        $git_commit_message['file_path'] =$file_paths;
+        $git_commit_message['file_path'] = $file_paths;
       }
       else {
-        $file_path =isset($package_info_files[$package . '.info'])?(str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])):'';
-        $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path;
-        if (($file_path =='') && ($versions['package_type'] == 'module')) {
-          $git_commit_message['file_path'] = ($file_path !='')?realpath($file_path):$drupal_docroot_path . "/sites/all/modules";
+        $file_path = isset($package_info_files[$package . '.info']) ? (str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])) : '';
+        $git_commit_message['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path;
+        if (($file_path == '') && ($versions['package_type'] == 'module')) {
+          $git_commit_message['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path . "/sites/all/modules";
         }
       }
 
@@ -151,15 +161,18 @@ class DrupalPackageUpdate
    * @return bool
    * @throws AcquiaCliException
    */
-  public function packageUpdate(array $latest_security_updates) {
-    if (count($latest_security_updates)>1) {
-      $this->io->note('Start package update process.');
-      $this->updateCode($latest_security_updates);
+  public function updateDrupalPackages(array $latest_security_updates) {
+
+    if (count($latest_security_updates) > 1) {
+      $this->io->note('Starting package update process.');
+      $this->updatePackageCode($latest_security_updates);
       $this->fileSystemUtility->unlinkTarFiles($latest_security_updates);
-      $this->io->note('Update process completed.');
+      $this->io->note('All packages have been updated.');
+
       return TRUE;
     }
-    $this->io->success('Branch already upto date.');
+
+    $this->io->success('Branch already up to date.');
     return FALSE;
   }
 
@@ -168,27 +181,28 @@ class DrupalPackageUpdate
    * @throws AcquiaCliException
    */
 
-  function updateCode($latest_security_updates) {
+  public function updatePackageCode($latest_security_updates) {
     foreach ($latest_security_updates as $k => $value) {
       if (!isset($value['download_link'])) {
         continue;
       }
-      $this->packageCodeUpdate($value);
+      $this->updateDrupalPackageCode($value);
     }
   }
 
   /**
-   * Multi Array with update type in response of drupal.org api.
-   * @param $update_type_array
+   * Get package release type from available release response.
+   * Ex. bug fix, new feature, security update etc.
+   * @param array $package_release_detail
    * @return mixed|string
    */
 
-  function getUpdateType($update_type_array) {
-    if (isset($update_type_array[0]['value'])) {
-      return $update_type_array[0]['value'];
+  protected function getUpdateType(array $package_release_detail) {
+    if (isset($package_release_detail[0]['value'])) {
+      return $package_release_detail[0]['value'];
     }
-    elseif (isset($update_type_array['value'])) {
-      return $update_type_array['value'];
+    elseif (isset($package_release_detail['value'])) {
+      return $package_release_detail['value'];
     }
     return '';
   }
@@ -197,7 +211,7 @@ class DrupalPackageUpdate
    * @param $value
    * @throws AcquiaCliException
    */
-  protected function packageCodeUpdate($value) {
+  protected function updateDrupalPackageCode($value) {
     if ($value['package'] == 'drupal') {
       $dirname = 'temp_drupal_core';
       $filename = $value['file_path'] . "/" . $dirname . "";
@@ -208,7 +222,7 @@ class DrupalPackageUpdate
         $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
       }
       else {
-        $this->io->note("The directory $dirname exists.");
+        $this->io->note("The directory $dirname already exists.");
       }
     }
     if (is_array($value['file_path'])) {
@@ -226,7 +240,6 @@ class DrupalPackageUpdate
    * @param array $latest_security_updates
    */
   public function printUpdatedPackageDetail(array $latest_security_updates): void {
-    $this->io->note('List view of updated package.');
     $updated_package_information = new UpdatedPackagesInfo($this->output);
     $updated_package_information->printPackageDetail($latest_security_updates);
   }

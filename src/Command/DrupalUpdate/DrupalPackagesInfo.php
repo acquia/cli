@@ -1,12 +1,12 @@
 <?php
+
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
-class DrupalPackagesInfo
-{
+class DrupalPackagesInfo{
   /**
    * @var array
    */
@@ -100,11 +100,11 @@ class DrupalPackagesInfo
       if ( strpos($package_path, "," ) !== FALSE ) {
         $package_path = explode(",", $package_path);
         foreach ($package_path as $path) {
-          $this->fileGetInfo($path);
+          $this->getFileInfo($path);
         }
       }
       else {
-        $this->fileGetInfo($package_path);
+        $this->getFileInfo($package_path);
       }
     }
   }
@@ -113,7 +113,7 @@ class DrupalPackagesInfo
    * @param $filepath
    * @throws AcquiaCliException
    */
-  public function fileGetInfo($filepath) {
+  public function getFileInfo($filepath) {
     $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
           'name',
@@ -149,13 +149,13 @@ class DrupalPackagesInfo
       $current_version = $this->determineCorePackageVersion();
     }
     if ($package_type == '') {
-      $package_type = ($package_alternative_name == 'core')?'drupal':'';
+      $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
       $package_available_releases_data=$drupal_client->getSecurityRelease(trim($package_type), $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);
-        $this->packageData[$package_name]=$package_available_releases_data[$package_name];
+        $this->packageData[$package_name] = $package_available_releases_data[$package_name];
       }
     }
     if ($package_type == 'drupal') {

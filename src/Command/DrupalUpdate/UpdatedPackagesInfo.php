@@ -1,20 +1,17 @@
 <?php
 
-
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class UpdatedPackagesInfo
-{
+class UpdatedPackagesInfo{
   /**
    * @var OutputInterface
    */
   private OutputInterface $output;
 
-  public function __construct(
-                                OutputInterface $output) {
+  public function __construct(OutputInterface $output) {
     $this->output = $output;
   }
 
@@ -24,9 +21,11 @@ class UpdatedPackagesInfo
   public function printPackageDetail($version_detail) {
     $table = new Table($this->output);
     $git_commit_message_detail=[];
+
     array_shift($version_detail);
     $array_keys = array_column($version_detail, 'package');
     array_multisort($array_keys, SORT_ASC, $version_detail);
+
     foreach ($version_detail as $versions) {
       $package = $versions['package'];
       $git_commit_message=[];
