@@ -15,7 +15,7 @@ class DrupalUpdateCommand extends  CommandBase {
   protected static $defaultName = 'app:update-d7-packages';
 
   /**
-   * @var mixed|null
+   * @var mixed
    */
   private $drupalCoreVersion;
   /**
@@ -38,9 +38,9 @@ class DrupalUpdateCommand extends  CommandBase {
   }
 
   /**
-   * @return mixed|null
+   * @return mixed
    */
-  public function getDrupalCoreVersion():  ?mixed {
+  public function getDrupalCoreVersion():  mixed {
     return $this->drupalCoreVersion;
   }
 

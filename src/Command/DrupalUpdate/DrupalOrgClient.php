@@ -81,7 +81,8 @@ class DrupalOrgClient {
       return $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
     }
     catch (Exception $exception) {
-      throw new AcquiaCliException("Failed to get '{$project}' package latest release data.");
+
+      throw new AcquiaCliException("Failed to get '{$project}' package latest release data." . $exception->getMessage());
     }
   }
 

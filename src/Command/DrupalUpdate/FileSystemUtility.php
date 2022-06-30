@@ -167,11 +167,11 @@ class FileSystemUtility {
    * @param string $file_url
    * @param string $method
    * @param string $header_type
-   * @return false|mixed
+   * @return mixed
    * @throws AcquiaCliException
    * @throws GuzzleException
    */
-  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET', string $header_type = ''): false|mixed {
+  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET', string $header_type = ''): mixed {
     try {
       $client = new GuzzleClient();
       $response = $client->request($method, $file_url);

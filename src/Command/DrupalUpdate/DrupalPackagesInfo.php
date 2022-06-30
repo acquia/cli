@@ -56,9 +56,9 @@ class DrupalPackagesInfo {
   }
 
   /**
-   * @return mixed|string
+   * @return mixed
    */
-  protected function determineCorePackageVersion(): mixed|string {
+  protected function determineCorePackageVersion(): mixed {
     $drupal_boostrap_inc_path = getcwd() . '/docroot/includes/bootstrap.inc';
     if (file_exists($drupal_boostrap_inc_path)) {
       $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
