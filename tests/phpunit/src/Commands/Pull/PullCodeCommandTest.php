@@ -6,7 +6,6 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
-use Acquia\Cli\Tests\TestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -28,6 +27,10 @@ class PullCodeCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullCodeCommand::class);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testCloneRepo(): void {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
     // to re-inject the parameter into the command.
@@ -238,8 +241,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException
    */
   public function testMatchPhpVersion(string $php_version): void {
-    $env_vars = ['PHP_VERSION' => $php_version];
-    TestBase::setEnvVars($env_vars);
     IdeHelper::setCloudIdeEnvVars();
     $this->application->addCommands([
       $this->injectCommand(IdePhpVersionCommand::class),
@@ -253,6 +254,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
+    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn($php_version . "\n")->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
@@ -288,7 +290,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     else {
       $this->assertStringContainsString($message, $output);
     }
-    TestBase::unsetEnvVars($env_vars);
   }
 
   /**
