@@ -227,4 +227,46 @@ class FileSystemUtility {
     $phar->extractTo($save_to, NULL, TRUE);
   }
 
+  /**
+   * @return array
+   */
+  public function getInfoFilesList(): array {
+    $finder = new Finder();
+    $finder->files()->in(getcwd())->name('*.info');
+    $info_package_files = [];
+    foreach ($finder as $file) {
+      $package_dir_path = $file->getRealPath();
+      $package_dir = basename($package_dir_path);
+      if (isset($info_package_files[$package_dir])) {
+        $directory_temp_path = $info_package_files[$package_dir] . "," . $package_dir_path;
+        $info_package_files[$package_dir] = $directory_temp_path;
+      }
+      else {
+        $info_package_files[$package_dir] = $package_dir_path;
+      }
+    }
+    return $info_package_files;
+  }
+
+  /**
+   * @param $value
+   * @return mixed
+   */
+  public function getDrupalTempFolderPath($value) {
+    if ($value['package'] == 'drupal') {
+      $dirname = 'temp_drupal_core';
+      $filename = $value['file_path'] . "/" . $dirname . "";
+      if (!$this->fileSystem->exists($filename)) {
+        $old = umask(0);
+        $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
+        umask($old);
+        $value['file_path'] = $value['file_path'] . "/" . $dirname;
+      }
+      else {
+        $this->io->note("The directory $dirname already exists.");
+      }
+    }
+    return $value;
+  }
+
 }

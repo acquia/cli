@@ -45,7 +45,7 @@ class DrupalOrgClient {
    * @throws AcquiaCliException|GuzzleException
    */
   public function getSecurityRelease($project, $current_version) : array {
-    if ( $project === 'drupal/core') {
+    if ($project === 'drupal/core') {
       $project = 'drupal';
     }
     else {
@@ -81,7 +81,6 @@ class DrupalOrgClient {
       return $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
     }
     catch (Exception $exception) {
-
       throw new AcquiaCliException("Failed to get '{$project}' package latest release data." . $exception->getMessage());
     }
   }

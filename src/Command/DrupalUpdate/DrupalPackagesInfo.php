@@ -2,11 +2,17 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 
 class DrupalPackagesInfo {
+
+  /**
+   * @var OutputInterface
+   */
+  private OutputInterface $output;
+
   /**
    * @var array
    */
@@ -50,9 +56,17 @@ class DrupalPackagesInfo {
     return $this->packageData;
   }
 
+  /**
+   * @param OutputInterface $output
+   */
+  public function setOutput(OutputInterface $output): void {
+    $this->output = $output;
+  }
+
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->setIsCoreUpdated(FALSE);
     $this->setDrupalOrgClient(new DrupalOrgClient($input, $output));
+    $this->setOutput($output);
   }
 
   /**
@@ -68,27 +82,6 @@ class DrupalPackagesInfo {
       }
     }
     return "";
-  }
-
-  /**
-   * @return array
-   */
-  public function getInfoFilesList(): array {
-    $finder = new Finder();
-    $finder->files()->in(getcwd())->name('*.info');
-    $info_package_files = [];
-    foreach ($finder as $file) {
-      $package_dir_path = $file->getRealPath();
-      $package_dir = basename($package_dir_path);
-      if (isset($info_package_files[$package_dir])) {
-        $directory_temp_path = $info_package_files[$package_dir] . "," . $package_dir_path;
-        $info_package_files[$package_dir] = $directory_temp_path;
-      }
-      else {
-        $info_package_files[$package_dir] = $package_dir_path;
-      }
-    }
-    return $info_package_files;
   }
 
   /**
@@ -123,7 +116,7 @@ class DrupalPackagesInfo {
       'core',
       'project',
     ];
-    $info_extension_file =  parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
+    $info_extension_file =  @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     $current_version = '';
     $package_type = '';
     $package_alternative_name = '';
@@ -158,7 +151,37 @@ class DrupalPackagesInfo {
     if ($package_type == 'drupal') {
       $this->isCoreUpdated = TRUE;
     }
+  }
 
+  /**
+   * @param $version_detail
+   */
+  public function printPackageDetail($version_detail): void {
+    $table = new Table($this->output);
+    $git_commit_message_detail=[];
+
+    array_shift($version_detail);
+    $array_keys = array_column($version_detail, 'package');
+    array_multisort($array_keys, SORT_ASC, $version_detail);
+
+    foreach ($version_detail as $versions) {
+      $package = $versions['package'];
+      $git_commit_message=[];
+      $git_commit_message[] = $package;
+      $git_commit_message[] = $versions['package_type'];
+      $git_commit_message[] = $versions['current_version'] ?? '';
+      $git_commit_message[] = $versions['latest_version'] ?? '';
+      $git_commit_message[] = $versions['update_notes'] ?? '';
+      $git_commit_message_detail[] = $git_commit_message;
+    }
+    $table->setHeaders([
+       'Package Name',
+       'Package Type',
+       'Current Version',
+       'Latest Version',
+       'Update Type',
+     ])->setRows($git_commit_message_detail);
+    $table->render();
   }
 
 }

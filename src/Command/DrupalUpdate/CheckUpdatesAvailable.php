@@ -1,38 +1,17 @@
 <?php
 
+
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Filesystem\Filesystem;
 
-class DrupalPackageUpdate {
-
-  /**
-   * @var array
-   */
-  public array $infoPackageFilesPath=[];
-
-  /**
-   * @var DrupalPackagesInfo
-   */
-  private DrupalPackagesInfo $packageInfo;
-
+class CheckUpdatesAvailable {
   /**
    * @var SymfonyStyle
    */
   private SymfonyStyle $io;
-
-  /**
-   * @var FileSystemUtility
-   */
-  private FileSystemUtility $fileSystemUtility;
-
-  /**
-   * @var Filesystem
-   */
-  private Filesystem $fileSystem;
 
   /**
    * @var InputInterface
@@ -45,23 +24,19 @@ class DrupalPackageUpdate {
   private OutputInterface $output;
 
   /**
-   * @var UpdatedPackagesInfo
+   * @var array
    */
-  private UpdatedPackagesInfo $updatePackagesInfo;
+  public array $infoPackageFilesPath=[];
 
   /**
-   * @return UpdatedPackagesInfo
+   * @var DrupalPackagesInfo
    */
-  public function getUpdatePackagesInfo(): UpdatedPackagesInfo {
-    return $this->updatePackagesInfo;
-  }
+  private DrupalPackagesInfo $packageInfo;
 
   /**
-   * @param $updatePackagesInfo
+   * @var FileSystemUtility
    */
-  public function setUpdatePackagesInfo($updatePackagesInfo): void {
-    $this->updatePackagesInfo = $updatePackagesInfo;
-  }
+  private FileSystemUtility $fileSystemUtility;
 
   /**
    * @return DrupalPackagesInfo
@@ -97,8 +72,6 @@ class DrupalPackageUpdate {
     $this->setPackageInfo(new DrupalPackagesInfo($input, $output));
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
-    $this->fileSystem = new Filesystem();
-    $this->setUpdatePackagesInfo(new UpdatedPackagesInfo($this->output));
   }
 
   /**
@@ -109,7 +82,7 @@ class DrupalPackageUpdate {
    */
   public function getPackagesMetaData(): array {
     $this->io->note('Checking available updates.');
-    $this->infoPackageFilesPath = $this->packageInfo->getInfoFilesList();
+    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList();
     $this->io->note('Preparing packages.');
     $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
     return $this->availablePackageUpdatesList();
@@ -124,14 +97,14 @@ class DrupalPackageUpdate {
     $drupal_docroot_path = getcwd() . '/docroot';
     $git_commit_message_detail = [];
     $git_commit_message_detail[] = [
-      'Package Name',
-      'Package Type',
-      'Current Version',
-      'Latest Version',
-      'Update Type',
-      'Download Link',
-      'File Path',
-    ];
+          'Package Name',
+          'Package Type',
+          'Current Version',
+          'Latest Version',
+          'Update Type',
+          'Download Link',
+          'File Path',
+      ];
     foreach ($version_detail as $package => $versions) {
       if (!isset($versions['available_versions'])) {
         continue;
@@ -172,39 +145,6 @@ class DrupalPackageUpdate {
   }
 
   /**
-   * @param array $latest_security_updates
-   * @return bool
-   * @throws AcquiaCliException
-   */
-  public function updateDrupalPackages(array $latest_security_updates): bool {
-
-    if (count($latest_security_updates) > 1) {
-      $this->io->note('Starting package update process.');
-      $this->updatePackageCode($latest_security_updates);
-      $this->fileSystemUtility->unlinkTarFiles($latest_security_updates);
-      $this->io->note('All packages have been updated.');
-
-      return TRUE;
-    }
-
-    $this->io->success('Branch already up to date.');
-    return FALSE;
-  }
-
-  /**
-   * @param $latest_security_updates
-   * @throws AcquiaCliException
-   */
-  public function updatePackageCode($latest_security_updates): void {
-    foreach ($latest_security_updates as $k => $value) {
-      if (!isset($value['download_link'])) {
-        continue;
-      }
-      $this->updateDrupalPackageCode($value);
-    }
-  }
-
-  /**
    * Get package release type from available release response.
    * Ex. bug fix, new feature, security update etc.
    * @param array $package_release_detail
@@ -218,41 +158,6 @@ class DrupalPackageUpdate {
       return $package_release_detail['value'];
     }
     return "";
-  }
-
-  /**
-   * @param $value
-   * @throws AcquiaCliException
-   */
-  protected function updateDrupalPackageCode($value): void {
-    if ($value['package'] == 'drupal') {
-      $dirname = 'temp_drupal_core';
-      $filename = $value['file_path'] . "/" . $dirname . "";
-      if (!$this->fileSystem->exists($filename)) {
-        $old = umask(0);
-        $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
-        umask($old);
-        $value['file_path'] = $value['file_path'] . "/" . $dirname;
-      }
-      else {
-        $this->io->note("The directory $dirname already exists.");
-      }
-    }
-    if (is_array($value['file_path'])) {
-      foreach ($value['file_path'] as $item) {
-        $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $item);
-      }
-    }
-    else {
-      $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
-    }
-  }
-
-  /**
-   * @param array $latest_security_updates
-   */
-  public function printUpdatedPackageDetail(array $latest_security_updates): void {
-    $this->getUpdatePackagesInfo()->printPackageDetail($latest_security_updates);
   }
 
 }

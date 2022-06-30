@@ -19,22 +19,41 @@ class DrupalUpdateCommand extends  CommandBase {
    */
   private $drupalCoreVersion;
   /**
-   * @var DrupalPackageUpdate
+   * @var UpdateDrupalPackage
    */
-  private DrupalPackageUpdate $drupalPackageUpdate;
+  private UpdateDrupalPackage $updateDrupalPackage;
 
   /**
-   * @return DrupalPackageUpdate
+   * @var CheckUpdatesAvailable
    */
-  public function getDrupalPackageUpdate(): DrupalPackageUpdate {
-    return $this->drupalPackageUpdate;
+  private CheckUpdatesAvailable $checkUpdatesAvailable;
+
+  /**
+   * @return CheckUpdatesAvailable
+   */
+  public function getCheckUpdatesAvailable(): CheckUpdatesAvailable {
+    return $this->checkUpdatesAvailable;
   }
 
   /**
-   * @param DrupalPackageUpdate $drupalPackageUpdate
+   * @param CheckUpdatesAvailable $checkUpdatesAvailable
    */
-  public function setDrupalPackageUpdate(DrupalPackageUpdate $drupalPackageUpdate): void {
-    $this->drupalPackageUpdate = $drupalPackageUpdate;
+  public function setCheckUpdatesAvailable(CheckUpdatesAvailable $checkUpdatesAvailable): void {
+    $this->checkUpdatesAvailable = $checkUpdatesAvailable;
+  }
+
+  /**
+   * @return UpdateDrupalPackage
+   */
+  public function getUpdateDrupalPackage(): UpdateDrupalPackage {
+    return $this->updateDrupalPackage;
+  }
+
+  /**
+   * @param UpdateDrupalPackage $updateDrupalPackage
+   */
+  public function setUpdateDrupalPackage(UpdateDrupalPackage $updateDrupalPackage): void {
+    $this->updateDrupalPackage = $updateDrupalPackage;
   }
 
   /**
@@ -71,11 +90,15 @@ class DrupalUpdateCommand extends  CommandBase {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
     }
-    $this->setDrupalPackageUpdate(new DrupalPackageUpdate($input, $output));
-    $detail_package_data= $this->drupalPackageUpdate->getPackagesMetaData();
-    if ($this->drupalPackageUpdate->updateDrupalPackages($detail_package_data)) {
-      $this->drupalPackageUpdate->printUpdatedPackageDetail($detail_package_data);
+    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output));
+    $this->setUpdateDrupalPackage(new UpdateDrupalPackage($input, $output));
+    $detail_package_data= $this->checkUpdatesAvailable->getPackagesMetaData();
+    if (count($detail_package_data) > 1) {
+      $this->updateDrupalPackage->updateDrupalPackages($detail_package_data);
+      $this->updateDrupalPackage->printUpdatedPackageDetail($detail_package_data);
+      return 0;
     }
+    $this->io->success('Branch already up to date.');
     return 0;
   }
 
