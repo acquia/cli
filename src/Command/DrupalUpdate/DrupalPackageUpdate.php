@@ -200,7 +200,6 @@ class DrupalPackageUpdate{
    * @param $latest_security_updates
    * @throws AcquiaCliException
    */
-
   public function updatePackageCode($latest_security_updates) {
     foreach ($latest_security_updates as $k => $value) {
       if (!isset($value['download_link'])) {
@@ -216,7 +215,6 @@ class DrupalPackageUpdate{
    * @param array $package_release_detail
    * @return mixed|string
    */
-
   protected function getUpdateType(array $package_release_detail) {
     if (isset($package_release_detail[0]['value'])) {
       return $package_release_detail[0]['value'];
