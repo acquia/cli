@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\IdeCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 
@@ -12,10 +13,7 @@ use AcquiaCloudApi\Response\IdeResponse;
  */
 abstract class IdeCommandBase extends CommandBase {
 
-  /**
-   * @var string
-   */
-  private $phpVersionFilePath;
+  use IdeCommandTrait;
 
   /**
    * @var string
@@ -108,13 +106,6 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
-   * @return false|string
-   */
-  protected function getIdePhpVersion() {
-    return $this->localMachineHelper->readFile($this->getIdePhpVersionFilePath());
-  }
-
-  /**
    * @param string $file_path
    */
   public function setXdebugIniFilepath(string $file_path): void {
@@ -127,7 +118,7 @@ abstract class IdeCommandBase extends CommandBase {
    */
   public function getXdebugIniFilePath(): string {
     if (!isset($this->xdebugIniFilepath)) {
-      $this->xdebugIniFilepath = IdeCommandBase::DEFAULT_XDEBUG_INI_FILEPATH;
+      $this->xdebugIniFilepath = self::DEFAULT_XDEBUG_INI_FILEPATH;
     }
     return $this->xdebugIniFilepath;
   }
@@ -146,23 +137,6 @@ abstract class IdeCommandBase extends CommandBase {
       default:
         return '/home/ide/configs/php/xdebug3.ini';
     }
-  }
-
-  /**
-   * @param string $path
-   */
-  public function setPhpVersionFilePath(string $path): void {
-    $this->phpVersionFilePath = $path;
-  }
-
-  /**
-   * @return string
-   */
-  public function getIdePhpVersionFilePath(): string {
-    if (!isset($this->phpVersionFilePath)) {
-      $this->phpVersionFilePath = '/home/ide/configs/php/.version';
-    }
-    return $this->phpVersionFilePath;
   }
 
 }
