@@ -76,7 +76,7 @@ class DrupalOrgClient {
    * @return false|mixed
    * @throws AcquiaCliException|GuzzleException
    */
-  protected function determineAvailablePackageReleases(string $project) {
+  protected function determineAvailablePackageReleases(string $project): mixed {
     try {
       return $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
     }
