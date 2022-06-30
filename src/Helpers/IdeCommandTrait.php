@@ -13,7 +13,7 @@ trait IdeCommandTrait {
    * @return string
    */
   protected function getIdePhpVersion(): string {
-    return $this->localMachineHelper->readFile($this->getIdePhpVersionFilePath());
+    return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));
   }
 
   /**
