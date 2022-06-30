@@ -6,7 +6,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
-class DrupalPackagesInfo{
+class DrupalPackagesInfo {
   /**
    * @var array
    */
@@ -56,9 +56,9 @@ class DrupalPackagesInfo{
   }
 
   /**
-   * @return mixed
+   * @return mixed|string
    */
-  protected function determineCorePackageVersion() {
+  protected function determineCorePackageVersion(): mixed|string {
     $drupal_boostrap_inc_path = getcwd() . '/docroot/includes/bootstrap.inc';
     if (file_exists($drupal_boostrap_inc_path)) {
       $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
@@ -67,13 +67,13 @@ class DrupalPackagesInfo{
         return $constraint_matches[2];
       }
     }
-    return '';
+    return "";
   }
 
   /**
    * @return array
    */
-  public function getInfoFilesList() {
+  public function getInfoFilesList(): array {
     $finder = new Finder();
     $finder->files()->in(getcwd())->name('*.info');
     $info_package_files = [];
@@ -95,9 +95,9 @@ class DrupalPackagesInfo{
    * @param $info_packages_file_path
    * @throws AcquiaCliException
    */
-  public function getPackageDetailInfo($info_packages_file_path) {
+  public function getPackageDetailInfo($info_packages_file_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
-      if ( strpos($package_path, "," ) !== FALSE ) {
+      if ( str_contains($package_path, "," ) ) {
         $package_path = explode(",", $package_path);
         foreach ($package_path as $path) {
           $this->getFileInfo($path);
@@ -113,24 +113,21 @@ class DrupalPackagesInfo{
    * @param $filepath
    * @throws AcquiaCliException
    */
-  public function getFileInfo($filepath) {
+  public function getFileInfo($filepath): void {
     $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
-          'name',
-          'description',
-          'package',
-          'version',
-          'core',
-          'project',
-      ];
-    set_error_handler(function () {
-        // @todo when multi-dimension array in .info file.
-    });
-    $info_extention_file =  parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
+      'name',
+      'description',
+      'package',
+      'version',
+      'core',
+      'project',
+    ];
+    $info_extension_file =  parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     $current_version = '';
     $package_type = '';
     $package_alternative_name = '';
-    foreach ($info_extention_file as $row => $data) {
+    foreach ($info_extension_file as $row => $data) {
       if (in_array(trim($row), $package_info_key)) {
         $project_value = str_replace(['\'', '"'], '', $data);
         if ( trim($row) == "project" ) {
@@ -161,7 +158,7 @@ class DrupalPackagesInfo{
     if ($package_type == 'drupal') {
       $this->isCoreUpdated = TRUE;
     }
-    restore_error_handler();
+
   }
 
 }

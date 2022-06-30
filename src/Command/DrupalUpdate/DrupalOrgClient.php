@@ -8,7 +8,7 @@ use Exception;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalOrgClient{
+class DrupalOrgClient {
   /**
    * @var FileSystemUtility
    */
@@ -44,7 +44,7 @@ class DrupalOrgClient{
    * @return array
    * @throws AcquiaCliException|GuzzleException
    */
-  public function getSecurityRelease($project, $current_version) {
+  public function getSecurityRelease($project, $current_version) : array {
     if ( $project === 'drupal/core') {
       $project = 'drupal';
     }
@@ -59,7 +59,7 @@ class DrupalOrgClient{
       for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {
         $available_version = $release_detail['releases']['release'][$index]['version'];
         $version_comparison = Comparator::lessThan($current_version, $available_version);
-        if ( $version_comparison !== FALSE ) {
+        if ($version_comparison !== FALSE) {
           $available_package_updates[$project]['available_versions'] = $release_detail['releases']['release'][$index];
           return $available_package_updates;
         }

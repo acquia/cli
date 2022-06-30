@@ -2,13 +2,12 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
-class DrupalPackageUpdate{
+class DrupalPackageUpdate {
 
   /**
    * @var array
@@ -53,7 +52,7 @@ class DrupalPackageUpdate{
   /**
    * @return UpdatedPackagesInfo
    */
-  public function getUpdatePackagesInfo() {
+  public function getUpdatePackagesInfo(): UpdatedPackagesInfo {
     return $this->updatePackagesInfo;
   }
 
@@ -106,48 +105,44 @@ class DrupalPackageUpdate{
    * Get Packages detail information.
    * Package name, package type, package current version etc.
    * @return array
+   * @throws AcquiaCliException
    */
-  public function getPackagesMetaData() {
+  public function getPackagesMetaData(): array {
     $this->io->note('Checking available updates.');
     $this->infoPackageFilesPath = $this->packageInfo->getInfoFilesList();
     $this->io->note('Preparing packages.');
-    try {
-      $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
-    }
-    catch (AcquiaCliException $e) {
-      // @todo handle exception.
-    }
+    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
     return $this->availablePackageUpdatesList();
   }
 
   /**
    * @return array
    */
-  public function availablePackageUpdatesList() {
+  public function availablePackageUpdatesList(): array {
     $version_detail = $this->packageInfo->getPackageData();
     $package_info_files = $this->infoPackageFilesPath;
     $drupal_docroot_path = getcwd() . '/docroot';
     $git_commit_message_detail = [];
     $git_commit_message_detail[] = [
-          'Package Name',
-          'Package Type',
-          'Current Version',
-          'Latest Version',
-          'Update Type',
-          'Download Link',
-          'File Path'
-      ];
+      'Package Name',
+      'Package Type',
+      'Current Version',
+      'Latest Version',
+      'Update Type',
+      'Download Link',
+      'File Path',
+    ];
     foreach ($version_detail as $package => $versions) {
       if (!isset($versions['available_versions'])) {
         continue;
       }
       $git_commit_message['package'] = $package;
       $git_commit_message['package_type'] = $versions['package_type'];
-      $git_commit_message['current_version'] = isset($versions['current_version']) ? $versions['current_version'] : '';
-      $git_commit_message['latest_version'] = isset($versions['available_versions']) ? $versions['available_versions']['version'] : '';
+      $git_commit_message['current_version'] = $versions['current_version'] ?? '';
+      $git_commit_message['latest_version'] = $versions['available_versions']['version'] ?? '';
       $git_commit_message['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
-      $git_commit_message['download_link'] = isset($versions['available_versions']) ? $versions['available_versions']['download_link'] : '';
-      if (isset($package_info_files[$package . '.info']) && strpos($package_info_files[$package . '.info'], ",") !== FALSE ) {
+      $git_commit_message['download_link'] = $versions['available_versions']['download_link'] ?? '';
+      if (isset($package_info_files[$package . '.info']) && str_contains($package_info_files[$package . '.info'], ",")) {
         $package_info_files[$package . '.info'] = explode(',', $package_info_files[$package . '.info']);
       }
       if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
@@ -181,7 +176,7 @@ class DrupalPackageUpdate{
    * @return bool
    * @throws AcquiaCliException
    */
-  public function updateDrupalPackages(array $latest_security_updates) {
+  public function updateDrupalPackages(array $latest_security_updates): bool {
 
     if (count($latest_security_updates) > 1) {
       $this->io->note('Starting package update process.');
@@ -200,7 +195,7 @@ class DrupalPackageUpdate{
    * @param $latest_security_updates
    * @throws AcquiaCliException
    */
-  public function updatePackageCode($latest_security_updates) {
+  public function updatePackageCode($latest_security_updates): void {
     foreach ($latest_security_updates as $k => $value) {
       if (!isset($value['download_link'])) {
         continue;
@@ -213,23 +208,23 @@ class DrupalPackageUpdate{
    * Get package release type from available release response.
    * Ex. bug fix, new feature, security update etc.
    * @param array $package_release_detail
-   * @return mixed|string
+   * @return string
    */
-  protected function getUpdateType(array $package_release_detail) {
+  protected function getUpdateType(array $package_release_detail): string {
     if (isset($package_release_detail[0]['value'])) {
       return $package_release_detail[0]['value'];
     }
     elseif (isset($package_release_detail['value'])) {
       return $package_release_detail['value'];
     }
-    return '';
+    return "";
   }
 
   /**
    * @param $value
    * @throws AcquiaCliException
    */
-  protected function updateDrupalPackageCode($value) {
+  protected function updateDrupalPackageCode($value): void {
     if ($value['package'] == 'drupal') {
       $dirname = 'temp_drupal_core';
       $filename = $value['file_path'] . "/" . $dirname . "";
@@ -237,7 +232,7 @@ class DrupalPackageUpdate{
         $old = umask(0);
         $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
         umask($old);
-        $value['file_path'] = $value['file_path'] . "/" . $dirname . "";
+        $value['file_path'] = $value['file_path'] . "/" . $dirname;
       }
       else {
         $this->io->note("The directory $dirname already exists.");

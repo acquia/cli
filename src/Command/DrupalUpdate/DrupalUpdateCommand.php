@@ -8,7 +8,7 @@ use Composer\Semver\Comparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalUpdateCommand extends  CommandBase{
+class DrupalUpdateCommand extends  CommandBase {
   /**
    * @var string
    */
@@ -38,16 +38,16 @@ class DrupalUpdateCommand extends  CommandBase{
   }
 
   /**
-   * @return mixed
+   * @return mixed|null
    */
-  public function getDrupalCoreVersion() {
+  public function getDrupalCoreVersion():  ?mixed {
     return $this->drupalCoreVersion;
   }
 
   /**
    * @param mixed $drupalCoreVersion
    */
-  public function setDrupalCoreVersion($drupalCoreVersion): void {
+  public function setDrupalCoreVersion(mixed $drupalCoreVersion): void {
     $this->drupalCoreVersion = $drupalCoreVersion;
   }
 
@@ -66,7 +66,7 @@ class DrupalUpdateCommand extends  CommandBase{
    * @return int
    * @throws AcquiaCliException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     if (!$this->validateDrupal7Project()) {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
@@ -80,12 +80,12 @@ class DrupalUpdateCommand extends  CommandBase{
   }
 
   /**
-   * Validate the drupal 7 project or not.
+   * Ensures the application runs on Drupal 7.
    * It validate current drupal project is not d8 or d9 project.
    * @return bool
    * @throws AcquiaCliException
    */
-  protected function validateDrupal7Project() {
+  protected function validateDrupal7Project(): bool {
     $this->validateCwdIsValidDrupalProject();
     if ($this->repoRoot === getcwd()) {
       $process = $this->localMachineHelper->execute(['drush', 'status', 'drupal-version', '--format=json'], NULL, $this->repoRoot . '/docroot', FALSE)->enableOutput();

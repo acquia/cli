@@ -17,7 +17,7 @@ use Symfony\Component\Finder\Finder;
  * Class FileSystemUtility
  * @package Acquia\Cli\Command\DrupalUpdate
  */
-class FileSystemUtility{
+class FileSystemUtility {
   /**
    * @var Filesystem
    */
@@ -39,12 +39,12 @@ class FileSystemUtility{
   }
 
   /**
-   * @param $package
-   * @param $file_url
-   * @param $save_to
+   * @param string $package
+   * @param string $file_url
+   * @param string $save_to
    * @throws AcquiaCliException
    */
-  public function downloadRemoteFile($package, $file_url, $save_to) {
+  public function downloadRemoteFile(string $package, string $file_url, string $save_to): void {
     if ($package == 'drupal') {
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
@@ -62,12 +62,12 @@ class FileSystemUtility{
 
   /**
    * Download and extract tar files in drupal core temp directory path.
-   * @param $package
-   * @param $file_url
-   * @param $save_to
+   * @param string $package
+   * @param string $file_url
+   * @param string $save_to
    * @throws AcquiaCliException
    */
-  protected function downloadRemoteFileDrupalCore($package, $file_url, $save_to) {
+  protected function downloadRemoteFileDrupalCore(string $package, string $file_url, string $save_to): void {
 
     try {
       $folder_name = $this->dumpPackageTarFile($file_url, $save_to, $package);
@@ -85,16 +85,16 @@ class FileSystemUtility{
   }
 
   /**
-   * Update drupal core files with latest updates.
+   * Update Drupal core modules, themes and profiles.
    * Drupal core modules, themes and profiles.
-   * @param $core_dir_path
+   * @param string $core_dir_path
    */
-  protected function updateDrupalCore($core_dir_path) {
+  protected function updateDrupalCore(string $core_dir_path): void {
     $ignore_files = [
-        '.gitignore',
-        '.htaccess',
-        'CHANGELOG.txt',
-        'sites',
+      '.gitignore',
+      '.htaccess',
+      'CHANGELOG.txt',
+      'sites',
     ];
     $replace_dir_path = str_replace('/temp_drupal_core/drupal', '', $core_dir_path);
     $finder = new Finder();
@@ -112,9 +112,9 @@ class FileSystemUtility{
 
   /**
    * Remove downloaded tar.gz files.
-   * @param $remove_file_list
+   * @param array $remove_file_list
    */
-  public function unlinkTarFiles($remove_file_list) {
+  public function unlinkTarFiles(array $remove_file_list): void {
 
     foreach ($remove_file_list as $key => $value) {
       if ( ($key == 0) || ($value['package_type'] == 'core') ) {
@@ -132,9 +132,9 @@ class FileSystemUtility{
   }
 
   /**
-   * @param $file_path
+   * @param string $file_path
    */
-  protected function removeFile($file_path) {
+  protected function removeFile(string $file_path): void {
     if ($this->fileSystem->exists($file_path)) {
       $this->fileSystem->remove($file_path);
     }
@@ -144,13 +144,13 @@ class FileSystemUtility{
   }
 
   /**
-   * @param $file_url
-   * @param $save_to
-   * @param $package
+   * @param string $file_url
+   * @param string $save_to
+   * @param string $package
    * @return false|string|string[]
    * @throws AcquiaCliException
    */
-  protected function dumpPackageTarFile($file_url, $save_to, $package) {
+  protected function dumpPackageTarFile(string $file_url, string $save_to, string $package): false|string|array {
     try {
       if ($this->downloadFileGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
         return str_replace('.tar.gz', '', basename($file_url));
@@ -164,14 +164,14 @@ class FileSystemUtility{
   }
 
   /**
-   * @param $file_url
+   * @param string $file_url
    * @param string $method
    * @param string $header_type
    * @return false|mixed
    * @throws AcquiaCliException
    * @throws GuzzleException
    */
-  public function getFileContentsGuzzleClient($file_url, $method = 'GET', $header_type = '') {
+  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET', string $header_type = ''): false|mixed {
     try {
       $client = new GuzzleClient();
       $response = $client->request($method, $file_url);
@@ -196,7 +196,13 @@ class FileSystemUtility{
     }
   }
 
-  public function downloadFileGuzzleClient($file_url, $save_file_path) {
+  /**
+   * @param string $file_url
+   * @param string $save_file_path
+   * @return bool
+   * @throws AcquiaCliException
+   */
+  public function downloadFileGuzzleClient(string $file_url, string $save_file_path): bool {
     $client = new GuzzleClient();
     try {
       $response = $client->request('GET', $file_url, ['sink' => $save_file_path]);
@@ -212,10 +218,10 @@ class FileSystemUtility{
 
   /**
    * Extract tar.gz files in package path.
-   * @param $save_to
-   * @param $package
+   * @param string $save_to
+   * @param string $package
    */
-  protected function extractPackage($save_to, $package): void {
+  protected function extractPackage(string $save_to, string $package): void {
     $phar = new PharData($save_to . '/' . $package . '.tar.gz');
     $this->fileSystem->remove($save_to . '/' . $package);
     $phar->extractTo($save_to, NULL, TRUE);
