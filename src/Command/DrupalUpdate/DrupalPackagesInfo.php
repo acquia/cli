@@ -86,7 +86,7 @@ class DrupalPackagesInfo {
 
   /**
    * @param $info_packages_file_path
-   * @throws AcquiaCliException
+   * @throws AcquiaCliException|GuzzleException
    */
   public function getPackageDetailInfo($info_packages_file_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
@@ -104,7 +104,7 @@ class DrupalPackagesInfo {
 
   /**
    * @param $filepath
-   * @throws AcquiaCliException
+   * @throws AcquiaCliException|GuzzleException
    */
   public function getFileInfo($filepath): void {
     $drupal_client = $this->getDrupalOrgClient();

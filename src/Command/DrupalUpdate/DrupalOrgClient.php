@@ -73,7 +73,7 @@ class DrupalOrgClient {
 
   /**
    * @param string $project
-   * @return false|mixed
+   * @return mixed
    * @throws AcquiaCliException|GuzzleException
    */
   protected function determineAvailablePackageReleases(string $project): mixed {
