@@ -46,6 +46,25 @@ class DrupalPackageUpdate{
   private OutputInterface $output;
 
   /**
+   * @var UpdatedPackagesInfo
+   */
+  private UpdatedPackagesInfo $updatePackagesInfo;
+
+  /**
+   * @return UpdatedPackagesInfo
+   */
+  public function getUpdatePackagesInfo() {
+    return $this->updatePackagesInfo;
+  }
+
+  /**
+   * @param $updatePackagesInfo
+   */
+  public function setUpdatePackagesInfo($updatePackagesInfo): void {
+    $this->updatePackagesInfo = $updatePackagesInfo;
+  }
+
+  /**
    * @return DrupalPackagesInfo
    */
   public function getPackageInfo(): DrupalPackagesInfo {
@@ -80,6 +99,7 @@ class DrupalPackageUpdate{
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
     $this->fileSystem = new Filesystem();
+    $this->setUpdatePackagesInfo(new UpdatedPackagesInfo($this->output));
   }
 
   /**
@@ -240,8 +260,7 @@ class DrupalPackageUpdate{
    * @param array $latest_security_updates
    */
   public function printUpdatedPackageDetail(array $latest_security_updates): void {
-    $updated_package_information = new UpdatedPackagesInfo($this->output);
-    $updated_package_information->printPackageDetail($latest_security_updates);
+    $this->getUpdatePackagesInfo()->printPackageDetail($latest_security_updates);
   }
 
 }
