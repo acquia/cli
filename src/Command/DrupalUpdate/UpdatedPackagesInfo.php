@@ -31,9 +31,9 @@ class UpdatedPackagesInfo{
       $git_commit_message=[];
       $git_commit_message[] = $package;
       $git_commit_message[] = $versions['package_type'];
-      $git_commit_message[] = isset($versions['current_version'])?$versions['current_version']:'';
-      $git_commit_message[] = isset($versions['latest_version'])?$versions['latest_version']:'';
-      $git_commit_message[] = isset($versions['update_notes'])?$versions['update_notes']:'';
+      $git_commit_message[] = isset($versions['current_version']) ? $versions['current_version'] : '';
+      $git_commit_message[] = isset($versions['latest_version']) ? $versions['latest_version'] : '';
+      $git_commit_message[] = isset($versions['update_notes']) ? $versions['update_notes'] : '';
       $git_commit_message_detail[] = $git_commit_message;
     }
     $table->setHeaders([

@@ -251,7 +251,6 @@ class DrupalPackageUpdate{
     else {
       $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
     }
-
   }
 
   /**

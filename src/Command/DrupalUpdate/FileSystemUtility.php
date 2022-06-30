@@ -192,7 +192,6 @@ class FileSystemUtility{
       return $response;
     }
     catch (Exception $e) {
-      // @todo handle errors
       throw new AcquiaCliException("Failed to read {$file_url} .");
     }
   }
