@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Symfony\Component\Console\Input\InputInterface;
