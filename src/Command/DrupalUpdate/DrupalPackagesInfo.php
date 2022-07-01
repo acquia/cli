@@ -70,10 +70,11 @@ class DrupalPackagesInfo {
   }
 
   /**
+   * @param string $drupal_project_cwd_path
    * @return mixed
    */
-  protected function determineCorePackageVersion(): mixed {
-    $drupal_boostrap_inc_path = getcwd() . '/docroot/includes/bootstrap.inc';
+  protected function determineCorePackageVersion(string $drupal_project_cwd_path): mixed {
+    $drupal_boostrap_inc_path = $drupal_project_cwd_path . '/docroot/includes/bootstrap.inc';
     if (file_exists($drupal_boostrap_inc_path)) {
       $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
       preg_match("/define\(\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/i", $boostrap_inc_file_contents, $constraint_matches);
@@ -85,28 +86,29 @@ class DrupalPackagesInfo {
   }
 
   /**
-   * @param $info_packages_file_path
-   * @throws AcquiaCliException|GuzzleException
+   * @param array $info_packages_file_path
+   * @param string $drupal_project_cwd_path
    */
-  public function getPackageDetailInfo($info_packages_file_path): void {
+  public function getPackageDetailInfo(array $info_packages_file_path, string $drupal_project_cwd_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
       if ( str_contains($package_path, "," ) ) {
         $package_path = explode(",", $package_path);
         foreach ($package_path as $path) {
-          $this->getFileInfo($path);
+          $this->getFileInfo($path, $drupal_project_cwd_path);
         }
       }
       else {
-        $this->getFileInfo($package_path);
+        $this->getFileInfo($package_path, $drupal_project_cwd_path);
       }
     }
   }
 
   /**
-   * @param $filepath
-   * @throws AcquiaCliException|GuzzleException
+   * @param string $filepath
+   * @param string $drupal_project_cwd_path
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function getFileInfo($filepath): void {
+  public function getFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
       'name',
@@ -136,7 +138,7 @@ class DrupalPackagesInfo {
     }
 
     if ($current_version == 'VERSION') {
-      $current_version = $this->determineCorePackageVersion();
+      $current_version = $this->determineCorePackageVersion($drupal_project_cwd_path);
     }
     if ($package_type == '') {
       $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';

@@ -13,7 +13,10 @@ class DrupalUpdateCommand extends  CommandBase {
    * @var string
    */
   protected static $defaultName = 'app:update-d7-packages';
-
+  /**
+   * @var string
+   */
+  private string $drupalProjectCwd;
   /**
    * @var mixed
    */
@@ -71,6 +74,20 @@ class DrupalUpdateCommand extends  CommandBase {
   }
 
   /**
+   * @return string
+   */
+  public function getDrupalProjectCwd(): string {
+    return $this->drupalProjectCwd;
+  }
+
+  /**
+   * @param string $drupalProjectCwd
+   */
+  public function setDrupalProjectCwd(string $drupalProjectCwd): void {
+    $this->drupalProjectCwd = $drupalProjectCwd;
+  }
+
+  /**
    * {inheritdoc}.
    */
   protected function configure() {
@@ -86,11 +103,12 @@ class DrupalUpdateCommand extends  CommandBase {
    * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    $this->setDrupalProjectCwd(getcwd());
     if (!$this->validateDrupal7Project()) {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
     }
-    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output));
+    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output, $this->getDrupalProjectCwd()));
     $this->setUpdateDrupalPackage(new UpdateDrupalPackage($input, $output));
     $detail_package_data= $this->checkUpdatesAvailable->getPackagesMetaData();
     if (count($detail_package_data) > 1) {
@@ -110,7 +128,7 @@ class DrupalUpdateCommand extends  CommandBase {
    */
   protected function validateDrupal7Project(): bool {
     $this->validateCwdIsValidDrupalProject();
-    if ($this->repoRoot === getcwd()) {
+    if ($this->repoRoot === $this->getDrupalProjectCwd()) {
       $process = $this->localMachineHelper->execute(['drush', 'status', 'drupal-version', '--format=json'], NULL, $this->repoRoot . '/docroot', FALSE)->enableOutput();
       if ($process->isSuccessful()) {
         $drupal_version = json_decode($process->getOutput(), TRUE);

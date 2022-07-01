@@ -228,11 +228,12 @@ class FileSystemUtility {
   }
 
   /**
+   * @param string $drupal_project_cwd_path
    * @return array
    */
-  public function getInfoFilesList(): array {
+  public function getInfoFilesList(string $drupal_project_cwd_path): array {
     $finder = new Finder();
-    $finder->files()->in(getcwd())->name('*.info');
+    $finder->files()->in($drupal_project_cwd_path)->name('*.info');
     $info_package_files = [];
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();

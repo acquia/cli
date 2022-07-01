@@ -38,6 +38,11 @@ class CheckUpdatesAvailable {
   private FileSystemUtility $fileSystemUtility;
 
   /**
+   * @var string
+   */
+  private string $drupalProjectCwdPath;
+
+  /**
    * @return DrupalPackagesInfo
    */
   public function getPackageInfo(): DrupalPackagesInfo {
@@ -65,12 +70,14 @@ class CheckUpdatesAvailable {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
-  public function __construct(InputInterface $input, OutputInterface $output) {
+  public function __construct(InputInterface $input, OutputInterface $output, string $drupal_project_path) {
     $this->input = $input;
     $this->output = $output;
-    $this->setPackageInfo(new DrupalPackagesInfo($input, $output));
+    $this->drupalProjectCwdPath = $drupal_project_path;
+    $this->setPackageInfo(new DrupalPackagesInfo($input, $output, $drupal_project_path));
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
+
   }
 
   /**
@@ -81,9 +88,9 @@ class CheckUpdatesAvailable {
    */
   public function getPackagesMetaData(): array {
     $this->io->note('Checking available updates.');
-    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList();
+    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($this->drupalProjectCwdPath);
     $this->io->note('Preparing packages.');
-    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath);
+    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath, $this->drupalProjectCwdPath);
     return $this->availablePackageUpdatesList();
   }
 
@@ -93,7 +100,7 @@ class CheckUpdatesAvailable {
   public function availablePackageUpdatesList(): array {
     $version_detail = $this->packageInfo->getPackageData();
     $package_info_files = $this->infoPackageFilesPath;
-    $drupal_docroot_path = getcwd() . '/docroot';
+    $drupal_docroot_path = $this->drupalProjectCwdPath . '/docroot';
     $git_commit_message_detail = [];
     $git_commit_message_detail[] = [
           'Package Name',
