@@ -87,10 +87,10 @@ class UpdateDrupalPackage{
   }
 
   /**
-   * @param $latest_security_updates
+   * @param array $latest_security_updates
    * @throws AcquiaCliException
    */
-  public function updatePackageCode($latest_security_updates): void {
+  public function updatePackageCode(array $latest_security_updates): void {
     foreach ($latest_security_updates as $k => $value) {
       if (!isset($value['download_link'])) {
         continue;
@@ -100,10 +100,10 @@ class UpdateDrupalPackage{
   }
 
   /**
-   * @param $value
+   * @param string $value
    * @throws AcquiaCliException
    */
-  protected function updateDrupalPackageCode($value): void {
+  protected function updateDrupalPackageCode(string $value): void {
     $value = $this->fileSystemUtility->getDrupalTempFolderPath($value);
     if (is_array($value['file_path'])) {
       foreach ($value['file_path'] as $item) {
