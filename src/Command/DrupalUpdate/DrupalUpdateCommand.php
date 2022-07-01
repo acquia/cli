@@ -108,9 +108,9 @@ class DrupalUpdateCommand extends  CommandBase {
       $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
       return 1;
     }
-    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output, $this->getDrupalProjectCwd()));
+    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output));
     $this->setUpdateDrupalPackage(new UpdateDrupalPackage($input, $output));
-    $detail_package_data= $this->checkUpdatesAvailable->getPackagesMetaData();
+    $detail_package_data= $this->checkUpdatesAvailable->getPackagesMetaData($this->getDrupalProjectCwd());
     if (count($detail_package_data) > 1) {
       $this->updateDrupalPackage->updateDrupalPackages($detail_package_data);
       $this->updateDrupalPackage->printUpdatedPackageDetail($detail_package_data);

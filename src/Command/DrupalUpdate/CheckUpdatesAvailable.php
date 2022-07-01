@@ -38,11 +38,6 @@ class CheckUpdatesAvailable {
   private FileSystemUtility $fileSystemUtility;
 
   /**
-   * @var string
-   */
-  private string $drupalProjectCwdPath;
-
-  /**
    * @return DrupalPackagesInfo
    */
   public function getPackageInfo(): DrupalPackagesInfo {
@@ -70,10 +65,9 @@ class CheckUpdatesAvailable {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
-  public function __construct(InputInterface $input, OutputInterface $output, string $drupal_project_path) {
+  public function __construct(InputInterface $input, OutputInterface $output) {
     $this->input = $input;
     $this->output = $output;
-    $this->drupalProjectCwdPath = $drupal_project_path;
     $this->setPackageInfo(new DrupalPackagesInfo($input, $output));
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
@@ -83,24 +77,25 @@ class CheckUpdatesAvailable {
   /**
    * Get Packages detail information.
    * Package name, package type, package current version etc.
+   * @param string $drupal_project_cwd_path
    * @return array
-   * @throws AcquiaCliException
    */
-  public function getPackagesMetaData(): array {
+  public function getPackagesMetaData(string $drupal_project_cwd_path): array {
     $this->io->note('Checking available updates.');
-    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($this->drupalProjectCwdPath);
+    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($drupal_project_cwd_path);
     $this->io->note('Preparing packages.');
-    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath, $this->drupalProjectCwdPath);
-    return $this->availablePackageUpdatesList();
+    $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath, $drupal_project_cwd_path);
+    return $this->availablePackageUpdatesList($drupal_project_cwd_path);
   }
 
   /**
+   * @param string $drupal_project_cwd_path
    * @return array
    */
-  public function availablePackageUpdatesList(): array {
+  public function availablePackageUpdatesList(string $drupal_project_cwd_path): array {
     $version_detail = $this->packageInfo->getPackageData();
     $package_info_files = $this->infoPackageFilesPath;
-    $drupal_docroot_path = $this->drupalProjectCwdPath . '/docroot';
+    $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
     $git_commit_message_detail = [];
     $git_commit_message_detail[] = [
           'Package Name',
