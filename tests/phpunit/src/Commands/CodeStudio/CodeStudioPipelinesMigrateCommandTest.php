@@ -8,7 +8,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
-use AcquiaCloudApi\Response\ApplicationResponse;
 use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -135,37 +134,62 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->assertIsArray($contents['setup']['needs']);
   }
 
-  public function testdetermineGitLabProjectMethod() {
+  /**
+   * @return array
+   */
+  public function providertestdetermineGitLabProject(): array {
+    return [
+        [
+            // One project.
+            [],
+            // Inputs
+            [
+                // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
+                'n',
+                // @todo
+                '0',
+                // Do you want to continue?
+                'y',
+            ],
+            // Args.
+            [
+                '--key' => $this->key,
+                '--secret' => $this->secret,
+                '--gitlab-project-id' => '',
+            ],
+        ],
+    ];
+  }
+
+  /**
+  * @dataProvider providertestdetermineGitLabProject
+  *
+  * @param $mocked_gitlab_projects
+  * @param $args
+  * @param $inputs
+  *
+  * @throws \Psr\Cache\InvalidArgumentException|\Exception
+  */
+  public function testdetermineGitLabProject($mocked_gitlab_projects, $inputs, $args) {
     $this->expectException(AcquiaCliException::class);
-
-    $class = new \ReflectionClass(CodeStudioPipelinesMigrateCommand::class);
-    $sut = $this->getMockBuilder(CodeStudioPipelinesMigrateCommand::class)
-      ->setMethods(['determineGitLabProject', 'setInput'])
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $input = $this->getMockBuilder(InputInterface::class)
-      ->setMethods(['getOption'])
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $input->expects($this->any())
-      ->method('getOption')
-      ->willReturn('');
-
-    $property = $class->getProperty('input');
-    $property->setAccessible(TRUE);
-    $property->setValue($class, $input);
-
-    // $sut->setInput($input);
-
-    $app_response = $this->getMockBuilder(ApplicationResponse::class)
-      ->disableOriginalConstructor()
-      ->getMock();
-
-    $method = $class->getMethod('determineGitLabProject');
-    $method->setAccessible(TRUE);
-    return $method->invokeArgs($sut, [$app_response, FALSE]);
+    $this->expectExceptionMessage('Contact an account manager for further assistance');
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
+    $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost);
+    $gitlab_client = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlab_client);
+    $this->mockAccountRequest();
+    $this->mockGitLabPermissionsRequest($this::$application_uuid);
+    $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
+    $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaults());
+    $projects->update($this->gitLabProjectId, Argument::type('array'));
+    $gitlab_client->projects()->willReturn($projects);
+    $local_machine_helper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
+    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->mockApplicationsRequest();
+    // Set properties and execute.
+    $this->executeCommand($args, $inputs);
   }
 
 }
