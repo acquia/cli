@@ -106,7 +106,7 @@ class DrupalPackagesInfo {
   /**
    * @param string $filepath
    * @param string $drupal_project_cwd_path
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws AcquiaCliException
    */
   public function getFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->getDrupalOrgClient();

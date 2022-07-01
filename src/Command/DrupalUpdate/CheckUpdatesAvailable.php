@@ -74,7 +74,7 @@ class CheckUpdatesAvailable {
     $this->input = $input;
     $this->output = $output;
     $this->drupalProjectCwdPath = $drupal_project_path;
-    $this->setPackageInfo(new DrupalPackagesInfo($input, $output, $drupal_project_path));
+    $this->setPackageInfo(new DrupalPackagesInfo($input, $output));
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
 

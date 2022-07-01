@@ -100,10 +100,10 @@ class UpdateDrupalPackage{
   }
 
   /**
-   * @param string $value
+   * @param array $value
    * @throws AcquiaCliException
    */
-  protected function updateDrupalPackageCode(string $value): void {
+  protected function updateDrupalPackageCode(array $value): void {
     $value = $this->fileSystemUtility->getDrupalTempFolderPath($value);
     if (is_array($value['file_path'])) {
       foreach ($value['file_path'] as $item) {
