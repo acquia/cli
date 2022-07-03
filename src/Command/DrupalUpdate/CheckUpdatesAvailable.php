@@ -83,6 +83,7 @@ class CheckUpdatesAvailable {
   public function getPackagesMetaData(string $drupal_project_cwd_path): array {
     $this->io->note('Checking available updates.');
     $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($drupal_project_cwd_path);
+    if (count($this->infoPackageFilesPath))
     $this->io->note('Preparing packages.');
     $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath, $drupal_project_cwd_path);
     return $this->availablePackageUpdatesList($drupal_project_cwd_path);

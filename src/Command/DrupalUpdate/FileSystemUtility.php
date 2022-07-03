@@ -230,11 +230,15 @@ class FileSystemUtility {
   /**
    * @param string $drupal_project_cwd_path
    * @return array
+   * @throws AcquiaCliException
    */
   public function getInfoFilesList(string $drupal_project_cwd_path): array {
     $finder = new Finder();
     $finder->files()->in($drupal_project_cwd_path)->name('*.info');
     $info_package_files = [];
+    if ($finder->count() == 0) {
+      throw new AcquiaCliException("No Package Info files found.");
+    }
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();
       $package_dir = basename($package_dir_path);
