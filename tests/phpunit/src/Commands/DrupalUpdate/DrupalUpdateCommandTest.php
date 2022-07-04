@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Acquia\Cli\Tests\Commands\DrupalUpdate;
 
 use Acquia\Cli\Command\DrupalUpdate\DrupalUpdateCommand;
@@ -14,32 +13,6 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     return $this->injectCommand(DrupalUpdateCommand::class);
   }
 
-  //    /**
-  //     * @return array
-  //     */
-  //    public function providerTestCommand(): array {
-  //        return [
-  //            ['drupal-root-path'=>
-  //
-  //            ],
-  //        ];
-  //    }
-
-  /**
-   *
-   * @param $mocked_gitlab_projects
-   * @param $args
-   * @param $inputs
-   *
-   * @throws \Psr\Cache\InvalidArgumentException|\Exception
-   */
-  public function testDrupal7UpdateCommand() {
-    $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Drupal 7 project not found.');
-    // Set properties and execute.
-    $this->executeCommand();
-  }
-
   /**
    *
    * @param $mocked_gitlab_projects
@@ -50,12 +23,27 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    */
   public function testDrupal7FailedUpdateCommand() {
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Drupal 7 project not found.');
+    $this->expectExceptionMessage('No Package Info files found.');
     // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-invalid-project');
     $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-invalid-project'];
     $this->executeCommand($args);
     $output = $this->getDisplay();
+  }
+
+  /**
+   *
+   * @param $mocked_gitlab_projects
+   * @param $args
+   * @param $inputs
+   *
+   * @throws \Psr\Cache\InvalidArgumentException|\Exception
+   */
+  public function testDrupal7ProjectNotFound() {
+    // Set properties and execute.
+    $args = ['--drupal-root-path' => $this->fixtureDir];
+    $this->executeCommand($args);
+    $this->assertStringContainsString('Could not find a local Drupal project.', $this->getDisplay());
   }
 
   public function testDrupal7UpToDateUpdateCase() {
@@ -66,8 +54,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('Branch already up to date.', $output);
+    $this->assertStringContainsString('Branch already up to date.', $this->getDisplay());
   }
 
   public function testDrupal7SuccefulUpdateCommand() {
