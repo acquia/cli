@@ -18,6 +18,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
   /**
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testDrupal7FailedUpdateCommand() {
     $this->expectException(AcquiaCliException::class);
@@ -30,6 +31,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
   /**
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testDrupal7ProjectNotFound() {
     // Set properties and execute.
@@ -40,6 +42,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
   /**
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testDrupal7UpToDateUpdateCase() {
     $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-up-to-date-project'];
@@ -54,6 +57,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
   /**
    * @throws \Exception
+   * @requires OS linux|darwin
    */
   public function testDrupal7SuccefulUpdateCommand() {
     $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-valid-project'];
@@ -72,6 +76,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
   /**
    *
    * @throws \ReflectionException
+   * @requires OS linux|darwin
    */
   public function testDetermineAvailablePackageReleases() {
     $this->expectException(AcquiaCliException::class);
