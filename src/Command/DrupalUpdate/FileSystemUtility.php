@@ -73,7 +73,7 @@ class FileSystemUtility {
       }
     }
     catch (Exception $e) {
-      throw new AcquiaCliException("Failed to update package {$package}.");
+      throw new AcquiaCliException("Failed to update package {$package}." . $e->getMessage());
     }
   }
 
