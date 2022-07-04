@@ -90,7 +90,6 @@ class DrupalPackagesInfo {
    * @param string $drupal_project_cwd_path
    */
   public function getPackageDetailInfo(array $info_packages_file_path, string $drupal_project_cwd_path): void {
-    print_r($info_packages_file_path);
     foreach ($info_packages_file_path as $package_name => $package_path) {
       if ( str_contains($package_path, "," ) ) {
         $package_path = explode(",", $package_path);
@@ -149,7 +148,6 @@ class DrupalPackagesInfo {
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
       if (trim($package_type) === '') {
-        print_r($info_extension_file);
         return;
       }
       $package_available_releases_data=$drupal_client->getSecurityRelease(trim($package_type), $current_version);

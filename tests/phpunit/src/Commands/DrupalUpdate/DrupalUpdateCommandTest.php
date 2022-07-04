@@ -66,7 +66,6 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString('acquia_connector', $output);
     $this->assertStringContainsString('drupal', $output);
-    $this->assertStringContainsString('services', $output);
     $this->assertStringContainsString('webform', $output);
   }
 
