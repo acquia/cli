@@ -118,7 +118,7 @@ class DrupalPackagesInfo {
       'core',
       'project',
     ];
-    $info_extension_file =  @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
+    $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     if (is_bool($info_extension_file) && $info_extension_file == FALSE) {
       return;
     }
@@ -126,6 +126,7 @@ class DrupalPackagesInfo {
     $package_type = '';
     $package_alternative_name = '';
     foreach ($info_extension_file as $row => $data) {
+
       if (in_array(trim($row), $package_info_key)) {
         $project_value = str_replace(['\'', '"'], '', $data);
         if ( trim($row) == "project" ) {

@@ -106,7 +106,7 @@ class CheckUpdatesAvailable {
           'Update Type',
           'Download Link',
           'File Path',
-      ];
+    ];
     foreach ($version_detail as $package => $versions) {
       if (!isset($versions['available_versions'])) {
         continue;
@@ -120,6 +120,7 @@ class CheckUpdatesAvailable {
       if (isset($package_info_files[$package . '.info']) && str_contains($package_info_files[$package . '.info'], ",")) {
         $package_info_files[$package . '.info'] = explode(',', $package_info_files[$package . '.info']);
       }
+
       if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
         $file_paths=[];
         foreach ($package_info_files[$package . '.info'] as $p => $path_location) {
