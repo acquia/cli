@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\DrupalUpdate;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -65,11 +66,14 @@ class CheckUpdatesAvailable {
    * Package name, package type, package current version etc.
    * @param string $drupal_project_cwd_path
    * @return array
+   * @throws AcquiaCliException
    */
   public function getPackagesMetaData(string $drupal_project_cwd_path): array {
     $this->io->note('Checking available updates.');
     $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($drupal_project_cwd_path);
-    if (count($this->infoPackageFilesPath))
+    if (count($this->infoPackageFilesPath) == 0) {
+      throw new AcquiaCliException("Not valid Drupal 7 project.");
+    }
     $this->io->note('Preparing packages.');
     $this->packageInfo->getPackageDetailInfo($this->infoPackageFilesPath, $drupal_project_cwd_path);
     return $this->availablePackageUpdatesList($drupal_project_cwd_path);

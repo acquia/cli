@@ -92,7 +92,7 @@ class DrupalUpdateCommand extends  CommandBase {
   protected function configure() {
     $this->setDescription('Updates modules, themes, and distributions for a Drupal 7 application.')
         ->addOption('drupal-root-path', NULL, InputOption::VALUE_REQUIRED, 'Drupal 7 project root path', getcwd() )
-         ->setHidden(TRUE);
+        ->setHidden(TRUE);
   }
 
   /**
