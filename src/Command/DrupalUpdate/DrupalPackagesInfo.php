@@ -144,6 +144,9 @@ class DrupalPackagesInfo {
       $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
+      if (trim($package_type) === '') {
+        return;
+      }
       $package_available_releases_data=$drupal_client->getSecurityRelease(trim($package_type), $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);

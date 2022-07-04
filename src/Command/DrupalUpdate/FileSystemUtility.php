@@ -28,6 +28,22 @@ class FileSystemUtility {
    */
   private SymfonyStyle $io;
 
+  private GuzzleClient $client;
+
+  /**
+   * @return GuzzleClient
+   */
+  public function getClient(): GuzzleClient {
+    return $this->client;
+  }
+
+  /**
+   * @param GuzzleClient $client
+   */
+  public function setClient(GuzzleClient $client): void {
+    $this->client = $client;
+  }
+
   /**
    * FileSystemUtility constructor.
    * @param InputInterface $input
@@ -36,6 +52,7 @@ class FileSystemUtility {
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->io = new SymfonyStyle($input, $output);
     $this->fileSystem =  new Filesystem();
+    $this->setClient(new GuzzleClient());
   }
 
   /**
@@ -173,7 +190,7 @@ class FileSystemUtility {
    */
   public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET', string $header_type = ''): mixed {
     try {
-      $client = new GuzzleClient();
+      $client = $this->getClient();
       $response = $client->request($method, $file_url);
 
       if ($response->getStatusCode() !== 200) {
@@ -203,7 +220,7 @@ class FileSystemUtility {
    * @throws AcquiaCliException
    */
   public function downloadFileGuzzleClient(string $file_url, string $save_file_path): bool {
-    $client = new GuzzleClient();
+    $client = $this->getClient();
     try {
       $response = $client->request('GET', $file_url, ['sink' => $save_file_path]);
       if ($response->getStatusCode() !== 200) {
