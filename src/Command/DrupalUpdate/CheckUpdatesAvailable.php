@@ -38,24 +38,10 @@ class CheckUpdatesAvailable {
   private FileSystemUtility $fileSystemUtility;
 
   /**
-   * @return DrupalPackagesInfo
-   */
-  public function getPackageInfo(): DrupalPackagesInfo {
-    return $this->packageInfo;
-  }
-
-  /**
    * @param DrupalPackagesInfo $packageInfo
    */
   public function setPackageInfo(DrupalPackagesInfo $packageInfo): void {
     $this->packageInfo = $packageInfo;
-  }
-
-  /**
-   * @return FileSystemUtility
-   */
-  public function getFileSystemUtility(): FileSystemUtility {
-    return $this->fileSystemUtility;
   }
 
   /**

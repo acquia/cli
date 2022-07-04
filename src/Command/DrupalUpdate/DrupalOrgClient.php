@@ -15,13 +15,6 @@ class DrupalOrgClient {
   private FileSystemUtility $fileSystemUtility;
 
   /**
-   * @return FileSystemUtility
-   */
-  public function getFileSystemUtility(): FileSystemUtility {
-    return $this->fileSystemUtility;
-  }
-
-  /**
    * @param FileSystemUtility $fileSystemUtility
    */
   public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {

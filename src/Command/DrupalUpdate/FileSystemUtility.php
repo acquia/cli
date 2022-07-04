@@ -201,10 +201,6 @@ class FileSystemUtility {
           $response = simplexml_load_string($response->getBody()->getContents());
           $response = json_decode(json_encode($response), TRUE);
           break;
-        default :
-          $response = $response->getBody()->getContents();
-          $response =  json_decode(json_encode($response), TRUE);
-          break;
       }
       return $response;
     }
