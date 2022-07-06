@@ -247,14 +247,14 @@ class DrupalPackageManager {
     $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
     $git_commit_message_detail = [];
     $git_commit_message_detail[] = [
-          'Package Name',
-          'Package Type',
-          'Current Version',
-          'Latest Version',
-          'Update Type',
-          'Download Link',
-          'File Path',
-      ];
+       'Package Name',
+       'Package Type',
+       'Current Version',
+       'Latest Version',
+       'Update Type',
+       'Download Link',
+       'File Path',
+    ];
     foreach ($version_detail as $package => $versions) {
       if (!isset($versions['available_versions'])) {
         continue;
