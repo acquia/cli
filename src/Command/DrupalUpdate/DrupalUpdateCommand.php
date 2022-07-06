@@ -4,7 +4,6 @@ namespace Acquia\Cli\Command\DrupalUpdate;
 
 use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class DrupalUpdateCommand extends  CommandBase {
@@ -21,41 +20,41 @@ class DrupalUpdateCommand extends  CommandBase {
    */
   private $drupalCoreVersion;
   /**
-   * @var UpdateDrupalPackage
+   * @var PackageUpdater
    */
-  private UpdateDrupalPackage $updateDrupalPackage;
+  private PackageUpdater $packageUpdater;
 
   /**
-   * @var CheckUpdatesAvailable
+   * @var DrupalPackageManager
    */
-  private CheckUpdatesAvailable $checkUpdatesAvailable;
+  private DrupalPackageManager $drupalPackagesManager;
 
   /**
-   * @return CheckUpdatesAvailable
+   * @return DrupalPackageManager
    */
-  public function getCheckUpdatesAvailable(): CheckUpdatesAvailable {
-    return $this->checkUpdatesAvailable;
+  public function getDrupalPackagesManager(): DrupalPackageManager {
+    return $this->drupalPackagesManager;
   }
 
   /**
-   * @param CheckUpdatesAvailable $checkUpdatesAvailable
+   * @param $drupal_packages_manager
    */
-  public function setCheckUpdatesAvailable(CheckUpdatesAvailable $checkUpdatesAvailable): void {
-    $this->checkUpdatesAvailable = $checkUpdatesAvailable;
+  public function setDrupalPackageManager($drupal_packages_manager): void {
+    $this->drupalPackagesManager = $drupal_packages_manager;
   }
 
   /**
-   * @return UpdateDrupalPackage
+   * @return PackageUpdater
    */
-  public function getUpdateDrupalPackage(): UpdateDrupalPackage {
-    return $this->updateDrupalPackage;
+  public function getPackageUpdater(): PackageUpdater {
+    return $this->packageUpdater;
   }
 
   /**
-   * @param UpdateDrupalPackage $updateDrupalPackage
+   * @param PackageUpdater $package_updater
    */
-  public function setUpdateDrupalPackage(UpdateDrupalPackage $updateDrupalPackage): void {
-    $this->updateDrupalPackage = $updateDrupalPackage;
+  public function setPackageUpdater(PackageUpdater $package_updater): void {
+    $this->packageUpdater = $package_updater;
   }
 
   /**
@@ -91,7 +90,6 @@ class DrupalUpdateCommand extends  CommandBase {
    */
   protected function configure() {
     $this->setDescription('Updates modules, themes, and distributions for a Drupal 7 application.')
-        ->addOption('drupal-root-path', NULL, InputOption::VALUE_REQUIRED, 'Drupal 7 project root path', getcwd() )
         ->setHidden(TRUE);
   }
 
@@ -103,35 +101,20 @@ class DrupalUpdateCommand extends  CommandBase {
    * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->setDrupalProjectCwd($input->getOption('drupal-root-path'));
-    if (!$this->validateDrupal7Project()) {
-      $this->io->error("Could not find a local Drupal project. Looked for `docroot/index.php` in current directories. Please execute this command from within a Drupal project directory.");
-      return 1;
-    }
-    $this->setCheckUpdatesAvailable(new CheckUpdatesAvailable($input, $output));
-    $this->setUpdateDrupalPackage(new UpdateDrupalPackage($input, $output));
-    $detail_package_data= $this->checkUpdatesAvailable->getPackagesMetaData($this->getDrupalProjectCwd());
+
+    $this->validateCwdIsValidDrupalProject();
+
+    $this->setDrupalProjectCwd($this->repoRoot);
+    $this->setDrupalPackageManager(new DrupalPackageManager($input, $output));
+    $this->setPackageUpdater(new PackageUpdater($input, $output));
+    $detail_package_data= $this->drupalPackagesManager->getPackagesMetaData($this->getDrupalProjectCwd());
     if (count($detail_package_data) > 1) {
-      $this->updateDrupalPackage->updateDrupalPackages($detail_package_data);
-      $this->updateDrupalPackage->printUpdatedPackageDetail($detail_package_data);
+      $this->packageUpdater->updateDrupalPackages($detail_package_data);
+      $this->packageUpdater->printUpdatedPackageDetail($detail_package_data);
       return 0;
     }
     $this->io->success('Branch already up to date.');
     return 0;
-  }
-
-  /**
-   * Ensures the application runs on Drupal 7.
-   * It validate current drupal project is not d8 or d9 project.
-   * @return bool
-   * @throws AcquiaCliException
-   */
-  public function validateDrupal7Project(): bool {
-    $this->validateCwdIsValidDrupalProject();
-    if ($this->repoRoot === $this->getDrupalProjectCwd()) {
-      return TRUE;
-    }
-    return FALSE;
   }
 
 }

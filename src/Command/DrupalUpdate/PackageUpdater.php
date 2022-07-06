@@ -7,7 +7,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
-class UpdateDrupalPackage{
+class PackageUpdater {
   /**
    * @var SymfonyStyle
    */
@@ -34,29 +34,29 @@ class UpdateDrupalPackage{
   private OutputInterface $output;
 
   /**
-   * @var DrupalPackagesInfo
+   * @var DrupalPackageManager
    */
-  private DrupalPackagesInfo $drupalPackagesInfo;
+  private DrupalPackageManager $drupalPackagesManager;
 
   /**
-   * @return DrupalPackagesInfo
+   * @return DrupalPackageManager
    */
-  public function getDrupalPackagesInfo(): DrupalPackagesInfo {
-    return $this->drupalPackagesInfo;
+  public function getDrupalPackagesManager(): DrupalPackageManager {
+    return $this->drupalPackagesManager;
   }
 
   /**
-   * @param $drupalPackagesInfo
+   * @param $drupal_packages_manager
    */
-  public function setDrupalPackagesInfo($drupalPackagesInfo): void {
-    $this->drupalPackagesInfo = $drupalPackagesInfo;
+  public function setDrupalPackageManager($drupal_packages_manager): void {
+    $this->drupalPackagesManager = $drupal_packages_manager;
   }
 
   /**
-   * @param FileSystemUtility $fileSystemUtility
+   * @param FileSystemUtility $file_system_utility
    */
-  public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
-    $this->fileSystemUtility = $fileSystemUtility;
+  public function setFileSystemUtility(FileSystemUtility $file_system_utility): void {
+    $this->fileSystemUtility = $file_system_utility;
   }
 
   public function __construct(InputInterface $input, OutputInterface $output) {
@@ -65,7 +65,7 @@ class UpdateDrupalPackage{
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
     $this->fileSystem = new Filesystem();
-    $this->setDrupalPackagesInfo(new DrupalPackagesInfo($input, $output));
+    $this->setDrupalPackageManager(new DrupalPackageManager($input, $output));
   }
 
   /**
@@ -112,7 +112,7 @@ class UpdateDrupalPackage{
    * @param array $latest_security_updates
    */
   public function printUpdatedPackageDetail(array $latest_security_updates): void {
-    $this->getDrupalPackagesInfo()->printPackageDetail($latest_security_updates);
+    $this->drupalPackagesManager->printPackageDetail($latest_security_updates);
   }
 
 }

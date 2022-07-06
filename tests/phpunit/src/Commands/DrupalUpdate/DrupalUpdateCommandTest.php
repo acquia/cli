@@ -25,8 +25,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $this->expectExceptionMessage('No Package Info files found.');
     // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-invalid-project');
-    $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-invalid-project'];
-    $this->executeCommand($args);
+    $this->executeCommand();
   }
 
   /**
@@ -34,10 +33,9 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    */
   public function testDrupal7ProjectNotFound() {
-    // Set properties and execute.
-    $args = ['--drupal-root-path' => $this->fixtureDir];
-    $this->executeCommand($args);
-    $this->assertStringContainsString('Could not find a local Drupal project.', $this->getDisplay());
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No Package Info files found.');
+    $this->executeCommand();
   }
 
   /**
@@ -45,10 +43,8 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    */
   public function testDrupal7UpToDateUpdateCase() {
-    $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-up-to-date-project'];
-    // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-up-to-date-project');
-    $this->executeCommand($args);
+    $this->executeCommand();
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
@@ -60,10 +56,9 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    */
   public function testDrupal7SuccefulUpdateCommand() {
-    $args = ['--drupal-root-path' => $this->fixtureDir . '/drupal7-valid-project'];
     // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-valid-project');
-    $this->executeCommand($args);
+    $this->executeCommand();
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
