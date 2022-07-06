@@ -1106,11 +1106,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getApplicationFromAlias($application_alias) {
-    $cache = self::getAliasCache();
-    return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
-      return $this->doGetApplicationFromAlias($application_alias);
-    });
+  protected function getApplicationFromAlias(string $application_alias): mixed {
+    return self::getAliasCache()
+      ->get(str_replace(':', '.', $application_alias), function () use ($application_alias) {
+        return $this->doGetApplicationFromAlias($application_alias);
+      });
   }
 
   /**
@@ -1127,9 +1127,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws AcquiaCliException
    */
-  protected function doGetApplicationFromAlias($application_alias) {
+  protected function doGetApplicationFromAlias($application_alias): mixed {
+    if (!strpos($application_alias, ':')) {
+      $application_alias = '*:' . $application_alias;
+    }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=@*:' . $application_alias);
+    $acquia_cloud_client->addQuery('filter', 'hosting=@' . $application_alias);
     // Allow Cloud users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
@@ -1138,25 +1141,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $acquia_cloud_client->addQuery('all', 'true');
     }
     $customer_applications = $acquia_cloud_client->request('get', '/applications');
-    $site_prefix = '';
     if ($customer_applications) {
       $customer_application = $customer_applications[0];
-      $site_id = $customer_application->hosting->id;
-      $parts = explode(':', $site_id);
-      $site_prefix = $parts[1];
     }
     else {
       throw new AcquiaCliException("No applications found");
     }
 
-    if ($site_prefix !== $application_alias) {
-      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);
-    }
-
     $this->logger->debug("Found application {$customer_application->uuid} matching alias $application_alias.");
-
-    // Remove the host=@*.$drush_site query as it would persist for future requests.
-    $acquia_cloud_client->clearQuery();
 
     return $customer_application;
   }
