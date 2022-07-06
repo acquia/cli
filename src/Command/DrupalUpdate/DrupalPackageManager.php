@@ -137,13 +137,13 @@ class DrupalPackageManager {
   public function getFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
-          'name',
-          'description',
-          'package',
-          'version',
-          'core',
-          'project',
-      ];
+      'name',
+      'description',
+      'package',
+      'version',
+      'core',
+      'project',
+    ];
     $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     if (is_bool($info_extension_file) && $info_extension_file == FALSE) {
       return;
@@ -193,7 +193,7 @@ class DrupalPackageManager {
    */
   public function printPackageDetail($version_detail): void {
     $table = new Table($this->output);
-    $git_commit_message_detail=[];
+    $git_commit_message_detail = [];
 
     array_shift($version_detail);
     $array_keys = array_column($version_detail, 'package');
@@ -201,7 +201,7 @@ class DrupalPackageManager {
 
     foreach ($version_detail as $versions) {
       $package = $versions['package'];
-      $git_commit_message=[];
+      $git_commit_message = [];
       $git_commit_message[] = $package;
       $git_commit_message[] = $versions['package_type'];
       $git_commit_message[] = $versions['current_version'] ?? '';
