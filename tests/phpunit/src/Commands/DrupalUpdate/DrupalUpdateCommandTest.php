@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\DrupalUpdate;
 
 use Acquia\Cli\Command\DrupalUpdate\DrupalOrgClient;
 use Acquia\Cli\Command\DrupalUpdate\DrupalUpdateCommand;
+use Acquia\Cli\Command\DrupalUpdate\FileSystemUtility;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
@@ -79,6 +80,14 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $output = $this->getMockBuilder(OutputInterface::class)->getMock();
     $drupalOrgClient = new DrupalOrgClient($input, $output);
     $drupalOrgClient->getSecurityRelease('', '7.x-3.28');
+  }
+
+  public function testDetermineD7AppMethod() {
+    $non_valid_root_path = FileSystemUtility::determineD7App('');
+    $this->assertEquals(0, $non_valid_root_path);
+
+    $valid_root_path = FileSystemUtility::determineD7App($this->fixtureDir . '/drupal7-valid-project');
+    $this->assertEquals(1, $valid_root_path);
   }
 
 }
