@@ -287,4 +287,17 @@ class FileSystemUtility {
     return $value;
   }
 
+  /**
+   * @param string $drupal_project_root_path
+   * @return bool
+   */
+  public static function determineD7App(string $drupal_project_root_path) {
+    if ($drupal_project_root_path == '') {
+      return FALSE;
+    }
+    $finder = new Finder();
+    $finder->files()->in($drupal_project_root_path)->notPath(['vendor'])->name('*.info');
+    return ($finder->count() == 0) ? FALSE : TRUE;
+  }
+
 }

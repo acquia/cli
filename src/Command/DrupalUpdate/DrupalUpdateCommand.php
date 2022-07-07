@@ -90,7 +90,7 @@ class DrupalUpdateCommand extends  CommandBase {
    */
   protected function configure() {
     $this->setDescription('Updates modules, themes, and distributions for a Drupal 7 application.')
-        ->setHidden(TRUE);
+        ->setHidden(!FileSystemUtility::determineD7App($this->repoRoot));
   }
 
   /**
