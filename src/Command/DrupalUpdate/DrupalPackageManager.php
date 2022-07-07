@@ -194,7 +194,6 @@ class DrupalPackageManager {
   public function printPackageDetail($version_detail): void {
     $table = new Table($this->output);
     $git_commit_message_detail = [];
-
     array_shift($version_detail);
     $array_keys = array_column($version_detail, 'package');
     array_multisort($array_keys, SORT_ASC, $version_detail);
