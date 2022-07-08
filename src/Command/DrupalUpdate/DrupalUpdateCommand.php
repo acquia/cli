@@ -101,9 +101,7 @@ class DrupalUpdateCommand extends  CommandBase {
    * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-
     $this->validateCwdIsValidDrupalProject();
-
     $this->setDrupalProjectCwd($this->repoRoot);
     $this->setDrupalPackageManager(new DrupalPackageManager($input, $output));
     $this->setPackageUpdater(new PackageUpdater($input, $output));
