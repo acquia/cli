@@ -407,9 +407,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Add argument and usage examples for applicationUuid.
    */
   protected function acceptApplicationUuid() {
-    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias')
+    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. a sitegroup optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
+      ->addUsage(self::getDefaultName() . ' prod:myapp')
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
@@ -1140,13 +1141,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($account->flags->support) {
       $acquia_cloud_client->addQuery('all', 'true');
     }
-    $customer_applications = $acquia_cloud_client->request('get', '/applications');
-    if ($customer_applications) {
-      $customer_application = $customer_applications[0];
-    }
-    else {
+    $applications_resource = new Applications($acquia_cloud_client);
+    $customer_applications = $applications_resource->getAll();
+    if (count($customer_applications) === 0) {
       throw new AcquiaCliException("No applications found");
     }
+    if (count($customer_applications) > 1) {
+      $callback = static function ($element) {
+        return $element->hosting->id;
+      };
+      $aliases = array_map($callback, (array) $customer_applications);
+      $this->io->error(sprintf("Multiple applications match this alias. Use one of the following aliases instead: %s", implode(', ', $aliases)));
+      throw new AcquiaCliException(sprintf("An application matching the alias %s was found in multiple hosting realms.", $application_alias));
+    }
+
+    $customer_application = $customer_applications[0];
 
     $this->logger->debug("Found application {$customer_application->uuid} matching alias $application_alias.");
 
@@ -1733,7 +1742,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         return $customer_application->uuid;
       }
       catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
+        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud user.");
       }
     }
     return $application_uuid_argument;
