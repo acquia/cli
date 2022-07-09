@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
+use Acquia\Cli\Tests\TestBase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -224,10 +225,21 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  public function providerTestMatchPhpVersion(): array {
+    return [
+      ['7.1'],
+      ['7.2'],
+      [''],
+    ];
+  }
+
   /**
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @dataProvider providerTestMatchPhpVersion
+   * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException
    */
-  public function testMatchPhpVersion(): void {
+  public function testMatchPhpVersion(string $php_version): void {
+    $env_vars = ['PHP_VERSION' => $php_version];
+    TestBase::setEnvVars($env_vars);
     IdeHelper::setCloudIdeEnvVars();
     $this->application->addCommands([
       $this->injectCommand(IdePhpVersionCommand::class),
@@ -237,7 +249,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->createMockGitConfigFile();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+    $local_machine_helper->checkRequiredBinariesExist(["git"])
+      ->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -267,8 +280,15 @@ class PullCodeCommandTest extends PullCommandTestBase {
     ]);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString("Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?", $output);
     IdeHelper::unsetCloudIdeEnvVars();
+    $message = "Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?";
+    if ($php_version === '7.1') {
+      $this->assertStringNotContainsString($message, $output);
+    }
+    else {
+      $this->assertStringContainsString($message, $output);
+    }
+    TestBase::unsetEnvVars($env_vars);
   }
 
   /**

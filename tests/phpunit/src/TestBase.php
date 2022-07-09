@@ -268,7 +268,7 @@ abstract class TestBase extends TestCase {
     Loop::set(Factory::create());
   }
 
-  public static function setEnvVars($env_vars): void {
+  public static function setEnvVars(array $env_vars): void {
     foreach ($env_vars as $key => $value) {
       putenv($key . '=' . $value);
     }
