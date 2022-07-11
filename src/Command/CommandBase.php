@@ -407,7 +407,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Add argument and usage examples for applicationUuid.
    */
   protected function acceptApplicationUuid() {
-    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. a sitegroup optionally prefixed with the realm)')
+    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
       ->addUsage(self::getDefaultName() . ' prod:myapp')
