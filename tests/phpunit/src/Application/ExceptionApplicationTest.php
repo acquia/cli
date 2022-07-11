@@ -63,6 +63,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Delete an existing IDE', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testMissingEnvironmentUuid(): void {
     $this->setInput([
       'command' => 'log:tail',
@@ -71,8 +74,13 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('can also be a site alias.', $buffer);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
+   */
   public function testInvalidEnvironmentUuid(): void {
     $this->mockAccountRequest();
+    $this->mockApplicationsRequest();
     $this->setInput([
       'command' => 'log:tail',
       'environmentId' => 'aoeuth.aoeu',
@@ -81,6 +89,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('can also be a site alias.', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testMissingApplicationUuid(): void {
     $this->setInput([
       'command' => 'ide:open',
@@ -89,8 +100,13 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Could not determine Cloud Application.', $buffer);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
+   */
   public function testInvalidApplicationUuid(): void {
     $this->mockAccountRequest();
+    $this->mockApplicationsRequest();
     $this->setInput([
       'command' => 'ide:open',
       'applicationUuid' => 'aoeuthao',

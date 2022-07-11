@@ -162,12 +162,11 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConvertApplicationAliasToUuidArgument($support): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationsRequest();
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockAccountRequest($support);
 
     $this->executeCommand(['applicationUuid' => $alias], [
@@ -195,7 +194,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.", $exception->getMessage());
+      $this->assertEquals("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud user.", $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }
