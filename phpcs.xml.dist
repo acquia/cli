@@ -10,13 +10,12 @@
   <arg name="cache" value="build/.phpcs-cache"/>
   <arg name="parallel" value="10"/>
 
-  <file>.</file>
+  <file>src</file>
+  <file>tests</file>
 
   <!-- Danger! Exclude patterns apply to the full file path, including parent directories of the current repository. -->
   <!-- Don't exclude common directory names like `build`, which will fail on Travis CI because of /home/travis/build/acquia/<project>. -->
   <!-- @see https://github.com/squizlabs/PHP_CodeSniffer/issues/981 -->
-  <exclude-pattern>var/</exclude-pattern>
-  <exclude-pattern>vendor/*</exclude-pattern>
   <exclude-pattern>tests/fixtures/*</exclude-pattern>
 
   <rule ref="AcquiaPHP" />

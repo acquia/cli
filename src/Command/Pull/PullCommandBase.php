@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\IdeCommandTrait;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -34,6 +35,8 @@ use Symfony\Component\Filesystem\Path;
  * Class PullCommandBase.
  */
 abstract class PullCommandBase extends CommandBase {
+
+  use IdeCommandTrait;
 
   /**
    * @var Checklist
@@ -861,7 +864,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
     if (!$this->environmentPhpVersionMatches($environment)) {
-      $this->io->warning("You are using PHP version {$this->getCurrentPhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
+      $this->io->warning("You are using PHP version {$this->getIdePhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
     }
   }
 
@@ -891,19 +894,8 @@ abstract class PullCommandBase extends CommandBase {
    * @return bool
    */
   protected function environmentPhpVersionMatches($environment): bool {
-    $current_php_version = $this->getCurrentPhpVersion();
+    $current_php_version = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $current_php_version;
-  }
-
-  /**
-   * Get current PHP version using IDE-specific variables when possible.
-   *
-   * Disable mutation testing because we cannot mock PHP constants.
-   * @infection-ignore-all
-   * @return string
-   */
-  private function getCurrentPhpVersion(): string {
-    return getenv('PHP_VERSION') ?: PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**
