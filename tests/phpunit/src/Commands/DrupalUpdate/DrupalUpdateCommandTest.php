@@ -81,6 +81,10 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $drupalOrgClient = new DrupalOrgClient($input, $output);
     $package_available_updates = $drupalOrgClient->getSecurityRelease('drupal/google_analytics', '7.x-2.0');
     $this->assertIsArray($package_available_updates);
+
+    $package_available_updates = $drupalOrgClient->getSecurityRelease('acquia/acquia_connector', '7.x-2.15');
+    $this->assertIsArray($package_available_updates);
+
     $this->expectException(AcquiaCliException::class);
     $drupalOrgClient->getSecurityRelease('', '7.x-3.28');
 
