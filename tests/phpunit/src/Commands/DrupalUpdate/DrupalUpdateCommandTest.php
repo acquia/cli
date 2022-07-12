@@ -75,11 +75,15 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @requires OS linux|darwin
    */
   public function testDetermineAvailablePackageReleases() {
-    $this->expectException(AcquiaCliException::class);
+
     $input = $this->getMockBuilder(InputInterface::class)->getMock();
     $output = $this->getMockBuilder(OutputInterface::class)->getMock();
     $drupalOrgClient = new DrupalOrgClient($input, $output);
+    $package_available_updates = $drupalOrgClient->getSecurityRelease('drupal/google_analytics', '7.x-2.0');
+    $this->assertIsArray($package_available_updates);
+    $this->expectException(AcquiaCliException::class);
     $drupalOrgClient->getSecurityRelease('', '7.x-3.28');
+
   }
 
   public function testDetermineD7AppMethod() {

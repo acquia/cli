@@ -17,7 +17,7 @@ class DrupalOrgClient {
   /**
    * @param FileSystemUtility $fileSystemUtility
    */
-  public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+  protected function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
