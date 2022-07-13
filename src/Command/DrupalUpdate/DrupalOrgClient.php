@@ -71,7 +71,7 @@ class DrupalOrgClient {
    */
   protected function determineAvailablePackageReleases(string $project): mixed {
     try {
-      $response = $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET", "application/xml");
+      $response = $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET");
       if (is_array($response) && isset($response[0]) && str_contains($response[0], "No release history was found for the requested project")) {
         throw new AcquiaCliException("No release history was found for the requested project- '{$project}'.");
       }

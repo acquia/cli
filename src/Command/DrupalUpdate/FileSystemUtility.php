@@ -183,12 +183,11 @@ class FileSystemUtility {
   /**
    * @param string $file_url
    * @param string $method
-   * @param string $header_type
    * @return mixed
    * @throws AcquiaCliException
    * @throws GuzzleException
    */
-  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET', string $header_type = ''): mixed {
+  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET'): mixed {
     try {
       $client = $this->getClient();
       $response = $client->request($method, $file_url);
@@ -196,12 +195,9 @@ class FileSystemUtility {
       if ($response->getStatusCode() !== 200) {
         return FALSE;
       }
-      switch ($header_type) {
-        case "application/xml":
-          $response = simplexml_load_string($response->getBody()->getContents());
-          $response = json_decode(json_encode($response), TRUE);
-          break;
-      }
+      $response = simplexml_load_string($response->getBody()->getContents());
+      $response = json_decode(json_encode($response), TRUE);
+
       return $response;
     }
     catch (Exception $e) {
@@ -267,10 +263,11 @@ class FileSystemUtility {
   }
 
   /**
-   * @param $value
-   * @return mixed
+   * @param array $value
+   *
+   * @return array
    */
-  public function getDrupalTempFolderPath($value) {
+  public function getDrupalTempFolderPath(array $value): array {
     if ($value['package'] == 'drupal') {
       $dirname = 'temp_drupal_core';
       $filename = $value['file_path'] . "/" . $dirname . "";
@@ -291,13 +288,13 @@ class FileSystemUtility {
    * @param string $drupal_project_root_path
    * @return bool
    */
-  public static function determineD7App(string $drupal_project_root_path) {
+  public static function determineD7App(string $drupal_project_root_path) : bool {
     if ($drupal_project_root_path == '') {
       return FALSE;
     }
     $finder = new Finder();
     $finder->files()->in($drupal_project_root_path)->notPath(['vendor'])->name('*.info');
-    return ($finder->count() == 0) ? FALSE : TRUE;
+    return !(($finder->count() == 0));
   }
 
 }

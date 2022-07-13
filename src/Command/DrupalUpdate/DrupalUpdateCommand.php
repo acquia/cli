@@ -18,7 +18,7 @@ class DrupalUpdateCommand extends  CommandBase {
   /**
    * @var mixed
    */
-  private $drupalCoreVersion;
+  private  $drupalCoreVersion;
   /**
    * @var PackageUpdater
    */

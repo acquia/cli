@@ -56,7 +56,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @throws \Exception
    * @requires OS linux|darwin
    */
-  public function testDrupal7SuccefulUpdateCommand() {
+  public function testDrupal7SuccessfulUpdateCommand() {
     // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-valid-project');
     $this->executeCommand();

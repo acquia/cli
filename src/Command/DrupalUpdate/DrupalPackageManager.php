@@ -145,7 +145,7 @@ class DrupalPackageManager {
       'project',
     ];
     $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
-    if (is_bool($info_extension_file) && $info_extension_file == FALSE) {
+    if (!$info_extension_file) {
       return;
     }
     $current_version = '';
