@@ -90,6 +90,9 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
   }
 
+  /**
+   * @requires OS linux|darwin
+   */
   public function testDetermineD7AppMethod() {
     $non_valid_root_path = FileSystemUtility::determineD7App('');
     $this->assertEquals(0, $non_valid_root_path);
