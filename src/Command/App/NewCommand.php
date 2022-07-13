@@ -22,7 +22,7 @@ class NewCommand extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure(): void {
-    $this->setDescription('Create a new Drupal project')
+    $this->setDescription('Create a new Drupal or Next.js project')
       ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, 'The Composer package name of the Drupal distribution to download')
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
       ->setAliases(['new']);
@@ -36,13 +36,16 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</>, which includes useful utilities such as Acquia Connector.');
-    $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal application that will run on the Cloud Platform.');
+    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup drupal project, which includes useful utilities such as Acquia Connector.');
+    $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal drupal application that will run on the Cloud Platform.');
+    $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
     $distros = [
-      'acquia/drupal-recommended-project',
-      'acquia/drupal-minimal-project',
+      'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
+      'acquia_drupal_minimal' => 'acquia/drupal-minimal-project',
+      'acquia_next_acms' => 'acquia/next-acms',
     ];
-    $project = $this->io->choice('Choose a starting project', $distros, $distros[0]);
+    $project = $this->io->choice('Choose a starting project', array_values($distros), $distros['acquia_drupal_recommended']);
+    $project = array_search($project, $distros);
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));
@@ -52,17 +55,26 @@ class NewCommand extends CommandBase {
       $dir = '/home/ide/project';
     }
     else {
-      $dir = Path::makeAbsolute('drupal', getcwd());
+      $dir = Path::makeAbsolute($project, getcwd());
     }
 
     $output->writeln('<info>Creating project. This may take a few minutes.</info>');
-    $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-    $this->createProject($project, $dir);
+    $success_message = "<info>New 💧 Drupal project created in $dir. 🎉";
+
+    if ($project === 'acquia_next_acms') {
+      $success_message = "<info>New Next JS project created in $dir. 🎉";
+      $this->localMachineHelper->checkRequiredBinariesExist(['node']);
+      $this->createNextJsProject($dir);
+    }
+    else {
+      $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
+      $this->createDrupalProject($distros[$project], $dir);
+    }
 
     $this->initializeGitRepository($dir);
 
     $output->writeln('');
-    $output->writeln("<info>New 💧 Drupal project created in $dir. 🎉");
+    $output->writeln($success_message);
 
     return 0;
   }
@@ -74,6 +86,24 @@ class NewCommand extends CommandBase {
    */
   protected function commandRequiresAuthentication(InputInterface $input): bool {
     return FALSE;
+  }
+
+  /**
+   * @param string $dir
+   *
+   * @throws \Exception
+   */
+  protected function createNextJsProject(string $dir): void {
+    $process = $this->localMachineHelper->execute([
+      'npx',
+      'create-next-app',
+      '-e',
+      'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
+      $dir,
+    ]);
+    if (!$process->isSuccessful()) {
+      throw new AcquiaCliException("Unable to create new project.");
+    }
   }
 
   /**

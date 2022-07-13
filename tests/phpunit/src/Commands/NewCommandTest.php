@@ -26,26 +26,35 @@ class NewCommandTest extends CommandTestBase {
     return $this->injectCommand(NewCommand::class);
   }
 
-  public function provideTestNewCommand(): array {
+  public function provideTestNewDrupalCommand(): array {
     return [
-      ['acquia/drupal-recommended-project'],
-      ['acquia/drupal-minimal-project'],
-      ['acquia/drupal-minimal-project', 'test-dir'],
+      [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
+      [['acquia_drupal_minimal' => 'acquia/drupal-minimal-project']],
+      [['acquia_drupal_minimal' => 'acquia/drupal-minimal-project', 'test-dir']],
+    ];
+  }
+
+  public function provideTestNewNextJsAppCommand(): array {
+    return [
+      [['acquia_next_acms' => 'acquia/next-acms']],
+      [['acquia_next_acms' => 'acquia/next-acms'], 'test-dir'],
     ];
   }
 
   /**
-   * Tests the 'new' command.
+   * Tests the 'new' command for Drupal project.
    *
-   * @dataProvider provideTestNewCommand
+   * @dataProvider provideTestNewDrupalCommand
    *
-   * @param string $project
+   * @param array $package
    * @param string $directory
    *
    * @throws \Exception
    */
-  public function testNewCommand(string $project, string $directory = 'drupal'): void {
+  public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $project_key = array_keys($package)[0];
+    $project = $package[$project_key];
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -78,6 +87,51 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
+   * Tests the 'new' command for Next.js App.
+   *
+   * @dataProvider provideTestNewNextJsAppCommand
+   *
+   * @param array $package
+   * @param string $directory
+   *
+   * @throws \Exception
+   */
+  public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
+    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $project_key = array_keys($package)[0];
+    $project = $package[$project_key];
+
+    $process = $this->prophet->prophesize(Process::class);
+    $process->isSuccessful()->willReturn(TRUE);
+    $process->getExitCode()->willReturn(0);
+
+    $local_machine_helper = $this->mockLocalMachineHelper();
+
+    $this->mockGetFilesystem($local_machine_helper);
+
+    $local_machine_helper->checkRequiredBinariesExist(["node"])->shouldBeCalled();
+    $this->mockExecuteNpxCreate($this->newProjectDir, $local_machine_helper, $process);
+    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+    $this->mockExecuteGitInit($local_machine_helper, $this->newProjectDir, $process);
+    $this->mockExecuteGitAdd($local_machine_helper, $this->newProjectDir, $process);
+    $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $inputs = [
+      // Choose a starting project
+      $project,
+    ];
+    $this->executeCommand([
+      'directory' => $directory,
+    ], $inputs);
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Choose a starting project', $output);
+    $this->assertStringContainsString($project, $output);
+    $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
+  }
+
+  /**
    * @param string $project_dir
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param \Prophecy\Prophecy\ObjectProphecy $process
@@ -97,6 +151,24 @@ class NewCommandTest extends CommandTestBase {
       $project,
       $project_dir,
       '--no-interaction',
+    ];
+    $local_machine_helper
+      ->execute($command)
+      ->willReturn($process->reveal())
+      ->shouldBeCalled();
+  }
+
+  protected function mockExecuteNpxCreate(
+    string $project_dir,
+    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $process,
+  ): void {
+    $command = [
+      'npx',
+      'create-next-app',
+      '-e',
+      'https://github.com/acquia/next-acms/tree/main/starters/basic-starter',
+      $project_dir,
     ];
     $local_machine_helper
       ->execute($command)
