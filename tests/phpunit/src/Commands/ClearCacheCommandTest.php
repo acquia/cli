@@ -29,7 +29,7 @@ class ClearCacheCommandTest extends CommandTestBase {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $applications_response = $this->filterApplicationsResponse($applications_response, 1);
+    $applications_response = $this->filterApplicationsResponse($applications_response, 1, TRUE);
     $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
       // Ensure this is only called once, even though we execute the command twice.

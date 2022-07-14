@@ -112,7 +112,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
       'applicationUuid' => 'aoeuthao',
     ]);
     $buffer = $this->runApp();
-    self::assertStringContainsString('can also be an application alias.', $buffer);
+    self::assertStringContainsString('An alias consists of an application name', $buffer);
   }
 
 }

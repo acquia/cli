@@ -51,8 +51,9 @@ class ExceptionListener {
     }
 
     if ($error instanceof AcquiaCliException) {
-      switch ($errorMessage) {
-        case 'The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.':
+      switch ($error->getRawMessage()) {
+        case 'No applications match the alias {applicationAlias}':
+        case 'Multiple applications match the alias {applicationAlias}':
           $this->writeApplicationAliasHelp();
           break;
         case '{environmentId} must be a valid UUID or site alias.':
@@ -101,7 +102,8 @@ class ExceptionListener {
    *
    */
   protected function writeApplicationAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>applicationUuid</> can also be an application alias. E.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp</>." . PHP_EOL
+    $this->helpMessages[] = "The <bg={$this->messagesBgColor};options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
+      . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp</> or <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
       . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 

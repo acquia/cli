@@ -189,17 +189,19 @@ abstract class TestBase extends TestCase {
    * While hosting ids are not guaranteed to be unique, in practice they are
    * unique. This renames one of the applications to be unique.
    *
-   * @see CXAPI-9647
-   *
    * @param object $applications_response
-   * @param int $filter_results
+   * @param int $count
    *
    * @return object
+   *@see CXAPI-9647
+   *
    */
-  public function filterApplicationsResponse(object $applications_response, int $filter_results): object {
-    $applications_response->{'_embedded'}->items[1]->hosting->id = 'devcloud:devcloud3';
-    $applications_response->total = $filter_results;
-    $applications_response->{'_embedded'}->items = array_slice($applications_response->{'_embedded'}->items, 0, $filter_results);
+  public function filterApplicationsResponse(object $applications_response, int $count, bool $unique): object {
+    if ($unique) {
+      $applications_response->{'_embedded'}->items[1]->hosting->id = 'devcloud:devcloud3';
+    }
+    $applications_response->total = $count;
+    $applications_response->{'_embedded'}->items = array_slice($applications_response->{'_embedded'}->items, 0, $count);
     return $applications_response;
   }
 
@@ -522,17 +524,17 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param int $filter_results
+   * @param int $count
    *   The number of applications to return. Use this to simulate query filters.
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockApplicationsRequest(int $filter_results = 2): object {
+  public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $applications_response = $this->filterApplicationsResponse($applications_response, $filter_results);
+    $applications_response = $this->filterApplicationsResponse($applications_response, $count, $unique);
     $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
       ->shouldBeCalled();

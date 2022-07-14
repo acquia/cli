@@ -1106,6 +1106,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws AcquiaCliException
    */
   protected function getApplicationFromAlias(string $application_alias): mixed {
     return self::getAliasCache()
@@ -1145,7 +1146,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
     if (count($customer_applications) === 0) {
-      throw new AcquiaCliException("No applications found");
+      throw new AcquiaCliException("No applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
     if (count($customer_applications) > 1) {
       $callback = static function ($element) {
@@ -1153,7 +1154,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       };
       $aliases = array_map($callback, (array) $customer_applications);
       $this->io->error(sprintf("Multiple applications match this alias. Use one of the following aliases instead: %s", implode(', ', $aliases)));
-      throw new AcquiaCliException(sprintf("An application matching the alias %s was found in multiple hosting realms.", $application_alias));
+      throw new AcquiaCliException("Multiple applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
 
     $customer_application = $customer_applications[0];
@@ -1735,16 +1736,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     try {
       self::validateUuid($application_uuid_argument);
     }
-    catch (ValidatorException $validator_exception) {
+    catch (ValidatorException) {
       // Since this isn't a valid UUID, let's see if it's a valid alias.
       $alias = $this->normalizeAlias($application_uuid_argument);
-      try {
-        $customer_application = $this->getApplicationFromAlias($alias);
-        return $customer_application->uuid;
-      }
-      catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.");
-      }
+      return $this->getApplicationFromAlias($alias)->uuid;
     }
     return $application_uuid_argument;
   }
