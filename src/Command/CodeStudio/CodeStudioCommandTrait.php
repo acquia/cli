@@ -133,7 +133,7 @@ trait CodeStudioCommandTrait {
       $this->io->writeln([
         "",
         "This will configure AutoDevOps for a Code Studio project using credentials",
-        "(an API Token and SSH Key) belonging to your current Acquia Cloud Platform user account.",
+        "(an API Token and SSH Key) belonging to your current Acquia Cloud user account.",
         "Before continuing, make sure that you're logged into the right Acquia Cloud Platform user account.",
         "",
         "<comment>Typically this command should only be run once per application</comment>",

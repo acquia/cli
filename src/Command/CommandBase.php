@@ -1133,6 +1133,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $application_alias = '*:' . $application_alias;
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
+    // No need to clear this query later since getClient() is a factory method.
     $acquia_cloud_client->addQuery('filter', 'hosting=@' . $application_alias);
     // Allow Cloud Platform users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
