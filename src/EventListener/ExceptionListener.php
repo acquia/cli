@@ -52,7 +52,7 @@ class ExceptionListener {
 
     if ($error instanceof AcquiaCliException) {
       switch ($errorMessage) {
-        case 'The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.':
+        case 'The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.':
           $this->writeApplicationAliasHelp();
           break;
         case '{environmentId} must be a valid UUID or site alias.':

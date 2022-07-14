@@ -194,7 +194,7 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud user.", $exception->getMessage());
+      $this->assertEquals("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.", $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }

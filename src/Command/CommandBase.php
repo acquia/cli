@@ -1134,7 +1134,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addQuery('filter', 'hosting=@' . $application_alias);
-    // Allow Cloud users with 'support' role to resolve aliases for applications to
+    // Allow Cloud Platform users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
@@ -1742,7 +1742,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         return $customer_application->uuid;
       }
       catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud user.");
+        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or unique application alias accessible to your Cloud Platform user.");
       }
     }
     return $application_uuid_argument;
