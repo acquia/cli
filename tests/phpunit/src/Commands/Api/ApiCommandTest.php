@@ -162,7 +162,7 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConvertApplicationAliasToUuidArgument($support): void {
-    $this->mockApplicationsRequest();
+    $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
@@ -200,7 +200,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testConvertEnvironmentAliasToUuidArgument(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
@@ -228,7 +228,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
