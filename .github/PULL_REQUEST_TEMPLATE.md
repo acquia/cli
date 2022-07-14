@@ -14,7 +14,3 @@ Fixes #NNN
 1. Follow the [contribution guide](https://github.com/acquia/cli/blob/master/CONTRIBUTING.md#building-and-testing) to set up your development environment.
 2. Clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
 3. (add specific steps for this pr)
-
-**Merge requirements**
-- [ ] _Bug_, _enhancement_, or _breaking change_ label applied
-- [ ] Manual testing by a reviewer

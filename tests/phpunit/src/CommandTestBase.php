@@ -213,6 +213,7 @@ abstract class CommandTestBase extends TestBase {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
+    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn("7.1\n");
 
     return $local_machine_helper;
   }
