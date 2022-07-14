@@ -29,8 +29,7 @@ class NewCommandTest extends CommandTestBase {
   public function provideTestNewDrupalCommand(): array {
     return [
       [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
-      [['acquia_drupal_minimal' => 'acquia/drupal-minimal-project']],
-      [['acquia_drupal_minimal' => 'acquia/drupal-minimal-project', 'test-dir']],
+      [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project', 'test-dir']],
     ];
   }
 

@@ -36,12 +36,10 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup drupal project, which includes useful utilities such as Acquia Connector.');
-    $this->output->writeln('<options=bold>acquia/drupal-minimal-project</> is the most minimal drupal application that will run on the Cloud Platform.');
+    $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
     $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
     $distros = [
       'acquia_drupal_recommended' => 'acquia/drupal-recommended-project',
-      'acquia_drupal_minimal' => 'acquia/drupal-minimal-project',
       'acquia_next_acms' => 'acquia/next-acms',
     ];
     $project = $this->io->choice('Choose a starting project', array_values($distros), $distros['acquia_drupal_recommended']);
@@ -59,7 +57,6 @@ class NewCommand extends CommandBase {
     }
 
     $output->writeln('<info>Creating project. This may take a few minutes.</info>');
-    $success_message = "<info>New 💧 Drupal project created in $dir. 🎉";
 
     if ($project === 'acquia_next_acms') {
       $success_message = "<info>New Next JS project created in $dir. 🎉";
@@ -67,6 +64,7 @@ class NewCommand extends CommandBase {
       $this->createNextJsProject($dir);
     }
     else {
+      $success_message = "<info>New 💧 Drupal project created in $dir. 🎉";
       $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
       $this->createDrupalProject($distros[$project], $dir);
     }
@@ -102,7 +100,7 @@ class NewCommand extends CommandBase {
       $dir,
     ]);
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Unable to create new project.");
+      throw new AcquiaCliException("Unable to create new next-acms project.");
     }
   }
 
@@ -112,7 +110,7 @@ class NewCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  private function createProject($project, string $dir): void {
+  private function createDrupalProject($project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',
