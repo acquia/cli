@@ -407,9 +407,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Add argument and usage examples for applicationUuid.
    */
   protected function acceptApplicationUuid() {
-    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias')
+    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
+      ->addUsage(self::getDefaultName() . ' prod:myapp')
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
@@ -1105,12 +1106,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws AcquiaCliException
    */
-  protected function getApplicationFromAlias($application_alias) {
-    $cache = self::getAliasCache();
-    return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
-      return $this->doGetApplicationFromAlias($application_alias);
-    });
+  protected function getApplicationFromAlias(string $application_alias): mixed {
+    return self::getAliasCache()
+      ->get(str_replace(':', '.', $application_alias), function () use ($application_alias) {
+        return $this->doGetApplicationFromAlias($application_alias);
+      });
   }
 
   /**
@@ -1127,36 +1129,37 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws AcquiaCliException
    */
-  protected function doGetApplicationFromAlias($application_alias) {
+  protected function doGetApplicationFromAlias($application_alias): mixed {
+    if (!strpos($application_alias, ':')) {
+      $application_alias = '*:' . $application_alias;
+    }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=@*:' . $application_alias);
-    // Allow Cloud users with 'support' role to resolve aliases for applications to
+    // No need to clear this query later since getClient() is a factory method.
+    $acquia_cloud_client->addQuery('filter', 'hosting=@' . $application_alias);
+    // Allow Cloud Platform users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
     if ($account->flags->support) {
       $acquia_cloud_client->addQuery('all', 'true');
     }
-    $customer_applications = $acquia_cloud_client->request('get', '/applications');
-    $site_prefix = '';
-    if ($customer_applications) {
-      $customer_application = $customer_applications[0];
-      $site_id = $customer_application->hosting->id;
-      $parts = explode(':', $site_id);
-      $site_prefix = $parts[1];
+    $applications_resource = new Applications($acquia_cloud_client);
+    $customer_applications = $applications_resource->getAll();
+    if (count($customer_applications) === 0) {
+      throw new AcquiaCliException("No applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
-    else {
-      throw new AcquiaCliException("No applications found");
+    if (count($customer_applications) > 1) {
+      $callback = static function ($element) {
+        return $element->hosting->id;
+      };
+      $aliases = array_map($callback, (array) $customer_applications);
+      $this->io->error(sprintf("Multiple applications match this alias. Use one of the following aliases instead: %s", implode(', ', $aliases)));
+      throw new AcquiaCliException("Multiple applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
 
-    if ($site_prefix !== $application_alias) {
-      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);
-    }
+    $customer_application = $customer_applications[0];
 
     $this->logger->debug("Found application {$customer_application->uuid} matching alias $application_alias.");
-
-    // Remove the host=@*.$drush_site query as it would persist for future requests.
-    $acquia_cloud_client->clearQuery();
 
     return $customer_application;
   }
@@ -1733,16 +1736,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     try {
       self::validateUuid($application_uuid_argument);
     }
-    catch (ValidatorException $validator_exception) {
+    catch (ValidatorException) {
       // Since this isn't a valid UUID, let's see if it's a valid alias.
       $alias = $this->normalizeAlias($application_uuid_argument);
-      try {
-        $customer_application = $this->getApplicationFromAlias($alias);
-        return $customer_application->uuid;
-      }
-      catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
-      }
+      return $this->getApplicationFromAlias($alias)->uuid;
     }
     return $application_uuid_argument;
   }

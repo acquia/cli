@@ -162,12 +162,11 @@ class ApiCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConvertApplicationAliasToUuidArgument($support): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockAccountRequest($support);
 
     $this->executeCommand(['applicationUuid' => $alias], [
@@ -186,7 +185,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testConvertInvalidApplicationAliasToUuidArgument(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationsRequest(0);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:invalidalias')->shouldBeCalled();
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
@@ -195,13 +194,28 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.", $exception->getMessage());
+      $this->assertEquals("No applications match the alias *:invalidalias", $exception->getMessage());
+    }
+    $this->prophet->checkPredictions();
+  }
+
+  public function testConvertNonUniqueApplicationAliasToUuidArgument(): void {
+    $this->mockApplicationsRequest(2, FALSE);
+    $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
+    $this->mockAccountRequest();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'devcloud2';
+    try {
+      $this->executeCommand(['applicationUuid' => $alias], []);
+    }
+    catch (AcquiaCliException $exception) {
+      $this->assertEquals("Multiple applications match the alias *:devcloud2", $exception->getMessage());
     }
     $this->prophet->checkPredictions();
   }
 
   public function testConvertEnvironmentAliasToUuidArgument(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
@@ -229,7 +243,7 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
