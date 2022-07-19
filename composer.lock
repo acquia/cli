@@ -5984,16 +5984,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v6.0.3",
+            "version": "v6.0.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "e77f3ea0b21141d771d4a5655faa54f692b34af5"
+                "reference": "3b039081c8a6ff8773db2fc11069f2da4960449c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/e77f3ea0b21141d771d4a5655faa54f692b34af5",
-                "reference": "e77f3ea0b21141d771d4a5655faa54f692b34af5",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/3b039081c8a6ff8773db2fc11069f2da4960449c",
+                "reference": "3b039081c8a6ff8773db2fc11069f2da4960449c",
                 "shasum": ""
             },
             "require": {
@@ -6038,7 +6038,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v6.0.3"
+                "source": "https://github.com/symfony/yaml/tree/v6.0.10"
             },
             "funding": [
                 {
@@ -6054,7 +6054,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-26T17:23:29+00:00"
+            "time": "2022-06-20T11:58:32+00:00"
         },
         {
             "name": "typhonius/acquia-logstream",
@@ -7607,26 +7607,26 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "4.2.0",
+            "version": "4.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/phplint.git",
-                "reference": "0ca09a84e864b35edb431849f8d5838fc25d5918"
+                "reference": "3b365ece7eb4620a55062a115ffbec75227c06a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/0ca09a84e864b35edb431849f8d5838fc25d5918",
-                "reference": "0ca09a84e864b35edb431849f8d5838fc25d5918",
+                "url": "https://api.github.com/repos/overtrue/phplint/zipball/3b365ece7eb4620a55062a115ffbec75227c06a7",
+                "reference": "3b365ece7eb4620a55062a115ffbec75227c06a7",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "n98/junit-xml": "1.1.0",
-                "php": ">=8.0",
-                "symfony/console": "^5.3.11|^6.0",
-                "symfony/finder": "^5.3.7|^6.0",
-                "symfony/process": "^5.3.12|^6.0",
-                "symfony/yaml": "^5.3.11|^6.0"
+                "php": "^8.0",
+                "symfony/console": "^5.3.11 || ^6.0",
+                "symfony/finder": "^5.3.7 || ^6.0",
+                "symfony/process": "^5.3.12 || ^6.0",
+                "symfony/yaml": "^5.3.11 || ^6.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.4",
@@ -7670,7 +7670,7 @@
             ],
             "support": {
                 "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/4.2.0"
+                "source": "https://github.com/overtrue/phplint/tree/4.3.0"
             },
             "funding": [
                 {
@@ -7678,7 +7678,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-06-08T12:04:40+00:00"
+            "time": "2022-07-12T07:39:25+00:00"
         },
         {
             "name": "phar-io/manifest",
