@@ -18,6 +18,7 @@ use Symfony\Component\Finder\Finder;
  * @package Acquia\Cli\Command\DrupalUpdate
  */
 class FileSystemUtility {
+
   /**
    * @var Filesystem
    */

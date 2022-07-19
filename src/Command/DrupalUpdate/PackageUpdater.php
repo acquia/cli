@@ -8,6 +8,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 
 class PackageUpdater {
+
   /**
    * @var SymfonyStyle
    */
