@@ -209,15 +209,31 @@ class ApiCommandTest extends CommandTestBase {
       $this->executeCommand(['applicationUuid' => $alias], []);
     }
     catch (AcquiaCliException $exception) {
-      $this->assertEquals("Multiple applications match the alias *:devcloud2", $exception->getMessage());
+      $output=$this->getDisplay();
+      $this->assertStringContainsString('Use a unique application alias: devcloud:devcloud2, devcloud:devcloud2', $output);
+      $this->assertEquals('Multiple applications match the alias *:devcloud2', $exception->getMessage());
     }
+    $this->prophet->checkPredictions();
+  }
+
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
+   */
+  public function testConvertApplicationAliasWithRealmToUuidArgument(): void {
+    $this->mockApplicationsRequest(1, FALSE);
+    $this->clientProphecy->addQuery('filter', 'hosting=@devcloud:devcloud2')->shouldBeCalled();
+    $this->mockApplicationRequest();
+    $this->mockAccountRequest();
+    $this->command = $this->getApiCommandByName('api:applications:find');
+    $alias = 'devcloud:devcloud2';
+    $this->executeCommand(['applicationUuid' => $alias], []);
     $this->prophet->checkPredictions();
   }
 
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockAccountRequest();
 
@@ -245,7 +261,6 @@ class ApiCommandTest extends CommandTestBase {
   public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:environments:find');
