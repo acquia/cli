@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
@@ -116,19 +115,17 @@ class IdeCreateCommand extends IdeCommandBase {
       $response = $this->client->request('GET', '/health');
       return $response->getStatusCode() === 200;
     };
-    $loop = LoopHelper::getLoopy('Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.', $this->output, $checkIdeStatus, 'Your IDE is ready!', $this->logger);
-    // Start the loop.
-    try {
-      $loop->run();
-    }
-    catch (AcquiaCliException $exception) {
-      $this->io->error($exception->getMessage());
-      // Write IDE links to screen in the event of a DNS timeout. The IDE may still provision correctly.
+    $success = function () {
+      $this->output->writeln('');
+      $this->output->writeln('<info>Your IDE is ready!</info>');
       $this->writeIdeLinksToScreen();
-      return 1;
-    }
+    };
+    $failure = function () {
+      $this->writeIdeLinksToScreen();
+    };
+    $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
+    LoopHelper::getLoopy($this->output, $this->io, $spinnerMessage, $checkIdeStatus, $success, $failure);
 
-    $this->writeIdeLinksToScreen();
     return 0;
   }
 

@@ -4,10 +4,6 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
-use AcquiaCloudApi\Endpoints\Notifications;
-use AcquiaCloudApi\Response\NotificationResponse;
-use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -38,35 +34,7 @@ class TaskWaitCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notification_uuid = $this->getNotificationUuid($input);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, "Waiting for task $notification_uuid to complete", $this->output);
-    $notifications_resource = new Notifications($acquia_cloud_client);
-    $callback = function () use ($loop, $spinner, $notifications_resource, $notification_uuid) {
-      $notification = $notifications_resource->get($notification_uuid);
-      if ($notification->progress === 100) {
-        LoopHelper::finishSpinner($spinner);
-        $loop->stop();
-        $this->writeCompletedMessage($notification);
-      }
-      else {
-        $spinner->setMessage("Task of type {$notification->label} is {$notification->progress}% complete");
-      }
-    };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    try {
-      $loop->run();
-    }
-    catch (AcquiaCliException $exception) {
-      $this->io->error($exception->getMessage());
-      return 1;
-    }
-
+    $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notification_uuid, "Waiting for task $notification_uuid to complete");
     return 0;
   }
 
@@ -87,21 +55,6 @@ class TaskWaitCommand extends CommandBase {
     }
 
     return $this->validateUuid($input->getArgument('notification-uuid'));
-  }
-
-  /**
-   * @param \AcquiaCloudApi\Response\NotificationResponse $notification
-   * @param string $notification_uuid
-   */
-  protected function writeCompletedMessage(NotificationResponse $notification): void {
-    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
-    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
-    $this->io->success([
-      "The task with notification uuid {$notification->uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
-      "on " . $completed_at,
-      "Task type: " . $notification->label . PHP_EOL .
-      "Duration: $duration seconds",
-    ]);
   }
 
 }

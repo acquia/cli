@@ -41,7 +41,7 @@ class EnvCreateCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $label = $input->getArgument('label');
@@ -58,8 +58,7 @@ class EnvCreateCommand extends CommandBase {
     $notification_uuid = $this->getNotificationUuidFromResponse($response);
     $this->checklist->completePreviousItem();
 
-    $success = $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.");
-    if ($success) {
+    $success = function () use ($environments_resource, $cloud_app_uuid, $label) {
       $environments = $environments_resource->getAll($cloud_app_uuid);
       foreach ($environments as $environment) {
         if ($environment->label === $label) {
@@ -71,13 +70,9 @@ class EnvCreateCommand extends CommandBase {
           '',
           "<comment>Your CDE URL:</comment> <href=https://{$environment->domains[0]}>{$environment->domains[0]}</>",
         ]);
-        return 0;
       }
-      else {
-        $this->io->error(['Unable to find URL for newly created environment.']);
-      }
-
-    }
+    };
+    $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.", $success);
 
     return 1;
   }

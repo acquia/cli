@@ -5,18 +5,15 @@ namespace Acquia\Cli\Command\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\IdeCommandTrait;
-use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
-use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
@@ -135,7 +132,7 @@ abstract class PullCommandBase extends CommandBase {
     }
     if (!$no_import) {
       // Verify database connection.
-      $this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+      //$this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $source_environment = $this->determineEnvironment($input, $output, TRUE);
@@ -378,34 +375,17 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param string $notification_uuid
    * @param $acquia_cloud_client
+   *
    * @infection-ignore-all
    */
-  protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
-    $notifications = new Notifications($acquia_cloud_client);
-
-    $callback = function () use ($loop, $spinner, $notification_uuid, $notifications) {
-      try {
-        $response = $notifications->get($notification_uuid);
-        if ($response->status === 'completed') {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->output->writeln('');
-          $this->output->writeln('<info>Database backup is ready!</info>');
-        }
-      }
-      catch (Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
+  protected function waitForBackup(string $notification_uuid, $acquia_cloud_client): void {
+    $spinnerMessage = 'Waiting for database backup to complete...';
+    $successCallback = function () {
+      $this->output->writeln('');
+      $this->output->writeln('<info>Database backup is ready!</info>');
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    $loop->run();
+    $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, $spinnerMessage, $successCallback);
+    Loop::run();
   }
 
   /**
