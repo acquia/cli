@@ -56,8 +56,6 @@ class ChecklistTest extends TestBase {
     catch (AcquiaCliException $exception) {
       $this->assertEquals('Timed out after 0.01 minutes!', $exception->getMessage());
     }
-    // $loop is statically cached by Loop::get();. We don't want the 0.01 minute timer
-    // persisting into other tests so we must use Factory::create().
     $loop->cancelTimer($timer);
   }
 

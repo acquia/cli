@@ -7,7 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\NotificationResponse;
-use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,7 +22,7 @@ class TaskWaitCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Wait for a task to complete')
       ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The UUID of the task notification returned by the Cloud API')
       ->setHelp('This command will accepts either a notification uuid as an argument or else a json string passed through standard input. The json string must contain the _links->notification->href property.')
@@ -37,13 +36,9 @@ class TaskWaitCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $notification_uuid = $this->getNotificationUuid($input);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    // $loop is statically cached by Loop::get(). To prevent it
-    // persisting into other instances we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
     $loop = Loop::get();
     $spinner = LoopHelper::addSpinnerToLoop($loop, "Waiting for task $notification_uuid to complete", $this->output);
     $notifications_resource = new Notifications($acquia_cloud_client);

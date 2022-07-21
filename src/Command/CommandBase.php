@@ -39,7 +39,6 @@ use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use React\EventLoop\Factory;
 use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -1792,13 +1791,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return bool
    */
-  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message) {
-    // $loop is statically cached by Loop::get(). To prevent it
-    // persisting into other instances we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
+  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message): bool {
     $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
+    [$spinner, $timer] = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
     $notifications_resource = new Notifications($acquia_cloud_client);
 
     $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
@@ -1806,7 +1801,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $notification = $notifications_resource->get($uuid);
         if ($notification->progress === 100) {
           LoopHelper::finishSpinner($spinner);
-          $loop->stop();
           $this->logger->debug("Notification is complete with status {$notification->status}.");
         }
       }
