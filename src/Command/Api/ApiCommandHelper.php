@@ -451,7 +451,7 @@ class ApiCommandHelper {
           $command->setServers($acquia_cloud_spec['servers']);
         }
         $command->setPath($path);
-        $command->setHelp("For more help, see https://cloudapi-docs.acquia.com/");
+        $command->setHelp("For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.");
         $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
         $api_commands[] = $command;
       }
