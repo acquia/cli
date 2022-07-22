@@ -13,16 +13,9 @@ class LoopHelper {
     $spinner->setMessage($spinnerMessage);
     $spinner->start();
 
-    // Spinner timer.
-    $timers[] = Loop::addPeriodicTimer($spinner->interval(),
-      static function () use ($spinner) {
-        $spinner->advance();
-      });
-
-    // Primary timer checking for result status.
-    $timers[] = Loop::addPeriodicTimer(5, static function () use (&$timers, $spinner, $io, $statusCallback, $successCallback) {
+    $periodicCallback = static function () use (&$timers, $spinner, $io, $statusCallback, $successCallback) {
       try {
-        if ($statusCallback) {
+        if ($statusCallback()) {
           foreach ($timers as $timer) {
             Loop::cancelTimer($timer);
           }
@@ -34,10 +27,21 @@ class LoopHelper {
       catch (\Exception $e) {
         $io->error($e->getMessage());
       }
-    });
+    };
+
+    // Spinner timer.
+    $timers[] = Loop::addPeriodicTimer($spinner->interval(),
+      static function () use ($spinner) {
+        $spinner->advance();
+      });
+
+    // Primary timer checking for result status.
+    $timers[] = Loop::addPeriodicTimer(5, $periodicCallback);
+    // Initial timer to speed up tests.
+    $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
     // Watchdog timer.
-    $timers[] = Loop::addTimer(45 * 60, static function () use ($spinner, &$timers, $timeoutCallback, $io) {
+    $timers[] = Loop::addTimer(45 * 60, static function () use (&$timers, $spinner, $io, $timeoutCallback) {
       foreach ($timers as $timer) {
         Loop::cancelTimer($timer);
       }
@@ -46,6 +50,11 @@ class LoopHelper {
       $io->error("Timed out after 45 minutes!");
       $timeoutCallback();
     });
+
+    // Manually run the loop. React eventloop advises against this and suggests
+    // using autorun instead, but I'm not sure how to pass the correct exit code
+    // to Symfony if this isn't blocking.
+    Loop::run();
   }
 
 }

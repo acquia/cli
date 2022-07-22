@@ -74,7 +74,7 @@ class EnvCreateCommand extends CommandBase {
     };
     $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.", $success);
 
-    return 1;
+    return 0;
   }
 
   /**

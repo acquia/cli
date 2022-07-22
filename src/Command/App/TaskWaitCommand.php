@@ -54,7 +54,7 @@ class TaskWaitCommand extends CommandBase {
       throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
     }
 
-    return $this->validateUuid($input->getArgument('notification-uuid'));
+    return self::validateUuid($input->getArgument('notification-uuid'));
   }
 
 }
