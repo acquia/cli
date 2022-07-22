@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\AliasCache;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\LoopHelper;
@@ -61,7 +62,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\ItemInterface;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -406,7 +406,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Add argument and usage examples for applicationUuid.
    */
-  protected function acceptApplicationUuid() {
+  protected function acceptApplicationUuid(): static {
     $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
@@ -419,10 +419,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Add argument and usage examples for environmentId.
    */
-  protected function acceptEnvironmentId() {
-    $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias')
+  protected function acceptEnvironmentId(): static {
+    $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias (i.e. an application and environment name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp.dev')
+      ->addUsage(self::getDefaultName() . ' prod:myapp.dev')
       ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
@@ -1067,11 +1068,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvFromAlias($alias): EnvironmentResponse {
-    $cache = self::getAliasCache();
-    $value = $cache->get($alias, function (ItemInterface $item) use ($alias) {
+    return self::getAliasCache()->get($alias, function () use ($alias) {
       return $this->doGetEnvFromAlias($alias);
     });
-    return $value;
   }
 
   /**
@@ -1081,13 +1080,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function doGetEnvFromAlias($alias): EnvironmentResponse {
+  private function doGetEnvFromAlias($alias): EnvironmentResponse {
     $site_env_parts = explode('.', $alias);
     [$application_alias, $environment_alias] = $site_env_parts;
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
     $customer_application = $this->getApplicationFromAlias($application_alias);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
     foreach ($environments as $environment) {
@@ -1106,21 +1104,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
-   * @throws AcquiaCliException
    */
-  protected function getApplicationFromAlias(string $application_alias): mixed {
+  private function getApplicationFromAlias(string $application_alias): mixed {
     return self::getAliasCache()
-      ->get(str_replace(':', '.', $application_alias), function () use ($application_alias) {
+      ->get($application_alias, function () use ($application_alias) {
         return $this->doGetApplicationFromAlias($application_alias);
       });
   }
 
   /**
    * Return the ACLI alias cache.
-   * @return FilesystemAdapter
+   *
+   * @return AliasCache
    */
-  public static function getAliasCache() {
-    return new FilesystemAdapter('acli_aliases');
+  public static function getAliasCache(): AliasCache {
+    return new AliasCache('acli_aliases');
   }
 
   /**
@@ -1129,7 +1127,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws AcquiaCliException
    */
-  protected function doGetApplicationFromAlias($application_alias): mixed {
+  private function doGetApplicationFromAlias($application_alias): mixed {
     if (!strpos($application_alias, ':')) {
       $application_alias = '*:' . $application_alias;
     }
@@ -1153,7 +1151,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         return $element->hosting->id;
       };
       $aliases = array_map($callback, (array) $customer_applications);
-      $this->io->error(sprintf("Multiple applications match this alias. Use one of the following aliases instead: %s", implode(', ', $aliases)));
+      $this->io->error(sprintf("Use a unique application alias: %s", implode(', ', $aliases)));
       throw new AcquiaCliException("Multiple applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
 
