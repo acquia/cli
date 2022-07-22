@@ -19,7 +19,6 @@ abstract class SshCommandTestBase extends CommandTestBase {
   protected function mockForGetEnvironmentFromAliasArg(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->mockEnvironmentsRequest($applications_response);
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockAccountRequest();
   }
