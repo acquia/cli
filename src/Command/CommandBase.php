@@ -27,6 +27,7 @@ use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\NotificationResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
@@ -40,8 +41,6 @@ use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use React\EventLoop\Factory;
-use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
@@ -1787,46 +1786,33 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $uuid
    * @param string $message
-   *
-   * @return bool
    */
-  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message) {
-    // $loop is statically cached by Loop::get(). To prevent it
-    // persisting into other instances we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
+  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message, $success = NULL): void {
     $notifications_resource = new Notifications($acquia_cloud_client);
-
-    $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
-      try {
-        $notification = $notifications_resource->get($uuid);
-        if ($notification->progress === 100) {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->logger->debug("Notification is complete with status {$notification->status}.");
-        }
-      }
-      catch (\Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
+    $checkNotificationStatus = static function () use ($notifications_resource, $uuid) {
+      return $notifications_resource->get($uuid)->progress === 100;
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    try {
-      $loop->run();
+    if ($success === NULL) {
+      $success = function () use ($notifications_resource, $uuid) {
+        $this->writeCompletedMessage($notifications_resource->get($uuid));
+      };
     }
-    catch (AcquiaCliException $exception) {
-      $this->io->error($exception->getMessage());
-      return FALSE;
-    }
+    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);
+  }
 
-    return TRUE;
+  /**
+   * @param \AcquiaCloudApi\Response\NotificationResponse $notification
+   * @param string $notification_uuid
+   */
+  protected function writeCompletedMessage(NotificationResponse $notification): void {
+    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
+    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
+    $this->io->success([
+      "The task with notification uuid {$notification->uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
+      "on " . $completed_at,
+      "Task type: " . $notification->label . PHP_EOL .
+      "Duration: $duration seconds",
+    ]);
   }
 
   /**

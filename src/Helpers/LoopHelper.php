@@ -2,62 +2,59 @@
 
 namespace Acquia\Cli\Helpers;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Spinner\Spinner;
-use React\EventLoop\LoopInterface;
-use React\EventLoop\TimerInterface;
+use React\EventLoop\Loop;
 
 class LoopHelper {
 
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   *
-   * @param string $message
-   *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return \Acquia\Cli\Output\Spinner\Spinner
-   */
-  public static function addSpinnerToLoop(
-    LoopInterface $loop,
-    $message,
-    $output
-  ): Spinner {
+  public static function getLoopy($output, $io, $logger, $spinnerMessage, $statusCallback, $successCallback, $timeoutCallback = NULL): void {
+    $timers = [];
     $spinner = new Spinner($output, 4);
-    $spinner->setMessage($message);
+    $spinner->setMessage($spinnerMessage);
     $spinner->start();
-    $loop->addPeriodicTimer($spinner->interval(),
+
+    $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback) {
+      try {
+        if ($statusCallback()) {
+          foreach ($timers as $timer) {
+            Loop::cancelTimer($timer);
+          }
+          $timers = [];
+          $spinner->finish();
+          $successCallback();
+        }
+      }
+      catch (\Exception $e) {
+        $logger->debug($e->getMessage());
+      }
+    };
+
+    // Spinner timer.
+    $timers[] = Loop::addPeriodicTimer($spinner->interval(),
       static function () use ($spinner) {
         $spinner->advance();
       });
 
-    return $spinner;
-  }
+    // Primary timer checking for result status.
+    $timers[] = Loop::addPeriodicTimer(5, $periodicCallback);
+    // Initial timer to speed up tests.
+    $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
-  /**
-   * @param \React\EventLoop\LoopInterface $loop
-   * @param float $minutes
-   * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
-   *
-   * @return \React\EventLoop\TimerInterface
-   */
-  public static function addTimeoutToLoop(
-    LoopInterface $loop,
-    float $minutes,
-    Spinner $spinner
-  ): TimerInterface {
-    return $loop->addTimer($minutes * 60, function () use ($loop, $minutes, $spinner) {
-      self::finishSpinner($spinner);
-      $loop->stop();
-      throw new AcquiaCliException("Timed out after $minutes minutes!");
+    // Watchdog timer.
+    $timers[] = Loop::addTimer(45 * 60, static function () use (&$timers, $spinner, $io, $timeoutCallback) {
+      foreach ($timers as $timer) {
+        Loop::cancelTimer($timer);
+      }
+      $timers = [];
+      $spinner->finish();
+      $io->error("Timed out after 45 minutes!");
+      $timeoutCallback();
     });
-  }
 
-  /**
-   * @param \Acquia\Cli\Output\Spinner\Spinner $spinner
-   */
-  public static function finishSpinner(Spinner $spinner): void {
-    $spinner->finish();
+    // Manually run the loop. React eventloop advises against this and suggests
+    // using autorun instead, but I'm not sure how to pass the correct exit code
+    // to Symfony if this isn't blocking.
+    Loop::run();
   }
 
 }

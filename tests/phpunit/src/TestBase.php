@@ -27,8 +27,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use React\EventLoop\Factory;
-use React\EventLoop\Loop;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -281,14 +279,6 @@ abstract class TestBase extends TestCase {
     );
 
     return $path;
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-    // $loop is statically cached by Loop::get() in some tests. To prevent it
-    // persisting into other tests we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
   }
 
   public static function setEnvVars(array $env_vars): void {
