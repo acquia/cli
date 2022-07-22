@@ -124,7 +124,7 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->writeIdeLinksToScreen();
     };
     $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
-    LoopHelper::getLoopy($this->output, $this->io, $spinnerMessage, $checkIdeStatus, $success, $failure);
+    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $success, $failure);
 
     return 0;
   }

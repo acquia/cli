@@ -7,13 +7,13 @@ use React\EventLoop\Loop;
 
 class LoopHelper {
 
-  public static function getLoopy($output, $io, $spinnerMessage, $statusCallback, $successCallback, $timeoutCallback = NULL): void {
+  public static function getLoopy($output, $io, $logger, $spinnerMessage, $statusCallback, $successCallback, $timeoutCallback = NULL): void {
     $timers = [];
     $spinner = new Spinner($output, 4);
     $spinner->setMessage($spinnerMessage);
     $spinner->start();
 
-    $periodicCallback = static function () use (&$timers, $spinner, $io, $statusCallback, $successCallback) {
+    $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback) {
       try {
         if ($statusCallback()) {
           foreach ($timers as $timer) {
@@ -25,7 +25,7 @@ class LoopHelper {
         }
       }
       catch (\Exception $e) {
-        $io->error($e->getMessage());
+        $logger->debug($e->getMessage());
       }
     };
 
