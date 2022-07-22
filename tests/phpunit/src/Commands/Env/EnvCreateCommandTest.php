@@ -42,12 +42,13 @@ class EnvCreateCommandTest extends CommandTestBase {
    * @dataProvider providerTestCreateCde
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreateCde($application_uuid): void {
     $label = "New CDE";
     $applications_response = $this->mockApplicationsRequest();
     $application_response = $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->mockEnvironmentsRequest($applications_response);
 
     $response1 = $this->getMockEnvironmentsResponse();
     $response2 = $this->getMockEnvironmentsResponse();

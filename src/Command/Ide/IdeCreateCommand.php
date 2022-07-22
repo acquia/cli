@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Ide;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
@@ -10,9 +9,7 @@ use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
 use Closure;
-use Exception;
 use GuzzleHttp\Client;
-use React\EventLoop\Loop;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -114,41 +111,21 @@ class IdeCreateCommand extends IdeCommandBase {
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
-
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.', $this->output);
-
-    $callback = function () use ($loop, $spinner) {
-      try {
-        $response = $this->client->request('GET', '/health');
-        if ($response->getStatusCode() === 200) {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->output->writeln('');
-          $this->output->writeln('<info>Your IDE is ready!</info>');
-        }
-      }
-      catch (Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
+    $checkIdeStatus = function () {
+      $response = $this->client->request('GET', '/health');
+      return $response->getStatusCode() === 200;
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    try {
-      $loop->run();
-    }
-    catch (AcquiaCliException $exception) {
-      $this->io->error($exception->getMessage());
-      // Write IDE links to screen in the event of a DNS timeout. The IDE may still provision correctly.
+    $success = function () {
+      $this->output->writeln('');
+      $this->output->writeln('<info>Your IDE is ready!</info>');
       $this->writeIdeLinksToScreen();
-      return 1;
-    }
+    };
+    $failure = function () {
+      $this->writeIdeLinksToScreen();
+    };
+    $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
+    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $success, $failure);
 
-    $this->writeIdeLinksToScreen();
     return 0;
   }
 

@@ -4,8 +4,8 @@ namespace Acquia\Cli\Command\Ssh;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
 use Acquia\Cli\Helpers\SshCommandTrait;
+use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -149,19 +149,28 @@ EOT
   ): void {
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
+    $timers = [];
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
     $perms = array_column($permissions, 'name');
     $mappings = $this->checkPermissions($perms, $cloud_app_uuid, $output);
     foreach ($mappings as $env_name => $config) {
-      $mappings[$env_name]['spinner'] = LoopHelper::addSpinnerToLoop($loop, "Waiting for the key to become available in Cloud Platform $env_name environments", $output);
+      $spinner = new Spinner($output, 4);
+      $spinner->setMessage("Waiting for the key to become available in Cloud Platform $env_name environments");
+      $spinner->start();
+      $mappings[$env_name]['timer'] = $loop->addPeriodicTimer($spinner->interval(),
+        static function () use ($spinner) {
+          $spinner->advance();
+        });
+      $mappings[$env_name]['spinner'] = $spinner;
     }
-    $callback = function () use ($output, $loop, &$mappings) {
+    $callback = function () use ($output, $loop, &$mappings, &$timers) {
       foreach ($mappings as $env_name => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
-            LoopHelper::finishSpinner($config['spinner']);
+            $config['spinner']->finish();
+            $loop->cancelTimer($config['timer']);
             unset($mappings[$env_name]);
           }
           else {
@@ -173,20 +182,23 @@ EOT
         }
       }
       if (empty($mappings)) {
-        $loop->stop();
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
+        foreach ($timers as $timer) {
+          $loop->cancelTimer($timer);
+        }
+        $timers = [];
       }
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
     // Poll Cloud every 5 seconds.
-    $loop->addPeriodicTimer(5, $callback);
-    $loop->addTimer(10 * 60, function () use ($output) {
+    $timers[] = $loop->addPeriodicTimer(5, $callback);
+    $timers[] = $loop->addTimer(0.1, $callback);
+    $timers[] = $loop->addTimer(10 * 60, function () use ($output, $loop, &$timers) {
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
+      foreach ($timers as $timer) {
+        $loop->cancelTimer($timer);
+      }
+      $timers = [];
     });
-    foreach ($mappings as $config) {
-      LoopHelper::addTimeoutToLoop($loop, 30, $config['spinner']);
-    }
     $loop->run();
   }
 
