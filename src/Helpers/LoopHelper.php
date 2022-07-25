@@ -14,9 +14,7 @@ class LoopHelper {
     $spinner->start();
 
     $cancelTimers = static function (array &$timers) {
-      foreach ($timers as $timer) {
-        Loop::cancelTimer($timer);
-      }
+      array_map('\React\EventLoop\Loop::cancelTimer', $timers);
       $timers = [];
     };
     $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback, $cancelTimers) {
