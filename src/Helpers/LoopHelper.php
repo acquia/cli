@@ -13,13 +13,16 @@ class LoopHelper {
     $spinner->setMessage($spinnerMessage);
     $spinner->start();
 
-    $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback) {
+    $cancelTimers = static function (array &$timers) {
+      foreach ($timers as $timer) {
+        Loop::cancelTimer($timer);
+      }
+      $timers = [];
+    };
+    $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback, $cancelTimers) {
       try {
         if ($statusCallback()) {
-          foreach ($timers as $timer) {
-            Loop::cancelTimer($timer);
-          }
-          $timers = [];
+          $cancelTimers($timers);
           $spinner->finish();
           $successCallback();
         }
@@ -41,11 +44,8 @@ class LoopHelper {
     $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
     // Watchdog timer.
-    $timers[] = Loop::addTimer(45 * 60, static function () use (&$timers, $spinner, $io, $timeoutCallback) {
-      foreach ($timers as $timer) {
-        Loop::cancelTimer($timer);
-      }
-      $timers = [];
+    $timers[] = Loop::addTimer(45 * 60, static function () use (&$timers, $spinner, $io, $timeoutCallback, $cancelTimers) {
+      $cancelTimers($timers);
       $spinner->finish();
       $io->error("Timed out after 45 minutes!");
       $timeoutCallback();
