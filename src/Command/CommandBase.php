@@ -1810,7 +1810,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
     $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
     $this->io->success([
-      "The task with notification uuid {$notification->uuid} completed with status \"{$notification->status}\"" . PHP_EOL .
+      "The task with notification uuid {$notification->uuid} completed with progress \"{$notification->progress}\"" . PHP_EOL .
       "on " . $completed_at,
       "Task type: " . $notification->label . PHP_EOL .
       "Duration: $duration seconds",
