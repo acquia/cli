@@ -1789,12 +1789,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message, $success = NULL): void {
     $notifications_resource = new Notifications($acquia_cloud_client);
-    $checkNotificationStatus = static function () use ($notifications_resource, $uuid) {
-      return $notifications_resource->get($uuid)->progress === 100;
+    $notification = NULL;
+    $checkNotificationStatus = static function () use ($notifications_resource, &$notification, $uuid) {
+      $notification = $notifications_resource->get($uuid);
+      return $notification->status === 'completed';
     };
     if ($success === NULL) {
-      $success = function () use ($notifications_resource, $uuid) {
-        $this->writeCompletedMessage($notifications_resource->get($uuid));
+      $success = function () use (&$notification) {
+        $this->writeCompletedMessage($notification);
       };
     }
     LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);

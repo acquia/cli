@@ -48,7 +48,6 @@ class TaskWaitCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
   }
 
   /**
@@ -60,7 +59,6 @@ class TaskWaitCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
   }
 
 }

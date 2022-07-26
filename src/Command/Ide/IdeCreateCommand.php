@@ -111,20 +111,19 @@ class IdeCreateCommand extends IdeCommandBase {
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
-    $checkIdeStatus = function () {
+    $checkIdeStatus = function () use (&$response) {
       $response = $this->client->request('GET', '/health');
       return $response->getStatusCode() === 200;
     };
-    $success = function () {
-      $this->output->writeln('');
-      $this->output->writeln('<info>Your IDE is ready!</info>');
-      $this->writeIdeLinksToScreen();
-    };
-    $failure = function () {
+    $doneCallback = function () use (&$response) {
+      if ($response->getStatusCode() === 200) {
+        $this->output->writeln('');
+        $this->output->writeln('<info>Your IDE is ready!</info>');
+      }
       $this->writeIdeLinksToScreen();
     };
     $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
-    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $success, $failure);
+    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $doneCallback);
 
     return 0;
   }
