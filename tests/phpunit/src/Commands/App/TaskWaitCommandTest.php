@@ -34,11 +34,14 @@ class TaskWaitCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString("The task with notification uuid", $output);
+    $this->assertStringContainsString(' [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed with progress "100"', $output);
+    $this->assertStringContainsString('      on Mon Jul 29 20:47:13 UTC 2019', $output);
+    $this->assertStringContainsString('      Task type: Application added to recents list', $output);
+    $this->assertStringContainsString('      Duration: 0 seconds', $output);
   }
 
   /**
-   * @throws \Exception
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testTaskWaitCommandWithStandardInput(): void {
     $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
