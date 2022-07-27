@@ -1792,7 +1792,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notifications_resource, &$notification, $uuid) {
       $notification = $notifications_resource->get($uuid);
-      return $notification->status === 'completed';
+      return $notification->status !== 'in_progress';
     };
     if ($success === NULL) {
       $success = function () use (&$notification) {
@@ -1809,12 +1809,19 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   private function writeCompletedMessage(NotificationResponse $notification): void {
     $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
     $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
-    $this->io->success([
-      "The task with notification uuid {$notification->uuid} completed with progress \"{$notification->progress}\"" . PHP_EOL .
-      "on " . $completed_at,
-      "Task type: " . $notification->label . PHP_EOL .
-      "Duration: $duration seconds",
-    ]);
+    if ($notification->status === 'completed') {
+      $this->io->success("The task with notification uuid {$notification->uuid} completed");
+    }
+    else if ($notification->status === 'failed') {
+      $this->io->error("The task with notification uuid {$notification->uuid} failed");
+    }
+    else {
+      throw new AcquiaCliException("Unknown task status: {$notification->status}");
+    }
+    $this->io->writeln("Progress: {$notification->progress}");
+    $this->io->writeln("Completed: $completed_at");
+    $this->io->writeln("Task type: {$notification->label}");
+    $this->io->writeln("Duration: $duration seconds");
   }
 
   /**
