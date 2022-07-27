@@ -15,8 +15,6 @@ defaults:
 jobs:
   test:
     runs-on: ${{ matrix.os }}
-    env:
-      ACLI_PRINT_COMMAND_OUTPUT: 1
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest ]
@@ -94,4 +92,3 @@ jobs:
       uses: re-actors/alls-green@release/v1
       with:
         jobs: ${{ toJSON(needs) }}
-
