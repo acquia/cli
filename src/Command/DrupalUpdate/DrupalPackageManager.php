@@ -33,7 +33,7 @@ class DrupalPackageManager {
   /**
    * @var array
    */
-  public array $infoPackageFilesPath=[];
+  public array $infoPackageFilesPath = [];
 
   /**
    * @var FileSystemUtility
@@ -44,6 +44,16 @@ class DrupalPackageManager {
    * @var DrupalOrgClient
    */
   private DrupalOrgClient $drupalOrgClient;
+
+  /**
+   * @var PackageUpdater
+   */
+  private PackageUpdater $packageUpdater;
+
+  /**
+   * @var array
+   */
+  private array $detailPackageData = [];
 
   /**
    * @return DrupalOrgClient
@@ -87,12 +97,27 @@ class DrupalPackageManager {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
+  /**
+   * @return PackageUpdater
+   */
+  public function getPackageUpdater(): PackageUpdater {
+    return $this->packageUpdater;
+  }
+
+  /**
+   * @param PackageUpdater $package_updater
+   */
+  public function setPackageUpdater(PackageUpdater $package_updater): void {
+    $this->packageUpdater = $package_updater;
+  }
+
   public function __construct(InputInterface $input, OutputInterface $output) {
     $this->setIsCoreUpdated(FALSE);
     $this->setDrupalOrgClient(new DrupalOrgClient($input, $output));
     $this->setOutput($output);
     $this->io = new SymfonyStyle($input, $output);
     $this->setFileSystemUtility(new FileSystemUtility($input, $output));
+    $this->setPackageUpdater(new PackageUpdater($input, $output));
   }
 
   /**
@@ -116,16 +141,16 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @throws AcquiaCliException
    */
-  public function getPackageDetailInfo(array $info_packages_file_path, string $drupal_project_cwd_path): void {
+  public function checkPackageInfoFileDetail(array $info_packages_file_path, string $drupal_project_cwd_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
       if ( str_contains($package_path, "," ) ) {
         $package_path = explode(",", $package_path);
         foreach ($package_path as $path) {
-          $this->getFileInfo($path, $drupal_project_cwd_path);
+          $this->checkFileInfo($path, $drupal_project_cwd_path);
         }
       }
       else {
-        $this->getFileInfo($package_path, $drupal_project_cwd_path);
+        $this->checkFileInfo($package_path, $drupal_project_cwd_path);
       }
     }
   }
@@ -135,7 +160,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @throws AcquiaCliException
    */
-  public function getFileInfo(string $filepath, string $drupal_project_cwd_path): void {
+  public function checkFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->getDrupalOrgClient();
     $package_info_key = [
       'name',
@@ -147,7 +172,7 @@ class DrupalPackageManager {
     ];
     $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     if (is_bool($info_extension_file) && !$info_extension_file) {
-      return;
+      $info_extension_file = $this->fileSystemUtility->readInfoFile($filepath);
     }
     $current_version = '';
     $package_type = '';
@@ -215,38 +240,40 @@ class DrupalPackageManager {
           'Current Version',
           'Latest Version',
           'Update Type',
-      ])->setRows($git_commit_message_detail);
+    ])->setRows($git_commit_message_detail);
     $table->render();
   }
 
   /**
    * Get Packages detail information.
    * Package name, package type, package current version etc.
+   *
    * @param string $drupal_project_cwd_path
-   * @return array
+   *
+   * @return bool
    * @throws AcquiaCliException
    */
-  public function getPackagesMetaData(string $drupal_project_cwd_path): array {
+  public function checkAvailableUpdates(string $drupal_project_cwd_path): bool {
     $this->io->note('Checking available updates.');
-    $this->infoPackageFilesPath = $this->fileSystemUtility->getInfoFilesList($drupal_project_cwd_path);
+    $this->infoPackageFilesPath = $this->fileSystemUtility->getPackageInfoFilesPaths($drupal_project_cwd_path);
     if (count($this->infoPackageFilesPath) == 0) {
       throw new AcquiaCliException("Not valid Drupal 7 project.");
     }
-    $this->io->note('Preparing packages.');
-    $this->getPackageDetailInfo($this->infoPackageFilesPath, $drupal_project_cwd_path);
-    return $this->availablePackageUpdatesList($drupal_project_cwd_path);
+    $this->checkPackageInfoFileDetail($this->infoPackageFilesPath, $drupal_project_cwd_path);
+    $this->detailPackageData = $this->getAvailablePackageUpdates($drupal_project_cwd_path);
+    return count($this->detailPackageData) > 1;
   }
 
   /**
    * @param string $drupal_project_cwd_path
    * @return array
    */
-  public function availablePackageUpdatesList(string $drupal_project_cwd_path): array {
+  public function getAvailablePackageUpdates(string $drupal_project_cwd_path): array {
     $version_detail = $this->getPackageData();
     $package_info_files = $this->infoPackageFilesPath;
     $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
-    $git_commit_message_detail = [];
-    $git_commit_message_detail[] = [
+    $package_detail = [];
+    $available_package_detail[] = [
        'Package Name',
        'Package Type',
        'Current Version',
@@ -259,12 +286,12 @@ class DrupalPackageManager {
       if (!isset($versions['available_versions'])) {
         continue;
       }
-      $git_commit_message['package'] = $package;
-      $git_commit_message['package_type'] = $versions['package_type'];
-      $git_commit_message['current_version'] = $versions['current_version'] ?? '';
-      $git_commit_message['latest_version'] = $versions['available_versions']['version'] ?? '';
-      $git_commit_message['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
-      $git_commit_message['download_link'] = $versions['available_versions']['download_link'] ?? '';
+      $package_detail['package'] = $package;
+      $package_detail['package_type'] = $versions['package_type'];
+      $package_detail['current_version'] = $versions['current_version'] ?? '';
+      $package_detail['latest_version'] = $versions['available_versions']['version'] ?? '';
+      $package_detail['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
+      $package_detail['download_link'] = $versions['available_versions']['download_link'] ?? '';
       if (isset($package_info_files[$package . '.info']) && str_contains($package_info_files[$package . '.info'], ",")) {
         $package_info_files[$package . '.info'] = explode(',', $package_info_files[$package . '.info']);
       }
@@ -280,19 +307,19 @@ class DrupalPackageManager {
             $file_paths[] = ($file_path_temp != '') ? realpath($file_path_temp) : $drupal_docroot_path;
           }
         }
-        $git_commit_message['file_path'] = $file_paths;
+        $package_detail['file_path'] = $file_paths;
       }
       else {
         $file_path = isset($package_info_files[$package . '.info']) ? (str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])) : '';
-        $git_commit_message['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path;
+        $package_detail['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path;
         if (($file_path == '') && ($versions['package_type'] == 'module')) {
-          $git_commit_message['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path . "/sites/all/modules";
+          $package_detail['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path . "/sites/all/modules";
         }
       }
 
-      $git_commit_message_detail[] = $git_commit_message;
+      $available_package_detail[] = $package_detail;
     }
-    return $git_commit_message_detail;
+    return $available_package_detail;
   }
 
   /**
@@ -309,6 +336,15 @@ class DrupalPackageManager {
       return $package_release_detail['value'];
     }
     return "";
+  }
+
+  /**
+   * Update all available packages.
+   */
+  public function updatePackages(): void {
+    $this->io->note('Preparing packages.');
+    $this->packageUpdater->initializePackageUpdate($this->detailPackageData);
+    $this->printPackageDetail($this->detailPackageData);
   }
 
 }

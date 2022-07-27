@@ -242,12 +242,12 @@ class FileSystemUtility {
    * @return array
    * @throws AcquiaCliException
    */
-  public function getInfoFilesList(string $drupal_project_cwd_path): array {
+  public function getPackageInfoFilesPaths(string $drupal_project_cwd_path): array {
     $finder = new Finder();
     $finder->files()->in($drupal_project_cwd_path)->name('*.info');
     $info_package_files = [];
     if ($finder->count() == 0) {
-      throw new AcquiaCliException("No Package Info files found.");
+      return $info_package_files;
     }
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();
@@ -296,6 +296,35 @@ class FileSystemUtility {
     $finder = new Finder();
     $finder->files()->in($drupal_project_root_path)->notPath(['vendor'])->name('*.info');
     return !(($finder->count() == 0));
+  }
+
+  /**
+   * @param $file_path
+   */
+  public function readInfoFile($file_path) {
+    $package_info_key = [
+      'name',
+      'description',
+      'package',
+      'version',
+      'core',
+      'project',
+    ];
+    $info_extension_file    = file_get_contents($file_path);
+    $info_file_detail = explode("\n", $info_extension_file);
+    $file_detail = [];
+    foreach ($info_file_detail as $data) {
+      // If no key value exist in info file.
+      if (strpos($data, '=') === FALSE) {
+        continue;
+      }
+      //get raw data in key value pair with seprator.
+      $row_data = explode('=', $data);
+      if (in_array(trim($row_data[0]), $package_info_key)) {
+        $file_detail[trim($row_data[0])] = $row_data[1];
+      }
+    }
+    return $file_detail;
   }
 
 }
