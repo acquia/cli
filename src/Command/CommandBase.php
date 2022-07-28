@@ -1786,13 +1786,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $uuid
    * @param string $message
+   * @param null $success
    */
   protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message, $success = NULL): void {
     $notifications_resource = new Notifications($acquia_cloud_client);
     $notification = NULL;
     $checkNotificationStatus = static function () use ($notifications_resource, &$notification, $uuid) {
       $notification = $notifications_resource->get($uuid);
-      return $notification->status !== 'in_progress';
+      return $notification->status !== 'in-progress';
     };
     if ($success === NULL) {
       $success = function () use (&$notification) {
@@ -1804,11 +1805,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param \AcquiaCloudApi\Response\NotificationResponse $notification
-   * @param string $notification_uuid
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function writeCompletedMessage(NotificationResponse $notification): void {
-    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
-    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
     if ($notification->status === 'completed') {
       $this->io->success("The task with notification uuid {$notification->uuid} completed");
     }
@@ -1818,6 +1818,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     else {
       throw new AcquiaCliException("Unknown task status: {$notification->status}");
     }
+    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
+    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
     $this->io->writeln("Progress: {$notification->progress}");
     $this->io->writeln("Completed: $completed_at");
     $this->io->writeln("Task type: {$notification->label}");
