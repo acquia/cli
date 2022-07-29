@@ -7,22 +7,33 @@ use React\EventLoop\Loop;
 
 class LoopHelper {
 
-  public static function getLoopy($output, $io, $logger, $spinnerMessage, $statusCallback, $successCallback, $timeoutCallback = NULL): void {
+  /**
+   * @param $output
+   * @param $io
+   * @param $logger
+   * @param $spinnerMessage
+   * @param $statusCallback
+   *   A TRUE return value will cause the loop to exit and call $doneCallback.
+   * @param $doneCallback
+   *
+   * @return void
+   */
+  public static function getLoopy($output, $io, $logger, $spinnerMessage, $statusCallback, $doneCallback): void {
     $timers = [];
     $spinner = new Spinner($output, 4);
     $spinner->setMessage($spinnerMessage);
     $spinner->start();
 
-    $cancelTimers = static function (array &$timers) {
+    $cancelTimers = static function () use (&$timers, $spinner) {
       array_map('\React\EventLoop\Loop::cancelTimer', $timers);
       $timers = [];
+      $spinner->finish();
     };
-    $periodicCallback = static function () use (&$timers, $spinner, $logger, $statusCallback, $successCallback, $cancelTimers) {
+    $periodicCallback = static function () use ($logger, $statusCallback, $doneCallback, $cancelTimers) {
       try {
         if ($statusCallback()) {
-          $cancelTimers($timers);
-          $spinner->finish();
-          $successCallback();
+          $cancelTimers();
+          $doneCallback();
         }
       }
       catch (\Exception $e) {
@@ -42,11 +53,10 @@ class LoopHelper {
     $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
     // Watchdog timer.
-    $timers[] = Loop::addTimer(45 * 60, static function () use (&$timers, $spinner, $io, $timeoutCallback, $cancelTimers) {
-      $cancelTimers($timers);
-      $spinner->finish();
+    $timers[] = Loop::addTimer(45 * 60, static function () use ($io, $doneCallback, $cancelTimers) {
+      $cancelTimers();
       $io->error("Timed out after 45 minutes!");
-      $timeoutCallback();
+      $doneCallback();
     });
 
     // Manually run the loop. React eventloop advises against this and suggests
