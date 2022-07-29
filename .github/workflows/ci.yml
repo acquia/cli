@@ -1,6 +1,11 @@
 name: CI
 on:
   push:
+    # Checks should run on pull_request or push but not both at once to prevent
+    # race conditions with our automerge workflow.
+    branches:
+      - 'master'
+      - '1.x'
   pull_request:
   schedule:
     - cron: "0 2 * * *"
