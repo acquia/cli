@@ -67,7 +67,6 @@ class FileSystemUtility {
       $this->downloadRemoteFileDrupalCore($package, $file_url, $save_to);
       return;
     }
-
     try {
       if ($this->downloadFile($file_url, $save_to . '/' . $package . '.tar.gz')) {
         $this->extractPackage($save_to, $package);
@@ -131,7 +130,7 @@ class FileSystemUtility {
    * Remove downloaded tar.gz files.
    * @param array $remove_file_list
    */
-  public function unlinkTarFiles(array $remove_file_list): void {
+  public function cleanupTempFiles(array $remove_file_list): void {
 
     foreach ($remove_file_list as $key => $value) {
       if ( ($key == 0) || ($value['package_type'] == 'core') ) {
@@ -281,7 +280,7 @@ class FileSystemUtility {
    * @param string $drupal_project_root_path
    * @return bool
    */
-  public static function determineD7App(string $drupal_project_root_path) : bool {
+  public static function determineD7App(string $drupal_project_root_path): bool {
     if ($drupal_project_root_path == '') {
       return FALSE;
     }
@@ -297,7 +296,7 @@ class FileSystemUtility {
    * @return array
    */
   public function readInfoFile(string $file_path, array $package_info_key): array {
-    $info_extension_file    = file_get_contents($file_path);
+    $info_extension_file = file_get_contents($file_path);
     $info_file_detail = explode("\n", $info_extension_file);
     $file_detail = [];
     foreach ($info_file_detail as $data) {
@@ -312,6 +311,20 @@ class FileSystemUtility {
       }
     }
     return $file_detail;
+  }
+
+  /**
+   * @param string $filepath
+   * @param array $package_info_key
+   *
+   * @return array|false
+   */
+  public function parsePackageInfoFile(string $filepath, array $package_info_key): array|false {
+    $package_parse_data = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
+    if (is_bool($package_parse_data) && !$package_parse_data) {
+      $package_parse_data = $this->readInfoFile($filepath, $package_info_key);
+    }
+    return $package_parse_data;
   }
 
 }
