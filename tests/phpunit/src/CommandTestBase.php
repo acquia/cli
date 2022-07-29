@@ -385,8 +385,11 @@ abstract class CommandTestBase extends TestBase {
     return $backup_create_response;
   }
 
-  protected function mockNotificationResponse($notification_uuid) {
+  protected function mockNotificationResponse($notification_uuid, $status = NULL) {
     $notification_response = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
+    if ($status) {
+      $notification_response->status = $status;
+    }
     $this->clientProphecy->request('get', "/notifications/$notification_uuid")
       ->willReturn($notification_response)
       ->shouldBeCalled();
