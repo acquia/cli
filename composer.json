@@ -60,7 +60,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
-        "phpro/grumphp": "dev-master",
+        "phpro/grumphp": "^1.13.0",
         "phpspec/prophecy": "^1.10",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
