@@ -4,18 +4,16 @@ namespace Acquia\Cli\Command\Pull;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Helpers\LoopHelper;
+use Acquia\Cli\Helpers\IdeCommandTrait;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
-use AcquiaCloudApi\Endpoints\Notifications;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
-use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
@@ -34,6 +32,8 @@ use Symfony\Component\Filesystem\Path;
  * Class PullCommandBase.
  */
 abstract class PullCommandBase extends CommandBase {
+
+  use IdeCommandTrait;
 
   /**
    * @var Checklist
@@ -375,34 +375,17 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param string $notification_uuid
    * @param $acquia_cloud_client
+   *
    * @infection-ignore-all
    */
-  protected function waitForBackup($notification_uuid, $acquia_cloud_client): void {
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, 'Waiting for database backup to complete...', $this->output);
-    $notifications = new Notifications($acquia_cloud_client);
-
-    $callback = function () use ($loop, $spinner, $notification_uuid, $notifications) {
-      try {
-        $response = $notifications->get($notification_uuid);
-        if ($response->status === 'completed') {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->output->writeln('');
-          $this->output->writeln('<info>Database backup is ready!</info>');
-        }
-      }
-      catch (Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
+  protected function waitForBackup(string $notification_uuid, $acquia_cloud_client): void {
+    $spinnerMessage = 'Waiting for database backup to complete...';
+    $successCallback = function () {
+      $this->output->writeln('');
+      $this->output->writeln('<info>Database backup is ready!</info>');
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    $loop->run();
+    $this->waitForNotificationToComplete($acquia_cloud_client, $notification_uuid, $spinnerMessage, $successCallback);
+    Loop::run();
   }
 
   /**
@@ -861,7 +844,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
     if (!$this->environmentPhpVersionMatches($environment)) {
-      $this->io->warning("You are using PHP version {$this->getCurrentPhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
+      $this->io->warning("You are using PHP version {$this->getIdePhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
     }
   }
 
@@ -891,19 +874,8 @@ abstract class PullCommandBase extends CommandBase {
    * @return bool
    */
   protected function environmentPhpVersionMatches($environment): bool {
-    $current_php_version = $this->getCurrentPhpVersion();
+    $current_php_version = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $current_php_version;
-  }
-
-  /**
-   * Get current PHP version using IDE-specific variables when possible.
-   *
-   * Disable mutation testing because we cannot mock PHP constants.
-   * @infection-ignore-all
-   * @return string
-   */
-  private function getCurrentPhpVersion(): string {
-    return getenv('PHP_VERSION') ?: PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;
   }
 
   /**

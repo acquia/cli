@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\AliasCache;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\LoopHelper;
@@ -26,6 +27,7 @@ use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use AcquiaCloudApi\Response\NotificationResponse;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use Closure;
@@ -39,8 +41,6 @@ use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
-use React\EventLoop\Factory;
-use React\EventLoop\Loop;
 use stdClass;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Command\Command;
@@ -61,7 +61,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
-use Symfony\Contracts\Cache\ItemInterface;
 use Zumba\Amplitude\Amplitude;
 
 /**
@@ -406,10 +405,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Add argument and usage examples for applicationUuid.
    */
-  protected function acceptApplicationUuid() {
-    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias')
+  protected function acceptApplicationUuid(): static {
+    $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp')
+      ->addUsage(self::getDefaultName() . ' prod:myapp')
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
@@ -418,10 +418,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Add argument and usage examples for environmentId.
    */
-  protected function acceptEnvironmentId() {
-    $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias')
+  protected function acceptEnvironmentId(): static {
+    $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias (i.e. an application and environment name optionally prefixed with the realm)')
       ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
       ->addUsage(self::getDefaultName() . ' myapp.dev')
+      ->addUsage(self::getDefaultName() . ' prod:myapp.dev')
       ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
@@ -1066,11 +1067,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvFromAlias($alias): EnvironmentResponse {
-    $cache = self::getAliasCache();
-    $value = $cache->get($alias, function (ItemInterface $item) use ($alias) {
+    return self::getAliasCache()->get($alias, function () use ($alias) {
       return $this->doGetEnvFromAlias($alias);
     });
-    return $value;
   }
 
   /**
@@ -1080,13 +1079,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function doGetEnvFromAlias($alias): EnvironmentResponse {
+  private function doGetEnvFromAlias($alias): EnvironmentResponse {
     $site_env_parts = explode('.', $alias);
     [$application_alias, $environment_alias] = $site_env_parts;
     $this->logger->debug("Searching for an environment matching alias $application_alias.$environment_alias.");
     $customer_application = $this->getApplicationFromAlias($application_alias);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->clearQuery();
     $environments_resource = new Environments($acquia_cloud_client);
     $environments = $environments_resource->getAll($customer_application->uuid);
     foreach ($environments as $environment) {
@@ -1106,19 +1104,20 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getApplicationFromAlias($application_alias) {
-    $cache = self::getAliasCache();
-    return $cache->get($application_alias, function (ItemInterface $item) use ($application_alias) {
-      return $this->doGetApplicationFromAlias($application_alias);
-    });
+  private function getApplicationFromAlias(string $application_alias): mixed {
+    return self::getAliasCache()
+      ->get($application_alias, function () use ($application_alias) {
+        return $this->doGetApplicationFromAlias($application_alias);
+      });
   }
 
   /**
    * Return the ACLI alias cache.
-   * @return FilesystemAdapter
+   *
+   * @return AliasCache
    */
-  public static function getAliasCache() {
-    return new FilesystemAdapter('acli_aliases');
+  public static function getAliasCache(): AliasCache {
+    return new AliasCache('acli_aliases');
   }
 
   /**
@@ -1127,36 +1126,37 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return mixed
    * @throws AcquiaCliException
    */
-  protected function doGetApplicationFromAlias($application_alias) {
+  private function doGetApplicationFromAlias($application_alias): mixed {
+    if (!strpos($application_alias, ':')) {
+      $application_alias = '*:' . $application_alias;
+    }
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $acquia_cloud_client->addQuery('filter', 'hosting=@*:' . $application_alias);
-    // Allow Cloud users with 'support' role to resolve aliases for applications to
+    // No need to clear this query later since getClient() is a factory method.
+    $acquia_cloud_client->addQuery('filter', 'hosting=@' . $application_alias);
+    // Allow Cloud Platform users with 'support' role to resolve aliases for applications to
     // which they don't explicitly belong.
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
     if ($account->flags->support) {
       $acquia_cloud_client->addQuery('all', 'true');
     }
-    $customer_applications = $acquia_cloud_client->request('get', '/applications');
-    $site_prefix = '';
-    if ($customer_applications) {
-      $customer_application = $customer_applications[0];
-      $site_id = $customer_application->hosting->id;
-      $parts = explode(':', $site_id);
-      $site_prefix = $parts[1];
+    $applications_resource = new Applications($acquia_cloud_client);
+    $customer_applications = $applications_resource->getAll();
+    if (count($customer_applications) === 0) {
+      throw new AcquiaCliException("No applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
-    else {
-      throw new AcquiaCliException("No applications found");
+    if (count($customer_applications) > 1) {
+      $callback = static function ($element) {
+        return $element->hosting->id;
+      };
+      $aliases = array_map($callback, (array) $customer_applications);
+      $this->io->error(sprintf("Use a unique application alias: %s", implode(', ', $aliases)));
+      throw new AcquiaCliException("Multiple applications match the alias {applicationAlias}", ['applicationAlias' => $application_alias]);
     }
 
-    if ($site_prefix !== $application_alias) {
-      throw new AcquiaCliException("Application not found matching the alias {alias}", ['alias' => $application_alias]);
-    }
+    $customer_application = $customer_applications[0];
 
     $this->logger->debug("Found application {$customer_application->uuid} matching alias $application_alias.");
-
-    // Remove the host=@*.$drush_site query as it would persist for future requests.
-    $acquia_cloud_client->clearQuery();
 
     return $customer_application;
   }
@@ -1733,16 +1733,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     try {
       self::validateUuid($application_uuid_argument);
     }
-    catch (ValidatorException $validator_exception) {
+    catch (ValidatorException) {
       // Since this isn't a valid UUID, let's see if it's a valid alias.
       $alias = $this->normalizeAlias($application_uuid_argument);
-      try {
-        $customer_application = $this->getApplicationFromAlias($alias);
-        return $customer_application->uuid;
-      }
-      catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("The {applicationUuid} argument must be a valid UUID or application alias that is accessible to your Cloud user.");
-      }
+      return $this->getApplicationFromAlias($alias)->uuid;
     }
     return $application_uuid_argument;
   }
@@ -1792,46 +1786,44 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param string $uuid
    * @param string $message
-   *
-   * @return bool
+   * @param null $success
    */
-  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message) {
-    // $loop is statically cached by Loop::get(). To prevent it
-    // persisting into other instances we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
-    $loop = Loop::get();
-    $spinner = LoopHelper::addSpinnerToLoop($loop, $message, $this->output);
+  protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message, $success = NULL): void {
     $notifications_resource = new Notifications($acquia_cloud_client);
-
-    $callback = function () use ($loop, $spinner, $notifications_resource, $uuid) {
-      try {
-        $notification = $notifications_resource->get($uuid);
-        if ($notification->progress === 100) {
-          LoopHelper::finishSpinner($spinner);
-          $loop->stop();
-          $this->logger->debug("Notification is complete with status {$notification->status}.");
-        }
-      }
-      catch (\Exception $e) {
-        $this->logger->debug($e->getMessage());
-      }
+    $notification = NULL;
+    $checkNotificationStatus = static function () use ($notifications_resource, &$notification, $uuid) {
+      $notification = $notifications_resource->get($uuid);
+      return $notification->status !== 'in-progress';
     };
-    // Run once immediately to speed up tests.
-    $loop->addTimer(0.1, $callback);
-    $loop->addPeriodicTimer(5, $callback);
-    LoopHelper::addTimeoutToLoop($loop, 45, $spinner);
-
-    // Start the loop.
-    try {
-      $loop->run();
+    if ($success === NULL) {
+      $success = function () use (&$notification) {
+        $this->writeCompletedMessage($notification);
+      };
     }
-    catch (AcquiaCliException $exception) {
-      $this->io->error($exception->getMessage());
-      return FALSE;
-    }
+    LoopHelper::getLoopy($this->output, $this->io, $this->logger, $message, $checkNotificationStatus, $success);
+  }
 
-    return TRUE;
+  /**
+   * @param \AcquiaCloudApi\Response\NotificationResponse $notification
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  private function writeCompletedMessage(NotificationResponse $notification): void {
+    if ($notification->status === 'completed') {
+      $this->io->success("The task with notification uuid {$notification->uuid} completed");
+    }
+    else if ($notification->status === 'failed') {
+      $this->io->error("The task with notification uuid {$notification->uuid} failed");
+    }
+    else {
+      throw new AcquiaCliException("Unknown task status: {$notification->status}");
+    }
+    $duration = strtotime($notification->completed_at) - strtotime($notification->created_at);
+    $completed_at = date("D M j G:i:s T Y", strtotime($notification->completed_at));
+    $this->io->writeln("Progress: {$notification->progress}");
+    $this->io->writeln("Completed: $completed_at");
+    $this->io->writeln("Task type: {$notification->label}");
+    $this->io->writeln("Duration: $duration seconds");
   }
 
   /**

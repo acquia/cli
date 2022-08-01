@@ -7,7 +7,7 @@
     },
     "logs": {
         "stryker": {
-            "report": "master"
+            "report": "main"
         }
     },
     "mutators": {

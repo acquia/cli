@@ -50,7 +50,7 @@ class ApplicationTestBase extends TestBase {
     return $output->fetch();
   }
 
-  protected function setInput($args): void {
+  protected function setInput(array $args): void {
     $input = new ArrayInput($args);
     $input->setInteractive(FALSE);
     $this->kernel->getContainer()->set(InputInterface::class, $input);

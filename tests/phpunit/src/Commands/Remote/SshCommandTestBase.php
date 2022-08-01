@@ -17,9 +17,8 @@ abstract class SshCommandTestBase extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockForGetEnvironmentFromAliasArg(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applications_response = $this->mockApplicationsRequest(1);
     $this->mockEnvironmentsRequest($applications_response);
-    $this->clientProphecy->clearQuery()->shouldBeCalled();
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockAccountRequest();
   }

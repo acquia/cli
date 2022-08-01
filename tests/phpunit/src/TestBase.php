@@ -27,8 +27,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
-use React\EventLoop\Factory;
-use React\EventLoop\Loop;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Cache\CacheItem;
@@ -183,6 +181,29 @@ abstract class TestBase extends TestCase {
   protected $passphraseFilepath;
 
   /**
+   * Filter an applications response in order to simulate query filters.
+   *
+   * The CXAPI spec returns two sample applications with identical hosting ids.
+   * While hosting ids are not guaranteed to be unique, in practice they are
+   * unique. This renames one of the applications to be unique.
+   *
+   * @param object $applications_response
+   * @param int $count
+   *
+   * @return object
+   *@see CXAPI-9647
+   *
+   */
+  public function filterApplicationsResponse(object $applications_response, int $count, bool $unique): object {
+    if ($unique) {
+      $applications_response->{'_embedded'}->items[1]->hosting->id = 'devcloud:devcloud3';
+    }
+    $applications_response->total = $count;
+    $applications_response->{'_embedded'}->items = array_slice($applications_response->{'_embedded'}->items, 0, $count);
+    return $applications_response;
+  }
+
+  /**
    * This method is called before each test.
    *
    * @param null $output
@@ -258,14 +279,6 @@ abstract class TestBase extends TestCase {
     );
 
     return $path;
-  }
-
-  protected function tearDown(): void {
-    parent::tearDown();
-    // $loop is statically cached by Loop::get() in some tests. To prevent it
-    // persisting into other tests we must use Factory::create() to reset it.
-    // @phpstan-ignore-next-line
-    Loop::set(Factory::create());
   }
 
   public static function setEnvVars(array $env_vars): void {
@@ -501,13 +514,17 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * @param int $count
+   *   The number of applications to return. Use this to simulate query filters.
+   *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function mockApplicationsRequest() {
+  public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
+    $applications_response = $this->filterApplicationsResponse($applications_response, $count, $unique);
     $this->clientProphecy->request('get', '/applications')
       ->willReturn($applications_response->{'_embedded'}->items)
       ->shouldBeCalled();
