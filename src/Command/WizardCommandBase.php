@@ -21,6 +21,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    *
    * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
+   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
     if ($this->commandRequiresAuthentication($input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
@@ -54,7 +55,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    *
    * @return bool|int
    */
-  protected function savePassPhraseToFile(string $passphrase) {
+  protected function savePassPhraseToFile(string $passphrase): bool|int {
     return file_put_contents($this->passphraseFilepath, $passphrase);
   }
 

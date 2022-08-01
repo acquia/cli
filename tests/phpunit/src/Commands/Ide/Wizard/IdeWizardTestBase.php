@@ -10,4 +10,5 @@ use Acquia\Cli\Tests\Commands\WizardTestBase;
  */
 abstract class IdeWizardTestBase extends WizardTestBase {
   use IdeRequiredTestTrait;
+
 }

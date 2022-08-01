@@ -139,7 +139,7 @@
             "php build/box.phar compile"
         ],
         "infection-install": [
-            "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
+            "curl -f -L https://github.com/infection/infection/releases/download/0.26.13/infection.phar -o build/infection.phar"
         ],
         "infection": [
             "php -d pcov.enabled=1 build/infection.phar --threads=8"

@@ -101,7 +101,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    * @param string $key
    *
    */
-  protected function writeAcsfCredentialsToDisk($factory_url, string $username, string $key): void {
+  private function writeAcsfCredentialsToDisk($factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
       'username' => $username,
@@ -120,7 +120,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    *
    * @return mixed|null
    */
-  protected function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE) {
+  private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE) {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);
       $this->io->note([
