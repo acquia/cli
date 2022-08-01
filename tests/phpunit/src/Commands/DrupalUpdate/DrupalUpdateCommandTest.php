@@ -74,7 +74,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    * @throws \ReflectionException
    * @requires OS linux|darwin
    */
-  public function testDetermineAvailablePackageReleases() {
+  public function testFetchAvailablePackageReleases() {
 
     $input = $this->getMockBuilder(InputInterface::class)->getMock();
     $output = $this->getMockBuilder(OutputInterface::class)->getMock();

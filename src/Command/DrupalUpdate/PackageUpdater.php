@@ -65,11 +65,11 @@ class PackageUpdater {
    * @throws AcquiaCliException
    */
   public function updatePackageCodeBase(array $latest_security_updates): void {
-    foreach ($latest_security_updates as $k => $value) {
-      if (!isset($value['download_link'])) {
-        continue;
+    foreach ($latest_security_updates as $value) {
+      if (isset($value['download_link'])) {
+        $this->updatePackageCode($value);
       }
-      $this->updatePackageCode($value);
+
     }
   }
 
@@ -79,13 +79,10 @@ class PackageUpdater {
    */
   protected function updatePackageCode(array $value): void {
     $value = $this->fileSystemUtility->getDrupalTempFolderPath($value);
-    if (is_array($value['file_path'])) {
-      foreach ($value['file_path'] as $item) {
-        $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $item);
+    if (isset($value['file_path']) && is_array($value['file_path'])) {
+      foreach ($value['file_path'] as $filepath) {
+        $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $filepath);
       }
-    }
-    else {
-      $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $value['file_path']);
     }
   }
 

@@ -45,7 +45,7 @@ class DrupalOrgClient {
     else {
       $project = str_replace(['drupal/', 'acquia/'], '', $project);
     }
-    $release_detail = $this->determineAvailablePackageReleases($project);
+    $release_detail = $this->fetchAvailablePackageReleases($project);
 
     if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
       $available_package_updates[$project]['current_version'] = $current_version;
@@ -70,9 +70,9 @@ class DrupalOrgClient {
    * @return mixed
    * @throws AcquiaCliException|GuzzleException
    */
-  protected function determineAvailablePackageReleases(string $project): mixed {
+  protected function fetchAvailablePackageReleases(string $project): mixed {
     try {
-      $response = $this->fileSystemUtility->getFileContentsGuzzleClient("https://updates.drupal.org/release-history/$project/7.x/current", "GET");
+      $response = $this->fileSystemUtility->getFileContents("https://updates.drupal.org/release-history/$project/7.x/current", "GET");
       if (is_array($response) && isset($response[0]) && str_contains($response[0], "No release history was found for the requested project")) {
         throw new AcquiaCliException("No release history was found for the requested project- '{$project}'.");
       }

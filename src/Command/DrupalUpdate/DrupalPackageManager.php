@@ -124,7 +124,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @return mixed
    */
-  protected function determineCorePackageVersion(string $drupal_project_cwd_path): mixed {
+  protected function fetchCorePackageVersion(string $drupal_project_cwd_path): mixed {
     $drupal_boostrap_inc_path = $drupal_project_cwd_path . '/docroot/includes/bootstrap.inc';
     if (file_exists($drupal_boostrap_inc_path)) {
       $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
@@ -143,14 +143,8 @@ class DrupalPackageManager {
    */
   public function checkPackageInfoFileDetail(array $info_packages_file_path, string $drupal_project_cwd_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
-      if ( str_contains($package_path, "," ) ) {
-        $package_path = explode(",", $package_path);
-        foreach ($package_path as $path) {
-          $this->checkFileInfo($path, $drupal_project_cwd_path);
-        }
-      }
-      else {
-        $this->checkFileInfo($package_path, $drupal_project_cwd_path);
+      foreach ($package_path as $path) {
+        $this->checkFileInfo($path, $drupal_project_cwd_path);
       }
     }
   }
@@ -172,29 +166,30 @@ class DrupalPackageManager {
     ];
     $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
     if (is_bool($info_extension_file) && !$info_extension_file) {
-      $info_extension_file = $this->fileSystemUtility->readInfoFile($filepath);
+      $info_extension_file = $this->fileSystemUtility->readInfoFile($filepath, $package_info_key);
     }
     $current_version = '';
     $package_type = '';
     $package_alternative_name = '';
     foreach ($info_extension_file as $row => $data) {
-
       if (in_array(trim($row), $package_info_key)) {
         $project_value = str_replace(['\'', '"'], '', $data);
-        if ( trim($row) == "project" ) {
-          $package_type = trim($project_value);
-        }
-        if ( trim($row) == "version" ) {
-          $current_version = trim($project_value);
-        }
-        if ( trim($row) == "package" ) {
-          $package_alternative_name = strtolower(trim($project_value));
+        switch (trim($row)) {
+          case "project" :
+            $package_type = trim($project_value);
+            break;
+          case  "version" :
+            $current_version = trim($project_value);
+            break;
+          case "package" :
+            $package_alternative_name = strtolower(trim($project_value));
+            break;
         }
       }
     }
 
     if ($current_version == 'VERSION') {
-      $current_version = $this->determineCorePackageVersion($drupal_project_cwd_path);
+      $current_version = $this->fetchCorePackageVersion($drupal_project_cwd_path);
     }
     if ($package_type == '') {
       $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
@@ -270,56 +265,8 @@ class DrupalPackageManager {
    */
   public function getAvailablePackageUpdates(string $drupal_project_cwd_path): array {
     $version_detail = $this->getPackageData();
-    $package_info_files = $this->infoPackageFilesPath;
     $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
-    $package_detail = [];
-    $available_package_detail[] = [
-       'Package Name',
-       'Package Type',
-       'Current Version',
-       'Latest Version',
-       'Update Type',
-       'Download Link',
-       'File Path',
-    ];
-    foreach ($version_detail as $package => $versions) {
-      if (!isset($versions['available_versions'])) {
-        continue;
-      }
-      $package_detail['package'] = $package;
-      $package_detail['package_type'] = $versions['package_type'];
-      $package_detail['current_version'] = $versions['current_version'] ?? '';
-      $package_detail['latest_version'] = $versions['available_versions']['version'] ?? '';
-      $package_detail['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
-      $package_detail['download_link'] = $versions['available_versions']['download_link'] ?? '';
-      if (isset($package_info_files[$package . '.info']) && str_contains($package_info_files[$package . '.info'], ",")) {
-        $package_info_files[$package . '.info'] = explode(',', $package_info_files[$package . '.info']);
-      }
-
-      if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
-        $file_paths=[];
-        foreach ($package_info_files[$package . '.info'] as $p => $path_location) {
-          $file_path_temp = isset($path_location) ? (str_replace($package . '/' . $package . '.info', '', $path_location)) : '';
-          if (($file_path_temp == '') && ($versions['package_type'] == 'module')) {
-            $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
-          }
-          else {
-            $file_paths[] = ($file_path_temp != '') ? realpath($file_path_temp) : $drupal_docroot_path;
-          }
-        }
-        $package_detail['file_path'] = $file_paths;
-      }
-      else {
-        $file_path = isset($package_info_files[$package . '.info']) ? (str_replace($package . '/' . $package . '.info', '', $package_info_files[$package . '.info'])) : '';
-        $package_detail['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path;
-        if (($file_path == '') && ($versions['package_type'] == 'module')) {
-          $package_detail['file_path'] = ($file_path != '') ? realpath($file_path) : $drupal_docroot_path . "/sites/all/modules";
-        }
-      }
-
-      $available_package_detail[] = $package_detail;
-    }
-    return $available_package_detail;
+    return $this->prepareAvailablePackageUpdate($version_detail, $this->infoPackageFilesPath, $drupal_docroot_path);
   }
 
   /**
@@ -332,7 +279,7 @@ class DrupalPackageManager {
     if (isset($package_release_detail[0]['value'])) {
       return $package_release_detail[0]['value'];
     }
-    elseif (isset($package_release_detail['value'])) {
+    if (isset($package_release_detail['value'])) {
       return $package_release_detail['value'];
     }
     return "";
@@ -345,6 +292,69 @@ class DrupalPackageManager {
     $this->io->note('Preparing packages.');
     $this->packageUpdater->initializePackageUpdate($this->detailPackageData);
     $this->printPackageDetail($this->detailPackageData);
+  }
+
+  /**
+   * @param array $available_package_detail
+   * @param array $version_detail
+   * @param array $package_info_files
+   * @param string $drupal_docroot_path
+   *
+   * @return array
+   */
+  protected function prepareAvailablePackageUpdate(array $version_detail, array $package_info_files, string $drupal_docroot_path): array {
+    $package_detail = [];
+    $available_package_detail[] = [
+      'Package Name',
+      'Package Type',
+      'Current Version',
+      'Latest Version',
+      'Update Type',
+      'Download Link',
+      'File Path',
+    ];
+    foreach ($version_detail as $package => $versions) {
+      if (!isset($versions['available_versions'])) {
+        continue;
+      }
+      $package_detail['package'] = $package;
+      $package_detail['package_type'] = $versions['package_type'];
+      $package_detail['current_version'] = $versions['current_version'] ?? '';
+      $package_detail['latest_version'] = $versions['available_versions']['version'] ?? '';
+      $package_detail['update_notes'] = isset($versions['available_versions']['terms']) ? $this->getUpdateType($versions['available_versions']['terms']['term']) : '';
+      $package_detail['download_link'] = $versions['available_versions']['download_link'] ?? '';
+      $available_package_detail[] = $this->preparePackageFilePaths($package_info_files, $package, $versions, $drupal_docroot_path, $package_detail);
+    }
+    return $available_package_detail;
+  }
+
+  /**
+   * @param array $package_info_files
+   * @param int|string $package
+   * @param $versions
+   * @param string $drupal_docroot_path
+   * @param array $package_detail
+   *
+   * @return array
+   */
+  protected function preparePackageFilePaths(array $package_info_files, int|string $package, $versions, string $drupal_docroot_path, array $package_detail): array {
+    if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
+      $file_paths = [];
+      foreach ($package_info_files[$package . '.info'] as $path_location) {
+        $file_path_temp = isset($path_location) ? (str_replace($package . '/' . $package . '.info', '', $path_location)) : '';
+        if (($file_path_temp == '') && ($versions == 'module')) {
+          $file_paths[] = $drupal_docroot_path . "/sites/all/modules";
+        }
+        else {
+          $file_paths[] = ($file_path_temp != '') ? realpath($file_path_temp) : $drupal_docroot_path;
+        }
+      }
+      $package_detail['file_path'] = $file_paths;
+    }
+    if (!isset($package_detail['file_path'])) {
+      $package_detail['file_path'] = [$drupal_docroot_path];
+    }
+    return $package_detail;
   }
 
 }

@@ -69,7 +69,7 @@ class FileSystemUtility {
     }
 
     try {
-      if ($this->downloadFileGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
+      if ($this->downloadFile($file_url, $save_to . '/' . $package . '.tar.gz')) {
         $this->extractPackage($save_to, $package);
       }
     }
@@ -86,14 +86,13 @@ class FileSystemUtility {
    * @throws AcquiaCliException
    */
   protected function downloadRemoteFileDrupalCore(string $package, string $file_url, string $save_to): void {
-
     try {
       $folder_name = $this->dumpPackageTarFile($file_url, $save_to, $package);
       $this->extractPackage($save_to, $package);
       $this->fileSystem->rename($save_to . '/' . $folder_name, $save_to . '/drupal');
     }
     catch (Exception $e) {
-      throw new AcquiaCliException("Unable to download {$package} file.");
+      throw new AcquiaCliException("Unable to download {$package} file." . $e->getMessage());
     }
     if ($package == 'drupal') {
       $this->io->note("Starting Drupal core update");
@@ -170,12 +169,11 @@ class FileSystemUtility {
    */
   protected function dumpPackageTarFile(string $file_url, string $save_to, string $package): false|string|array {
     try {
-      if ($this->downloadFileGuzzleClient($file_url, $save_to . '/' . $package . '.tar.gz')) {
+      if ($this->downloadFile($file_url, $save_to . '/' . $package . '.tar.gz')) {
         return str_replace('.tar.gz', '', basename($file_url));
       }
     }
     catch (Exception $e) {
-      // @todo handle errors
       throw new AcquiaCliException("Unable to download {$package} file.");
     }
     return FALSE;
@@ -188,7 +186,7 @@ class FileSystemUtility {
    * @throws AcquiaCliException
    * @throws GuzzleException
    */
-  public function getFileContentsGuzzleClient(string $file_url, string $method = 'GET'): mixed {
+  public function getFileContents(string $file_url, string $method = 'GET'): mixed {
     try {
       $client = $this->getClient();
       $response = $client->request($method, $file_url);
@@ -212,7 +210,7 @@ class FileSystemUtility {
    * @return bool
    * @throws AcquiaCliException
    */
-  public function downloadFileGuzzleClient(string $file_url, string $save_file_path): bool {
+  public function downloadFile(string $file_url, string $save_file_path): bool {
     $client = $this->getClient();
     try {
       $response = $client->request('GET', $file_url, ['sink' => $save_file_path]);
@@ -252,13 +250,7 @@ class FileSystemUtility {
     foreach ($finder as $file) {
       $package_dir_path = $file->getRealPath();
       $package_dir = basename($package_dir_path);
-      if (isset($info_package_files[$package_dir])) {
-        $directory_temp_path = $info_package_files[$package_dir] . "," . $package_dir_path;
-        $info_package_files[$package_dir] = $directory_temp_path;
-      }
-      else {
-        $info_package_files[$package_dir] = $package_dir_path;
-      }
+      $info_package_files[$package_dir][] = $package_dir_path;
     }
     return $info_package_files;
   }
@@ -271,12 +263,12 @@ class FileSystemUtility {
   public function getDrupalTempFolderPath(array $value): array {
     if ($value['package'] == 'drupal') {
       $dirname = 'temp_drupal_core';
-      $filename = $value['file_path'] . "/" . $dirname . "";
+      $filename = $value['file_path'][0] . "/" . $dirname . "";
       if (!$this->fileSystem->exists($filename)) {
         $old = umask(0);
-        $this->fileSystem->mkdir($value['file_path'] . "/" . $dirname, 0777);
+        $this->fileSystem->mkdir($value['file_path'][0] . "/" . $dirname, 0777);
         umask($old);
-        $value['file_path'] = $value['file_path'] . "/" . $dirname;
+        $value['file_path'][0] = $value['file_path'][0] . "/" . $dirname;
       }
       else {
         $this->io->note("The directory $dirname already exists.");
@@ -300,16 +292,11 @@ class FileSystemUtility {
 
   /**
    * @param $file_path
+   * @param $package_info_key
+   *
+   * @return array
    */
-  public function readInfoFile($file_path) {
-    $package_info_key = [
-      'name',
-      'description',
-      'package',
-      'version',
-      'core',
-      'project',
-    ];
+  public function readInfoFile(string $file_path, array $package_info_key): array {
     $info_extension_file    = file_get_contents($file_path);
     $info_file_detail = explode("\n", $info_extension_file);
     $file_detail = [];
