@@ -1,11 +1,9 @@
 name: CI
 on:
   push:
-    # Checks should run on pull_request or push but not both at once to prevent
-    # race conditions with our automerge workflow.
-    branches:
-      - 'master'
-      - '1.x'
+    # Prevent duplicate jobs on Dependabot PRs that interfere with automerge.
+    branches-ignore:
+      - 'dependabot/**'
   pull_request:
   schedule:
     - cron: "0 2 * * *"
