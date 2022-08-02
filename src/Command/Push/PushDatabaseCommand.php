@@ -72,7 +72,7 @@ class PushDatabaseCommand extends PullCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function uploadDatabaseDump(
+  private function uploadDatabaseDump(
     $environment,
     $database,
     string $local_filepath,
@@ -105,7 +105,7 @@ class PushDatabaseCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function importDatabaseDumpOnRemote($environment, $remote_dump_filepath, $database): void {
+  private function importDatabaseDumpOnRemote($environment, $remote_dump_filepath, $database): void {
     $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
     $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
     $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
@@ -119,7 +119,7 @@ class PushDatabaseCommand extends PullCommandBase {
    *
    * @return string
    */
-  protected function getNameFromDatabaseResponse($database): string {
+  private function getNameFromDatabaseResponse($database): string {
     $db_url_parts = explode('/', $database->url);
     $db_name = end($db_url_parts);
 

@@ -202,7 +202,7 @@ EOT
     $loop->run();
   }
 
-  protected function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
+  private function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
     $mappings = [];
     $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
     foreach ($needed_perms as $index => $perm) {
@@ -254,7 +254,7 @@ EOT
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function doCreateSshKey($filename, $password): string {
+  private function doCreateSshKey($filename, $password): string {
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
       throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filename]);
@@ -308,7 +308,7 @@ EOT
    *
    * @return mixed
    */
-  protected function validateFilename($filename) {
+  private function validateFilename($filename) {
     $violations = Validation::createValidator()->validate($filename, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -352,7 +352,7 @@ EOT
    *
    * @return string
    */
-  protected function validatePassword($password) {
+  private function validatePassword($password) {
     $violations = Validation::createValidator()->validate($password, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -370,7 +370,7 @@ EOT
    *
    * @return bool
    */
-  protected function keyHasUploaded($acquia_cloud_client, $public_key): bool {
+  private function keyHasUploaded($acquia_cloud_client, $public_key): bool {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     foreach ($cloud_keys as $cloud_key) {
       if (trim($cloud_key->public_key) === trim($public_key)) {
@@ -420,7 +420,7 @@ EOT
    *
    * @return string
    */
-  protected function promptChooseLocalSshKey($local_keys): string {
+  private function promptChooseLocalSshKey($local_keys): string {
     $labels = [];
     foreach ($local_keys as $local_key) {
       $labels[] = $local_key->getFilename();
@@ -459,7 +459,7 @@ EOT
    *
    * @return mixed
    */
-  protected function validateSshKeyLabel($label) {
+  private function validateSshKeyLabel($label) {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
     }
@@ -474,7 +474,7 @@ EOT
    * @return string
    * @throws \Exception
    */
-  protected function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
+  private function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
     $filepath = '';
     foreach ($local_keys as $local_key) {
       if ($local_key->getFilename() === $chosen_local_key) {

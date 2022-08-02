@@ -20,7 +20,10 @@
 
   <rule ref="AcquiaPHP" />
 
+  <rule ref="Drupal.Classes.ClassDeclaration" />
   <rule ref="Drupal.Classes.UnusedUseStatement" />
   <rule ref="Drupal.ControlStructures.ControlSignature" />
+  <rule ref="Drupal.Functions.FunctionDeclaration" />
+  <rule ref="PSR12.Functions.ReturnTypeDeclaration" />
 
 </ruleset>

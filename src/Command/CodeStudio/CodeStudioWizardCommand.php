@@ -141,7 +141,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    *
    * @return array|null
    */
-  protected function getGitLabScheduleByDescription(array $project, string $scheduled_pipeline_description): ?array {
+  private function getGitLabScheduleByDescription(array $project, string $scheduled_pipeline_description): ?array {
     $existing_schedules = $this->gitLabClient->schedules()->showAll($project['id']);
     foreach ($existing_schedules as $schedule) {
       if ($schedule['description'] == $scheduled_pipeline_description) {
@@ -157,7 +157,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    *
    * @return array|null ?
    */
-  protected function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
+  private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
     $existing_project_access_tokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
     foreach ($existing_project_access_tokens as $key => $token) {
       if ($token['name'] == $name) {
@@ -173,7 +173,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    *
    * @return string
    */
-  protected function createProjectAccessToken(array $project, string $project_access_token_name): string {
+  private function createProjectAccessToken(array $project, string $project_access_token_name): string {
     $this->io->writeln("Creating project access token...");
 
     if ($existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
@@ -200,7 +200,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @param string $project_access_token_name
    * @param string $project_access_token
    */
-  protected function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
+  private function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
     $gitlab_cicd_variables = CodeStudioCiCdVariables::getDefaults($cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()
@@ -228,7 +228,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   /**
    * @param array $project
    */
-  protected function createScheduledPipeline(array $project): void {
+  private function createScheduledPipeline(array $project): void {
     $this->io->writeln("Creating scheduled pipeline");
     $scheduled_pipeline_description = "Code Studio Automatic Updates";
 
@@ -258,7 +258,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   /**
    * @param array $project
    */
-  protected function updateGitLabProject(array $project): void {
+  private function updateGitLabProject(array $project): void {
     // Setting the description to match the known pattern will allow us to automatically find the project next time.
     if ($project['description'] != $this->gitLabProjectDescription) {
       $this->gitLabClient->projects()->update($project['id'], $this->getGitLabProjectDefaults());

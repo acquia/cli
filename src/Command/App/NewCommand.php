@@ -82,7 +82,7 @@ class NewCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function createProject($project, string $dir): void {
+  private function createProject($project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',
@@ -100,7 +100,7 @@ class NewCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function initializeGitRepository(string $dir): void {
+  private function initializeGitRepository(string $dir): void {
     if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');
       return;

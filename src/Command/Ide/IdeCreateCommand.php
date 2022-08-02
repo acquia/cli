@@ -91,7 +91,7 @@ class IdeCreateCommand extends IdeCommandBase {
    *
    * @return string
    */
-  protected function validateIdeLabel(string $label): string {
+  private function validateIdeLabel(string $label): string {
     $violations = Validation::createValidator()->validate($label, [
       new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Please use only letters, numbers, and spaces']),
     ]);
@@ -131,7 +131,7 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * Writes the IDE links to screen.
    */
-  public function writeIdeLinksToScreen(): void {
+  private function writeIdeLinksToScreen(): void {
     $this->output->writeln('');
     $this->output->writeln("<comment>Your IDE URL:</comment> <href={$this->ide->links->ide->href}>{$this->ide->links->ide->href}</>");
     $this->output->writeln("<comment>Your Drupal Site URL:</comment> <href={$this->ide->links->web->href}>{$this->ide->links->web->href}</>");
@@ -141,7 +141,7 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @return \GuzzleHttp\Client|null
    */
-  public function getClient(): ?Client {
+  private function getClient(): ?Client {
     return $this->client;
   }
 
@@ -158,7 +158,7 @@ class IdeCreateCommand extends IdeCommandBase {
    *
    * @return \AcquiaCloudApi\Response\IdeResponse
    */
-  protected function getIdeFromResponse(
+  private function getIdeFromResponse(
     OperationResponse $response,
     \AcquiaCloudApi\Connector\Client $acquia_cloud_client
   ): IdeResponse {

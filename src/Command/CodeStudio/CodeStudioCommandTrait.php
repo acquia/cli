@@ -44,7 +44,7 @@ trait CodeStudioCommandTrait {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getGitLabToken(string $gitlab_host): string {
+  private function getGitLabToken(string $gitlab_host): string {
     if ($this->input->getOption('gitlab-token')) {
       return $this->input->getOption('gitlab-token');
     }
@@ -77,7 +77,7 @@ trait CodeStudioCommandTrait {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getGitLabHost(): string {
+  private function getGitLabHost(): string {
     // If hostname is available as argument, use that.
     if ($this->input->hasOption('gitlab-host-name')
      && $this->input->getOption('gitlab-host-name')) {
@@ -106,7 +106,7 @@ trait CodeStudioCommandTrait {
   /**
    * @return \Gitlab\Client
    */
-  protected function getGitLabClient(): Client {
+  private function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
       $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
       $gitlab_client->setUrl('https://' . $this->gitLabHost);
@@ -126,7 +126,7 @@ trait CodeStudioCommandTrait {
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
    */
-  protected function writeApiTokenMessage(InputInterface $input): void {
+  private function writeApiTokenMessage(InputInterface $input): void {
     // Get Cloud access tokens.
     if (!$input->getOption('key') || !$input->getOption('secret')) {
       $token_url = 'https://cloud.acquia.com/a/profile/tokens';
@@ -158,7 +158,7 @@ trait CodeStudioCommandTrait {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function authenticateWithGitLab(): void {
+  private function authenticateWithGitLab(): void {
     $this->validateEnvironment();
     $this->gitLabHost = $this->getGitLabHost();
     $this->gitLabToken = $this->getGitLabToken($this->gitLabHost);
@@ -183,7 +183,7 @@ trait CodeStudioCommandTrait {
    *
    * @return array
    */
-  protected function determineGitLabProject(ApplicationResponse $cloud_application): array {
+  private function determineGitLabProject(ApplicationResponse $cloud_application): array {
     // Use command option.
     if ($this->input->getOption('gitlab-project-id')) {
       $id = $this->input->getOption('gitlab-project-id');
@@ -234,7 +234,7 @@ trait CodeStudioCommandTrait {
    *
    * @return array
    */
-  protected function createGitLabProject(ApplicationResponse $cloud_application): array {
+  private function createGitLabProject(ApplicationResponse $cloud_application): array {
     $user_groups = $this->gitLabClient->groups()->all([
       'all_available' => TRUE,
       'min_access_level' => 40,
@@ -258,14 +258,14 @@ trait CodeStudioCommandTrait {
   /**
    *
    */
-  protected function setGitLabProjectDescription($cloud_application_uuid): void {
+  private function setGitLabProjectDescription($cloud_application_uuid): void {
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
   }
 
   /**
    * @return array
    */
-  protected function getGitLabProjectDefaults(): array {
+  private function getGitLabProjectDefaults(): array {
     return [
       'description' => $this->gitLabProjectDescription,
       'topics' => 'Acquia Cloud Application',

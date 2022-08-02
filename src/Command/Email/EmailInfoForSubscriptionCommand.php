@@ -81,7 +81,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return void
    * @throws \League\Csv\CannotInsertRecord
    */
-  protected function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list) {
+  private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list) {
 
     // initialize tables to be displayed in console
     $all_domains_table = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
@@ -176,7 +176,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return void
    */
-  protected function renderDomainInfoTables(array $tables) {
+  private function renderDomainInfoTables(array $tables) {
     foreach ($tables as $table) {
       $table->render();
       $this->io->newLine();
@@ -192,7 +192,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return array|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription) {
+  private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -227,7 +227,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return void
    * @throws \League\Csv\CannotInsertRecord
    */
-  protected function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications) {
+  private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications) {
     $apps_domains_table = $this->createApplicationDomainsTable($output, 'Domain Association Status');
     $writer_apps_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/apps-domain-associations.csv", 'w+');
 
@@ -272,7 +272,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return \Symfony\Component\Console\Helper\Table
    */
-  protected function createTotalDomainTable(OutputInterface $output, string $title): Table {
+  private function createTotalDomainTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Domain UUID', 'Verification Status'];
     $widths = [.2, .2, .1];
     return $this->createTable($output, $title, $headers, $widths);
@@ -286,7 +286,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return \Symfony\Component\Console\Helper\Table
    */
-  protected function createDomainStatusTable(OutputInterface $output, string $title): Table {
+  private function createDomainStatusTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Summary'];
     $widths = [.2, .2];
     return $this->createTable($output, $title, $headers, $widths);
@@ -301,7 +301,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return \Symfony\Component\Console\Helper\Table
    */
-  protected function createApplicationDomainsTable(OutputInterface $output, string $title): Table {
+  private function createApplicationDomainsTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Associated?'];
     $widths = [.2, .1];
     return $this->createTable($output, $title, $headers, $widths);
@@ -315,7 +315,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @return string
    */
-  protected function showHumanReadableStatus(string $code): string {
+  private function showHumanReadableStatus(string $code): string {
     switch ($code) {
       case '200':
           return "Succeeded";
