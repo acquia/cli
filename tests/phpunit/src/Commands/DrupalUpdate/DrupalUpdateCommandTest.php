@@ -23,7 +23,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    */
   public function testDrupal7FailedUpdateCommand() {
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('No Package Info files found.');
+    $this->expectExceptionMessage('Not valid Drupal 7 project.');
     // Set properties and execute.
     $this->command->setRepoRoot($this->fixtureDir . '/drupal7-invalid-project');
     $this->executeCommand();
@@ -35,7 +35,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
    */
   public function testDrupal7ProjectNotFound() {
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('No Package Info files found.');
+    $this->expectExceptionMessage('Not valid Drupal 7 project.');
     $this->executeCommand();
   }
 
