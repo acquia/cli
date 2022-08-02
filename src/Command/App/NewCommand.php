@@ -7,7 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
@@ -23,7 +22,6 @@ class NewCommand extends CommandBase {
    */
   protected function configure(): void {
     $this->setDescription('Create a new Drupal or Next.js project')
-      ->addOption('distribution', NULL, InputOption::VALUE_REQUIRED, 'The Composer package name of the Drupal distribution to download')
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
       ->setAliases(['new']);
   }
