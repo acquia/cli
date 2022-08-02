@@ -61,7 +61,7 @@ class NewCommandTest extends CommandTestBase {
 
     $local_machine_helper = $this->mockLocalMachineHelper();
 
-    $this->mockGetFilesystem($local_machine_helper);
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
     $local_machine_helper->checkRequiredBinariesExist(["composer"])->shouldBeCalled();
     $this->mockExecuteComposerCreate($this->newProjectDir, $local_machine_helper, $process, $project);
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
@@ -79,10 +79,11 @@ class NewCommandTest extends CommandTestBase {
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
+    $this->assertStringContainsString('Acquia recommends most customers use acquia/drupal-recommended-project to setup a Drupal project', $output);
     $this->assertStringContainsString('Choose a starting project', $output);
     $this->assertStringContainsString($project, $output);
+    $this->assertTrue($mock_file_system->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
     $this->assertStringContainsString('New 💧 Drupal project created in ' . $this->newProjectDir, $output);
-
   }
 
   /**
@@ -106,7 +107,7 @@ class NewCommandTest extends CommandTestBase {
 
     $local_machine_helper = $this->mockLocalMachineHelper();
 
-    $this->mockGetFilesystem($local_machine_helper);
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
     $local_machine_helper->checkRequiredBinariesExist(["node"])->shouldBeCalled();
     $this->mockExecuteNpxCreate($this->newProjectDir, $local_machine_helper, $process);
@@ -125,8 +126,10 @@ class NewCommandTest extends CommandTestBase {
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
+    $this->assertStringContainsString('acquia/next-acms is a starter template for building a headless site', $output);
     $this->assertStringContainsString('Choose a starting project', $output);
     $this->assertStringContainsString($project, $output);
+    $this->assertTrue($mock_file_system->isAbsolutePath($this->newProjectDir), 'Directory path is not absolute');
     $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
   }
 
