@@ -23,7 +23,7 @@ class ApplicationTestBase extends TestBase {
    */
   protected Kernel $kernel;
 
-  public function setUp($output = NULL):void {
+  public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->kernel = new Kernel('dev', 0);
     $this->kernel->boot();

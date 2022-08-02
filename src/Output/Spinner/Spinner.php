@@ -169,7 +169,7 @@ class Spinner {
   /**
    *
    */
-  protected function getSpinnerCharacter(): ?string {
+  private function getSpinnerCharacter(): ?string {
     if ($this->currentColorIdx === $this->colorCount) {
       $this->currentColorIdx = 0;
     }

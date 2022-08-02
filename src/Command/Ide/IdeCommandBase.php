@@ -116,7 +116,7 @@ abstract class IdeCommandBase extends CommandBase {
    *
    * @return string
    */
-  public function getXdebugIniFilePath(): string {
+  protected function getXdebugIniFilePath(): string {
     if (!isset($this->xdebugIniFilepath)) {
       $this->xdebugIniFilepath = self::DEFAULT_XDEBUG_INI_FILEPATH;
     }

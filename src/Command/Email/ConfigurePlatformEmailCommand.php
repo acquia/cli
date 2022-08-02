@@ -116,7 +116,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @param array $records
    *
    */
-  protected function generateZoneFile($base_domain, $records) {
+  private function generateZoneFile($base_domain, $records) {
 
     $zone = new Zone($base_domain . '.');
 
@@ -151,7 +151,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return array
    */
-  protected function determineApplications(Client $client, SubscriptionResponse $subscription) {
+  private function determineApplications(Client $client, SubscriptionResponse $subscription) {
     $applications_resource = new Applications($client);
     $applications = $applications_resource->getAll();
     $subscription_applications = [];
@@ -183,7 +183,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return bool
    */
-  protected function domainAlreadyAssociated($application, $exception) {
+  private function domainAlreadyAssociated($application, $exception) {
     if (strpos($exception, 'is already associated with this application') === FALSE) {
       $this->io->error($exception->getMessage());
       return FALSE;
@@ -204,7 +204,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return bool
    */
-  protected function environmentAlreadyEnabled($environment, $exception) {
+  private function environmentAlreadyEnabled($environment, $exception) {
     if (strpos($exception, 'is already enabled on this environment') === FALSE) {
       $this->io->error($exception->getMessage());
       return FALSE;
@@ -227,7 +227,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
+  private function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid) {
     $applications = $this->determineApplications($client, $subscription);
 
     $environments_resource = new Environments($client);
@@ -299,7 +299,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function fetchDomainUuid(Client $client, $subscription, $base_domain) {
+  private function fetchDomainUuid(Client $client, $subscription, $base_domain) {
     $domains_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
     foreach ($domains_response as $domain) {
       if ($domain->domain_name === $base_domain) {
@@ -321,7 +321,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function createDnsText(Client $client, $subscription, $base_domain, $domain_uuid, $file_format): void {
+  private function createDnsText(Client $client, $subscription, $base_domain, $domain_uuid, $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     if (!isset($domain_registration_response->dns_records)) {
       throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
@@ -363,7 +363,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return bool
    */
-  protected function checkIfDomainVerified(
+  private function checkIfDomainVerified(
     SubscriptionResponse $subscription,
     string $domain_uuid,
     OutputInterface $output
@@ -402,7 +402,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    *
    * @return string
    */
-  protected function determineDomain() {
+  private function determineDomain() {
     $domain = $this->io->ask("What's the domain name you'd like to register?", '', \Closure::fromCallable([
       $this,
       'validateUrl'

@@ -75,7 +75,7 @@ class IdeShareCommand extends CommandBase {
   /**
    * @return array
    */
-  public function getShareCodeFilepaths(): array {
+  private function getShareCodeFilepaths(): array {
     if (!isset($this->shareCodeFilepaths)) {
       $this->shareCodeFilepaths = [
         '/usr/local/share/ide/.sharecode',
@@ -88,7 +88,7 @@ class IdeShareCommand extends CommandBase {
   /**
    * @throws \Exception
    */
-  public function regenerateShareCode(): void {
+  private function regenerateShareCode(): void {
     $new_share_code = Uuid::uuid4();
     foreach ($this->getShareCodeFilepaths() as $path) {
       $this->localMachineHelper->writeFile($path, $new_share_code);

@@ -65,7 +65,7 @@ class ApiCommandHelper {
   /**
    *
    */
-  public function useCloudApiSpecCache(): bool {
+  protected function useCloudApiSpecCache(): bool {
     return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
   }
 
@@ -97,7 +97,7 @@ class ApiCommandHelper {
    *
    * @return string
    */
-  protected function addOptionExampleToUsageForGetEndpoint($param_definition, string $usage): string {
+  private function addOptionExampleToUsageForGetEndpoint($param_definition, string $usage): string {
     if (array_key_exists('example', $param_definition)) {
       $usage .= '--' . $param_definition['name'] . '="' . $param_definition['example'] . '" ';
     }
@@ -110,7 +110,7 @@ class ApiCommandHelper {
    * @param array $acquia_cloud_spec
    * @param CommandBase $command
    */
-  protected function addApiCommandParameters($schema, $acquia_cloud_spec, CommandBase $command): void {
+  private function addApiCommandParameters($schema, $acquia_cloud_spec, CommandBase $command): void {
     $input_definition = [];
     $usage = '';
 
@@ -161,7 +161,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  protected function addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec): array {
+  private function addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
     $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
@@ -219,7 +219,7 @@ class ApiCommandHelper {
    *
    * @return string
    */
-  protected function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
+  private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     $request_body_schema = [];
     if (array_key_exists('application/x-www-form-urlencoded', $request_body['content'])) {
       $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
@@ -279,7 +279,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  protected function addApiCommandParametersForPathAndQuery(array $schema, array $acquia_cloud_spec): array {
+  private function addApiCommandParametersForPathAndQuery(array $schema, array $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
     if (!array_key_exists('parameters', $schema)) {
@@ -325,7 +325,7 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  protected function getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec, $schema) {
+  private function getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec, $schema) {
     $uppercase_key = ucfirst($param_key);
     if (array_key_exists('parameters', $acquia_cloud_spec['components'])
       && array_key_exists($uppercase_key, $acquia_cloud_spec['components']['parameters'])) {
@@ -345,7 +345,7 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  protected function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec) {
+  private function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec) {
     return $acquia_cloud_spec['components']['schemas'][$param_key];
   }
 
@@ -357,7 +357,7 @@ class ApiCommandHelper {
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function isApiSpecChecksumCacheValid($cache_item, string $acquia_cloud_spec_file_checksum): bool {
+  private function isApiSpecChecksumCacheValid($cache_item, string $acquia_cloud_spec_file_checksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
     if ($cache_item->isHit() && !$acquia_cloud_spec_file_checksum) {
       return TRUE;
@@ -376,7 +376,7 @@ class ApiCommandHelper {
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApiSpec(string $spec_file_path): array {
+  private function getCloudApiSpec(string $spec_file_path): array {
     $cache_key = basename($spec_file_path);
     $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new NullAdapter());
     $cache_item_checksum = $cache->getItem($cache_key . '.checksum');
@@ -418,7 +418,7 @@ class ApiCommandHelper {
    *
    * @return ApiBaseCommand[]
    */
-  protected function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
+  private function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_commands = [];
     foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
@@ -486,7 +486,7 @@ class ApiCommandHelper {
    * @param array $input_definition
    * @param string $usage
    */
-  protected function addAliasUsageExamples(ApiBaseCommand $command, array $input_definition, string $usage): void {
+  private function addAliasUsageExamples(ApiBaseCommand $command, array $input_definition, string $usage): void {
     foreach ($input_definition as $key => $parameter) {
       if ($parameter->getName() === 'applicationUuid') {
         $usage_parts = explode(' ', $usage);
@@ -549,7 +549,7 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  protected function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
+  private function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
     if (array_key_exists($parameter_definition->getName(), $request_body_schema['properties'])) {
       return $request_body_schema['properties'][$parameter_definition->getName()];
     }
@@ -603,7 +603,7 @@ class ApiCommandHelper {
    *
    * @return ApiListCommandBase[]
    */
-  protected function generateApiListCommands(array $api_commands, $command_prefix, CommandFactoryInterface $command_factory): array {
+  private function generateApiListCommands(array $api_commands, $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_list_commands = [];
     foreach ($api_commands as $api_command) {
       $command_name_parts = explode(':', $api_command->getName());

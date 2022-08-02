@@ -60,7 +60,7 @@ class AcsfCredentials implements ApiCredentialsInterface {
   /**
    * @return mixed|null
    */
-  public function getCurrentFactory() {
+  protected function getCurrentFactory() {
     if ($factory = $this->datastoreCloud->get('acsf_active_factory')) {
       if ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) {
         if (array_key_exists($factory, $acsf_factories)) {

@@ -101,7 +101,7 @@ class ExceptionListener {
   /**
    *
    */
-  protected function writeApplicationAliasHelp(): void {
+  private function writeApplicationAliasHelp(): void {
     $this->helpMessages[] = "The <bg={$this->messagesBgColor};options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
       . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp</> or <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
       . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
@@ -110,7 +110,7 @@ class ExceptionListener {
   /**
    *
    */
-  protected function writeSiteAliasHelp(): void {
+  private function writeSiteAliasHelp(): void {
     $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp.dev</>." . PHP_EOL
     . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
@@ -118,7 +118,7 @@ class ExceptionListener {
   /**
    * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
-  protected function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
+  private function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
     if (!$event->getOutput()->isVeryVerbose()) {
       $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
@@ -129,7 +129,7 @@ class ExceptionListener {
   /**
    * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
-  protected function writeUpdateHelp(ConsoleErrorEvent $event): void {
+  private function writeUpdateHelp(ConsoleErrorEvent $event): void {
     try {
       $command = $event->getCommand();
       if ($command

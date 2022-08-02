@@ -81,7 +81,7 @@ class ApiBaseCommand extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
-  public function interact(InputInterface $input, OutputInterface $output) {
+  protected function interact(InputInterface $input, OutputInterface $output) {
     $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
     foreach ($this->getDefinition()->getArguments() as $argument) {
       if ($argument->isRequired() && !$input->getArgument($argument->getName())) {
@@ -256,7 +256,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return bool|int|string|array
    */
-  protected function castParamType(array $param_spec, $value) {
+  private function castParamType(array $param_spec, $value) {
     $one_of = $this->getParamTypeOneOf($param_spec);
     if (isset($one_of)) {
       $types = [];
@@ -294,7 +294,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return array|bool|int|string
    */
-  protected function doCastParamType($type, $value) {
+  private function doCastParamType($type, $value) {
     return match ($type) {
       'int', 'integer' => (int) $value,
       'bool', 'boolean' => $this->castBool($value),
@@ -318,7 +318,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return null|string
    */
-  protected function getParamType(array $param_spec): ?string {
+  private function getParamType(array $param_spec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
     if (array_key_exists('type', $param_spec)) {
       return $param_spec['type'];
@@ -335,7 +335,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return callable|null
    */
-  protected function createCallableValidator(InputArgument $argument, array $params): ?callable {
+  private function createCallableValidator(InputArgument $argument, array $params): ?callable {
     $validator = NULL;
     if (array_key_exists($argument->getName(), $params)) {
       $param_spec = $params[$argument->getName()];
@@ -370,7 +370,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return array
    */
-  protected function createLengthConstraint($schema, array $constraints): array {
+  private function createLengthConstraint($schema, array $constraints): array {
     if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
       $length_options = [];
       if (array_key_exists('minLength', $schema)) {
@@ -462,7 +462,7 @@ class ApiBaseCommand extends CommandBase {
   * @param mixed $param_value
   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
   */
-  protected function addPostParamToClient(string $param_name, $param_spec, $param_value, Client $acquia_cloud_client) {
+  private function addPostParamToClient(string $param_name, $param_spec, $param_value, Client $acquia_cloud_client) {
     $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
     if ($param_spec) {
       $param_value = $this->castParamType($param_spec, $param_value);
@@ -486,7 +486,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return mixed
    */
-  protected function askFreeFormQuestion(InputArgument $argument, array $params) {
+  private function askFreeFormQuestion(InputArgument $argument, array $params) {
     $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
     switch ($argument->getName()) {
       case 'applicationUuid':
@@ -536,7 +536,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return array|bool|int|string
    */
-  protected function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
+  private function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
     if (array_key_exists('items', $param_spec) && array_key_exists('type', $param_spec['items'])) {
       if (!is_array($original_value)) {
         $original_value = $this->doCastParamType('array', $original_value);

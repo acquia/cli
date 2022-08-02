@@ -65,7 +65,7 @@ class PushFilesCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
+  private function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/files/';
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
