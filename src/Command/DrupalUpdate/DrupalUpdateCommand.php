@@ -6,7 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DrupalUpdateCommand extends  CommandBase {
+class DrupalUpdateCommand extends CommandBase {
 
   /**
    * @var string

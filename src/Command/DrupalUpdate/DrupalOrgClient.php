@@ -38,7 +38,7 @@ class DrupalOrgClient {
    * @return array
    * @throws AcquiaCliException|GuzzleException
    */
-  public function getSecurityRelease($project, $current_version) : array {
+  public function getSecurityRelease($project, $current_version): array {
     if ($project === 'drupal/core') {
       $project = 'drupal';
     }
