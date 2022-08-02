@@ -240,7 +240,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return bool|string|string[]|null
    */
-  protected function getParamFromInput(InputInterface $input, string $param_name) {
+  private function getParamFromInput(InputInterface $input, string $param_name) {
     if ($input->hasArgument($param_name)) {
       return $input->getArgument($param_name);
     }
@@ -412,7 +412,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return \Closure
    */
-  protected function createValidatorFromConstraints(array $constraints): \Closure {
+  private function createValidatorFromConstraints(array $constraints): \Closure {
     return function ($value) use ($constraints) {
       $violations = Validation::createValidator()
         ->validate($value, $constraints);
@@ -445,7 +445,7 @@ class ApiBaseCommand extends CommandBase {
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    */
-  protected function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
+  private function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name => $param_spec) {
         $param_value = $this->getParamFromInput($input, $param_name);
@@ -519,7 +519,7 @@ class ApiBaseCommand extends CommandBase {
    *
    * @return null|array
    */
-  protected function getParamTypeOneOf(array $param_spec): ?array {
+  private function getParamTypeOneOf(array $param_spec): ?array {
     $one_of = NULL;
     if (array_key_exists('oneOf', $param_spec)) {
       $one_of = $param_spec['oneOf'];

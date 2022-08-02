@@ -49,7 +49,7 @@ class ClientService implements ClientServiceInterface {
   /**
    * @param \Acquia\Cli\Application $application
    */
-  protected function setApplication(Application $application): void {
+  private function setApplication(Application $application): void {
     $this->application = $application;
   }
 
