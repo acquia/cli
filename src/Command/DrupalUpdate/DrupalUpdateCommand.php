@@ -47,6 +47,7 @@ class DrupalUpdateCommand extends CommandBase {
    * @throws AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    // Validate drupal docroot or not.
     $this->validateCwdIsValidDrupalProject();
     $this->setDrupalPackageManager(new DrupalPackageManager($input, $output));
 

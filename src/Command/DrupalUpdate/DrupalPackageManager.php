@@ -56,13 +56,6 @@ class DrupalPackageManager {
   private array $detailPackageData = [];
 
   /**
-   * @return DrupalOrgClient
-   */
-  public function getDrupalOrgClient(): DrupalOrgClient {
-    return $this->drupalOrgClient;
-  }
-
-  /**
    * @param DrupalOrgClient $drupalOrgClient
    */
   public function setDrupalOrgClient(DrupalOrgClient $drupalOrgClient): void {
@@ -77,13 +70,6 @@ class DrupalPackageManager {
   }
 
   /**
-   * @return array
-   */
-  public function getPackageData(): array {
-    return $this->packageData;
-  }
-
-  /**
    * @param OutputInterface $output
    */
   public function setOutput(OutputInterface $output): void {
@@ -95,13 +81,6 @@ class DrupalPackageManager {
    */
   public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
-  }
-
-  /**
-   * @return PackageUpdater
-   */
-  public function getPackageUpdater(): PackageUpdater {
-    return $this->packageUpdater;
   }
 
   /**
@@ -155,7 +134,7 @@ class DrupalPackageManager {
    * @throws AcquiaCliException
    */
   public function checkFileInfo(string $filepath, string $drupal_project_cwd_path): void {
-    $drupal_client = $this->getDrupalOrgClient();
+    $drupal_client = $this->drupalOrgClient;
     $package_info_key = [
       'name',
       'description',
@@ -164,46 +143,24 @@ class DrupalPackageManager {
       'core',
       'project',
     ];
-    $info_extension_file = @parse_ini_file($filepath, FALSE, INI_SCANNER_RAW);
-    if (is_bool($info_extension_file) && !$info_extension_file) {
-      $info_extension_file = $this->fileSystemUtility->readInfoFile($filepath, $package_info_key);
-    }
-    $current_version = '';
-    $package_type = '';
-    $package_alternative_name = '';
-    foreach ($info_extension_file as $row => $data) {
-      if (in_array(trim($row), $package_info_key)) {
-        $project_value = str_replace(['\'', '"'], '', $data);
-        switch (trim($row)) {
-          case "project" :
-            $package_type = trim($project_value);
-            break;
-          case  "version" :
-            $current_version = trim($project_value);
-            break;
-          case "package" :
-            $package_alternative_name = strtolower(trim($project_value));
-            break;
-        }
-      }
-    }
-
+    $package_parse_data = $this->fileSystemUtility->parsePackageInfoFile($filepath, $package_info_key);
+    $package_data = $this->packageUpdater->preparePackageDetailData($package_parse_data, $package_info_key);
+    $package_type = $package_data['package_type'];
+    $current_version = $package_data['current_version'];
     if ($current_version == 'VERSION') {
       $current_version = $this->fetchCorePackageVersion($drupal_project_cwd_path);
-    }
-    if ($package_type == '') {
-      $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
       if (trim($package_type) === '') {
         return;
       }
-      $package_available_releases_data=$drupal_client->getSecurityRelease(trim($package_type), $current_version);
+      $package_available_releases_data = $drupal_client->getSecurityRelease(trim($package_type), $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);
         $this->packageData[$package_name] = $package_available_releases_data[$package_name];
       }
     }
+
     if ($package_type == 'drupal') {
       $this->isCoreUpdated = TRUE;
     }
@@ -214,20 +171,20 @@ class DrupalPackageManager {
    */
   public function printPackageDetail($version_detail): void {
     $table = new Table($this->output);
-    $git_commit_message_detail = [];
+    $updated_packages_details = [];
     array_shift($version_detail);
     $array_keys = array_column($version_detail, 'package');
     array_multisort($array_keys, SORT_ASC, $version_detail);
 
     foreach ($version_detail as $versions) {
       $package = $versions['package'];
-      $git_commit_message = [];
-      $git_commit_message[] = $package;
-      $git_commit_message[] = $versions['package_type'];
-      $git_commit_message[] = $versions['current_version'] ?? '';
-      $git_commit_message[] = $versions['latest_version'] ?? '';
-      $git_commit_message[] = $versions['update_notes'] ?? '';
-      $git_commit_message_detail[] = $git_commit_message;
+      $updated_package_data = [];
+      $updated_package_data[] = $package;
+      $updated_package_data[] = $versions['package_type'];
+      $updated_package_data[] = $versions['current_version'] ?? '';
+      $updated_package_data[] = $versions['latest_version'] ?? '';
+      $updated_package_data[] = $versions['update_notes'] ?? '';
+      $updated_packages_details[] = $updated_package_data;
     }
     $table->setHeaders([
           'Package Name',
@@ -235,7 +192,7 @@ class DrupalPackageManager {
           'Current Version',
           'Latest Version',
           'Update Type',
-    ])->setRows($git_commit_message_detail);
+    ])->setRows($updated_packages_details);
     $table->render();
   }
 
@@ -264,7 +221,7 @@ class DrupalPackageManager {
    * @return array
    */
   public function getAvailablePackageUpdates(string $drupal_project_cwd_path): array {
-    $version_detail = $this->getPackageData();
+    $version_detail = $this->packageData;
     $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
     return $this->prepareAvailablePackageUpdate($version_detail, $this->infoPackageFilesPath, $drupal_docroot_path);
   }
@@ -289,13 +246,13 @@ class DrupalPackageManager {
    * Update all available packages.
    */
   public function updatePackages(): void {
-    $this->io->note('Preparing packages.');
-    $this->packageUpdater->initializePackageUpdate($this->detailPackageData);
+    $this->packageUpdater->updatePackageCodeBase($this->detailPackageData);
+    $this->fileSystemUtility->cleanupTempFiles($this->detailPackageData);
+    $this->io->note('All packages have been updated.');
     $this->printPackageDetail($this->detailPackageData);
   }
 
   /**
-   * @param array $available_package_detail
    * @param array $version_detail
    * @param array $package_info_files
    * @param string $drupal_docroot_path

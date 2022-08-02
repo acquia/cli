@@ -53,17 +53,6 @@ class PackageUpdater {
    * @param array $latest_security_updates
    * @throws AcquiaCliException
    */
-  public function initializePackageUpdate(array $latest_security_updates): void {
-    $this->io->note('Starting package update process.');
-    $this->updatePackageCodeBase($latest_security_updates);
-    $this->fileSystemUtility->unlinkTarFiles($latest_security_updates);
-    $this->io->note('All packages have been updated.');
-  }
-
-  /**
-   * @param array $latest_security_updates
-   * @throws AcquiaCliException
-   */
   public function updatePackageCodeBase(array $latest_security_updates): void {
     foreach ($latest_security_updates as $value) {
       if (isset($value['download_link'])) {
@@ -84,6 +73,25 @@ class PackageUpdater {
         $this->fileSystemUtility->downloadRemoteFile($value['package'], $value['download_link'], $filepath);
       }
     }
+  }
+
+  /**
+   * @param array|bool $package_parse_data
+   * @param array $package_info_key
+   *
+   * @return array
+   */
+  public function preparePackageDetailData(bool|array $package_parse_data): array {
+    $current_version = isset($package_parse_data['version']) ? trim(str_replace(['\'', '"'], '', $package_parse_data['version'])) : '';
+    $package_type = isset($package_parse_data['project']) ? trim(str_replace(['\'', '"'], '', $package_parse_data['project'])) : '';
+    $package_alternative_name = isset($package_parse_data['package']) ? strtolower(trim(str_replace(['\'', '"'], '', $package_parse_data['package']))) : '';
+    if ($package_type == '') {
+      $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
+    }
+    return [
+    'current_version' => $current_version,
+      'package_type' => $package_type
+    ];
   }
 
 }
