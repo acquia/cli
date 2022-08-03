@@ -1,0 +1,14 @@
+name = Acquia agent
+description = "Allows Drupal to securely communicate with Acquia Insight, and checks for updates to Acquia Drupal."
+package = Acquia Connector
+core = 7.x
+configure = admin/config/system/acquia-agent
+files[] = tests/acquia_agent.test
+php = 5.2
+
+; Information added by Drupal.org packaging script on 2014-11-13
+version = "7.x-2.15"
+core = "7.x"
+project = "acquia_connector"
+datestamp = "1415907497"
+

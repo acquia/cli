@@ -1,0 +1,14 @@
+name = Acquia Site Profile Information
+description = "Sends detailed information about your Drupal site (status, info, debugging, etc...) to Acquia Insight."
+package = Acquia Connector
+php = 5.0
+core = 7.x
+dependencies[] = acquia_agent
+files[] = tests/acquia_spi.test
+
+; Information added by Drupal.org packaging script on 2014-11-13
+version = "7.x-2.15"
+core = "7.x"
+project = "acquia_connector"
+datestamp = "1415907497"
+
