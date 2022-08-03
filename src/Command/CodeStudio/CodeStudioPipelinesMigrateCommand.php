@@ -99,7 +99,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $project
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function checkGitLabCiCdVariables(array $project) {
+  private function checkGitLabCiCdVariables(array $project) {
     $gitlab_cicd_variables = CodeStudioCiCdVariables::getList();
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()->variables($project['id']);
     $existing_keys = array_column($gitlab_cicd_existing_variables, 'key');
@@ -118,7 +118,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getAcquiaPipelinesFileContents(array $project): array {
+  private function getAcquiaPipelinesFileContents(array $project): array {
     $pipelines_filepath_yml = Path::join($this->repoRoot, 'acquia-pipelines.yml');
     $pipelines_filepath_yaml = Path::join($this->repoRoot, 'acquia-pipelines.yaml');
     if ($this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yml) ||
@@ -142,7 +142,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * @return array
    */
-  protected function getGitLabCiFileTemplate(): array {
+  private function getGitLabCiFileTemplate(): array {
     return [
         'include' => ['project' => 'acquia/standard-template', 'file' => '/gitlab-ci/Auto-DevOps.acquia.gitlab-ci.yml'],
     ];
@@ -151,7 +151,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating `variables` section to .gitlab-ci.yml file.
    */
-  protected function migrateVariablesSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents) {
+  private function migrateVariablesSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents) {
     if (array_key_exists('variables', $acquia_pipelines_file_contents)) {
       $variables_dump = Yaml::dump(['variables' => $acquia_pipelines_file_contents['variables']]);
       $remove_global = preg_replace('/global:/', '', $variables_dump);
@@ -174,7 +174,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * @return null
    */
-  protected function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name) {
+  private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name) {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
@@ -194,7 +194,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $acquia_pipelines_file_contents
    * @param array $gitlab_ci_file_contents
    */
-  protected function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents) {
+  private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents) {
     $events_map = [
       'build' => [
         'skip' => [
@@ -318,7 +318,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * Removing empty script.
    */
-  protected function removeEmptyScript(array &$gitlab_ci_file_contents) {
+  private function removeEmptyScript(array &$gitlab_ci_file_contents) {
     foreach ($gitlab_ci_file_contents as $key => $value) {
       if (array_key_exists('script', $value) && empty($value['script'])) {
         unset($gitlab_ci_file_contents[$key]);
@@ -329,7 +329,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  protected function createGitLabCiFile(array $contents,$acquia_pipelines_file_name) {
+  private function createGitLabCiFile(array $contents,$acquia_pipelines_file_name) {
     $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($acquia_pipelines_file_name);
@@ -341,7 +341,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * @return string|null
    */
-  protected function assignStageFromKeywords(array $keywords, string $haystack): ?string {
+  private function assignStageFromKeywords(array $keywords, string $haystack): ?string {
     foreach ($keywords as $needle => $stage) {
       if (str_contains($haystack, $needle)) {
         return $stage;

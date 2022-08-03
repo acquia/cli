@@ -63,7 +63,7 @@ class Checklist {
   /**
    *
    */
-  protected function getLastItem() {
+  private function getLastItem() {
     return end($this->items);
   }
 

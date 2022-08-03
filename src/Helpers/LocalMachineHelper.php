@@ -160,7 +160,7 @@ class LocalMachineHelper {
    *
    * @return \Symfony\Component\Process\Process
    */
-  protected function executeProcess(Process $process, callable $callback = NULL, ?bool $print_output = TRUE): Process {
+  private function executeProcess(Process $process, callable $callback = NULL, ?bool $print_output = TRUE): Process {
     if ($callback === NULL && $print_output !== FALSE) {
       $callback = function ($type, $buffer) {
         $this->output->write($buffer);

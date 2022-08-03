@@ -56,7 +56,7 @@ class ArchiveExportCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function initialize(InputInterface $input, OutputInterface $output) {
+  protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
     $this->fs = $this->localMachineHelper->getFilesystem();
     $this->checklist = new Checklist($output);
@@ -115,7 +115,7 @@ class ArchiveExportCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineDestinationDir(InputInterface $input): void {
+  private function determineDestinationDir(InputInterface $input): void {
     $this->destinationDir = $input->getArgument('destination-dir');
     if (!$this->fs->exists($this->destinationDir)) {
       throw new AcquiaCliException("The destination directory {$this->destinationDir} does not exist!");
@@ -128,7 +128,7 @@ class ArchiveExportCommand extends CommandBase {
    * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  protected function createArchiveDirectory(Closure $output_callback, string $artifact_dir): void {
+  private function createArchiveDirectory(Closure $output_callback, string $artifact_dir): void {
     $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
@@ -152,7 +152,7 @@ class ArchiveExportCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function exportDatabaseToArchiveDir(
+  private function exportDatabaseToArchiveDir(
     Closure $output_callback,
     string $archive_temp_dir
   ): void {
@@ -178,7 +178,7 @@ class ArchiveExportCommand extends CommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function compressArchiveDirectory($archive_dir, $destination_dir, $output_callback = NULL): string {
+  private function compressArchiveDirectory($archive_dir, $destination_dir, $output_callback = NULL): string {
     $destination_filename = basename($archive_dir) . '.tar.gz';
     $destination_filepath = Path::join($destination_dir, $destination_filename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);

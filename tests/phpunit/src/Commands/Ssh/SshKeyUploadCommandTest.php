@@ -15,8 +15,7 @@ use Symfony\Component\Filesystem\Path;
  * @property SshKeyUploadCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
-class SshKeyUploadCommandTest extends CommandTestBase
-{
+class SshKeyUploadCommandTest extends CommandTestBase {
 
   /**
    * @var array

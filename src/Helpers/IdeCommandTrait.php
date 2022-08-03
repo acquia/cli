@@ -12,7 +12,7 @@ trait IdeCommandTrait {
   /**
    * @return string
    */
-  protected function getIdePhpVersion(): string {
+  private function getIdePhpVersion(): string {
     return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));
   }
 
@@ -26,7 +26,7 @@ trait IdeCommandTrait {
   /**
    * @return string
    */
-  public function getIdePhpVersionFilePath(): string {
+  protected function getIdePhpVersionFilePath(): string {
     if (!isset($this->phpVersionFilePath)) {
       $this->phpVersionFilePath = '/home/ide/configs/php/.version';
     }

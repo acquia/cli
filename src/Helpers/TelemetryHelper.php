@@ -97,7 +97,7 @@ class TelemetryHelper {
    *   Telemetry user data.
    * @throws \Exception
    */
-  protected function getTelemetryUserData(): array {
+  private function getTelemetryUserData(): array {
     $data = [
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
@@ -126,7 +126,7 @@ class TelemetryHelper {
    *   User UUID from Cloud.
    * @throws \Exception
    */
-  public function getUserId(): ?string {
+  private function getUserId(): ?string {
     $user = $this->getUserData();
     if ($user && isset($user['uuid'])) {
       return $user['uuid'];
@@ -142,7 +142,7 @@ class TelemetryHelper {
    *   User account data from Cloud.
    * @throws \Exception
    */
-  protected function getUserData(): ?array {
+  private function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);
     if (!$user && $this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
       $this->setDefaultUserData();
@@ -155,7 +155,7 @@ class TelemetryHelper {
   /**
    * This requires the machine to be authenticated.
    */
-  protected function setDefaultUserData(): void {
+  private function setDefaultUserData(): void {
     $user = $this->getDefaultUserData();
     $this->datastoreCloud->set(DataStoreContract::USER, $user);
   }
@@ -165,7 +165,7 @@ class TelemetryHelper {
    *
    * @return array
    */
-  protected function getDefaultUserData(): array {
+  private function getDefaultUserData(): array {
     // @todo Cache this!
     $account = new Account($this->cloudApiClientService->getClient());
     return [

@@ -71,7 +71,7 @@ class IdeServiceStartCommand extends IdeCommandBase {
    *
    * @return string
    */
-  protected function validateService($service) {
+  private function validateService($service) {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
         'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],

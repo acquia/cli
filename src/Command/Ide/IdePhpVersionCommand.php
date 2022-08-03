@@ -64,7 +64,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @return string
    */
-  public function getIdePhpFilePathPrefix(): string {
+  private function getIdePhpFilePathPrefix(): string {
     if (!isset($this->idePhpFilePathPrefix)) {
       $this->idePhpFilePathPrefix = '/usr/local/php';
     }
@@ -84,7 +84,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validatePhpVersion(string $version): string {
+  private function validatePhpVersion(string $version): string {
     $violations = Validation::createValidator()->validate($version, [
       new Length(['min' => 3]),
       new NotBlank(),

@@ -11,8 +11,7 @@ use Symfony\Component\Console\Command\Command;
  * @property SshKeyListCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
-class SshKeyListCommandTest extends CommandTestBase
-{
+class SshKeyListCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}

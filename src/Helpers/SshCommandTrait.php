@@ -10,7 +10,7 @@ trait SshCommandTrait {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  public function deleteSshKeyFromCloud($output, $cloud_key = NULL): int {
+  private function deleteSshKeyFromCloud($output, $cloud_key = NULL): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if (!$cloud_key) {
       $cloud_key = $this->determineCloudKey($acquia_cloud_client);
@@ -46,7 +46,7 @@ trait SshCommandTrait {
    *
    * @return array|object|null
    */
-  protected function determineCloudKey($acquia_cloud_client) {
+  private function determineCloudKey($acquia_cloud_client) {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     return $this->promptChooseFromObjectsOrArrays(
       $cloud_keys,

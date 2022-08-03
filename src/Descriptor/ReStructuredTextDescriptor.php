@@ -23,8 +23,7 @@ use Symfony\Component\Console\Input\InputOption;
 /**
  * ReStructuredTextDescriptor descriptor.
  */
-class ReStructuredTextDescriptor extends MarkdownDescriptor
-{
+class ReStructuredTextDescriptor extends MarkdownDescriptor {
 
   // <h1>
   private $partChar = '#';
@@ -184,7 +183,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * @param $application
    * @param array $options
    */
-  protected function describeCommands(ApplicationDescription $description, $application, array $options): void {
+  private function describeCommands(ApplicationDescription $description, $application, array $options): void {
     $title = "Commands";
     $this->write("\n\n$title\n" . str_repeat($this->chapterChar, Helper::width($title)) . "\n\n");
     foreach ($this->visibleNamespaces as $namespace) {
@@ -211,7 +210,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
    * @param \Symfony\Component\Console\Application $application
    */
-  protected function createTableOfContents(ApplicationDescription $description, Application $application): void {
+  private function createTableOfContents(ApplicationDescription $description, Application $application): void {
     $this->setVisibleNamespaces($description);
     $chapter_title = "Table of Contents";
     $this->write("\n\n$chapter_title\n" . str_repeat($this->chapterChar, Helper::width($chapter_title)) . "\n\n");
@@ -237,7 +236,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    * @param \Symfony\Component\Console\Input\InputDefinition $definition
    * @return array
    */
-  protected function getNonDefaultOptions(InputDefinition $definition): array {
+  private function getNonDefaultOptions(InputDefinition $definition): array {
     $global_options = [
       'help',
       'quiet',
@@ -260,7 +259,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
   /**
   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
   */
-  protected function setVisibleNamespaces(ApplicationDescription $description) {
+  private function setVisibleNamespaces(ApplicationDescription $description) {
     $commands = $description->getCommands();
     foreach ($description->getNamespaces() as $namespace) {
       try {
@@ -292,7 +291,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor
    *
    * @return array
    */
-  protected function removeAliasesAndHiddenCommands(array $commands): array {
+  private function removeAliasesAndHiddenCommands(array $commands): array {
     // Remove aliases.
     foreach ($commands as $key => $command) {
       if (in_array($key, $command->getAliases()) || $command->isHidden()) {
