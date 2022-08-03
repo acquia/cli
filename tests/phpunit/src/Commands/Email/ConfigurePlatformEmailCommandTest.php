@@ -528,8 +528,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         'y',
         // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
         '0',
-
-    ];
+      ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
       ->willReturn($subscriptions_response->{'_embedded'}->items);
