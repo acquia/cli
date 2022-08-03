@@ -76,12 +76,12 @@ class PackageUpdater {
   }
 
   /**
-   * @param array|bool $package_parse_data
+   * @param array $package_parse_data
    * @param array $package_info_key
    *
    * @return array
    */
-  public function preparePackageDetailData(bool|array $package_parse_data): array {
+  public function preparePackageDetailData(array $package_parse_data): array {
     $current_version = isset($package_parse_data['version']) ? trim(str_replace(['\'', '"'], '', $package_parse_data['version'])) : '';
     $package_type = isset($package_parse_data['project']) ? trim(str_replace(['\'', '"'], '', $package_parse_data['project'])) : '';
     $package_alternative_name = isset($package_parse_data['package']) ? strtolower(trim(str_replace(['\'', '"'], '', $package_parse_data['package']))) : '';
@@ -89,7 +89,7 @@ class PackageUpdater {
       $package_type = ($package_alternative_name == 'core') ? 'drupal' : '';
     }
     return [
-    'current_version' => $current_version,
+      'current_version' => $current_version,
       'package_type' => $package_type
     ];
   }

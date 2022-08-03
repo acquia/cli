@@ -146,21 +146,20 @@ class DrupalPackageManager {
     $package_parse_data = $this->fileSystemUtility->parsePackageInfoFile($filepath, $package_info_key);
     $package_data = $this->packageUpdater->preparePackageDetailData($package_parse_data, $package_info_key);
     $package_type = $package_data['package_type'];
+    if (trim($package_type) === '') {
+      return;
+    }
     $current_version = $package_data['current_version'];
     if ($current_version == 'VERSION') {
       $current_version = $this->fetchCorePackageVersion($drupal_project_cwd_path);
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
-      if (trim($package_type) === '') {
-        return;
-      }
       $package_available_releases_data = $drupal_client->getSecurityRelease(trim($package_type), $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);
         $this->packageData[$package_name] = $package_available_releases_data[$package_name];
       }
     }
-
     if ($package_type == 'drupal') {
       $this->isCoreUpdated = TRUE;
     }
