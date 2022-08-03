@@ -471,11 +471,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'email:configure' command when associating a domain with an application throws an API error.
-   *
-   * @throws \Exception
-   * @throws AcquiaCloudApi\Exception\ApiErrorException
-   * @throws \Psr\Cache\InvalidArgumentException
+   * Tests the exported JSON file output when running email:configure, ensuring that slashes are encoded correctly.
    */
   public function testConfigurePlatformEmailJsonOutput(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
