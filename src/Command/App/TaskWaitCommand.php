@@ -44,7 +44,7 @@ class TaskWaitCommand extends CommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getNotificationUuid(InputInterface $input): string {
+  private function getNotificationUuid(InputInterface $input): string {
     $notification_uuid = $input->getArgument('notification-uuid');
     $json = json_decode($notification_uuid);
     if (json_last_error() === JSON_ERROR_NONE) {

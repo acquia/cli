@@ -490,7 +490,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return null|object|array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function promptChooseApplication(
+  private function promptChooseApplication(
     Client $acquia_cloud_client
   ) {
     $applications_resource = new Applications($acquia_cloud_client);
@@ -950,7 +950,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return bool
    * @throws \Exception
    */
-  protected function promptLinkApplication(
+  private function promptLinkApplication(
     ?ApplicationResponse $cloud_application
     ): bool {
     $answer = $this->io->confirm("Would you like to link the Cloud application <bg=cyan;options=bold>{$cloud_application->name}</> to this repository?");

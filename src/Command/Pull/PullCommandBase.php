@@ -321,7 +321,7 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @return \Psr\Http\Message\UriInterface|null
    */
-  protected function getBackupDownloadUrl(): ?UriInterface {
+  private function getBackupDownloadUrl(): ?UriInterface {
     if (isset($this->backupDownloadUrl)) {
       return $this->backupDownloadUrl;
     }
@@ -547,7 +547,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return array|string
    */
-  protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
+  private function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
     $choices = [];

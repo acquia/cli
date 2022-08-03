@@ -65,7 +65,7 @@ class ApiCommandHelper {
   /**
    *
    */
-  protected function useCloudApiSpecCache(): bool {
+  private function useCloudApiSpecCache(): bool {
     return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
   }
 
@@ -506,7 +506,7 @@ class ApiCommandHelper {
   /**
    * @param $param_definition
    */
-  protected function addAliasParameterDescriptions(&$param_definition): void {
+  private function addAliasParameterDescriptions(&$param_definition): void {
     if ($param_definition['name'] === 'applicationUuid') {
       $param_definition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
     }
@@ -521,7 +521,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  protected function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
+  private function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
     $request_body_schema = [];
     if (array_key_exists('application/json', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
