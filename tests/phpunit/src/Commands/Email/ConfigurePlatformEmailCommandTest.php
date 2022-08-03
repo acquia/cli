@@ -6,7 +6,9 @@ use Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
+use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class ConfigurePlatformEmailCommandTest.
@@ -267,6 +269,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
     }
+
   }
 
   public function testConfigurePlatformEmailWithMultipleAppsAndEnvs(): void {
@@ -470,6 +473,113 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * Tests the 'email:configure' command when associating a domain with an application throws an API error.
    *
+   * @throws \Exception
+   * @throws AcquiaCloudApi\Exception\ApiErrorException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testConfigurePlatformEmailJsonOutput(): void {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
+
+    $json_file_output = '[
+        {
+            "type": "TXT",
+            "name": "_amazonses.example.com",
+            "value": "AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs="
+        },
+        {
+            "type": "TXT",
+            "name": "_acquiaplatform.example.com",
+            "value": "aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43="
+        },
+        {
+            "type": "MX",
+            "name": "mail.example.com",
+            "value": "10 feedback-smtp.us-east-1.amazonses.com"
+        },
+        {
+            "type": "TXT",
+            "name": "mail.example.com",
+            "value": "v=spf1 include:amazonses.com ~all"
+        },
+        {
+            "type": "CNAME",
+            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+        },
+        {
+            "type": "CNAME",
+            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+        },
+        {
+            "type": "CNAME",
+            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+        }
+    ]';
+
+    $base_domain = 'www.test.com';
+    $inputs =
+      [
+        // What's the domain name you'd like to register?
+        'www.test.com',
+        // Please select a Cloud Platform subscription
+        '0',
+        // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
+        '2',
+        // Have you finished providing the DNS records to your DNS provider?
+        'y',
+        // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
+        '0',
+
+    ];
+    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $this->clientProphecy->request('get', '/subscriptions')
+      ->willReturn($subscriptions_response->{'_embedded'}->items);
+
+    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
+    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
+      'form_params' => [
+        'domain' => $base_domain,
+      ],
+    ])->willReturn($post_domains_response);
+
+    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $get_domains_response->_embedded->items[0]->domain_name = 'test.com';
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+
+    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
+    $domains_registration_response_200 = $domains_registration_response;
+    $domains_registration_response_200->health->code = '200';
+
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
+    $mock_file_system->dumpFile('dns-records.json', $json_file_output)->shouldBeCalled();
+    $applications_response = $this->mockApplicationsRequest();
+
+    $app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+    $app_domains_response->_embedded->items[0]->domain_name = 'test.com';
+    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn($app_domains_response->_embedded->items);
+    // We need the application to belong to the subscription.
+    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+
+    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{{$get_domains_response->_embedded->items[0]->uuid}}/actions/associate")->willReturn($associate_response);
+
+    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
+
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->executeCommand([], $inputs);
+    $output = $this->getDisplay();
+    $this->assertEquals('0', $this->getStatusCode());
+    $this->assertStringContainsString('all set', $output);
+  }
+
+  /**
+   * Tests the 'email:configure' command when associating a domain with an application throws an API error.
+   *
    * @dataProvider providerTestConfigurePlatformEmailAddDomain
    * @throws \Exception
    * @throws AcquiaCloudApi\Exception\ApiErrorException
@@ -579,6 +689,18 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $this->assertStringContainsString($text, $output);
     }
 
+  }
+
+  /**
+   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   *
+   * @return \Prophecy\Prophecy\ObjectProphecy
+   */
+  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
+    $file_system = $this->prophet->prophesize(Filesystem::class);
+    $local_machine_helper->getFilesystem()->willReturn($file_system)->shouldBeCalled();
+
+    return $file_system;
   }
 
 }
