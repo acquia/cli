@@ -1062,14 +1062,8 @@ abstract class PullCommandBase extends CommandBase {
     if ($database->flags->default) {
       $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }
-    elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      // Cloud IDE only has 2 available databases for importing, so we only allow importing into the default database.
-      $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getDefaultLocalDbName()}");
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
-    }
-    elseif (AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
-      $this->io->note("Acquia CLI assumes that the Lando database name for the {$database->name} database is also {$database->name}");
-      // Must use root user in Lando.
+    elseif (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() || AcquiaDrupalEnvironmentDetector::isLandoEnv()) {
+      $this->io->note("Acquia CLI assumes that the database name for the {$database->name} database is also {$database->name}");
       $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, '', $local_filepath, $output_callback);
     }
     else {
