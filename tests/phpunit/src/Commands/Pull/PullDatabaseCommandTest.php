@@ -89,6 +89,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       '--no-scripts' => TRUE,
     ], $inputs);
     LandoInfoHelper::unsetLandoInfo();
+    $output = $this->getDisplay();
+    self::assertStringContainsString('Acquia CLI assumes that the database name', $output);
   }
 
   /**
