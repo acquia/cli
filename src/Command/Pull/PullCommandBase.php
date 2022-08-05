@@ -127,9 +127,6 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
-    if ($multiple_dbs && AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-      throw new AcquiaCliException('The --multiple-dbs option is not supported in Cloud IDE.');
-    }
     if (!$no_import) {
       // Verify database connection.
       $this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));

@@ -41,7 +41,7 @@ class PullDatabaseCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
     $no_scripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
     $on_demand = $input->hasOption('on-demand') && $input->getOption('on-demand');
