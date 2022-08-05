@@ -733,4 +733,13 @@ abstract class CommandTestBase extends TestBase {
     ];
   }
 
+  /**
+   * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
+   * @throws ExpectationFailedException
+   */
+  public static function assertStringContainsStringIgnoringWhitespace(string $needle, string $haystack, string $message = ''): void {
+    $rx = "/\s+/";
+    self::assertStringContainsString(preg_replace($rx, "", $needle), preg_replace($rx, "", $haystack), $message);
+  }
+
 }

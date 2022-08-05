@@ -18,7 +18,7 @@ class Application extends \Symfony\Component\Console\Application {
   /**
    * @return mixed
    */
-  public function getHelpMessages(): array {
+  private function getHelpMessages(): array {
     return $this->helpMessages;
   }
 

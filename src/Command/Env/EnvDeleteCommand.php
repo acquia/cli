@@ -53,7 +53,7 @@ class EnvDeleteCommand extends CommandBase {
    * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {
+  private function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {
     if ($this->input->getArgument('environmentId')) {
       // @todo Validate.
       $environment_id = $this->input->getArgument('environmentId');

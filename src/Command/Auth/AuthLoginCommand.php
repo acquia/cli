@@ -83,7 +83,7 @@ class AuthLoginCommand extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
+  private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
     $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
     $keys = $this->datastoreCloud->get('keys');
     $keys[$api_key] = [

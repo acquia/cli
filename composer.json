@@ -60,7 +60,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
-        "phpro/grumphp": "dev-master",
+        "phpro/grumphp": "^1.13.0",
         "phpspec/prophecy": "^1.10",
         "phpstan/extension-installer": "^1.1",
         "phpstan/phpstan": "^1.0",
@@ -100,19 +100,13 @@
     },
     "extra": {
         "branch-alias": {
-            "dev-master": "1.x-dev"
+            "dev-main": "1.x-dev"
         },
         "patches": {
-            "symfony/filesystem": [
-                "symfony-fs-mirror.patch"
-            ],
             "consolidation/self-update": [
                 "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch",
                 "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/21.patch"
             ]
-        },
-        "patchLevel": {
-            "symfony/filesystem": "-p5"
         }
     },
     "prefer-stable": true,
@@ -139,7 +133,7 @@
             "php build/box.phar compile"
         ],
         "infection-install": [
-            "curl -f -L https://github.com/infection/infection/releases/download/0.26.0/infection.phar -o build/infection.phar"
+            "curl -f -L https://github.com/infection/infection/releases/download/0.26.13/infection.phar -o build/infection.phar"
         ],
         "infection": [
             "php -d pcov.enabled=1 build/infection.phar --threads=8"

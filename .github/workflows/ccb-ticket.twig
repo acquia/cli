@@ -8,7 +8,7 @@ h3. Change Description
 h2. Impact and Risks
  * *How does this change specifically affect the customer?* - Acquia CLI is a packaged software that customers are free to install or not. Similarly, they are free to update or not. Upgrading means they'll have an improved version of the software. Since we're trying to always ship the latest Acquia CLI version in Cloud IDE, then the impact there is they'll benefit from an improved experience working with it.
  * *Will this change result in downtime, impact to HA, or service restarts?* - No, Acquia CLI is not a service, so there's no downtime, impact, HA or service restarts involved. It's just a PHP-based Open Source CLI tool that is entirely disposable.
- * *What is the expected duration of the change implementation?* - The change implementation takes 5mn and is not disruptive, as per the [Acquia CLI release runbook|https://github.com/acquia/cli/blob/master/RELEASE.md].
+ * *What is the expected duration of the change implementation?* - The change implementation takes 5mn and is not disruptive, as per the [Acquia CLI release runbook|https://github.com/acquia/cli/blob/HEAD/RELEASE.md].
  * *What are the risks of _not_ performing this change in a timely manner?* - None. We just want to be able to ship the new version with Cloud IDE.
 
 h3. Related Tickets
@@ -58,5 +58,5 @@ h3. Verification Plan
 
 h3. Emergency Recovery Plan
  * *What recovery strategy will you use? (Roll-back, Roll-forward, Disable Feature Flag, Revert specific changeset, etc)* - Customers can still use any previous version of Acquia CLI, and it's easy for us to publish a new release with the fix, since there's no dependency on anything.
- * *Link to recovery strategy runbook* - Acquia CLI is just an Open Source PHP CLI tool. There's no recovery strategy and we will simply hotfix the code and tag a new release for any critical issue that is found. 
+ * *Link to recovery strategy runbook* - Acquia CLI is just an Open Source PHP CLI tool. There's no recovery strategy and we will simply hotfix the code and tag a new release for any critical issue that is found.
  * *How will you verify that your emergency recovery was successful?* - There will be a new tagged release of Acquia CLI over at Github.

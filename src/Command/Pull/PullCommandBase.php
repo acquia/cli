@@ -77,7 +77,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function initialize(InputInterface $input, OutputInterface $output) {
+  protected function initialize(InputInterface $input, OutputInterface $output) {
     parent::initialize($input, $output);
     $this->checklist = new Checklist($output);
   }
@@ -184,7 +184,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function pullCodeFromCloud(EnvironmentResponse $chosen_environment, $output_callback = NULL): void {
+  private function pullCodeFromCloud(EnvironmentResponse $chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
@@ -206,7 +206,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param null $output_callback
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
+  private function checkoutBranchFromEnv(EnvironmentResponse $environment, $output_callback = NULL): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
@@ -225,7 +225,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function doImportRemoteDatabase(
+  private function doImportRemoteDatabase(
     string $database_host,
     string $database_user,
     string $database_name,
@@ -248,7 +248,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function downloadDatabaseBackup(
+  private function downloadDatabaseBackup(
     $environment,
     $database,
     BackupResponse $backup_response,
@@ -318,7 +318,7 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @return \Psr\Http\Message\UriInterface|null
    */
-  public function getBackupDownloadUrl(): ?UriInterface {
+  private function getBackupDownloadUrl(): ?UriInterface {
     if (isset($this->backupDownloadUrl)) {
       return $this->backupDownloadUrl;
     }
@@ -359,7 +359,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param \stdClass $database
    * @param $acquia_cloud_client
    */
-  protected function createBackup(EnvironmentResponse $environment, stdClass $database, $acquia_cloud_client): void {
+  private function createBackup(EnvironmentResponse $environment, stdClass $database, $acquia_cloud_client): void {
     $backups = new DatabaseBackups($acquia_cloud_client);
     $response = $backups->create($environment->uuid, $database->name);
     $url_parts = explode('/', $response->links->notification->href);
@@ -394,7 +394,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function connectToLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function connectToLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Connecting to database $db_name");
     }
@@ -428,7 +428,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Dropping database $db_name");
     }
@@ -457,7 +457,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Creating new empty database $db_name");
     }
@@ -487,7 +487,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function importDatabaseDump(string $local_dump_filepath, string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): void {
+  private function importDatabaseDump(string $local_dump_filepath, string $db_host, string $db_user, string $db_name, string $db_password, $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Importing downloaded file to database $db_name");
     }
@@ -544,7 +544,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return array|string
    */
-  protected function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
+  private function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
     $environment_resource = new Environments($acquia_cloud_client);
     $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
     $choices = [];
@@ -571,7 +571,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function promptChooseDatabases(
+  private function promptChooseDatabases(
     $cloud_environment,
     $environment_databases,
     $multiple_dbs
@@ -652,7 +652,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return mixed|string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineSite($environment, InputInterface $input) {
+  private function determineSite($environment, InputInterface $input) {
     if (isset($this->site)) {
       return $this->site;
     }
@@ -678,7 +678,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function rsyncFilesFromCloud($chosen_environment, Closure $output_callback = NULL, string $site): void {
+  private function rsyncFilesFromCloud($chosen_environment, Closure $output_callback = NULL, string $site): void {
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
     if ($this->isAcsfEnv($chosen_environment)) {
       $source_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
@@ -755,7 +755,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return bool
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineCloneProject(OutputInterface $output): bool {
+  private function determineCloneProject(OutputInterface $output): bool {
     $finder = $this->localMachineHelper->getFinder()->files()->in($this->dir)->ignoreDotFiles(FALSE);
 
     // If we are in an IDE, assume we should pull into /home/ide/project.
@@ -790,7 +790,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function cloneFromCloud(EnvironmentResponse $chosen_environment, Closure $output_callback): void {
+  private function cloneFromCloud(EnvironmentResponse $chosen_environment, Closure $output_callback): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $command = [
       'git',
@@ -870,7 +870,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return bool
    */
-  protected function environmentPhpVersionMatches($environment): bool {
+  private function environmentPhpVersionMatches($environment): bool {
     $current_php_version = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $current_php_version;
   }
@@ -947,7 +947,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function composerInstall($output_callback): void {
+  private function composerInstall($output_callback): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'install',
@@ -1002,7 +1002,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return false|mixed
    */
-  protected function getDatabaseBackup(
+  private function getDatabaseBackup(
     Client $acquia_cloud_client,
     $environment,
     $database
@@ -1027,7 +1027,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param BackupResponse $backup_response
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
    */
-  protected function printDatabaseBackupInfo(
+  private function printDatabaseBackupInfo(
     BackupResponse $backup_response,
     EnvironmentResponse $source_environment
   ): void {
@@ -1055,7 +1055,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  protected function importRemoteDatabase(stdClass $database, string $local_filepath, callable $output_callback = NULL): void {
+  private function importRemoteDatabase(stdClass $database, string $local_filepath, callable $output_callback = NULL): void {
     if ($database->flags->default) {
       $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);
     }

@@ -12,8 +12,7 @@ use Symfony\Component\Console\Command\Command;
  * @property SshKeyDeleteCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
-class SshKeyDeleteCommandTest extends CommandTestBase
-{
+class SshKeyDeleteCommandTest extends CommandTestBase {
 
   /**
    * {@inheritdoc}
