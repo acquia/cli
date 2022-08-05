@@ -103,16 +103,10 @@
             "dev-main": "1.x-dev"
         },
         "patches": {
-            "symfony/filesystem": [
-                "symfony-fs-mirror.patch"
-            ],
             "consolidation/self-update": [
                 "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch",
                 "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/21.patch"
             ]
-        },
-        "patchLevel": {
-            "symfony/filesystem": "-p5"
         }
     },
     "prefer-stable": true,

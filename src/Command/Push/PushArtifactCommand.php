@@ -239,9 +239,7 @@ class PushArtifactCommand extends PullCommandBase {
       ->ignoreDotFiles(FALSE)
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
       ->ignoreVCSIgnored(TRUE);
-    $targetFinder = $this->localMachineHelper->getFinder();
-    $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
-    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
+    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE]);
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
     $output_callback('out', 'Installing Composer production dependencies');
