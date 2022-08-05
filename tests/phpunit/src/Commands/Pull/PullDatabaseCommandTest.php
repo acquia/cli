@@ -197,23 +197,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * Test that settings files are created for multisite DBs in IDEs.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function testPullDatabaseSettingsFiles(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-    // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
-    // IdeRequiredTestBase sets other env vars (such as application ID) that
-    // seem to conflict with the rest of this test.
-    putenv('AH_SITE_ENVIRONMENT=IDE');
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    putenv('AH_SITE_ENVIRONMENT');
-  }
-
-  /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
