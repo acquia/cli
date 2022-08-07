@@ -64,16 +64,13 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
     $output = $this->getDisplay();
-    $this->assertStringContainsString('acquia_connector', $output);
-    $this->assertStringContainsString('module', $output);
-    $this->assertStringContainsString('drupal', $output);
-    $this->assertStringContainsString('core', $output);
-    $this->assertStringContainsString('7.57', $output);
-    $this->assertStringContainsString('webform', $output);
-    $this->assertStringContainsString('zen', $output);
-    $this->assertStringContainsString('theme', $output);
-    $this->assertStringContainsString('7.x-6.4', $output);
-    $this->assertStringContainsString('Bug fixes', $output);
+    $output_record[] = ['Package Name', 'Package Type', 'Current Version', 'Latest Version', 'Update Type'];
+    $output_record[] = ['zen', 'theme', '7.x-3.2', '7.x-6.4', 'Bug fixes' ];
+    foreach ($output_record as $output_data) {
+      foreach ($output_data as $value) {
+        $this->assertStringContainsString($value, $output);
+      }
+    }
   }
 
   /**
