@@ -129,7 +129,7 @@ class DrupalPackageManager {
     $package_data = $this->packageUpdater->preparePackageDetailData($package_parse_data, $package_info_key);
     $package_type = $package_data['package_type'];
     $current_version = $package_data['current_version'];
-    if (($package_type === '') || ($current_version == 'VERSION')) {
+    if ($package_type === '') {
       return;
     }
 

@@ -68,9 +68,12 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('module', $output);
     $this->assertStringContainsString('drupal', $output);
     $this->assertStringContainsString('core', $output);
+    $this->assertStringContainsString('7.57', $output);
     $this->assertStringContainsString('webform', $output);
     $this->assertStringContainsString('zen', $output);
     $this->assertStringContainsString('theme', $output);
+    $this->assertStringContainsString('7.x-6.4', $output);
+    $this->assertStringContainsString('Bug fixes', $output);
   }
 
   /**
