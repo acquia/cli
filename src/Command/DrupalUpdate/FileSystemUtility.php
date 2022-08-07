@@ -34,14 +34,14 @@ class FileSystemUtility {
   /**
    * @return GuzzleClient
    */
-  public function getClient(): GuzzleClient {
+  private function getClient(): GuzzleClient {
     return $this->client;
   }
 
   /**
    * @param GuzzleClient $client
    */
-  public function setClient(GuzzleClient $client): void {
+  private function setClient(GuzzleClient $client): void {
     $this->client = $client;
   }
 
@@ -84,7 +84,7 @@ class FileSystemUtility {
    * @param string $save_to
    * @throws AcquiaCliException
    */
-  protected function downloadRemoteFileDrupalCore(string $package, string $file_url, string $save_to): void {
+  private function downloadRemoteFileDrupalCore(string $package, string $file_url, string $save_to): void {
     try {
       $folder_name = $this->dumpPackageTarFile($file_url, $save_to, $package);
       $this->extractPackage($save_to, $package);
@@ -105,7 +105,7 @@ class FileSystemUtility {
    * Drupal core modules, themes and profiles.
    * @param string $core_dir_path
    */
-  protected function updateDrupalCore(string $core_dir_path): void {
+  private function updateDrupalCore(string $core_dir_path): void {
     $ignore_files = [
       '.gitignore',
       '.htaccess',
@@ -150,7 +150,7 @@ class FileSystemUtility {
   /**
    * @param string $file_path
    */
-  protected function removeFile(string $file_path): void {
+  private function removeFile(string $file_path): void {
     if ($this->fileSystem->exists($file_path)) {
       $this->fileSystem->remove($file_path);
     }
@@ -166,7 +166,7 @@ class FileSystemUtility {
    * @return false|string|string[]
    * @throws AcquiaCliException
    */
-  protected function dumpPackageTarFile(string $file_url, string $save_to, string $package): false|string|array {
+  private function dumpPackageTarFile(string $file_url, string $save_to, string $package): false|string|array {
     try {
       if ($this->downloadFile($file_url, $save_to . '/' . $package . '.tar.gz')) {
         return str_replace('.tar.gz', '', basename($file_url));
@@ -209,7 +209,7 @@ class FileSystemUtility {
    * @return bool
    * @throws AcquiaCliException
    */
-  public function downloadFile(string $file_url, string $save_file_path): bool {
+  private function downloadFile(string $file_url, string $save_file_path): bool {
     $client = $this->getClient();
     try {
       $response = $client->request('GET', $file_url, ['sink' => $save_file_path]);
@@ -228,7 +228,7 @@ class FileSystemUtility {
    * @param string $save_to
    * @param string $package
    */
-  protected function extractPackage(string $save_to, string $package): void {
+  private function extractPackage(string $save_to, string $package): void {
     $phar = new PharData($save_to . '/' . $package . '.tar.gz');
     $this->fileSystem->remove($save_to . '/' . $package);
     $phar->extractTo($save_to, NULL, TRUE);
@@ -295,7 +295,7 @@ class FileSystemUtility {
    *
    * @return array
    */
-  public function readInfoFile(string $file_path, array $package_info_key): array {
+  private function readInfoFile(string $file_path, array $package_info_key): array {
     $info_extension_file = file_get_contents($file_path);
     $info_file_detail = explode("\n", $info_extension_file);
     $file_detail = [];

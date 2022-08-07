@@ -93,8 +93,7 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString('project_', $package_available_updates['acquia_connector']['package_type']);
 
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessageMatches('/No release history was found for the requested project/');
-    $this->expectExceptionMessageMatches("/Failed to get 'test_package' package latest release data/");
+    $this->expectExceptionMessageMatches("/^Failed to get 'test_package' package latest release data.No release history was found for the requested project/");
     $drupalOrgClient->getSecurityRelease('test_package', '7.x-3.28');
 
   }

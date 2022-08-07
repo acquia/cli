@@ -66,7 +66,7 @@ class PackageUpdater {
    * @param array $value
    * @throws AcquiaCliException
    */
-  protected function updatePackageCode(array $value): void {
+  private function updatePackageCode(array $value): void {
     $value = $this->fileSystemUtility->getDrupalTempFolderPath($value);
     if (isset($value['file_path']) && is_array($value['file_path'])) {
       foreach ($value['file_path'] as $filepath) {

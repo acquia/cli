@@ -44,7 +44,7 @@ class DrupalOrgClient {
     }
     $release_detail = $this->fetchAvailablePackageReleases($project);
 
-    if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) >= 1 )) {
+    if (isset($release_detail['releases']['release'])) {
       $available_package_updates[$project]['current_version'] = $current_version;
       $available_package_updates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {

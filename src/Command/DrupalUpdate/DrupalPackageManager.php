@@ -136,8 +136,6 @@ class DrupalPackageManager {
   private function checkFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->drupalOrgClient;
     $package_info_key = [
-      'name',
-      'description',
       'package',
       'version',
       'core',
@@ -219,7 +217,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @return array
    */
-  public function getAvailablePackageUpdates(string $drupal_project_cwd_path): array {
+  private function getAvailablePackageUpdates(string $drupal_project_cwd_path): array {
     $version_detail = $this->packageData;
     $drupal_docroot_path = $drupal_project_cwd_path . '/docroot';
     return $this->prepareAvailablePackageUpdate($version_detail, $this->infoPackageFilesPath, $drupal_docroot_path);
@@ -231,7 +229,7 @@ class DrupalPackageManager {
    * @param array $package_release_detail
    * @return string
    */
-  protected function getUpdateType(array $package_release_detail): string {
+  private function getUpdateType(array $package_release_detail): string {
     if (isset($package_release_detail[key($package_release_detail)]['value'])) {
       return $package_release_detail[key($package_release_detail)]['value'];
     }
@@ -258,7 +256,7 @@ class DrupalPackageManager {
    *
    * @return array
    */
-  protected function prepareAvailablePackageUpdate(array $version_detail, array $package_info_files, string $drupal_docroot_path): array {
+  private function prepareAvailablePackageUpdate(array $version_detail, array $package_info_files, string $drupal_docroot_path): array {
     $package_detail = [];
     $available_package_detail[] = [
       'Package Name',
@@ -293,7 +291,7 @@ class DrupalPackageManager {
    *
    * @return array
    */
-  protected function preparePackageFilePaths(array $package_info_files, int|string $package, $versions, string $drupal_docroot_path, array $package_detail): array {
+  private function preparePackageFilePaths(array $package_info_files, int|string $package, $versions, string $drupal_docroot_path, array $package_detail): array {
     if (isset($package_info_files[$package . '.info']) && is_array($package_info_files[$package . '.info'])) {
       $file_paths = [];
       foreach ($package_info_files[$package . '.info'] as $path_location) {

@@ -27,7 +27,7 @@ class DrupalUpdateCommand extends CommandBase {
   /**
    * @param $drupal_packages_manager
    */
-  public function setDrupalPackageManager($drupal_packages_manager): void {
+  private function setDrupalPackageManager($drupal_packages_manager): void {
     $this->drupalPackagesManager = $drupal_packages_manager;
   }
 
