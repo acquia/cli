@@ -65,8 +65,12 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
     $output = $this->getDisplay();
     $this->assertStringContainsString('acquia_connector', $output);
+    $this->assertStringContainsString('module', $output);
     $this->assertStringContainsString('drupal', $output);
+    $this->assertStringContainsString('core', $output);
     $this->assertStringContainsString('webform', $output);
+    $this->assertStringContainsString('zen', $output);
+    $this->assertStringContainsString('theme', $output);
   }
 
   /**
@@ -84,6 +88,9 @@ class DrupalUpdateCommandTest extends CommandTestBase {
 
     $package_available_updates = $drupalOrgClient->getSecurityRelease('acquia/acquia_connector', '7.x-2.15');
     $this->assertIsArray($package_available_updates);
+    $this->assertArrayHasKey('acquia_connector', $package_available_updates);
+    $this->assertArrayHasKey('package_type', $package_available_updates['acquia_connector']);
+    $this->assertStringNotContainsString('project_', $package_available_updates['acquia_connector']['package_type']);
 
     $this->expectException(AcquiaCliException::class);
     $drupalOrgClient->getSecurityRelease('', '7.x-3.28');

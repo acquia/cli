@@ -37,7 +37,7 @@ class PackageUpdater {
   /**
    * @param FileSystemUtility $file_system_utility
    */
-  public function setFileSystemUtility(FileSystemUtility $file_system_utility): void {
+  protected function setFileSystemUtility(FileSystemUtility $file_system_utility): void {
     $this->fileSystemUtility = $file_system_utility;
   }
 

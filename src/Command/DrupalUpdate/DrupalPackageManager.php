@@ -79,7 +79,7 @@ class DrupalPackageManager {
   /**
    * @param FileSystemUtility $fileSystemUtility
    */
-  public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+  protected function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
@@ -232,8 +232,8 @@ class DrupalPackageManager {
    * @return string
    */
   protected function getUpdateType(array $package_release_detail): string {
-    if (isset($package_release_detail[0]['value'])) {
-      return $package_release_detail[0]['value'];
+    if (isset($package_release_detail[key($package_release_detail)]['value'])) {
+      return $package_release_detail[key($package_release_detail)]['value'];
     }
     if (isset($package_release_detail['value'])) {
       return $package_release_detail['value'];

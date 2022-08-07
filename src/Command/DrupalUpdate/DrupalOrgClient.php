@@ -18,7 +18,7 @@ class DrupalOrgClient {
   /**
    * @param FileSystemUtility $fileSystemUtility
    */
-  public function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+  protected function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
@@ -70,10 +70,10 @@ class DrupalOrgClient {
    * @return mixed
    * @throws AcquiaCliException|GuzzleException
    */
-  protected function fetchAvailablePackageReleases(string $project): mixed {
+  private function fetchAvailablePackageReleases(string $project): mixed {
     try {
       $response = $this->fileSystemUtility->getFileContents("https://updates.drupal.org/release-history/$project/7.x/current", "GET");
-      if (is_array($response) && isset($response[0]) && str_contains($response[0], "No release history was found for the requested project")) {
+      if (is_array($response) && isset($response[key($response)]) && str_contains($response[key($response)], "No release history was found for the requested project")) {
         throw new AcquiaCliException("No release history was found for the requested project- '{$project}'.");
       }
       return $response;
