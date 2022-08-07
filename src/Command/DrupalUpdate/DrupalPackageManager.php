@@ -100,22 +100,6 @@ class DrupalPackageManager {
   }
 
   /**
-   * @param string $drupal_project_cwd_path
-   * @return mixed
-   */
-  private function fetchCorePackageVersion(string $drupal_project_cwd_path): mixed {
-    $drupal_boostrap_inc_path = $drupal_project_cwd_path . '/docroot/includes/bootstrap.inc';
-    if (file_exists($drupal_boostrap_inc_path)) {
-      $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
-      preg_match("/define\(\s*'([^']*)'\s*,\s*'([^']*)'\s*\)/i", $boostrap_inc_file_contents, $constraint_matches);
-      if ((count($constraint_matches) > 2) && ($constraint_matches[1] == 'VERSION')) {
-        return $constraint_matches[2];
-      }
-    }
-    return "";
-  }
-
-  /**
    * @param array $info_packages_file_path
    * @param string $drupal_project_cwd_path
    * @throws AcquiaCliException
@@ -144,14 +128,12 @@ class DrupalPackageManager {
     $package_parse_data = $this->fileSystemUtility->parsePackageInfoFile($filepath, $package_info_key);
     $package_data = $this->packageUpdater->preparePackageDetailData($package_parse_data, $package_info_key);
     $package_type = $package_data['package_type'];
-    if ($package_type === '') {
+    $current_version = $package_data['current_version'];
+    if (($package_type === '') || ($current_version == 'VERSION')) {
       return;
     }
-    $current_version = $package_data['current_version'];
-    if ($current_version == 'VERSION') {
-      $current_version = $this->fetchCorePackageVersion($drupal_project_cwd_path);
-    }
-    if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
+
+    if (($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal')) {
       $package_available_releases_data = $drupal_client->getSecurityRelease($package_type, $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);

@@ -4,5 +4,12 @@ package = Core
 version = VERSION
 core = 7.x
 files[] = syslog.test
+configure = admin/config/development/logging
+
+; Information added by Drupal.org packaging script on 2022-06-01
+version = "7.57"
+
+project = "drupal"
+datestamp = "1654084603"
 
 

@@ -54,9 +54,6 @@ class DrupalOrgClient {
           $available_package_updates[$project]['available_versions'] = $release_detail['releases']['release'][$index];
           return $available_package_updates;
         }
-        elseif ($version_comparison > 0) {
-          continue;
-        }
       }
     }
     return [];
