@@ -83,17 +83,19 @@ class DrupalUpdateCommandTest extends CommandTestBase {
     $input = $this->getMockBuilder(InputInterface::class)->getMock();
     $output = $this->getMockBuilder(OutputInterface::class)->getMock();
     $drupalOrgClient = new DrupalOrgClient($input, $output);
-    $package_available_updates = $drupalOrgClient->getSecurityRelease('drupal/google_analytics', '7.x-2.0');
+    $package_available_updates = $drupalOrgClient->getSecurityRelease('google_analytics', '7.x-2.0');
     $this->assertIsArray($package_available_updates);
 
-    $package_available_updates = $drupalOrgClient->getSecurityRelease('acquia/acquia_connector', '7.x-2.15');
+    $package_available_updates = $drupalOrgClient->getSecurityRelease('acquia_connector', '7.x-2.15');
     $this->assertIsArray($package_available_updates);
     $this->assertArrayHasKey('acquia_connector', $package_available_updates);
     $this->assertArrayHasKey('package_type', $package_available_updates['acquia_connector']);
     $this->assertStringNotContainsString('project_', $package_available_updates['acquia_connector']['package_type']);
 
     $this->expectException(AcquiaCliException::class);
-    $drupalOrgClient->getSecurityRelease('', '7.x-3.28');
+    $this->expectExceptionMessageMatches('/No release history was found for the requested project/');
+    $this->expectExceptionMessageMatches("/Failed to get 'test_package' package latest release data/");
+    $drupalOrgClient->getSecurityRelease('test_package', '7.x-3.28');
 
   }
 

@@ -18,7 +18,7 @@ class DrupalOrgClient {
   /**
    * @param FileSystemUtility $fileSystemUtility
    */
-  protected function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+  private function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
@@ -42,12 +42,9 @@ class DrupalOrgClient {
     if ($project === 'drupal/core') {
       $project = 'drupal';
     }
-    else {
-      $project = str_replace(['drupal/', 'acquia/'], '', $project);
-    }
     $release_detail = $this->fetchAvailablePackageReleases($project);
 
-    if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) > 0 )) {
+    if (isset($release_detail['releases']['release']) && (count($release_detail['releases']['release']) >= 1 )) {
       $available_package_updates[$project]['current_version'] = $current_version;
       $available_package_updates[$project]['package_type'] = str_replace("project_", "", $release_detail['type']);
       for ($index = 0; $index < count($release_detail['releases']['release']); $index++) {
@@ -73,7 +70,7 @@ class DrupalOrgClient {
   private function fetchAvailablePackageReleases(string $project): mixed {
     try {
       $response = $this->fileSystemUtility->getFileContents("https://updates.drupal.org/release-history/$project/7.x/current", "GET");
-      if (is_array($response) && isset($response[key($response)]) && str_contains($response[key($response)], "No release history was found for the requested project")) {
+      if (isset($response[key($response)]) && str_contains($response[key($response)], "No release history was found for the requested project")) {
         throw new AcquiaCliException("No release history was found for the requested project- '{$project}'.");
       }
       return $response;

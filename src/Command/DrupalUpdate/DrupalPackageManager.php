@@ -58,35 +58,35 @@ class DrupalPackageManager {
   /**
    * @param DrupalOrgClient $drupalOrgClient
    */
-  public function setDrupalOrgClient(DrupalOrgClient $drupalOrgClient): void {
+  private function setDrupalOrgClient(DrupalOrgClient $drupalOrgClient): void {
     $this->drupalOrgClient = $drupalOrgClient;
   }
 
   /**
    * @param bool $isCoreUpdated
    */
-  public function setIsCoreUpdated(bool $isCoreUpdated): void {
+  private function setIsCoreUpdated(bool $isCoreUpdated): void {
     $this->isCoreUpdated = $isCoreUpdated;
   }
 
   /**
    * @param OutputInterface $output
    */
-  public function setOutput(OutputInterface $output): void {
+  private function setOutput(OutputInterface $output): void {
     $this->output = $output;
   }
 
   /**
    * @param FileSystemUtility $fileSystemUtility
    */
-  protected function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
+  private function setFileSystemUtility(FileSystemUtility $fileSystemUtility): void {
     $this->fileSystemUtility = $fileSystemUtility;
   }
 
   /**
    * @param PackageUpdater $package_updater
    */
-  public function setPackageUpdater(PackageUpdater $package_updater): void {
+  private function setPackageUpdater(PackageUpdater $package_updater): void {
     $this->packageUpdater = $package_updater;
   }
 
@@ -103,7 +103,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @return mixed
    */
-  protected function fetchCorePackageVersion(string $drupal_project_cwd_path): mixed {
+  private function fetchCorePackageVersion(string $drupal_project_cwd_path): mixed {
     $drupal_boostrap_inc_path = $drupal_project_cwd_path . '/docroot/includes/bootstrap.inc';
     if (file_exists($drupal_boostrap_inc_path)) {
       $boostrap_inc_file_contents = file_get_contents($drupal_boostrap_inc_path);
@@ -120,7 +120,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @throws AcquiaCliException
    */
-  public function checkPackageInfoFileDetail(array $info_packages_file_path, string $drupal_project_cwd_path): void {
+  private function checkPackageInfoFileDetail(array $info_packages_file_path, string $drupal_project_cwd_path): void {
     foreach ($info_packages_file_path as $package_name => $package_path) {
       foreach ($package_path as $path) {
         $this->checkFileInfo($path, $drupal_project_cwd_path);
@@ -133,7 +133,7 @@ class DrupalPackageManager {
    * @param string $drupal_project_cwd_path
    * @throws AcquiaCliException
    */
-  public function checkFileInfo(string $filepath, string $drupal_project_cwd_path): void {
+  private function checkFileInfo(string $filepath, string $drupal_project_cwd_path): void {
     $drupal_client = $this->drupalOrgClient;
     $package_info_key = [
       'name',
@@ -146,7 +146,7 @@ class DrupalPackageManager {
     $package_parse_data = $this->fileSystemUtility->parsePackageInfoFile($filepath, $package_info_key);
     $package_data = $this->packageUpdater->preparePackageDetailData($package_parse_data, $package_info_key);
     $package_type = $package_data['package_type'];
-    if (trim($package_type) === '') {
+    if ($package_type === '') {
       return;
     }
     $current_version = $package_data['current_version'];
@@ -154,7 +154,7 @@ class DrupalPackageManager {
       $current_version = $this->fetchCorePackageVersion($drupal_project_cwd_path);
     }
     if ( ($this->isCoreUpdated === FALSE) || ($package_type !== 'drupal') ) {
-      $package_available_releases_data = $drupal_client->getSecurityRelease(trim($package_type), $current_version);
+      $package_available_releases_data = $drupal_client->getSecurityRelease($package_type, $current_version);
       if (is_array($package_available_releases_data) & !empty($package_available_releases_data)) {
         $package_name = key($package_available_releases_data);
         $this->packageData[$package_name] = $package_available_releases_data[$package_name];
@@ -168,7 +168,7 @@ class DrupalPackageManager {
   /**
    * @param $version_detail
    */
-  public function printPackageDetail($version_detail): void {
+  private function printPackageDetail($version_detail): void {
     $table = new Table($this->output);
     $updated_packages_details = [];
     array_shift($version_detail);
