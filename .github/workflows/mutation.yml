@@ -1,6 +1,11 @@
 name: Mutation Testing
 
-on: [pull_request, push]
+on:
+  push:
+    # Prevent duplicate jobs on Dependabot PRs that interfere with automerge.
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request:
 
 jobs:
   tests:
