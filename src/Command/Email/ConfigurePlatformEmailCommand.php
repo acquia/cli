@@ -337,7 +337,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       }
       $this->logger->debug(json_encode($records));
       $this->localMachineHelper->getFilesystem()
-            ->dumpFile('dns-records.json', json_encode($records, JSON_PRETTY_PRINT));
+            ->dumpFile('dns-records.json', json_encode($records, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
     }
     else if ($file_format === 'YAML') {
       foreach ($domain_registration_response->dns_records as $record) {
