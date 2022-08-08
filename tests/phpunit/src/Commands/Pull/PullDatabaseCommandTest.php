@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
@@ -89,38 +88,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       '--no-scripts' => TRUE,
     ], $inputs);
     LandoInfoHelper::unsetLandoInfo();
-  }
-
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   */
-  public function testPullMultipleDatabasesInCloudIde(): void {
-    IdeHelper::setCloudIdeEnvVars();
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Please select a Cloud Platform application:
-      0,
-      // Would you like to link the project at ... ?
-      'n',
-      //  Choose a Cloud Platform environment [Dev, dev (vcs: master)]:
-      0,
-      //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
-      0,
-      // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
-      '10,27'
-    ];
-    try {
-      $this->executeCommand([
-      '--no-scripts' => TRUE,
-      '--multiple-dbs' => TRUE,
-    ], $inputs);
-    }
-    catch (\Exception $e) {
-      $this->assertEquals('The --multiple-dbs option is not supported in Cloud IDE.', $e->getMessage());
-    }
-    IdeHelper::unsetCloudIdeEnvVars();
+    $output = $this->getDisplay();
+    self::assertStringContainsString('Acquia CLI assumes that the database name', $output);
   }
 
   /**
@@ -148,7 +117,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       '--multiple-dbs' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
   }
 
   /**
@@ -194,23 +162,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
     $this->assertStringNotContainsString('Choose a database', $output);
-  }
-
-  /**
-   * Test that settings files are created for multisite DBs in IDEs.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function testPullDatabaseSettingsFiles(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-    // @todo Use the IdeRequiredTestBase instead of setting AH_SITE_ENVIRONMENT.
-    // IdeRequiredTestBase sets other env vars (such as application ID) that
-    // seem to conflict with the rest of this test.
-    putenv('AH_SITE_ENVIRONMENT=IDE');
-    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    putenv('AH_SITE_ENVIRONMENT');
   }
 
   /**
@@ -309,7 +260,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     if ($multidb) {
       $database_response_2 = $databases_response[array_search('profserv2', array_column($databases_response, 'name'))];
-      $selected_database_2 = $this->mockDownloadBackup($database_response_2, $selected_environment, $valid_cert);
+      $this->mockDownloadBackup($database_response_2, $selected_environment, $valid_cert);
     }
 
     $ssh_helper = $this->mockSshHelper();
