@@ -50,6 +50,9 @@ jobs:
         if: matrix.coverage == 'none'
         run: |
           composer validate --no-check-all --ansi
+          # Catch PSR issues to prevent phantom tests.
+          # @see https://github.com/acquia/cli/pull/1065
+          composer dump-autoload --strict-psr
           composer test
       - name: Run coverage
         if: matrix.coverage == 'pcov'
