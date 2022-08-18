@@ -114,7 +114,6 @@
         "update-cloud-api-spec": [
             "rm -rf cx-api-spec",
             "git clone git@github.com:acquia/cx-api-spec.git",
-            "npm install -g npm@6.6",
             "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\" && cd cx-api-spec && nvm install && nvm use && npm install && make install && make spec",
             "cp cx-api-spec/dist/spec/acquia-spec.yaml assets/",
             "rm -rf cx-api-spec"
