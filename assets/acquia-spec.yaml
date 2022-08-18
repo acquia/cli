@@ -3659,7 +3659,8 @@ components:
           description: The status of the notification.
           enum:
             - completed
-            - in_progress
+            - in-progress
+            - failed
         type:
           type: string
           description: The notification type.
@@ -4305,6 +4306,11 @@ components:
         status:
           type: string
           description: The status of the search configuration set.
+          enum:
+            - active
+            - pending
+            - failed
+            - inactive
         _links:
           $ref: '#/components/schemas/Links'
     ConfigurationSets:
@@ -4355,6 +4361,11 @@ components:
         status:
           type: string
           description: The state for the index.
+          enum:
+            - active
+            - pending
+            - failed
+            - inactive
         solr_version:
           type: string
           description: The Solr version the index is currently running on.
