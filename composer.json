@@ -45,7 +45,6 @@
         "symfony/expression-language": "^6",
         "symfony/filesystem": "^6",
         "symfony/finder": "^6",
-        "symfony/flex": "^2",
         "symfony/http-kernel": "^6",
         "symfony/process": "^6",
         "symfony/validator": "^6",
@@ -56,6 +55,7 @@
         "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-latest",
         "acquia/coding-standards": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "overtrue/phplint": "^4.0",
@@ -84,7 +84,7 @@
     ],
     "config": {
         "platform": {
-            "php": "8.0.3"
+            "php": "8.0.21"
         },
         "process-timeout": 3600,
         "optimize-autoloader": true,

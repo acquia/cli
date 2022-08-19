@@ -492,7 +492,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   private function promptChooseApplication(
     Client $acquia_cloud_client
-  ) {
+  ): object|array|null {
     $applications_resource = new Applications($acquia_cloud_client);
     $customer_applications = $applications_resource->getAll();
 
@@ -555,9 +555,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Prompt a user to choose from a list.
    *
    * The list is generated from an array of objects. The objects much have at least one unique property and one
-   * property that can be used as a human readable label.
+   * property that can be used as a human-readable label.
    *
-   * @param object[]|array[] $items An array of objects or arrays.
+   * @param array[]|object[] $items An array of objects or arrays.
    * @param string $unique_property The property of the $item that will be used to identify the object.
    * @param string $label_property
    * @param string $question_text
@@ -566,7 +566,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return null|array|object
    */
-  public function promptChooseFromObjectsOrArrays($items, string $unique_property, string $label_property, string $question_text, $multiselect = FALSE) {
+  public function promptChooseFromObjectsOrArrays(array|\ArrayObject $items, string $unique_property, string $label_property, string $question_text, bool $multiselect = FALSE): object|array|null {
     $list = [];
     foreach ($items as $item) {
       if (is_array($item)) {
@@ -589,10 +589,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
             return $item;
           }
         }
-        else {
-          if ($item->$unique_property === $identifier) {
-            return $item;
-          }
+        else if ($item->$unique_property === $identifier) {
+          return $item;
         }
       }
     }
@@ -606,10 +604,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
               $chosen[] = $item;
             }
           }
-          else {
-            if ($item->$unique_property === $identifier) {
-              $chosen[] = $item;
-            }
+          else if ($item->$unique_property === $identifier) {
+            $chosen[] = $item;
           }
         }
       }
@@ -997,7 +993,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @return false|string
    */
-  public static function getThisCloudIdeUuid() {
+  public static function getThisCloudIdeUuid(): false|string {
     return getenv('REMOTEIDE_UUID');
   }
 
