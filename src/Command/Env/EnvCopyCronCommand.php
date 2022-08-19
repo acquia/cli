@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Env;
 
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
+use Exception;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,7 +19,7 @@ class EnvCopyCronCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
       ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
       ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
@@ -32,9 +33,9 @@ class EnvCopyCronCommand extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     // If both source and destination env inputs are same.
     if ($input->getArgument('source_env') === $input->getArgument('dest_env')) {
       $this->io->error('The source and destination environments can not be same.');
@@ -68,7 +69,7 @@ class EnvCopyCronCommand extends CommandBase {
 
     // If source environment doesn't have any cron job or only
     // has system crons.
-    if ($source_env_cron_list->count() === 0 || $only_system_crons) {
+    if ($only_system_crons || $source_env_cron_list->count() === 0) {
       $this->io->error('There are no cron jobs in the source environment for copying.');
       return 1;
     }
@@ -96,7 +97,7 @@ class EnvCopyCronCommand extends CommandBase {
           );
 
         }
-        catch (\Exception $e) {
+        catch (Exception $e) {
           $this->io->error('There was some error while copying the cron task "' . $cron->label . '"');
           // Log the error for debugging purpose.
           $this->logger->debug('Error @error while copying the cron task @cron from @source env to @dest env', [
