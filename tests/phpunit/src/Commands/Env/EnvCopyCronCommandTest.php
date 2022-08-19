@@ -26,10 +26,13 @@ class EnvCopyCronCommandTest extends CommandTestBase {
    * Tests the 'app:cron-copy' command.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCopyCronTasksCommandTest(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
     $source_crons_list_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+    // todo: remove hack for missing label (CXAPI-9746)
+    $source_crons_list_response->_embedded->items[0]->label = 'foo';
     $this->clientProphecy->request('get',
       '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
       ->willReturn($source_crons_list_response->{'_embedded'}->items)
@@ -55,7 +58,7 @@ class EnvCopyCronCommandTest extends CommandTestBase {
 
     $output = $this->getDisplay();
     $this->assertStringContainsString('Are you sure you\'d like to copy the cron jobs from ' . $source . ' to ' . $dest . '? (yes/no) [yes]:', $output);
-    $this->assertStringContainsString('Copying the cron task "" from ' . $source . ' to', $output);
+    $this->assertStringContainsString('Copying the cron task "foo" from ' . $source . ' to', $output);
     $this->assertStringContainsString($dest, $output);
     $this->assertStringContainsString('[OK] Cron task copy is completed.', $output);
   }
