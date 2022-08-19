@@ -27,7 +27,7 @@ class EnvCreateCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
     $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');
     $this->addArgument('branch', InputArgument::OPTIONAL, 'The vcs path (git branch name) to deploy to the new environment');
@@ -79,17 +79,17 @@ class EnvCreateCommand extends CommandBase {
 
   /**
    * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
-   * @param string|null $cloud_app_uuid
-   * @param mixed $title
+   * @param string $cloud_app_uuid
+   * @param string $title
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function validateLabel(Environments $environments_resource, ?string $cloud_app_uuid, mixed $title): void {
+  private function validateLabel(Environments $environments_resource, string $cloud_app_uuid, string $title): void {
     $this->checklist->addItem("Checking to see that label is unique");
     /** @var \AcquiaCloudApi\Response\EnvironmentResponse[] $environments */
     $environments = $environments_resource->getAll($cloud_app_uuid);
     foreach ($environments as $environment) {
-      if ($environment->label == $title) {
+      if ($environment->label === $title) {
         throw new AcquiaCliException("An environment named $title already exists.");
       }
     }
@@ -101,25 +101,19 @@ class EnvCreateCommand extends CommandBase {
    * @param string|null $cloud_app_uuid
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
-   * @return mixed
+   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): mixed {
+  private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): string {
     $branches_and_tags = $acquia_cloud_client->request('get', "/applications/$cloud_app_uuid/code");
     if ($input->getArgument('branch')) {
       $branch = $input->getArgument('branch');
-      $branch_names = [];
-      foreach ($branches_and_tags as $branches_or_tag) {
-        $branch_names[] = $branches_or_tag->name;
-      }
-      if (array_search($branch, $branch_names) === FALSE) {
+      if (!in_array($branch, array_column($branches_and_tags, 'name'), TRUE)) {
         throw new AcquiaCliException("There is no branch or tag with the name $branch on the remote VCS.", );
       }
+      return $branch;
     }
-    else {
-      $branch = $this->promptChooseFromObjectsOrArrays($branches_and_tags, 'name', 'name', "Choose a branch or tag to deploy to the new environment");
-    }
-    return $branch;
+    return $this->promptChooseFromObjectsOrArrays($branches_and_tags, 'name', 'name', "Choose a branch or tag to deploy to the new environment")->name;
   }
 
   /**
