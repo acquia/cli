@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Applications;
+use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,7 +33,8 @@ class IdeListMineCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_ides = $acquia_cloud_client->request('get', '/account/ides');
+    $ides = new Ides($acquia_cloud_client);
+    $account_ides = $ides->getMine();
     $application_resource = new Applications($acquia_cloud_client);
 
     if (count($account_ides)) {
@@ -40,7 +42,7 @@ class IdeListMineCommand extends IdeCommandBase {
       $table->setStyle('borderless');
       $table->setHeaders(['IDEs']);
       foreach ($account_ides as $ide) {
-        $app_url_parts = explode('/', $ide->_links->application->href);
+        $app_url_parts = explode('/', $ide->links->application->href);
         $app_uuid = end($app_url_parts);
         $application = $application_resource->get($app_uuid);
         $application_url = str_replace('/api', '/a', $application->links->self->href);
@@ -50,8 +52,8 @@ class IdeListMineCommand extends IdeCommandBase {
           ["UUID: {$ide->uuid}"],
           ["Application: <href={$application_url}>{$application->name}</>"],
           ["Subscription: {$application->subscription->name}"],
-          ["IDE URL: <href={$ide->_links->ide->href}>{$ide->_links->ide->href}</>"],
-          ["Web URL: <href={$ide->_links->web->href}>{$ide->_links->web->href}</>"],
+          ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
+          ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
           new TableSeparator(),
         ]);
       }
