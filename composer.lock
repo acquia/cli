@@ -8,20 +8,20 @@
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
-            "version": "1.4.1",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/acquia/drupal-environment-detector.git",
-                "reference": "1155ed6cd62cacc4dfa9545a612a4981d6560bcc"
+                "reference": "ef6e86df2654f93b11062e07a93dbcd941d65176"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/1155ed6cd62cacc4dfa9545a612a4981d6560bcc",
-                "reference": "1155ed6cd62cacc4dfa9545a612a4981d6560bcc",
+                "url": "https://api.github.com/repos/acquia/drupal-environment-detector/zipball/ef6e86df2654f93b11062e07a93dbcd941d65176",
+                "reference": "ef6e86df2654f93b11062e07a93dbcd941d65176",
                 "shasum": ""
             },
             "require-dev": {
-                "acquia/coding-standards": "^0.4.3",
+                "acquia/coding-standards": "^1.0.0",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "phpunit/phpunit": "^9.1"
             },
@@ -52,9 +52,9 @@
             "description": "Provides common methods for detecting the current Acquia environment",
             "support": {
                 "issues": "https://github.com/acquia/drupal-environment-detector/issues",
-                "source": "https://github.com/acquia/drupal-environment-detector/tree/1.4.1"
+                "source": "https://github.com/acquia/drupal-environment-detector/tree/1.5.0"
             },
-            "time": "2022-03-15T20:59:14+00:00"
+            "time": "2022-08-23T18:15:55+00:00"
         },
         {
             "name": "brick/math",
