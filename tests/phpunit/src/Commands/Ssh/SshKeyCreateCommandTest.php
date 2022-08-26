@@ -15,10 +15,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class SshKeyCreateCommandTest extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  protected $filename = 'id_rsa_acli_test';
+  protected string $filename = 'id_rsa_acli_test';
 
   /**
    * {@inheritdoc}
@@ -84,7 +81,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper, $ssh_add_success);
-    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $this->mockGenerateSshKey($local_machine_helper);
 
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();

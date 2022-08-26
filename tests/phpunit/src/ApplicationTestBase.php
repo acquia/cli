@@ -44,8 +44,6 @@ class ApplicationTestBase extends TestBase {
     /** @var Application $application */
     $application = $this->kernel->getContainer()->get(Application::class);
     $application->setAutoExit(FALSE);
-    // Set column width to prevent wrapping and string assertion failures.
-    putenv('COLUMNS=85');
     $application->run($input, $output);
     return $output->fetch();
   }

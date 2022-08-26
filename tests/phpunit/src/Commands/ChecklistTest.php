@@ -5,12 +5,13 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Output\Checklist;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class ChecklistTest extends TestBase {
 
-  protected $output;
+  protected OutputInterface $output;
 
-  public function setUp($output = NULL): void {
+  public function setUp(OutputInterface $output = NULL): void {
     // Unfortunately this prints to screen. Not sure how else to
     // get the spinner and checklist to work. They require the $output->section()
     // method which is only available for ConsoleOutput. Could make a custom testing

@@ -25,14 +25,15 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  private $gitLabHost = 'gitlabhost';
-  private $gitLabToken = 'gitlabtoken';
-  private $gitLabProjectId = 33;
-  private $gitLabTokenId = 118;
+  private string $gitLabHost = 'gitlabhost';
+  private string $gitLabToken = 'gitlabtoken';
+  private int $gitLabProjectId = 33;
+  private int $gitLabTokenId = 118;
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   public function setUp($output = NULL): void {
     parent::setUp($output);
@@ -87,7 +88,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    *
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
-  public function testCommand($mocked_gitlab_projects, $inputs, $args) {
+  public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
     $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost);

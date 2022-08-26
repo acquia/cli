@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Ides;
+use AcquiaCloudApi\Response\IdesResponse;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,6 +16,36 @@ use Symfony\Component\Console\Output\OutputInterface;
 class IdeListMineCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:mine';
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Response\IdesResponse $account_ides
+   * @param \AcquiaCloudApi\Endpoints\Applications $application_resource
+   *
+   * @return void
+   */
+  public function printIdes(OutputInterface $output, IdesResponse $account_ides, Applications $application_resource): void {
+    $table = new Table($output);
+    $table->setStyle('borderless');
+    $table->setHeaders(['IDEs']);
+    foreach ($account_ides as $ide) {
+      $app_url_parts = explode('/', $ide->links->application->href);
+      $app_uuid = end($app_url_parts);
+      $application = $application_resource->get($app_uuid);
+      $application_url = str_replace('/api', '/a', $application->links->self->href);
+
+      $table->addRows([
+        ["<comment>{$ide->label}</comment>"],
+        ["UUID: {$ide->uuid}"],
+        ["Application: <href={$application_url}>{$application->name}</>"],
+        ["Subscription: {$application->subscription->name}"],
+        ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
+        ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
+        new TableSeparator(),
+      ]);
+    }
+    $table->render();
+  }
 
   /**
    * {inheritdoc}.
@@ -38,26 +69,7 @@ class IdeListMineCommand extends IdeCommandBase {
     $application_resource = new Applications($acquia_cloud_client);
 
     if (count($account_ides)) {
-      $table = new Table($output);
-      $table->setStyle('borderless');
-      $table->setHeaders(['IDEs']);
-      foreach ($account_ides as $ide) {
-        $app_url_parts = explode('/', $ide->links->application->href);
-        $app_uuid = end($app_url_parts);
-        $application = $application_resource->get($app_uuid);
-        $application_url = str_replace('/api', '/a', $application->links->self->href);
-
-        $table->addRows([
-          ["<comment>{$ide->label}</comment>"],
-          ["UUID: {$ide->uuid}"],
-          ["Application: <href={$application_url}>{$application->name}</>"],
-          ["Subscription: {$application->subscription->name}"],
-          ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
-          ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
-          new TableSeparator(),
-        ]);
-      }
-      $table->render();
+      $this->printIdes($output, $account_ides, $application_resource);
     }
     else {
       $output->writeln('No IDE exists for your account.');

@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Email;
 
 use Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -577,7 +578,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestConfigurePlatformEmailAddDomain
    * @throws \Exception
-   * @throws AcquiaCloudApi\Exception\ApiErrorException
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyAssociatedDomains($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
@@ -633,7 +633,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
    * @throws \Exception
-   * @throws AcquiaCloudApi\Exception\ApiErrorException
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
@@ -687,11 +686,11 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @return \Symfony\Component\Filesystem\Filesystem|\Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
+  protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): Filesystem|ObjectProphecy {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $local_machine_helper->getFilesystem()->willReturn($file_system)->shouldBeCalled();
 

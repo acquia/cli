@@ -18,20 +18,9 @@ use Symfony\Component\Filesystem\Path;
  */
 abstract class WizardTestBase extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  public static $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+  public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  /**
-   * @var string
-   */
-  protected $sshKeyFileName;
-
-  /**
-   * @var string
-   */
-  protected $passphraseFilepath = '~/.passphrase';
+  protected string $sshKeyFileName;
 
   /**
    * This method is called before each test.
@@ -81,7 +70,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $this->mockGenerateSshKey($local_machine_helper);
     $local_machine_helper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
@@ -141,7 +130,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $this->mockGenerateSshKey($local_machine_helper);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();

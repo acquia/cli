@@ -35,7 +35,7 @@ class TaskWaitCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    self::assertStringContainsStringIgnoringWhitespace($message, $output);
+    self::assertStringContainsString($message, $output);
     $this->assertStringContainsString('Progress: 100', $output);
     $this->assertStringContainsString('Completed: Mon Jul 29 20:47:13 UTC 2019', $output);
     $this->assertStringContainsString('Task type: Application added to recents list', $output);

@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
@@ -11,6 +12,7 @@ use Acquia\Cli\Config\AcquiaCliConfig;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
@@ -47,138 +49,65 @@ use Symfony\Component\Yaml\Yaml;
  */
 abstract class TestBase extends TestCase {
 
-  protected $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.yaml';
+  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../assets/acquia-spec.yaml';
 
-  /**
-   * @var \Symfony\Component\Console\Output\ConsoleOutput
-   */
-  protected $consoleOutput;
+  protected ConsoleOutput $consoleOutput;
 
-  /**
-   * @var \Symfony\Component\Filesystem\Filesystem
-   */
-  protected $fs;
+  protected Filesystem $fs;
 
-  /**
-   * @var \Prophecy\Prophet*/
-  protected $prophet;
+  protected Prophet $prophet;
 
-  /**
-   * @var \Symfony\Component\Console\Command\Command
-   */
-  protected $projectFixtureDir;
+  protected string $projectFixtureDir;
 
-  /**
-   * @var string
-   */
-  protected $fixtureDir;
+  protected string $fixtureDir;
 
-  /**
-   * @var Application
-   */
-  protected $application;
-  /**
-   * @var \Symfony\Component\Console\Input\ArrayInput
-   */
-  protected $input;
+  protected Application $application;
 
-  protected $output;
+  protected ArrayInput $input;
 
-  /**
-   * @var \Prophecy\Prophecy\ObjectProphecy|\AcquiaCloudApi\Connector\Client
-   */
-  protected $clientProphecy;
+  protected OutputInterface $output;
 
-  /** @var \Prophecy\Prophecy\ObjectProphecy|LogstreamManager */
-  protected $logStreamManagerProphecy;
+  protected Client|ObjectProphecy $clientProphecy;
 
-  /** @var array */
-  protected $acliConfig = [];
+  protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
 
-  /** @var array */
-  protected $cloudConfig = [];
+  protected array $acliConfig = [];
 
-  /**
-   * @var string
-   */
-  protected $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
+  protected array $cloudConfig = [];
 
-  /**
-   * @var string
-   */
-  protected $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
+  protected string $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';
 
-  /**
-   * @var string
-   */
-  protected $dataDir;
+  protected string $secret = 'X1u\/PIQXtYaoeui.4RJSJpGZjwmWYmfl5AUQkAebYE=';
 
-  /**
-   * @var string
-   */
-  protected $cloudConfigFilepath;
+  protected string $dataDir;
 
-  /**
-   * @var string
-   */
-  protected $acliConfigFilepath;
+  protected string $cloudConfigFilepath;
 
-  /**
-   * @var \Acquia\Cli\DataStore\AcquiaCliDatastore
-   */
-  protected $datastoreAcli;
+  protected string $acliConfigFilepath;
 
-  /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
-   */
-  protected $datastoreCloud;
+  protected AcquiaCliDatastore $datastoreAcli;
 
-  /**
-   * @var \Acquia\Cli\ApiCredentialsInterface
-   */
-  protected $cloudCredentials;
+  protected CloudDataStore $datastoreCloud;
 
-  /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
-  protected $localMachineHelper;
+  protected ApiCredentialsInterface $cloudCredentials;
 
-  /**
-   * @var \Acquia\Cli\Helpers\TelemetryHelper
-   */
-  protected $telemetryHelper;
+  protected LocalMachineHelper $localMachineHelper;
 
-  /**
-   * @var string
-   */
-  protected $acliConfigFilename;
+  protected TelemetryHelper $telemetryHelper;
 
-  /**
-   * @var \Prophecy\Prophecy\ObjectProphecy
-   */
-  protected $clientServiceProphecy;
+  protected string $acliConfigFilename;
 
-  /**
-   * @var \Acquia\Cli\Helpers\SshHelper
-   */
-  protected $sshHelper;
+  protected ClientService|ObjectProphecy $clientServiceProphecy;
 
-  /**
-   * @var string
-   */
-  protected $sshDir;
+  protected SshHelper $sshHelper;
 
-  /**
-   * @var string|\Symfony\Component\Console\Command\Command
-   */
-  protected $acliRepoRoot;
+  protected string $sshDir;
 
-  /**
-   * @var \Symfony\Component\Console\Logger\ConsoleLogger
-   */
-  protected $logger;
+  protected string $acliRepoRoot;
 
-  protected $passphraseFilepath;
+  protected ConsoleLogger $logger;
+
+  protected string $passphraseFilepath = '~/.passphrase';
 
   /**
    * Filter an applications response in order to simulate query filters.
@@ -189,10 +118,10 @@ abstract class TestBase extends TestCase {
    *
    * @param object $applications_response
    * @param int $count
+   * @param bool $unique
    *
    * @return object
-   *@see CXAPI-9647
-   *
+   * @see CXAPI-9647
    */
   public function filterApplicationsResponse(object $applications_response, int $count, bool $unique): object {
     if ($unique) {
@@ -206,9 +135,12 @@ abstract class TestBase extends TestCase {
   /**
    * This method is called before each test.
    *
-   * @param null $output
+   * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+   *
+   * @throws \Exception
    */
-  protected function setUp($output = NULL): void {
+  protected function setUp(OutputInterface $output = NULL): void {
+    putenv('COLUMNS=85');
     if (!$output) {
       $output = new BufferedOutput();
     }
@@ -245,9 +177,9 @@ abstract class TestBase extends TestCase {
    *
    * @throws \Exception
    */
-  private function getTempDir() {
+  private function getTempDir(): string {
     /**
-     * sys_get_temp_dir() is not thread-safe but it's okay to use here since
+     * sys_get_temp_dir() is not thread-safe, but it's okay to use here since
      * we are specifically creating a thread-safe temporary directory.
      */
     // phpcs:ignore
@@ -263,7 +195,7 @@ abstract class TestBase extends TestCase {
      * be stuck in an endless loop.
      */
     if (!is_dir($dir) || !is_writable($dir)) {
-      return FALSE;
+      throw new AcquiaCliException('Cannot write to temporary directory');
     }
 
     /* Attempt to create a random directory until it works. Abort if we reach
@@ -293,7 +225,7 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  protected function setIo($input, $output) {
+  protected function setIo($input, $output): void {
     $this->input = $input;
     $this->output = $output;
     $this->logger = new ConsoleLogger($output);
@@ -310,7 +242,7 @@ abstract class TestBase extends TestCase {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getResourceFromSpec($path, $method) {
+  protected function getResourceFromSpec($path, $method): mixed {
     $acquia_cloud_spec = $this->getCloudApiSpec();
     return $acquia_cloud_spec['paths'][$path][$method];
   }
@@ -327,10 +259,11 @@ abstract class TestBase extends TestCase {
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    *
    * @see CXAPI-7208
    */
-  public function getMockResponseFromSpec($path, $method, $http_code) {
+  public function getMockResponseFromSpec($path, $method, $http_code): object {
     $endpoint = $this->getResourceFromSpec($path, $method);
     $response = $endpoint['responses'][$http_code];
 
@@ -342,13 +275,10 @@ abstract class TestBase extends TestCase {
     }
 
     if (array_key_exists('example', $content)) {
-      $response_body = json_encode($content['example']);
+      $response_body = json_encode($content['example'], JSON_THROW_ON_ERROR);
     }
     elseif (array_key_exists('examples', $content)) {
-      $response_body = json_encode($content['examples']);
-    }
-    elseif (array_key_exists('example', $content)) {
-      $response_body = json_encode($content['example']);
+      $response_body = json_encode($content['examples'], JSON_THROW_ON_ERROR);
     }
     elseif (array_key_exists('schema', $content)
       && array_key_exists('$ref', $content['schema'])) {
@@ -361,7 +291,7 @@ abstract class TestBase extends TestCase {
       return (object) [];
     }
 
-    return json_decode($response_body);
+    return json_decode($response_body, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
   /**
@@ -400,7 +330,7 @@ abstract class TestBase extends TestCase {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function getMockRequestBodyFromSpec($path, $method = 'post') {
+  public function getMockRequestBodyFromSpec($path, string $method = 'post'): mixed {
     $endpoint = $this->getResourceFromSpec($path, $method);
     return $endpoint['requestBody']['content']['application/json']['example'];
   }
@@ -409,7 +339,7 @@ abstract class TestBase extends TestCase {
    * @return mixed
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getCloudApiSpec() {
+  protected function getCloudApiSpec(): mixed {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
     $acquia_cloud_spec_file = $this->apiSpecFixtureFilePath;
@@ -437,7 +367,7 @@ abstract class TestBase extends TestCase {
    * @return bool
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, $acquia_cloud_spec_file_checksum): bool {
+  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, string $acquia_cloud_spec_file_checksum): bool {
     $api_spec_checksum_item = $cache->getItem($cache_key . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
     return !(!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit()
@@ -479,17 +409,23 @@ abstract class TestBase extends TestCase {
     return $public_key_filepath;
   }
 
+  /**
+   * @throws \JsonException
+   */
   protected function createMockConfigFiles(): void {
     $this->createMockCloudConfigFile();
 
     $default_values = [];
     $acli_config = array_merge($default_values, $this->acliConfig);
-    $contents = json_encode($acli_config);
+    $contents = json_encode($acli_config, JSON_THROW_ON_ERROR);
     $filepath = $this->acliConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockCloudConfigFile($default_values = []) {
+  /**
+   * @throws \JsonException
+   */
+  protected function createMockCloudConfigFile($default_values = []): void {
     if (!$default_values) {
       $default_values = [
         'acli_key' => $this->key,
@@ -504,7 +440,7 @@ abstract class TestBase extends TestCase {
       ];
     }
     $cloud_config = array_merge($default_values, $this->cloudConfig);
-    $contents = json_encode($cloud_config);
+    $contents = json_encode($cloud_config, JSON_THROW_ON_ERROR);
     $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
@@ -518,7 +454,7 @@ abstract class TestBase extends TestCase {
    *   The number of applications to return. Use this to simulate query filters.
    *
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.
@@ -560,7 +496,7 @@ abstract class TestBase extends TestCase {
 
   /**
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockApplicationRequest() {
     $applications_response = $this->getMockResponseFromSpec('/applications',
@@ -574,7 +510,11 @@ abstract class TestBase extends TestCase {
     return $application_response;
   }
 
-  protected function mockPermissionsRequest($application_response, $perms = TRUE) {
+  /**
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  protected function mockPermissionsRequest($application_response, $perms = TRUE): object {
     $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
     if (!$perms) {
@@ -604,8 +544,8 @@ abstract class TestBase extends TestCase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
-    $applications_response
-  ) {
+    object $applications_response
+  ): object {
     $response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
       "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
@@ -637,6 +577,7 @@ abstract class TestBase extends TestCase {
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   protected function getMockEnvironmentResponse(string $method = 'get', string $http_code = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
@@ -646,19 +587,19 @@ abstract class TestBase extends TestCase {
   /**
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
-  protected function getMockEnvironmentsResponse() {
-    $environments_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
+  protected function getMockEnvironmentsResponse(): object {
+    return $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'get', 200);
-
-    return $environments_response;
   }
 
   /**
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
-  protected function mockIdeListRequest() {
+  protected function mockIdeListRequest(): object {
     $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides',
       'get', '200');
     $this->clientProphecy->request('get',
@@ -673,9 +614,9 @@ abstract class TestBase extends TestCase {
    * @param string $ide_uuid
    *
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockGetIdeRequest(string $ide_uuid) {
+  protected function mockGetIdeRequest(string $ide_uuid): object {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     return $ide_response;
@@ -685,9 +626,9 @@ abstract class TestBase extends TestCase {
    * @param string $ide_uuid
    *
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockIdeDeleteRequest(string $ide_uuid) {
+  protected function mockIdeDeleteRequest(string $ide_uuid): object {
     $ide_delete_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
     $this->clientProphecy->request('delete', '/ides/' . $ide_uuid)
       ->willReturn($ide_delete_response->{'De-provisioning IDE'}->value)
@@ -697,9 +638,9 @@ abstract class TestBase extends TestCase {
 
   /**
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockLogStreamRequest() {
+  protected function mockLogStreamRequest(): object {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
       'get', '200');
     $this->clientProphecy->request('get',
@@ -712,9 +653,9 @@ abstract class TestBase extends TestCase {
 
   /**
    * @return object
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockListSshKeysRequest() {
+  protected function mockListSshKeysRequest(): object {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
     $this->clientProphecy->request('get', '/account/ssh-keys')
@@ -728,8 +669,9 @@ abstract class TestBase extends TestCase {
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
-  protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide) {
+  protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
     $this->clientProphecy->request('get', '/account/ssh-keys')
@@ -740,11 +682,10 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param LocalMachineHelper|ObjectProphecy $local_machine_helper
-   * @param Filesystem|ObjectProphecy $file_system
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function mockGenerateSshKey($local_machine_helper, $file_system) {
+  protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper): void {
     $key_contents = 'thekey!';
     $public_key_path = 'id_rsa.pub';
     $process = $this->prophet->prophesize(Process::class);
@@ -761,7 +702,7 @@ abstract class TestBase extends TestCase {
   /**
    * @param $local_machine_helper
    */
-  protected function mockAddSshKeyToAgent($local_machine_helper, $file_system) {
+  protected function mockAddSshKeyToAgent($local_machine_helper, $file_system): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
@@ -775,7 +716,7 @@ abstract class TestBase extends TestCase {
    * @param LocalMachineHelper|ObjectProphecy $local_machine_helper
    * @param bool $success
    */
-  protected function mockSshAgentList($local_machine_helper, $success = FALSE): void {
+  protected function mockSshAgentList(ObjectProphecy|LocalMachineHelper $local_machine_helper, bool $success = FALSE): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
@@ -803,7 +744,7 @@ abstract class TestBase extends TestCase {
   /**
    * @param \AcquiaCloudApi\Response\IdeResponse $ide
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
@@ -829,7 +770,7 @@ abstract class TestBase extends TestCase {
   /**
    * @param $mock_request_args
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockListSshKeyRequestWithUploadedKey(
     $mock_request_args
@@ -843,11 +784,11 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockStartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+  protected function mockStartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -860,11 +801,11 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockStopPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+  protected function mockStopPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -877,11 +818,11 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockRestartPhp(ObjectProphecy $local_machine_helper): ObjectProphecy {
+  protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -898,7 +839,7 @@ abstract class TestBase extends TestCase {
    *
    * @return Filesystem
    */
-  protected function mockGetFilesystem(ObjectProphecy $local_machine_helper) {
+  protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
 
     return $this->fs;
