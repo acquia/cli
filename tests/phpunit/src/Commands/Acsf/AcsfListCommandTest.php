@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 
 class AcsfListCommandTest extends CommandTestBase {
 
-  protected $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
+  protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
   /**

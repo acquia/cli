@@ -51,7 +51,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
-    $this->mockGenerateSshKey($local_machine_helper, $file_system);
+    $this->mockGenerateSshKey($local_machine_helper);
 
     // Upload.
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');

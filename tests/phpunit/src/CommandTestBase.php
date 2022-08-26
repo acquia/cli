@@ -209,7 +209,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return ObjectProphecy|LocalMachineHelper
    */
-  protected function mockLocalMachineHelper(): ObjectProphecy {
+  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
     $local_machine_helper->useTty()->willReturn(FALSE);
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
@@ -219,16 +219,16 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return ObjectProphecy
+   * @return \Acquia\Cli\Helpers\SshHelper|\Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockSshHelper(): ObjectProphecy {
-    $ssh_helper = $this->prophet->prophesize(SshHelper::class);
-    return $ssh_helper;
+  protected function mockSshHelper(): SshHelper|ObjectProphecy {
+    return $this->prophet->prophesize(SshHelper::class);
   }
 
   /**
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   protected function mockGetEnvironments(): object {
     $environment_response = $this->getMockEnvironmentResponse();
@@ -244,10 +244,11 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return object
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   public function mockAcsfEnvironmentsRequest(
-    $applications_response
-  ) {
+    object $applications_response
+  ): object {
     $environments_response = $this->getMockEnvironmentsResponse();
     foreach ($environments_response->_embedded->items as $environment) {
       $environment->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
@@ -266,7 +267,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return void
    */
-  protected function mockGetAcsfSites($ssh_helper) {
+  protected function mockGetAcsfSites($ssh_helper): void {
     $acsf_multisite_fetch_process = $this->mockProcess();
     $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->fixtureDir,
       '/multisite-config.json')))->shouldBeCalled();
@@ -282,7 +283,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @return void
    */
-  protected function mockGetCloudSites($ssh_helper, $environment) {
+  protected function mockGetCloudSites($ssh_helper, $environment): void {
     $cloud_multisite_fetch_process = $this->mockProcess();
     $cloud_multisite_fetch_process->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
@@ -296,9 +297,9 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param bool $success
    *
-   * @return ObjectProphecy
+   * @return \Symfony\Component\Process\Process|\Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockProcess($success = TRUE): ObjectProphecy {
+  protected function mockProcess(bool $success = TRUE): Process|ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
@@ -557,6 +558,8 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
+   * @param $project_id
+   *
    * @return array
    */
   protected function getMockedGitLabProject($project_id): array {
@@ -624,9 +627,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
+   * @param \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client $gitlab_client
    */
-  protected function mockGitLabUsersMe(ObjectProphecy $gitlab_client): void {
+  protected function mockGitLabUsersMe(ObjectProphecy|\Gitlab\Client $gitlab_client): void {
     $users = $this->prophet->prophesize(Users::class);
     $me = [
       'id' => 20,
@@ -677,10 +680,11 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $application_uuid
    *
-   * @return object
+   * @return array
+   * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockGitLabPermissionsRequest($application_uuid) {
+  protected function mockGitLabPermissionsRequest($application_uuid): array {
     $permissions_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
     $permissions = $permissions_response->_embedded->items;
     $permission = clone reset($permissions);
@@ -694,11 +698,12 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $application_uuid
+   * @param $gitlab_project_id
    * @param $mocked_gitlab_projects
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
+   * @return \Gitlab\Api\Projects|\Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockGetGitLabProjects($application_uuid, $gitlab_project_id, $mocked_gitlab_projects): ObjectProphecy {
+  protected function mockGetGitLabProjects($application_uuid, $gitlab_project_id, $mocked_gitlab_projects): Projects|ObjectProphecy {
     $projects = $this->prophet->prophesize(Projects::class);
     $projects->all(['search' => $application_uuid])
       ->willReturn($mocked_gitlab_projects);
@@ -731,15 +736,6 @@ abstract class CommandTestBase extends TestBase {
           'environment_scope' => '*',
         ],
     ];
-  }
-
-  /**
-   * @throws \SebastianBergmann\RecursionContext\InvalidArgumentException
-   * @throws ExpectationFailedException
-   */
-  public static function assertStringContainsStringIgnoringWhitespace(string $needle, string $haystack, string $message = ''): void {
-    $rx = "/\s+/";
-    self::assertStringContainsString(preg_replace($rx, "", $needle), preg_replace($rx, "", $haystack), $message);
   }
 
 }
