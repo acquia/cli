@@ -44,7 +44,7 @@ class AcsfServiceTest extends TestBase {
    */
   public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated) {
     self::setEnvVars($env_vars);
-    $client_service = new AcsfClientService(new AcsfConnectorFactory(['key' => NULL, 'secret' => NULL]), $this->prophet->prophesize(Application::class)->reveal());
+    $client_service = new AcsfClientService(new AcsfConnectorFactory(['key' => NULL, 'secret' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), $this->cloudCredentials);
     $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
     self::unsetEnvVars($env_vars);

@@ -20,23 +20,22 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
  */
 class ClientService implements ClientServiceInterface {
 
-  /** @var \AcquiaCloudApi\Connector\ConnectorInterface */
-  protected $connector;
-  /** @var \Acquia\Cli\CloudApi\ConnectorFactory */
-  protected $connectorFactory;
-  /** @var Application */
-  protected $application;
-  /** @var bool */
-  protected $machineIsAuthenticated = NULL;
+  protected ConnectorInterface $connector;
+  protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
+  protected Application $application;
+  protected ?bool $machineIsAuthenticated = NULL;
+  protected CloudCredentials $cloudCredentials;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
+   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
    */
-  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, CloudCredentials $cloudCredentials) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);
+    $this->cloudCredentials = $cloudCredentials;
   }
 
   /**
@@ -76,26 +75,19 @@ class ClientService implements ClientServiceInterface {
   /**
    * @param CloudDataStore $cloud_datastore
    *
-   * @return bool
+   * @return bool|null
    */
   public function isMachineAuthenticated(CloudDataStore $cloud_datastore): ?bool {
     if ($this->machineIsAuthenticated) {
       return $this->machineIsAuthenticated;
     }
 
-    if (getenv('ACLI_ACCESS_TOKEN')) {
+    if ($this->cloudCredentials->getCloudAccessToken()) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }
 
-    if (getenv('ACLI_KEY') && getenv('ACLI_SECRET') ) {
-      $this->machineIsAuthenticated = TRUE;
-      return $this->machineIsAuthenticated;
-    }
-
-    $acli_key = $cloud_datastore->get('acli_key');
-    $keys = $cloud_datastore->get('keys');
-    if ($acli_key && $keys && array_key_exists($acli_key, $keys)) {
+    if ($this->cloudCredentials->getCloudKey() && $this->cloudCredentials->getCloudSecret()) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }

@@ -4,6 +4,7 @@ namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\DataStore\CloudDataStore;
 
 /**
@@ -15,8 +16,8 @@ class AcsfClientService extends ClientService {
    * @param \Acquia\Cli\AcsfApi\AcsfConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
    */
-  public function __construct(AcsfConnectorFactory $connector_factory, Application $application) {
-    parent::__construct($connector_factory, $application);
+  public function __construct(AcsfConnectorFactory $connector_factory, Application $application, CloudCredentials $cloudCredentials) {
+    parent::__construct($connector_factory, $application, $cloudCredentials);
   }
 
   /**

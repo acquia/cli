@@ -18,7 +18,7 @@ class ClearCacheCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Clears local Acquia CLI caches')
       ->setAliases(['cc', 'cr']);
   }
@@ -29,7 +29,7 @@ class ClearCacheCommand extends CommandBase {
    *
    * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     self::clearCaches();
     $output->writeln('Acquia CLI caches were cleared.');
 

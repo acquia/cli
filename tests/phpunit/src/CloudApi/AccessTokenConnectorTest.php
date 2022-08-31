@@ -44,12 +44,12 @@ class AccessTokenConnectorTest extends TestBase {
     putenv('ACLI_ACCESS_TOKEN_EXPIRY=' . $accessTokenExpiry);
   }
 
-  public static function unsetAccessTokenEnvVars() {
+  public static function unsetAccessTokenEnvVars(): void {
     putenv('ACLI_ACCESS_TOKEN');
     putenv('ACLI_ACCESS_TOKEN_EXPIRY');
   }
 
-  public function testAccessToken() {
+  public function testAccessToken(): void {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
@@ -81,7 +81,7 @@ class AccessTokenConnectorTest extends TestBase {
    * Validate that if both an access token and API key/secret pair are present,
    * the pair is used.
    */
-  public function testConnector() {
+  public function testConnector(): void {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
@@ -95,7 +95,7 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertInstanceOf(Connector::class, $connector);
   }
 
-  public function testExpiredAccessToken() {
+  public function testExpiredAccessToken(): void {
     self::setAccessTokenEnvVars(TRUE);
     $connector_factory = new ConnectorFactory(
       [
@@ -108,14 +108,14 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertInstanceOf(Connector::class, $connector);
   }
 
-  public function testConnectorConfig() {
+  public function testConnectorConfig(): void {
     $connector_factory = new ConnectorFactory(
       [
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
         'accessToken' => NULL,
       ]);
-    $clientService = new ClientService($connector_factory, $this->application);
+    $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
     $options = $client->getOptions();
     $this->assertArrayHasKey('headers', $options);
