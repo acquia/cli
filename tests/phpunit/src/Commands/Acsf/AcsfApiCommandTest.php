@@ -9,7 +9,6 @@ use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\Command\Acsf\AcsfApiBaseCommand;
 use Acquia\Cli\Command\Acsf\AcsfCommandFactory;
 use Acquia\Cli\CommandFactoryInterface;
-use Acquia\Cli\DataStore\CloudDataStore;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,6 +32,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
 
   /**
    * {@inheritdoc}
+   * @throws \JsonException
    */
   protected function createCommand(): Command {
     $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
@@ -130,7 +130,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))
+    $this->clientServiceProphecy->isMachineAuthenticated()
       ->willReturn(TRUE);
   }
 

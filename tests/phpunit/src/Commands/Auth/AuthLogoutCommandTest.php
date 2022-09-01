@@ -6,7 +6,6 @@ use Acquia\Cli\Command\Auth\AuthLogoutCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -47,7 +46,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
    */
   public function testAuthLogoutCommand($machine_is_authenticated, $inputs): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
 

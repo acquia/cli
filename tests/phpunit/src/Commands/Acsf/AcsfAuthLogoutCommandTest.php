@@ -6,7 +6,6 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLogoutCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -65,7 +64,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
    */
   public function testAcsfAuthLogoutCommand(bool $machine_is_authenticated, array $inputs, array $config = []): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
     else {

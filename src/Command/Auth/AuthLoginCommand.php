@@ -42,7 +42,7 @@ class AuthLoginCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
     /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
-    if ($this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->cloudApiClientService->isMachineAuthenticated()) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
         return 0;

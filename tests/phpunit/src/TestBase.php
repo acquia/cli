@@ -890,7 +890,7 @@ abstract class TestBase extends TestCase {
     $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))
+    $this->clientServiceProphecy->isMachineAuthenticated()
       ->willReturn(TRUE);
   }
 

@@ -6,7 +6,6 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -105,7 +104,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
     if (!$machine_is_authenticated) {
-      $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+      $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
     else {
@@ -152,7 +151,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @throws \Exception
    */
   public function testAcsfAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
     $this->createDataStores();
     $this->command = $this->createCommand();
