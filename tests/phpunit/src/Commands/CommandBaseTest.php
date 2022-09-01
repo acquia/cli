@@ -5,10 +5,8 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
-use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
 use Exception;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -26,7 +24,7 @@ class CommandBaseTest extends CommandTestBase {
   }
 
   public function testUnauthenticatedFailure(): void {
-    $this->clientServiceProphecy->isMachineAuthenticated(Argument::type(CloudDataStore::class))->willReturn(FALSE);
+    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
     $this->removeMockConfigFiles();
 
     $inputs = [

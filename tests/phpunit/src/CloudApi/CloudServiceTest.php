@@ -43,7 +43,7 @@ class CloudServiceTest extends TestBase {
     self::setEnvVars($env_vars);
     $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
     $client_service = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), new CloudCredentials($cloud_datastore->reveal()));
-    $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated($cloud_datastore->reveal()));
+    $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated());
     self::unsetEnvVars($env_vars);
   }
 

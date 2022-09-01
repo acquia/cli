@@ -4,8 +4,6 @@ namespace Acquia\Cli\AcsfApi;
 
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\CloudCredentials;
-use Acquia\Cli\DataStore\CloudDataStore;
 
 /**
  * AcsfClientService class.
@@ -15,13 +13,14 @@ class AcsfClientService extends ClientService {
   /**
    * @param \Acquia\Cli\AcsfApi\AcsfConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
+   * @param \Acquia\Cli\AcsfApi\AcsfCredentials $cloudCredentials
    */
-  public function __construct(AcsfConnectorFactory $connector_factory, Application $application, CloudCredentials $cloudCredentials) {
+  public function __construct(AcsfConnectorFactory $connector_factory, Application $application, AcsfCredentials $cloudCredentials) {
     parent::__construct($connector_factory, $application, $cloudCredentials);
   }
 
   /**
-   * @return \AcquiaCloudApi\Connector\Client
+   * @return \Acquia\Cli\AcsfApi\AcsfClient
    */
   public function getClient(): AcsfClient {
     $client = AcsfClient::factory($this->connector);
@@ -33,21 +32,14 @@ class AcsfClientService extends ClientService {
   /**
    * @param CloudDataStore $cloud_datastore
    *
-   * @return bool
+   * @return bool|null
    */
-  public function isMachineAuthenticated(CloudDataStore $cloud_datastore): ?bool {
+  public function isMachineAuthenticated(): ?bool {
     if ($this->machineIsAuthenticated) {
       return $this->machineIsAuthenticated;
     }
 
-    if (getenv('ACSF_USERNAME') && getenv('ACSF_KEY') ) {
-      $this->machineIsAuthenticated = TRUE;
-      return $this->machineIsAuthenticated;
-    }
-
-    $factory = $cloud_datastore->get('acsf_active_factory');
-    $keys = $cloud_datastore->get('acsf_factories');
-    if ($factory && $keys && array_key_exists($factory, $keys)) {
+    if ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }

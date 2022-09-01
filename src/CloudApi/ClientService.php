@@ -2,10 +2,10 @@
 
 namespace Acquia\Cli\CloudApi;
 
+use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\ClientServiceInterface;
 use Acquia\Cli\ConnectorFactoryInterface;
-use Acquia\Cli\DataStore\CloudDataStore;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 
@@ -24,18 +24,18 @@ class ClientService implements ClientServiceInterface {
   protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
   protected Application $application;
   protected ?bool $machineIsAuthenticated = NULL;
-  protected CloudCredentials $cloudCredentials;
+  protected ApiCredentialsInterface $credentials;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    * @param \Acquia\Cli\Application $application
-   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
+   * @param \Acquia\Cli\ApiCredentialsInterface $credentials
    */
-  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, CloudCredentials $cloudCredentials) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, ApiCredentialsInterface $credentials) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);
-    $this->cloudCredentials = $cloudCredentials;
+    $this->credentials = $credentials;
   }
 
   /**
@@ -77,17 +77,17 @@ class ClientService implements ClientServiceInterface {
    *
    * @return bool|null
    */
-  public function isMachineAuthenticated(CloudDataStore $cloud_datastore): ?bool {
+  public function isMachineAuthenticated(): ?bool {
     if ($this->machineIsAuthenticated) {
       return $this->machineIsAuthenticated;
     }
 
-    if ($this->cloudCredentials->getCloudAccessToken()) {
+    if ($this->credentials->getCloudAccessToken()) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }
 
-    if ($this->cloudCredentials->getCloudKey() && $this->cloudCredentials->getCloudSecret()) {
+    if ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) {
       $this->machineIsAuthenticated = TRUE;
       return $this->machineIsAuthenticated;
     }

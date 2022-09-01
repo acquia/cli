@@ -36,7 +36,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output) {
-    if (!$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
+    if (!$this->cloudApiClientService->isMachineAuthenticated()) {
       $this->io->error(['You are not logged into any factories.']);
       return 1;
     }

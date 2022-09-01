@@ -10,10 +10,7 @@ use Acquia\Cli\DataStore\CloudDataStore;
  */
 class AcsfCredentials implements ApiCredentialsInterface {
 
-  /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
-   */
-  private $datastoreCloud;
+  private CloudDataStore $datastoreCloud;
 
   /**
    * CloudCredentials constructor.
@@ -46,7 +43,7 @@ class AcsfCredentials implements ApiCredentialsInterface {
    *
    * @return mixed|null
    */
-  public function getFactoryActiveUser(array $factory) {
+  public function getFactoryActiveUser(array $factory): mixed {
     if (array_key_exists('active_user', $factory)) {
       $active_user = $factory['active_user'];
       if (array_key_exists($active_user, $factory['users'])) {

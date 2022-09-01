@@ -24,7 +24,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    */
   protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication($input) && !$this->cloudApiClientService->isMachineAuthenticated($this->datastoreCloud)) {
+    if ($this->commandRequiresAuthentication($input) && !$this->cloudApiClientService->isMachineAuthenticated()) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];
