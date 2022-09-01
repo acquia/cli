@@ -73,27 +73,21 @@ class ClientService implements ClientServiceInterface {
   }
 
   /**
-   * @param CloudDataStore $cloud_datastore
-   *
-   * @return bool|null
+   * @return bool
    */
-  public function isMachineAuthenticated(): ?bool {
-    if ($this->machineIsAuthenticated) {
+  public function isMachineAuthenticated(): bool {
+    if ($this->machineIsAuthenticated !== NULL) {
       return $this->machineIsAuthenticated;
     }
-
-    if ($this->credentials->getCloudAccessToken()) {
-      $this->machineIsAuthenticated = TRUE;
-      return $this->machineIsAuthenticated;
-    }
-
-    if ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) {
-      $this->machineIsAuthenticated = TRUE;
-      return $this->machineIsAuthenticated;
-    }
-
-    $this->machineIsAuthenticated = FALSE;
+    $this->machineIsAuthenticated = $this->checkAuthentication();
     return $this->machineIsAuthenticated;
+  }
+
+  protected function checkAuthentication(): bool {
+    return (
+      $this->credentials->getCloudAccessToken() ||
+      ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret())
+    );
   }
 
 }

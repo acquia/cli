@@ -30,22 +30,10 @@ class AcsfClientService extends ClientService {
   }
 
   /**
-   * @param CloudDataStore $cloud_datastore
-   *
-   * @return bool|null
+   * @return bool
    */
-  public function isMachineAuthenticated(): ?bool {
-    if ($this->machineIsAuthenticated) {
-      return $this->machineIsAuthenticated;
-    }
-
-    if ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret()) {
-      $this->machineIsAuthenticated = TRUE;
-      return $this->machineIsAuthenticated;
-    }
-
-    $this->machineIsAuthenticated = FALSE;
-    return $this->machineIsAuthenticated;
+  public function checkAuthentication(): bool {
+    return ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret());
   }
 
 }
