@@ -32,7 +32,7 @@ class AcsfClientService extends ClientService {
   /**
    * @return bool
    */
-  public function checkAuthentication(): bool {
+  protected function checkAuthentication(): bool {
     return ($this->credentials->getCloudKey() && $this->credentials->getCloudSecret());
   }
 
