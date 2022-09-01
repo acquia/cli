@@ -18,10 +18,7 @@ use Psr\Http\Message\RequestInterface;
  */
 class AccessTokenConnectorTest extends TestBase {
 
-  /**
-   * @var string
-   */
-  private static $accessToken = 'testaccesstoken';
+  private static string $accessToken = 'testaccesstoken';
 
   public function setUp($output = NULL): void {
     parent::setUp();
@@ -33,7 +30,7 @@ class AccessTokenConnectorTest extends TestBase {
     self::unsetAccessTokenEnvVars();
   }
 
-  public static function setAccessTokenEnvVars($expired = FALSE) {
+  public static function setAccessTokenEnvVars($expired = FALSE): void {
     if ($expired) {
       $accessTokenExpiry = time() - 300;
     }

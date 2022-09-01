@@ -31,6 +31,10 @@ class CloudServiceTest extends TestBase {
         ['ACLI_ACCESS_TOKEN' => NULL, 'ACLI_KEY' => NULL, 'ACLI_SECRET' => NULL],
         FALSE,
       ],
+      [
+        ['ACLI_ACCESS_TOKEN' => NULL, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => NULL],
+        FALSE,
+      ]
     ];
   }
 
