@@ -19,7 +19,7 @@ class PushFilesCommand extends PullCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->acceptEnvironmentId()
       ->acceptSite()
@@ -33,7 +33,7 @@ class PushFilesCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
     $destination_environment = $this->determineEnvironment($input, $output, FALSE);
     $chosen_site = $input->getArgument('site');
