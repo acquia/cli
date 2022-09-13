@@ -146,7 +146,8 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir,
-      $this->logger
+      $this->logger,
+      $this->httpClientProphecy->reveal()
     );
   }
 

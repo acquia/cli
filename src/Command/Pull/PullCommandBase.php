@@ -44,31 +44,6 @@ abstract class PullCommandBase extends CommandBase {
   private UriInterface $backupDownloadUrl;
 
   /**
-   * @param string $local_filepath
-   * @param $acquia_cloud_client
-   * @param \Symfony\Component\Console\Output\ConsoleSectionOutput|\Symfony\Component\Console\Output\OutputInterface $output
-   * @param $url
-   *
-   * @return void
-   */
-  public function setClientOptions(string $local_filepath, $acquia_cloud_client, ConsoleSectionOutput|OutputInterface $output, &$url): void {
-    $acquia_cloud_client->addOption('sink', $local_filepath);
-    $acquia_cloud_client->addOption('curl.options', [
-      'CURLOPT_RETURNTRANSFER' => FALSE,
-      'CURLOPT_FILE' => $local_filepath
-    ]);
-    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes) use (&$progress, $output) {
-      self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
-    });
-    // This is really just used to allow us to inject values for $url during testing.
-    // It should be empty during normal operations.
-    $url = $this->getBackupDownloadUrl();
-    $acquia_cloud_client->addOption('on_stats', function (TransferStats $stats) use (&$url) {
-      $url = $stats->getEffectiveUri();
-    });
-  }
-
-  /**
    * @param $environment
    * @param $database
    * @param $backup_response
@@ -262,7 +237,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param callable|null $output_callback
    *
    * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException|\GuzzleHttp\Exception\GuzzleException
    */
   private function downloadDatabaseBackup(
     EnvironmentResponse $environment,
@@ -282,8 +257,20 @@ abstract class PullCommandBase extends CommandBase {
     }
     // These options tell curl to stream the file to disk rather than loading it into memory.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $url = NULL;
-    $this->setClientOptions($local_filepath, $acquia_cloud_client, $output, $url);
+    $acquia_cloud_client->addOption('sink', $local_filepath);
+    $acquia_cloud_client->addOption('curl.options', [
+      'CURLOPT_RETURNTRANSFER' => FALSE,
+      'CURLOPT_FILE' => $local_filepath
+    ]);
+    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes) use (&$progress, $output) {
+      self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
+    });
+    // This is really just used to allow us to inject values for $url during testing.
+    // It should be empty during normal operations.
+    $url = $this->getBackupDownloadUrl();
+    $acquia_cloud_client->addOption('on_stats', function (TransferStats $stats) use (&$url) {
+      $url = $stats->getEffectiveUri();
+    });
 
     try {
       $acquia_cloud_client->stream("get", "/environments/$environment->uuid/databases/$database->name/backups/$backup_response->id/actions/download", $acquia_cloud_client->getOptions());
@@ -302,9 +289,8 @@ abstract class PullCommandBase extends CommandBase {
           }
           $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative host ' . $domain->hostname . ' </comment>');
           $download_url = $url->withHost($domain->hostname);
-          $client = new \GuzzleHttp\Client();
           try {
-            $client->request('GET', $download_url, ['sink' => $local_filepath]);
+            $this->httpClient->request('GET', $download_url, ['sink' => $local_filepath]);
             return $local_filepath;
           }
           catch (\Exception) {

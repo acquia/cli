@@ -10,6 +10,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -231,6 +232,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testPullDatabaseWithInvalidSslCertificate(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, FALSE);
@@ -441,6 +443,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    * @param object $selected_environment
    *
    * @return object
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function mockDownloadBackup($databases_response, $selected_environment, $valid_cert) {
     $selected_database = $databases_response;
@@ -454,7 +457,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       $this->clientProphecy->stream('get', "/environments/{$selected_environment->id}/databases/{$selected_database->name}/backups/1/actions/download", [])
         ->willThrow($request_exception->reveal())
         ->shouldBeCalled();
-      $this->clientProphecy->stream("get", "https://other.example.com/download-backup", [])->willReturn($stream->reveal());
+      $response = $this->prophet->prophesize(ResponseInterface::class);
+      $this->httpClientProphecy->request('GET', 'https://other.example.com/download-backup', Argument::type('array'))->willReturn($response->reveal());
       $domains_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
       $this->clientProphecy->request('get', "/environments/{$selected_environment->id}/domains")->willReturn($domains_response->_embedded->items);
       $this->command->setBackupDownloadUrl(new Uri( 'https://www.example.com/download-backup'));

@@ -109,6 +109,8 @@ abstract class TestBase extends TestCase {
 
   protected string $passphraseFilepath = '~/.passphrase';
 
+  protected \GuzzleHttp\Client|ObjectProphecy $httpClientProphecy;
+
   /**
    * Filter an applications response in order to simulate query filters.
    *
@@ -167,6 +169,7 @@ abstract class TestBase extends TestCase {
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
     $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
+    $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
     ClearCacheCommand::clearCaches();
 
     parent::setUp();
@@ -318,7 +321,8 @@ abstract class TestBase extends TestCase {
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,
       $this->sshDir,
-      $this->logger
+      $this->logger,
+      $this->httpClientProphecy->reveal()
     );
   }
 
