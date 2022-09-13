@@ -16,20 +16,11 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Upload a local SSH key to the Cloud Platform')
       ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
       ->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The SSH key label to be used with the Cloud Platform')
       ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
-  }
-
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return bool
-   */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
-    return TRUE;
   }
 
   /**
@@ -40,7 +31,7 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel($input, $output);
     $this->uploadSshKey($label, $chosen_local_key, $public_key);

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait SshCommandTrait {
 
@@ -64,6 +65,16 @@ trait SshCommandTrait {
     $finder = $this->localMachineHelper->getFinder();
     $finder->files()->in($this->sshDir)->name('*.pub')->ignoreUnreadableDirs();
     return iterator_to_array($finder);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Style\SymfonyStyle $io
+   *
+   * @return bool
+   */
+  protected function promptWaitForSsh(SymfonyStyle $io): bool {
+    $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket if this process takes too long.");
+    return $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");
   }
 
 }

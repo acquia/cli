@@ -110,6 +110,10 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
     // Wait for the key to register on the Cloud Platform.
     if ($key_was_uploaded) {
+      if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
+        $this->io->success('Your SSH key has been successfully uploaded to Cloud Platform.');
+        return 0;
+      }
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
