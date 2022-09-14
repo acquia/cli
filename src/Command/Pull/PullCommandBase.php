@@ -35,20 +35,11 @@ abstract class PullCommandBase extends CommandBase {
 
   use IdeCommandTrait;
 
-  /**
-   * @var Checklist
-   */
-  protected $checklist;
+  protected Checklist $checklist;
 
-  /**
-   * @var EnvironmentResponse
-   */
-  protected $sourceEnvironment;
+  protected EnvironmentResponse $sourceEnvironment;
 
-  /**
-   * @var string
-   */
-  private $site;
+  private string $site;
 
   private UriInterface $backupDownloadUrl;
 
@@ -77,7 +68,7 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
+  protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
     $this->checklist = new Checklist($output);
   }
@@ -89,7 +80,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     return 0;
   }
 
@@ -246,16 +237,16 @@ abstract class PullCommandBase extends CommandBase {
    * @param callable|null $output_callback
    *
    * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException|\GuzzleHttp\Exception\GuzzleException
    */
   private function downloadDatabaseBackup(
-    $environment,
-    $database,
+    EnvironmentResponse $environment,
+    object $database,
     BackupResponse $backup_response,
-    $output_callback = NULL
+    callable $output_callback = NULL
   ): string {
     if ($output_callback) {
-      $output_callback('out', "Downloading backup {$backup_response->id}");
+      $output_callback('out', "Downloading backup $backup_response->id");
     }
     $local_filepath = self::getBackupPath($environment, $database, $backup_response);
     if ($this->output instanceof ConsoleOutput) {
@@ -267,8 +258,11 @@ abstract class PullCommandBase extends CommandBase {
     // These options tell curl to stream the file to disk rather than loading it into memory.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addOption('sink', $local_filepath);
-    $acquia_cloud_client->addOption('curl.options', ['CURLOPT_RETURNTRANSFER' => FALSE, 'CURLOPT_FILE' => $local_filepath]);
-    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes, $upload_total, $uploaded_bytes) use (&$progress, $output) {
+    $acquia_cloud_client->addOption('curl.options', [
+      'CURLOPT_RETURNTRANSFER' => FALSE,
+      'CURLOPT_FILE' => $local_filepath
+    ]);
+    $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes) use (&$progress, $output) {
       self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
     });
     // This is really just used to allow us to inject values for $url during testing.
@@ -279,13 +273,15 @@ abstract class PullCommandBase extends CommandBase {
     });
 
     try {
-      $response = $acquia_cloud_client->stream("get", "/environments/{$environment->uuid}/databases/{$database->name}/backups/{$backup_response->id}/actions/download", $acquia_cloud_client->getOptions());
+      $acquia_cloud_client->stream("get", "/environments/$environment->uuid/databases/$database->name/backups/$backup_response->id/actions/download", $acquia_cloud_client->getOptions());
       return $local_filepath;
     }
     catch (RequestException $exception) {
-      // @see https://timi.eu/docs/anatella/5_1_9_1_list-of-curl-error-co.html
-      if (in_array($exception->getHandlerContext()['errno'], [51, 60])) {
-        $domains_resource = new Domains($acquia_cloud_client);
+      // Deal with broken SSL certificates.
+      // @see https://timi.eu/docs/anatella/5_1_9_1_list_of_curl_error_codes.html
+      if (in_array($exception->getHandlerContext()['errno'], [51, 60], TRUE)) {
+        assert($url !== NULL);
+        $domains_resource = new Domains($this->cloudApiClientService->getClient());
         $domains = $domains_resource->getAll($environment->uuid);
         foreach ($domains as $domain) {
           if ($domain->hostname === $url->getHost()) {
@@ -294,10 +290,10 @@ abstract class PullCommandBase extends CommandBase {
           $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative host ' . $domain->hostname . ' </comment>');
           $download_url = $url->withHost($domain->hostname);
           try {
-            $response = $acquia_cloud_client->stream("get", $download_url, $acquia_cloud_client->getOptions());
+            $this->httpClient->request('GET', $download_url, ['sink' => $local_filepath]);
             return $local_filepath;
           }
-          catch (\Exception $exception) {
+          catch (\Exception) {
             // Continue in the foreach() loop.
           }
         }
@@ -311,7 +307,7 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param \Psr\Http\Message\UriInterface $url
    */
-  public function setBackupDownloadUrl(UriInterface $url) {
+  public function setBackupDownloadUrl(UriInterface $url): void {
     $this->backupDownloadUrl = $url;
   }
 
@@ -319,10 +315,7 @@ abstract class PullCommandBase extends CommandBase {
    * @return \Psr\Http\Message\UriInterface|null
    */
   private function getBackupDownloadUrl(): ?UriInterface {
-    if (isset($this->backupDownloadUrl)) {
-      return $this->backupDownloadUrl;
-    }
-    return NULL;
+    return $this->backupDownloadUrl ?? NULL;
   }
 
   /**

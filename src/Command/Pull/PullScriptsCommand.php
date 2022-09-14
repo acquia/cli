@@ -17,7 +17,7 @@ class PullScriptsCommand extends PullCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Execute post pull scripts')
       ->acceptEnvironmentId()
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be refreshed')
@@ -40,7 +40,7 @@ class PullScriptsCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
 
     return 0;

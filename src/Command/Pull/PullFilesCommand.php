@@ -16,7 +16,7 @@ class PullFilesCommand extends PullCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Copy files from a Cloud Platform environment')
       ->acceptEnvironmentId()
       ->acceptSite()
@@ -30,7 +30,7 @@ class PullFilesCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
     $this->pullFiles($input, $output);
 
