@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
+use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 trait SshCommandTrait {
@@ -47,7 +48,7 @@ trait SshCommandTrait {
    *
    * @return array|object|null
    */
-  private function determineCloudKey($acquia_cloud_client) {
+  private function determineCloudKey(Client $acquia_cloud_client): object|array|null {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     return $this->promptChooseFromObjectsOrArrays(
       $cloud_keys,
@@ -73,7 +74,7 @@ trait SshCommandTrait {
    * @return bool
    */
   protected function promptWaitForSsh(SymfonyStyle $io): bool {
-    $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket if this process takes too long.");
+    $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket for further assistance.");
     return $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");
   }
 

@@ -500,7 +500,7 @@ EOT
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {
       if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
-        $this->io->success('Your SSH key has been successfully uploaded to Cloud Platform.');
+        $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
         return;
       }
 
