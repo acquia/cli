@@ -20,43 +20,27 @@ class PushArtifactCommand extends PullCommandBase {
   protected static $defaultName = 'push:artifact';
 
   /**
-   * @var array
-   *
    * Composer vendor directories.
    */
-  protected $vendorDirs;
+  protected array $vendorDirs;
 
   /**
-   * @var array
-   *
    * Composer scaffold files.
    */
-  protected $scaffoldFiles;
+  protected array $scaffoldFiles;
 
-  /**
-   * @var string
-   */
-  private $composerJsonPath;
+  private string $composerJsonPath;
 
   /**
    * @var string
    */
   private $drupalCorePath;
 
-  /**
-   * @var string
-   */
-  private $docrootPath;
+  private string $docrootPath;
 
-  /**
-   * @var \AcquiaCloudApi\Response\EnvironmentResponse
-   */
-  private $environment;
+  private \AcquiaCloudApi\Response\EnvironmentResponse $environment;
 
-  /**
-   * @var string
-   */
-  private $destinationGitRef;
+  private string $destinationGitRef;
 
   /**
    * {inheritdoc}.

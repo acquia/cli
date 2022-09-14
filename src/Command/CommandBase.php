@@ -163,6 +163,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $updateClient;
 
+  protected \GuzzleHttp\Client $httpClient;
+
   /**
    * CommandBase constructor.
    *
@@ -189,7 +191,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
     string $sshDir,
-    LoggerInterface $logger
+    LoggerInterface $logger,
+    \GuzzleHttp\Client $httpClient
   ) {
     $this->localMachineHelper = $localMachineHelper;
     $this->datastoreCloud = $datastoreCloud;
@@ -202,6 +205,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->sshHelper = $sshHelper;
     $this->sshDir = $sshDir;
     $this->logger = $logger;
+    $this->httpClient = $httpClient;
     parent::__construct();
   }
 

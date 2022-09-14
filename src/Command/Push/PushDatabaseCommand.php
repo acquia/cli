@@ -19,7 +19,7 @@ class PushDatabaseCommand extends PullCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Push a database from your IDE to a Cloud Platform environment')
       ->setAliases(['push:db'])
       ->acceptEnvironmentId()
@@ -34,7 +34,7 @@ class PushDatabaseCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $destination_environment = $this->determineEnvironment($input, $output, FALSE);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $databases = $this->determineCloudDatabases($acquia_cloud_client, $destination_environment, $input->getArgument('site'), FALSE);

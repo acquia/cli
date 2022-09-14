@@ -141,3 +141,6 @@ services:
 
   # Amplitude service.
   Zumba\Amplitude\Amplitude: ~
+
+  # Guzzle service.
+  GuzzleHttp\Client: ~

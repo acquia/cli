@@ -18,7 +18,7 @@ class PullCommand extends PullCommandBase {
   /**
    * {inheritdoc}
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
       ->acceptEnvironmentId()
@@ -43,7 +43,7 @@ class PullCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
 
     if (!$input->getOption('no-code')) {

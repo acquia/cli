@@ -17,7 +17,7 @@ class PullDatabaseCommand extends PullCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Import database backup from a Cloud Platform environment')
       ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
       ->setAliases(['pull:db'])
