@@ -27,28 +27,18 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   use SshCommandTrait;
 
-  /** @var string */
-  protected $passphraseFilepath;
+  protected string $passphraseFilepath;
 
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilename;
+  protected string $privateSshKeyFilename;
 
-  /**
-   * @var string
-   */
-  protected $privateSshKeyFilepath;
+  protected string $privateSshKeyFilepath;
 
-  /**
-   * @var string
-   */
-  protected $publicSshKeyFilepath;
+  protected string $publicSshKeyFilepath;
 
   /**
    * @param string $private_ssh_key_filename
    */
-  protected function setSshKeyFilepath(string $private_ssh_key_filename) {
+  protected function setSshKeyFilepath(string $private_ssh_key_filename): void {
     $this->privateSshKeyFilename = $private_ssh_key_filename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
@@ -493,7 +483,7 @@ EOT
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function uploadSshKey(string $label, string $chosen_local_key, string $public_key) {
+  protected function uploadSshKey(string $label, string $chosen_local_key, string $public_key): void {
     $options = [
       'form_params' => [
         'label' => $label,
@@ -509,13 +499,9 @@ EOT
 
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {
-      if ($this->input->isInteractive()) {
-        $this->io->note("It may take some time before the SSH key is installed on all of your application's web servers.");
-        $answer = $this->io->confirm("Would you like to wait until Cloud Platform is ready?");
-        if (!$answer) {
-          $this->io->success('Your SSH key has been successfully uploaded to Cloud Platform.');
-          return;
-        }
+      if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
+        $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
+        return;
       }
 
       if ($this->keyHasUploaded($this->cloudApiClientService->getClient(), $public_key)) {
