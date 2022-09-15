@@ -30,7 +30,7 @@ class CloudCredentials implements ApiCredentialsInterface {
     }
 
     if (getenv('ACLI_ACCESS_TOKEN_FILE')) {
-      return file_get_contents(getenv('ACLI_ACCESS_TOKEN_FILE'));
+      return trim(file_get_contents(getenv('ACLI_ACCESS_TOKEN_FILE')), "\"\n");
     }
 
     return NULL;
@@ -45,7 +45,7 @@ class CloudCredentials implements ApiCredentialsInterface {
     }
 
     if (getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE')) {
-      return file_get_contents(getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE'));
+      return trim(file_get_contents(getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE')), "\"\n");
     }
 
     return NULL;
