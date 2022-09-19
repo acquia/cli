@@ -11,7 +11,6 @@ Fixes #NNN
 **Testing steps**
 <!-- How can we replicate the issue and verify that this PR fixes it? -->
 
-1. Follow the [contribution guide](https://github.com/acquia/cli/blob/HEAD/CONTRIBUTING.md#building-and-testing) to set up your development environment.
-2. Download acli.phar built by this PR from the "artifacts" section of the latest workflow run.
-3. Clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
-4. (add specific steps for this pr)
+1. Follow the [contribution guide](https://github.com/acquia/cli/blob/HEAD/CONTRIBUTING.md#building-and-testing) to set up your development environment or [download a pre-built acli.phar](https://github.com/acquia/cli/blob/HEAD/CONTRIBUTING.md#automatic-dev-builds) for this PR.
+2. Clear the kernel cache to pick up new and changed commands: `./bin/acli ckc`
+3. (add specific steps for this pr)

@@ -39,6 +39,14 @@ Pull requests must also adhere to the following guidelines:
 - Pull requests must pass automated tests before they will be reviewed. Acquia recommends running the tests locally before submitting.
 - Pull requests must meet Drupal coding standards and best practices as defined by the project maintainers.
 
+### Automatic dev builds
+
+Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar to transfer.sh in order to assist with reviews. To download acli.phar for any commit:
+
+1. Click the "build-release" workflow link.
+2. Expand the "Upload to transfer.sh" section.
+3. Copy the transfer.sh and use it to download acli.phar for that commit.
+
 ## Building and testing
 
 No special tools or dependencies are necessary to develop or contrib to Acquia CLI. Simply clone the Git repo and install Composer dependencies:
@@ -98,4 +106,4 @@ brew install restview
 
 Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
 
-Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`). 
+Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`).
