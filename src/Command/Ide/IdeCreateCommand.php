@@ -27,22 +27,17 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @var \AcquiaCloudApi\Response\IdeResponse
    */
-  private $ide;
+  private IdeResponse $ide;
 
   /**
    * @var \GuzzleHttp\Client
    */
-  private $client;
-
-  /**
-   * @var \Acquia\Cli\Output\Checklist
-   */
-  private $checklist;
+  private Client $client;
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
@@ -55,9 +50,9 @@ class IdeCreateCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $cloud_application_uuid = $this->determineCloudApplication();
-    $this->checklist = new Checklist($output);
+    $checklist = new Checklist($output);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
@@ -71,16 +66,16 @@ class IdeCreateCommand extends IdeCommandBase {
     }
 
     // Create it.
-    $this->checklist->addItem('Creating your Cloud IDE');
+    $checklist->addItem('Creating your Cloud IDE');
     $ides_resource = new Ides($acquia_cloud_client);
     $response = $ides_resource->create($cloud_application_uuid, $ide_label);
-    $this->checklist->completePreviousItem();
+    $checklist->completePreviousItem();
 
     // Get IDE info.
-    $this->checklist->addItem('Getting IDE information');
+    $checklist->addItem('Getting IDE information');
     $this->ide = $this->getIdeFromResponse($response, $acquia_cloud_client);
     $ide_url = $this->ide->links->ide->href;
-    $this->checklist->completePreviousItem();
+    $checklist->completePreviousItem();
 
     // Wait!
     return $this->waitForDnsPropagation($ide_url);
@@ -165,9 +160,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $cloud_api_ide_url = $response->links->self->href;
     $url_parts = explode('/', $cloud_api_ide_url);
     $ide_uuid = end($url_parts);
-    $ides_resource = new Ides($acquia_cloud_client);
-
-    return $ides_resource->get($ide_uuid);
+    return (new Ides($acquia_cloud_client))->get($ide_uuid);
   }
 
 }

@@ -13,7 +13,7 @@ class ApiListCommand extends ApiListCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription("List all API commands")
       ->setAliases(['api']);
   }

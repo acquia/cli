@@ -28,7 +28,7 @@ class EnvMirrorCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Makes one environment identical to another in terms of code, database, files, and configuration.');
     $this->addArgument('source-environment', InputArgument::REQUIRED, 'The Cloud Platform source environment ID or alias')
       ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
@@ -51,7 +51,7 @@ class EnvMirrorCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->checklist = new Checklist($output);
     $output_callback = $this->getOutputCallback($output, $this->checklist);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -81,7 +81,7 @@ class EnvMirrorCommand extends CommandBase {
     }
 
     if (!$input->getOption('no-files')) {
-      $files_copy_response = $this->mirrorFiles($environments_resource, $source_environment_uuid, $destination_environment_uuid, $output_callback);
+      $files_copy_response = $this->mirrorFiles($environments_resource, $source_environment_uuid, $destination_environment_uuid);
     }
 
     if (!$input->getOption('no-config')) {
@@ -171,11 +171,10 @@ class EnvMirrorCommand extends CommandBase {
    * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
    * @param mixed $source_environment_uuid
    * @param mixed $destination_environment_uuid
-   * @param callable $output_callback
    *
    * @return \AcquiaCloudApi\Response\OperationResponse
    */
-  private function mirrorFiles(Environments $environments_resource, mixed $source_environment_uuid, mixed $destination_environment_uuid, callable $output_callback): OperationResponse {
+  private function mirrorFiles(Environments $environments_resource, mixed $source_environment_uuid, mixed $destination_environment_uuid): OperationResponse {
     $this->checklist->addItem("Initiating files copy");
     $files_copy_response = $environments_resource->copyFiles($source_environment_uuid, $destination_environment_uuid);
     $this->checklist->completePreviousItem();

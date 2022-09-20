@@ -14,6 +14,7 @@ use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
+use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
@@ -67,6 +68,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
@@ -115,6 +117,9 @@ abstract class PullCommandBase extends CommandBase {
    * @param bool $multiple_dbs
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   * @throws \Exception
+   * @throws \Exception
    * @throws \Exception
    */
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $on_demand = FALSE, bool $no_import = FALSE, bool $multiple_dbs = FALSE): void {
@@ -232,12 +237,13 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param EnvironmentResponse $environment
-   * @param $database
+   * @param object $database
    * @param \AcquiaCloudApi\Response\BackupResponse $backup_response
    * @param callable|null $output_callback
    *
    * @return string
-   * @throws \Acquia\Cli\Exception\AcquiaCliException|\GuzzleHttp\Exception\GuzzleException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   private function downloadDatabaseBackup(
     EnvironmentResponse $environment,
@@ -293,7 +299,7 @@ abstract class PullCommandBase extends CommandBase {
             $this->httpClient->request('GET', $download_url, ['sink' => $local_filepath]);
             return $local_filepath;
           }
-          catch (\Exception) {
+          catch (Exception) {
             // Continue in the foreach() loop.
           }
         }
@@ -383,11 +389,11 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param callable $output_callback
+   * @param callable|null $output_callback
    *
    * @throws \Exception
    */
-  private function connectToLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function connectToLocalDatabase(string $db_host, string $db_user, string $db_name, string $db_password, callable $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Connecting to database $db_name");
     }
@@ -417,11 +423,11 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param callable $output_callback
+   * @param callable|null $output_callback
    *
    * @throws \Exception
    */
-  private function dropLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function dropLocalDatabase(string $db_host, string $db_user, string $db_name, string $db_password, callable $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Dropping database $db_name");
     }
@@ -446,11 +452,11 @@ abstract class PullCommandBase extends CommandBase {
    * @param string $db_user
    * @param string $db_name
    * @param string $db_password
-   * @param callable $output_callback
+   * @param callable|null $output_callback
    *
    * @throws \Exception
    */
-  private function createLocalDatabase($db_host, $db_user, $db_name, $db_password, $output_callback = NULL): void {
+  private function createLocalDatabase(string $db_host, string $db_user, string $db_name, string $db_password, callable $output_callback = NULL): void {
     if ($output_callback) {
       $output_callback('out', "Creating new empty database $db_name");
     }
@@ -494,7 +500,7 @@ abstract class PullCommandBase extends CommandBase {
       $command = "gunzip $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     }
 
-    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
+    $process = $this->localMachineHelper->executeFromCmd($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import local database. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -515,6 +521,9 @@ abstract class PullCommandBase extends CommandBase {
     return !$process->isSuccessful();
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function getLocalGitCommitHash(): string {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
@@ -532,14 +541,14 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param $acquia_cloud_client
-   * @param string $cloud_application_uuid
+   * @param string $application_uuid
    * @param bool $allow_production
    *
-   * @return array|string
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse
    */
-  private function promptChooseEnvironment($acquia_cloud_client, $cloud_application_uuid, $allow_production = FALSE) {
+  private function promptChooseEnvironment($acquia_cloud_client, string $application_uuid, bool $allow_production = FALSE): EnvironmentResponse {
     $environment_resource = new Environments($acquia_cloud_client);
-    $application_environments = iterator_to_array($environment_resource->getAll($cloud_application_uuid));
+    $application_environments = iterator_to_array($environment_resource->getAll($application_uuid));
     $choices = [];
     foreach ($application_environments as $key => $environment) {
       if (!$allow_production && $environment->flags->production) {
@@ -560,15 +569,18 @@ abstract class PullCommandBase extends CommandBase {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    *
    * @param $environment_databases
+   * @param $multiple_dbs
    *
-   * @return array
+   * @return array|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
+   * @throws \JsonException
    */
   private function promptChooseDatabases(
-    $cloud_environment,
-    $environment_databases,
-    $multiple_dbs
-  ) {
+    EnvironmentResponse $cloud_environment,
+                        $environment_databases,
+                        $multiple_dbs
+  ): ?array {
     $choices = [];
     if ($multiple_dbs) {
       $choices['all'] = 'All';
@@ -615,11 +627,10 @@ abstract class PullCommandBase extends CommandBase {
 
       return $chosen_databases;
     }
-    else {
-      $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
-      $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
-      return [$environment_databases[$chosen_database_index]];
-    }
+
+    $chosen_database_label = $this->io->choice('Choose a database', $choices, $default_database_index);
+    $chosen_database_index = array_search($chosen_database_label, $choices, TRUE);
+    return [$environment_databases[$chosen_database_index]];
   }
 
   /**
@@ -644,8 +655,9 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @return mixed|string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
    */
-  private function determineSite($environment, InputInterface $input) {
+  private function determineSite($environment, InputInterface $input): mixed {
     if (isset($this->site)) {
       return $this->site;
     }
@@ -653,7 +665,8 @@ abstract class PullCommandBase extends CommandBase {
     if ($input->hasArgument('site') && $input->getArgument('site')) {
       return $input->getArgument('site');
     }
-    elseif ($this->isAcsfEnv($environment)) {
+
+    if ($this->isAcsfEnv($environment)) {
       $site = $this->promptChooseAcsfSite($environment);
     }
     else {
@@ -667,7 +680,7 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param $chosen_environment
    * @param \Closure|null $output_callback
-   * @param string|null $site
+   * @param string $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -713,8 +726,9 @@ abstract class PullCommandBase extends CommandBase {
    *   specific to the environment.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
    */
-  protected function determineCloudDatabases(Client $acquia_cloud_client, $chosen_environment, $site = NULL, $multiple_dbs = FALSE) {
+  protected function determineCloudDatabases(Client $acquia_cloud_client, EnvironmentResponse $chosen_environment, string $site = NULL, bool $multiple_dbs = FALSE): array {
     $databases = $acquia_cloud_client->request(
       'get',
       '/environments/' . $chosen_environment->uuid . '/databases'
@@ -728,16 +742,15 @@ abstract class PullCommandBase extends CommandBase {
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
         $database_names = array_column($databases, 'name');
-        $database_key = array_search($site, $database_names);
+        $database_key = array_search($site, $database_names, TRUE);
         if ($database_key !== FALSE) {
           return [$databases[$database_key]];
         }
       }
       return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
     }
-    else {
-      $this->logger->debug('Only a single database detected on Cloud');
-    }
+
+    $this->logger->debug('Only a single database detected on Cloud');
 
     return [reset($databases)];
   }
@@ -803,10 +816,11 @@ abstract class PullCommandBase extends CommandBase {
 * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param bool $allow_production
-   * @return \AcquiaCloudApi\Response\EnvironmentResponse|mixed
+   *
+   * @return \AcquiaCloudApi\Response\EnvironmentResponse|array|string
    * @throws \Exception
    */
-  protected function determineEnvironment(InputInterface $input, OutputInterface $output, $allow_production = FALSE) {
+  protected function determineEnvironment(InputInterface $input, OutputInterface $output, bool $allow_production = FALSE): array|string|EnvironmentResponse {
     if (isset($this->sourceEnvironment)) {
       return $this->sourceEnvironment;
     }
@@ -831,6 +845,9 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
     if (!$this->environmentPhpVersionMatches($environment)) {
@@ -842,7 +859,8 @@ abstract class PullCommandBase extends CommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    *
-   * @throws \Exception
+   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function matchIdePhpVersion(
     OutputInterface $output,
@@ -862,6 +880,8 @@ abstract class PullCommandBase extends CommandBase {
    * @param $environment
    *
    * @return bool
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function environmentPhpVersionMatches($environment): bool {
     $current_php_version = $this->getIdePhpVersion();
@@ -945,7 +965,7 @@ abstract class PullCommandBase extends CommandBase {
       'composer',
       'install',
       '--no-interaction',
-    ], $output_callback, $this->dir, FALSE, NULL);
+    ], $output_callback, $this->dir, FALSE);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to install Drupal dependencies via Composer. {message}',
         ['message' => $process->getErrorOutput()]);
@@ -962,19 +982,17 @@ abstract class PullCommandBase extends CommandBase {
     if ($this->isAcsfEnv($environment)) {
       return $database->db_host . '.enterprise-g1.hosting.acquia.com';
     }
-    else {
-      return $database->db_host;
-    }
+
+    return $database->db_host;
   }
 
   /**
    * @param $environment
    * @param $database
-   * @param string $filename
    *
    * @return string
    */
-  protected function getRemoteTempFilepath($environment, $database, string $filename): string {
+  protected function getRemoteTempFilepath($environment, $database): string {
     if ($this->isAcsfEnv($environment)) {
       $ssh_url_parts = explode('.', $database->ssh_host);
       $temp_prefix = reset($ssh_url_parts);
@@ -999,7 +1017,7 @@ abstract class PullCommandBase extends CommandBase {
     Client $acquia_cloud_client,
     $environment,
     $database
-  ) {
+  ): mixed {
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $backups_response = $database_backups->getAll($environment->uuid, $database->name);
     if (!count($backups_response)) {

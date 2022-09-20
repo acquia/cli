@@ -11,6 +11,7 @@
 
 namespace Acquia\Cli\Descriptor;
 
+use Exception;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Descriptor\ApplicationDescription;
@@ -19,6 +20,7 @@ use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputOption;
+use function count;
 
 /**
  * ReStructuredTextDescriptor descriptor.
@@ -26,26 +28,26 @@ use Symfony\Component\Console\Input\InputOption;
 class ReStructuredTextDescriptor extends MarkdownDescriptor {
 
   // <h1>
-  private $partChar = '#';
+  private string $partChar = '#';
   // <h2>
-  private $chapterChar = '*';
+  private string $chapterChar = '*';
   // <h3>
-  private $sectionChar = '=';
+  private string $sectionChar = '=';
   // <h4>
-  private $subsectionChar = '-';
+  private string $subsectionChar = '-';
   // <h5>
-  private $subsubsectionChar = '^';
+  private string $subsubsectionChar = '^';
   // <h6>
-  private $paragraphsChar = '"';
+  private string $paragraphsChar = '"';
 
-  private $visibleNamespaces = [];
+  private array $visibleNamespaces = [];
 
   /**
    * {@inheritdoc}
    */
   protected function describeInputArgument(InputArgument $argument, array $options = []) {
     $this->write(
-      '' . ($argument->getName() ?: '<none>') . "\n" . str_repeat($this->paragraphsChar, Helper::width($argument->getName())) . "\n\n"
+      $argument->getName() ?: '<none>' . "\n" . str_repeat($this->paragraphsChar, Helper::width($argument->getName())) . "\n\n"
       . ($argument->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n", $argument->getDescription()) . "\n\n" : '')
       . '- **Is required**: ' . ($argument->isRequired() ? 'yes' : 'no') . "\n"
       . '- **Is array**: ' . ($argument->isArray() ? 'yes' : 'no') . "\n"
@@ -62,13 +64,13 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
       $name .= '|\-\-no-' . $option->getName();
     }
     if ($option->getShortcut()) {
-      $name .= '|-' . str_replace('|', '|-', $option->getShortcut()) . '';
+      $name .= '|-' . str_replace('|', '|-', $option->getShortcut());
     }
 
     $option_description = $option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n\n", $option->getDescription()) . "\n\n" : '';
     $option_description = iconv('UTF-8', 'ASCII//TRANSLIT', $option_description);
     $this->write(
-      '' . $name . '' . "\n" . str_repeat($this->paragraphsChar, Helper::width($name)) . "\n\n"
+      $name . "\n" . str_repeat($this->paragraphsChar, Helper::width($name)) . "\n\n"
       . $option_description
       . '- **Accept value**: ' . ($option->acceptValue() ? 'yes' : 'no') . "\n"
       . '- **Is value required**: ' . ($option->isValueRequired() ? 'yes' : 'no') . "\n"
@@ -82,7 +84,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
    * {@inheritdoc}
    */
   protected function describeInputDefinition(InputDefinition $definition, array $options = []) {
-    if ($showArguments = \count($definition->getArguments()) > 0) {
+    if ($showArguments = (count($definition->getArguments()) > 0)) {
       $this->write("Arguments\n" . str_repeat($this->subsubsectionChar, 9)) . "\n\n";
       foreach ($definition->getArguments() as $argument) {
         $this->write("\n\n");
@@ -93,7 +95,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
     }
 
     $non_default_options = $this->getNonDefaultOptions($definition);
-    if (\count($non_default_options) > 0) {
+    if (count($non_default_options) > 0) {
       if ($showArguments) {
         $this->write("\n\n");
       }
@@ -118,7 +120,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
         . str_repeat($this->subsectionChar, Helper::width($command->getName())) . "\n\n"
         . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
         . "Usage\n" . str_repeat($this->paragraphsChar, 5) . "\n\n"
-        . array_reduce($command->getAliases(), function ($carry, $usage) {
+        . array_reduce($command->getAliases(), static function ($carry, $usage) {
           return $carry . '- ``' . $usage . '``' . "\n";
         })
       );
@@ -136,7 +138,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
       . str_repeat($this->subsectionChar, Helper::width($command->getName())) . "\n\n"
       . ($command->getDescription() ? $command->getDescription() . "\n\n" : '')
       . "Usage\n" . str_repeat($this->subsubsectionChar, 5) . "\n\n"
-      . array_reduce(array_merge([$command->getSynopsis()], $command->getAliases(), $command->getUsages()), function ($carry, $usage) {
+      . array_reduce(array_merge([$command->getSynopsis()], $command->getAliases(), $command->getUsages()), static function ($carry, $usage) {
         return $carry . '- ``' . $usage . '``' . "\n";
       })
     );
@@ -163,7 +165,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
 
     $this->write($title . "\n" . str_repeat($this->partChar, Helper::width($title)));
     $this->createTableOfContents($description, $application);
-    $this->describeCommands($description, $application, $options);
+    $this->describeCommands($application, $options);
   }
 
   private function getApplicationTitle(Application $application): string {
@@ -179,11 +181,10 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
   }
 
   /**
-   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
    * @param $application
    * @param array $options
    */
-  private function describeCommands(ApplicationDescription $description, $application, array $options): void {
+  private function describeCommands($application, array $options): void {
     $title = "Commands";
     $this->write("\n\n$title\n" . str_repeat($this->chapterChar, Helper::width($title)) . "\n\n");
     foreach ($this->visibleNamespaces as $namespace) {
@@ -226,7 +227,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
       $commands = $this->removeAliasesAndHiddenCommands($commands);
 
       $this->write("\n\n");
-      $this->write(implode("\n", array_map(function ($commandName) {
+      $this->write(implode("\n", array_map(static function ($commandName) {
         return sprintf('- `%s`_', $commandName);
       }, array_keys($commands))));
     }
@@ -259,7 +260,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
   /**
   * @param \Symfony\Component\Console\Descriptor\ApplicationDescription $description
   */
-  private function setVisibleNamespaces(ApplicationDescription $description) {
+  private function setVisibleNamespaces(ApplicationDescription $description): void {
     $commands = $description->getCommands();
     foreach ($description->getNamespaces() as $namespace) {
       try {
@@ -279,7 +280,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
           continue;
         }
       }
-      catch (\Exception $exception) {
+      catch (Exception $exception) {
 
       }
       $this->visibleNamespaces[] = $namespace['id'];
@@ -294,7 +295,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
   private function removeAliasesAndHiddenCommands(array $commands): array {
     // Remove aliases.
     foreach ($commands as $key => $command) {
-      if (in_array($key, $command->getAliases()) || $command->isHidden()) {
+      if (in_array($key, $command->getAliases(), TRUE) || $command->isHidden()) {
         unset($commands[$key]);
       }
     }

@@ -12,14 +12,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 class Checklist {
   /**
    * @var array*/
-  private $items = [];
+  private array $items = [];
 
   /**
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
-  private $output;
+  private OutputInterface $output;
 
-  private $indentLength = 4;
+  private int $indentLength = 4;
 
   /**
    * Checklist constructor.
@@ -33,7 +33,7 @@ class Checklist {
   /**
    * @param string $message
    */
-  public function addItem($message): void {
+  public function addItem(string $message): void {
     $item = ['message' => $message];
 
     if ($this->useSpinner()) {

@@ -15,27 +15,27 @@ trait CodeStudioCommandTrait {
   /**
    * @var string
    */
-  protected $gitLabToken;
+  protected string $gitLabToken;
 
   /**
    * @var string
    */
-  protected $gitLabHost;
+  protected string $gitLabHost;
 
   /**
    * @var \Gitlab\Client
    */
-  protected $gitLabClient;
+  protected Client $gitLabClient;
 
   /**
    * @var array
    */
-  protected $gitLabAccount;
+  protected array $gitLabAccount;
 
   /**
    * @var string
    */
-  private $gitLabProjectDescription;
+  private string $gitLabProjectDescription;
 
   /**
    * Getting the gitlab token from user.
@@ -119,7 +119,7 @@ trait CodeStudioCommandTrait {
   /**
    * @param Client $client
    */
-  public function setGitLabClient(Client $client) {
+  public function setGitLabClient(Client $client): void {
     $this->gitLabClient = $client;
   }
 
@@ -149,7 +149,7 @@ trait CodeStudioCommandTrait {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validateEnvironment() {
+  protected function validateEnvironment(): void {
     if (!empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
@@ -195,38 +195,33 @@ trait CodeStudioCommandTrait {
       if (count($projects) == 1) {
         return reset($projects);
       }
-      else {
-        return $this->promptChooseFromObjectsOrArrays(
-          $projects,
-          'id',
-          'path_with_namespace',
-          "Found multiple projects that could match the {$cloud_application->name} application. Please choose which one to configure.",
-          FALSE
-        );
-      }
+
+      return $this->promptChooseFromObjectsOrArrays(
+        $projects,
+        'id',
+        'path_with_namespace',
+        "Found multiple projects that could match the {$cloud_application->name} application. Please choose which one to configure."
+      );
     }
     // Prompt to create project.
-    else {
-      $this->io->writeln([
-        "",
-        "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
-        "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
-      ]);
-      $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
-      if ($create_project) {
-        return $this->createGitLabProject($cloud_application);
-      }
-      // Prompt to choose from full list, regardless of description.
-      else {
-        return $this->promptChooseFromObjectsOrArrays(
-          $this->gitLabClient->projects()->all(),
-          'id',
-          'path_with_namespace',
-          "Please choose a Code Studio project to configure for the {$cloud_application->name} application",
-          FALSE
-        );
-      }
+
+    $this->io->writeln([
+      "",
+      "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
+      "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
+    ]);
+    $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
+    if ($create_project) {
+      return $this->createGitLabProject($cloud_application);
     }
+    // Prompt to choose from full list, regardless of description.
+
+    return $this->promptChooseFromObjectsOrArrays(
+      $this->gitLabClient->projects()->all(),
+      'id',
+      'path_with_namespace',
+      "Please choose a Code Studio project to configure for the {$cloud_application->name} application"
+    );
   }
 
   /**

@@ -33,6 +33,7 @@ class PullCodeCommand extends PullCommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
+   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->pullCode($input, $output);

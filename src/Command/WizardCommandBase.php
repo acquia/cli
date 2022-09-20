@@ -22,9 +22,10 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
    * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
-    if ($this->commandRequiresAuthentication($input) && !$this->cloudApiClientService->isMachineAuthenticated()) {
+  protected function initialize(InputInterface $input, OutputInterface $output): void {
+    if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
       $command_name = 'auth:login';
       $command = $this->getApplication()->find($command_name);
       $arguments = ['command' => $command_name];
@@ -94,7 +95,7 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   /**
    * @return bool
    */
-  protected function passPhraseFileExists() {
+  protected function passPhraseFileExists(): bool {
     return file_exists($this->passphraseFilepath);
   }
 

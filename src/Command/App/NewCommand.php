@@ -41,7 +41,7 @@ class NewCommand extends CommandBase {
       'acquia_next_acms' => 'acquia/next-acms',
     ];
     $project = $this->io->choice('Choose a starting project', array_values($distros), $distros['acquia_drupal_recommended']);
-    $project = array_search($project, $distros);
+    $project = array_search($project, $distros, TRUE);
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));
@@ -76,11 +76,10 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 

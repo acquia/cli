@@ -17,7 +17,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Register your Site Factory API key and secret to use API functionality')
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "The username for the Site Factory that you'd like to login to")
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "The key for your Site Factory user")
@@ -25,11 +25,10 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
@@ -40,7 +39,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($input->getOption('factory-url')) {
       $factory_url = $input->getOption('factory-url');
     }
@@ -96,12 +95,11 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   }
 
   /**
-   * @param string $factory_url
+   * @param string|null $factory_url
    * @param string $username
    * @param string $key
-   *
    */
-  private function writeAcsfCredentialsToDisk($factory_url, string $username, string $key): void {
+  private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
       'username' => $username,
@@ -120,7 +118,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    *
    * @return mixed|null
    */
-  private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE) {
+  private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE): mixed {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);
       $this->io->note([

@@ -32,13 +32,14 @@ class Kernel extends BaseKernel {
 
   /**
    * {@inheritdoc}
+   * @throws \Exception
    */
   public function registerContainerConfiguration(LoaderInterface $loader): void {
     $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
     $this->registerExtensionConfiguration($loader);
   }
 
-  protected function registerExtensionConfiguration($loader) {
+  protected function registerExtensionConfiguration($loader): void {
     // Search for plugins.
     $finder = new Finder();
     $extensions = $finder->files()

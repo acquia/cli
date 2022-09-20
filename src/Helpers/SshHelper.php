@@ -15,12 +15,12 @@ class SshHelper implements LoggerAwareInterface {
   use LoggerAwareTrait;
 
   /** @var OutputInterface */
-  private $output;
+  private OutputInterface $output;
 
   /**
    * @var LocalMachineHelper
    */
-  private $localMachineHelper;
+  private LocalMachineHelper $localMachineHelper;
 
   /**
    * SshHelper constructor.
@@ -92,7 +92,7 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @return string
    */
-  private function firstArguments($command_args): string {
+  private function firstArguments(array $command_args): string {
     $result = '';
     while (!empty($command_args)) {
       $first = array_shift($command_args);
@@ -130,7 +130,7 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @return string
    */
-  private function getCommandSummary($command_args): string {
+  private function getCommandSummary(array $command_args): string {
     return $this->firstArguments($command_args);
   }
 

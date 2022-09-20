@@ -21,7 +21,7 @@ class IdeDeleteCommand extends IdeCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Delete a Cloud IDE');
     $this->acceptApplicationUuid();
     // @todo Add option to accept an ide UUID.
@@ -33,8 +33,9 @@ class IdeDeleteCommand extends IdeCommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 

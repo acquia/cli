@@ -17,7 +17,7 @@ class AppOpenCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Opens your browser to view a given Cloud application')
       ->acceptApplicationUuid()
       ->setHidden(!LocalMachineHelper::isBrowserAvailable())
@@ -32,7 +32,7 @@ class AppOpenCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $application_uuid = $this->determineCloudApplication();
     $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $application_uuid);
 

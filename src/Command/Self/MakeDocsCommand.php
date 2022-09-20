@@ -20,13 +20,13 @@ class MakeDocsCommand extends CommandBase {
    */
   protected function configure(): void {
     $this->setDescription('Generate documentation for all ACLI commands')
-      ->setHidden(TRUE);
+      ->setHidden();
   }
 
   /**
    * {@inheritdoc}
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $helper = new DescriptorHelper();
     $helper->register('rst', new ReStructuredTextDescriptor());
 

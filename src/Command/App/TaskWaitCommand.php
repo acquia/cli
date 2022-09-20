@@ -46,7 +46,7 @@ class TaskWaitCommand extends CommandBase {
    */
   private function getNotificationUuid(InputInterface $input): string {
     $notification_uuid = $input->getArgument('notification-uuid');
-    $json = json_decode($notification_uuid);
+    $json = json_decode($notification_uuid, FALSE);
     if (json_last_error() === JSON_ERROR_NONE) {
       if (property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
         return $this->getNotificationUuidFromResponse($json);

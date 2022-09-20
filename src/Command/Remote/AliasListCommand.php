@@ -19,7 +19,7 @@ class AliasListCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('List all aliases for the Cloud Platform environments')
       ->setAliases(['aliases', 'sa']);
     $this->acceptApplicationUuid();
@@ -27,8 +27,9 @@ class AliasListCommand extends CommandBase {
 
   /**
    * {@inheritdoc}
+   * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $applications_resource = new Applications($acquia_cloud_client);
     $cloud_application_uuid = $this->determineCloudApplication();

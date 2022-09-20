@@ -17,22 +17,22 @@ use Symfony\Component\Filesystem\Filesystem;
 abstract class Datastore implements DataStoreInterface {
 
   /** @var Data */
-  protected $data;
+  protected Data $data;
 
   /**
    * @var \Symfony\Component\Filesystem\Filesystem
    */
-  protected $fileSystem;
+  protected Filesystem $fileSystem;
 
   /**
    * @var string
    */
-  protected $filepath;
+  protected string $filepath;
 
   /**
    * @var \Grasmash\Expander\Expander
    */
-  protected $expander;
+  protected Expander $expander;
 
   /**
    * @param string $path
@@ -60,7 +60,7 @@ abstract class Datastore implements DataStoreInterface {
    *
    * @return array|mixed|null
    */
-  public function get(string $key, $default = NULL) {
+  public function get(string $key, $default = NULL): mixed {
     try {
       return $this->data->get($key);
     }
@@ -93,8 +93,7 @@ abstract class Datastore implements DataStoreInterface {
    * @return array
    */
   protected function processConfig(array $config, ConfigurationInterface $definition): array {
-    $processor = new Processor();
-    return $processor->processConfiguration(
+    return (new Processor())->processConfiguration(
       $definition,
       [$definition->getName() => $config],
     );

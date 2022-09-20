@@ -13,7 +13,7 @@ class Application extends \Symfony\Component\Console\Application {
   /**
    * @var array
    */
-  protected $helpMessages = [];
+  protected array $helpMessages = [];
 
   /**
    * @return mixed
@@ -25,7 +25,7 @@ class Application extends \Symfony\Component\Console\Application {
   /**
    * @param mixed $helpMessages
    */
-  public function setHelpMessages($helpMessages): void {
+  public function setHelpMessages(mixed $helpMessages): void {
     $this->helpMessages = $helpMessages;
   }
 

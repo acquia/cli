@@ -5,6 +5,7 @@ namespace Acquia\Cli\AcsfApi;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client as GuzzleClient;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * AcsfConnector class.
@@ -34,7 +35,7 @@ class AcsfConnector extends Connector {
    * @inheritdoc
    * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  public function sendRequest($verb, $path, $options): \Psr\Http\Message\ResponseInterface {
+  public function sendRequest($verb, $path, $options): ResponseInterface {
     return $this->client->request($verb, $path, $options);
   }
 

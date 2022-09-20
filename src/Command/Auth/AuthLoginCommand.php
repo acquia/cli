@@ -17,7 +17,7 @@ class AuthLoginCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->setAliases(['login'])
       ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
@@ -25,11 +25,10 @@ class AuthLoginCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
@@ -40,7 +39,7 @@ class AuthLoginCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
     if ($this->cloudApiClientService->isMachineAuthenticated()) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
@@ -67,9 +66,9 @@ class AuthLoginCommand extends CommandBase {
       }
     }
 
-    $this->promptOpenBrowserToCreateToken($input, $output);
-    $api_key = $this->determineApiKey($input, $output);
-    $api_secret = $this->determineApiSecret($input, $output);
+    $this->promptOpenBrowserToCreateToken($input);
+    $api_key = $this->determineApiKey($input);
+    $api_secret = $this->determineApiSecret($input);
     $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri());
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
     $output->writeln("<info>Saved credentials</info>");

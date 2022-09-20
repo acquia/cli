@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -35,9 +36,9 @@ class PushDatabaseCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $destination_environment = $this->determineEnvironment($input, $output, FALSE);
+    $destination_environment = $this->determineEnvironment($input, $output);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $databases = $this->determineCloudDatabases($acquia_cloud_client, $destination_environment, $input->getArgument('site'), FALSE);
+    $databases = $this->determineCloudDatabases($acquia_cloud_client, $destination_environment, $input->getArgument('site'));
     // We only support pushing a single database.
     $database = $databases[0];
     $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");
@@ -53,7 +54,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Uploading database dump to remote machine');
-    $remote_dump_filepath = $this->uploadDatabaseDump($destination_environment, $database, $local_dump_filepath, $output_callback);
+    $remote_dump_filepath = $this->uploadDatabaseDump($destination_environment, $local_dump_filepath, $output_callback);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Importing database dump into MySQL on remote machine');
@@ -65,7 +66,6 @@ class PushDatabaseCommand extends PullCommandBase {
 
   /**
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
-   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
    * @param string $local_filepath
    * @param callable $output_callback
    *
@@ -73,10 +73,9 @@ class PushDatabaseCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function uploadDatabaseDump(
-    $environment,
-    $database,
+    EnvironmentResponse $environment,
     string $local_filepath,
-    $output_callback
+    callable $output_callback
   ): string {
     $sitegroup = self::getSiteGroupFromSshUrl($environment->sshUrl);
     $remote_filepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($local_filepath);
@@ -89,7 +88,7 @@ class PushDatabaseCommand extends PullCommandBase {
       $local_filepath,
       $environment->sshUrl . ':' . $remote_filepath,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not upload local database dump: {message}',
         ['message' => $process->getOutput()]);
@@ -105,10 +104,10 @@ class PushDatabaseCommand extends PullCommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function importDatabaseDumpOnRemote($environment, $remote_dump_filepath, $database): void {
+  private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, $database): void {
     $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
     $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
-    $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
+    $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
     }
@@ -121,9 +120,7 @@ class PushDatabaseCommand extends PullCommandBase {
    */
   private function getNameFromDatabaseResponse($database): string {
     $db_url_parts = explode('/', $database->url);
-    $db_name = end($db_url_parts);
-
-    return $db_name;
+    return end($db_url_parts);
   }
 
 }

@@ -17,7 +17,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('List your local and remote SSH keys');
   }
 
@@ -28,7 +28,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     $local_keys = $this->findLocalSshKeys();

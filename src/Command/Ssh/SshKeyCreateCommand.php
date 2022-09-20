@@ -16,7 +16,7 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Create an SSH key on your local machine')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
@@ -30,9 +30,9 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
-    $filename = $this->determineFilename($input, $output);
-    $password = $this->determinePassword($input, $output);
+  protected function execute(InputInterface $input, OutputInterface $output): int {
+    $filename = $this->determineFilename($input);
+    $password = $this->determinePassword($input);
     $this->createSshKey($filename, $password);
     $output->writeln('<info>Created new SSH key.</info> ' . $this->publicSshKeyFilepath);
 

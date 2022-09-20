@@ -25,19 +25,20 @@ use Symfony\Component\Process\Process;
 class LocalMachineHelper {
   use LoggerAwareTrait;
 
-  private $output;
-  private $input;
-  private $isTty = NULL;
-  private $installedBinaries = [];
+  private OutputInterface $output;
+  private InputInterface $input;
+  private $isTty;
+  private array $installedBinaries = [];
 
   /**
    * @var \Symfony\Component\Console\Style\SymfonyStyle
    */
-  private $io;
+  private SymfonyStyle $io;
 
   /**
    * @param InputInterface $input
    * @param OutputInterface $output
+   * @param \Psr\Log\LoggerInterface $logger
    */
   public function __construct(
       InputInterface $input,
@@ -75,7 +76,7 @@ class LocalMachineHelper {
    * @param string[] $binaries
    * @throws AcquiaCliException
    */
-  public function checkRequiredBinariesExist(array $binaries = []) {
+  public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
       if (!$this->commandExists($binary)) {
         throw new AcquiaCliException("The required binary `$binary` does not exist. Please install it and ensure in exists in a location listed in your system \$PATH");
@@ -117,6 +118,7 @@ class LocalMachineHelper {
    * @param string|null $cwd
    * @param bool $print_output
    * @param int|null $timeout
+   * @param array|null $env
    *
    * @return \Symfony\Component\Process\Process
    */
@@ -130,6 +132,7 @@ class LocalMachineHelper {
   /**
    * @param \Symfony\Component\Process\Process $process
    * @param string|null $cwd
+   * @param bool|null $print_output
    * @param null $timeout
    * @param array|null $env
    *
@@ -202,8 +205,10 @@ class LocalMachineHelper {
    *   Name of the file to read.
    *
    * @return string Content read from that file
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function readFile($filename): string {
+  public function readFile(string $filename): string {
     return file_get_contents($this->getLocalFilepath($filename));
   }
 
@@ -211,6 +216,8 @@ class LocalMachineHelper {
    * @param $filepath
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getLocalFilepath($filepath): string {
     return $this->fixFilename($filepath);
@@ -245,7 +252,7 @@ class LocalMachineHelper {
   /**
    * @param bool $isTty
    */
-  public function setIsTty($isTty): void {
+  public function setIsTty(?bool $isTty): void {
     $this->isTty = $isTty;
   }
 
@@ -256,8 +263,11 @@ class LocalMachineHelper {
    *   Name of the file to write to.
    * @param string $content
    *   Content to write to the file.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function writeFile($filename, $content): void {
+  public function writeFile(string $filename, string $content): void {
     $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
   }
 
@@ -267,8 +277,9 @@ class LocalMachineHelper {
    * @param string $filename
    *
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function fixFilename($filename): string {
+  private function fixFilename(string $filename): string {
     // '~' is only an alias for $HOME if it's at the start of the path.
     // On Windows, '~' (not as an alias) can appear other places in the path.
     return preg_replace('/^~/', self::getHomeDir(), $filename);
@@ -316,7 +327,7 @@ class LocalMachineHelper {
    * @return null|string
    *   Root.
    */
-  public static function getProjectRoot() {
+  public static function getProjectRoot(): ?string {
     $possible_project_roots = [
       getcwd(),
     ];
@@ -350,14 +361,14 @@ class LocalMachineHelper {
    *   FALSE if file was not found. Otherwise, the directory path containing the
    *   file.
    */
-  private static function find_directory_containing_files($working_directory, array $files, $max_height = 10) {
+  private static function find_directory_containing_files(string $working_directory, array $files, int $max_height = 10): bool|string {
     $file_path = $working_directory;
     for ($i = 0; $i <= $max_height; $i++) {
       if (self::files_exist($file_path, $files)) {
         return $file_path;
       }
 
-      $file_path = dirname($file_path) . '';
+      $file_path = dirname($file_path);
     }
 
     return FALSE;
@@ -374,7 +385,7 @@ class LocalMachineHelper {
    * @return bool
    *   Exists.
    */
-  private static function files_exist($dir, array $files) {
+  private static function files_exist(string $dir, array $files): bool {
     foreach ($files as $file) {
       if (file_exists(Path::join($dir, $file))) {
         return TRUE;
@@ -411,13 +422,13 @@ class LocalMachineHelper {
    *   Optional URI or site path to open in browser. If omitted, or if a site path
    *   is specified, the current site home page uri will be prepended if the site's
    *   hostname resolves.
-   * @param string $browser The command to run to launch a browser.
+   * @param string|null $browser The command to run to launch a browser.
    *
    * @return bool
    *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.
    */
-  public function startBrowser($uri = NULL, $browser = NULL): bool {
+  public function startBrowser($uri = NULL, string $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on
     // POSIX or are running Windows or OS X.
     if (!self::isBrowserAvailable()) {
@@ -444,20 +455,16 @@ class LocalMachineHelper {
         // Linux.
         $browser = 'xdg-open';
       }
+      else if ($this->commandExists('open')) {
+        // Darwin.
+        $browser = 'open';
+      }
+      else if (OsInfo::isWindows()) {
+        $browser = 'start';
+      }
       else {
-        if ($this->commandExists('open')) {
-          // Darwin.
-          $browser = 'open';
-        }
-        else {
-          if (OsInfo::isWindows()) {
-            $browser = 'start';
-          }
-          else {
-            $this->logger->warning('Could not find a browser on your local machine. Check that one of <options=bold>xdg-open</>, <options=bold>open</>, or <options=bold>start</> are installed.');
-            return FALSE;
-          }
-        }
+        $this->logger->warning('Could not find a browser on your local machine. Check that one of <options=bold>xdg-open</>, <options=bold>open</>, or <options=bold>start</> are installed.');
+        return FALSE;
       }
     }
     if ($browser) {

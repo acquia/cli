@@ -17,7 +17,7 @@ class LogTailCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Tail the logs from your environments')
       ->acceptEnvironmentId()
       ->setAliases(['tail', 'log:tail']);
