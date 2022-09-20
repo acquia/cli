@@ -13,17 +13,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
-  /**
-   * @var \Acquia\Cli\Output\Checklist
-   */
-  private $checklist;
-
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
       ->setAliases(['ide:wizard'])
       ->setHidden(!CommandBase::isAcquiaCloudIde());
@@ -37,8 +32,8 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
-    $this->checklist = new Checklist($output);
+  protected function execute(InputInterface $input, OutputInterface $output): int {
+    $checklist = new Checklist($output);
 
     // Get Cloud account.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -64,49 +59,49 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Just in case there's an orphaned key on the Cloud Platform for this Cloud IDE.
       $this->deleteThisSshKeyFromCloud($output);
 
-      $this->checklist->addItem('Creating a local SSH key');
+      $checklist->addItem('Creating a local SSH key');
 
       // Create SSH key.
       $password = md5(random_bytes(10));
       $this->savePassPhraseToFile($password);
       $this->createSshKey($this->privateSshKeyFilename, $password);
 
-      $this->checklist->completePreviousItem();
+      $checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
     }
     else {
-      $this->checklist->addItem('Already created a local key');
-      $this->checklist->completePreviousItem();
+      $checklist->addItem('Already created a local key');
+      $checklist->completePreviousItem();
     }
 
     // Upload SSH key to the Cloud Platform.
     if (!$this->userHasUploadedThisKeyToCloud($this->getSshKeyLabel())) {
-      $this->checklist->addItem('Uploading the local key to the Cloud Platform');
+      $checklist->addItem('Uploading the local key to the Cloud Platform');
 
       // Just in case there is an uploaded key,  but it doesn't actually match
       // the local key, delete remote key!
       $this->deleteThisSshKeyFromCloud($output);
       $public_key = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
       $chosen_local_key = basename($this->publicSshKeyFilepath);
-      $this->uploadSshKey($this->getSshKeyLabel(), $chosen_local_key, $public_key);
+      $this->uploadSshKey($this->getSshKeyLabel(), $public_key);
 
-      $this->checklist->completePreviousItem();
+      $checklist->completePreviousItem();
       $key_was_uploaded = TRUE;
     }
     else {
-      $this->checklist->addItem('Already uploaded the local key to the Cloud Platform');
-      $this->checklist->completePreviousItem();
+      $checklist->addItem('Already uploaded the local key to the Cloud Platform');
+      $checklist->completePreviousItem();
     }
 
     // Add SSH key to local keychain.
     if (!$this->sshKeyIsAddedToKeychain()) {
-      $this->checklist->addItem('Adding the SSH key to local keychain');
+      $checklist->addItem('Adding the SSH key to local keychain');
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $this->getPassPhraseFromFile());
     }
     else {
-      $this->checklist->addItem('Already added the SSH key to local keychain');
+      $checklist->addItem('Already added the SSH key to local keychain');
     }
-    $this->checklist->completePreviousItem();
+    $checklist->completePreviousItem();
 
     // Wait for the key to register on the Cloud Platform.
     if ($key_was_uploaded) {

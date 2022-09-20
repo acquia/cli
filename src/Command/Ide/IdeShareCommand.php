@@ -20,21 +20,20 @@ class IdeShareCommand extends CommandBase {
   /**
    * @var array
    */
-  private $shareCodeFilepaths;
+  private array $shareCodeFilepaths;
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Get the share URL for a Cloud IDE')
       ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -47,7 +46,7 @@ class IdeShareCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
 
     if ($input->getOption('regenerate')) {
@@ -68,7 +67,7 @@ class IdeShareCommand extends CommandBase {
   /**
    * @param array $file_path
    */
-  public function setShareCodeFilepaths($file_path): void {
+  public function setShareCodeFilepaths(array $file_path): void {
     $this->shareCodeFilepaths = $file_path;
   }
 

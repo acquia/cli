@@ -25,11 +25,10 @@ class PullScriptsCommand extends PullCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 

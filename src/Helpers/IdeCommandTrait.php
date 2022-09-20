@@ -11,6 +11,9 @@ trait IdeCommandTrait {
 
   /**
    * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getIdePhpVersion(): string {
     return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));

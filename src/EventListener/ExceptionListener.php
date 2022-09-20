@@ -15,17 +15,17 @@ class ExceptionListener {
   /**
    * @var string
    */
-  private $messagesBgColor = 'blue';
+  private string $messagesBgColor = 'blue';
 
   /**
    * @var string
    */
-  private $messagesFgColor = 'white';
+  private string $messagesFgColor = 'white';
 
   /**
    * @var string[]
    */
-  private $helpMessages = [];
+  private array $helpMessages = [];
 
   /**
    * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event

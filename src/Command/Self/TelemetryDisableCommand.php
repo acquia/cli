@@ -15,18 +15,17 @@ class TelemetryDisableCommand extends CommandBase {
   protected static $defaultName = 'self:telemetry:disable';
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Disable anonymous sharing of usage and performance data')
       ->setAliases(['telemetry:disable']);
   }
@@ -38,7 +37,7 @@ class TelemetryDisableCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;
     $datastore->set(DataStoreContract::SEND_TELEMETRY, FALSE);
     $this->io->success('Telemetry has been disabled.');

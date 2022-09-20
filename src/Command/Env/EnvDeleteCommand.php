@@ -19,7 +19,7 @@ class EnvDeleteCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Delete a Continuous Delivery Environment (CDE)');
     $this->acceptEnvironmentId();
   }
@@ -31,7 +31,7 @@ class EnvDeleteCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

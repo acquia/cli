@@ -7,6 +7,7 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
@@ -22,27 +23,27 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
-  private $localMachineHelper;
+  private LocalMachineHelper $localMachineHelper;
 
   /**
    * @var \Acquia\Cli\DataStore\CloudDataStore
    */
-  private $datastoreCloud;
+  private CloudDataStore $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\DataStore\YamlStore
+   * @var \Acquia\Cli\DataStore\YamlStore|\Acquia\Cli\DataStore\AcquiaCliDatastore
    */
-  private $datastoreAcli;
+  private YamlStore|AcquiaCliDatastore $datastoreAcli;
 
   /**
    * @var \Acquia\Cli\AcsfApi\AcsfCredentials
    */
-  private $cloudCredentials;
+  private AcsfCredentials $cloudCredentials;
 
   /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
    */
-  private $telemetryHelper;
+  private TelemetryHelper $telemetryHelper;
 
   /**
    * @var string
@@ -52,17 +53,17 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Acquia\Cli\AcsfApi\AcsfClientService
    */
-  private $cloudApiClientService;
+  private AcsfClientService $cloudApiClientService;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
    */
-  private $logstreamManager;
+  private LogstreamManager $logstreamManager;
 
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
-  private $sshHelper;
+  private SshHelper $sshHelper;
 
   /**
    * @var string
@@ -72,7 +73,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Psr\Log\LoggerInterface
    */
-  private $logger;
+  private LoggerInterface $logger;
 
   private Client $httpClient;
 
@@ -88,6 +89,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \GuzzleHttp\Client $httpClient
    */
   public function __construct(
     LocalMachineHelper $localMachineHelper,

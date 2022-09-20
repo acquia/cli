@@ -35,7 +35,7 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $destination_environment = $this->determineEnvironment($input, $output, FALSE);
+    $destination_environment = $this->determineEnvironment($input, $output);
     $chosen_site = $input->getArgument('site');
     if (!$chosen_site) {
       if ($this->isAcsfEnv($destination_environment)) {
@@ -60,12 +60,12 @@ class PushFilesCommand extends PullCommandBase {
 
   /**
    * @param $chosen_environment
-   * @param callable $output_callback
+   * @param callable|null $output_callback
    * @param string|null $site
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function rsyncFilesToCloud($chosen_environment, $output_callback = NULL, $site = NULL): void {
+  private function rsyncFilesToCloud($chosen_environment, callable $output_callback = NULL, string $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/files/';
     $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
 
@@ -89,7 +89,7 @@ class PushFilesCommand extends PullCommandBase {
       $source,
       $chosen_environment->sshUrl . ':' . $dest_dir,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL), NULL);
+    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files to Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }

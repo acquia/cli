@@ -16,7 +16,7 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Print information about an SSH key')
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
   }
@@ -56,6 +56,7 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
 
   /**
    * @throws \violuke\RsaSshKeyFingerprint\InvalidInputException
+   * @throws \Exception
    */
   private function determineSshKey($acquia_cloud_client): array {
     $cloudKeysResponse = new SshKeys($acquia_cloud_client);
@@ -85,13 +86,12 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       return $keys[$fingerprint];
     }
 
-    $key = $this->promptChooseFromObjectsOrArrays(
+    return $this->promptChooseFromObjectsOrArrays(
       $keys,
       'fingerprint',
       'fingerprint',
       'Choose an SSH key to view'
     );
-    return $key;
 
   }
 

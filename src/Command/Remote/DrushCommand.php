@@ -19,7 +19,7 @@ class DrushCommand extends SshBaseCommand {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setAliases(['drush', 'dr'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
       ->setHelp('<fg=black;bg=cyan>Pleases pay close attention to the argument syntax! Note the usage of <options=bold;bg=cyan>--</> to separate the drush command arguments and options.</>')
@@ -36,7 +36,7 @@ class DrushCommand extends SshBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);

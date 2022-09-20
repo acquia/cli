@@ -19,7 +19,7 @@ class SshCommand extends SshBaseCommand {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
       ->setAliases(['ssh'])
       ->addArgument('alias', InputArgument::REQUIRED, 'Alias for application & environment in the format `app-name.env`')
@@ -34,7 +34,7 @@ class SshCommand extends SshBaseCommand {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);
@@ -50,7 +50,7 @@ class SshCommand extends SshBaseCommand {
       $ssh_command[] = implode(' ', $arguments['ssh_command']);
     }
     $ssh_command = (array) implode('; ', $ssh_command);
-    return $this->sshHelper->executeCommand($environment, $ssh_command, TRUE, NULL)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $ssh_command)->getExitCode();
   }
 
 }

@@ -17,7 +17,7 @@ class DocsCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Open Acquia product documentation in a web browser')
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
       ->addUsage(self::getDefaultName() . ' acli');
@@ -29,7 +29,7 @@ class DocsCommand extends CommandBase {
    *
    * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_products = [
       'Acquia CLI' => [
         'url' => 'acquia-cli',
@@ -108,9 +108,9 @@ class DocsCommand extends CommandBase {
     // If user has provided any acquia product in command.
     if ($acquiaProductName = $input->getArgument('product')) {
       $product_url = NULL;
-      foreach (array_values($acquia_products) as $acquia_product) {
+      foreach ($acquia_products as $acquia_product) {
         // If product provided by the user exists in the alias
-        if (in_array(strtolower($acquiaProductName), $acquia_product['alias'])) {
+        if (in_array(strtolower($acquiaProductName), $acquia_product['alias'], TRUE)) {
           $product_url = $acquia_product['url'];
           break;
         }

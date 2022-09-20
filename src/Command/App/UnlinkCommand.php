@@ -17,17 +17,16 @@ class UnlinkCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Remove local association between your project and a Cloud Platform application')
       ->setAliases(['unlink']);
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
@@ -39,7 +38,7 @@ class UnlinkCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
 
     $repo_root = $this->repoRoot;

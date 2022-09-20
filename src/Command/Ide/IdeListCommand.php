@@ -18,7 +18,7 @@ class IdeListCommand extends IdeCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('List available Cloud IDEs belonging to a given application');
     $this->setAliases(['ide:list']);
     $this->acceptApplicationUuid();
@@ -31,7 +31,7 @@ class IdeListCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $application_uuid = $this->determineCloudApplication();
 
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

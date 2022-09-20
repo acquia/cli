@@ -19,7 +19,7 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Delete an SSH key')
       ->addOption('cloud-key-uuid', 'uuid', InputOption::VALUE_REQUIRED);
   }

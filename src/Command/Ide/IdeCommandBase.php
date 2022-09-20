@@ -18,9 +18,9 @@ abstract class IdeCommandBase extends CommandBase {
   /**
    * @var string
    */
-  private $xdebugIniFilepath;
+  private string $xdebugIniFilepath;
 
-  const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug.ini';
+  public const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug.ini';
 
   /**
    * @param string $question_text
@@ -28,7 +28,7 @@ abstract class IdeCommandBase extends CommandBase {
    *
    * @param $cloud_application_uuid
    *
-   * @return \AcquiaCloudApi\Response\IdeResponse
+   * @return \AcquiaCloudApi\Response\IdeResponse|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
@@ -58,7 +58,7 @@ abstract class IdeCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function startService($service): void {
+  protected function startService(string $service): void {
     $process = $this->localMachineHelper->execute([
       'supervisorctl',
       'start',
@@ -76,7 +76,7 @@ abstract class IdeCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function stopService($service): void {
+  protected function stopService(string $service): void {
     $process = $this->localMachineHelper->execute([
       'supervisorctl',
       'stop',
@@ -94,7 +94,7 @@ abstract class IdeCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function restartService($service): void {
+  protected function restartService(string $service): void {
     $process = $this->localMachineHelper->execute([
       'supervisorctl',
       'restart',
@@ -131,12 +131,10 @@ abstract class IdeCommandBase extends CommandBase {
    *   The file path to the xdebug template.
    */
   protected function getXdebugTemplateFilePath(string $php_version): string {
-    switch ($php_version) {
-      case '7.4':
-        return '/home/ide/configs/php/xdebug2.ini';
-      default:
-        return '/home/ide/configs/php/xdebug3.ini';
-    }
+    return match ($php_version) {
+      '7.4' => '/home/ide/configs/php/xdebug2.ini',
+      default => '/home/ide/configs/php/xdebug3.ini',
+    };
   }
 
 }

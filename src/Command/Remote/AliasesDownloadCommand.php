@@ -24,17 +24,17 @@ class AliasesDownloadCommand extends SshCommand {
   /**
    * @var string
    */
-  private $drushArchiveFilepath;
+  private string $drushArchiveFilepath;
 
   /** @var string */
-  private $drushAliasesDir;
+  private string $drushAliasesDir;
 
   protected static $defaultName = 'remote:aliases:download';
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
       ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
       ->addOption('all', NULL, InputOption::VALUE_NONE, 'Download the aliases for all applications that you have access to, not just the current one.');
@@ -46,7 +46,7 @@ class AliasesDownloadCommand extends SshCommand {
    *
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $alias_version = $this->promptChooseDrushAliasVersion();
     $drush_archive_temp_filepath = $this->getDrushArchiveTempFilepath();
     $drush_aliases_dir = $this->getDrushAliasesDir($alias_version);
@@ -72,14 +72,14 @@ class AliasesDownloadCommand extends SshCommand {
   /**
    * Prompts the user for their preferred Drush alias version.
    */
-  protected function promptChooseDrushAliasVersion() {
+  protected function promptChooseDrushAliasVersion(): bool|int|string {
     $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based and stored in your home directory, while Drush 9+ aliases are YAML-based and stored with your project.');
     $question = 'Choose your preferred alias compatibility:';
     $choices = [
       8 => 'Drush 8 / Drupal 7 (PHP)',
       9 => 'Drush 9+ / Drupal 8+ (YAML)',
     ];
-    return array_search($this->io->choice($question, $choices, '9'), $choices);
+    return array_search($this->io->choice($question, $choices, '9'), $choices, TRUE);
   }
 
   /**
@@ -112,17 +112,12 @@ class AliasesDownloadCommand extends SshCommand {
       $this->drushAliasesDir = $this->input->getOption('destination-dir');
     }
     elseif (!isset($this->drushAliasesDir)) {
-      switch ($version) {
-        case 8:
-          $this->drushAliasesDir = $this->localMachineHelper
-              ->getLocalFilepath('~') . '/.drush';
-          break;
-        case 9:
-          $this->drushAliasesDir = Path::join($this->getRepoRoot(), 'drush');
-          break;
-        default:
-          throw new AcquiaCliException("Unknown Drush version");
-      }
+      $this->drushAliasesDir = match ($version) {
+        8 => $this->localMachineHelper
+            ->getLocalFilepath('~') . '/.drush',
+        9 => Path::join($this->getRepoRoot(), 'drush'),
+        default => throw new AcquiaCliException("Unknown Drush version"),
+      };
     }
 
     return $this->drushAliasesDir;
@@ -134,19 +129,18 @@ class AliasesDownloadCommand extends SshCommand {
    *
    * @return \Psr\Http\Message\StreamInterface
    */
-  protected function getAliasesFromCloud(Client $acquia_cloud_client, $alias_version): StreamInterface {
+  protected function getAliasesFromCloud(Client $acquia_cloud_client, int $alias_version): StreamInterface {
     $acquia_cloud_client->addQuery('version', $alias_version);
-    $account_adapter = new Account($acquia_cloud_client);
-    return $account_adapter->getDrushAliases();
+    return (new Account($acquia_cloud_client))->getDrushAliases();
   }
 
   /**
    * @param bool $single_application
    *
-   * @return mixed|string
+   * @return string
    * @throws \Exception
    */
-  protected function getSitePrefix(bool $single_application) {
+  protected function getSitePrefix(bool $single_application): string {
     $site_prefix = '';
     if ($single_application) {
       $cloud_application_uuid = $this->determineCloudApplication();
@@ -163,8 +157,11 @@ class AliasesDownloadCommand extends SshCommand {
    * @param string $base_dir
    *
    * @return \PharData
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function downloadArchive($alias_version, string $drush_archive_temp_filepath, string $base_dir): PharData {
+  protected function downloadArchive(int $alias_version, string $drush_archive_temp_filepath, string $base_dir): PharData {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $aliases = $this->getAliasesFromCloud($acquia_cloud_client, $alias_version);
     $this->localMachineHelper->writeFile($drush_archive_temp_filepath, $aliases);
@@ -204,8 +201,11 @@ class AliasesDownloadCommand extends SshCommand {
    * @param int $alias_version
    * @param string $drush_archive_temp_filepath
    * @param string $drush_aliases_dir
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function downloadDrush8Aliases($alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
+  protected function downloadDrush8Aliases(int $alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
     $base_dir = '.drush';
     $archive = $this->downloadArchive($alias_version, $drush_archive_temp_filepath, $base_dir);
     $drushFiles = [];
@@ -223,7 +223,7 @@ class AliasesDownloadCommand extends SshCommand {
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function getSingleAliasForSite(PharData $archive, $site_prefix, string $base_dir): array {
+  protected function getSingleAliasForSite(PharData $archive, string $site_prefix, string $base_dir): array {
     $drushFiles = [];
     foreach (new RecursiveIteratorIterator($archive, RecursiveIteratorIterator::LEAVES_ONLY) as $file) {
       // Just get the single alias for this single application.

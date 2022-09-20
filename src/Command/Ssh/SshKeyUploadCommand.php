@@ -33,8 +33,8 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();
-    $label = $this->determineSshKeyLabel($input, $output);
-    $this->uploadSshKey($label, $chosen_local_key, $public_key);
+    $label = $this->determineSshKeyLabel($input);
+    $this->uploadSshKey($label, $public_key);
     $this->io->success("Uploaded $chosen_local_key to the Cloud Platform with label $label");
 
     return 0;

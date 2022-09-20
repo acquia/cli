@@ -16,7 +16,7 @@ class LinkCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Associate your project with a Cloud Platform application')
       ->setAliases(['link']);
     $this->acceptApplicationUuid();
@@ -29,9 +29,8 @@ class LinkCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
     if ($cloud_application_uuid = $this->getCloudUuidFromDatastore()) {
       $cloud_application = $this->getCloudApplication($cloud_application_uuid);

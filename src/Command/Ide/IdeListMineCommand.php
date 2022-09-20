@@ -19,7 +19,7 @@ class IdeListMineCommand extends IdeCommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('List Cloud IDEs belonging to you');
     $this->acceptApplicationUuid();
   }
@@ -31,7 +31,7 @@ class IdeListMineCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides = new Ides($acquia_cloud_client);
     $account_ides = $ides->getMine();

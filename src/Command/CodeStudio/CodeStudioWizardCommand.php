@@ -21,19 +21,14 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   protected static $defaultName = 'codestudio:wizard';
 
   /**
-   * @var string
-   */
-  private $appUuid;
-
-  /**
    * @var \Acquia\Cli\Output\Checklist
    */
-  private $checklist;
+  private Checklist $checklist;
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Create and/or configure a new Code Studio project for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
@@ -52,17 +47,17 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @return int
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->checklist = new Checklist($output);
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey($input, $output);
-    $cloud_secret = $this->determineApiSecret($input, $output);
+    $cloud_key = $this->determineApiKey($input);
+    $cloud_secret = $this->determineApiSecret($input);
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
     $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
-    $this->appUuid = $this->determineCloudApplication();
+    $appUuid = $this->determineCloudApplication();
 
     // Get Cloud account.
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -70,7 +65,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $account = $account_adapter->get();
     $this->validateRequiredCloudPermissions(
       $acquia_cloud_client,
-      $this->appUuid,
+      $appUuid,
       $account,
       [
         "deploy to non-prod",
@@ -86,16 +81,16 @@ class CodeStudioWizardCommand extends WizardCommandBase {
         "administer environment variables on non-prod",
       ]
     );
-    $this->setGitLabProjectDescription($this->appUuid);
+    $this->setGitLabProjectDescription($appUuid);
 
     // Get Cloud application.
-    $cloud_application = $this->getCloudApplication($this->appUuid);
+    $cloud_application = $this->getCloudApplication($appUuid);
     $project = $this->determineGitLabProject($cloud_application);
 
     $this->io->writeln([
       "",
       "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$this->appUuid</comment>)",
+      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$appUuid</comment>)",
       "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
       "",
       "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
@@ -108,7 +103,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $project_access_token_name = 'acquia-codestudio';
     $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
     $this->updateGitLabProject($project);
-    $this->setGitLabCiCdVariables($project, $this->appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
+    $this->setGitLabCiCdVariables($project, $appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
     $this->createScheduledPipeline($project);
 
     $this->io->success([
@@ -127,11 +122,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 

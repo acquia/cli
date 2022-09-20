@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use Acquia\Cli\Output\Spinner\Spinner;
+use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -60,7 +61,7 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @return string|string[]|null
    */
-  public static function normalizeSshKeyLabel($label) {
+  public static function normalizeSshKeyLabel(string $label): array|string|null {
     // It may only contain letters, numbers and underscores.
     return preg_replace('/[^A-Za-z0-9_]/', '', $label);
   }
@@ -72,7 +73,7 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @return string
    */
-  protected function normalizePublicSshKey($public_key): string {
+  protected function normalizePublicSshKey(string $public_key): string {
     $parts = explode('== ', $public_key);
     $key = $parts[0];
 
@@ -93,7 +94,7 @@ abstract class SshKeyCommandBase extends CommandBase {
 
     if ($process->isSuccessful()) {
       $key_contents = $this->normalizePublicSshKey($this->localMachineHelper->readFile($this->publicSshKeyFilepath));
-      return strpos($process->getOutput(), $key_contents) !== FALSE;
+      return str_contains($process->getOutput(), $key_contents);
     }
     return FALSE;
   }
@@ -192,6 +193,9 @@ EOT
     $loop->run();
   }
 
+  /**
+   * @throws \Exception
+   */
   private function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
     $mappings = [];
     $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
@@ -225,10 +229,11 @@ EOT
    * @param string $filename
    * @param string $password
    *
+   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function createSshKey(string $filename, string $password) {
+  protected function createSshKey(string $filename, string $password): string {
     $key_file_path = $this->doCreateSshKey($filename, $password);
     $this->setSshKeyFilepath(basename($key_file_path));
     if (!$this->sshKeyIsAddedToKeychain()) {
@@ -244,7 +249,7 @@ EOT
    * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function doCreateSshKey($filename, $password): string {
+  private function doCreateSshKey(string $filename, string $password): string {
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
       throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filename]);
@@ -271,11 +276,10 @@ EOT
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
    */
-  protected function determineFilename(InputInterface $input, OutputInterface $output): string {
+  protected function determineFilename(InputInterface $input): string {
     if ($input->getOption('filename')) {
       $filename = $input->getOption('filename');
       $this->validateFilename($filename);
@@ -296,9 +300,9 @@ EOT
   /**
    * @param string $filename
    *
-   * @return mixed
+   * @return string
    */
-  private function validateFilename($filename) {
+  private function validateFilename(string $filename): string {
     $violations = Validation::createValidator()->validate($filename, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -313,12 +317,11 @@ EOT
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
    * @throws \Exception
    */
-  protected function determinePassword(InputInterface $input, OutputInterface $output): string {
+  protected function determinePassword(InputInterface $input): string {
     if ($input->getOption('password')) {
       $password = $input->getOption('password');
       $this->validatePassword($password);
@@ -342,7 +345,7 @@ EOT
    *
    * @return string
    */
-  private function validatePassword($password) {
+  private function validatePassword(string $password): string {
     $violations = Validation::createValidator()->validate($password, [
       new Length(['min' => 5]),
       new NotBlank(),
@@ -360,7 +363,7 @@ EOT
    *
    * @return bool
    */
-  private function keyHasUploaded($acquia_cloud_client, $public_key): bool {
+  private function keyHasUploaded(Client $acquia_cloud_client, string $public_key): bool {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     foreach ($cloud_keys as $cloud_key) {
       if (trim($cloud_key->public_key) === trim($public_key)) {
@@ -389,7 +392,7 @@ EOT
       if (!$this->localMachineHelper->getFilesystem()->exists($filepath)) {
         throw new AcquiaCliException('The filepath {filepath} is not valid', ['filepath' => $filepath]);
       }
-      if (strpos($filepath, '.pub') === FALSE) {
+      if (!str_contains($filepath, '.pub')) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
       $public_key = $this->localMachineHelper->readFile($filepath);
@@ -410,7 +413,7 @@ EOT
    *
    * @return string
    */
-  private function promptChooseLocalSshKey($local_keys): string {
+  private function promptChooseLocalSshKey(array $local_keys): string {
     $labels = [];
     foreach ($local_keys as $local_key) {
       $labels[] = $local_key->getFilename();
@@ -424,14 +427,13 @@ EOT
 
   /**
    * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return string
    */
-  protected function determineSshKeyLabel(InputInterface $input, OutputInterface $output): string {
+  protected function determineSshKeyLabel(InputInterface $input): string {
     if ($input->hasOption('label') && $input->getOption('label')) {
       $label = $input->getOption('label');
-      $label = SshKeyCommandBase::normalizeSshKeyLabel($label);
+      $label = self::normalizeSshKeyLabel($label);
       $label = $this->validateSshKeyLabel($label);
     }
     else {
@@ -449,7 +451,7 @@ EOT
    *
    * @return mixed
    */
-  private function validateSshKeyLabel($label) {
+  private function validateSshKeyLabel($label): mixed {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
     }
@@ -477,13 +479,12 @@ EOT
 
   /**
    * @param string $label
-   * @param string $chosen_local_key
    * @param string $public_key
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function uploadSshKey(string $label, string $chosen_local_key, string $public_key): void {
+  protected function uploadSshKey(string $label, string $public_key): void {
     $options = [
       'form_params' => [
         'label' => $label,

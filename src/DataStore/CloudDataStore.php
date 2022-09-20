@@ -21,6 +21,9 @@ class CloudDataStore extends JsonDataStore {
    * @param \Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    * @param \Acquia\Cli\Config\CloudDataConfig $cloud_data_config
    * @param string $cloudConfigFilepath
+   *
+   * @throws \JsonException
+   * @throws \JsonException
    */
   public function __construct(
     LocalMachineHelper $local_machine_helper,

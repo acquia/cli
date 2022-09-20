@@ -18,18 +18,17 @@ class IdeServiceStartCommand extends IdeCommandBase {
   protected static $defaultName = 'ide:service-start';
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Start a service in the Cloud IDE')
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to start')
       ->addUsage('php')
@@ -45,7 +44,7 @@ class IdeServiceStartCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $service = $input->getArgument('service');
     $this->validateService($service);
@@ -69,9 +68,9 @@ class IdeServiceStartCommand extends IdeCommandBase {
   /**
    * @param string $service
    *
-   * @return string
+   * @return void
    */
-  private function validateService($service) {
+  private function validateService(string $service): void {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
         'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
@@ -82,7 +81,6 @@ class IdeServiceStartCommand extends IdeCommandBase {
       throw new ValidatorException($violations->get(0)->getMessage());
     }
 
-    return $service;
   }
 
 }

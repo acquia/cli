@@ -3,64 +3,37 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
 
   /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
-   */
-  private $output;
-
-  /**
-   * @var \Symfony\Component\Console\Input\InputInterface
-   */
-  private $input;
-
-  /**
-   * @var \Acquia\Cli\DataStore\YamlStore
-   */
-  private $acliDatastore;
-
-  /**
    * @var \Acquia\Cli\CloudApi\ClientService
    */
-  private $cloudApiClientService;
+  private ClientService $cloudApiClientService;
 
   /**
    * @var \Acquia\Cli\DataStore\CloudDataStore
    */
-  private $datastoreCloud;
+  private CloudDataStore $datastoreCloud;
 
   /**
    * TelemetryHelper constructor.
    *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Acquia\Cli\CloudApi\ClientService $client_service
-   * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
    * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
    */
   public function __construct(
-    InputInterface $input,
-    OutputInterface $output,
     ClientService $client_service,
-    AcquiaCliDatastore $datastoreAcli,
     CloudDataStore $datastoreCloud
   ) {
-    $this->input = $input;
-    $this->output = $output;
     $this->cloudApiClientService = $client_service;
     $this->datastoreCloud = $datastoreCloud;
-    $this->acliDatastore = $datastoreAcli;
   }
 
   /**
@@ -170,7 +143,7 @@ class TelemetryHelper {
     $account = new Account($this->cloudApiClientService->getClient());
     return [
       'uuid' => $account->get()->uuid,
-      'is_acquian' => substr($account->get()->mail, -10, 10) === 'acquia.com'
+      'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com')
     ];
   }
 

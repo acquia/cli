@@ -167,7 +167,7 @@ abstract class TestBase extends TestCase {
     $this->createMockConfigFiles();
     $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->telemetryHelper = new TelemetryHelper($input, $output, $this->clientServiceProphecy->reveal(), $this->datastoreAcli, $this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
     ClearCacheCommand::clearCaches();

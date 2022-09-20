@@ -24,7 +24,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
       ->addOption('secret', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API secret that Code Studio will use')
@@ -42,11 +42,11 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @return int
    * @throws \Exception
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey($input, $output);
-    $cloud_secret = $this->determineApiSecret($input, $output);
+    $cloud_key = $this->determineApiKey($input);
+    $cloud_secret = $this->determineApiSecret($input);
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
@@ -86,11 +86,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
@@ -99,12 +98,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $project
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function checkGitLabCiCdVariables(array $project) {
+  private function checkGitLabCiCdVariables(array $project): void {
     $gitlab_cicd_variables = CodeStudioCiCdVariables::getList();
     $gitlab_cicd_existing_variables = $this->gitLabClient->projects()->variables($project['id']);
     $existing_keys = array_column($gitlab_cicd_existing_variables, 'key');
     foreach ($gitlab_cicd_variables as $gitlab_cicd_variable) {
-      if (array_search($gitlab_cicd_variable, $existing_keys) === FALSE) {
+      if (!in_array($gitlab_cicd_variable, $existing_keys, TRUE)) {
         throw new AcquiaCliException("Code Studio CI/CD variable {$gitlab_cicd_variable} is not configured properly");
       }
     }
@@ -132,9 +131,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
          'filename' =>  $filename
         ];
     }
-    else {
-      throw new AcquiaCliException("Missing 'acquia-pipelines.yml' file which is required to migrate the project to Code Studio.");
-    }
+
+    throw new AcquiaCliException("Missing 'acquia-pipelines.yml' file which is required to migrate the project to Code Studio.");
   }
 
   /**
@@ -151,7 +149,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating `variables` section to .gitlab-ci.yml file.
    */
-  private function migrateVariablesSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents) {
+  private function migrateVariablesSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents): void {
     if (array_key_exists('variables', $acquia_pipelines_file_contents)) {
       $variables_dump = Yaml::dump(['variables' => $acquia_pipelines_file_contents['variables']]);
       $remove_global = preg_replace('/global:/', '', $variables_dump);
@@ -172,9 +170,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $acquia_pipelines_file_contents
    * @param string $event_name
    *
-   * @return null
+   * @return mixed|null
    */
-  private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name) {
+  private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name): mixed {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
       return NULL;
     }
@@ -184,17 +182,14 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     if (!array_key_exists($event_name, $acquia_pipelines_file_contents['events'])) {
       return NULL;
     }
-    if (!array_key_exists('steps', $acquia_pipelines_file_contents['events'][$event_name])) {
-      return NULL;
-    }
-    return $acquia_pipelines_file_contents['events'][$event_name]['steps'];
+    return $acquia_pipelines_file_contents['events'][$event_name]['steps'] ?? NULL;
   }
 
   /**
    * @param array $acquia_pipelines_file_contents
    * @param array $gitlab_ci_file_contents
    */
-  private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents) {
+  private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents): void {
     $events_map = [
       'build' => [
         'skip' => [
@@ -261,10 +256,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                     $code_studio_jobs[$script_name]['script'][] = $command;
                     $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
                   }
-                  else {
-                    if (($key = array_search($command, $code_studio_jobs[$script_name]['script'])) !== FALSE) {
-                      unset($code_studio_jobs[$script_name]['script'][$key]);
-                    }
+                  else if (($key = array_search($command, $code_studio_jobs[$script_name]['script'], TRUE)) !== FALSE) {
+                    unset($code_studio_jobs[$script_name]['script'][$key]);
                   }
                 }
                 else {
@@ -275,19 +268,16 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                 }
                 break;
               }
-              else {
-                if (array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'])) {
-                  break;
-                }
-                if (!array_key_exists($script_name, $event_map['skip']) ) {
-                  $code_studio_jobs[$script_name]['script'][] = $command;
-                  $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
-                }
-                else {
-                  if ($script_name == 'launch_ode') {
-                    $code_studio_jobs[$script_name]['script'][] = $command;
-                  }
-                }
+
+              if (array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'], TRUE)) {
+                break;
+              }
+              if (!array_key_exists($script_name, $event_map['skip']) ) {
+                $code_studio_jobs[$script_name]['script'][] = $command;
+                $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+              }
+              else if ($script_name === 'launch_ode') {
+                $code_studio_jobs[$script_name]['script'][] = $command;
               }
             }
             if (array_key_exists($script_name, $code_studio_jobs) && !array_key_exists('stage', $code_studio_jobs[$script_name])
@@ -318,7 +308,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * Removing empty script.
    */
-  private function removeEmptyScript(array &$gitlab_ci_file_contents) {
+  private function removeEmptyScript(array &$gitlab_ci_file_contents): void {
     foreach ($gitlab_ci_file_contents as $key => $value) {
       if (array_key_exists('script', $value) && empty($value['script'])) {
         unset($gitlab_ci_file_contents[$key]);
@@ -329,7 +319,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  private function createGitLabCiFile(array $contents,$acquia_pipelines_file_name) {
+  private function createGitLabCiFile(array $contents,$acquia_pipelines_file_name): void {
     $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($acquia_pipelines_file_name);

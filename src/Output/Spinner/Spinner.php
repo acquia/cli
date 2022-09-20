@@ -5,6 +5,7 @@ namespace Acquia\Cli\Output\Spinner;
 use Symfony\Component\Console\Helper\Helper;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
+use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 
@@ -76,52 +77,31 @@ class Spinner {
     197,
   ];
 
-  private $currentCharIdx = 0;
-  /**
-   * @var int
-   */
-  private $currentColorIdx = 0;
-  /**
-   * @var int
-   */
-  private $colorCount;
-  /**
-   * @var \Symfony\Component\Console\Helper\ProgressBar
-   */
-  private $progressBar;
+  private int $currentCharIdx = 0;
 
-  /**
-   * @var int
-   */
-  private $colorLevel;
+  private int $currentColorIdx = 0;
 
-  /**
-   * @var \Symfony\Component\Console\Output\ConsoleSectionOutput
-   */
-  private $section;
-  /**
-   * @var string
-   */
-  private $indentString;
-  /**
-   * OutputInterface
-   */
-  private $output;
+  private ?int $colorCount;
 
-  /**
-   * @var int
-   */
-  private $indentLength;
+  private ProgressBar $progressBar;
+
+  private int $colorLevel;
+
+  private ConsoleSectionOutput $section;
+
+  private OutputInterface $output;
+
+  private int $indentLength;
 
   /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param int $indent
    * @param int $colorLevel
    */
-  public function __construct(OutputInterface $output, $indent = 0, $colorLevel = Color::COLOR_256) {
+  public function __construct(OutputInterface $output, int $indent = 0, int $colorLevel = Color::COLOR_256) {
     $this->output = $output;
     $this->indentLength = $indent;
-    $this->indentString = str_repeat(' ', $indent);
+    $indentString = str_repeat(' ', $indent);
 
     if (!$this->spinnerIsSupported()) {
       return;
@@ -135,7 +115,7 @@ class Spinner {
     $this->progressBar->setBarCharacter('<info>✔</info>');
     $this->progressBar->setProgressCharacter('⌛');
     $this->progressBar->setEmptyBarCharacter('⌛');
-    $this->progressBar->setFormat($this->indentString . "%bar% %message%\n%detail%");
+    $this->progressBar->setFormat($indentString . "%bar% %message%\n%detail%");
     $this->progressBar->setBarWidth(1);
     $this->progressBar->setMessage('', 'detail');
     $this->progressBar->setOverwrite($output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE);
@@ -190,7 +170,7 @@ class Spinner {
    * @param string $message
    * @param string $name
    */
-  public function setMessage(string $message, $name = 'message'): void {
+  public function setMessage(string $message, string $name = 'message'): void {
     if (!$this->spinnerIsSupported()) {
       return;
     }

@@ -54,7 +54,8 @@
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.4.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "zumba/amplitude-php": "^1.0.4"
+        "zumba/amplitude-php": "^1.0.4",
+        "ext-iconv": "*"
     },
     "require-dev": {
         "roave/security-advisories": "dev-latest",

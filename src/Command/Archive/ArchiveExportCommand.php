@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -21,17 +22,17 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * @var Checklist
    */
-  protected $checklist;
+  protected Checklist $checklist;
 
   /**
    * @var \Symfony\Component\Filesystem\Filesystem
    */
-  private $fs;
+  private Filesystem $fs;
 
   /**
    * @var bool|string|string[]|null
    */
-  private $destinationDir;
+  private string|array|bool|null $destinationDir;
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
 
@@ -55,8 +56,9 @@ class ArchiveExportCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
+  protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
     $this->fs = $this->localMachineHelper->getFilesystem();
     $this->checklist = new Checklist($output);
@@ -86,7 +88,7 @@ class ArchiveExportCommand extends CommandBase {
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating temporary archive directory');
-    $this->createArchiveDirectory($output_callback, $archive_temp_dir . '/repository');
+    $this->createArchiveDirectory($archive_temp_dir . '/repository');
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('no-database')) {
@@ -125,10 +127,9 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * Build the artifact.
    *
-   * @param \Closure $output_callback
    * @param string $artifact_dir
    */
-  private function createArchiveDirectory(Closure $output_callback, string $artifact_dir): void {
+  private function createArchiveDirectory(string $artifact_dir): void {
     $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
@@ -171,6 +172,7 @@ class ArchiveExportCommand extends CommandBase {
 
   /**
    * @param $archive_dir
+   * @param $destination_dir
    * @param null $output_callback
    *
    * @return string

@@ -15,9 +15,9 @@ class HelloWorldCommand extends CommandBase {
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Test command used for asserting core functionality')
-      ->setHidden(TRUE);
+      ->setHidden();
   }
 
   /**
@@ -26,7 +26,7 @@ class HelloWorldCommand extends CommandBase {
    *
    * @return int
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->io->success('Hello world!');
 
     return 0;

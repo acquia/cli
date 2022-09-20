@@ -16,21 +16,20 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * @var boolean|null
    */
-  private $xDebugEnabled;
+  private ?bool $xDebugEnabled;
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Toggle Xdebug on or off in the current IDE')
       ->setAliases(['xdebug'])
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -43,7 +42,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $ini_file = $this->getXdebugIniFilePath();
     $contents = file_get_contents($ini_file);
@@ -70,11 +69,11 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * @param string $contents
    *   The contents of php.ini.
    */
-  private function setXDebugStatus($contents): void {
-    if (strpos($contents, ';zend_extension=xdebug.so') !== FALSE) {
+  private function setXDebugStatus(string $contents): void {
+    if (str_contains($contents, ';zend_extension=xdebug.so')) {
       $this->xDebugEnabled = FALSE;
     }
-    elseif (strpos($contents, 'zend_extension=xdebug.so') !== FALSE) {
+    elseif (str_contains($contents, 'zend_extension=xdebug.so')) {
       $this->xDebugEnabled = TRUE;
     }
     else {
@@ -88,7 +87,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * @return bool|null
    *   $this->xDebugEnabled.
    */
-  private function getXDebugStatus() {
+  private function getXDebugStatus(): ?bool {
     return $this->xDebugEnabled;
   }
 
@@ -99,7 +98,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * @param string $contents
    *   The contents of php.ini.
    */
-  private function enableXDebug($destination_file, $contents): void {
+  private function enableXDebug(string $destination_file, string $contents): void {
     $this->logger->notice("Enabling Xdebug PHP extension in $destination_file...");
 
     // Note that this replaces 1 or more ";" characters.
@@ -116,7 +115,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    * @param string $contents
    *   The contents of php.ini.
    */
-  private function disableXDebug($destination_file, $contents) {
+  private function disableXDebug(string $destination_file, string $contents): void {
     $this->logger->notice("Disabling Xdebug PHP extension in $destination_file...");
     $new_contents = preg_replace('/(;)*(zend_extension=xdebug\.so)/', ';$2', $contents);
     file_put_contents($destination_file, $new_contents);

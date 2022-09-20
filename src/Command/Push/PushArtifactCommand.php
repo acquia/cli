@@ -34,11 +34,9 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * @var string
    */
-  private $drupalCorePath;
+  private string $drupalCorePath;
 
   private string $docrootPath;
-
-  private \AcquiaCloudApi\Response\EnvironmentResponse $environment;
 
   private string $destinationGitRef;
 
@@ -145,7 +143,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @return false|mixed|null
    * @throws \Exception
    */
-  private function determineDestinationGitUrls($application_uuid) {
+  private function determineDestinationGitUrls($application_uuid): mixed {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
@@ -168,6 +166,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @param string $vcs_path
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
    */
   private function cloneSourceBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
     $fs = $this->localMachineHelper->getFilesystem();
@@ -200,7 +199,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
     $output_callback('out', 'Removing vendor directories');
-    foreach ($this->vendorDirs($artifact_dir) as $vendor_directory) {
+    foreach ($this->vendorDirs() as $vendor_directory) {
       $fs->remove(Path::join($artifact_dir, $vendor_directory));
     }
   }
@@ -305,6 +304,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @param string $commit_hash
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
    */
   private function commit(Closure $output_callback, string $artifact_dir, string $commit_hash): void {
     $output_callback('out', 'Adding and committing changed files');
@@ -313,7 +313,7 @@ class PushArtifactCommand extends PullCommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not add files to artifact via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
-    foreach (array_merge($this->vendorDirs($artifact_dir), $this->scaffoldFiles($artifact_dir)) as $file) {
+    foreach (array_merge($this->vendorDirs(), $this->scaffoldFiles($artifact_dir)) as $file) {
       $this->logger->debug("Forcibly adding $file");
       $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
       if (!$process->isSuccessful()) {
@@ -331,9 +331,9 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * @param string $commit_hash
    *
-   * @return array|false|string
+   * @return array|string
    */
-  private function generateCommitMessage(string $commit_hash) {
+  private function generateCommitMessage(string $commit_hash): array|string {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
       return $env_var;
     }
@@ -371,11 +371,14 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Get a list of Composer vendor directories from the root composer.json.
    *
-   * @param string $artifact_dir
    *
    * @return array|string[]
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function vendorDirs(string $artifact_dir): array {
+  private function vendorDirs(): array {
     if (!empty($this->vendorDirs)) {
       return $this->vendorDirs;
     }
@@ -384,7 +387,7 @@ class PushArtifactCommand extends PullCommandBase {
       'vendor',
     ];
     if (file_exists($this->composerJsonPath)) {
-      $composer_json = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE);
+      $composer_json = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE, 512, JSON_THROW_ON_ERROR);
 
       foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
         $this->vendorDirs[] = str_replace('/{$name}', '', $path);
@@ -400,6 +403,10 @@ class PushArtifactCommand extends PullCommandBase {
    * @param string $artifact_dir
    *
    * @return array
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function scaffoldFiles(string $artifact_dir): array {
     if (!empty($this->scaffoldFiles)) {
@@ -407,9 +414,9 @@ class PushArtifactCommand extends PullCommandBase {
     }
 
     $this->scaffoldFiles = [];
-    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE);
+    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE, 512, JSON_THROW_ON_ERROR);
     foreach ($composer_json['extra']['drupal-scaffold']['file-mapping'] as $file => $asset_path) {
-      if (strpos($file, '[web-root]') === 0) {
+      if (str_starts_with($file, '[web-root]')) {
         $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot', $file);
       }
     }
@@ -438,7 +445,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  private function determineSourceGitRef() {
+  private function determineSourceGitRef(): mixed {
     if ($this->input->getOption('source-git-tag')) {
       return $this->input->getOption('source-git-tag');
     }
@@ -458,7 +465,7 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  private function determineDestinationGitRef() {
+  private function determineDestinationGitRef(): mixed {
     if ($this->input->getOption('destination-git-tag')) {
       $this->destinationGitRef = $this->input->getOption('destination-git-tag');
       return $this->destinationGitRef;
@@ -476,12 +483,12 @@ class PushArtifactCommand extends PullCommandBase {
       return $this->destinationGitRef;
     }
 
-    $this->environment = $this->determineEnvironment($this->input, $this->output, FALSE);
-    if (strpos($this->environment->vcs->path, 'tags') === 0) {
-      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$this->environment->name} has {$this->environment->vcs->path} deployed. Please select a different environment.");
+    $environment = $this->determineEnvironment($this->input, $this->output);
+    if (str_starts_with($environment->vcs->path, 'tags')) {
+      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
     }
 
-    $this->destinationGitRef = $this->environment->vcs->path;
+    $this->destinationGitRef = $environment->vcs->path;
 
     return $this->destinationGitRef;
   }

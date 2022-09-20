@@ -2,11 +2,13 @@
 
 namespace Acquia\Cli\Command\Api;
 
+use Acquia\Cli\AcsfApi\AcsfClientService;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\DataStore\YamlStore;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
 use Acquia\Cli\Helpers\TelemetryHelper;
@@ -22,27 +24,27 @@ class ApiCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Acquia\Cli\Helpers\LocalMachineHelper
    */
-  private $localMachineHelper;
+  private LocalMachineHelper $localMachineHelper;
 
   /**
    * @var \Acquia\Cli\DataStore\CloudDataStore
    */
-  private $datastoreCloud;
+  private CloudDataStore $datastoreCloud;
 
   /**
-   * @var \Acquia\Cli\DataStore\YamlStore
+   * @var \Acquia\Cli\DataStore\YamlStore|\Acquia\Cli\DataStore\AcquiaCliDatastore
    */
-  private $datastoreAcli;
+  private YamlStore|AcquiaCliDatastore $datastoreAcli;
 
   /**
    * @var CloudCredentials
    */
-  private $cloudCredentials;
+  private CloudCredentials $cloudCredentials;
 
   /**
    * @var \Acquia\Cli\Helpers\TelemetryHelper
    */
-  private $telemetryHelper;
+  private TelemetryHelper $telemetryHelper;
 
   /**
    * @var string
@@ -50,19 +52,19 @@ class ApiCommandFactory implements CommandFactoryInterface {
   private string $repoRoot;
 
   /**
-   * @var \Acquia\Cli\AcsfApi\AcsfClientService
+   * @var \Acquia\Cli\CloudApi\ClientService|\Acquia\Cli\AcsfApi\AcsfClientService
    */
-  private $cloudApiClientService;
+  private ClientService|AcsfClientService $cloudApiClientService;
 
   /**
    * @var \AcquiaLogstream\LogstreamManager
    */
-  private $logstreamManager;
+  private LogstreamManager $logstreamManager;
 
   /**
    * @var \Acquia\Cli\Helpers\SshHelper
    */
-  private $sshHelper;
+  private SshHelper $sshHelper;
 
   /**
    * @var string
@@ -72,7 +74,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
   /**
    * @var \Psr\Log\LoggerInterface
    */
-  private $logger;
+  private LoggerInterface $logger;
 
   private Client $httpClient;
 
@@ -88,6 +90,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
    * @param string $sshDir
    * @param \Psr\Log\LoggerInterface $logger
+   * @param \GuzzleHttp\Client $httpClient
    */
   public function __construct(
     LocalMachineHelper $localMachineHelper,

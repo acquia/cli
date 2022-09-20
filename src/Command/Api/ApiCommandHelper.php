@@ -6,10 +6,13 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -20,21 +23,21 @@ class ApiCommandHelper {
   /**
    * @var \Symfony\Component\Console\Input\InputInterface
    */
-  protected $input;
+  protected InputInterface $input;
 
   /**
    * @var \Symfony\Component\Console\Output\OutputInterface
    */
-  protected $output;
+  protected OutputInterface $output;
 
   /**
    * @var \Symfony\Component\Console\Helper\FormatterHelper*/
-  protected $formatter;
+  protected FormatterHelper $formatter;
 
   /**
    * @var ConsoleLogger
    */
-  private $logger;
+  private ConsoleLogger $logger;
 
   /**
    * CommandBase constructor.
@@ -54,6 +57,7 @@ class ApiCommandHelper {
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   public function getApiCommands(string $acquia_cloud_spec_file_path, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file_path);
@@ -75,12 +79,12 @@ class ApiCommandHelper {
    *
    * @return mixed|string
    */
-  protected function addArgumentExampleToUsageForGetEndpoint($param_definition, string $usage) {
+  protected function addArgumentExampleToUsageForGetEndpoint(array $param_definition, string $usage): mixed {
     if (array_key_exists('example', $param_definition)) {
       if (is_array($param_definition['example'])) {
         $usage = reset($param_definition['example']);
       }
-      elseif (strpos($param_definition['example'], ' ') !== FALSE) {
+      elseif (str_contains($param_definition['example'], ' ')) {
         $usage .= '"' . $param_definition['example'] . '" ';
       }
       else {
@@ -97,7 +101,7 @@ class ApiCommandHelper {
    *
    * @return string
    */
-  private function addOptionExampleToUsageForGetEndpoint($param_definition, string $usage): string {
+  private function addOptionExampleToUsageForGetEndpoint(array $param_definition, string $usage): string {
     if (array_key_exists('example', $param_definition)) {
       $usage .= '--' . $param_definition['name'] . '="' . $param_definition['example'] . '" ';
     }
@@ -109,8 +113,12 @@ class ApiCommandHelper {
    * @param array $schema
    * @param array $acquia_cloud_spec
    * @param CommandBase $command
+   *
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \JsonException
    */
-  private function addApiCommandParameters($schema, $acquia_cloud_spec, CommandBase $command): void {
+  private function addApiCommandParameters(array $schema, array $acquia_cloud_spec, CommandBase $command): void {
     $input_definition = [];
     $usage = '';
 
@@ -160,8 +168,10 @@ class ApiCommandHelper {
    * @param array $acquia_cloud_spec
    *
    * @return array
+   * @throws \JsonException
+   * @throws \JsonException
    */
-  private function addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec): array {
+  private function addApiCommandParametersForRequestBody(array $schema, array $acquia_cloud_spec): array {
     $usage = '';
     $input_definition = [];
     $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
@@ -218,6 +228,8 @@ class ApiCommandHelper {
    * @param $usage
    *
    * @return string
+   * @throws \JsonException
+   * @throws \JsonException
    */
   private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     $request_body_schema = [];
@@ -237,7 +249,7 @@ class ApiCommandHelper {
       if (array_key_exists($prop_key, $example)) {
         switch ($param_definition['type']) {
           case 'object':
-            $usage .= $prefix . '"' . json_encode($example[$prop_key]) . '"" ';
+            $usage .= $prefix . '"' . json_encode($example[$prop_key], JSON_THROW_ON_ERROR) . '"" ';
             break;
 
           case 'array':
@@ -251,7 +263,7 @@ class ApiCommandHelper {
               // @todo Pretty sure prevents the user from using the arguments.
               // Probably a bug. How can we allow users to specify a multidimensional array as an
               // argument?
-              $value = json_encode($example[$prop_key]);
+              $value = json_encode($example[$prop_key], JSON_THROW_ON_ERROR);
               $usage .= $prefix . "\"$value\" ";
             }
             break;
@@ -322,10 +334,11 @@ class ApiCommandHelper {
   /**
    * @param string $param_key
    * @param array $acquia_cloud_spec
+   * @param $schema
    *
    * @return mixed
    */
-  private function getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec, $schema) {
+  private function getParameterDefinitionFromSpec(string $param_key, array $acquia_cloud_spec, $schema): mixed {
     $uppercase_key = ucfirst($param_key);
     if (array_key_exists('parameters', $acquia_cloud_spec['components'])
       && array_key_exists($uppercase_key, $acquia_cloud_spec['components']['parameters'])) {
@@ -345,17 +358,15 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  private function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec) {
+  private function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec): mixed {
     return $acquia_cloud_spec['components']['schemas'][$param_key];
   }
 
   /**
-   * @param \Symfony\Component\Cache\Adapter\PhpArrayAdapter $cache
-   * @param string $acquia_cloud_spec_file_path
+   * @param $cache_item
    * @param string $acquia_cloud_spec_file_checksum
    *
    * @return bool
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   private function isApiSpecChecksumCacheValid($cache_item, string $acquia_cloud_spec_file_checksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
@@ -383,20 +394,16 @@ class ApiCommandHelper {
     $cache_item_spec = $cache->getItem($cache_key);
 
     // When running the phar, the original file may not exist. In that case, always use the cache.
-    if (!file_exists($spec_file_path)) {
-      if ($cache_item_spec->isHit()) {
-        return $cache_item_spec->get();
-      }
+    if (!file_exists($spec_file_path) && $cache_item_spec->isHit()) {
+      return $cache_item_spec->get();
     }
 
     // Otherwise, only use cache when it is valid.
     $checksum = md5_file($spec_file_path);
     if ($this->useCloudApiSpecCache()
-      && $this->isApiSpecChecksumCacheValid($cache_item_checksum, $checksum)
+      && $this->isApiSpecChecksumCacheValid($cache_item_checksum, $checksum) && $cache_item_spec->isHit()
     ) {
-      if ($cache_item_spec->isHit()) {
-        return $cache_item_spec->get();
-      }
+      return $cache_item_spec->get();
     }
 
     // Parse file. This can take a long while!
@@ -417,6 +424,8 @@ class ApiCommandHelper {
    * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return ApiBaseCommand[]
+   * @throws \JsonException
+   * @throws \JsonException
    */
   private function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_commands = [];
@@ -521,7 +530,7 @@ class ApiCommandHelper {
    *
    * @return array
    */
-  private function getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec): array {
+  private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
     $request_body_schema = [];
     if (array_key_exists('application/json', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
@@ -549,12 +558,8 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  private function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition) {
-    if (array_key_exists($parameter_definition->getName(), $request_body_schema['properties'])) {
-      return $request_body_schema['properties'][$parameter_definition->getName()];
-    }
-
-    return NULL;
+  private function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition): mixed {
+    return $request_body_schema['properties'][$parameter_definition->getName()] ?? NULL;
   }
 
   /*
@@ -575,7 +580,7 @@ class ApiCommandHelper {
    *
    * @return mixed
    */
-  public static function renameParameter($prop_key) {
+  public static function renameParameter($prop_key): mixed {
     $parameter_rename_map = self::getParameterRenameMap();
     if (array_key_exists($prop_key, $parameter_rename_map)) {
       $prop_key = $parameter_rename_map[$prop_key];
@@ -586,9 +591,9 @@ class ApiCommandHelper {
   /**
    * @param string $prop_key
    *
-   * @return mixed
+   * @return int|string
    */
-  public static function restoreRenamedParameter($prop_key) {
+  public static function restoreRenamedParameter(string $prop_key): int|string {
     $parameter_rename_map = array_flip(self::getParameterRenameMap());
     if (array_key_exists($prop_key, $parameter_rename_map)) {
       $prop_key = $parameter_rename_map[$prop_key];
@@ -603,7 +608,7 @@ class ApiCommandHelper {
    *
    * @return ApiListCommandBase[]
    */
-  private function generateApiListCommands(array $api_commands, $command_prefix, CommandFactoryInterface $command_factory): array {
+  private function generateApiListCommands(array $api_commands, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_list_commands = [];
     foreach ($api_commands as $api_command) {
       $command_name_parts = explode(':', $api_command->getName());

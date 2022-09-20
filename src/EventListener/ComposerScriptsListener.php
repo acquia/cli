@@ -11,18 +11,28 @@ use Symfony\Component\Filesystem\Path;
 class ComposerScriptsListener {
 
   /**
-   * Before a console command is executed, execute a corresponding script from a local composer.json.
+   * Before a console command is executed, execute a corresponding script from
+   * a local composer.json.
    *
    * @param ConsoleCommandEvent $event
+   *
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function onConsoleCommand(ConsoleCommandEvent $event): void {
     $this->executeComposerScripts($event, 'pre');
   }
 
   /**
-   * When a console command terminates successfully, execute a corresponding script from a local composer.json.
+   * When a console command terminates successfully, execute a corresponding
+   * script from a local composer.json.
    *
    * @param ConsoleTerminateEvent $event
+   *
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function onConsoleTerminate(ConsoleTerminateEvent $event): void {
     if ($event->getExitCode() === 0) {
@@ -31,10 +41,16 @@ class ComposerScriptsListener {
   }
 
   /**
-   * @param ConsoleTerminateEvent|ConsoleCommandEvent $event
-   * @param string $prefix Added to the Composer script name. Expected values are 'pre' or 'post'.
+   * @param ConsoleCommandEvent|ConsoleTerminateEvent $event
+   * @param string $prefix Added to the Composer script name. Expected values
+   *   are 'pre' or 'post'.
+   *
+   * @throws \JsonException
+   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function executeComposerScripts($event, $prefix) {
+  private function executeComposerScripts(ConsoleCommandEvent|ConsoleTerminateEvent $event, string $prefix): void {
     /** @var CommandBase $command */
     $command = $event->getCommand();
     // If a command has the --no-script option and it's passed, do not execute post scripts.
@@ -45,7 +61,7 @@ class ComposerScriptsListener {
     if (is_a($command, CommandBase::class)) {
       $composer_json_filepath = Path::join($command->getRepoRoot(), 'composer.json');
       if (file_exists($composer_json_filepath)) {
-        $composer_json = json_decode($command->localMachineHelper->readFile($composer_json_filepath), TRUE);
+        $composer_json = json_decode($command->localMachineHelper->readFile($composer_json_filepath), TRUE, 512, JSON_THROW_ON_ERROR);
         // Protect against invalid JSON.
         if ($composer_json) {
           $command_name = $command->getName();

@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
+use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -15,14 +16,9 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
 
   use SshCommandTrait;
 
-  /**
-   * @var false|string
-   */
-  protected $ideUuid;
-  /**
-   * @var \AcquiaCloudApi\Response\IdeResponse
-   */
-  protected $ide;
+  protected string|false $ideUuid;
+
+  protected IdeResponse $ide;
 
   /**
    * Initializes the command just after the input has been validated.
@@ -32,13 +28,17 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
-  protected function initialize(InputInterface $input, OutputInterface $output) {
+  protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
 
     $this->ideUuid = $this::getThisCloudIdeUuid();
-    $this->setSshKeyFilepath($this->getSshKeyFilename($this->ideUuid));
+    $this->setSshKeyFilepath(self::getSshKeyFilename($this->ideUuid));
     $this->passphraseFilepath = $this->localMachineHelper->getLocalFilepath('~/.passphrase');
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
@@ -57,14 +57,14 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function validateEnvironment() {
+  protected function validateEnvironment(): void {
     $this->requireCloudIdeEnvironment();
   }
 
   /**
    * @return string
    */
-  protected function getSshKeyLabel() {
+  protected function getSshKeyLabel(): string {
     return $this::getIdeSshKeyLabel($this->ide);
   }
 

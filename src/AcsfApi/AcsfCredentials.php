@@ -29,10 +29,8 @@ class AcsfCredentials implements ApiCredentialsInterface {
       return getenv('ACSF_USERNAME');
     }
 
-    if ($current_factory = $this->getCurrentFactory()) {
-      if ($active_user = $this->getFactoryActiveUser($current_factory)) {
-        return $active_user['username'];
-      }
+    if (($current_factory = $this->getCurrentFactory()) && $active_user = $this->getFactoryActiveUser($current_factory)) {
+      return $active_user['username'];
     }
 
     return NULL;
@@ -57,13 +55,9 @@ class AcsfCredentials implements ApiCredentialsInterface {
   /**
    * @return mixed|null
    */
-  private function getCurrentFactory() {
-    if ($factory = $this->datastoreCloud->get('acsf_active_factory')) {
-      if ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) {
-        if (array_key_exists($factory, $acsf_factories)) {
-          return $acsf_factories[$factory];
-        }
-      }
+  private function getCurrentFactory(): mixed {
+    if (($factory = $this->datastoreCloud->get('acsf_active_factory')) && ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) && array_key_exists($factory, $acsf_factories)) {
+      return $acsf_factories[$factory];
     }
     return NULL;
   }
@@ -76,10 +70,8 @@ class AcsfCredentials implements ApiCredentialsInterface {
       return getenv('ACSF_KEY');
     }
 
-    if ($current_factory = $this->getCurrentFactory()) {
-      if ($active_user = $this->getFactoryActiveUser($current_factory)) {
-        return $active_user['key'];
-      }
+    if (($current_factory = $this->getCurrentFactory()) && $active_user = $this->getFactoryActiveUser($current_factory)) {
+      return $active_user['key'];
     }
 
     return NULL;

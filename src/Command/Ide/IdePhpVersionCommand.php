@@ -23,21 +23,21 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @var string
    */
-  private $idePhpFilePathPrefix;
+  private string $idePhpFilePathPrefix;
 
   /*
    * @param \Symfony\Component\Console\Input\InputInterface $input
    *
    * @return bool
    */
-  protected function commandRequiresAuthentication(InputInterface $input): bool {
+  protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * {inheritdoc}.
    */
-  protected function configure() {
+  protected function configure(): void {
     $this->setDescription('Change the PHP version in the current IDE')
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -50,7 +50,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function execute(InputInterface $input, OutputInterface $output) {
+  protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
@@ -81,10 +81,10 @@ class IdePhpVersionCommand extends IdeCommandBase {
   /**
    * @param string $version
    *
-   * @return string
+   * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function validatePhpVersion(string $version): string {
+  private function validatePhpVersion(string $version): void {
     $violations = Validation::createValidator()->validate($version, [
       new Length(['min' => 3]),
       new NotBlank(),
@@ -99,7 +99,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 
-    return $version;
   }
 
 }

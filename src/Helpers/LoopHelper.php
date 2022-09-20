@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Output\Spinner\Spinner;
+use Exception;
 use React\EventLoop\Loop;
 
 class LoopHelper {
@@ -36,7 +37,7 @@ class LoopHelper {
           $doneCallback();
         }
       }
-      catch (\Exception $e) {
+      catch (Exception $e) {
         $logger->debug($e->getMessage());
       }
     };

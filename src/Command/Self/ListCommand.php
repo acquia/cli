@@ -32,7 +32,7 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
             && !is_a($command, AcsfListCommandBase::class)
             && str_starts_with($command->getName(), $prefix . ':')
           ) {
-            $command->setHidden(TRUE);
+            $command->setHidden();
           }
         }
       }
