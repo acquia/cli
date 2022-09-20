@@ -8,16 +8,16 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface {
 
-  protected $config;
-  protected $baseUri;
+  protected array $config;
+  protected ?string $baseUri;
 
   /**
    * ConnectorFactory constructor.
    *
    * @param array $config
-   * @param string $base_uri
+   * @param string|null $base_uri
    */
-  public function __construct($config, $base_uri = NULL) {
+  public function __construct(array $config, string $base_uri = NULL) {
     $this->config = $config;
     $this->baseUri = $base_uri;
   }
@@ -25,7 +25,7 @@ class ConnectorFactory implements ConnectorFactoryInterface {
   /**
    * @return \Acquia\Cli\CloudApi\AccessTokenConnector|\AcquiaCloudApi\Connector\Connector
    */
-  public function createConnector() {
+  public function createConnector(): Connector|AccessTokenConnector {
     // A defined key & secret takes priority.
     if ($this->config['key'] && $this->config['secret']) {
       return new Connector($this->config, $this->baseUri);
