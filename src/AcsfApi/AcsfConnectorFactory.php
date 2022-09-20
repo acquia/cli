@@ -9,16 +9,16 @@ use Acquia\Cli\ConnectorFactoryInterface;
  */
 class AcsfConnectorFactory implements ConnectorFactoryInterface {
 
-  protected $config;
-  protected $baseUri;
+  protected array $config;
+  protected ?string $baseUri;
 
   /**
    * ConnectorFactory constructor.
    *
    * @param array $config
-   * @param string $base_uri
+   * @param string|null $base_uri
    */
-  public function __construct($config, $base_uri = NULL) {
+  public function __construct(array $config, string $base_uri = NULL) {
     $this->config = $config;
     $this->baseUri = $base_uri;
   }

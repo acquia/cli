@@ -13,7 +13,7 @@ class AcsfClient extends Client {
    */
   public function processResponse(ResponseInterface $response) {
     $body_json = $response->getBody();
-    $body = json_decode($body_json);
+    $body = json_decode($body_json, FALSE, 512, JSON_THROW_ON_ERROR);
 
     // ACSF sometimes returns an array rather than an object.
     if (is_array($body)) {
@@ -28,7 +28,7 @@ class AcsfClient extends Client {
       throw new ApiErrorException($body);
     }
     // Throw error for 4xx and 5xx responses.
-    if (in_array(substr($response->getStatusCode(), 0, 1), [4, 5]) && property_exists($body, 'message')) {
+    if (property_exists($body, 'message') && in_array(substr($response->getStatusCode(), 0, 1), [4, 5], TRUE)) {
       $body->error = $response->getStatusCode();
       throw new ApiErrorException($body);
     }
