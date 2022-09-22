@@ -823,7 +823,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     // Try local project info.
     if ($application_uuid = $this->getCloudUuidFromDatastore()) {
-      $this->logger->debug("Using Cloud application UUID: $application_uuid from .acquia-cli.yml");
+      $this->logger->debug("Using Cloud application UUID: $application_uuid from {$this->datastoreAcli->filepath}");
       return $application_uuid;
     }
 
@@ -892,7 +892,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   private function saveCloudUuidToDatastore(ApplicationResponse $application): bool {
     $this->datastoreAcli->set('cloud_app_uuid', $application->uuid);
-    $this->io->success("The Cloud application {$application->name} has been linked to this repository by writing to .acquia-cli.yml in the repository root.");
+    $this->io->success("The Cloud application {$application->name} has been linked to this repository by writing to {$this->datastoreAcli->filepath}");
 
     return TRUE;
   }
