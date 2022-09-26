@@ -16,27 +16,14 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 abstract class Datastore implements DataStoreInterface {
 
-  /** @var Data */
   protected Data $data;
 
-  /**
-   * @var \Symfony\Component\Filesystem\Filesystem
-   */
   protected Filesystem $fileSystem;
 
-  /**
-   * @var string
-   */
-  protected string $filepath;
+  public string $filepath;
 
-  /**
-   * @var \Grasmash\Expander\Expander
-   */
   protected Expander $expander;
 
-  /**
-   * @param string $path
-   */
   public function __construct(string $path) {
     $this->fileSystem = new Filesystem();
     $this->filepath = $path;
@@ -49,7 +36,7 @@ abstract class Datastore implements DataStoreInterface {
    * @param string $key
    * @param mixed $value
    */
-  public function set(string $key, $value) {
+  public function set(string $key, $value): void {
     $this->data->set($key, $value);
     $this->dump();
   }
@@ -64,7 +51,7 @@ abstract class Datastore implements DataStoreInterface {
     try {
       return $this->data->get($key);
     }
-    catch (MissingPathException $e) {
+    catch (MissingPathException) {
       return NULL;
     }
   }
@@ -72,7 +59,7 @@ abstract class Datastore implements DataStoreInterface {
   /**
    * @param string $key
    */
-  public function remove(string $key) {
+  public function remove(string $key): void {
     $this->data->remove($key);
     $this->dump();
   }
