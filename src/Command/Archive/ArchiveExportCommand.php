@@ -141,7 +141,9 @@ class ArchiveExportCommand extends CommandBase {
       $this->checklist->updateProgressBar( 'Skipping ' . self::PUBLIC_FILES_DIR);
       $originFinder->exclude([self::PUBLIC_FILES_DIR]);
     }
-    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE]);
+    $targetFinder = $this->localMachineHelper->getFinder();
+    $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
+    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
   }
 
   /**
