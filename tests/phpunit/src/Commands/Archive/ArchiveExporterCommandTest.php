@@ -62,8 +62,8 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
   protected function mockFileSystem(string $destination_dir): ObjectProphecy {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_system->mirror($this->projectFixtureDir, Argument::type('string'),
-      Argument::type(Finder::class), ['override' => TRUE, 'delete' => TRUE]
-    )->shouldBeCalled();
+      Argument::type(Finder::class), ['override' => TRUE, 'delete' => TRUE],
+      Argument::type(Finder::class))->shouldBeCalled();
     $file_system->exists($destination_dir)->willReturn(TRUE)->shouldBeCalled();
     $file_system->rename(Argument::type('string'), Argument::type('string'))
       ->shouldBeCalled();
