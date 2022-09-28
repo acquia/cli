@@ -20,11 +20,6 @@ class AccessTokenConnectorTest extends TestBase {
 
   private static string $accessToken = 'testaccesstoken';
 
-  public function setUp($output = NULL): void {
-    parent::setUp();
-    self::setAccessTokenEnvVars();
-  }
-
   protected function tearDown(): void {
     parent::tearDown();
     self::unsetAccessTokenEnvVars();
@@ -44,12 +39,15 @@ class AccessTokenConnectorTest extends TestBase {
   public static function unsetAccessTokenEnvVars(): void {
     putenv('ACLI_ACCESS_TOKEN');
     putenv('ACLI_ACCESS_TOKEN_EXPIRY');
+    putenv('ACLI_ACCESS_TOKEN_FILE');
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE');
   }
 
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testAccessToken(): void {
+    self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
@@ -78,12 +76,28 @@ class AccessTokenConnectorTest extends TestBase {
   }
 
   /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  public function testTokenFile(): void {
+    $accessTokenExpiry = time() + 300;
+    $token_file = $this->fixtureDir . '/token';
+    $expiry_file = $this->fixtureDir . '/expiry';
+    file_put_contents($token_file, self::$accessToken);
+    file_put_contents($expiry_file, $accessTokenExpiry);
+    putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
+    self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
+    self::assertEquals($accessTokenExpiry, $this->cloudCredentials->getCloudAccessTokenExpiry());
+  }
+
+  /**
    * Validate that if both an access token and API key/secret pair are present,
    * the pair is used.
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testConnector(): void {
+    self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
@@ -114,6 +128,7 @@ class AccessTokenConnectorTest extends TestBase {
   }
 
   public function testConnectorConfig(): void {
+    self::setAccessTokenEnvVars();
     $connector_factory = new ConnectorFactory(
       [
         'key' => $this->cloudCredentials->getCloudKey(),
