@@ -46,6 +46,9 @@ class AccessTokenConnectorTest extends TestBase {
     putenv('ACLI_ACCESS_TOKEN_EXPIRY');
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   public function testAccessToken(): void {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
@@ -77,6 +80,8 @@ class AccessTokenConnectorTest extends TestBase {
   /**
    * Validate that if both an access token and API key/secret pair are present,
    * the pair is used.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testConnector(): void {
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
@@ -92,6 +97,9 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertInstanceOf(Connector::class, $connector);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   public function testExpiredAccessToken(): void {
     self::setAccessTokenEnvVars(TRUE);
     $connector_factory = new ConnectorFactory(
