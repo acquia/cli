@@ -5729,16 +5729,16 @@
         },
         {
             "name": "symfony/validator",
-            "version": "v6.0.12",
+            "version": "v6.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/validator.git",
-                "reference": "0987eb0c390d5686768ea2bb388c81494ea4508f"
+                "reference": "a8d3aa40bb0180c062a73d125d72f150d67d3f1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/validator/zipball/0987eb0c390d5686768ea2bb388c81494ea4508f",
-                "reference": "0987eb0c390d5686768ea2bb388c81494ea4508f",
+                "url": "https://api.github.com/repos/symfony/validator/zipball/a8d3aa40bb0180c062a73d125d72f150d67d3f1f",
+                "reference": "a8d3aa40bb0180c062a73d125d72f150d67d3f1f",
                 "shasum": ""
             },
             "require": {
@@ -5817,7 +5817,7 @@
             "description": "Provides tools to validate values",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/validator/tree/v6.0.12"
+                "source": "https://github.com/symfony/validator/tree/v6.0.13"
             },
             "funding": [
                 {
@@ -5833,7 +5833,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-08-12T13:08:57+00:00"
+            "time": "2022-09-17T07:39:16+00:00"
         },
         {
             "name": "symfony/var-dumper",
