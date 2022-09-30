@@ -3625,16 +3625,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v6.0.11",
+            "version": "v6.0.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "8c98079892d254b4e5806bedf694bddab8fe92b4"
+                "reference": "908edffec894ef7c60d6a66869ecb826d76a491f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/8c98079892d254b4e5806bedf694bddab8fe92b4",
-                "reference": "8c98079892d254b4e5806bedf694bddab8fe92b4",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/908edffec894ef7c60d6a66869ecb826d76a491f",
+                "reference": "908edffec894ef7c60d6a66869ecb826d76a491f",
                 "shasum": ""
             },
             "require": {
@@ -3691,14 +3691,14 @@
                     "homepage": "https://symfony.com/contributors"
                 }
             ],
-            "description": "Provides an extended PSR-6, PSR-16 (and tags) implementation",
+            "description": "Provides extended PSR-6, PSR-16 (and tags) implementations",
             "homepage": "https://symfony.com",
             "keywords": [
                 "caching",
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v6.0.11"
+                "source": "https://github.com/symfony/cache/tree/v6.0.13"
             },
             "funding": [
                 {
@@ -3714,7 +3714,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-29T07:39:48+00:00"
+            "time": "2022-09-08T09:32:44+00:00"
         },
         {
             "name": "symfony/cache-contracts",
