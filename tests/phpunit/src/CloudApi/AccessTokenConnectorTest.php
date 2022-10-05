@@ -115,9 +115,12 @@ class AccessTokenConnectorTest extends TestBase {
   }
 
   public function testMissingExpiryFile(): void {
-    $token_file = $this->fixtureDir . '/token';
-    $expiry_file = $this->fixtureDir . '/expiry';
-    file_put_contents($token_file, self::$accessToken);
+    $directory = [
+      'token' => self::$accessToken,
+    ];
+    $vfs = vfsStream::setup('root', NULL, $directory);
+    $token_file = Path::join($vfs->url(), 'token');
+    $expiry_file = Path::join($vfs->url(), 'expiry');
     putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
     try {
