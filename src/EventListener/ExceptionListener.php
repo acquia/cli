@@ -10,6 +10,12 @@ use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
 
+/**
+ * Make exceptions warm and cuddly.
+ *
+ * Vendor libraries and APIs throw exceptions that aren't very helpful on their
+ * own. We can rewrite them to be more helpful and add support links.
+ */
 class ExceptionListener {
 
   /**
@@ -59,6 +65,10 @@ class ExceptionListener {
         case '{environmentId} must be a valid UUID or site alias.':
         case '{environmentUuid} must be a valid UUID or site alias.':
           $this->writeSiteAliasHelp();
+          break;
+        case 'Access token file not found at {file}':
+        case 'Access token expiry file not found at {file}':
+          $this->helpMessages[] = 'Get help for this error at https://docs.acquia.com/ide/known-issues/#the-automated-cloud-platform-api-authentication-might-fail';
           break;
       }
     }

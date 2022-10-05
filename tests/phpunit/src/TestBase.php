@@ -841,7 +841,7 @@ abstract class TestBase extends TestCase {
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy|LocalMachineHelper $local_machine_helper
    *
-   * @return Filesystem
+   * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {
     $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
