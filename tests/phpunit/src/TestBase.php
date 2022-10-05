@@ -23,6 +23,8 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -111,6 +113,8 @@ abstract class TestBase extends TestCase {
 
   protected \GuzzleHttp\Client|ObjectProphecy $httpClientProphecy;
 
+  protected vfsStreamDirectory $root;
+
   /**
    * Filter an applications response in order to simulate query filters.
    *
@@ -155,8 +159,9 @@ abstract class TestBase extends TestCase {
     $this->setClientProphecies();
     $this->setIo($input, $output);
 
-    $this->fixtureDir = $this->getTempDir();
-    $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
+    $this->root = vfsStream::setup();
+    vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../../fixtures'));
+    $this->fixtureDir = $this->root->url();
     $this->projectFixtureDir = $this->fixtureDir . '/project';
     $this->acliRepoRoot = $this->projectFixtureDir;
     $this->dataDir = $this->fixtureDir . '/.acquia';

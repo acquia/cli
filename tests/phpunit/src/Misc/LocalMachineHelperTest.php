@@ -52,13 +52,6 @@ class LocalMachineHelperTest extends TestBase {
     }
   }
 
-  public function testExecuteWithCwd(): void {
-    $local_machine_helper = $this->localMachineHelper;
-    $process = $local_machine_helper->execute(['ls', '-lash'], NULL, $this->projectFixtureDir, FALSE);
-    $this->assertTrue($process->isSuccessful());
-    $this->assertStringContainsString('docroot', $process->getOutput());
-  }
-
   public function testCommandExists(): void {
     $local_machine_helper = $this->localMachineHelper;
     $exists = $local_machine_helper->commandExists('cat');

@@ -107,21 +107,18 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected string $sshDir;
 
-  protected $dir;
+  public string $dir;
 
-  protected $localDbUser;
-  protected $localDbPassword;
-  protected $localDbName;
-  protected $localDbHost;
+  protected string $localDbUser;
+  protected string $localDbPassword;
+  protected string $localDbName;
+  protected string $localDbHost;
 
   /**
    * @var bool
    */
   protected $drushHasActiveDatabaseConnection;
 
-  /**
-   * @var \GuzzleHttp\Client
-   */
   protected \GuzzleHttp\Client $updateClient;
 
   protected \GuzzleHttp\Client $httpClient;

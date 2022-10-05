@@ -47,6 +47,7 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    */
   public function testRemoteAliasesDownloadCommand($inputs, $args, $destination_dir = NULL, $all = FALSE): void {
     $alias_version = $inputs[0];
+    chdir(sys_get_temp_dir());
 
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');

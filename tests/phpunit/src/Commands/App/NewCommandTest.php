@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewCommand;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -17,7 +17,7 @@ use Symfony\Component\Process\Process;
  */
 class NewCommandTest extends CommandTestBase {
 
-  protected $newProjectDir;
+  protected string $newProjectDir;
 
   /**
    * {@inheritdoc}
@@ -51,7 +51,7 @@ class NewCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
-    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $this->newProjectDir = Path::join($this->projectFixtureDir, $directory);
     $project_key = array_keys($package)[0];
     $project = $package[$project_key];
 
@@ -70,6 +70,7 @@ class NewCommandTest extends CommandTestBase {
     $this->mockExecuteGitCommit($local_machine_helper, $this->newProjectDir, $process);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->dir = $this->projectFixtureDir;
     $inputs = [
       // Choose a starting project
       $project,
@@ -97,7 +98,7 @@ class NewCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
-    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $this->newProjectDir = Path::join($this->projectFixtureDir, $directory);
     $project_key = array_keys($package)[0];
     $project = $package[$project_key];
 
@@ -145,7 +146,7 @@ class NewCommandTest extends CommandTestBase {
     string $project_dir,
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
-    $project
+    string $project
   ): void {
     $command = [
       'composer',

@@ -34,6 +34,7 @@ class NewCommand extends CommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
+    $this->setDirAndRequireProjectCwd($input);
     $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
     $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
     $distros = [
@@ -45,7 +46,7 @@ class NewCommand extends CommandBase {
 
     if ($input->hasArgument('directory') && $input->getArgument('directory')) {
       $dir = Path::canonicalize($input->getArgument('directory'));
-      $dir = Path::makeAbsolute($dir, getcwd());
+      $dir = Path::join($this->dir, $dir);
     }
     else if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       $dir = '/home/ide/project';
