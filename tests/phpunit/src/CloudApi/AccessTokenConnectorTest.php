@@ -11,8 +11,10 @@ use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessTokenInterface;
+use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class AccessTokenConnectorTest.
@@ -81,10 +83,13 @@ class AccessTokenConnectorTest extends TestBase {
    */
   public function testTokenFile(): void {
     $accessTokenExpiry = time() + 300;
-    $token_file = $this->fixtureDir . '/token';
-    $expiry_file = $this->fixtureDir . '/expiry';
-    file_put_contents($token_file, self::$accessToken);
-    file_put_contents($expiry_file, $accessTokenExpiry);
+    $directory = [
+      'token' => self::$accessToken,
+      'expiry' => (string) $accessTokenExpiry
+    ];
+    $vfs = vfsStream::setup('root', NULL, $directory);
+    $token_file = Path::join($vfs->url(), 'token');
+    $expiry_file = Path::join($vfs->url(), 'expiry');
     putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
@@ -93,9 +98,12 @@ class AccessTokenConnectorTest extends TestBase {
 
   public function testMissingTokenFile(): void {
     $accessTokenExpiry = time() + 300;
-    $token_file = $this->fixtureDir . '/token';
-    $expiry_file = $this->fixtureDir . '/expiry';
-    file_put_contents($expiry_file, $accessTokenExpiry);
+    $directory = [
+      'expiry' => (string) $accessTokenExpiry
+    ];
+    $vfs = vfsStream::setup('root', NULL, $directory);
+    $token_file = Path::join($vfs->url(), 'token');
+    $expiry_file = Path::join($vfs->url(), 'expiry');
     putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
     try {
