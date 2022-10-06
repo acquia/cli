@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\NewCommand;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -17,7 +17,15 @@ use Symfony\Component\Process\Process;
  */
 class NewCommandTest extends CommandTestBase {
 
-  protected $newProjectDir;
+  protected string $newProjectDir;
+
+  /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+  }
 
   /**
    * {@inheritdoc}

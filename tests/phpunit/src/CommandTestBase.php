@@ -87,7 +87,6 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectFixtureDir;
-    chdir($cwd);
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);
     $command_name = $this->command->getName();
