@@ -4,6 +4,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
+use Acquia\Cli\Exception\AcquiaCliException;
 
 /**
  * @package Acquia\Cli\Helpers
@@ -23,14 +24,18 @@ class CloudCredentials implements ApiCredentialsInterface {
 
   /**
    * @return string|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getCloudAccessToken(): ?string {
-    if (getenv('ACLI_ACCESS_TOKEN')) {
-      return getenv('ACLI_ACCESS_TOKEN');
+    if ($token = getenv('ACLI_ACCESS_TOKEN')) {
+      return $token;
     }
 
-    if (getenv('ACLI_ACCESS_TOKEN_FILE')) {
-      return trim(file_get_contents(getenv('ACLI_ACCESS_TOKEN_FILE')), "\"\n");
+    if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {
+      if (!file_exists($file)) {
+        throw new AcquiaCliException('Access token file not found at {file}', ['file' => $file]);
+      }
+      return trim(file_get_contents($file), "\"\n");
     }
 
     return NULL;
@@ -38,14 +43,18 @@ class CloudCredentials implements ApiCredentialsInterface {
 
   /**
    * @return string|null
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getCloudAccessTokenExpiry(): ?string {
-    if (getenv('ACLI_ACCESS_TOKEN_EXPIRY')) {
-      return getenv('ACLI_ACCESS_TOKEN_EXPIRY');
+    if ($token = getenv('ACLI_ACCESS_TOKEN_EXPIRY')) {
+      return $token;
     }
 
-    if (getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE')) {
-      return trim(file_get_contents(getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE')), "\"\n");
+    if ($file = getenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE')) {
+      if (!file_exists($file)) {
+        throw new AcquiaCliException('Access token expiry file not found at {file}', ['file' => $file]);
+      }
+      return trim(file_get_contents($file), "\"\n");
     }
 
     return NULL;
@@ -55,8 +64,8 @@ class CloudCredentials implements ApiCredentialsInterface {
    * @return string|null
    */
   public function getCloudKey(): ?string {
-    if (getenv('ACLI_KEY')) {
-      return getenv('ACLI_KEY');
+    if ($key = getenv('ACLI_KEY')) {
+      return $key;
     }
 
     if ($this->datastoreCloud->get('acli_key')) {
@@ -70,8 +79,8 @@ class CloudCredentials implements ApiCredentialsInterface {
    * @return string|null
    */
   public function getCloudSecret(): ?string {
-    if (getenv('ACLI_SECRET')) {
-      return getenv('ACLI_SECRET');
+    if ($secret = getenv('ACLI_SECRET')) {
+      return $secret;
     }
 
     $acli_key = $this->getCloudKey();
@@ -89,8 +98,8 @@ class CloudCredentials implements ApiCredentialsInterface {
    * @return string|null
    */
   public function getBaseUri(): ?string {
-    if (getenv('ACLI_CLOUD_API_BASE_URI')) {
-      return getenv('ACLI_CLOUD_API_BASE_URI');
+    if ($uri = getenv('ACLI_CLOUD_API_BASE_URI')) {
+      return $uri;
     }
     return NULL;
   }

@@ -58,9 +58,9 @@
         "ext-iconv": "*"
     },
     "require-dev": {
-        "roave/security-advisories": "dev-latest",
         "acquia/coding-standards": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
         "phpro/grumphp": "^1.13.0",
@@ -69,6 +69,7 @@
         "phpstan/phpstan": "^1.0",
         "phpstan/phpstan-deprecation-rules": "^1.0",
         "phpunit/phpunit": "^9.1",
+        "roave/security-advisories": "dev-latest",
         "squizlabs/php_codesniffer": "^3.5",
         "twig/twig": "^3.3"
     },

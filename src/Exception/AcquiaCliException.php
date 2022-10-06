@@ -32,7 +32,7 @@ class AcquiaCliException extends Exception {
   public function __construct(
     string $message = NULL,
     array $replacements = [],
-           $code = 0
+    int $code = 0
     ) {
     $this->replacements = $replacements;
     $this->raw_message = $message;

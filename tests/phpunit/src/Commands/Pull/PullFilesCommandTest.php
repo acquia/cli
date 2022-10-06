@@ -25,6 +25,10 @@ class PullFilesCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullFilesCommand::class);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
   public function testRefreshAcsfFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -33,10 +37,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper
-      ->getFilesystem()
-      ->willReturn($this->fs)
-      ->shouldBeCalled();
+    $this->mockGetFilesystem($local_machine_helper);
     $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files', $this->projectFixtureDir . '/docroot/sites/jxr5000596dev/');
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -65,6 +66,10 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
   public function testRefreshCloudFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -73,10 +78,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetCloudSites($ssh_helper, $selected_environment);
     $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper
-      ->getFilesystem()
-      ->willReturn($this->fs)
-      ->shouldBeCalled();
+    $this->mockGetFilesystem($local_machine_helper);
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($selected_environment->ssh_url);
     $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/' . $sitegroup . '.' . $selected_environment->name . '/sites/bar/files/', $this->projectFixtureDir . '/docroot/sites/bar/files');
 
