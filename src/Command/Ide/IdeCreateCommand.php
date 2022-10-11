@@ -24,15 +24,12 @@ class IdeCreateCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:create';
 
-  /**
-   * @var \AcquiaCloudApi\Response\IdeResponse
-   */
   private IdeResponse $ide;
 
   /**
    * @var \GuzzleHttp\Client
    */
-  private Client $client;
+  private $client;
 
   /**
    * {inheritdoc}.
@@ -56,7 +53,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $account_resource = new Account($acquia_cloud_client);
     $account = $account_resource->get();
-    $default = "{$account->first_name} {$account->last_name}'s IDE";
+    $default = "$account->first_name $account->last_name's IDE";
     if ($input->getOption('label')) {
       $ide_label = $input->getOption('label');
       $this->validateIdeLabel($ide_label);
