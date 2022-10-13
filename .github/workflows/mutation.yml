@@ -32,7 +32,7 @@ jobs:
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
           # Explicitly specify GitHub logger since our Stryker reporting will otherwise disable it.
-          php vendor/bin/infection -j8 --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered --show-mutations
+          php vendor/bin/infection -j8 --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered --show-mutations -vvv --debug
 
       - name: Run Infection for all files
         if: github.event_name == 'push'
