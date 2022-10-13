@@ -60,6 +60,7 @@
     "require-dev": {
         "acquia/coding-standards": "^1",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+        "infection/infection": "^0.26.15",
         "mikey179/vfsstream": "^1.6",
         "overtrue/phplint": "^4.0",
         "php-coveralls/php-coveralls": "^2.2",
@@ -99,7 +100,8 @@
             "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
             "phpro/grumphp": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "infection/extension-installer": true
         }
     },
     "extra": {
@@ -141,11 +143,8 @@
         "box-compile": [
             "php build/box.phar compile"
         ],
-        "infection-install": [
-            "curl -f -L https://github.com/infection/infection/releases/download/0.26.13/infection.phar -o build/infection.phar"
-        ],
         "infection": [
-            "php -d pcov.enabled=1 build/infection.phar --threads=8"
+            "php -d pcov.enabled=1 vendor/bin/infection --threads=8"
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",

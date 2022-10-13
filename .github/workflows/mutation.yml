@@ -27,19 +27,16 @@ jobs:
         run: |
           composer install --no-progress --no-suggest --no-interaction
 
-      - name: Download Infection
-        run: composer infection-install
-
       - name: Run Infection for added files only
         if: github.event_name == 'pull_request'
         run: |
           git fetch --depth=1 origin $GITHUB_BASE_REF
           # Explicitly specify GitHub logger since our Stryker reporting will otherwise disable it.
-          php build/infection.phar -j8 --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
+          php vendor/bin/infection -j8 --git-diff-lines --git-diff-base=origin/$GITHUB_BASE_REF --logger-github --only-covered
 
       - name: Run Infection for all files
         if: github.event_name == 'push'
         env:
           INFECTION_DASHBOARD_API_KEY: ${{ secrets.INFECTION_DASHBOARD_API_KEY }}
         run: |
-          php build/infection.phar -j8 --only-covered
+          php vendor/bin/infection -j8 --only-covered
