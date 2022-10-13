@@ -6188,16 +6188,16 @@
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
-            "version": "v1.1.1",
+            "version": "v1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/violuke/rsa-ssh-key-fingerprint.git",
-                "reference": "e1be5f95851cecf0471a653bd7c618fc638248a1"
+                "reference": "a9b54d5cb8b3b10062fd4b5f67a198c6c924b7a6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/violuke/rsa-ssh-key-fingerprint/zipball/e1be5f95851cecf0471a653bd7c618fc638248a1",
-                "reference": "e1be5f95851cecf0471a653bd7c618fc638248a1",
+                "url": "https://api.github.com/repos/violuke/rsa-ssh-key-fingerprint/zipball/a9b54d5cb8b3b10062fd4b5f67a198c6c924b7a6",
+                "reference": "a9b54d5cb8b3b10062fd4b5f67a198c6c924b7a6",
                 "shasum": ""
             },
             "require": {
@@ -6219,9 +6219,9 @@
             "description": "Generate a fingerprint from an RSA SSH public key.",
             "support": {
                 "issues": "https://github.com/violuke/rsa-ssh-key-fingerprint/issues",
-                "source": "https://github.com/violuke/rsa-ssh-key-fingerprint/tree/v1.1.1"
+                "source": "https://github.com/violuke/rsa-ssh-key-fingerprint/tree/v1.1.2"
             },
-            "time": "2020-11-29T11:08:48+00:00"
+            "time": "2022-10-13T11:23:35+00:00"
         },
         {
             "name": "zumba/amplitude-php",
