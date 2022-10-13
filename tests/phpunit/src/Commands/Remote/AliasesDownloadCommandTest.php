@@ -67,8 +67,9 @@ class AliasesDownloadCommandTest extends CommandTestBase {
 
     $destination_dir = $destination_dir ?? Path::join($this->acliRepoRoot, 'drush');
     if ($alias_version === '8') {
-      $destination_dir = $this->getTempDir();
-      putenv('HOME=' . $destination_dir);
+      $home_dir = $this->getTempDir();
+      putenv('HOME=' . $home_dir);
+      $destination_dir = Path::join($home_dir, '.drush');
     }
     if ($alias_version === '9' && !$all) {
       $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
