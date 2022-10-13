@@ -180,7 +180,7 @@ abstract class TestBase extends TestCase {
    *
    * @throws \Exception
    */
-  private function getTempDir(): string {
+  protected function getTempDir(): string {
     /**
      * sys_get_temp_dir() is not thread-safe, but it's okay to use here since
      * we are specifically creating a thread-safe temporary directory.

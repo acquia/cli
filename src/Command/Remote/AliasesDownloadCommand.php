@@ -83,13 +83,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param string $drushAliasesDir
-   */
-  public function setDrushAliasesDir(string $drushAliasesDir): void {
-    $this->drushAliasesDir = $drushAliasesDir;
-  }
-
-  /**
    * @return string
    */
   public function getDrushArchiveTempFilepath(): string {
@@ -109,18 +102,13 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function getDrushAliasesDir(string $version): string {
     if ($this->input->getOption('destination-dir')) {
-      $this->drushAliasesDir = $this->input->getOption('destination-dir');
+      return $this->input->getOption('destination-dir');
     }
-    elseif (!isset($this->drushAliasesDir)) {
-      $this->drushAliasesDir = match ($version) {
-        8 => $this->localMachineHelper
-            ->getLocalFilepath('~') . '/.drush',
-        9 => Path::join($this->getRepoRoot(), 'drush'),
-        default => throw new AcquiaCliException("Unknown Drush version"),
-      };
-    }
-
-    return $this->drushAliasesDir;
+    return match ($version) {
+      '8' => Path::join($this->localMachineHelper::getHomeDir(), '.drush'),
+      '9' => Path::join($this->getRepoRoot(), 'drush'),
+      default => throw new AcquiaCliException("Unknown Drush version"),
+    };
   }
 
   /**
