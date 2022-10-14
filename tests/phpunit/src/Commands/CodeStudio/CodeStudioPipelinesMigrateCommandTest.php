@@ -90,6 +90,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
     $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost);
     $gitlab_client = $this->prophet->prophesize(Client::class);
