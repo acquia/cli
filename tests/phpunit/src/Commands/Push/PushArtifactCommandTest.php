@@ -143,7 +143,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @param $vcs_path
    * @param $vcs_urls
    */
-  protected function setUpPushArtifact($local_machine_helper, $vcs_path, $vcs_urls) {
+  protected function setUpPushArtifact($local_machine_helper, $vcs_path, $vcs_urls): void {
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->createMockGitConfigFile();
     $finder = $this->mockFinder();
