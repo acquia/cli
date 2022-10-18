@@ -99,7 +99,8 @@
             "phpstan/extension-installer": true,
             "cweagans/composer-patches": true,
             "phpro/grumphp": true,
-            "symfony/flex": true
+            "symfony/flex": true,
+            "infection/extension-installer": true
         }
     },
     "extra": {
