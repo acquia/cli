@@ -23,6 +23,8 @@ use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaLogstream\LogstreamManager;
 use GuzzleHttp\Psr7\Response;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -111,6 +113,8 @@ abstract class TestBase extends TestCase {
 
   protected \GuzzleHttp\Client|ObjectProphecy $httpClientProphecy;
 
+  protected vfsStreamDirectory $root;
+
   /**
    * Filter an applications response in order to simulate query filters.
    *
@@ -135,26 +139,13 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * This method is called before each test.
+   * @todo get rid of this method and use virtual file systems (setupVfsFixture)
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-   *
+   * @return void
+   * @throws \JsonException
    * @throws \Exception
    */
-  protected function setUp(OutputInterface $output = NULL): void {
-    putenv('COLUMNS=85');
-    if (!$output) {
-      $output = new BufferedOutput();
-    }
-    $input = new ArrayInput([]);
-
-    $this->application = new Application();
-    $this->fs = new Filesystem();
-    $this->prophet = new Prophet();
-    $this->consoleOutput = new ConsoleOutput();
-    $this->setClientProphecies();
-    $this->setIo($input, $output);
-
+  public function setupFsFixture(): void {
     $this->fixtureDir = $this->getTempDir();
     $this->fs->mirror(realpath(__DIR__ . '/../../fixtures'), $this->fixtureDir);
     $this->projectFixtureDir = $this->fixtureDir . '/project';
@@ -168,6 +159,51 @@ abstract class TestBase extends TestCase {
     $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
     $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
+    chdir($this->projectFixtureDir);
+  }
+
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Exception
+   */
+  public function setupVfsFixture(): void {
+    $this->root = vfsStream::setup();
+    vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../../fixtures'));
+    $this->fixtureDir = $this->root->url();
+    $this->projectFixtureDir = $this->fixtureDir . '/project';
+    $this->acliRepoRoot = $this->projectFixtureDir;
+    $this->dataDir = $this->fixtureDir . '/.acquia';
+    $this->sshDir = $this->root->url() . '/ssh';
+    $this->acliConfigFilename = '.acquia-cli.yml';
+    $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
+    $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
+    $this->createMockConfigFiles();
+    $this->createDataStores();
+    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
+  }
+
+  /**
+   * This method is called before each test.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface|null $output
+   *
+   * @throws \Exception
+   */
+  protected function setUp(OutputInterface $output = NULL): void {
+    putenv('COLUMNS=85');
+    $this->output = $output ?: new BufferedOutput();
+    $this->input = new ArrayInput([]);
+
+    $this->application = new Application();
+    $this->fs = new Filesystem();
+    $this->prophet = new Prophet();
+    $this->consoleOutput = new ConsoleOutput();
+    $this->setClientProphecies();
+    $this->setIo();
+
+    $this->setupVfsFixture();
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
     ClearCacheCommand::clearCaches();
@@ -228,14 +264,12 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  protected function setIo($input, $output): void {
-    $this->input = $input;
-    $this->output = $output;
-    $this->logger = new ConsoleLogger($output);
-    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+  private function setIo(): void {
+    $this->logger = new ConsoleLogger($this->output);
+    $this->localMachineHelper = new LocalMachineHelper($this->input, $this->output, $this->logger);
     // TTY should never be used for tests.
     $this->localMachineHelper->setIsTty(FALSE);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
+    $this->sshHelper = new SshHelper($this->output, $this->localMachineHelper, $this->logger);
   }
 
   /**

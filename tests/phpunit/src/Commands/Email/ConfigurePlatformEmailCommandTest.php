@@ -479,44 +479,43 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
     $json_file_output = '[
-        {
-            "type": "TXT",
-            "name": "_amazonses.example.com",
-            "value": "AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs="
-        },
-        {
-            "type": "TXT",
-            "name": "_acquiaplatform.example.com",
-            "value": "aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43="
-        },
-        {
-            "type": "MX",
-            "name": "mail.example.com",
-            "value": "10 feedback-smtp.us-east-1.amazonses.com"
-        },
-        {
-            "type": "TXT",
-            "name": "mail.example.com",
-            "value": "v=spf1 include:amazonses.com ~all"
-        },
-        {
-            "type": "CNAME",
-            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-        },
-        {
-            "type": "CNAME",
-            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-        },
-        {
-            "type": "CNAME",
-            "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-            "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-        }
-    ]';
+    {
+        "type": "TXT",
+        "name": "_amazonses.example.com",
+        "value": "AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs="
+    },
+    {
+        "type": "TXT",
+        "name": "_acquiaplatform.example.com",
+        "value": "aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43="
+    },
+    {
+        "type": "MX",
+        "name": "mail.example.com",
+        "value": "10 feedback-smtp.us-east-1.amazonses.com"
+    },
+    {
+        "type": "TXT",
+        "name": "mail.example.com",
+        "value": "v=spf1 include:amazonses.com ~all"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    }
+]';
 
-    $base_domain = 'www.test.com';
     $inputs =
       [
         // What's the domain name you'd like to register?
@@ -537,7 +536,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
     $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
       'form_params' => [
-        'domain' => $base_domain,
+        'domain' => 'test.com',
       ],
     ])->willReturn($post_domains_response);
 
@@ -550,6 +549,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $domains_registration_response_200->health->code = '200';
 
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
+    $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.json')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
     $mock_file_system->dumpFile('dns-records.json', $json_file_output)->shouldBeCalled();
     $applications_response = $this->mockApplicationsRequest();
 
@@ -560,7 +562,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
 
     $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{{$get_domains_response->_embedded->items[0]->uuid}}/actions/associate")->willReturn($associate_response);
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")->willReturn($associate_response);
 
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
@@ -569,6 +571,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
+    $this->prophet->checkPredictions();
     $this->assertEquals('0', $this->getStatusCode());
     $this->assertStringContainsString('all set', $output);
   }
@@ -692,7 +695,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): Filesystem|ObjectProphecy {
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $local_machine_helper->getFilesystem()->willReturn($file_system)->shouldBeCalled();
+    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
 
     return $file_system;
   }

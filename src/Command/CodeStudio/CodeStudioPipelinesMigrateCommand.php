@@ -124,12 +124,17 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       $this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yaml)
     ) {
       $this->gitLabClient->projects()->update($project['id'], ['ci_config_path' => '']);
-      $filename = implode('', glob("acquia-pipelines.*"));
-      $file_contents = file_get_contents($filename);
-      return [
-        'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
-         'filename' =>  $filename
-        ];
+      $pipelines_filenames = ['acquia-pipelines.yml', 'acquia-pipelines.yaml'];
+      foreach ($pipelines_filenames as $pipelines_filename) {
+        $pipelines_filepath = Path::join($this->repoRoot, $pipelines_filename);
+        if (file_exists($pipelines_filepath)) {
+          $file_contents = file_get_contents($pipelines_filepath);
+          return [
+            'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
+            'filename' =>  $pipelines_filename
+          ];
+        }
+      }
     }
 
     throw new AcquiaCliException("Missing 'acquia-pipelines.yml' file which is required to migrate the project to Code Studio.");

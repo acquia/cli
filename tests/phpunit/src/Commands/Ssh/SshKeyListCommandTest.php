@@ -21,6 +21,15 @@ class SshKeyListCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * Tests the 'ssh-key:upload' command.
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception

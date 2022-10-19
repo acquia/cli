@@ -26,6 +26,15 @@ class AliasesDownloadCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * Test all Drush alias versions.
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
