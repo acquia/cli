@@ -8,8 +8,7 @@
     "logs": {
         "stryker": {
             "report": "main"
-        },
-        "text": "infection.log"
+        }
     },
     "mutators": {
         "@default": true
