@@ -269,13 +269,7 @@ abstract class TestBase extends TestCase {
   public function getMockResponseFromSpec($path, $method, $http_code): object {
     $endpoint = $this->getResourceFromSpec($path, $method);
     $response = $endpoint['responses'][$http_code];
-
-    if (array_key_exists('application/json', $response['content'])) {
-      $content = $response['content']['application/json'];
-    }
-    else {
-      $content = $response['content']['application/x-www-form-urlencoded'];
-    }
+    $content = $response['content']['application/json'];
 
     if (array_key_exists('example', $content)) {
       $response_body = json_encode($content['example'], JSON_THROW_ON_ERROR);
