@@ -38,14 +38,20 @@ class AliasesDownloadCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
+   * Tests the 'remote:aliases:download' command.
    *
+   * @param array $inputs
+   * @param array $args
+   * @param string|null $destination_dir
+   * @param bool $all
+   *   Download aliases for all applications.
+   *
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    * @dataProvider providerTestRemoteAliasesDownloadCommand
-   *
-   * Tests the 'remote:aliases:download' commands.
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testRemoteAliasesDownloadCommand($inputs, $args, $destination_dir = NULL, $all = FALSE): void {
+  public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destination_dir = NULL, bool $all = FALSE): void {
     $alias_version = $inputs[0];
 
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
@@ -58,22 +64,19 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->clientProphecy->addQuery('version', $alias_version);
     $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
     $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
-    $drush_aliases_dir = Path::join(sys_get_temp_dir(), '.drush');
 
+    $destination_dir = $destination_dir ?? Path::join($this->acliRepoRoot, 'drush');
+    if ($alias_version === '8') {
+      $home_dir = $this->getTempDir();
+      putenv('HOME=' . $home_dir);
+      $destination_dir = Path::join($home_dir, '.drush');
+    }
     if ($alias_version === '9' && !$all) {
-      $drush_aliases_dir = Path::join($drush_aliases_dir, 'sites');
       $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
       $cloud_application = $applications_response->{'_embedded'}->items[0];
       $cloud_application_uuid = $cloud_application->uuid;
       $this->createMockAcliConfigFile($cloud_application_uuid);
       $this->mockApplicationRequest();
-    }
-    if ($destination_dir) {
-      $this->command->setDrushAliasesDir($destination_dir);
-    }
-    else {
-      $this->command->setDrushAliasesDir($drush_aliases_dir);
-      $destination_dir = $drush_aliases_dir;
     }
 
     $this->executeCommand($args, $inputs);
