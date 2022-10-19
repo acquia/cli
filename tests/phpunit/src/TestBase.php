@@ -193,17 +193,15 @@ abstract class TestBase extends TestCase {
    */
   protected function setUp(OutputInterface $output = NULL): void {
     putenv('COLUMNS=85');
-    if (!$output) {
-      $output = new BufferedOutput();
-    }
-    $input = new ArrayInput([]);
+    $this->output = $output ?: new BufferedOutput();
+    $this->input = new ArrayInput([]);
 
     $this->application = new Application();
     $this->fs = new Filesystem();
     $this->prophet = new Prophet();
     $this->consoleOutput = new ConsoleOutput();
     $this->setClientProphecies();
-    $this->setIo($input, $output);
+    $this->setIo();
 
     $this->setupVfsFixture();
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
@@ -266,14 +264,12 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  protected function setIo($input, $output): void {
-    $this->input = $input;
-    $this->output = $output;
-    $this->logger = new ConsoleLogger($output);
-    $this->localMachineHelper = new LocalMachineHelper($input, $output, $this->logger);
+  private function setIo(): void {
+    $this->logger = new ConsoleLogger($this->output);
+    $this->localMachineHelper = new LocalMachineHelper($this->input, $this->output, $this->logger);
     // TTY should never be used for tests.
     $this->localMachineHelper->setIsTty(FALSE);
-    $this->sshHelper = new SshHelper($output, $this->localMachineHelper, $this->logger);
+    $this->sshHelper = new SshHelper($this->output, $this->localMachineHelper, $this->logger);
   }
 
   /**

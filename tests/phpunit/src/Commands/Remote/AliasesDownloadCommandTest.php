@@ -26,6 +26,15 @@ class AliasesDownloadCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * Test all Drush alias versions.
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
@@ -53,7 +62,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    */
   public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destination_dir = NULL, bool $all = FALSE): void {
     $alias_version = $inputs[0];
-    chdir(sys_get_temp_dir());
 
     $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
     $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
