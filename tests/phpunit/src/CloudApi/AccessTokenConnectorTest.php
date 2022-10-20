@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
+use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\TestBase;
@@ -22,6 +23,27 @@ use Symfony\Component\Filesystem\Path;
 class AccessTokenConnectorTest extends TestBase {
 
   private static string $accessToken = 'testaccesstoken';
+
+  /**
+   * @return \Acquia\Cli\CloudApi\CloudCredentials|\Prophecy\Prophecy\ObjectProphecy
+   */
+  public function mockCloudCredentials(?string $accessToken, ?string $accessTokenExpiry, ?string $key, ?string $secret): \Prophecy\Prophecy\ObjectProphecy|CloudCredentials {
+    $cloudCredentialsProphecy = $this->prophet->prophesize(CloudCredentials::class);
+    $cloudCredentialsProphecy->getCloudAccessToken()
+      ->willReturn($accessToken)
+      ->shouldBeCalled();
+    $cloudCredentialsProphecy->getCloudAccessTokenExpiry()
+      ->willReturn($accessTokenExpiry)
+      ->shouldBeCalled();
+    $cloudCredentialsProphecy->getCloudKey()
+      ->willReturn($key)
+      ->shouldBeCalled();
+    $cloudCredentialsProphecy->getCloudSecret()
+      ->willReturn($secret)
+      ->shouldBeCalled();
+    $cloudCredentialsProphecy->getBaseUri()->willReturn(NULL)->shouldBeCalled();
+    return $cloudCredentialsProphecy;
+  }
 
   protected function tearDown(): void {
     parent::tearDown();
@@ -53,13 +75,9 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
+    $cloudCredentialsProphecy = $this->mockCloudCredentials($this->cloudCredentials->getCloudAccessToken(), $this->cloudCredentials->getCloudAccessTokenExpiry(), NULL, NULL);
     $connector_factory = new ConnectorFactory(
-      [
-        'key' => NULL,
-        'secret' => NULL,
-        'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
-        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
-      ]);
+      $cloudCredentialsProphecy->reveal());
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(AccessTokenConnector::class, $connector);
     self::assertEquals(self::$accessToken, $connector->getAccessToken()->getToken());
@@ -141,13 +159,9 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
+    $cloudCredentialsProphecy = $this->mockCloudCredentials($this->cloudCredentials->getCloudAccessToken(), $this->cloudCredentials->getCloudAccessTokenExpiry(), $this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret());
     $connector_factory = new ConnectorFactory(
-      [
-        'key' => $this->cloudCredentials->getCloudKey(),
-        'secret' => $this->cloudCredentials->getCloudSecret(),
-        'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
-        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
-      ]);
+      $cloudCredentialsProphecy->reveal());
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
   }
@@ -157,25 +171,18 @@ class AccessTokenConnectorTest extends TestBase {
    */
   public function testExpiredAccessToken(): void {
     self::setAccessTokenEnvVars(TRUE);
+    $cloudCredentialsProphecy = $this->mockCloudCredentials($this->cloudCredentials->getCloudAccessToken(), $this->cloudCredentials->getCloudAccessTokenExpiry(), NULL, NULL);
     $connector_factory = new ConnectorFactory(
-      [
-        'key' => NULL,
-        'secret' => NULL,
-        'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
-        'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
-      ]);
+      $cloudCredentialsProphecy->reveal());
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
   }
 
   public function testConnectorConfig(): void {
     self::setAccessTokenEnvVars();
+    $cloudCredentialsProphecy = $this->mockCloudCredentials(NULL, NULL, $this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret());
     $connector_factory = new ConnectorFactory(
-      [
-        'key' => $this->cloudCredentials->getCloudKey(),
-        'secret' => $this->cloudCredentials->getCloudSecret(),
-        'accessToken' => NULL,
-      ]);
+      $cloudCredentialsProphecy->reveal());
     $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
     $options = $client->getOptions();

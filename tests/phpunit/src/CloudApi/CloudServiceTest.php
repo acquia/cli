@@ -40,13 +40,17 @@ class CloudServiceTest extends TestBase {
 
   /**
    * @dataProvider providerTestIsMachineAuthenticated
+   *
    * @param array $env_vars
    * @param bool $is_authenticated
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated): void {
     self::setEnvVars($env_vars);
     $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
-    $client_service = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), new CloudCredentials($cloud_datastore->reveal()));
+    $cloudCredentials = new CloudCredentials($cloud_datastore->reveal());
+    $client_service = new ClientService(new ConnectorFactory($cloudCredentials), $this->prophet->prophesize(Application::class)->reveal(), $cloudCredentials);
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated());
     self::unsetEnvVars($env_vars);
   }

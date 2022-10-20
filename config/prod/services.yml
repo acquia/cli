@@ -87,15 +87,7 @@ services:
       alias: Acquia\Cli\CloudApi\ClientService
   Acquia\Cli\ConnectorFactoryInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
-  Acquia\Cli\CloudApi\ConnectorFactory:
-    arguments:
-      $config:
-        # @see https://symfony.com/doc/current/service_container/expression_language.html
-        key: '@=service("cloud.credentials").getCloudKey()'
-        secret: '@=service("cloud.credentials").getCloudSecret()'
-        accessToken: '@=service("cloud.credentials").getCloudAccessToken()'
-        accessTokenExpiry: '@=service("cloud.credentials").getCloudAccessTokenExpiry()'
-      $base_uri: '@=service("cloud.credentials").getBaseUri()'
+  Acquia\Cli\CloudApi\ConnectorFactory: ~
   AcquiaCloudApi\Connector\ConnectorInterface:
     alias: Acquia\Cli\CloudApi\ConnectorFactory
   AcquiaCloudApi\Connector\Connector:

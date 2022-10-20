@@ -14,12 +14,18 @@ class ConnectorFactory implements ConnectorFactoryInterface {
   /**
    * ConnectorFactory constructor.
    *
-   * @param array $config
-   * @param string|null $base_uri
+   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  public function __construct(array $config, string $base_uri = NULL) {
-    $this->config = $config;
-    $this->baseUri = $base_uri;
+  public function __construct(CloudCredentials $cloudCredentials) {
+    $this->config = [
+      'key' => $cloudCredentials->getCloudKey(),
+      'secret' => $cloudCredentials->getCloudSecret(),
+      'accessToken' => $cloudCredentials->getCloudAccessToken(),
+      'accessTokenExpiry' => $cloudCredentials->getCloudAccessTokenExpiry(),
+    ];
+    $this->baseUri = $cloudCredentials->getBaseUri();
   }
 
   /**
