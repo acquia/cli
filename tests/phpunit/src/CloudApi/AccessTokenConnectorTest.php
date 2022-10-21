@@ -84,8 +84,8 @@ class AccessTokenConnectorTest extends TestBase {
   public function testTokenFile(): void {
     $accessTokenExpiry = time() + 300;
     $directory = [
-      'token' => self::$accessToken,
-      'expiry' => (string) $accessTokenExpiry
+      'token' => self::$accessToken . "\n",
+      'expiry' => (string) $accessTokenExpiry . "\n"
     ];
     $vfs = vfsStream::setup('root', NULL, $directory);
     $token_file = Path::join($vfs->url(), 'token');
@@ -179,8 +179,7 @@ class AccessTokenConnectorTest extends TestBase {
     $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
     $options = $client->getOptions();
-    $this->assertArrayHasKey('headers', $options);
-    $this->assertArrayHasKey('User-Agent', $options['headers']);
+    $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
 
     $this->prophet->checkPredictions();
   }
