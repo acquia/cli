@@ -26,9 +26,6 @@ class AliasesDownloadCommand extends SshCommand {
    */
   private string $drushArchiveFilepath;
 
-  /** @var string */
-  private string $drushAliasesDir;
-
   protected static $defaultName = 'remote:aliases:download';
 
   /**
@@ -53,7 +50,7 @@ class AliasesDownloadCommand extends SshCommand {
     $this->localMachineHelper->getFilesystem()->mkdir($drush_aliases_dir);
     $this->localMachineHelper->getFilesystem()->chmod($drush_aliases_dir, 0700);
 
-    if ($alias_version === 9) {
+    if ($alias_version === '9') {
       $this->downloadDrush9Aliases($input, $alias_version, $drush_archive_temp_filepath, $drush_aliases_dir);
     }
     else {
@@ -72,21 +69,14 @@ class AliasesDownloadCommand extends SshCommand {
   /**
    * Prompts the user for their preferred Drush alias version.
    */
-  protected function promptChooseDrushAliasVersion(): bool|int|string {
+  protected function promptChooseDrushAliasVersion(): string {
     $this->io->writeln('Drush changed how aliases are defined in Drush 9. Drush 8 aliases are PHP-based and stored in your home directory, while Drush 9+ aliases are YAML-based and stored with your project.');
     $question = 'Choose your preferred alias compatibility:';
     $choices = [
-      8 => 'Drush 8 / Drupal 7 (PHP)',
-      9 => 'Drush 9+ / Drupal 8+ (YAML)',
+      '8' => 'Drush 8 / Drupal 7 (PHP)',
+      '9' => 'Drush 9+ / Drupal 8+ (YAML)',
     ];
     return array_search($this->io->choice($question, $choices, '9'), $choices, TRUE);
-  }
-
-  /**
-   * @param string $drushAliasesDir
-   */
-  public function setDrushAliasesDir(string $drushAliasesDir): void {
-    $this->drushAliasesDir = $drushAliasesDir;
   }
 
   /**
@@ -109,18 +99,13 @@ class AliasesDownloadCommand extends SshCommand {
    */
   protected function getDrushAliasesDir(string $version): string {
     if ($this->input->getOption('destination-dir')) {
-      $this->drushAliasesDir = $this->input->getOption('destination-dir');
+      return $this->input->getOption('destination-dir');
     }
-    elseif (!isset($this->drushAliasesDir)) {
-      $this->drushAliasesDir = match ($version) {
-        8 => $this->localMachineHelper
-            ->getLocalFilepath('~') . '/.drush',
-        9 => Path::join($this->getRepoRoot(), 'drush'),
-        default => throw new AcquiaCliException("Unknown Drush version"),
-      };
-    }
-
-    return $this->drushAliasesDir;
+    return match ($version) {
+      '8' => Path::join($this->localMachineHelper::getHomeDir(), '.drush'),
+      '9' => Path::join($this->getRepoRoot(), 'drush'),
+      default => throw new AcquiaCliException("Unknown Drush version"),
+    };
   }
 
   /**

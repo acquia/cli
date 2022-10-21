@@ -52,7 +52,11 @@ class LocalMachineHelperTest extends TestBase {
     }
   }
 
+  /**
+   * @throws \JsonException
+   */
   public function testExecuteWithCwd(): void {
+    $this->setupFsFixture();
     $local_machine_helper = $this->localMachineHelper;
     $process = $local_machine_helper->execute(['ls', '-lash'], NULL, $this->projectFixtureDir, FALSE);
     $this->assertTrue($process->isSuccessful());

@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Tests\CloudApi;
 
-use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\CloudApi\ConnectorFactory;
@@ -46,7 +45,7 @@ class CloudServiceTest extends TestBase {
   public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated): void {
     self::setEnvVars($env_vars);
     $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
-    $client_service = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), new CloudCredentials($cloud_datastore->reveal()));
+    $client_service = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->application, new CloudCredentials($cloud_datastore->reveal()));
     $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated());
     self::unsetEnvVars($env_vars);
   }
