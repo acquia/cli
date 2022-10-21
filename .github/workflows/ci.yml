@@ -61,7 +61,7 @@ jobs:
         if: matrix.coverage == 'pcov'
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: composer coveralls
+        run: ./vendor/bin/php-coveralls --service=github
   build-release:
     needs: test
     runs-on: ubuntu-latest

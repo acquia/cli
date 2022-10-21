@@ -159,9 +159,6 @@
         ],
         "stan": [
             "phpstan analyze"
-        ],
-        "coveralls": [
-            "php-coveralls -vvv"
         ]
     }
 }
