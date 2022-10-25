@@ -189,6 +189,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
     $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->checkRequiredBinariesExist(['git']);
+    $this->mockExecuteGlabExists($local_machine_helper);
     $process = $this->mockProcess();
     $local_machine_helper->execute(Argument::containing('remote'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
     $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
@@ -211,6 +212,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   public function testInvalidGitLabCredentials() {
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockExecuteGlabExists($local_machine_helper);
     $gitlab_client = $this->mockGitLabAuthenticate($local_machine_helper, $this->gitLabHost, $this->gitLabToken);
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -227,6 +229,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   public function testMissingGitLabCredentials() {
     $local_machine_helper = $this->mockLocalMachineHelper();
+    $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
     $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost, FALSE);
     $this->command->localMachineHelper = $local_machine_helper->reveal();

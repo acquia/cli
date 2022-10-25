@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command\CodeStudio;
 use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -37,7 +36,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.')
       ->setAliases(['cs:wizard']);
     $this->acceptApplicationUuid();
-    $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
   /**
