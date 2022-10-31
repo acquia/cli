@@ -3623,16 +3623,16 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v6.0.13",
+            "version": "v6.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "908edffec894ef7c60d6a66869ecb826d76a491f"
+                "reference": "370ca602748b77f63a474da397afc2fb66e37319"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/908edffec894ef7c60d6a66869ecb826d76a491f",
-                "reference": "908edffec894ef7c60d6a66869ecb826d76a491f",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/370ca602748b77f63a474da397afc2fb66e37319",
+                "reference": "370ca602748b77f63a474da397afc2fb66e37319",
                 "shasum": ""
             },
             "require": {
@@ -3696,7 +3696,7 @@
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v6.0.13"
+                "source": "https://github.com/symfony/cache/tree/v6.0.15"
             },
             "funding": [
                 {
@@ -3712,7 +3712,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-09-08T09:32:44+00:00"
+            "time": "2022-10-28T16:22:58+00:00"
         },
         {
             "name": "symfony/cache-contracts",
