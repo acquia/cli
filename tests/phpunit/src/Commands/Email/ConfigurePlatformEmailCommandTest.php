@@ -27,6 +27,15 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * @return array
    */
   public function providerTestConfigurePlatformEmail() {
@@ -232,6 +241,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmail($base_domain, $inputs, $expected_exit_code, $expected_text, $response_codes): void {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
       ->willReturn($subscriptions_response->{'_embedded'}->items)
@@ -253,6 +264,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $domains_registration_response->health->code = $response_code;
       $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")
         ->willReturn($domains_registration_response);
+
+      //      $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
+      //      $mock_file_system->remove('dns-records.json')->shouldBeCalled();
+      //      $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
     }
     $applications_response = $this->mockApplicationsRequest();
     // We need the application to belong to the subscription.
@@ -265,6 +280,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
 
     $this->executeCommand([], $inputs);
+    $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
     foreach ($expected_text as $text) {

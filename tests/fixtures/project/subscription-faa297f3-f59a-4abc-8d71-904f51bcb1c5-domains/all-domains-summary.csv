@@ -1,0 +1,3 @@
+"Domain Name","Domain UUID","Verification Status"
+example.com,123e4567-e89b-12d3-a456-426614174000,"Failed - 404"
+example2.com,123e4567-e89b-12d3-a456-426614174000,"Failed - 404"
