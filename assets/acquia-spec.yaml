@@ -638,6 +638,19 @@ components:
       type: string
       description: A binary file response.
       format: binary
+    Health:
+      type: object
+      description: The current health for this resource.
+      properties:
+        code:
+          type: string
+          description: The status code for the current health.
+        details:
+          type: string
+          description: Full details about the current health code.
+        summary:
+          type: string
+          description: A brief summary that explains why the health code is present.
     Links:
       type: object
       required:
@@ -1304,7 +1317,7 @@ components:
           format: uri
           description: The domain name.
         health:
-          $ref: '#/components/schemas/DomainRegistrationHealth'
+          $ref: '#/components/schemas/Health'
         dns_records:
           $ref: '#/components/schemas/DomainRegistrationDnsRecords'
         _links:
@@ -1327,19 +1340,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/DomainRegistration'
-    DomainRegistrationHealth:
-      type: object
-      description: Health information for this domain registration.
-      properties:
-        code:
-          type: string
-          description: The status code for this domain registration.
-        details:
-          type: string
-          description: The details regarding the health of this domain registration.
-        summary:
-          type: string
-          description: A brief summary that explains why an error code is present.
     DomainRegistrationDnsRecord:
       type: object
       description: A DNS record.
@@ -1361,7 +1361,7 @@ components:
           type: string
           description: The DNS record value.
         health:
-          $ref: '#/components/schemas/DomainRegistrationDnsHealth'
+          $ref: '#/components/schemas/Health'
     DomainRegistrationDnsRecords:
       type: object
       properties:
@@ -1378,19 +1378,6 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/DomainRegistrationDnsRecord'
-    DomainRegistrationDnsHealth:
-      type: object
-      description: Health information for this DNS record.
-      properties:
-        code:
-          type: string
-          description: The status code for this DNS record.
-        details:
-          type: string
-          description: The details regarding the health of this DNS record.
-        summary:
-          type: string
-          description: A brief summary that explains why an error code is present.
     Distribution:
       type: object
       required:
@@ -1528,7 +1515,7 @@ components:
               type: boolean
               description: Whether or not Platform Email has been associated with the application.
         health:
-          $ref: '#/components/schemas/DomainRegistrationHealth'
+          $ref: '#/components/schemas/Health'
     EmailDomains:
       type: object
       properties:
@@ -2434,6 +2421,59 @@ components:
         acquia_hosted:
           type: boolean
           description: Whether or not this domain is Acquia-hosted.
+    EIP:
+      type: object
+      required:
+        - id
+        - status
+        - ipv4
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: The Web EIP ID.
+        status:
+          type: string
+          description: The provisioning status of the Web EIP.
+        ipv4:
+          type: string
+          description: The IPv4 address.
+        ipv6:
+          type: string
+          description: The IPv6 address.
+        flags:
+          $ref: '#/components/schemas/EIPFlags'
+    EIPFlags:
+      type: object
+      description: Various flags for the Web EIP.
+      required:
+        - active
+      properties:
+        active:
+          type: boolean
+          description: A flag indicating whether the Web EIP is configured to actively receive traffic.
+        deprecated:
+          type: boolean
+          description: A flag indicating whether the Web EIP is flagged for deprecation.
+        legacy:
+          type: boolean
+          description: A flag indicating whether the Web EIP is associated with ACC infrastructure.
+    EIPs:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of Web EIPs.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/EIP'
     Environment:
       type: object
       required:
@@ -2633,6 +2673,9 @@ components:
           cloud-actions:
             type: boolean
             description: Determines if the environment has Cloud Actions enabled.
+          eips:
+            type: boolean
+            description: Determines if the environment has Web EIPs enabled.
           email:
             type: boolean
             description: Determines if the environment has Platform Email enabled.
@@ -2911,7 +2954,7 @@ components:
         flags:
           $ref: '#/components/schemas/LogForwardingDestinationFlags'
         health:
-          $ref: '#/components/schemas/LogForwardingDestinationHealth'
+          $ref: '#/components/schemas/Health'
         environment:
           $ref: '#/components/schemas/EnvironmentStub'
         _links:
@@ -2965,19 +3008,6 @@ components:
         certificate_expiring:
           type: boolean
           description: Whether the destination certificate is in danger of expiring soon (within 30 days).
-    LogForwardingDestinationHealth:
-      type: object
-      description: Health information for this log forwarding destination.
-      properties:
-        code:
-          type: string
-          description: The error code for this log forwarding destination if an error occured.
-        details:
-          type: string
-          description: The details regarding the health of this log forwarding destination.
-        summary:
-          type: string
-          description: A brief summary that explains why an error code is present.
     PostCertificate:
       type: object
       description: Certificate POST schema.
@@ -4305,12 +4335,14 @@ components:
               description: Indicates whether the search configuration set is a custom configuration set.
         status:
           type: string
-          description: The status of the search configuration set.
+          description: The provisioning status of the search configuration set.
           enum:
             - active
             - pending
             - failed
             - inactive
+        health:
+          $ref: '#/components/schemas/Health'
         _links:
           $ref: '#/components/schemas/Links'
     ConfigurationSets:
@@ -4366,6 +4398,8 @@ components:
             - pending
             - failed
             - inactive
+        health:
+          $ref: '#/components/schemas/Health'
         solr_version:
           type: string
           description: The Solr version the index is currently running on.
@@ -10159,13 +10193,17 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConfigurationSets'
+                $ref: '#/components/schemas/ConfigurationSet'
               example:
                 id: shared-1234567891011-121
                 application_uuid: 3f6d06a9-9236-411e-9dcc-44f0003a5905
                 label: example-0
                 flags:
                   custom: false
+                health:
+                  code: OK
+                  summary: Search index active
+                  details: No issues.
                 status: active
                 _links:
                   self:
@@ -12440,6 +12478,7 @@ paths:
                   cde: false
                   cdn: false
                   cloud-actions: false
+                  eips: false
                   email: false
                   hsd: false
                   livedev: false
@@ -12486,6 +12525,8 @@ paths:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/dns'
                   domains:
                     href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/domains'
+                  eips:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips'
                   logs:
                     href: 'https://cloud.acquia.com/api/environments/8-185f07c7-9c4f-407b-8968-67892ebcb38a/logs'
                   metrics:
@@ -14147,7 +14188,7 @@ paths:
                       day_month: '*'
                       month: '*'
                       day_week: '*'
-                      label: null
+                      label: Clear drush caches
                       flags:
                         enabled: true
                         system: false
@@ -14168,7 +14209,7 @@ paths:
                       day_month: '*'
                       month: '*'
                       day_week: '*'
-                      label: null
+                      label: Run backup
                       flags:
                         enabled: false
                         system: true
@@ -14314,7 +14355,7 @@ paths:
                 day_month: '*'
                 month: '*'
                 day_week: '*'
-                label: null
+                label: Clear drush caches
                 flags:
                   enabled: true
                   system: false
@@ -16152,6 +16193,51 @@ paths:
                   value:
                     error: not_found
                     message: Unable to determine status for this domain.
+  '/environments/{environmentId}/eips':
+    get:
+      tags:
+        - Environments
+      summary: Return a list of Web EIPs.
+      description: Returns a list of Web EIPs.
+      operationId: getEIPs
+      x-cli-name: 'environments:eips-list'
+      parameters:
+        - $ref: '#/components/parameters/EnvironmentId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EIPs'
+              example:
+                total: 1
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470/eips'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/environments/24-a47ac10b-58cc-4372-a567-0e02b2c3d470'
+                _embedded:
+                  items:
+                    - id: f668295f-cbba-472d-8b75-c76ab89e553a
+                      status: created
+                      ipv4: 203.0.113.1
+                      ipv6: '0:0:0:0:0:ffff:cb00:7101'
+                      flags:
+                        active: true
+                        legacy: false
+                        deprecated: false
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The environment you are trying to access does not exist, or you do not have permission to access it.'
   '/environments/{environmentId}/email':
     get:
       tags:
@@ -18649,6 +18735,10 @@ paths:
                 config_set_id: ABCDE-1234.12345ab6c7e8f90g12i1jk234l56mn78
                 database_role: example
                 status: active
+                health:
+                  code: OK
+                  summary: Search index active
+                  details: No issues.
                 solr_version: '7'
                 url: 'https://example.com/solr/ABCDE-1234.test.example/'
                 _links:

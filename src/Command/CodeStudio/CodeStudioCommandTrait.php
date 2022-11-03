@@ -48,6 +48,9 @@ trait CodeStudioCommandTrait {
     if ($this->input->getOption('gitlab-token')) {
       return $this->input->getOption('gitlab-token');
     }
+    if (!$this->localMachineHelper->commandExists('glab')) {
+      throw new AcquiaCliException("Please install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
+    }
     $process = $this->localMachineHelper->execute([
       'glab',
       'config',
@@ -83,7 +86,9 @@ trait CodeStudioCommandTrait {
      && $this->input->getOption('gitlab-host-name')) {
       return $this->input->getOption('gitlab-host-name');
     }
-
+    if (!$this->localMachineHelper->commandExists('glab')) {
+      throw new AcquiaCliException("Please install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
+    }
     $process = $this->localMachineHelper->execute([
       'glab',
       'config',
