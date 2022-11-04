@@ -115,6 +115,8 @@ abstract class TestBase extends TestCase {
 
   protected vfsStreamDirectory $root;
 
+  protected string $realFixtureDir;
+
   /**
    * Filter an applications response in order to simulate query filters.
    *
@@ -163,28 +165,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @return void
-   * @throws \JsonException
-   * @throws \Exception
-   */
-  public function setupVfsFixture(): void {
-    $this->root = vfsStream::setup();
-    vfsStream::copyFromFileSystem(realpath(__DIR__ . '/../../fixtures'));
-    $this->fixtureDir = $this->root->url();
-    $this->projectFixtureDir = $this->fixtureDir . '/project';
-    $this->acliRepoRoot = $this->projectFixtureDir;
-    $this->dataDir = $this->fixtureDir . '/.acquia';
-    $this->sshDir = $this->root->url() . '/ssh';
-    $this->acliConfigFilename = '.acquia-cli.yml';
-    $this->cloudConfigFilepath = $this->dataDir . '/cloud_api.conf';
-    $this->acliConfigFilepath = $this->projectFixtureDir . '/' . $this->acliConfigFilename;
-    $this->createMockConfigFiles();
-    $this->createDataStores();
-    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
-  }
-
-  /**
    * This method is called before each test.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface|null $output
@@ -203,7 +183,22 @@ abstract class TestBase extends TestCase {
     $this->setClientProphecies();
     $this->setIo();
 
-    $this->setupVfsFixture();
+    $root = vfsStream::setup();
+    $project = $root->
+    $this->realFixtureDir = realpath(Path::join(__DIR__, '..', '..', 'fixtures'));
+    $homeDir = Path::join($this->root->url(), 'home');
+    $this->dataDir = Path::join($homeDir, '.acquia');
+    $this->sshDir = Path::join($homeDir, '.ssh');
+    $this->cloudConfigFilepath = Path::join($homeDir, 'cloud_api.conf');
+    $this->projectFixtureDir = Path::join($this->root->url(), 'project');
+    $this->acliConfigFilename = '.acquia-cli.yml';
+    $this->acliConfigFilepath = Path::join($this->projectFixtureDir, $this->acliConfigFilename);
+    $this->acliRepoRoot = $this->projectFixtureDir;
+    $this->createMockConfigFiles();
+    $this->createDataStores();
+    $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
+
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
     ClearCacheCommand::clearCaches();

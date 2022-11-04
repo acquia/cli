@@ -3,6 +3,8 @@
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
+use org\bovigo\vfs\vfsStream;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -14,6 +16,15 @@ use Acquia\Cli\Tests\ApplicationTestBase;
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 
+  public function setUp($output = NULL): void {
+    vfsStream::newFile('composer.json')
+      ->at($this->root)
+      ->withContent(file_get_contents(Path::join($this->realFixtureDir, 'composer.json')));
+  }
+
+  /**
+   * @throws \Exception
+   */
   public function testPreScripts(): void {
     $this->mockAccountRequest();
     $this->setInput([
@@ -23,6 +34,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('pre-acli-hello-world', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testPostScripts(): void {
     $this->mockAccountRequest();
     $this->setInput([
@@ -32,6 +46,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('post-acli-hello-world', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testInvalidApiCreds(): void {
     $this->setInput([
       'command' => 'aliases',
@@ -43,6 +60,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testApiError(): void {
     $this->setInput([
       'command' => 'aliases',
@@ -53,6 +73,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testNoAvailableIdes(): void {
     $this->setInput([
       'command' => 'aliases',
