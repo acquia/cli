@@ -4,6 +4,7 @@ namespace Acquia\Cli\CloudApi;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Connector;
+use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\RequestInterface;
@@ -16,14 +17,14 @@ class AccessTokenConnector extends Connector {
   /**
    * @var \League\OAuth2\Client\Provider\GenericProvider
    */
-  protected $provider;
+  protected AbstractProvider $provider;
 
   /**
    * @inheritdoc
    */
-  public function __construct(array $config, string $base_uri = NULL) {
+  public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
-    parent::__construct($config, $base_uri);
+    parent::__construct($config, $base_uri, $url_access_token);
   }
 
   /**
@@ -39,7 +40,7 @@ class AccessTokenConnector extends Connector {
     }
     return $this->provider->getAuthenticatedRequest(
       $verb,
-      $this->baseUri . $path,
+      $this->getBaseUri() . $path,
       $this->accessToken
     );
   }

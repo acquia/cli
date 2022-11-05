@@ -104,4 +104,14 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
+  /**
+   * @return string|null
+   */
+  public function getAccountsUri(): ?string {
+    if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {
+      return $uri;
+    }
+    return NULL;
+  }
+
 }
