@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7d7365d77f3f1892567f607b244d0d6b",
+    "content-hash": "7f04cdceb06891bc23e846a98ba95abb",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -2859,21 +2859,20 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "4.5.1",
+            "version": "4.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "a161a26d917604dc6d3aa25100fddf2556e9f35d"
+                "reference": "ad63bc700e7d021039e30ce464eba384c4a1d40f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/a161a26d917604dc6d3aa25100fddf2556e9f35d",
-                "reference": "a161a26d917604dc6d3aa25100fddf2556e9f35d",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/ad63bc700e7d021039e30ce464eba384c4a1d40f",
+                "reference": "ad63bc700e7d021039e30ce464eba384c4a1d40f",
                 "shasum": ""
             },
             "require": {
                 "brick/math": "^0.8.8 || ^0.9 || ^0.10",
-                "ext-ctype": "*",
                 "ext-json": "*",
                 "php": "^8.0",
                 "ramsey/collection": "^1.0"
@@ -2905,7 +2904,6 @@
             },
             "suggest": {
                 "ext-bcmath": "Enables faster math with arbitrary-precision integers using BCMath.",
-                "ext-ctype": "Enables faster processing of character classification using ctype functions.",
                 "ext-gmp": "Enables faster math with arbitrary-precision integers using GMP.",
                 "ext-uuid": "Enables the use of PeclUuidTimeGenerator and PeclUuidRandomGenerator.",
                 "paragonie/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
@@ -2937,7 +2935,7 @@
             ],
             "support": {
                 "issues": "https://github.com/ramsey/uuid/issues",
-                "source": "https://github.com/ramsey/uuid/tree/4.5.1"
+                "source": "https://github.com/ramsey/uuid/tree/4.6.0"
             },
             "funding": [
                 {
@@ -2949,7 +2947,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-09-16T03:22:46+00:00"
+            "time": "2022-11-05T23:03:38+00:00"
         },
         {
             "name": "ratchet/pawl",
@@ -6125,11 +6123,17 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "dev-master",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
+                "reference": "21b39f16ee36cde4882d7f43af17a347fc2ec11b"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../typhonius/acquia-php-sdk-v2",
-                "reference": "b6f9bf51dec403a9c8b811ff95cde5a89fabaf74"
+                "type": "zip",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/21b39f16ee36cde4882d7f43af17a347fc2ec11b",
+                "reference": "21b39f16ee36cde4882d7f43af17a347fc2ec11b",
+                "shasum": ""
             },
             "require": {
                 "guzzlehttp/guzzle": "^7.2",
@@ -6151,47 +6155,13 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
+                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Connector\\": "src/Connector",
                     "AcquiaCloudApi\\Endpoints\\": "src/Endpoints",
-                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Exception\\": "src/Exception"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "AcquiaCloudApi\\Tests\\": "tests/",
-                    "League\\OAuth2\\Client\\Test\\": "vendor/league/oauth2-client/test/src/"
-                }
-            },
-            "scripts": {
-                "lint": [
-                    "phplint"
-                ],
-                "cs": [
-                    "phpcs --standard=PSR12 -n src tests --ignore=./tests/logs/*"
-                ],
-                "cbf": [
-                    "phpcbf --standard=PSR12 -n src tests --ignore=./tests/logs/*"
-                ],
-                "unit": [
-                    "php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude='~vendor~' ./vendor/bin/phpunit --configuration=phpunit.xml --testdox"
-                ],
-                "stan": [
-                    "phpstan analyse"
-                ],
-                "test": [
-                    "@lint",
-                    "@unit",
-                    "@cs",
-                    "@stan"
-                ],
-                "release": [
-                    "release VERSION"
-                ],
-                "coveralls": [
-                    "php ./vendor/bin/php-coveralls -v"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -6202,9 +6172,17 @@
                 }
             ],
             "description": "A PHP SDK for Acquia CloudAPI v2",
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.5.0"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/typhonius",
+                    "type": "github"
+                }
+            ],
+            "time": "2022-11-07T19:20:31+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -11881,18 +11859,10 @@
             "time": "2022-06-03T18:03:27+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "typhonius/acquia-php-sdk-v2",
-            "version": "9999999-dev",
-            "alias": "2.4.0",
-            "alias_normalized": "2.4.0.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
-        "typhonius/acquia-php-sdk-v2": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,

@@ -15,10 +15,6 @@
         "dns-zone-tokenizer": {
             "type": "vcs",
             "url": "https://github.com/grasmash/dns-zone-configurator"
-        },
-        "acquia-php-sdk-v2": {
-            "type": "path",
-            "url": "../../typhonius/acquia-php-sdk-v2"
         }
     },
     "require": {
@@ -56,7 +52,7 @@
         "symfony/validator": "^6",
         "symfony/yaml": "^6",
         "typhonius/acquia-logstream": "^0.0.12",
-        "typhonius/acquia-php-sdk-v2": "dev-master as 2.4.0",
+        "typhonius/acquia-php-sdk-v2": "^2.5.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
         "zumba/amplitude-php": "^1.0.4",
         "ext-iconv": "*"
