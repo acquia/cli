@@ -19,6 +19,60 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
+  const JSON_TEST_OUTPUT = '[
+    {
+        "type": "TXT",
+        "name": "_amazonses.example.com",
+        "value": "AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs="
+    },
+    {
+        "type": "TXT",
+        "name": "_acquiaplatform.example.com",
+        "value": "aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43="
+    },
+    {
+        "type": "MX",
+        "name": "mail.example.com",
+        "value": "10 feedback-smtp.us-east-1.amazonses.com"
+    },
+    {
+        "type": "TXT",
+        "name": "mail.example.com",
+        "value": "v=spf1 include:amazonses.com ~all"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    },
+    {
+        "type": "CNAME",
+        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
+        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
+    }
+]';
+
+  const ZONE_TEST_OUTPUT = "_acquiaplatform.example.com. 3600 IN TXT \"aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43=\"\n" .
+  "_amazonses.example.com. 3600 IN TXT \"AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=\"\n" .
+  "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com. 3600 IN CNAME abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com.\n" .
+  "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com. 3600 IN CNAME abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com.\n" .
+  "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com. 3600 IN CNAME abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com.\n" .
+  "mail.example.com. 3600 IN MX 10 feedback-smtp.us-east-1.amazonses.com.\n" .
+  "mail.example.com. 3600 IN TXT \"v=spf1 include:amazonses.com ~all\"";
+
+  const YAML_TEST_OUTPUT = "-\n    type: TXT\n    name: _amazonses.example.com\n    value: AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs=\n" .
+  "-\n    type: TXT\n    name: _acquiaplatform.example.com\n    value: 'aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43='\n" .
+  "-\n    type: MX\n    name: mail.example.com\n    value: '10 feedback-smtp.us-east-1.amazonses.com'\n" .
+  "-\n    type: TXT\n    name: mail.example.com\n    value: 'v=spf1 include:amazonses.com ~all'\n" .
+  "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n" .
+  "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n" .
+  "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n";
+
   /**
    * {@inheritdoc}
    */
@@ -27,15 +81,27 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * @return array
    */
   public function providerTestConfigurePlatformEmail() {
+
     return [
       [
-        'www.test.com',
+        'test.com',
+        'zone',
+        self::ZONE_TEST_OUTPUT,
         [
           // What's the domain name you'd like to register?
-          'www.test.com',
+          'test.com',
           // Please select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
@@ -50,10 +116,12 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Expected text.
         ["You're all set to start using Platform Email!"],
         // Domain registration responses.
-        ["200"],
+        "200",
       ],
       [
         'test.com',
+        'yaml',
+        self::YAML_TEST_OUTPUT,
         [
           // What's the domain name you'd like to register?
           'test.com',
@@ -69,13 +137,15 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Expected text.
         ["Make sure to give these records to your DNS provider"],
         // Domain registration responses.
-        ["404"],
+        "404",
       ],
       [
-        'https://www.test.com',
+        'test.com',
+        'json',
+        self::JSON_TEST_OUTPUT,
         [
           // What's the domain name you'd like to register?
-          'https://www.test.com',
+          'test.com',
           // Please select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
@@ -90,13 +160,15 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Expected text.
         ["Verification pending...", "Please check your DNS records with your DNS provider"],
         // Domain registration responses.
-        ["202"],
+        "202",
       ],
       [
-        'https://www.test.com',
+        'test.com',
+        'zone',
+        self::ZONE_TEST_OUTPUT,
         [
           // What's the domain name you'd like to register?
-          'https://www.test.com',
+          'test.com',
           // Please select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
@@ -113,59 +185,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Expected text.
         ["Refreshing...", "Please check your DNS records with your DNS provider"],
         // Domain registration responses.
-        ["404"],
-      ],
-    ];
-  }
-
-  /**
-   * @return array
-   */
-  public function providerTestConfigurePlatformEmailAddDomain() {
-    return [
-      [
-        'example.com',
-        [
-          // What's the domain name you'd like to register?
-          'example.com',
-          // Please select a Cloud Platform subscription
-          '0',
-          // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-          '1',
-          // Have you finished providing the DNS records to your DNS provider?
-          'y',
-          // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-          '0'
-        ],
-        // Status code.
-        0,
-        // Association response code.
-        '409',
-        // Spec key for association response code.
-        'Already associated',
-        // Expected text.
-        ['is already associated', "You're all set to start using Platform Email!"]
-      ],
-      [
-        'example.com',
-        [
-          // What's the domain name you'd like to register?
-          'example.com',
-          // Please select a Cloud Platform subscription
-          '0',
-          // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
-          '2',
-          // Have you finished providing the DNS records to your DNS provider?
-          'y',
-        ],
-        // Status code.
-        1,
-        // Association response code.
-        '403',
-        // Spec key for association response code.
-        'Insufficient permissions',
-        // Expected text.
-        ['You do not have permission', 'Something went wrong']
+        "404",
       ],
     ];
   }
@@ -231,7 +251,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testConfigurePlatformEmail($base_domain, $inputs, $expected_exit_code, $expected_text, $response_codes): void {
+  public function testConfigurePlatformEmail($base_domain, $file_dump_format, $file_dump, $inputs, $expected_exit_code, $expected_text, $response_code): void {
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
+
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
       ->willReturn($subscriptions_response->{'_embedded'}->items)
@@ -249,23 +272,37 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
 
     $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
-    foreach ($response_codes as $key => $response_code) {
-      $domains_registration_response->health->code = $response_code;
-      $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")
-        ->willReturn($domains_registration_response);
+    $domains_registration_response->health->code = $response_code;
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")
+      ->willReturn($domains_registration_response);
+
+    $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.json')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
+
+    $mock_file_system->dumpFile('dns-records.' . $file_dump_format, $file_dump)->shouldBeCalled();
+
+    if ($response_code == '404') {
+      $reverify_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}/actions/verify', 'post', '200');
+      $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/verify")
+        ->willReturn($reverify_response);
     }
-    $applications_response = $this->mockApplicationsRequest();
-    // We need the application to belong to the subscription.
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+    else if ($response_code == '200') {
+      $applications_response = $this->mockApplicationsRequest();
+      // We need the application to belong to the subscription.
+      $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
 
-    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{{$get_domains_response->_embedded->items[0]->uuid}}/actions/associate")->willReturn($associate_response);
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
-    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
+      $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
+      $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")->willReturn($associate_response);
+      $environments_response = $this->mockEnvironmentsRequest($applications_response);
+      $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
+      $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
+    }
 
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
+    $this->prophet->checkPredictions();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
     foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
@@ -274,10 +311,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   public function testConfigurePlatformEmailWithMultipleAppsAndEnvs(): void {
-    $base_domain = 'https://www.test.com';
     $inputs = [
       // What's the domain name you'd like to register?
-      $base_domain,
+      'test.com',
       // Please select a Cloud Platform subscription
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
@@ -291,6 +327,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       // What are the environments you'd like to enable email for? You may enter multiple separated by a comma. - Application 1
       '0',
     ];
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
@@ -300,7 +338,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
     $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
       'form_params' => [
-        'domain' => $base_domain,
+        'domain' => 'test.com',
       ],
     ])->willReturn($post_domains_response);
 
@@ -316,14 +354,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     // called, etc.
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response, $domains_registration_response, $domains_registration_response_200);
 
+    $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.json')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
+    $mock_file_system->dumpFile('dns-records.zone', self::ZONE_TEST_OUTPUT)->shouldBeCalled();
+
     $applications_response = $this->mockApplicationsRequest();
     // We need the application to belong to the subscription.
     $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
     $applications_response->_embedded->items[1]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
 
     $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', '200');
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{{$get_domains_response->_embedded->items[0]->uuid}}/actions/associate")->willReturn($associate_response);
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[1]->uuid}/email/domains/{{$get_domains_response->_embedded->items[1]->uuid}}/actions/associate")->willReturn($associate_response);
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")->willReturn($associate_response);
+    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[1]->uuid}/email/domains/{$get_domains_response->_embedded->items[1]->uuid}/actions/associate")->willReturn($associate_response);
 
     $environment_response_app_1 = $this->getMockEnvironmentsResponse();
     $environment_response_app_2 = $environment_response_app_1;
@@ -337,15 +380,20 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->clientProphecy->request('post', "/environments/{$environment_response_app_2->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
 
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
+    $this->prophet->checkPredictions();
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString("You're all set to start using Platform Email!", $output);
 
   }
 
   public function testConfigurePlatformEmailNoApps(): void {
-    $base_domain = 'https://www.test.com';
+    $local_machine_helper = $this->mockLocalMachineHelper();
+    $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
+
+    $base_domain = 'test.com';
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
@@ -379,8 +427,14 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
 
+    $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.json')->shouldBeCalled();
+    $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
+
+    $mock_file_system->dumpFile('dns-records.zone', self::ZONE_TEST_OUTPUT)->shouldBeCalled();
     $applications_response = $this->mockApplicationsRequest();
 
+    $this->command->localMachineHelper = $local_machine_helper->reveal();
     try {
       $this->executeCommand([], $inputs);
     }
@@ -389,11 +443,12 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     }
 
     $output = $this->getDisplay();
+    $this->prophet->checkPredictions();
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
   public function testConfigurePlatformEmailWithNoDomainMatch(): void {
-    $base_domain = 'www.test.com';
+    $base_domain = 'test.com';
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
@@ -428,10 +483,12 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $this->assertStringContainsString("Could not find domain", $exception->getMessage());
     }
 
+    $this->prophet->checkPredictions();
+
   }
 
   public function testConfigurePlatformEmailWithErrorRetrievingDomainHealth(): void {
-    $base_domain = 'www.test.com';
+    $base_domain = 'test.com';
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
@@ -469,6 +526,8 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
       $this->assertStringContainsString("Could not retrieve DNS records for this domain", $exception->getMessage());
     }
 
+    $this->prophet->checkPredictions();
+
   }
 
   /**
@@ -478,48 +537,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
-    $json_file_output = '[
-    {
-        "type": "TXT",
-        "name": "_amazonses.example.com",
-        "value": "AB/CD4Hef1+c0D7+wYS2xQ+EBr3HZiXRWDJHrjEWOhs="
-    },
-    {
-        "type": "TXT",
-        "name": "_acquiaplatform.example.com",
-        "value": "aGh54oW35sd5LMGhas1fWrnRrticnsdndf,43="
-    },
-    {
-        "type": "MX",
-        "name": "mail.example.com",
-        "value": "10 feedback-smtp.us-east-1.amazonses.com"
-    },
-    {
-        "type": "TXT",
-        "name": "mail.example.com",
-        "value": "v=spf1 include:amazonses.com ~all"
-    },
-    {
-        "type": "CNAME",
-        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-    },
-    {
-        "type": "CNAME",
-        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-    },
-    {
-        "type": "CNAME",
-        "name": "abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com",
-        "value": "abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com"
-    }
-]';
-
     $inputs =
       [
         // What's the domain name you'd like to register?
-        'www.test.com',
+        'test.com',
         // Please select a Cloud Platform subscription
         '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
@@ -552,7 +573,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $mock_file_system->remove('dns-records.yaml')->shouldBeCalled();
     $mock_file_system->remove('dns-records.json')->shouldBeCalled();
     $mock_file_system->remove('dns-records.zone')->shouldBeCalled();
-    $mock_file_system->dumpFile('dns-records.json', $json_file_output)->shouldBeCalled();
+    $mock_file_system->dumpFile('dns-records.json', self::JSON_TEST_OUTPUT)->shouldBeCalled();
     $applications_response = $this->mockApplicationsRequest();
 
     $app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
@@ -574,61 +595,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $this->assertEquals('0', $this->getStatusCode());
     $this->assertStringContainsString('all set', $output);
-  }
-
-  /**
-   * Tests the 'email:configure' command when associating a domain with an application throws an API error.
-   *
-   * @dataProvider providerTestConfigurePlatformEmailAddDomain
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function testConfigurePlatformEmailWithAlreadyAssociatedDomains($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
-    $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
-      ->shouldBeCalledTimes(1);
-
-    $post_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'post', '200');
-    $this->clientProphecy->request('post', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains", [
-      'form_params' => [
-        'domain' => $base_domain,
-      ],
-    ])->willReturn($post_domains_response);
-
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $get_domains_response->_embedded->items[0]->domain_name = 'example.com';
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
-
-    $domains_registration_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '200');
-    $domains_registration_response_200 = $domains_registration_response;
-    $domains_registration_response_200->health->code = '200';
-
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_200);
-
-    $applications_response = $this->mockApplicationsRequest();
-
-    $app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
-    $app_domains_response->_embedded->items[0]->domain_name = 'example.com';
-    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn($app_domains_response->_embedded->items);
-    // We need the application to belong to the subscription.
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
-
-    $associate_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains/{domainRegistrationUuid}/actions/associate', 'post', $response_code);
-
-    $this->clientProphecy->request('post', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains/{$get_domains_response->_embedded->items[0]->uuid}/actions/associate")
-      ->willThrow(new ApiErrorException($associate_response->{$spec_key}->value));
-
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $enable_response = $this->getMockResponseFromSpec('/environments/{environmentId}/email/actions/enable', 'post', '200');
-    $this->clientProphecy->request('post', "/environments/{$environments_response->_embedded->items[0]->id}/email/actions/enable")->willReturn($enable_response);
-
-    $this->executeCommand([], $inputs);
-    $output = $this->getDisplay();
-    $this->assertEquals($expected_exit_code, $this->getStatusCode());
-    foreach ($expected_text as $text) {
-      $this->assertStringContainsString($text, $output);
-    }
   }
 
   /**
@@ -681,6 +647,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
+    $this->prophet->checkPredictions();
     $this->assertEquals($expected_exit_code, $this->getStatusCode());
     foreach ($expected_text as $text) {
       $this->assertStringContainsString($text, $output);
