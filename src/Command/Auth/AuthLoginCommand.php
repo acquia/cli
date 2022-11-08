@@ -61,7 +61,7 @@ class AuthLoginCommand extends CommandBase {
       if ($selected_key['uuid'] !== 'create_new') {
         $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
         $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
-        $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri());
+        $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
         return 0;
       }
     }
@@ -69,7 +69,7 @@ class AuthLoginCommand extends CommandBase {
     $this->promptOpenBrowserToCreateToken($input);
     $api_key = $this->determineApiKey($input);
     $api_secret = $this->determineApiSecret($input);
-    $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri());
+    $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
     $this->writeApiCredentialsToDisk($api_key, $api_secret);
     $output->writeln("<info>Saved credentials</info>");
 

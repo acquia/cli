@@ -3,7 +3,6 @@
 namespace Acquia\Cli\AcsfApi;
 
 use AcquiaCloudApi\Connector\Connector;
-use AcquiaCloudApi\Connector\ConnectorInterface;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Message\ResponseInterface;
 
@@ -15,15 +14,13 @@ class AcsfConnector extends Connector {
   /**
    * @param array $config
    * @param string|null $base_uri
+   * @param string|null $url_access_token
    */
-  public function __construct(array $config, string $base_uri = NULL) {
-    $this->baseUri = ConnectorInterface::BASE_URI;
-    if ($base_uri) {
-      $this->baseUri = $base_uri;
-    }
+  public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
+    parent::__construct($config, $base_uri, $url_access_token);
 
     $this->client = new GuzzleClient([
-      'base_uri' => $this->baseUri,
+      'base_uri' => $this->getBaseUri(),
       'auth' => [
         $config['key'],
         $config['secret'],

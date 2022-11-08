@@ -10,16 +10,19 @@ class ConnectorFactory implements ConnectorFactoryInterface {
 
   protected array $config;
   protected ?string $baseUri;
+  protected ?string $accountsUri;
 
   /**
    * ConnectorFactory constructor.
    *
    * @param array $config
    * @param string|null $base_uri
+   * @param string|null $accounts_uri
    */
-  public function __construct(array $config, string $base_uri = NULL) {
+  public function __construct(array $config, ?string $base_uri = NULL, ?string $accounts_uri = NULL) {
     $this->config = $config;
     $this->baseUri = $base_uri;
+    $this->accountsUri = $accounts_uri;
   }
 
   /**
@@ -28,7 +31,7 @@ class ConnectorFactory implements ConnectorFactoryInterface {
   public function createConnector(): Connector|AccessTokenConnector {
     // A defined key & secret takes priority.
     if ($this->config['key'] && $this->config['secret']) {
-      return new Connector($this->config, $this->baseUri);
+      return new Connector($this->config, $this->baseUri, $this->accountsUri);
     }
 
     // Fall back to a valid access token.
@@ -40,12 +43,12 @@ class ConnectorFactory implements ConnectorFactoryInterface {
           'access_token' => $access_token,
           'key' => NULL,
           'secret' => NULL,
-        ], $this->baseUri);
+        ], $this->baseUri, $this->accountsUri);
       }
     }
 
     // Fall back to an unauthenticated request.
-    return new Connector($this->config, $this->baseUri);
+    return new Connector($this->config, $this->baseUri, $this->accountsUri);
   }
 
   /**
