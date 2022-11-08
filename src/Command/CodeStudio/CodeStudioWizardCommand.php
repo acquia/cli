@@ -54,7 +54,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
-    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri());
+    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
     $appUuid = $this->determineCloudApplication();
 
     // Get Cloud account.

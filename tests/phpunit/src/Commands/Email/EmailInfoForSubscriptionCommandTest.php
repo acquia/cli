@@ -23,6 +23,15 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
   }
 
   /**
+   * @throws \JsonException
+   */
+  public function setUp($output = NULL): void {
+    parent::setUp($output);
+    $this->setupFsFixture();
+    $this->command = $this->createCommand();
+  }
+
+  /**
    * Tests the 'email:info' command.
    *
    * @throws \Exception
