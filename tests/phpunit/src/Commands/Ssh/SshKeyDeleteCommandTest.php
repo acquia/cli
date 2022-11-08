@@ -23,12 +23,12 @@ class SshKeyDeleteCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:upload' command.
-   * @throws \Psr\Cache\InvalidArgumentException
+   *
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function testDelete(): void {
 
     $ssh_key_list_response = $this->mockListSshKeysRequest();
-
     $response = $this->prophet->prophesize(ResponseInterface::class);
     $response->getStatusCode()->willReturn(202);
     $this->getMockResponseFromSpec('/account/ssh-keys/{sshKeyUuid}', 'delete', '202');

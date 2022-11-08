@@ -86,7 +86,7 @@ abstract class CommandTestBase extends TestBase {
    * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
-    $cwd = $this->projectFixtureDir;
+    $cwd = $this->projectDir;
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);
     $command_name = $this->command->getName();
@@ -179,12 +179,12 @@ abstract class CommandTestBase extends TestBase {
     }
   }
 
-  protected function getTargetGitConfigFixture() {
-    return Path::join($this->fixtureDir, 'project', '.git', 'config');
+  protected function getTargetGitConfigFixture(): string {
+    return Path::join($this->projectDir, '.git', 'config');
   }
 
-  protected function getSourceGitConfigFixture() {
-    return Path::join($this->fixtureDir, 'git_config');
+  protected function getSourceGitConfigFixture(): string {
+    return Path::join($this->realFixtureDir, 'git_config');
   }
 
   /**
@@ -192,7 +192,6 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function createMockGitConfigFile(): void {
     // Create mock git config file.
-    $this->fs->remove([$this->getTargetGitConfigFixture()]);
     $this->fs->copy($this->getSourceGitConfigFixture(), $this->getTargetGitConfigFixture());
   }
 
@@ -268,7 +267,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function mockGetAcsfSites($ssh_helper): void {
     $acsf_multisite_fetch_process = $this->mockProcess();
-    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->fixtureDir,
+    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->realFixtureDir,
       '/multisite-config.json')))->shouldBeCalled();
     $ssh_helper->executeCommand(
       Argument::type('object'),
@@ -315,11 +314,12 @@ abstract class CommandTestBase extends TestBase {
    * @param object $environments_response
    *
    * @return array
+   * @throws \JsonException
    */
   protected function mockAcsfDatabasesResponse(
-    $environments_response
-  ) {
-    $databases_response = json_decode(file_get_contents(Path::join($this->fixtureDir, '/acsf_db_response.json')));
+    object $environments_response
+  ): array {
+    $databases_response = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
     $this->clientProphecy->request('get',
       "/environments/{$environments_response->id}/databases")
       ->willReturn($databases_response)
@@ -532,7 +532,7 @@ abstract class CommandTestBase extends TestBase {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->projectFixtureDir,
+      $this->projectDir,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,

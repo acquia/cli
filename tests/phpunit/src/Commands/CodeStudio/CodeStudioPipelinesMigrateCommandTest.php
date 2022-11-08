@@ -8,6 +8,7 @@ use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Gitlab\Client;
+use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
@@ -89,6 +90,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
+    vfsStream::newFile('acquia-pipelines.yml')->at($this->vfsProject)->withContent(file_get_contents($this->realProjectFixtureDir . '/acquia-pipelines.yml'));
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
@@ -110,7 +112,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
-    $gitlab_ci_yml_file_path = $this->projectFixtureDir . '/.gitlab-ci.yml';
+    $gitlab_ci_yml_file_path = $this->projectDir . '/.gitlab-ci.yml';
     $this->assertFileExists($gitlab_ci_yml_file_path);
     // @todo Assert things about skips. Composer install, BLT, launch_ode.
     $contents = Yaml::parseFile($gitlab_ci_yml_file_path);

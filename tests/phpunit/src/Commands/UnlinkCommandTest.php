@@ -44,7 +44,7 @@ class UnlinkCommandTest extends CommandTestBase {
 
     // Assert it's been unset.
     $this->assertNull($this->datastoreAcli->get('cloud_app_uuid'));
-    $this->assertStringContainsString("Unlinked {$this->projectFixtureDir} from Cloud application " . $cloud_application->name, $output);
+    $this->assertStringContainsString("Unlinked {$this->projectDir} from Cloud application " . $cloud_application->name, $output);
   }
 
   public function testUnlinkCommandInvalidDir(): void {

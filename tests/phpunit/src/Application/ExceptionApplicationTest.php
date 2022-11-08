@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
 use org\bovigo\vfs\vfsStream;
-use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -16,16 +15,20 @@ use Symfony\Component\Filesystem\Path;
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 
-  public function setUp($output = NULL): void {
-    vfsStream::newFile('composer.json')
-      ->at($this->root)
-      ->withContent(file_get_contents(Path::join($this->realFixtureDir, 'composer.json')));
-  }
-
   /**
    * @throws \Exception
    */
   public function testPreScripts(): void {
+    $json = [
+      'scripts' => [
+        'pre-acli-hello-world' => [
+          'echo "good morning world"'
+        ]
+      ]
+    ];
+    vfsStream::newFile('composer.json')
+      ->at($this->vfsProject)
+      ->withContent(json_encode($json, JSON_THROW_ON_ERROR));
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',
@@ -38,6 +41,16 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    * @throws \Exception
    */
   public function testPostScripts(): void {
+    $json = [
+      'scripts' => [
+        'post-acli-hello-world' => [
+          'echo "goodbye world"'
+        ]
+      ]
+    ];
+    vfsStream::newFile('composer.json')
+      ->at($this->vfsProject)
+      ->withContent(json_encode($json, JSON_THROW_ON_ERROR));
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',
