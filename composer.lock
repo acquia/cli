@@ -753,16 +753,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.4.1",
+            "version": "2.4.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "69568e4293f4fa993f3b0e51c9723e1e17c41379"
+                "reference": "67c26b443f348a51926030c83481b85718457d3d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/69568e4293f4fa993f3b0e51c9723e1e17c41379",
-                "reference": "69568e4293f4fa993f3b0e51c9723e1e17c41379",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/67c26b443f348a51926030c83481b85718457d3d",
+                "reference": "67c26b443f348a51926030c83481b85718457d3d",
                 "shasum": ""
             },
             "require": {
@@ -852,7 +852,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.4.1"
+                "source": "https://github.com/guzzle/psr7/tree/2.4.3"
             },
             "funding": [
                 {
@@ -868,7 +868,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-08-28T14:45:39+00:00"
+            "time": "2022-10-26T14:07:24+00:00"
         },
         {
             "name": "http-interop/http-factory-guzzle",
@@ -6123,16 +6123,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "2.4.0",
+            "version": "2.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "730f5719b8e45cc8fef27ee0a82dd751bf774a7e"
+                "reference": "21b39f16ee36cde4882d7f43af17a347fc2ec11b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/730f5719b8e45cc8fef27ee0a82dd751bf774a7e",
-                "reference": "730f5719b8e45cc8fef27ee0a82dd751bf774a7e",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/21b39f16ee36cde4882d7f43af17a347fc2ec11b",
+                "reference": "21b39f16ee36cde4882d7f43af17a347fc2ec11b",
                 "shasum": ""
             },
             "require": {
@@ -6174,7 +6174,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.4.0"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/2.5.0"
             },
             "funding": [
                 {
@@ -6182,7 +6182,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-08-24T18:38:37+00:00"
+            "time": "2022-11-07T19:20:31+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
