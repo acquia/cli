@@ -90,7 +90,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
-    vfsStream::newFile('acquia-pipelines.yml')->at($this->vfsProject)->withContent(file_get_contents($this->realProjectFixtureDir . '/acquia-pipelines.yml'));
+    vfsStream::newFile('acquia-pipelines.yml')->at($this->vfsProject)->withContent(file_get_contents($this->realFixtureDir . '/acquia-pipelines.yml'));
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);

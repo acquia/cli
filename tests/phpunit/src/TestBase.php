@@ -123,8 +123,6 @@ abstract class TestBase extends TestCase {
 
   protected string $realFixtureDir;
 
-  protected string $realProjectFixtureDir;
-
   /**
    * Filter an applications response in order to simulate query filters.
    *
@@ -208,7 +206,6 @@ abstract class TestBase extends TestCase {
     $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
 
     $this->realFixtureDir = realpath(Path::join(__DIR__, '..', '..', 'fixtures'));
-    $this->realProjectFixtureDir = Path::join($this->realFixtureDir, 'project');
 
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
