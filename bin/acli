@@ -79,7 +79,7 @@ $kernel->boot();
 $container = $kernel->getContainer();
 
 if (!getenv('ACLI_REPO_ROOT')) {
-  putenv("ACLI_REPO_ROOT=" . LocalMachineHelper::getProjectRoot());
+  putenv("ACLI_REPO_ROOT=" . LocalMachineHelper::getProjectDir());
 }
 /** @var Application $application */
 $application = $container->get(Application::class);

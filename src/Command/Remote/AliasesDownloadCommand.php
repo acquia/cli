@@ -103,7 +103,7 @@ class AliasesDownloadCommand extends SshCommand {
     }
     return match ($version) {
       '8' => Path::join($this->localMachineHelper::getHomeDir(), '.drush'),
-      '9' => Path::join($this->getRepoRoot(), 'drush'),
+      '9' => Path::join($this->getProjectDir(), 'drush'),
       default => throw new AcquiaCliException("Unknown Drush version"),
     };
   }

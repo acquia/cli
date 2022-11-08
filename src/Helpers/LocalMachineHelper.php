@@ -327,7 +327,7 @@ class LocalMachineHelper {
    * @return null|string
    *   Root.
    */
-  public static function getProjectRoot(): ?string {
+  public static function getProjectDir(): ?string {
     $possible_project_roots = [
       getcwd(),
     ];

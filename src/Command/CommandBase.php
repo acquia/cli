@@ -97,7 +97,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected CloudCredentials|ApiCredentialsInterface $cloudCredentials;
 
-  protected string $repoRoot;
+  protected string $projectDir;
 
   protected ClientService|ClientServiceInterface $cloudApiClientService;
 
@@ -119,36 +119,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected $drushHasActiveDatabaseConnection;
 
-  /**
-   * @var \GuzzleHttp\Client
-   */
   protected \GuzzleHttp\Client $updateClient;
 
   protected \GuzzleHttp\Client $httpClient;
 
-  /**
-   * CommandBase constructor.
-   *
-   * @param LocalMachineHelper $localMachineHelper
-   * @param CloudDataStore $datastoreCloud
-   * @param AcquiaCliDatastore $datastoreAcli
-   * @param ApiCredentialsInterface $cloudCredentials
-   * @param TelemetryHelper $telemetryHelper
-   * @param string $repoRoot
-   * @param \Acquia\Cli\ClientServiceInterface $cloudApiClientService
-   * @param LogstreamManager $logstreamManager
-   * @param SshHelper $sshHelper
-   * @param string $sshDir
-   * @param \Psr\Log\LoggerInterface $logger
-   * @param \GuzzleHttp\Client $httpClient
-   */
   public function __construct(
     LocalMachineHelper $localMachineHelper,
     CloudDataStore $datastoreCloud,
     AcquiaCliDatastore $datastoreAcli,
     ApiCredentialsInterface $cloudCredentials,
     TelemetryHelper $telemetryHelper,
-    string $repoRoot,
+    string $projectDir,
     ClientServiceInterface $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
@@ -161,7 +142,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
-    $this->repoRoot = $repoRoot;
+    $this->projectDir = $projectDir;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
@@ -182,17 +163,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $repoRoot
+   * @param string $projectDir
    */
-  public function setRepoRoot(string $repoRoot): void {
-    $this->repoRoot = $repoRoot;
+  public function setProjectDir(string $projectDir): void {
+    $this->projectDir = $projectDir;
   }
 
   /**
    * @return string
    */
-  public function getRepoRoot(): string {
-    return $this->repoRoot;
+  public function getProjectDir(): string {
+    return $this->projectDir;
   }
 
   private function setLocalDbUser(): void {
@@ -587,7 +568,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return array|null
    */
   private function getGitConfig(): ?array {
-    $file_path = $this->repoRoot . '/.git/config';
+    $file_path = $this->projectDir . '/.git/config';
     if (file_exists($file_path)) {
       return parse_ini_file($file_path, TRUE);
     }
@@ -715,8 +696,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function inferCloudAppFromLocalGitConfig(
     Client $acquia_cloud_client
     ): ?ApplicationResponse {
-    if ($this->repoRoot && $this->input->isInteractive()) {
-      $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->repoRoot}/.git</>.");
+    if ($this->projectDir && $this->input->isInteractive()) {
+      $this->output->writeln("There is no Cloud Platform application linked to <options=bold>{$this->projectDir}/.git</>.");
       $answer = $this->io->confirm('Would you like Acquia CLI to search for a Cloud application that matches your local git config?');
       if ($answer) {
         $this->output->writeln('Searching for a matching Cloud application...');
@@ -797,7 +778,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $application = $this->getCloudApplication($application_uuid);
     // No point in trying to link a directory that's not a repo.
-    if (!empty($this->repoRoot) && !$this->getCloudUuidFromDatastore()) {
+    if (!empty($this->projectDir) && !$this->getCloudUuidFromDatastore()) {
       if ($prompt_link_app) {
         $this->saveCloudUuidToDatastore($application);
       }
@@ -854,7 +835,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string|null
    */
   protected function getCloudApplicationUuidFromBltYaml(): ?string {
-    $blt_yaml_file_path = Path::join($this->repoRoot, 'blt', 'blt.yml');
+    $blt_yaml_file_path = Path::join($this->projectDir, 'blt', 'blt.yml');
     if (file_exists($blt_yaml_file_path)) {
       $contents = Yaml::parseFile($blt_yaml_file_path);
       if (array_key_exists('cloud', $contents) && array_key_exists('appId', $contents['cloud'])) {
@@ -924,7 +905,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws AcquiaCliException
    */
   protected function validateCwdIsValidDrupalProject(): void {
-    if (!$this->repoRoot) {
+    if (!$this->projectDir) {
       throw new AcquiaCliException('Could not find a local Drupal project. Looked for `docroot/index.php` in current and parent directories. Please execute this command from within a Drupal project directory.');
     }
   }
@@ -1458,8 +1439,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     if ($input->hasOption('dir') && $dir = $input->getOption('dir')) {
       $this->dir = $dir;
     }
-    elseif ($this->repoRoot) {
-      $this->dir = $this->repoRoot;
+    elseif ($this->projectDir) {
+      $this->dir = $this->projectDir;
     }
     else {
       $this->dir = getcwd();

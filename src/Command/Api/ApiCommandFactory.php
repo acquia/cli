@@ -21,84 +21,37 @@ use Psr\Log\LoggerInterface;
  */
 class ApiCommandFactory implements CommandFactoryInterface {
 
-  /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
   private LocalMachineHelper $localMachineHelper;
 
-  /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
-   */
   private CloudDataStore $datastoreCloud;
 
-  /**
-   * @var \Acquia\Cli\DataStore\YamlStore|\Acquia\Cli\DataStore\AcquiaCliDatastore
-   */
   private YamlStore|AcquiaCliDatastore $datastoreAcli;
 
-  /**
-   * @var CloudCredentials
-   */
   private CloudCredentials $cloudCredentials;
 
-  /**
-   * @var \Acquia\Cli\Helpers\TelemetryHelper
-   */
   private TelemetryHelper $telemetryHelper;
 
-  /**
-   * @var string
-   */
-  private string $repoRoot;
+  private string $projectDir;
 
-  /**
-   * @var \Acquia\Cli\CloudApi\ClientService|\Acquia\Cli\AcsfApi\AcsfClientService
-   */
   private ClientService|AcsfClientService $cloudApiClientService;
 
-  /**
-   * @var \AcquiaLogstream\LogstreamManager
-   */
   private LogstreamManager $logstreamManager;
 
-  /**
-   * @var \Acquia\Cli\Helpers\SshHelper
-   */
   private SshHelper $sshHelper;
 
-  /**
-   * @var string
-   */
   private string $sshDir;
 
-  /**
-   * @var \Psr\Log\LoggerInterface
-   */
   private LoggerInterface $logger;
 
   private Client $httpClient;
 
-  /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
-   * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
-   * @param \Acquia\Cli\CloudApi\CloudCredentials $cloudCredentials
-   * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param string $repoRoot
-   * @param \Acquia\Cli\CloudApi\ClientService $cloudApiClientService
-   * @param \AcquiaLogstream\LogstreamManager $logstreamManager
-   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
-   * @param string $sshDir
-   * @param \Psr\Log\LoggerInterface $logger
-   * @param \GuzzleHttp\Client $httpClient
-   */
   public function __construct(
     LocalMachineHelper $localMachineHelper,
     CloudDataStore $datastoreCloud,
     AcquiaCliDatastore $datastoreAcli,
     CloudCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
-    string $repoRoot,
+    string $projectDir,
     ClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
@@ -111,7 +64,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
     $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
-    $this->repoRoot = $repoRoot;
+    $this->projectDir = $projectDir;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
@@ -120,9 +73,6 @@ class ApiCommandFactory implements CommandFactoryInterface {
     $this->httpClient = $httpClient;
   }
 
-  /**
-   * @return \Acquia\Cli\Command\Api\ApiBaseCommand
-   */
   public function createCommand(): ApiBaseCommand {
     return new ApiBaseCommand(
       $this->localMachineHelper,
@@ -130,7 +80,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->repoRoot,
+      $this->projectDir,
       $this->cloudApiClientService,
       $this->logstreamManager,
       $this->sshHelper,
@@ -150,7 +100,7 @@ class ApiCommandFactory implements CommandFactoryInterface {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->repoRoot,
+      $this->projectDir,
       $this->cloudApiClientService,
       $this->logstreamManager,
       $this->sshHelper,

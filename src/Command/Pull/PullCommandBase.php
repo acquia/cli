@@ -770,8 +770,8 @@ abstract class PullCommandBase extends CommandBase {
       return TRUE;
     }
 
-    // If $this->repoRoot is set, pull into that dir rather than cloning.
-    if ($this->repoRoot) {
+    // If $this->projectDir is set, pull into that dir rather than cloning.
+    if ($this->projectDir) {
       return FALSE;
     }
 
@@ -809,7 +809,7 @@ abstract class PullCommandBase extends CommandBase {
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
-    $this->repoRoot = $this->dir;
+    $this->projectDir = $this->dir;
   }
 
   /**
