@@ -1,6 +1,6 @@
 <?php
 
-namespace Acquia\Cli\Tests\Commands;
+namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\UnlinkCommand;
 use Acquia\Cli\Tests\CommandTestBase;
@@ -44,7 +44,7 @@ class UnlinkCommandTest extends CommandTestBase {
 
     // Assert it's been unset.
     $this->assertNull($this->datastoreAcli->get('cloud_app_uuid'));
-    $this->assertStringContainsString("Unlinked {$this->projectDir} from Cloud application " . $cloud_application->name, $output);
+    $this->assertStringContainsString("Unlinked $this->projectDir from Cloud application " . $cloud_application->name, $output);
   }
 
   public function testUnlinkCommandInvalidDir(): void {
@@ -52,7 +52,7 @@ class UnlinkCommandTest extends CommandTestBase {
       $this->executeCommand([], []);
     }
     catch (Exception $exception) {
-      $this->assertStringContainsString('There is no Cloud Platform application linked to', $exception->getMessage());
+      $this->assertStringContainsString('There is no Cloud Platform application linked to ' . $this->projectDir, $exception->getMessage());
     }
   }
 
