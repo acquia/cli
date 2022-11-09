@@ -26,7 +26,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
 
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function testPushDatabase(): void {
     $applications_response = $this->mockApplicationsRequest();

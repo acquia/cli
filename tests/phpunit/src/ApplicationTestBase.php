@@ -38,7 +38,7 @@ class ApplicationTestBase extends TestBase {
    * @throws \Exception
    */
   protected function runApp(): string {
-    putenv("ACLI_REPO_ROOT=" . $this->projectFixtureDir);
+    putenv("ACLI_REPO_ROOT=" . $this->projectDir);
     $input = $this->kernel->getContainer()->get(InputInterface::class);
     $output = $this->kernel->getContainer()->get(OutputInterface::class);
     /** @var Application $application */

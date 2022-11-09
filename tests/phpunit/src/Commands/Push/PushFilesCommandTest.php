@@ -24,10 +24,14 @@ class PushFilesCommandTest extends CommandTestBase {
     return $this->injectCommand(PushFilesCommand::class);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
   public function testPushFilesAcsf(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
+    $this->mockAcsfEnvironmentsRequest($applications_response);
     $ssh_helper = $this->mockSshHelper();
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -116,7 +120,7 @@ class PushFilesCommandTest extends CommandTestBase {
       'rsync',
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $this->projectFixtureDir . '/docroot/sites/default/files/',
+      $this->projectDir . '/docroot/sites/default/files/',
       $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
@@ -137,7 +141,7 @@ class PushFilesCommandTest extends CommandTestBase {
       'rsync',
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $this->projectFixtureDir . '/docroot/sites/default/files/',
+      $this->projectDir . '/docroot/sites/default/files/',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)

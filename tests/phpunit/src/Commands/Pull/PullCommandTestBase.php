@@ -76,7 +76,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         '--yes',
         '--no-interaction',
         '--verbose',
-      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ], Argument::type('callable'), $this->projectDir, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -96,7 +96,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         '--yes',
         '--no-interaction',
         '--verbose',
-      ], Argument::type('callable'), $this->projectFixtureDir, FALSE)
+      ], Argument::type('callable'), $this->projectDir, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
@@ -126,7 +126,7 @@ abstract class PullCommandTestBase extends CommandTestBase {
         'composer',
         'install',
         '--no-interaction',
-      ], Argument::type('callable'), $this->projectFixtureDir, FALSE, NULL)
+      ], Argument::type('callable'), $this->projectDir, FALSE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

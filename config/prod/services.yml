@@ -2,11 +2,11 @@
 parameters:
   env(ACLI_REPO_ROOT): "%kernel.project_dir%"
   app.data_dir: "%env(HOME)%/.acquia"
-  app.repo_root: "%env(ACLI_REPO_ROOT)%"
+  app.project_dir: "%env(ACLI_REPO_ROOT)%"
   app.ssh_dir: "%env(HOME)%/.ssh"
   app.acli_config_filename: '.acquia-cli.yml'
   app.cloud_config_filename: 'cloud_api.conf'
-  app.acli_config_filepath: "%app.repo_root%/%app.acli_config_filename%"
+  app.acli_config_filepath: "%app.project_dir%/%app.acli_config_filename%"
   app.cloud_config_filepath: "%app.data_dir%/%app.cloud_config_filename%"
 
 services:
@@ -17,7 +17,7 @@ services:
       $cloudConfigFilepath: '%app.cloud_config_filepath%'
       $acliConfigFilepath: '%app.acli_config_filepath%'
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
-      $repoRoot: "%app.repo_root%"
+      $projectDir: "%app.project_dir%"
       $sshDir: "%app.ssh_dir%"
     public: true
 

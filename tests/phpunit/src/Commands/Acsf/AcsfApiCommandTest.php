@@ -141,7 +141,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->projectFixtureDir,
+      $this->projectDir,
       $this->clientServiceProphecy->reveal(),
       $this->logStreamManagerProphecy->reveal(),
       $this->sshHelper,

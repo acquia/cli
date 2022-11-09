@@ -59,7 +59,7 @@ class NewCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
-    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);
     $project_key = array_keys($package)[0];
     $project = $package[$project_key];
 
@@ -105,7 +105,7 @@ class NewCommandTest extends CommandTestBase {
    * @throws \Exception
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
-    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectFixtureDir);
+    $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);
     $project_key = array_keys($package)[0];
     $project = $package[$project_key];
 

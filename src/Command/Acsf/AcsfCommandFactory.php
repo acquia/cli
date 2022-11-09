@@ -48,7 +48,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
   /**
    * @var string
    */
-  private string $repoRoot;
+  private string $projectDir;
 
   /**
    * @var \Acquia\Cli\AcsfApi\AcsfClientService
@@ -83,7 +83,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
    * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
    * @param \Acquia\Cli\AcsfApi\AcsfCredentials $cloudCredentials
    * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param string $repoRoot
+   * @param string $projectDir
    * @param \Acquia\Cli\AcsfApi\AcsfClientService $cloudApiClientService
    * @param \AcquiaLogstream\LogstreamManager $logstreamManager
    * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
@@ -97,7 +97,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     AcquiaCliDatastore $datastoreAcli,
     AcsfCredentials $cloudCredentials,
     TelemetryHelper $telemetryHelper,
-    string $repoRoot,
+    string $projectDir,
     AcsfClientService $cloudApiClientService,
     LogstreamManager $logstreamManager,
     SshHelper $sshHelper,
@@ -110,7 +110,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
     $this->telemetryHelper = $telemetryHelper;
-    $this->repoRoot = $repoRoot;
+    $this->projectDir = $projectDir;
     $this->cloudApiClientService = $cloudApiClientService;
     $this->logstreamManager = $logstreamManager;
     $this->sshHelper = $sshHelper;
@@ -129,7 +129,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->repoRoot,
+      $this->projectDir,
       $this->cloudApiClientService,
       $this->logstreamManager,
       $this->sshHelper,
@@ -149,7 +149,7 @@ class AcsfCommandFactory implements CommandFactoryInterface {
       $this->datastoreAcli,
       $this->cloudCredentials,
       $this->telemetryHelper,
-      $this->repoRoot,
+      $this->projectDir,
       $this->cloudApiClientService,
       $this->logstreamManager,
       $this->sshHelper,

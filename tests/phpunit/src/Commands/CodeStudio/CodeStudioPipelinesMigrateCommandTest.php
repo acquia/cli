@@ -11,6 +11,7 @@ use Gitlab\Client;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -89,6 +90,10 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
+    copy(
+      Path::join($this->realFixtureDir, 'acquia-pipelines.yml'),
+      Path::join($this->projectDir, 'acquia-pipelines.yml')
+    );
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
@@ -110,7 +115,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
 
     // Assertions.
     $this->assertEquals(0, $this->getStatusCode());
-    $gitlab_ci_yml_file_path = $this->projectFixtureDir . '/.gitlab-ci.yml';
+    $gitlab_ci_yml_file_path = $this->projectDir . '/.gitlab-ci.yml';
     $this->assertFileExists($gitlab_ci_yml_file_path);
     // @todo Assert things about skips. Composer install, BLT, launch_ode.
     $contents = Yaml::parseFile($gitlab_ci_yml_file_path);

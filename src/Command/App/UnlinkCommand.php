@@ -41,14 +41,14 @@ class UnlinkCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
 
-    $repo_root = $this->repoRoot;
+    $projectDir = $this->projectDir;
     if (!$this->getCloudUuidFromDatastore()) {
-      throw new AcquiaCliException('There is no Cloud Platform application linked to {repo_root}', ['repo_root' => $repo_root]);
+      throw new AcquiaCliException('There is no Cloud Platform application linked to {projectDir}', ['projectDir' => $projectDir]);
     }
 
     $application = $this->getCloudApplication($this->datastoreAcli->get('cloud_app_uuid'));
     $this->datastoreAcli->set('cloud_app_uuid', NULL);
-    $output->writeln("<info>Unlinked <options=bold>$repo_root</> from Cloud application <options=bold>{$application->name}</></info>");
+    $output->writeln("<info>Unlinked <options=bold>$projectDir</> from Cloud application <options=bold>{$application->name}</></info>");
 
     return 0;
   }

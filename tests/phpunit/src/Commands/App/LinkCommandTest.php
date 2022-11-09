@@ -71,7 +71,7 @@ class LinkCommandTest extends CommandTestBase {
    */
   public function testLinkCommandInvalidDir(): void {
     $applications_response = $this->mockApplicationsRequest();
-    $this->command->setRepoRoot('');
+    $this->command->setProjectDir('');
     try {
       $this->executeCommand([], []);
     }

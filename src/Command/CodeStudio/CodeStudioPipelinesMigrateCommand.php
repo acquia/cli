@@ -118,15 +118,15 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
-    $pipelines_filepath_yml = Path::join($this->repoRoot, 'acquia-pipelines.yml');
-    $pipelines_filepath_yaml = Path::join($this->repoRoot, 'acquia-pipelines.yaml');
+    $pipelines_filepath_yml = Path::join($this->projectDir, 'acquia-pipelines.yml');
+    $pipelines_filepath_yaml = Path::join($this->projectDir, 'acquia-pipelines.yaml');
     if ($this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yml) ||
       $this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yaml)
     ) {
       $this->gitLabClient->projects()->update($project['id'], ['ci_config_path' => '']);
       $pipelines_filenames = ['acquia-pipelines.yml', 'acquia-pipelines.yaml'];
       foreach ($pipelines_filenames as $pipelines_filename) {
-        $pipelines_filepath = Path::join($this->repoRoot, $pipelines_filename);
+        $pipelines_filepath = Path::join($this->projectDir, $pipelines_filename);
         if (file_exists($pipelines_filepath)) {
           $file_contents = file_get_contents($pipelines_filepath);
           return [
@@ -325,7 +325,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Creating .gitlab-ci.yml file.
    */
   private function createGitLabCiFile(array $contents,$acquia_pipelines_file_name): void {
-    $gitlab_ci_filepath = Path::join($this->repoRoot, '.gitlab-ci.yml');
+    $gitlab_ci_filepath = Path::join($this->projectDir, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($acquia_pipelines_file_name);
   }

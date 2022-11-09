@@ -29,7 +29,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
+   * @throws \Exception
    */
   public function testCloneRepo(): void {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
@@ -43,8 +44,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-    $dir = Path::join($this->fixtureDir, 'empty-dir');
-    $this->fs->mkdir([$dir]);
+    $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
+    mkdir($dir);
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $this->mockExecuteGitClone($local_machine_helper, $selected_environment, $process, $dir);
     $this->mockExecuteGitCheckout($local_machine_helper, $selected_environment->vcs->path, $dir, $process);
@@ -69,6 +70,12 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testPullCode(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -83,8 +90,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -109,6 +116,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testPullCodeDirtyRepo(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -122,8 +134,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -146,6 +158,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     }
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testPullCodeGitStatusFail(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -159,8 +176,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -184,7 +201,14 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testWithScripts(): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -198,13 +222,13 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectFixtureDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
+    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
     $process = $this->mockProcess();
     $this->mockExecuteComposerExists($local_machine_helper);
     $this->mockExecuteComposerInstall($local_machine_helper, $process);
     $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectFixtureDir);
+    $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectDir);
     $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
 
     $inputs = [
@@ -238,7 +262,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestMatchPhpVersion
-   * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException|\JsonException
    */
   public function testMatchPhpVersion(string $php_version): void {
     IdeHelper::setCloudIdeEnvVars();
@@ -300,9 +324,9 @@ class PullCodeCommandTest extends PullCommandTestBase {
    */
   protected function mockExecuteGitClone(
     ObjectProphecy $local_machine_helper,
-    $environments_response,
+    object $environments_response,
     ObjectProphecy $process,
-    $dir
+                   $dir
   ): void {
     $command = [
       'git',

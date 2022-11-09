@@ -59,7 +59,7 @@ class ComposerScriptsListener {
     }
     // Only successful commands should be executed.
     if (is_a($command, CommandBase::class)) {
-      $composer_json_filepath = Path::join($command->getRepoRoot(), 'composer.json');
+      $composer_json_filepath = Path::join($command->getProjectDir(), 'composer.json');
       if (file_exists($composer_json_filepath)) {
         $composer_json = json_decode($command->localMachineHelper->readFile($composer_json_filepath), TRUE, 512, JSON_THROW_ON_ERROR);
         // Protect against invalid JSON.

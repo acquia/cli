@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -14,7 +15,21 @@ use Acquia\Cli\Tests\ApplicationTestBase;
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 
+  /**
+   * @throws \Exception
+   */
   public function testPreScripts(): void {
+    $json = [
+      'scripts' => [
+        'pre-acli-hello-world' => [
+          'echo "good morning world"'
+        ]
+      ]
+    ];
+    file_put_contents(
+      Path::join($this->projectDir, 'composer.json'),
+      json_encode($json, JSON_THROW_ON_ERROR)
+    );
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',
@@ -23,7 +38,21 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('pre-acli-hello-world', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testPostScripts(): void {
+    $json = [
+      'scripts' => [
+        'post-acli-hello-world' => [
+          'echo "goodbye world"'
+        ]
+      ]
+    ];
+    file_put_contents(
+      Path::join($this->projectDir, 'composer.json'),
+      json_encode($json, JSON_THROW_ON_ERROR)
+    );
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',
@@ -32,6 +61,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('post-acli-hello-world', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testInvalidApiCreds(): void {
     $this->setInput([
       'command' => 'aliases',
@@ -43,6 +75,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Your Cloud Platform API credentials are invalid.', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testApiError(): void {
     $this->setInput([
       'command' => 'aliases',
@@ -53,6 +88,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     self::assertStringContainsString('Cloud Platform API returned an error:', $buffer);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testNoAvailableIdes(): void {
     $this->setInput([
       'command' => 'aliases',

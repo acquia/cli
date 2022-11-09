@@ -27,8 +27,12 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
    */
   public function testPushArtifact(): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -59,8 +63,12 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
    */
   public function testPushTagArtifact(): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -90,12 +98,18 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
-  public function testPushArtifactWithAcquiaCliFile() {
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
+   */
+  public function testPushArtifactWithAcquiaCliFile(): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $this->mockEnvironmentsRequest($applications_response);
     $this->datastoreAcli->set('push.artifact.destination-git-urls', [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
@@ -114,13 +128,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
   /**
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testPushArtifactWithArgs() {
+  public function testPushArtifactWithArgs(): void {
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $this->mockEnvironmentsRequest($applications_response);
     $destination_git_urls = [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',
@@ -153,8 +169,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $commit_hash = 'abc123';
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectFixtureDir);
-    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectFixtureDir, $commit_hash);
+    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
+    $this->mockGetLocalCommitHash($local_machine_helper, $this->projectDir, $commit_hash);
     $this->mockCloneShallow($local_machine_helper, $vcs_path, $vcs_urls[0], $artifact_dir);
     $this->mockLocalGitConfig($local_machine_helper, $artifact_dir);
     $this->mockComposerInstall($local_machine_helper, $artifact_dir);
@@ -245,7 +261,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
         ]
       ]
     ]);
-    $local_machine_helper->readFile(Path::join($this->projectFixtureDir, 'composer.json'))
+    $local_machine_helper->readFile(Path::join($this->projectDir, 'composer.json'))
       ->willReturn($composer_json);
     $local_machine_helper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json'))
       ->willReturn($composer_json);

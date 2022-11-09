@@ -409,7 +409,7 @@ class ApiCommandTest extends CommandTestBase {
     $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('api:applications:find');
-    $blt_config_file_path = Path::join($this->projectFixtureDir, 'blt', 'blt.yml');
+    $blt_config_file_path = Path::join($this->projectDir, 'blt', 'blt.yml');
     $this->fs->dumpFile($blt_config_file_path, Yaml::dump(['cloud' => ['appId' => $mock_body->uuid]]));
     $this->executeCommand();
     $this->prophet->checkPredictions();
