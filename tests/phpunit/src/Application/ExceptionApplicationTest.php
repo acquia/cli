@@ -3,7 +3,7 @@
 namespace Acquia\Cli\Tests\Application;
 
 use Acquia\Cli\Tests\ApplicationTestBase;
-use org\bovigo\vfs\vfsStream;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Tests exceptions rewritten by the Symfony Event Dispatcher.
@@ -26,9 +26,10 @@ class ExceptionApplicationTest extends ApplicationTestBase {
         ]
       ]
     ];
-    vfsStream::newFile('composer.json')
-      ->at($this->vfsProject)
-      ->withContent(json_encode($json, JSON_THROW_ON_ERROR));
+    file_put_contents(
+      Path::join($this->projectDir, 'composer.json'),
+      json_encode($json, JSON_THROW_ON_ERROR)
+    );
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',
@@ -48,9 +49,10 @@ class ExceptionApplicationTest extends ApplicationTestBase {
         ]
       ]
     ];
-    vfsStream::newFile('composer.json')
-      ->at($this->vfsProject)
-      ->withContent(json_encode($json, JSON_THROW_ON_ERROR));
+    file_put_contents(
+      Path::join($this->projectDir, 'composer.json'),
+      json_encode($json, JSON_THROW_ON_ERROR)
+    );
     $this->mockAccountRequest();
     $this->setInput([
           'command' => 'hello-world',

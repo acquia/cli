@@ -204,8 +204,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Create a mock LocalMachineHelper.
-   *
-   * @return ObjectProphecy|LocalMachineHelper
    */
   protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
     $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);

@@ -8,10 +8,10 @@ use Acquia\Cli\Tests\Commands\Ide\IdeRequiredTestTrait;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Gitlab\Client;
-use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -90,7 +90,10 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
-    vfsStream::newFile('acquia-pipelines.yml')->at($this->vfsProject)->withContent(file_get_contents($this->realFixtureDir . '/acquia-pipelines.yml'));
+    copy(
+      Path::join($this->realFixtureDir, 'acquia-pipelines.yml'),
+      Path::join($this->projectDir, 'acquia-pipelines.yml')
+    );
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);

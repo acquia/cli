@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Push;
 
 use Acquia\Cli\Command\Push\PushArtifactCommand;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
-use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
@@ -32,8 +31,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPushArtifact(): void {
-    vfsStream::newFile('composer.json')->at($this->vfsProject);
-    vfsStream::newDirectory('docroot')->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -68,8 +67,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPushTagArtifact(): void {
-    vfsStream::newFile('composer.json')->at($this->vfsProject);
-    vfsStream::newDirectory('docroot')->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
@@ -105,8 +104,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testPushArtifactWithAcquiaCliFile(): void {
-    vfsStream::newFile('composer.json')->at($this->vfsProject);
-    vfsStream::newDirectory('docroot')->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -132,13 +131,12 @@ class PushArtifactCommandTest extends PullCommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPushArtifactWithArgs(): void {
-    vfsStream::newFile('composer.json')->at($this->vfsProject);
-    vfsStream::newDirectory('docroot')->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
+    mkdir(Path::join($this->projectDir, 'docroot'));
     $this->mockApplicationsRequest();
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $this->mockEnvironmentsRequest($applications_response);
     $destination_git_urls = [
       'https://github.com/example1/cli.git',
       'https://github.com/example2/cli.git',

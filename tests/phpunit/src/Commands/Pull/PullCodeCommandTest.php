@@ -6,10 +6,10 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
-use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -44,7 +44,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-    $dir = vfsStream::newDirectory('empty-dir')->at($this->vfsRoot)->url();
+    $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
+    mkdir($dir);
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $this->mockExecuteGitClone($local_machine_helper, $selected_environment, $process, $dir);
     $this->mockExecuteGitCheckout($local_machine_helper, $selected_environment->vcs->path, $dir, $process);
@@ -207,7 +208,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testWithScripts(): void {
-    vfsStream::newFile('composer.json')->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);

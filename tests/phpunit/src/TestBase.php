@@ -115,12 +115,6 @@ abstract class TestBase extends TestCase {
 
   protected vfsStreamDirectory $vfsRoot;
 
-  protected vfsStreamDirectory $vfsData;
-
-  protected vfsStreamDirectory $vfsProject;
-
-  protected vfsStreamDirectory $vfsSsh;
-
   protected string $realFixtureDir;
 
   /**
@@ -190,12 +184,9 @@ abstract class TestBase extends TestCase {
     $this->setIo();
 
     $this->vfsRoot = vfsStream::setup();
-    $this->vfsData = vfsStream::newDirectory('data')->at($this->vfsRoot);
-    $this->vfsProject = vfsStream::newDirectory('project')->at($this->vfsRoot);
-    $this->vfsSsh = vfsStream::newDirectory('ssh')->at($this->vfsRoot);
-    $this->dataDir = $this->vfsData->url();
-    $this->projectDir = $this->vfsProject->url();
-    $this->sshDir = $this->vfsSsh->url();
+    $this->projectDir = vfsStream::newDirectory('project')->at($this->vfsRoot)->url();
+    $this->sshDir = vfsStream::newDirectory('ssh')->at($this->vfsRoot)->url();
+    $this->dataDir = vfsStream::newDirectory('data')->at($this->vfsRoot)->url();
     $this->cloudConfigFilepath = Path::join($this->dataDir, 'cloud_api.conf');
     $this->acliConfigFilename = '.acquia-cli.yml';
     $this->acliConfigFilepath = Path::join($this->projectDir, $this->acliConfigFilename);

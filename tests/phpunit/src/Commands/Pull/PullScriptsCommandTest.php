@@ -3,8 +3,8 @@
 namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Command\Pull\PullScriptsCommand;
-use org\bovigo\vfs\vfsStream;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class PullScriptsCommandTest.
@@ -22,8 +22,7 @@ class PullScriptsCommandTest extends PullCommandTestBase {
   }
 
   public function testRefreshScripts(): void {
-    vfsStream::newFile('composer.json')
-      ->at($this->vfsProject);
+    touch(Path::join($this->projectDir, 'composer.json'));
     $local_machine_helper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
 

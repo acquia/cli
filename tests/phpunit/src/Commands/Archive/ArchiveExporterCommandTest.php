@@ -4,11 +4,11 @@ namespace Acquia\Cli\Tests\Commands\Archive;
 
 use Acquia\Cli\Command\Archive\ArchiveExportCommand;
 use Acquia\Cli\Tests\Commands\Pull\PullCommandTestBase;
-use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -30,8 +30,8 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
    * @throws \Exception
    */
   public function testArchiveExport(): void {
-    vfsStream::newFile('.gitignore')->at($this->vfsProject);
-    $destination_dir = sys_get_temp_dir();
+    touch(Path::join($this->projectDir, '.gitignore'));
+    $destination_dir = 'foo';
     $local_machine_helper = $this->mockLocalMachineHelper();
     $file_system = $this->mockFileSystem($destination_dir);
     $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
@@ -58,6 +58,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     $output = $this->getDisplay();
 
     self::assertStringContainsString('An archive of your Drupal application was created at', $output);
+    self::assertStringContainsString('foo/acli-archive-project-', $output);
   }
 
   /**
