@@ -44,8 +44,8 @@ jobs:
       - name: Get Jira issue
         id: get-issue
         run: |
-          if [[ $ISSUE_TITLE =~ ^(CLI-\d*): ]]; then
-              echo ::set-output name=issue::${BASH_REMATCH[1])
+          if [[ "$ISSUE_TITLE" =~ ^(CLI-[0-9]+): ]]; then
+              echo ::set-output name=issue::${BASH_REMATCH[1]}
           fi
       - name: Login
         if: steps.get-issue.outputs.issue
