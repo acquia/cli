@@ -22,7 +22,7 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
-        "bugsnag/bugsnag-symfony": "^1.6",
+        "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
         "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",

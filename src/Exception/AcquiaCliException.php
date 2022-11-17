@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Exception;
 
+use Bugsnag\Client;
+use Bugsnag\Handler;
 use Exception;
 use Zumba\Amplitude\Amplitude;
 
@@ -42,6 +44,11 @@ class AcquiaCliException extends Exception {
       'code' => $code
     ];
     Amplitude::getInstance()->queueEvent('Threw exception', $event_properties);
+    // It's safe-ish to make this key public.
+    // @see https://github.com/bugsnag/bugsnag-js/issues/595
+    $bugsnag = Client::make('7b8b2f87d710e3ab29ec0fd6d9ca0474');
+    Handler::register($bugsnag);
+    $bugsnag->notifyException(new \RuntimeException("Test error"));
 
     parent::__construct($this->interpolateString($message, $replacements), $code);
   }
