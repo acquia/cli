@@ -1,4 +1,7 @@
 {
+    "bugsnag/bugsnag-symfony": {
+        "version": "v1.13.0"
+    },
     "phpunit/phpunit": {
         "version": "9.5",
         "recipe": {
