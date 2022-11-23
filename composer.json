@@ -19,8 +19,10 @@
     },
     "require": {
         "php": "^8.0",
+        "ext-iconv": "*",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
+        "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
         "consolidation/self-update": "^2.0.3",
         "cweagans/composer-patches": "^1.7",
@@ -54,8 +56,7 @@
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.5.0",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "zumba/amplitude-php": "^1.0.4",
-        "ext-iconv": "*"
+        "zumba/amplitude-php": "^1.0.4"
     },
     "require-dev": {
         "acquia/coding-standards": "^1",
