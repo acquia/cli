@@ -48,7 +48,7 @@ class AcquiaCliException extends Exception {
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
     $bugsnag = Client::make('7b8b2f87d710e3ab29ec0fd6d9ca0474');
     Handler::register($bugsnag);
-    $bugsnag->notifyException(new \RuntimeException("Test error"));
+    $bugsnag->notifyException(new \RuntimeException($message));
 
     parent::__construct($this->interpolateString($message, $replacements), $code);
   }
