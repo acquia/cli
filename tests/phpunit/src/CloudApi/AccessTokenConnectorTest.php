@@ -6,6 +6,7 @@ use Acquia\Cli\CloudApi\AccessTokenConnector;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Acquia\Cli\Tests\TestBase;
 use AcquiaCloudApi\Connector\Connector;
 use AcquiaCloudApi\Connector\ConnectorInterface;
@@ -180,6 +181,23 @@ class AccessTokenConnectorTest extends TestBase {
     $client = $clientService->getClient();
     $options = $client->getOptions();
     $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
+
+    $this->prophet->checkPredictions();
+  }
+
+  public function testIdeHeader(): void {
+    self::setAccessTokenEnvVars();
+    IdeHelper::setCloudIdeEnvVars();
+    $connector_factory = new ConnectorFactory(
+      [
+        'key' => $this->cloudCredentials->getCloudKey(),
+        'secret' => $this->cloudCredentials->getCloudSecret(),
+        'accessToken' => NULL,
+      ]);
+    $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
+    $client = $clientService->getClient();
+    $options = $client->getOptions();
+    $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN'], 'X-Cloud-IDE-UUID' => IdeHelper::$remote_ide_uuid], $options['headers']);
 
     $this->prophet->checkPredictions();
   }
