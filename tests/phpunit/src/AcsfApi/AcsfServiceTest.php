@@ -10,7 +10,7 @@ use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class CloudServiceTest.
+ * Class ClientServiceTest.
  */
 class AcsfServiceTest extends TestBase {
 
