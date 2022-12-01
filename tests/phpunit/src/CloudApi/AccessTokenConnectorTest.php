@@ -200,6 +200,7 @@ class AccessTokenConnectorTest extends TestBase {
     $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN'], 'X-Cloud-IDE-UUID' => IdeHelper::$remote_ide_uuid], $options['headers']);
 
     $this->prophet->checkPredictions();
+    IdeHelper::unsetCloudIdeEnvVars();
   }
 
 }
