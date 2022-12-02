@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Api;
 
 use Acquia\Cli\Command\Api\ApiBaseCommand;
+use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Exception\ApiErrorException;
@@ -32,6 +33,10 @@ class ApiCommandTest extends CommandTestBase {
     return $this->injectCommand(ApiBaseCommand::class);
   }
 
+  /**
+   * @return void
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testArgumentsInteraction() {
     $this->command = $this->getApiCommandByName('api:environments:log-download');
     $this->executeCommand([], [
@@ -46,6 +51,10 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Please select a value for logType', $output);
   }
 
+  /**
+   * @return void
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testArgumentsInteractionValidation() {
     $this->command = $this->getApiCommandByName('api:environments:variable-update');
     try {
@@ -62,6 +71,10 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('It must match the pattern', $output);
   }
 
+  /**
+   * @return void
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testArgumentsInteractionValdationFormat() {
     $this->command = $this->getApiCommandByName('api:notifications:find');
     try {
@@ -106,6 +119,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(1, $this->getStatusCode());
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testApiCommandExecutionForHttpGet(): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
@@ -125,6 +143,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('uuid', $contents[0]);
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testInferApplicationUuidArgument() {
     $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/applications')->willReturn([$mock_body])->shouldBeCalled();
@@ -160,8 +183,10 @@ class ApiCommandTest extends CommandTestBase {
    * @param bool $support
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @group serial
    */
   public function testConvertApplicationAliasToUuidArgument($support): void {
+    ClearCacheCommand::clearCaches();
     $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockApplicationRequest();
@@ -184,6 +209,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testConvertInvalidApplicationAliasToUuidArgument(): void {
     $this->mockApplicationsRequest(0);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:invalidalias')->shouldBeCalled();
@@ -199,6 +229,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testConvertNonUniqueApplicationAliasToUuidArgument(): void {
     $this->mockApplicationsRequest(2, FALSE);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
@@ -231,6 +266,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testConvertEnvironmentAliasToUuidArgument(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
@@ -258,7 +298,14 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @group serial
+   */
   public function testConvertInvalidEnvironmentAliasToUuidArgument(): void {
+    ClearCacheCommand::clearCaches();
     $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
@@ -274,6 +321,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testApiCommandExecutionForHttpPost(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $mock_response_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
@@ -292,6 +344,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Adding SSH key.', $output);
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testApiCommandExecutionForHttpPut(): void {
     $mock_request_options = $this->getMockRequestBodyFromSpec('/environments/{environmentId}', 'put');
     $mock_request_options['max_input_vars'] = 1001;
@@ -344,7 +401,6 @@ class ApiCommandTest extends CommandTestBase {
    * @param $usage
    *
    * @throws \Psr\Cache\InvalidArgumentException
-   * @group noCache
    */
   public function testApiCommandDefinitionParameters($use_spec_cache, $command_name, $method, $usage): void {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $use_spec_cache);
@@ -370,6 +426,10 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertContains($command_name . ' ' . $usage, $usages);
   }
 
+  /**
+   * @return void
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testModifiedParameterDescriptions(): void {
     $this->command = $this->getApiCommandByName('api:environments:domain-status-find');
     $this->assertStringContainsString('You may also use an environment alias', $this->command->getDefinition()->getArgument('environmentId')->getDescription());
@@ -405,6 +465,11 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString($usage, $this->command->getUsages()[0]);
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testGetApplicationUuidFromBltYml(): void {
     $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();

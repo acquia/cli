@@ -60,6 +60,7 @@
     },
     "require-dev": {
         "acquia/coding-standards": "^1",
+        "brianium/paratest": "^6.6",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "infection/infection": "^0.26.15",
         "mikey179/vfsstream": "^1.6",
@@ -149,7 +150,12 @@
         ],
         "cs": "phpcs",
         "cbf": "phpcbf",
-        "unit": "phpunit tests/phpunit -vvv",
+        "unit": [
+            "@unit-serial",
+            "@unit-parallel"
+        ],
+        "unit-serial": "phpunit tests/phpunit -vvv --group serial",
+        "unit-parallel": "paratest --exclude-group serial",
         "coverage": "php -d pcov.enabled=1 vendor/bin/phpunit tests/phpunit --coverage-clover build/logs/clover.xml",
         "lint": "phplint",
         "test": [
