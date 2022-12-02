@@ -270,8 +270,10 @@ class ApiCommandTest extends CommandTestBase {
    * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @serial
    */
   public function testConvertEnvironmentAliasToUuidArgument(): void {
+    ClearCacheCommand::clearCaches();
     $applications_response = $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
     $this->mockEnvironmentsRequest($applications_response);
