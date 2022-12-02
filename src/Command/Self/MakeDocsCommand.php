@@ -20,7 +20,7 @@ class MakeDocsCommand extends CommandBase {
    */
   protected function configure(): void {
     $this->setDescription('Generate documentation for all ACLI commands')
-      ->setHidden();
+      ->setHidden(TRUE);
   }
 
   /**

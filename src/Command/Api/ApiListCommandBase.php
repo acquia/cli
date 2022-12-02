@@ -44,7 +44,7 @@ class ApiListCommandBase extends CommandBase {
         $command->setHidden(FALSE);
       }
       else {
-        $command->setHidden();
+        $command->setHidden(TRUE);
       }
     }
 
