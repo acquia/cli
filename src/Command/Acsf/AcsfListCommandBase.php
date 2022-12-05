@@ -56,7 +56,7 @@ class AcsfListCommandBase extends CommandBase {
         $command->setHidden(FALSE);
       }
       else {
-        $command->setHidden();
+        $command->setHidden(TRUE);
       }
     }
 

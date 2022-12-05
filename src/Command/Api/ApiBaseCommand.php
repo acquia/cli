@@ -62,7 +62,7 @@ class ApiBaseCommand extends CommandBase {
    *
    */
   protected function configure(): void {
-    $this->setHidden();
+    $this->setHidden(TRUE);
     parent::configure();
   }
 
