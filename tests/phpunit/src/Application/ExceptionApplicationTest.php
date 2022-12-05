@@ -17,6 +17,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testPreScripts(): void {
     $json = [
@@ -40,6 +41,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testPostScripts(): void {
     $json = [
@@ -63,6 +65,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testInvalidApiCreds(): void {
     $this->setInput([
@@ -77,6 +80,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testApiError(): void {
     $this->setInput([
@@ -90,6 +94,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testNoAvailableIdes(): void {
     $this->setInput([
@@ -103,6 +108,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testMissingEnvironmentUuid(): void {
     $this->setInput([
@@ -115,6 +121,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   /**
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
+   * @group serial
    */
   public function testInvalidEnvironmentUuid(): void {
     $this->mockAccountRequest();
@@ -129,6 +136,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testMissingApplicationUuid(): void {
     $this->setInput([
@@ -141,6 +149,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   /**
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
+   * @group serial
    */
   public function testInvalidApplicationUuid(): void {
     $this->mockAccountRequest();
