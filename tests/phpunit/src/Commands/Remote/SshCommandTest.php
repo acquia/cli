@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\Remote;
 
 use Acquia\Cli\Command\Remote\SshCommand;
+use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Helpers\SshHelper;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
@@ -25,8 +26,10 @@ class SshCommandTest extends SshCommandTestBase {
   /**
    * Tests the 'remote:ssh' commands.
    * @throws \Psr\Cache\InvalidArgumentException
+   * @group serial
    */
   public function testRemoteAliasesDownloadCommand(): void {
+    ClearCacheCommand::clearCaches();
     $this->mockForGetEnvironmentFromAliasArg();
     [$process, $local_machine_helper] = $this->mockForExecuteCommand();
     $local_machine_helper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();

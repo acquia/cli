@@ -15,6 +15,7 @@ class HelpApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testApplicationAliasHelp(): void {
     $this->setInput([
@@ -34,6 +35,7 @@ class HelpApplicationTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testEnvironmentAliasHelp(): void {
     $this->setInput([

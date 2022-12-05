@@ -11,14 +11,18 @@ class KernelTest extends ApplicationTestBase {
 
   /**
    * @throws \Exception
+   * @group serial
    */
   public function testRun(): void {
     $this->setInput(['list']);
     $buffer = $this->runApp();
-    $this->assertEquals($this->getOutput(), $buffer);
+    // A bit dumb that we need to break these up, but the available commands vary based on whether a browser is available or the session is interactive.
+    // Could probably handle that more intelligently...
+    $this->assertStringStartsWith($this->getStart(), $buffer);
+    $this->assertStringEndsWith($this->getEnd(), $buffer);
   }
 
-  private function getOutput(): string {
+  private function getStart(): string {
     return "Console Tool
 
 Usage:
@@ -43,9 +47,11 @@ Available commands:
  app
   app:link                 [link] Associate your project with a Cloud Platform application
   app:log:tail             [tail|log:tail] Tail the logs from your environments
-  app:new:local            [new] Create a new Drupal or Next.js project
-  app:open                 [open|o] Opens your browser to view a given Cloud application
-  app:task-wait            Wait for a task to complete
+  app:new:local            [new] Create a new Drupal or Next.js project";
+  }
+
+  private function getEnd(): string {
+    return "app:task-wait            Wait for a task to complete
   app:unlink               [unlink] Remove local association between your project and a Cloud Platform application
  auth
   auth:acsf-login          Register your Site Factory API key and secret to use API functionality
