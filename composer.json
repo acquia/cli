@@ -45,7 +45,7 @@
         "symfony/dependency-injection": "^5.4",
         "symfony/dotenv": "^6.0",
         "symfony/event-dispatcher": "^6.0",
-        "symfony/expression-language": "^5.4",
+        "symfony/expression-language": "^6.0",
         "symfony/filesystem": "^6.0",
         "symfony/finder": "^6.0",
         "symfony/flex": "^2.2",
