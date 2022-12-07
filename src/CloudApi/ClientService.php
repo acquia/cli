@@ -67,9 +67,13 @@ class ClientService implements ClientServiceInterface {
    */
   protected function configureClient(Client $client): void {
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
-    $client->addOption('headers', [
+    $custom_headers = [
       'User-Agent' => [$user_agent],
-    ]);
+    ];
+    if ($uuid = getenv("REMOTEIDE_UUID")) {
+      $custom_headers['X-Cloud-IDE-UUID'] = $uuid;
+    }
+    $client->addOption('headers', $custom_headers);
   }
 
   /**
