@@ -23,7 +23,14 @@ class ClearCacheCommandTest extends CommandTestBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
+  /**
+   * @return void
+   * @throws \JsonException
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @group serial
+   */
   public function testAliasesAreCached(): void {
+    ClearCacheCommand::clearCaches();
     $this->command = $this->injectCommand(IdeListCommand::class);
 
     // Request for applications.

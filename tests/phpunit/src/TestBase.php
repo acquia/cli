@@ -6,7 +6,6 @@ use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\CloudApi\CloudCredentials;
-use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\Config\AcquiaCliConfig;
 use Acquia\Cli\Config\CloudDataConfig;
@@ -200,7 +199,6 @@ abstract class TestBase extends TestCase {
 
     $this->logStreamManagerProphecy = $this->prophet->prophesize(LogstreamManager::class);
     $this->httpClientProphecy = $this->prophet->prophesize(\GuzzleHttp\Client::class);
-    ClearCacheCommand::clearCaches();
 
     parent::setUp();
   }
@@ -378,7 +376,6 @@ abstract class TestBase extends TestCase {
     if ($is_command_cache_valid && $api_spec_cache_item->isHit()) {
       return $api_spec_cache_item->get();
     }
-
     $api_spec = Yaml::parseFile($acquia_cloud_spec_file);
     $this->saveApiSpecCacheItems($cache, $acquia_cloud_spec_file_checksum, $api_spec_cache_item, $api_spec);
 
