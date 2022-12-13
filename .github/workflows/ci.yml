@@ -20,13 +20,17 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-22.04, windows-latest ]
+        os: ["ubuntu-22.04"]
         php: ["8.0", "8.1"]
         coverage: ["none"]
         include:
           - os: "ubuntu-22.04"
             php: "8.1"
             coverage: "pcov"
+          # Only test pre-installed (i.e. fast) versions of PHP on Windows.
+          - os: "windows-2022"
+            php: "8.1"
+            coverage: "none"
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
