@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-22.04
     name: Create a CCB ticket in Jira
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
