@@ -5,6 +5,8 @@ on:
       - "completed"
     workflows:
       - "CI"
+  workflow_call:
+
 jobs:
   merge:
     runs-on: ubuntu-22.04
