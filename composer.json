@@ -55,8 +55,7 @@
         "symfony/yaml": "^6.0",
         "typhonius/acquia-logstream": "^0.0.12",
         "typhonius/acquia-php-sdk-v2": "^2.5.0",
-        "violuke/rsa-ssh-key-fingerprint": "^1.1",
-        "zumba/amplitude-php": "^1.0.4"
+        "violuke/rsa-ssh-key-fingerprint": "^1.1"
     },
     "require-dev": {
         "acquia/coding-standards": "^1",
