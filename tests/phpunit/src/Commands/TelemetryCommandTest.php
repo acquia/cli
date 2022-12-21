@@ -83,19 +83,6 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->assertStringContainsString($message, $output);
   }
 
-  /**
-   * Opted out by default.
-   * @throws \Exception
-   */
-  public function testAmplitudeDisabled(): void {
-    $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];
-    $this->createMockConfigFiles();
-    $this->executeCommand();
-
-    $this->assertEquals(0, $this->getStatusCode());
-    $this->prophet->checkPredictions();
-  }
-
   public function testMigrateLegacyTelemetryPreference(): void {
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
     $this->createMockConfigFiles();
