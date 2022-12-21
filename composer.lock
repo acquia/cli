@@ -1541,28 +1541,28 @@
         },
         {
             "name": "loophp/phposinfo",
-            "version": "1.7.2",
+            "version": "1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/loophp/phposinfo.git",
-                "reference": "106e7b3f00849dce1787ebf38da493ba586b48f2"
+                "reference": "9faccbfbf5364fd34fbc230961fa6fc51cc66b8f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/loophp/phposinfo/zipball/106e7b3f00849dce1787ebf38da493ba586b48f2",
-                "reference": "106e7b3f00849dce1787ebf38da493ba586b48f2",
+                "url": "https://api.github.com/repos/loophp/phposinfo/zipball/9faccbfbf5364fd34fbc230961fa6fc51cc66b8f",
+                "reference": "9faccbfbf5364fd34fbc230961fa6fc51cc66b8f",
                 "shasum": ""
             },
             "require": {
-                "php": ">= 7.3"
+                "php": "^8"
             },
             "require-dev": {
-                "drupol/php-conventions": "^3.0.2",
-                "friends-of-phpspec/phpspec-code-coverage": "^5",
-                "infection/infection": "^0.18",
-                "infection/phpspec-adapter": "^0.1.1",
-                "phpspec/phpspec": "^6",
-                "vimeo/psalm": "^4.6"
+                "drupol/php-conventions": "^5.0.0",
+                "ext-pcov": "*",
+                "friends-of-phpspec/phpspec-code-coverage": "^6",
+                "infection/infection": "^0.26",
+                "infection/phpspec-adapter": "^0.2.0",
+                "phpspec/phpspec": "^7"
             },
             "type": "library",
             "autoload": {
@@ -1585,21 +1585,16 @@
                 "operating system detection"
             ],
             "support": {
-                "docs": "https://loophp-collection.rtfd.io",
-                "issues": "https://github.com/loophp/collection/issues",
-                "source": "https://github.com/loophp/collection"
+                "issues": "https://github.com/loophp/phposinfo/issues",
+                "source": "https://github.com/loophp/phposinfo"
             },
             "funding": [
                 {
                     "url": "https://github.com/drupol",
                     "type": "github"
-                },
-                {
-                    "url": "https://www.paypal.me/drupol",
-                    "type": "paypal"
                 }
             ],
-            "time": "2021-06-29T07:18:36+00:00"
+            "time": "2022-12-20T20:21:10+00:00"
         },
         {
             "name": "ltd-beget/ascii-table",
