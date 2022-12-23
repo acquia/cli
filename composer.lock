@@ -8678,16 +8678,16 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "4.3.0",
+            "version": "4.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/phplint.git",
-                "reference": "3b365ece7eb4620a55062a115ffbec75227c06a7"
+                "reference": "b4e57c2546c6106d515968f99647273074ae503b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/3b365ece7eb4620a55062a115ffbec75227c06a7",
-                "reference": "3b365ece7eb4620a55062a115ffbec75227c06a7",
+                "url": "https://api.github.com/repos/overtrue/phplint/zipball/b4e57c2546c6106d515968f99647273074ae503b",
+                "reference": "b4e57c2546c6106d515968f99647273074ae503b",
                 "shasum": ""
             },
             "require": {
@@ -8696,6 +8696,7 @@
                 "php": "^8.0",
                 "symfony/console": "^5.3.11 || ^6.0",
                 "symfony/finder": "^5.3.7 || ^6.0",
+                "symfony/options-resolver": "^5.4 || ^6.0",
                 "symfony/process": "^5.3.12 || ^6.0",
                 "symfony/yaml": "^5.3.11 || ^6.0"
             },
@@ -8703,8 +8704,8 @@
                 "bamarni/composer-bin-plugin": "^1.4",
                 "brainmaestro/composer-git-hooks": "^2.8.5",
                 "friendsofphp/php-cs-fixer": "^3.4.0",
-                "jakub-onderka/php-console-highlighter": "^0.4",
-                "jetbrains/phpstorm-stubs": "^2021.3"
+                "jetbrains/phpstorm-stubs": "^2021.3",
+                "php-parallel-lint/php-console-highlighter": "^1.0"
             },
             "bin": [
                 "bin/phplint"
@@ -8741,7 +8742,7 @@
             ],
             "support": {
                 "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/4.3.0"
+                "source": "https://github.com/overtrue/phplint/tree/4.4.1"
             },
             "funding": [
                 {
@@ -8749,7 +8750,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-07-12T07:39:25+00:00"
+            "time": "2022-12-23T08:29:58+00:00"
         },
         {
             "name": "phar-io/manifest",
