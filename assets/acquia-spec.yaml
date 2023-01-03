@@ -2655,9 +2655,12 @@ components:
           default: 1000
           minimum: 500
           maximum: 20000
-        sendmail_path:
-          type: string
-          description: 'Sets the PHP sendmail_path, usually to manage the "From" address or disable mail.'
+        memcached_limit:
+          type: integer
+          description: Sets the maximum amount of memory in MB that can be allocated to memcached. Only available on Acquia Cloud Next.
+          default: 64
+          minimum: 0
+          maximum: 12288
     EnvironmentFlags:
       type: object
       description: An array of various flags that indicate functionality associated with the environment.
@@ -3994,6 +3997,25 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Organization'
+    OrganizationsNotifications:
+      type: object
+      description: A collection of notifications matching the request parameters.
+      properties:
+        total:
+          type: integer
+          description: The number of items returned in the collection.
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        _links:
+          $ref: '#/components/schemas/Links'
+        _embedded:
+          type: object
+          description: A collection of notifications matching the request parameters.
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/Notification'
     OrganizationStub:
       type: object
       required:
@@ -12110,7 +12132,7 @@ paths:
                           max_execution_time: 300
                           max_post_size: 256
                           max_input_vars: 1000
-                          sendmail_path: null
+                          memcached_limit: 64
                       artifact: null
                       _links:
                         self:
@@ -12501,7 +12523,7 @@ paths:
                     max_execution_time: 300
                     max_post_size: 256
                     max_input_vars: 1000
-                    sendmail_path: null
+                    memcached_limit: 64
                 gardener:
                   site-update: example.com/admin/gardens/site-update
                   multi-site: example.com/admin/gardens/staging
@@ -12579,7 +12601,7 @@ paths:
               apcu: 8
               max_input_vars: 1000
               max_post_size: 256
-              sendmail_path: /usr/bin/sendmail
+              memcached_limit: 128
           application/x-www-form-urlencoded:
             schema:
               $ref: '#/components/schemas/EnvironmentConfigurations'
@@ -12613,11 +12635,6 @@ paths:
                     error: forbidden
                     message:
                       system: No environment configuration changes are specified.
-                Invalid sendmail path:
-                  value:
-                    error: forbidden
-                    message:
-                      sendmail_path: Sendmail path must be empty or sendmail command line including a -f argument.
         '403':
           description: Forbidden
           content:
@@ -16681,8 +16698,22 @@ paths:
       parameters:
         - $ref: '#/components/parameters/EnvironmentId'
         - $ref: '#/components/parameters/LogType'
-        - $ref: '#/components/parameters/FromNoDefault'
-        - $ref: '#/components/parameters/ToNoDefault'
+      requestBody:
+        required: false
+        content:
+          application/hal+json:
+            schema:
+              type: object
+              properties:
+                from:
+                  type: string
+                  description: An ISO-8601 formatted date retrieve results from. Date ranges are only supported on Acquia Cloud Next.
+                to:
+                  type: string
+                  description: An ISO-8601 formatted date retrieve results to. Date ranges are only supported on Acquia Cloud Next.
+            example:
+              from: '2021-01-28T22:45:21+00:00'
+              to: '2021-01-29T23:55:21+00:00'
       responses:
         '201':
           description: Created
@@ -24149,6 +24180,127 @@ paths:
           description: Not Found
           content:
             application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                Not found:
+                  value:
+                    error: not_found
+                    message: 'The organization you are trying to access does not exist, or you do not have permission to access it.'
+  '/organizations/{organizationUuid}/notifications':
+    get:
+      tags:
+        - Organizations
+      summary: Returns a list of notifications associated with this organization by its UUID.
+      description: |
+        Returns a list of notifications associated with this organization. A notification represents an item of work to be done, initiated by someone (typically the current user) associated with the organization.
+
+        Filterable fields:
+        * `event`
+        * `label`
+        * `description`
+        * `status`
+        * `author`
+        * `created_at`
+        * `completed_at`
+
+        Sortable fields:
+        * `event`
+        * `label`
+        * `description`
+        * `status`
+        * `author`
+        * `created_at`
+        * `completed_at`
+      operationId: getOrganizationNotifications
+      x-cli-name: 'organizations:notification-list'
+      parameters:
+        - $ref: '#/components/parameters/OrganizationUuid'
+        - $ref: '#/components/parameters/Sort'
+        - $ref: '#/components/parameters/Filter'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Offset'
+      responses:
+        '200':
+          description: OK
+          content:
+            organization/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationsNotifications'
+              example:
+                total: 1
+                pagination:
+                  total: 1
+                  limit: 1
+                  offset: 0
+                _links:
+                  self:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d/notifications'
+                  parent:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d'
+                  limit:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d/notifications{?limit}'
+                    templated: true
+                  offset:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d/notifications{?offset}'
+                    templated: true
+                  sort:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d/notifications{?sort}'
+                    templated: true
+                  filter:
+                    href: 'https://cloud.acquia.com/api/organizations/2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d/notifications{?filter}'
+                    templated: true
+                _embedded:
+                  items:
+                    - uuid: 5c5e848b-296a-4c64-94aa-5a97d99da189
+                      event: TeamCreated
+                      label: Team created
+                      description: Created a new team project anomaly.
+                      created_at: '2022-12-08T15:42:37+00:00'
+                      completed_at: '2022-12-08T15:42:37+00:00'
+                      status: completed
+                      progress: 100
+                      context:
+                        team:
+                          new_name: project anomaly
+                          uuids:
+                            - 4002d7cb-9c89-42f8-8515-4cfc3eb03230
+                        author:
+                          uuid: 08a44409-568f-46f6-8038-4f30e19e3eb2
+                          actual_uuid: 08a44409-568f-46f6-8038-4f30e19e3eb2
+                        user:
+                          uuids:
+                            - 08a44409-568f-46f6-8038-4f30e19e3eb2
+                        organization:
+                          uuids:
+                            - 2be7b4e8-6e9b-4314-8ad5-6a0b3f54c38d
+                        role:
+                          uuids:
+                            - 8095f9db-5f02-4338-9e90-7772715b5345
+                            - b9f366a5-210f-41ad-b99f-feaa61e71394
+                            - ddd251c6-5095-4cdb-8902-b3839edfffb4
+                            - 3c4b2884-60c8-4ca3-9be5-b01c0159658c
+                            - 3cb1519a-20be-4f69-8a5f-4037dff0acd1
+                            - 1dd0f44b-6118-4c95-a3a2-a9deea32b2b0
+                      _links:
+                        self:
+                          href: 'https://cloud.acquia.com/api/notifications/5c5e848b-296a-4c64-94aa-5a97d99da189'
+                        parent:
+                          href: 'https://cloud.acquia.com/api/notifications'
+                      _embedded:
+                        author:
+                          uuid: 08a44409-568f-46f6-8038-4f30e19e3eb2
+                          first_name: Thomas
+                          last_name: Anderson
+                          last_login_at: '2022-11-30T16:22:48+00:00'
+                          created_at: '2019-10-15T20:22:19+00:00'
+                          email: thomas.a.anderson@acquia.com
+                          picture_url: 'https://accounts.acquia.com/images/users/08a44409-568f-46f6-8038-4f30e19e3eb2/style/avatar'
+                          username: thomas.a.anderson@acquia.com
+        '404':
+          description: Not Found
+          content:
+            organization/json:
               schema:
                 $ref: '#/components/schemas/Error'
               examples:
