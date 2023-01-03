@@ -145,7 +145,10 @@ class ApiCommandHelper {
 
     // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
-      [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
+      [
+        $body_input_definition,
+        $request_body_param_usage_suffix
+      ] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
@@ -540,6 +543,9 @@ class ApiCommandHelper {
     }
     elseif (array_key_exists('multipart/form-data', $schema['requestBody']['content'])) {
       $request_body_schema = $schema['requestBody']['content']['multipart/form-data']['schema'];
+    }
+    elseif (array_key_exists('application/hal+json', $schema['requestBody']['content'])) {
+      $request_body_schema = $schema['requestBody']['content']['application/hal+json']['schema'];
     }
 
     // If this is a reference to the top level schema, go grab the referenced component.
