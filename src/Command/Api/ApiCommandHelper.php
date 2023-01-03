@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Helper\FormatterHelper;
@@ -532,20 +533,15 @@ class ApiCommandHelper {
    * @param $acquia_cloud_spec
    *
    * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
     $request_body_schema = [];
-    if (array_key_exists('application/json', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
-    }
-    elseif (array_key_exists('application/x-www-form-urlencoded', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/x-www-form-urlencoded']['schema'];
-    }
-    elseif (array_key_exists('multipart/form-data', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['multipart/form-data']['schema'];
-    }
-    elseif (array_key_exists('application/hal+json', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/hal+json']['schema'];
+    $content_types = ['application/json', 'application/x-www-form-urlencoded', 'multipart/form-data', 'application/hal+json'];
+    foreach ($content_types as $content_type) {
+      if (array_key_exists($content_type, $schema['requestBody']['content'])) {
+        $request_body_schema = $schema['requestBody']['content'][$content_type]['schema'];
+      }
     }
 
     // If this is a reference to the top level schema, go grab the referenced component.
@@ -553,6 +549,10 @@ class ApiCommandHelper {
       $parts = explode('/', $request_body_schema['$ref']);
       $param_key = end($parts);
       $request_body_schema = $this->getParameterSchemaFromSpec($param_key, $acquia_cloud_spec);
+    }
+
+    if (empty($request_body_schema)) {
+      throw new AcquiaCliException("requestBody schema is empty");
     }
 
     return $request_body_schema;
