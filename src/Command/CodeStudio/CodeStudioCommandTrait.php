@@ -8,6 +8,7 @@ use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
 use Gitlab\HttpClient\Builder;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 trait CodeStudioCommandTrait {
@@ -271,6 +272,18 @@ trait CodeStudioCommandTrait {
       'topics' => 'Acquia Cloud Application',
       'container_registry_access_level' => 'disabled',
     ];
+  }
+
+  /**
+   * Add gitlab options to the command.
+   *
+   * @return $this
+   */
+  protected function acceptGitlabOptions(): static {
+    $this->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
+      ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
+      ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');
+    return $this;
   }
 
 }

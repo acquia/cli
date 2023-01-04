@@ -1777,4 +1777,24 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
+  /**
+   * @param string $version
+   *
+   * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  protected function validatePhpVersion(string $version): string {
+    $violations = Validation::createValidator()->validate($version, [
+      new Length(['min' => 3]),
+      new NotBlank(),
+      new Regex(['pattern' => '/^\S*$/', 'message' => 'The value may not contain spaces']),
+      new Regex(['pattern' => '/[0-9]{1}\.[0-9]{1}/', 'message' => 'The value must be in the format "x.y"']),
+    ]);
+    if (count($violations)) {
+      throw new ValidatorException($violations->get(0)->getMessage());
+    }
+
+    return $version;
+  }
+
 }
