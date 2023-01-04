@@ -4,9 +4,9 @@ namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
-use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,23 +20,10 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandHelper {
 
-  /**
-   * @var \Symfony\Component\Console\Input\InputInterface
-   */
   protected InputInterface $input;
 
-  /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
-   */
   protected OutputInterface $output;
 
-  /**
-   * @var \Symfony\Component\Console\Helper\FormatterHelper*/
-  protected FormatterHelper $formatter;
-
-  /**
-   * @var ConsoleLogger
-   */
   private ConsoleLogger $logger;
 
   /**
@@ -145,7 +132,10 @@ class ApiCommandHelper {
 
     // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
-      [$body_input_definition, $request_body_param_usage_suffix] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
+      [
+        $body_input_definition,
+        $request_body_param_usage_suffix
+      ] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
       foreach ($body_input_definition as $parameter_definition) {
@@ -229,22 +219,13 @@ class ApiCommandHelper {
    *
    * @return string
    * @throws \JsonException
-   * @throws \JsonException
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
-    $request_body_schema = [];
-    if (array_key_exists('application/x-www-form-urlencoded', $request_body['content'])) {
-      $request_body_schema = $request_body['content']['application/x-www-form-urlencoded'];
-    }
-    elseif (array_key_exists('application/json', $request_body['content'])) {
-      $request_body_schema = $request_body['content']['application/json'];
-    }
-    elseif (array_key_exists('multipart/form-data', $request_body['content'])) {
-      $request_body_schema = $request_body['content']['multipart/form-data'];
-    }
+    $request_body_content = $this->getRequestBodyContent($request_body);
 
-    if (array_key_exists('example', $request_body_schema)) {
-      $example = $request_body['content']['application/json']['example'];
+    if (array_key_exists('example', $request_body_content)) {
+      $example = $request_body_content['example'];
       $prefix = $type === 'argument' ? '' : "--{$prop_key}=";
       if (array_key_exists($prop_key, $example)) {
         switch ($param_definition['type']) {
@@ -529,18 +510,11 @@ class ApiCommandHelper {
    * @param $acquia_cloud_spec
    *
    * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
-    $request_body_schema = [];
-    if (array_key_exists('application/json', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/json']['schema'];
-    }
-    elseif (array_key_exists('application/x-www-form-urlencoded', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['application/x-www-form-urlencoded']['schema'];
-    }
-    elseif (array_key_exists('multipart/form-data', $schema['requestBody']['content'])) {
-      $request_body_schema = $schema['requestBody']['content']['multipart/form-data']['schema'];
-    }
+    $request_body_content = $this->getRequestBodyContent($schema['requestBody']);
+    $request_body_schema = $request_body_content['schema'];
 
     // If this is a reference to the top level schema, go grab the referenced component.
     if (array_key_exists('$ref', $request_body_schema)) {
@@ -628,6 +602,28 @@ class ApiCommandHelper {
       }
     }
     return $api_list_commands;
+  }
+
+  /**
+   * @param $requestBody
+   *
+   * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
+  private function getRequestBodyContent($requestBody): array {
+    $content = $requestBody['content'];
+    $knownContentTypes = [
+      'application/json',
+      'application/x-www-form-urlencoded',
+      'multipart/form-data',
+      'application/hal+json'
+    ];
+    foreach ($knownContentTypes as $contentType) {
+      if (array_key_exists($contentType, $content)) {
+        return $content[$contentType];
+      }
+    }
+    throw new AcquiaCliException("requestBody content doesn't match any known schema");
   }
 
 }
