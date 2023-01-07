@@ -279,7 +279,7 @@ trait CodeStudioCommandTrait {
    *
    * @return $this
    */
-  protected function acceptGitlabOptions(): static {
+  private function acceptGitlabOptions(): static {
     $this->addOption('gitlab-token', NULL, InputOption::VALUE_REQUIRED, 'The GitLab personal access token that will be used to communicate with the GitLab instance')
       ->addOption('gitlab-project-id', NULL, InputOption::VALUE_REQUIRED, 'The project ID (an integer) of the GitLab project to configure.')
       ->addOption('gitlab-host-name', NULL, InputOption::VALUE_REQUIRED, 'The GitLab hostname.');

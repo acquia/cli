@@ -45,7 +45,7 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     $project = $this->determineGitLabProject($cloud_application);
 
     // if CI/CD is not enabled for the project in code studio.
-    if (!$project['jobs_enabled']) {
+    if (empty($project['jobs_enabled'])) {
       $this->io->error('CI/CD is not enabled for this application in code studio. Please enable it first and then try again.');
       return 1;
     }
