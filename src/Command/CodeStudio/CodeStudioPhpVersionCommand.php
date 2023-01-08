@@ -47,7 +47,7 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     // if CI/CD is not enabled for the project in code studio.
     if (empty($project['jobs_enabled'])) {
       $this->io->error('CI/CD is not enabled for this application in code studio. Please enable it first and then try again.');
-      return 1;
+      return self::FAILURE;
     }
 
     $php_version_already_set = FALSE;
@@ -70,11 +70,11 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     }
     catch (RuntimeException $exception) {
       $this->io->error("Unable to update the PHP version to {$php_version}");
-      return 1;
+      return self::FAILURE;
     }
 
     $this->io->success("PHP version is updated to {$php_version} successfully!");
-    return 0;
+    return self::SUCCESS;
   }
 
 }
