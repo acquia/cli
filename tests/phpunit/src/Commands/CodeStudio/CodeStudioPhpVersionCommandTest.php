@@ -5,6 +5,8 @@ namespace Acquia\Cli\Tests\Commands\CodeStudio;
 use Acquia\Cli\Command\CodeStudio\CodeStudioPhpVersionCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Gitlab\Client;
+use Gitlab\Exception\RuntimeException;
+use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -85,7 +87,39 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * Test for successfull PHP version update.
+   * Test for failed PHP version update.
+   */
+  public function testPhpVersionUpdateFail(): void {
+    $this->mockApplicationRequest();
+    $gitlab_client = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlab_client);
+    $mocked_project = $this->getMockedGitLabProject($this->gitLabProjectId);
+    $mocked_project['jobs_enabled'] = TRUE;
+    $projects = $this->mockGetGitLabProjects(
+      self::$application_uuid,
+      $this->gitLabProjectId,
+      [$mocked_project],
+    );
+
+    $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
+    $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
+      ->willThrow(RuntimeException::class);
+
+    $gitlab_client->projects()->willReturn($projects);
+    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->executeCommand([
+      'php-version' => '8.1',
+      'applicationUuid' => self::$application_uuid,
+      '--gitlab-token' => $this->gitLabToken,
+      '--gitlab-host-name' => $this->gitLabHost,
+    ]);
+
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Unable to update the PHP version to 8.1', $output);
+  }
+
+  /**
+   * Test for successful PHP version update.
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();
@@ -98,6 +132,9 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
       $this->gitLabProjectId,
       [$mocked_project],
     );
+
+    $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
+    $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
     $gitlab_client->projects()->willReturn($projects);
 
