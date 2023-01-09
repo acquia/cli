@@ -50,15 +50,14 @@ class CodeStudioPhpVersionCommand extends CommandBase {
       return self::FAILURE;
     }
 
-    $php_version_already_set = FALSE;
-    // Get all variables of the project.
-    $all_project_variables = $this->gitLabClient->projects()->variables($project['id']);
-    if (!empty($all_project_variables)) {
-      $variables = array_column($all_project_variables, 'value', 'key');
-      $php_version_already_set = $variables['PHP_VERSION'] ?? FALSE;
-    }
-
     try {
+      $php_version_already_set = FALSE;
+      // Get all variables of the project.
+      $all_project_variables = $this->gitLabClient->projects()->variables($project['id']);
+      if (!empty($all_project_variables)) {
+        $variables = array_column($all_project_variables, 'value', 'key');
+        $php_version_already_set = $variables['PHP_VERSION'] ?? FALSE;
+      }
       // If PHP version is not set in variables.
       if (!$php_version_already_set) {
         $this->gitLabClient->projects()->addVariable($project['id'], 'PHP_VERSION', $php_version);
