@@ -59,6 +59,7 @@ Available commands:
   auth:login               [login] Register your Cloud API key and secret to use API functionality
   auth:logout              [logout] Remove Cloud API key and secret from local machine.
  codestudio
+  codestudio:php-version   Change the PHP version in Code Studio
   codestudio:wizard        [cs:wizard] Create and/or configure a new Code Studio project for a given Acquia Cloud application
  email
   email:configure          [ec] Configure Platform email for one or more applications
