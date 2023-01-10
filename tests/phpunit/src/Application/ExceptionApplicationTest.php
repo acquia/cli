@@ -161,12 +161,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $buffer = $this->runApp();
     self::assertStringContainsString('[ERROR] Use a unique application alias: devcloud:devcloud2, devcloud:devcloud3', $buffer);
     self::assertStringContainsString('Multiple applications match the alias *:aoeuthao', $buffer);
-    $helpText = '[help] The applicationUuid argument must be a valid UUID or unique                  ' . PHP_EOL;
-    $helpText .= '        application alias accessible to your Cloud Platform user.                    ' . PHP_EOL;
-    $helpText .= '                                                                                     ' . PHP_EOL;
-    $helpText .= '        An alias consists of an application name optionally prefixed with a hosting realm,' . PHP_EOL;
-    $helpText .= '        e.g. myapp or                                                                ' . PHP_EOL;
-    $helpText .= '        prod.myapp.                                                                  ';
+    $helpText = "[help] The applicationUuid argument must be a valid UUID or unique                  \n        application alias accessible to your Cloud Platform user.                    \n                                                                                     \n        An alias consists of an application name optionally prefixed with a hosting realm,\n        e.g. myapp or                                                                \n        prod.myapp.                                                                  \n";
     self::assertStringContainsString($helpText, $buffer);
   }
 
