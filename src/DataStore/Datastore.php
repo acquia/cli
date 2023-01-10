@@ -2,11 +2,13 @@
 
 namespace Acquia\Cli\DataStore;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Dflydev\DotAccessData\Data;
 use Dflydev\DotAccessData\Exception\MissingPathException;
 use Grasmash\Expander\Expander;
 use Grasmash\Expander\Stringifier;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -76,14 +78,22 @@ abstract class Datastore implements DataStoreInterface {
   /**
    * @param array $config
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface $definition
+   * @param string $path
+   *   Path to the datastore on disk.
    *
    * @return array
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function processConfig(array $config, ConfigurationInterface $definition): array {
-    return (new Processor())->processConfiguration(
-      $definition,
-      [$definition->getName() => $config],
-    );
+  protected function processConfig(array $config, ConfigurationInterface $definition, string $path): array {
+    try {
+      return (new Processor())->processConfiguration(
+        $definition,
+        [$definition->getName() => $config],
+      );
+    }
+    catch (InvalidConfigurationException $e) {
+      throw new AcquiaCliException("Configuration file at the following path contains invalid keys: $path. {$e->getMessage()}");
+    }
   }
 
 }

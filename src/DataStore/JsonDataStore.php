@@ -28,7 +28,7 @@ class JsonDataStore extends Datastore {
       $cleaned = $this->cleanLegacyConfig($array);
 
       if ($config_definition) {
-        $array = $this->processConfig($array, $config_definition);
+        $array = $this->processConfig($array, $config_definition, $path);
       }
       $this->data->import($array);
 
