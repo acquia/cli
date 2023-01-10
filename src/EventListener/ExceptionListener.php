@@ -5,7 +5,6 @@ namespace Acquia\Cli\EventListener;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Console\Event\ConsoleErrorEvent;
 use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\Console\Exception\RuntimeException;
@@ -85,11 +84,6 @@ class ExceptionListener {
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
           $this->helpMessages[] = "You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/";
       }
-    }
-
-    if ($error instanceof InvalidConfigurationException) {
-      $this->helpMessages[] = "Something is wrong with your local configuration.";
-      $this->helpMessages[] = "Try deleting <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>~/.acquia/cloud_api.conf</> and then retry.";
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
