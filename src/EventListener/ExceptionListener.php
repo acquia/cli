@@ -41,10 +41,9 @@ class ExceptionListener {
     $error = $event->getError();
     $errorMessage = $error->getMessage();
 
-    // Make OAuth server errors more human-friendly.
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
       $new_error_message = 'Your Cloud Platform API credentials are invalid.';
-      $this->helpMessages[] = "Run <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli auth:login</> to reset your API credentials.";
+      $this->helpMessages[] = "Run <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli auth:login</> to reset your API credentials.";
     }
 
     if ($error instanceof RuntimeException) {
@@ -76,7 +75,7 @@ class ExceptionListener {
     if ($error instanceof ApiErrorException) {
       switch ($errorMessage) {
         case "There are no available Cloud IDEs for this application.\n":
-          $this->helpMessages[] = "Delete an existing IDE via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
+          $this->helpMessages[] = "Delete an existing IDE via <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli ide:delete</> or contact your Account Manager or Acquia Sales to purchase additional IDEs.";
           break;
         case "This resource requires additional authentication.":
           $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization.";
@@ -90,16 +89,16 @@ class ExceptionListener {
 
     if ($error instanceof InvalidConfigurationException) {
       $this->helpMessages[] = "Something is wrong with your local configuration.";
-      $this->helpMessages[] = "Try deleting <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>~/.acquia/cloud_api.conf</> and then retry.";
+      $this->helpMessages[] = "Try deleting <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>~/.acquia/cloud_api.conf</> and then retry.";
     }
 
     $this->helpMessages[] = "You can find Acquia CLI documentation at https://docs.acquia.com/acquia-cli/";
     $this->writeUpdateHelp($event);
     $this->writeSupportTicketHelp($event);
 
-    if ($application = $event->getCommand()) {
+    if ($command = $event->getCommand()) {
       /** @var \Acquia\Cli\Application $application */
-      $application = $event->getCommand()->getApplication();
+      $application = $command->getApplication();
       $application->setHelpMessages($this->helpMessages);
     }
 
@@ -112,17 +111,17 @@ class ExceptionListener {
    *
    */
   private function writeApplicationAliasHelp(): void {
-    $this->helpMessages[] = "The <bg={$this->messagesBgColor};options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
-      . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp</> or <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
-      . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "The <bg=$this->messagesBgColor;options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
+      . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp</> or <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
+      . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
    *
    */
   private function writeSiteAliasHelp(): void {
-    $this->helpMessages[] = "<bg={$this->messagesBgColor};options=bold>environmentId</> can also be a site alias. E.g. <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>myapp.dev</>." . PHP_EOL
-    . "Run <bg={$this->messagesBgColor};options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
+    $this->helpMessages[] = "<bg=$this->messagesBgColor;options=bold>environmentId</> can also be a site alias. E.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp.dev</>." . PHP_EOL
+    . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
   /**
@@ -131,7 +130,7 @@ class ExceptionListener {
   private function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
     if (!$event->getOutput()->isVeryVerbose()) {
-      $message .= PHP_EOL . "Please re-run the command with the <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>-vvv</> flag and include the full command output in your support ticket.";
+      $message .= PHP_EOL . "Please re-run the command with the <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>-vvv</> flag and include the full command output in your support ticket.";
     }
     $this->helpMessages[] = $message;
   }
@@ -146,12 +145,12 @@ class ExceptionListener {
         && method_exists($command, 'checkForNewVersion')
         && $latest = $command->checkForNewVersion()
       ) {
-        $message = "Acquia CLI {$latest} is available. Try updating via <bg={$this->messagesBgColor};fg={$this->messagesFgColor};options=bold>acli self-update</> and then run the command again.";
+        $message = "Acquia CLI $latest is available. Try updating via <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli self-update</> and then run the command again.";
         $this->helpMessages[] = $message;
       }
       // This command may not exist during some testing.
     }
-    catch (CommandNotFoundException $exception) {
+    catch (CommandNotFoundException) {
     }
   }
 
