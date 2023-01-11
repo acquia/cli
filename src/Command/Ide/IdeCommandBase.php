@@ -18,9 +18,7 @@ abstract class IdeCommandBase extends CommandBase {
   /**
    * @var string
    */
-  private string $xdebugIniFilepath;
-
-  public const DEFAULT_XDEBUG_INI_FILEPATH = '/home/ide/configs/php/xdebug.ini';
+  private string $xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
 
   /**
    * @param string $question_text
@@ -42,8 +40,8 @@ abstract class IdeCommandBase extends CommandBase {
     }
 
     $choices = [];
-    foreach ($ides as $key => $ide) {
-      $choices[] = "{$ide->label} ($ide->uuid)";
+    foreach ($ides as $ide) {
+      $choices[] = "$ide->label ($ide->uuid)";
     }
     $choice = $this->io->choice($question_text, $choices, $choices[0]);
     $chosen_environment_index = array_search($choice, $choices, TRUE);
@@ -117,24 +115,7 @@ abstract class IdeCommandBase extends CommandBase {
    * @return string
    */
   protected function getXdebugIniFilePath(): string {
-    if (!isset($this->xdebugIniFilepath)) {
-      $this->xdebugIniFilepath = self::DEFAULT_XDEBUG_INI_FILEPATH;
-    }
     return $this->xdebugIniFilepath;
-  }
-
-  /**
-   * @param string $php_version
-   *   The current php version.
-   *
-   * @return string
-   *   The file path to the xdebug template.
-   */
-  protected function getXdebugTemplateFilePath(string $php_version): string {
-    return match ($php_version) {
-      '7.4' => '/home/ide/configs/php/xdebug2.ini',
-      default => '/home/ide/configs/php/xdebug3.ini',
-    };
   }
 
 }
