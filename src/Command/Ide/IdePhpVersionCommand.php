@@ -50,7 +50,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $version = $input->getArgument('version');
     $this->validatePhpVersion($version);
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
-    $this->localMachineHelper->getFilesystem()->copy($this->getXdebugTemplateFilePath($version), IdeCommandBase::DEFAULT_XDEBUG_INI_FILEPATH, TRUE);
     $this->restartService('php-fpm');
 
     return 0;
@@ -75,6 +74,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
 
   /**
    * {inheritdoc}.
+   *
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validatePhpVersion(string $version): string {
     parent::validatePhpVersion($version);
