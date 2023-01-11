@@ -45,20 +45,18 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
-    $ini_files = $this->getXdebugIniFilePaths();
-    foreach ($ini_files as $ini_file) {
-      $contents = file_get_contents($ini_file);
-      $this->setXDebugStatus($contents);
+    $ini_file = $this->getXdebugIniFilePath();
+    $contents = file_get_contents($ini_file);
+    $this->setXDebugStatus($contents);
 
-      if ($this->getXDebugStatus() === FALSE) {
-        $this->enableXDebug($ini_file, $contents);
-      }
-      elseif ($this->getXDebugStatus() === TRUE) {
-        $this->disableXDebug($ini_file, $contents);
-      }
-      else {
-        throw new AcquiaCliException("Could not find xdebug zend extension in $ini_file!");
-      }
+    if ($this->getXDebugStatus() === FALSE) {
+      $this->enableXDebug($ini_file, $contents);
+    }
+    elseif ($this->getXDebugStatus() === TRUE) {
+      $this->disableXDebug($ini_file, $contents);
+    }
+    else {
+      throw new AcquiaCliException("Could not find xdebug zend extension in $ini_file!");
     }
     $this->restartService('php-fpm');
 

@@ -32,7 +32,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   public function setUpXdebug($php_version): void {
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
     $this->fs->copy($this->realFixtureDir . '/xdebug.ini', $this->xdebugFilePath, TRUE);
-    $this->command->setXdebugIniFilepaths([$this->xdebugFilePath]);
+    $this->command->setXdebugIniFilepath($this->xdebugFilePath);
 
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);

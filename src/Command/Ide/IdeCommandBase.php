@@ -16,12 +16,9 @@ abstract class IdeCommandBase extends CommandBase {
   use IdeCommandTrait;
 
   /**
-   * @var string[]
+   * @var string
    */
-  private array $xdebugIniFilepaths = [
-    '/home/ide/configs/php/xdebug2.ini',
-    '/home/ide/configs/php/xdebug3.ini',
-  ];
+  private string $xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
 
   /**
    * @param string $question_text
@@ -107,18 +104,18 @@ abstract class IdeCommandBase extends CommandBase {
   }
 
   /**
-   * @param string[] $file_paths
+   * @param string $file_path
    */
-  public function setXdebugIniFilepaths(array $file_paths): void {
-    $this->xdebugIniFilepaths = $file_paths;
+  public function setXdebugIniFilepath(string $file_path): void {
+    $this->xdebugIniFilepath = $file_path;
   }
 
   /**
    *
-   * @return string[]
+   * @return string
    */
-  protected function getXdebugIniFilePaths(): array {
-    return $this->xdebugIniFilepaths;
+  protected function getXdebugIniFilePath(): string {
+    return $this->xdebugIniFilepath;
   }
 
 }
