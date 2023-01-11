@@ -11,7 +11,7 @@ on:
     types: [published]
 defaults:
   run:
-    # Run Git Bash on Windows. Otherwise it uses PowerShell Core and we'd need
+    # Run Git Bash on Windows. Otherwise, it uses PowerShell Core, and we'd need
     # to install more dependencies. Ubuntu default shell is already Bash.
     # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash
@@ -21,7 +21,7 @@ jobs:
     strategy:
       matrix:
         os: ["ubuntu-22.04"]
-        php: ["8.0", "8.1"]
+        php: ["8.0", "8.1", "8.2"]
         coverage: ["none"]
         include:
           - os: "ubuntu-22.04"
@@ -29,7 +29,7 @@ jobs:
             coverage: "pcov"
           # Only test pre-installed (i.e. fast) versions of PHP on Windows.
           - os: "windows-2022"
-            php: "8.1"
+            php: "8.2"
             coverage: "none"
     steps:
       - name: Prepare Git
