@@ -53,6 +53,7 @@ Available commands:
   private function getEnd(): string {
     return "app:task-wait            Wait for a task to complete
   app:unlink               [unlink] Remove local association between your project and a Cloud Platform application
+  app:vcs:info             Get all branches and tags of the application with the deployment status
  auth
   auth:acsf-login          Register your Site Factory API key and secret to use API functionality
   auth:acsf-logout         Remove your Site Factory key and secret from your local machine.
