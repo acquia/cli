@@ -107,7 +107,7 @@ class AppVcsInfoTest extends CommandTestBase {
 | tags/2014-09-03.0 | No       | None                 |
 +-------------------+----------+----------------------+
 EOD;
-    $this->assertStringContainsString($expected, $output);
+    self::assertStringContainsStringIgnoringLineEndings($expected, $output);
   }
 
 }

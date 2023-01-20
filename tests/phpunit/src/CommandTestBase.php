@@ -15,6 +15,7 @@ use Gitlab\Api\Users;
 use Gitlab\Exception\RuntimeException;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
+use PHPUnit\Framework\Constraint\StringContains;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Http\Message\StreamInterface;
@@ -746,6 +747,28 @@ abstract class CommandTestBase extends TestBase {
           'environment_scope' => '*',
         ],
     ];
+  }
+
+  /**
+   * Normalize strings for Windows tests.
+   *
+   * @todo Remove for PHPUnit 10.
+   *
+   * @param string $needle
+   * @param string $haystack
+   * @param string $message
+   *
+   * @return void
+   */
+  final public static function assertStringContainsStringIgnoringLineEndings(string $needle, string $haystack, string $message = ''): void {
+    $haystack = strtr(
+      $haystack,
+      [
+        "\r\n" => "\n",
+        "\r"   => "\n",
+      ]
+    );
+    static::assertThat($haystack, new StringContains($needle, FALSE), $message);
   }
 
 }
