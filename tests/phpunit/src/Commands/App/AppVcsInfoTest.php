@@ -54,7 +54,7 @@ class AppVcsInfoTest extends CommandTestBase {
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testNoVscAvailableCommand(): void {
+  public function testNoVcsAvailableCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applications_response);
@@ -95,9 +95,19 @@ class AppVcsInfoTest extends CommandTestBase {
     );
 
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Status of Branches and Tags of the Application', $output);
-    $this->assertStringContainsString('Branch / Tag Name', $output);
-    $this->assertStringContainsString('Deployed Environment', $output);
+    $expected = <<<EOD
++-- Status of Branches and Tags of the Application ---+
+| Branch / Tag Name | Deployed | Deployed Environment |
++-------------------+----------+----------------------+
+| master            | Yes      | Dev                  |
+| tags/01-01-2015   | Yes      | Production           |
+|                   | Yes      | Stage                |
+| feature-branch    | No       | None                 |
+| tags/2014-09-03   | No       | None                 |
+| tags/2014-09-03.0 | No       | None                 |
++-------------------+----------+----------------------+
+EOD;
+    $this->assertStringContainsString($expected, $output);
   }
 
 }
