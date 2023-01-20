@@ -118,7 +118,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @throws \Exception
    */
-  public function testInvalidFilepath() {
+  public function testInvalidFilepath(): void {
     $inputs = [
       // Choose key.
       '0',
@@ -127,12 +127,9 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     ];
     $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
     $args = ['--filepath' => $filepath];
-    try {
-      $this->executeCommand($args, $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertEquals("The filepath $filepath is not valid", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage("The filepath $filepath is not valid");
+    $this->executeCommand($args, $inputs);
   }
 
 }

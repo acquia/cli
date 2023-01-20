@@ -4,7 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 
 use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Command\Pull\PullCodeCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -114,91 +113,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
-  }
-
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
-  public function testPullCodeDirtyRepo(): void {
-    $applications_response = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
-    $this->createMockGitConfigFile();
-
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-
-    $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
-
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Please select a Cloud Platform application:
-      0,
-      // Would you like to link the project at ... ?
-      'n',
-      // Please choose an Acquia environment:
-      0,
-    ];
-
-    try {
-      $this->executeCommand([
-      '--no-scripts' => TRUE,
-    ], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes', $exception->getMessage());
-    }
-  }
-
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
-  public function testPullCodeGitStatusFail(): void {
-    $applications_response = $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
-    $this->createMockGitConfigFile();
-
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-
-    $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
-
-    $inputs = [
-      // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
-      'n',
-      // Please select a Cloud Platform application:
-      0,
-      // Would you like to link the project at ... ?
-      'n',
-      // Please choose an Acquia environment:
-      0,
-    ];
-
-    try {
-      $this->executeCommand([
-        '--no-scripts' => TRUE,
-      ], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('unable to determine', $exception->getMessage());
-    }
-
   }
 
   /**

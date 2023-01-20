@@ -70,14 +70,11 @@ class LinkCommandTest extends CommandTestBase {
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLinkCommandInvalidDir(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationsRequest();
     $this->command->setProjectDir('');
-    try {
-      $this->executeCommand([], []);
-    }
-    catch (AcquiaCliException $e) {
-      $this->assertStringContainsString('Could not find a local Drupal project.', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Could not find a local Drupal project.');
+    $this->executeCommand([], []);
   }
 
 }

@@ -162,12 +162,8 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->removeMockCloudConfigFile();
     $this->createDataStores();
     $this->command = $this->createCommand();
-    try {
-      $this->executeCommand($args, $inputs);
-    }
-    catch (ValidatorException $exception) {
-      $this->assertEquals(ValidatorException::class, get_class($exception));
-    }
+    $this->expectException(ValidatorException::class);
+    $this->executeCommand($args, $inputs);
   }
 
   /**

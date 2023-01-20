@@ -210,38 +210,38 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  public function testInvalidGitLabCredentials() {
+  /**
+   * @throws \Exception
+   */
+  public function testInvalidGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $gitlab_client = $this->mockGitLabAuthenticate($local_machine_helper, $this->gitLabHost, $this->gitLabToken);
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    try {
-      $this->executeCommand([
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-      ], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Unable to authenticate with Code Studio', $this->getDisplay());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Unable to authenticate with Code Studio');
+    $this->executeCommand([
+      '--key' => $this->key,
+      '--secret' => $this->secret,
+    ]);
   }
 
-  public function testMissingGitLabCredentials() {
+  /**
+   * @throws \Exception
+   */
+  public function testMissingGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
     $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
     $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost, FALSE);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    try {
-      $this->executeCommand([
-        '--key' => $this->key,
-        '--secret' => $this->secret,
-      ], []);
-    }
-    catch (AcquiaCliException $exception) {
-    }
-    $this->assertStringContainsString('You must first authenticate with Code Studio', $this->getDisplay());
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Could not determine GitLab token');
+    $this->executeCommand([
+      '--key' => $this->key,
+      '--secret' => $this->secret,
+    ]);
   }
 
   /**

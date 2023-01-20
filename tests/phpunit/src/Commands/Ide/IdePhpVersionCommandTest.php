@@ -6,7 +6,6 @@ use Acquia\Cli\Command\Ide\IdePhpVersionCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
-use Exception;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
@@ -88,31 +87,28 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    *
    * @param string $version
    * @param string $exception_class
+   *
+   * @throws \Exception
    */
-  public function testIdePhpVersionCommandFailure($version, $exception_class): void {
-    try {
-      $this->executeCommand([
-        'version' => $version,
-      ], []);
-    }
-    catch (Exception $exception) {
-      $this->assertEquals($exception_class, get_class($exception));
-    }
+  public function testIdePhpVersionCommandFailure(string $version, string $exception_class): void {
+    $this->expectException($exception_class);
+    $this->executeCommand([
+      'version' => $version,
+    ]);
   }
 
   /**
    * Tests the 'ide:php-version' command outside of IDE environment.
+   *
+   * @throws \Exception
    */
   public function testIdePhpVersionCommandOutsideIde(): void {
     IdeHelper::unsetCloudIdeEnvVars();
-    try {
-      $this->executeCommand([
-        'version' => '7.3',
-      ], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertEquals('This command can only be run inside of an Acquia Cloud IDE', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('This command can only be run inside of an Acquia Cloud IDE');
+    $this->executeCommand([
+      'version' => '7.3',
+    ]);
   }
 
   /**

@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Env;
 use Acquia\Cli\Command\Env\EnvCreateCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Exception;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
@@ -141,19 +140,15 @@ class EnvCreateCommandTest extends CommandTestBase {
     $label = 'Dev';
     $this->setupCdeTest($label);
 
-    try {
-      $this->executeCommand(
-        [
-          'label' => $label,
-          'branch' => $this->getBranch(),
-          'applicationUuid' => $this->getApplication(),
-        ]
-      );
-    }
-    catch (Exception $e) {
-      $this->assertInstanceOf(AcquiaCliException::class, $e);
-      $this->assertEquals('An environment named Dev already exists.', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('An environment named Dev already exists.');
+    $this->executeCommand(
+      [
+        'label' => $label,
+        'branch' => $this->getBranch(),
+        'applicationUuid' => $this->getApplication(),
+      ]
+    );
   }
 
   /**
@@ -163,19 +158,15 @@ class EnvCreateCommandTest extends CommandTestBase {
   public function testCreateCdeInvalidTag(): void {
     $this->setupCdeTest(self::$validLabel);
 
-    try {
-      $this->executeCommand(
-        [
-          'label' => self::$validLabel,
-          'branch' => 'bogus',
-          'applicationUuid' => $this->getApplication(),
-        ]
-      );
-    }
-    catch (Exception $e) {
-      $this->assertInstanceOf(AcquiaCliException::class, $e);
-      $this->assertEquals('There is no branch or tag with the name bogus on the remote VCS.', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
+    $this->executeCommand(
+      [
+        'label' => self::$validLabel,
+        'branch' => 'bogus',
+        'applicationUuid' => $this->getApplication(),
+      ]
+    );
   }
 
 }

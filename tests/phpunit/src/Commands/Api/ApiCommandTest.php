@@ -55,7 +55,7 @@ class ApiCommandTest extends CommandTestBase {
    * @return void
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testArgumentsInteractionValidation() {
+  public function testArgumentsInteractionValidation(): void {
     $this->command = $this->getApiCommandByName('api:environments:variable-update');
     try {
       $this->executeCommand([], [
@@ -220,12 +220,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'invalidalias';
-    try {
-      $this->executeCommand(['applicationUuid' => $alias], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertEquals("No applications match the alias *:invalidalias", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No applications match the alias *:invalidalias');
+    $this->executeCommand(['applicationUuid' => $alias], []);
     $this->prophet->checkPredictions();
   }
 
@@ -242,14 +239,12 @@ class ApiCommandTest extends CommandTestBase {
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
-    try {
-      $this->executeCommand(['applicationUuid' => $alias], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $output=$this->getDisplay();
-      $this->assertStringContainsString('Use a unique application alias: devcloud:devcloud2, devcloud:devcloud2', $output);
-      $this->assertEquals('Multiple applications match the alias *:devcloud2', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Multiple applications match the alias *:devcloud2');
+    $this->executeCommand(['applicationUuid' => $alias], []);
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Use a unique application alias: devcloud:devcloud2, devcloud:devcloud2', $output);
+
     $this->prophet->checkPredictions();
   }
 
@@ -316,12 +311,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->mockAccountRequest();
     $this->command = $this->getApiCommandByName('api:environments:find');
     $alias = 'devcloud2.invalid';
-    try {
-      $this->executeCommand(['environmentId' => $alias], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertEquals('{environmentId} must be a valid UUID or site alias.', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('{environmentId} must be a valid UUID or site alias.');
+    $this->executeCommand(['environmentId' => $alias], []);
     $this->prophet->checkPredictions();
   }
 

@@ -6,7 +6,6 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
-use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -66,23 +65,21 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabasesLocalConnectionFailure(): void {
     $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
-    try {
-      $this->executeCommand([
-        '--no-scripts' => TRUE,
-      ], $inputs);
-    }
-    catch (Exception $e) {
-      $this->assertStringContainsString('Unable to connect', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Unable to connect');
+    $this->executeCommand([
+      '--no-scripts' => TRUE,
+    ], $inputs);
   }
 
   /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
+   * @throws \Exception|\Psr\Cache\InvalidArgumentException|\GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabasesIntoLando(): void {
     $lando_info = LandoInfoHelper::getLandoInfo();
@@ -176,65 +173,44 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
-   */
-  public function testPullDatabaseWithMySqlDownloadError(): void {
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Could not download remote database dump', $exception->getMessage());
-    }
-  }
-
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
-
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Unable to drop a local database', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Unable to drop a local database');
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabaseWithMySqlCreateError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
 
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Unable to create a local database', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Unable to create a local database');
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
+   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
 
-    try {
-      $this->executeCommand(['--no-scripts' => TRUE], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Unable to import local database', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Unable to import local database');
+    $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
   /**

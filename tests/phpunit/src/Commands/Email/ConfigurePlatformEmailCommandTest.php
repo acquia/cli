@@ -389,6 +389,11 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testConfigurePlatformEmailNoApps(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
@@ -435,18 +440,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $applications_response = $this->mockApplicationsRequest();
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    try {
-      $this->executeCommand([], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString("You do not have access to any applications", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('You do not have access to any applications');
+    $this->executeCommand([], $inputs);
 
     $output = $this->getDisplay();
     $this->prophet->checkPredictions();
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
   public function testConfigurePlatformEmailWithNoDomainMatch(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -476,17 +482,19 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $get_domains_response->_embedded->items[0]->domain_name = 'mismatch-test.com';
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
 
-    try {
-      $this->executeCommand([], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString("Could not find domain", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Could not find domain');
+    $this->executeCommand([], $inputs);
 
     $this->prophet->checkPredictions();
 
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \Exception
+   */
   public function testConfigurePlatformEmailWithErrorRetrievingDomainHealth(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -519,12 +527,9 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $domains_registration_response_404 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains/{domainRegistrationUuid}', 'get', '404');
 
     $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains/{$get_domains_response->_embedded->items[0]->uuid}")->willReturn($domains_registration_response_404);
-    try {
-      $this->executeCommand([], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString("Could not retrieve DNS records for this domain", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Could not retrieve DNS records for this domain');
+    $this->executeCommand([], $inputs);
 
     $this->prophet->checkPredictions();
 

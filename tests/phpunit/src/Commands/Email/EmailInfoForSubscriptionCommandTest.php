@@ -113,12 +113,9 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
     $this->mockApplicationsRequest();
 
-    try {
-      $this->executeCommand([], $inputs);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString("You do not have access", $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('You do not have access');
+    $this->executeCommand([], $inputs);
   }
 
   /**
