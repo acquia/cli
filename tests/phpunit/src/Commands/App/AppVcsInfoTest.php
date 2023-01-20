@@ -36,16 +36,14 @@ class AppVcsInfoTest extends CommandTestBase {
       ->shouldBeCalled();
     $this->mockApplicationCodeRequest($applications_response);
 
-    try {
-      $this->executeCommand(
-        [
-          'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-        ],
-      );
-    }
-    catch (AcquiaCliException $e) {
-      self::assertEquals('There are no environments available with this application.', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('There are no environments available with this application.');
+
+    $this->executeCommand(
+      [
+        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+      ],
+    );
   }
 
   /**
@@ -64,16 +62,13 @@ class AppVcsInfoTest extends CommandTestBase {
       ->willReturn([])
       ->shouldBeCalled();
 
-    try {
-      $this->executeCommand(
-        [
-          'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-        ],
-      );
-    }
-    catch (AcquiaCliException $e) {
-      self::assertEquals('No branch or tag is available with this application.', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No branch or tag is available with this application.');
+    $this->executeCommand(
+      [
+        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+      ],
+    );
   }
 
   /**
