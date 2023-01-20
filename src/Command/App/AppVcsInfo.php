@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Code;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\Table;
@@ -30,7 +31,6 @@ class AppVcsInfo extends CommandBase {
    *
    * @return int 0 if everything went fine, or an exit code
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -42,8 +42,7 @@ class AppVcsInfo extends CommandBase {
     $environments = $env_resource->getAll($application_uuid);
 
     if (!$environments->count()) {
-      $this->io->error('There are no environments available with this application.');
-      return self::FAILURE;
+      throw new AcquiaCliException('There are no environments available with this application.');
     }
 
     // Prepare list of all deployed VCS paths.
@@ -56,8 +55,7 @@ class AppVcsInfo extends CommandBase {
     $all_branches_and_tags = $application_code_resource->getAll($application_uuid);
 
     if (!$all_branches_and_tags->count()) {
-      $this->io->error('No branch or tag is available with this application.');
-      return self::FAILURE;
+      throw new AcquiaCliException('No branch or tag is available with this application.');
     }
 
     $non_deployed_vcs = [];

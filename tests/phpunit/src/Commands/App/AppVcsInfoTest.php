@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\AppVcsInfo;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
@@ -22,6 +23,9 @@ class AppVcsInfoTest extends CommandTestBase {
 
   /**
    * Test when no environment available for the app.
+   *
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   public function testNoEnvAvailableCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -32,18 +36,23 @@ class AppVcsInfoTest extends CommandTestBase {
       ->shouldBeCalled();
     $this->mockApplicationCodeRequest($applications_response);
 
-    $this->executeCommand(
-      [
-        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-      ],
-    );
-
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('There are no environments available with this application.', $output);
+    try {
+      $this->executeCommand(
+        [
+          'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+        ],
+      );
+    }
+    catch (AcquiaCliException $e) {
+      self::assertEquals('There are no environments available with this application.', $e->getMessage());
+    }
   }
 
   /**
    * Test when no branch or tag available for the app.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testNoVscAvailableCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -55,18 +64,23 @@ class AppVcsInfoTest extends CommandTestBase {
       ->willReturn([])
       ->shouldBeCalled();
 
-    $this->executeCommand(
-      [
-        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
-      ],
-    );
-
-    $output = $this->getDisplay();
-    $this->assertStringContainsString('No branch or tag is available with this application.', $output);
+    try {
+      $this->executeCommand(
+        [
+          'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+        ],
+      );
+    }
+    catch (AcquiaCliException $e) {
+      self::assertEquals('No branch or tag is available with this application.', $e->getMessage());
+    }
   }
 
   /**
    * Test the list of the VCS details of the application.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testShowVcsListCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
