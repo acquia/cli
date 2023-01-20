@@ -4,8 +4,8 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Acquia\Cli\Command\Ide\IdeServiceRestartCommand;
 use Acquia\Cli\Tests\CommandTestBase;
-use Exception;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Class IdeServiceRestartCommandTest.
@@ -50,12 +50,9 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    try {
-      $this->executeCommand(['service' => 'rambulator'], []);
-    }
-    catch (Exception $exception) {
-      $this->assertStringContainsString('Please specify a valid service name', $exception->getMessage());
-    }
+    $this->expectException(ValidatorException::class);
+    $this->expectExceptionMessage('Please specify a valid service name');
+    $this->executeCommand(['service' => 'rambulator'], []);
   }
 
 }

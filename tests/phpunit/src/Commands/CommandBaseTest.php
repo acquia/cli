@@ -5,8 +5,8 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\App\LinkCommand;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Ide\IdeListCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Exception;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -31,12 +31,9 @@ class CommandBaseTest extends CommandTestBase {
       // Would you like to share anonymous performance usage and data?
       'n',
     ];
-    try {
-      $this->executeCommand([], $inputs);
-    }
-    catch (Exception $e) {
-      $this->assertEquals('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`', $e->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
+    $this->executeCommand([], $inputs);
   }
 
   public function testCloudAppFromLocalConfig(): void {
@@ -90,13 +87,10 @@ class CommandBaseTest extends CommandTestBase {
    *
    * @throws \Exception
    */
-  public function testInvalidCloudAppUuidArg($uuid, $message): void {
-    try {
-      CommandBase::validateUuid($uuid);
-    }
-    catch (ValidatorException $e) {
-      $this->assertEquals($message, $e->getMessage());
-    }
+  public function testInvalidCloudAppUuidArg(string $uuid, string $message): void {
+    $this->expectException(ValidatorException::class);
+    $this->expectExceptionMessage($message);
+    CommandBase::validateUuid($uuid);
   }
 
   public function providerTestInvalidCloudEnvironmentAlias(): array {
@@ -115,13 +109,10 @@ class CommandBaseTest extends CommandTestBase {
    *
    * @throws \Exception
    */
-  public function testInvalidCloudEnvironmentAlias($alias, $message): void {
-    try {
-      CommandBase::validateEnvironmentAlias($alias);
-    }
-    catch (ValidatorException $e) {
-      $this->assertEquals($message, $e->getMessage());
-    }
+  public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void {
+    $this->expectException(ValidatorException::class);
+    $this->expectExceptionMessage($message);
+    CommandBase::validateEnvironmentAlias($alias);
   }
 
 }

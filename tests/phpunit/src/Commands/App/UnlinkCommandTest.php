@@ -3,8 +3,8 @@
 namespace Acquia\Cli\Tests\Commands\App;
 
 use Acquia\Cli\Command\App\UnlinkCommand;
+use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Exception;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -47,13 +47,13 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString("Unlinked $this->projectDir from Cloud application " . $cloud_application->name, $output);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testUnlinkCommandInvalidDir(): void {
-    try {
-      $this->executeCommand([], []);
-    }
-    catch (Exception $exception) {
-      $this->assertStringContainsString('There is no Cloud Platform application linked to ' . $this->projectDir, $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('There is no Cloud Platform application linked to ' . $this->projectDir);
+    $this->executeCommand([], []);
   }
 
 }

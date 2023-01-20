@@ -33,7 +33,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   /**
    * @return array
    */
-  public function providerTestPhpVersionFailure() {
+  public function providerTestPhpVersionFailure(): array {
     return [
       ['', ValidatorException::class],
       ['8', ValidatorException::class],
@@ -46,21 +46,21 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    * Test for the wrong PHP version passed as argument.
    *
    * @dataProvider providerTestPhpVersionFailure
+   * @throws \Exception
    */
-  public function testPhpVersionFailure($php_version, $exception_class): void {
-    try {
-      $this->executeCommand([
-        'php-version' => $php_version,
-        'applicationUuid' => self::$application_uuid,
-      ]);
-    }
-    catch (\Exception $exception) {
-      $this->assertEquals($exception_class, get_class($exception));
-    }
+  public function testPhpVersionFailure($php_version): void {
+    $this->expectException(ValidatorException::class);
+    $this->executeCommand([
+      'php-version' => $php_version,
+      'applicationUuid' => self::$application_uuid,
+    ]);
   }
 
   /**
    * Test for CI/CD not enabled on the project.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCiCdNotEnabled(): void {
     $this->mockApplicationRequest();
@@ -88,6 +88,9 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version add.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAddFail(): void {
     $this->mockApplicationRequest();
@@ -120,6 +123,9 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version add.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAdd(): void {
     $this->mockApplicationRequest();
@@ -152,6 +158,9 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version update.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdateFail(): void {
     $this->mockApplicationRequest();
@@ -193,6 +202,9 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version update.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();

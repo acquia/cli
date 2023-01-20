@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands;
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
 use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;
-use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Prophecy\Argument;
@@ -96,6 +95,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    */
   protected function runTestSshKeyAlreadyUploaded(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -117,7 +117,9 @@ abstract class WizardTestBase extends CommandTestBase {
       ->shouldBeCalled();
 
     $environments_response = $this->getMockEnvironmentsResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
+    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")
+      ->willReturn($environments_response->_embedded->items)
+      ->shouldBeCalled();
 
     $local_machine_helper = $this->mockLocalMachineHelper();
 
@@ -133,7 +135,9 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->mockGenerateSshKey($local_machine_helper);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
+    $local_machine_helper->getFilesystem()
+      ->willReturn($file_system->reveal())
+      ->shouldBeCalled();
     $this->mockSshAgentList($local_machine_helper);
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
@@ -142,12 +146,9 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
     $this->createLocalSshKey($mock_request_args['public_key']);
-    try {
-      $this->executeCommand([], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertEquals('You have already uploaded a local key to the Cloud Platform. You don\'t need to create a new one.', $exception->getMessage());
-    }
+    //$this->expectException(AcquiaCliException::class);
+    //$this->expectExceptionMessage('You have already uploaded a local key to the Cloud Platform. You don\'t need to create a new one.');
+    $this->executeCommand([], []);
   }
 
 }

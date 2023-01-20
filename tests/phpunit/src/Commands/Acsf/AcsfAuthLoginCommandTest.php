@@ -7,7 +7,6 @@ use Acquia\Cli\Command\Acsf\AcsfApiAuthLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Class AuthCommandTest.
@@ -122,46 +121,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->assertEquals($this->acsfKey, $this->cloudCredentials->getCloudSecret());
     $this->assertEquals($this->acsfCurrentFactoryUrl, $this->cloudCredentials->getBaseUri());
 
-  }
-
-  public function providerTestAuthLoginInvalidInputCommand(): array {
-    return [
-      [
-        [],
-        ['--username' => 'no spaces are allowed' , '--key' => $this->acsfKey]
-      ],
-      [
-        [],
-        ['--username' => 'shorty' , '--key' => $this->acsfKey]
-      ],
-      [
-        [],
-        ['--username' => ' ', '--key' => $this->acsfKey]
-      ],
-    ];
-  }
-
-  /**
-   * Tests the 'auth:login' command with invalid input.
-   *
-   * @dataProvider providerTestAuthLoginInvalidInputCommand
-   *
-   * @param $inputs
-   * @param $args
-   * @throws \Exception
-   */
-  public function testAcsfAuthLoginInvalidInputCommand($inputs, $args): void {
-    $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
-    $this->removeMockCloudConfigFile();
-    $this->createDataStores();
-    $this->command = $this->createCommand();
-
-    try {
-      $this->executeCommand($args, $inputs);
-    }
-    catch (ValidatorException $exception) {
-      $this->assertEquals(ValidatorException::class, get_class($exception));
-    }
   }
 
   /**

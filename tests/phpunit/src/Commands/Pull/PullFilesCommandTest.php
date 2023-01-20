@@ -38,7 +38,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockGetAcsfSites($ssh_helper);
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockGetFilesystem($local_machine_helper);
-    $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files', $this->projectDir . '/docroot/sites/jxr5000596dev/');
+    $this->mockExecuteRsync($local_machine_helper, $selected_environment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files', $this->projectDir . '/docroot/sites/jxr5000596dev/');
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -80,7 +80,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockGetFilesystem($local_machine_helper);
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($selected_environment->ssh_url);
-    $this->mockExecuteRsync($local_machine_helper, $ssh_helper, $selected_environment, '/mnt/files/' . $sitegroup . '.' . $selected_environment->name . '/sites/bar/files/', $this->projectDir . '/docroot/sites/bar/files');
+    $this->mockExecuteRsync($local_machine_helper, $selected_environment, '/mnt/files/' . $sitegroup . '.' . $selected_environment->name . '/sites/bar/files/', $this->projectDir . '/docroot/sites/bar/files');
 
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->command->sshHelper = $ssh_helper->reveal();
@@ -108,31 +108,29 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  /**
+   * @throws \Exception
+   */
   public function testInvalidCwd(): void {
     IdeHelper::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockDrupalSettingsRefresh($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
-    try {
-      $this->executeCommand([], []);
-    }
-    catch (AcquiaCliException $exception) {
-      $this->assertStringContainsString('Please run this command from the ', $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Please run this command from the ');
+    $this->executeCommand();
     IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    * @param $environment
-   * @param $source_dir
-   * @param $destination_dir
+   * @param string $source_dir
+   * @param string $destination_dir
    */
   protected function mockExecuteRsync(
     ObjectProphecy $local_machine_helper,
-    ObjectProphecy $ssh_helper,
-    $environment,
+                   $environment,
     string $source_dir,
     string $destination_dir
   ): void {

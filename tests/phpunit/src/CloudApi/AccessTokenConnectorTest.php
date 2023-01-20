@@ -107,12 +107,9 @@ class AccessTokenConnectorTest extends TestBase {
     $expiry_file = Path::join($vfs->url(), 'expiry');
     putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
-    try {
-      $this->cloudCredentials->getCloudAccessToken();
-    }
-    catch (AcquiaCliException $exception) {
-      self::assertEquals('Access token file not found at ' . $token_file, $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Access token file not found at ' . $token_file);
+    $this->cloudCredentials->getCloudAccessToken();
   }
 
   public function testMissingExpiryFile(): void {
@@ -124,12 +121,9 @@ class AccessTokenConnectorTest extends TestBase {
     $expiry_file = Path::join($vfs->url(), 'expiry');
     putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
-    try {
-      $this->cloudCredentials->getCloudAccessTokenExpiry();
-    }
-    catch (AcquiaCliException $exception) {
-      self::assertEquals('Access token expiry file not found at ' . $expiry_file, $exception->getMessage());
-    }
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('Access token expiry file not found at ' . $expiry_file);
+    $this->cloudCredentials->getCloudAccessTokenExpiry();
   }
 
   /**
