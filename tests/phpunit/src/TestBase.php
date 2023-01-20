@@ -579,6 +579,29 @@ abstract class TestBase extends TestCase {
   }
 
   /**
+   * @param object $applications_response
+   *
+   * @return object
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function mockApplicationCodeRequest(
+    object $applications_response
+  ): object {
+    $response = $this->getApplicationCodeResponse();
+    $this->clientProphecy->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/code")
+      ->willReturn($response->_embedded->items)
+      ->shouldBeCalled();
+
+    return $response;
+  }
+
+  protected function getApplicationCodeResponse(): object {
+    return $this->getMockResponseFromSpec('/applications/{applicationUuid}/code',
+      'get', 200);
+  }
+
+  /**
    * Request account information.
    *
    * @param bool $support
