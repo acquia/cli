@@ -19,7 +19,6 @@
     },
     "require": {
         "php": "^8.0",
-        "ext-iconv": "*",
         "ext-json": "*",
         "acquia/drupal-environment-detector": "^1.2.0",
         "bugsnag/bugsnag": "^3.0",
