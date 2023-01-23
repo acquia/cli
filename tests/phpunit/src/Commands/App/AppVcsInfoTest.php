@@ -96,7 +96,6 @@ class AppVcsInfoTest extends CommandTestBase {
 +-------------------+----------+----------------------+
 | master            | Yes      | Dev                  |
 | tags/01-01-2015   | Yes      | Production           |
-|                   | Yes      | Stage                |
 | feature-branch    | No       | None                 |
 | tags/2014-09-03   | No       | None                 |
 | tags/2014-09-03.0 | No       | None                 |
