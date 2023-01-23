@@ -68,7 +68,7 @@ class ReStructuredTextDescriptor extends MarkdownDescriptor {
     }
 
     $option_description = $option->getDescription() ? preg_replace('/\s*[\r\n]\s*/', "\n\n", $option->getDescription()) . "\n\n" : '';
-    $option_description = iconv('UTF-8', 'ASCII//TRANSLIT', $option_description);
+    $option_description = utf8_decode($option_description);
     $this->write(
       $name . "\n" . str_repeat($this->paragraphsChar, Helper::width($name)) . "\n\n"
       . $option_description
