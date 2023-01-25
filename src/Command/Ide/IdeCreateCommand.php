@@ -107,17 +107,20 @@ class IdeCreateCommand extends IdeCommandBase {
    *
    * @return int
    */
-  protected function waitForDnsPropagation($ide_url): int {
+  private function waitForDnsPropagation($ide_url): int {
+    $ideCreated = FALSE;
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
-    $checkIdeStatus = function () use (&$response) {
+    $checkIdeStatus = function () use ($ideCreated) {
       $response = $this->client->request('GET', '/health');
-      return $response->getStatusCode() === 200;
+      if ($response->getStatusCode() === 200) {
+        $ideCreated = TRUE;
+      }
+      return $ideCreated;
     };
-    $doneCallback = function () use (&$response) {
-      // Response may not exist if the loop timed out.
-      if (isset($response) && $response->getStatusCode() === 200) {
+    $doneCallback = function () use ($ideCreated) {
+      if ($ideCreated) {
         $this->output->writeln('');
         $this->output->writeln('<info>Your IDE is ready!</info>');
       }
