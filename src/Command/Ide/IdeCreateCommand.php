@@ -8,7 +8,6 @@ use AcquiaCloudApi\Endpoints\Account;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
-use Closure;
 use GuzzleHttp\Client;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,7 +28,7 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @var \GuzzleHttp\Client
    */
-  private $client;
+  private Client $client;
 
   /**
    * {inheritdoc}.
@@ -59,7 +58,11 @@ class IdeCreateCommand extends IdeCommandBase {
       $this->validateIdeLabel($ide_label);
     }
     else {
-      $ide_label = $this->io->ask("Please enter a label for your Cloud IDE. Press enter to use default", $default, Closure::fromCallable([$this, 'validateIdeLabel']));
+      $ide_label = $this->io->ask(
+        "Please enter a label for your Cloud IDE. Press enter to use default",
+        $default,
+        [$this, 'validateIdeLabel']
+      );
     }
 
     // Create it.
@@ -79,11 +82,17 @@ class IdeCreateCommand extends IdeCommandBase {
   }
 
   /**
+   * Keep this public since it's used as a callback and static analysis tools
+   * think it's unused.
+   *
+   * @todo use first-class callable syntax instead once we upgrade to PHP 8.1
+   * @see https://www.php.net/manual/en/functions.first_class_callable_syntax.php
+   *
    * @param string $label
    *
    * @return string
    */
-  private function validateIdeLabel(string $label): string {
+  public function validateIdeLabel(string $label): string {
     $violations = Validation::createValidator()->validate($label, [
       new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Please use only letters, numbers, and spaces']),
     ]);
@@ -97,7 +106,6 @@ class IdeCreateCommand extends IdeCommandBase {
    * @param $ide_url
    *
    * @return int
-   * @infection-ignore-all
    */
   protected function waitForDnsPropagation($ide_url): int {
     if (!$this->getClient()) {
@@ -108,7 +116,8 @@ class IdeCreateCommand extends IdeCommandBase {
       return $response->getStatusCode() === 200;
     };
     $doneCallback = function () use (&$response) {
-      if ($response->getStatusCode() === 200) {
+      // Response may not exist if the loop timed out.
+      if (isset($response) && $response->getStatusCode() === 200) {
         $this->output->writeln('');
         $this->output->writeln('<info>Your IDE is ready!</info>');
       }
@@ -134,7 +143,7 @@ class IdeCreateCommand extends IdeCommandBase {
    * @return \GuzzleHttp\Client|null
    */
   private function getClient(): ?Client {
-    return $this->client;
+    return $this->client ?? NULL;
   }
 
   /**
