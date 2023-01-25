@@ -112,14 +112,14 @@ class IdeCreateCommand extends IdeCommandBase {
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ide_url]));
     }
-    $checkIdeStatus = function () use ($ideCreated) {
+    $checkIdeStatus = function () use (&$ideCreated) {
       $response = $this->client->request('GET', '/health');
       if ($response->getStatusCode() === 200) {
         $ideCreated = TRUE;
       }
       return $ideCreated;
     };
-    $doneCallback = function () use ($ideCreated) {
+    $doneCallback = function () use (&$ideCreated) {
       if ($ideCreated) {
         $this->output->writeln('');
         $this->output->writeln('<info>Your IDE is ready!</info>');
