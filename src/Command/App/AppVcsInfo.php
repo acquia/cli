@@ -8,6 +8,7 @@ use AcquiaCloudApi\Endpoints\Code;
 use AcquiaCloudApi\Endpoints\Environments;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -21,7 +22,9 @@ class AppVcsInfo extends CommandBase {
    * {inheritdoc}.
    */
   protected function configure(): void {
-    $this->setDescription('Get all branches and tags of the application with the deployment status');
+    $this->setDescription('Get all branches and tags of the application with the deployment status')
+      ->addOption('deployed', NULL, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
+      ->addUsage(self::getDefaultName() . ' [<applicationAlias>] --deployed');
     $this->acceptApplicationUuid();
   }
 
@@ -45,10 +48,20 @@ class AppVcsInfo extends CommandBase {
       throw new AcquiaCliException('There are no environments available with this application.');
     }
 
+    // To show branches and tags which are deployed only.
+    $show_deployed_vcs_only = $input->hasParameterOption('--deployed');
+
     // Prepare list of all deployed VCS paths.
     $deployed_vcs = [];
     foreach ($environments as $environment) {
-      $deployed_vcs[$environment->vcs->path] = $environment->label;
+      if (isset($environment->vcs->path)) {
+        $deployed_vcs[$environment->vcs->path] = $environment->label;
+      }
+    }
+
+    // If only to show the deployed VCS but no VCS is deployed.
+    if ($show_deployed_vcs_only && empty($deployed_vcs)) {
+      throw new AcquiaCliException('No branch or tag is deployed on any of the environment of this application.');
     }
 
     $application_code_resource = new Code($cloud_api_client);
@@ -59,10 +72,13 @@ class AppVcsInfo extends CommandBase {
     }
 
     $non_deployed_vcs = [];
-    // Prepare list of all non-deployed VCS paths.
-    foreach ($all_branches_and_tags as $branch_tag) {
-      if (!isset($deployed_vcs[$branch_tag->name])) {
-        $non_deployed_vcs[$branch_tag->name] = $branch_tag->name;
+    // Show both deployed and non-deployed VCS.
+    if (!$show_deployed_vcs_only) {
+      // Prepare list of all non-deployed VCS paths.
+      foreach ($all_branches_and_tags as $branch_tag) {
+        if (!isset($deployed_vcs[$branch_tag->name])) {
+          $non_deployed_vcs[$branch_tag->name] = $branch_tag->name;
+        }
       }
     }
 

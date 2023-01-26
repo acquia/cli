@@ -96,10 +96,73 @@ class AppVcsInfoTest extends CommandTestBase {
 +-------------------+----------+----------------------+
 | master            | Yes      | Dev                  |
 | tags/01-01-2015   | Yes      | Production           |
-|                   | Yes      | Stage                |
 | feature-branch    | No       | None                 |
 | tags/2014-09-03   | No       | None                 |
 | tags/2014-09-03.0 | No       | None                 |
++-------------------+----------+----------------------+
+
+EOD;
+    self::assertStringContainsStringIgnoringLineEndings($expected, $output);
+  }
+
+  /**
+   * Test the list of deployed VCS but no deployed VCS available.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testNoDeployedVcs(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $response = $this->getMockEnvironmentsResponse();
+    foreach ($response->_embedded->items as $key => $item) {
+      // Empty the VCS
+      $item->vcs = new \stdClass();
+      $response->_embedded->items[$key] = $item;
+    }
+
+    $this->clientProphecy->request('get',
+      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn($response->_embedded->items)
+      ->shouldBeCalled();
+    $this->mockApplicationCodeRequest($applications_response);
+
+    $this->expectException(AcquiaCliException::class);
+    $this->expectExceptionMessage('No branch or tag is deployed on any of the environment of this application.');
+    $this->executeCommand(
+      [
+        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+        '--deployed',
+      ],
+    );
+  }
+
+  /**
+   * Test the list of the only deployed VCS.
+   *
+   * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
+  public function testListOnlyDeployedVcs(): void {
+    $applications_response = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applications_response);
+    $this->mockApplicationCodeRequest($applications_response);
+
+    $this->executeCommand(
+      [
+        'applicationUuid' => 'a47ac10b-58cc-4372-a567-0e02b2c3d470',
+        '--deployed',
+      ],
+    );
+
+    $output = $this->getDisplay();
+    $expected = <<<EOD
++-- Status of Branches and Tags of the Application ---+
+| Branch / Tag Name | Deployed | Deployed Environment |
++-------------------+----------+----------------------+
+| master            | Yes      | Dev                  |
+| tags/01-01-2015   | Yes      | Production           |
 +-------------------+----------+----------------------+
 
 EOD;
