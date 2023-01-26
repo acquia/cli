@@ -20,6 +20,9 @@ class IdeCreateCommandTest extends CommandTestBase {
    * Tests the 'ide:create' command.
    *
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   * @throws \GuzzleHttp\Exception\GuzzleException
+   * @throws \Exception
    */
   public function testCreate(): void {
 

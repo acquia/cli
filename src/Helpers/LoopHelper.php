@@ -4,22 +4,25 @@ namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Output\Spinner\Spinner;
 use Exception;
+use Psr\Log\LoggerInterface;
 use React\EventLoop\Loop;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class LoopHelper {
 
   /**
-   * @param $output
-   * @param $io
-   * @param $logger
-   * @param $spinnerMessage
-   * @param $statusCallback
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Symfony\Component\Console\Style\SymfonyStyle $io
+   * @param \Psr\Log\LoggerInterface $logger
+   * @param string $spinnerMessage
+   * @param callable $statusCallback
    *   A TRUE return value will cause the loop to exit and call $doneCallback.
-   * @param $doneCallback
+   * @param callable $doneCallback
    *
    * @return void
    */
-  public static function getLoopy($output, $io, $logger, $spinnerMessage, $statusCallback, $doneCallback): void {
+  public static function getLoopy(OutputInterface $output, SymfonyStyle $io, LoggerInterface $logger, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void {
     $timers = [];
     $spinner = new Spinner($output, 4);
     $spinner->setMessage($spinnerMessage);
@@ -60,7 +63,7 @@ class LoopHelper {
       $doneCallback();
     });
 
-    // Manually run the loop. React eventloop advises against this and suggests
+    // Manually run the loop. React EventLoop advises against this and suggests
     // using autorun instead, but I'm not sure how to pass the correct exit code
     // to Symfony if this isn't blocking.
     Loop::run();
