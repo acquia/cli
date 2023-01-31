@@ -10,7 +10,7 @@ use Acquia\Cli\Tests\TestBase;
  */
 class EnvVarAcsfAuthenticationTest extends TestBase {
 
-  private string $acsfCurrentFactoryUrl = 'https://www.test.com';
+  private string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
 
   public function setUp($output = NULL): void {
     parent::setUp();

@@ -53,6 +53,7 @@ class CloudDataConfig implements ConfigurationInterface {
 
         ->arrayNode('acsf_factories')
             ->useAttributeAsKey('url')
+            ->normalizeKeys(FALSE)
             ->arrayPrototype()
                 ->children()
                     ->arrayNode('users')
