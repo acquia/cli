@@ -13,13 +13,14 @@ use Acquia\Cli\Tests\CommandTestBase;
  */
 abstract class AcsfCommandTestBase extends CommandTestBase {
 
-  protected $acsfCurrentFactoryUrl = 'https://www.test.com';
+  // Test URLs with hyphens to ensure they don't get normalized to underscores.
+  protected string $acsfCurrentFactoryUrl = 'https://www.test-something.com';
 
-  protected $acsfActiveUser = 'tester';
+  protected string $acsfActiveUser = 'tester';
 
-  protected $acsfUsername = 'tester';
+  protected string $acsfUsername = 'tester';
 
-  protected $acsfKey = 'h@x0r';
+  protected string $acsfKey = 'h@x0r';
 
   /**
    * @return array
