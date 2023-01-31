@@ -4,6 +4,7 @@ namespace Acquia\Cli\Tests\Commands\Env;
 
 use Acquia\Cli\Command\Env\EnvCopyCronCommand;
 use Acquia\Cli\Tests\CommandTestBase;
+use Exception;
 use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
@@ -75,6 +76,64 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     );
     $output = $this->getDisplay();
     $this->assertStringContainsString('The source and destination environments can not be same', $output);
+  }
+
+  /**
+   * Tests for no cron job available on source environment to copy.
+   */
+  public function testNoCronJobOnSource(): void {
+    $environments_response = $this->getMockEnvironmentsResponse();
+    $this->clientProphecy->request('get',
+      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
+      ->willReturn([])
+      ->shouldBeCalled();
+
+    $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+    $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+    $this->executeCommand(
+      [
+        'source_env' => $source,
+        'dest_env' => $dest,
+      ],
+      [
+        'y'
+      ]
+    );
+
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('There are no cron jobs in the source environment for copying.', $output);
+  }
+
+  /**
+   * Tests for exception during the cron job copy.
+   */
+  public function testExceptionOnCronJobCopy(): void {
+    $environments_response = $this->getMockEnvironmentsResponse();
+    $source_crons_list_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+    $this->clientProphecy->request('get',
+      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
+      ->willReturn($source_crons_list_response->{'_embedded'}->items)
+      ->shouldBeCalled();
+
+    $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
+    $this->clientProphecy->request('post',
+      '/environments/' . $environments_response->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
+      ->willThrow(Exception::class);
+
+    $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+    $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
+    $this->executeCommand(
+      [
+        'source_env' => $source,
+        'dest_env' => $dest,
+      ],
+      [
+        'y'
+      ]
+    );
+
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('There was some error while copying the cron task', $output);
   }
 
 }
