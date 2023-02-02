@@ -109,8 +109,11 @@
             "dev-main": "1.x-dev"
         },
         "patches": {
+            "symfony/console": [
+                "assets/symfony-console-rst.patch"
+            ],
             "symfony/filesystem": [
-                "symfony-fs-mirror.patch"
+                "assets/symfony-fs-mirror.patch"
             ],
             "consolidation/self-update": [
                 "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch",

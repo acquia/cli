@@ -30,7 +30,7 @@ class MakeDocsCommandTest extends CommandTestBase {
     $this->executeCommand([], []);
     $output = $this->getDisplay();
     $this->assertStringContainsString('Console Tool', $output);
-    $this->assertStringContainsString('############', $output);
+    $this->assertStringContainsString('============', $output);
     $this->assertStringContainsString('- `help`_', $output);
   }
 
