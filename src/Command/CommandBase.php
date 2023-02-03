@@ -41,6 +41,7 @@ use GuzzleHttp\HandlerStack;
 use Kevinrob\GuzzleCache\CacheMiddleware;
 use Kevinrob\GuzzleCache\Storage\Psr6CacheStorage;
 use Kevinrob\GuzzleCache\Strategy\PrivateCacheStrategy;
+use loophp\phposinfo\OsInfo;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
@@ -65,6 +66,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class CommandBase.
@@ -317,6 +319,35 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $this->output->writeln('If you change your mind, run <options=bold>acli telemetry</>.');
       }
     }
+  }
+
+  /**
+   * @param InputInterface $input
+   * @param OutputInterface $output
+   *
+   * @return int
+   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
+   */
+  public function run(InputInterface $input, OutputInterface $output): int {
+    $exit_code = parent::run($input, $output);
+    if ($exit_code === 0 && in_array($input->getFirstArgument(), ['self-update', 'update'])) {
+      // Exit immediately to avoid loading additional classes breaking updates.
+      // @see https://github.com/acquia/cli/issues/218
+      return $exit_code;
+    }
+    $event_properties = [
+      'exit_code' => $exit_code,
+      'arguments' => $input->getArguments(),
+      'options' => $input->getOptions(),
+      'app_version' => $this->getApplication()->getVersion(),
+      // phpcs:ignore
+      'platform' => OsInfo::family(),
+      'os_name' => OsInfo::os(),
+      'os_version' => OsInfo::version(),
+    ];
+    Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
+
+    return $exit_code;
   }
 
   /**
