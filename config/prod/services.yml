@@ -140,5 +140,8 @@ services:
   Psr\Log\LoggerInterface:
     alias: Symfony\Component\Console\Logger\ConsoleLogger
 
+  # Amplitude service.
+  Zumba\Amplitude\Amplitude: ~
+
   # Guzzle service.
   GuzzleHttp\Client: ~
