@@ -27,6 +27,7 @@ class ClearCacheCommandTest extends CommandTestBase {
    * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Exception
    * @group serial
    */
   public function testAliasesAreCached(): void {
@@ -68,14 +69,16 @@ class ClearCacheCommandTest extends CommandTestBase {
    * Tests the 'clear-caches' command.
    *
    * @throws \Exception
+   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testClearCaches(): void {
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Acquia CLI caches were cleared', $output);
 
     $cache = CommandBase::getAliasCache();
-    $this->assertCount(0, $cache->getItems());
+    $item_count = count($cache->getItems());
+    $this->assertEquals(0, $item_count);
   }
 
 }
