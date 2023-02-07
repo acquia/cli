@@ -77,8 +77,7 @@ class ClearCacheCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Acquia CLI caches were cleared', $output);
 
     $cache = CommandBase::getAliasCache();
-    $item_count = count($cache->getItems());
-    $this->assertEquals(0, $item_count);
+    $this->assertCount(0, iterator_to_array($cache->getItems(), FALSE));
   }
 
 }
