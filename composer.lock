@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a054e36868cc08b56e1b950813d9b9e6",
+    "content-hash": "7f57adcd53412fd5fb5ce6726a29eae8",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -8584,46 +8584,6 @@
             "time": "2022-03-03T13:19:32+00:00"
         },
         {
-            "name": "n98/junit-xml",
-            "version": "1.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/cmuench/junit-xml.git",
-                "reference": "0017dd92ac8cb619f02e32f4cffd768cfe327c73"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/cmuench/junit-xml/zipball/0017dd92ac8cb619f02e32f4cffd768cfe327c73",
-                "reference": "0017dd92ac8cb619f02e32f4cffd768cfe327c73",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^9.5.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "N98\\JUnitXml\\": "src/N98/JUnitXml"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Christian Münch",
-                    "email": "c.muench@netz98.de"
-                }
-            ],
-            "description": "JUnit XML Document generation library",
-            "support": {
-                "issues": "https://github.com/cmuench/junit-xml/issues",
-                "source": "https://github.com/cmuench/junit-xml/tree/1.1.0"
-            },
-            "time": "2020-12-25T09:08:58+00:00"
-        },
-        {
             "name": "nikic/php-parser",
             "version": "v4.15.3",
             "source": {
@@ -8759,32 +8719,33 @@
         },
         {
             "name": "overtrue/phplint",
-            "version": "4.5.0",
+            "version": "9.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/overtrue/phplint.git",
-                "reference": "d0b50e3b44641f961468e3f374937bb74181b02f"
+                "reference": "3ce8ba3c1b9a9fec8d4adb89b010d18d93241d8c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/overtrue/phplint/zipball/d0b50e3b44641f961468e3f374937bb74181b02f",
-                "reference": "d0b50e3b44641f961468e3f374937bb74181b02f",
+                "url": "https://api.github.com/repos/overtrue/phplint/zipball/3ce8ba3c1b9a9fec8d4adb89b010d18d93241d8c",
+                "reference": "3ce8ba3c1b9a9fec8d4adb89b010d18d93241d8c",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "n98/junit-xml": "1.1.0",
                 "php": "^8.0",
+                "symfony/cache": "^5.4 || ^6.0",
                 "symfony/console": "^5.4 || ^6.0",
+                "symfony/event-dispatcher": "^5.4 || ^6.0",
                 "symfony/finder": "^5.4 || ^6.0",
+                "symfony/options-resolver": "^5.4 || ^6.0",
                 "symfony/process": "^5.4 || ^6.0",
                 "symfony/yaml": "^5.4 || ^6.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.4",
-                "brainmaestro/composer-git-hooks": "^2.8.5",
-                "friendsofphp/php-cs-fixer": "^3.4.0",
-                "jetbrains/phpstorm-stubs": "^2021.3",
+                "brainmaestro/composer-git-hooks": "^2.8.5 || 3.0.0-alpha.1",
+                "jetbrains/phpstorm-stubs": "^2021.3 || ^2022.3",
                 "php-parallel-lint/php-console-highlighter": "^1.0"
             },
             "bin": [
@@ -8796,6 +8757,9 @@
                     "pre-commit": [
                         "composer fix-style"
                     ]
+                },
+                "branch-alias": {
+                    "dev-main": "9.0.x-dev"
                 }
             },
             "autoload": {
@@ -8811,6 +8775,10 @@
                 {
                     "name": "overtrue",
                     "email": "anzhengchao@gmail.com"
+                },
+                {
+                    "name": "Laurent Laville",
+                    "homepage": "https://github.com/llaville"
                 }
             ],
             "description": "`phplint` is a tool that can speed up linting of php files by running several lint processes at once.",
@@ -8822,7 +8790,7 @@
             ],
             "support": {
                 "issues": "https://github.com/overtrue/phplint/issues",
-                "source": "https://github.com/overtrue/phplint/tree/4.5.0"
+                "source": "https://github.com/overtrue/phplint/tree/9.0.1"
             },
             "funding": [
                 {
@@ -8830,7 +8798,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-12-28T13:06:24+00:00"
+            "time": "2023-02-13T14:40:47+00:00"
         },
         {
             "name": "phar-io/manifest",
