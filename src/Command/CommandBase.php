@@ -1482,7 +1482,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         '--no-interaction',
       ], $output_callback, $this->dir, FALSE);
       if ($process->isSuccessful()) {
-        $drush_status_return_output = json_decode($process->getOutput(), TRUE, 512, JSON_THROW_ON_ERROR);
+        $drush_status_return_output = json_decode($process->getOutput(), TRUE, 512);
         if (is_array($drush_status_return_output) && array_key_exists('db-status', $drush_status_return_output) && $drush_status_return_output['db-status'] === 'Connected') {
           $this->drushHasActiveDatabaseConnection = TRUE;
           return $this->drushHasActiveDatabaseConnection;
