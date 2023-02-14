@@ -63,7 +63,7 @@
         "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "infection/infection": "^0.26.15",
         "mikey179/vfsstream": "^1.6",
-        "overtrue/phplint": "^4.0",
+        "overtrue/phplint": "^9.0",
         "php-coveralls/php-coveralls": "^2.2",
         "phpro/grumphp": "^1.13.0",
         "phpspec/prophecy": "^1.10",
