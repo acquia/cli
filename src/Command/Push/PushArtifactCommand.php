@@ -31,11 +31,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   private string $composerJsonPath;
 
-  /**
-   * @var string
-   */
-  private string $drupalCorePath;
-
   private string $docrootPath;
 
   private string $destinationGitRef;
@@ -57,8 +52,8 @@ class PushArtifactCommand extends PullCommandBase {
       . 'Vendor directories and scaffold files are committed to the build artifact even if they are ignored in the source repository.' . PHP_EOL . PHP_EOL
       . 'To run additional build or sanitization steps (e.g. <options=bold>npm install</>), add a <options=bold>post-install-cmd</> script to your <options=bold>composer.json</> file: https://getcomposer.org/doc/articles/scripts.md#command-events')
       ->addUsage('--destination-git-branch=main-build')
-      ->addUsage('--source-git-branch=main-build --destination-git-tag=1.0.0')
-      ->addUsage('--dest-git-url=example@svn-1.prod.hosting.acquia.com:example.git --dest-branch=main-build');
+      ->addUsage('--source-git-tag=foo-build --destination-git-tag=1.0.0')
+      ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
   }
 
   /**
@@ -73,7 +68,6 @@ class PushArtifactCommand extends PullCommandBase {
     $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
     $this->docrootPath = Path::join($this->dir, 'docroot');
-    $this->drupalCorePath = Path::join($this->docrootPath, 'core');
     $this->validateSourceCode();
 
     $is_dirty = $this->isLocalGitRepoDirty();
@@ -120,14 +114,14 @@ class PushArtifactCommand extends PullCommandBase {
 
     if (!$input->getOption('dry-run')) {
       if ($tag_name = $input->getOption('destination-git-tag')) {
-        $this->checklist->addItem("Creating <options=bold>{$tag_name}</> tag.");
+        $this->checklist->addItem("Creating <options=bold>$tag_name</> tag.");
         $this->createTag($tag_name, $output_callback, $artifact_dir);
         $this->checklist->completePreviousItem();
-        $this->checklist->addItem("Pushing changes to <options=bold>{$tag_name}</> tag.");
+        $this->checklist->addItem("Pushing changes to <options=bold>$tag_name</> tag.");
         $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $tag_name);
       }
       else {
-        $this->checklist->addItem("Pushing changes to <options=bold>{$destination_git_ref}</> branch.");
+        $this->checklist->addItem("Pushing changes to <options=bold>$destination_git_ref</> branch.");
         $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $destination_git_ref . ':' . $destination_git_ref);
       }
       $this->checklist->completePreviousItem();
@@ -215,7 +209,7 @@ class PushArtifactCommand extends PullCommandBase {
   private function buildArtifact(Closure $output_callback, string $artifact_dir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
-    $output_callback('out', "Mirroring source files from {$this->dir} to $artifact_dir");
+    $output_callback('out', "Mirroring source files from $this->dir to $artifact_dir");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
@@ -354,9 +348,9 @@ class PushArtifactCommand extends PullCommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function pushArtifact(Closure $output_callback, string $artifact_dir, array $vcs_urls, string $dest_git_branch): void {
+    $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     foreach ($vcs_urls as $vcs_url) {
       $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
-      $this->localMachineHelper->checkRequiredBinariesExist(['git']);
       $args = [
         'git',
         'push',
@@ -487,7 +481,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     $environment = $this->determineEnvironment($this->input, $this->output);
     if (str_starts_with($environment->vcs->path, 'tags')) {
-      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment {$environment->name} has {$environment->vcs->path} deployed. Please select a different environment.");
+      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Please select a different environment.");
     }
 
     $this->destinationGitRef = $environment->vcs->path;
