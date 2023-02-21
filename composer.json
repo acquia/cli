@@ -23,7 +23,7 @@
         "acquia/drupal-environment-detector": "^1.2.0",
         "bugsnag/bugsnag": "^3.0",
         "composer/semver": "^3.3",
-        "consolidation/self-update": "^2.0.3",
+        "consolidation/self-update": "^2.1.0",
         "cweagans/composer-patches": "^1.7",
         "dflydev/dot-access-data": "^3",
         "grasmash/expander": "^3",
@@ -116,9 +116,6 @@
             ],
             "symfony/filesystem": [
                 "assets/symfony-fs-mirror.patch"
-            ],
-            "consolidation/self-update": [
-                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/19.patch"
             ]
         },
         "patchLevel": {
