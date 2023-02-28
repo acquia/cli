@@ -6,6 +6,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Response\ApplicationResponse;
 use Gitlab\Client;
 use Gitlab\Exception\RuntimeException;
+use Gitlab\Exception\ValidationFailedException;
 use Gitlab\HttpClient\Builder;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -250,7 +251,13 @@ trait CodeStudioCommandTrait {
     $slugger = new AsciiSlugger();
     $project_name = $slugger->slug($cloud_application->name);
     $project = $this->gitLabClient->projects()->create($project_name, $parameters);
-    $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+    try {
+      $this->gitLabClient->projects()
+        ->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+    }
+    catch (ValidationFailedException) {
+      $this->io->warning("Failed to upload project avatar");
+    }
     $this->io->success("Created {$project['path_with_namespace']} project in Code Studio.");
 
     return $project;
