@@ -6,6 +6,7 @@ use Acquia\Cli\Command\WizardCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
+use Gitlab\Exception\ValidationFailedException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -252,9 +253,14 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   private function updateGitLabProject(array $project): void {
     // Setting the description to match the known pattern will allow us to automatically find the project next time.
-    if ($project['description'] != $this->gitLabProjectDescription) {
+    if ($project['description'] !== $this->gitLabProjectDescription) {
       $this->gitLabClient->projects()->update($project['id'], $this->getGitLabProjectDefaults());
-      $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+      try {
+        $this->gitLabClient->projects()->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
+      }
+      catch (ValidationFailedException) {
+        $this->io->warning("Failed to upload project avatar");
+      }
     }
   }
 
