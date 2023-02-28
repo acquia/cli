@@ -3,6 +3,7 @@ on:
     types:
       - opened
       - closed
+  workflow_call:
 
 name: Sync GitHub issues to Jira
 
