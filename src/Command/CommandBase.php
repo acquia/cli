@@ -242,7 +242,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       $this->localDbHost = $lando_info->database->hostnames[0];
     }
     // If code studio pipeline.
-    else if (!empty(getenv('CI_JOB_ID')) && !empty(getenv('ACQUIA_GLAB_TOKEN_NAME'))) {
+    else if (AcquiaDrupalEnvironmentDetector::isCodeStudioEnv()) {
       $this->localDbHost = 'mysql';
     }
 
