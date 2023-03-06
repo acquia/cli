@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class OrganizationMembersRemoveCommand extends CommandBase {
 
-  protected static $defaultName = 'organization:member-remove';
+  protected static $defaultName = 'org:member-remove';
 
   /**
    * {inheritdoc}.

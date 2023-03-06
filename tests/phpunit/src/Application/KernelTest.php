@@ -74,6 +74,8 @@ Available commands:
   ide:list:app             [ide:list] List available Cloud IDEs belonging to a given application
   ide:list:mine            List Cloud IDEs belonging to you
   ide:open                 Open a Cloud IDE in your browser
+ org
+  org:member-remove        Remove the members from an organiztaion on Acquia Cloud Platform
  push
   push:artifact            Build and push a code artifact to a Cloud Platform environment
  remote
