@@ -39,17 +39,20 @@ class OrganizationMembersRemoveCommand extends CommandBase {
 
     if (count($all_organizations) === 0) {
       $this->io->error('No organization available with your account.');
+      return self::FAILURE;
     }
 
-    $is_valid_org_uuid = TRUE;
+    $is_valid_org_uuid = FALSE;
     foreach ($all_organizations as $organization) {
-      if ($organization->uuid === $org_id) {
+      if ($organization->uuid == $org_id) {
+        $is_valid_org_uuid = TRUE;
         break;
       }
     }
 
     if (!$is_valid_org_uuid) {
       $this->io->error('No organization with the given organization id or you don\'t have access.');
+      return self::FAILURE;
     }
 
     $org_members = $organization_resource->getMembers($org_id);
@@ -58,6 +61,7 @@ class OrganizationMembersRemoveCommand extends CommandBase {
     // If no member/admin available in organization
     if (count($org_members) === 0 && count($org_admins) === 0) {
       $this->io->error('No member available in the organization.');
+      return self::FAILURE;
     }
 
     $all_organization_members = [];
@@ -113,7 +117,7 @@ class OrganizationMembersRemoveCommand extends CommandBase {
       $this->io->error('The following email addresses are not available in the organization: ' . implode(', ', $not_removal_emails));
     }
 
-    return 0;
+    return self::SUCCESS;
   }
 
 }
