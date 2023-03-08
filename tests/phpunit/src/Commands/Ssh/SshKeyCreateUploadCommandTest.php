@@ -72,7 +72,7 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     //$this->command->sshHelper = $ssh_helper->reveal();
 
     $inputs = [
-      // Please enter a filename for your new local SSH key:
+      // Enter a filename for your new local SSH key:
       $ssh_key_filename,
       // Enter a password for your SSH key:
       'acli123',

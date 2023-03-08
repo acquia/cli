@@ -51,7 +51,7 @@ trait CodeStudioCommandTrait {
       return $this->input->getOption('gitlab-token');
     }
     if (!$this->localMachineHelper->commandExists('glab')) {
-      throw new AcquiaCliException("Please install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
+      throw new AcquiaCliException("Install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
     }
     $process = $this->localMachineHelper->execute([
       'glab',
@@ -89,7 +89,7 @@ trait CodeStudioCommandTrait {
       return $this->input->getOption('gitlab-host-name');
     }
     if (!$this->localMachineHelper->commandExists('glab')) {
-      throw new AcquiaCliException("Please install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
+      throw new AcquiaCliException("Install glab to continue: https://gitlab.com/gitlab-org/cli#installation");
     }
     $process = $this->localMachineHelper->execute([
       'glab',
@@ -207,7 +207,7 @@ trait CodeStudioCommandTrait {
         $projects,
         'id',
         'path_with_namespace',
-        "Found multiple projects that could match the {$cloud_application->name} application. Please choose which one to configure."
+        "Found multiple projects that could match the {$cloud_application->name} application. Choose which one to configure."
       );
     }
     // Prompt to create project.
@@ -227,7 +227,7 @@ trait CodeStudioCommandTrait {
       $this->gitLabClient->projects()->all(),
       'id',
       'path_with_namespace',
-      "Please choose a Code Studio project to configure for the {$cloud_application->name} application"
+      "Choose a Code Studio project to configure for the {$cloud_application->name} application"
     );
   }
 
@@ -244,7 +244,7 @@ trait CodeStudioCommandTrait {
     $parameters = $this->getGitLabProjectDefaults();
     if ($user_groups) {
       $user_groups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
-      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Please choose which group this new project should belong to:');
+      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Choose which group this new project should belong to:');
       $parameters['namespace_id'] = $project_group['id'];
     }
 

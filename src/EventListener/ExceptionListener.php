@@ -78,7 +78,7 @@ class ExceptionListener {
           break;
         case "This resource requires additional authentication.":
           $this->helpMessages[] = "This is likely because you have Federated Authentication required for your organization.";
-          $this->helpMessages[] = "Please run `acli login` to authenticate via API token and then try again.";
+          $this->helpMessages[] = "Run `acli login` to authenticate via API token and then try again.";
           break;
         default:
           $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
@@ -124,7 +124,7 @@ class ExceptionListener {
   private function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
     if (!$event->getOutput()->isVeryVerbose()) {
-      $message .= PHP_EOL . "Please re-run the command with the <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>-vvv</> flag and include the full command output in your support ticket.";
+      $message .= PHP_EOL . "Re-run the command with the <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>-vvv</> flag and include the full command output in your support ticket.";
     }
     $this->helpMessages[] = $message;
   }

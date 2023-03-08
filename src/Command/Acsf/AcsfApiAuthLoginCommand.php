@@ -52,7 +52,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       $factory_choices['add_new'] = [
         'url' => 'Enter a new factory URL',
       ];
-      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Please choose a Factory to login to');
+      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Choose a Factory to login to');
       if ($factory['url'] === 'Enter a new factory URL') {
         $factory_url = $this->io->ask('Enter the full URL of the factory');
         $factory = [
@@ -122,10 +122,10 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);
       $this->io->note([
-        "Please a value for $option_name",
+        "Provide a value for $option_name",
         $option->getDescription(),
       ]);
-      $question = new Question("Please enter a value for $option_name", $option->getDefault());
+      $question = new Question("Enter a value for $option_name", $option->getDefault());
       $question->setMaxAttempts(NULL);
       $question->setHidden($hidden);
       $answer = $this->io->askQuestion($question);

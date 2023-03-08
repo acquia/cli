@@ -39,7 +39,7 @@ class PullCommandTest extends PullCommandTestBase {
     $this->removeMockGitConfig();
     $this->command = $this->createCommand();
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Please execute this command from within a Drupal project directory or an empty directory');
+    $this->expectExceptionMessage('Execute this command from within a Drupal project directory or an empty directory');
     $inputs = [
       // Would you like to clone a project into the current directory?
       'n',

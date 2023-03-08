@@ -44,11 +44,11 @@ class ApiCommandTest extends CommandTestBase {
       'apache-access',
     ]);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Please enter a value for environmentId', $output);
+    $this->assertStringContainsString('Enter a value for environmentId', $output);
     $this->assertStringContainsString('logType is a required argument', $output);
     $this->assertStringContainsString('An ID that uniquely identifies a log type.', $output);
     $this->assertStringContainsString('apache-access', $output);
-    $this->assertStringContainsString('Please select a value for logType', $output);
+    $this->assertStringContainsString('Select a value for logType', $output);
   }
 
   /**
@@ -105,7 +105,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['applicationUuid' => $invalid_uuid], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -156,7 +156,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -197,7 +197,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['applicationUuid' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'
@@ -285,7 +285,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->executeCommand(['environmentId' => $alias], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
       'n'

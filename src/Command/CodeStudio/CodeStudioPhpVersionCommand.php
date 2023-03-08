@@ -46,7 +46,7 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
     // if CI/CD is not enabled for the project in code studio.
     if (empty($project['jobs_enabled'])) {
-      $this->io->error('CI/CD is not enabled for this application in code studio. Please enable it first and then try again.');
+      $this->io->error('CI/CD is not enabled for this application in code studio. Enable it first and then try again.');
       return self::FAILURE;
     }
 

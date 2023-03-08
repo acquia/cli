@@ -59,7 +59,7 @@ class IdeCreateCommand extends IdeCommandBase {
     }
     else {
       $ide_label = $this->io->ask(
-        "Please enter a label for your Cloud IDE. Press enter to use default",
+        "Enter a label for your Cloud IDE. Press enter to use default",
         $default,
         [$this, 'validateIdeLabel']
       );
@@ -94,7 +94,7 @@ class IdeCreateCommand extends IdeCommandBase {
    */
   public function validateIdeLabel(string $label): string {
     $violations = Validation::createValidator()->validate($label, [
-      new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Please use only letters, numbers, and spaces']),
+      new Regex(['pattern' => '/^[\w\' ]+$/', 'message' => 'Use only letters, numbers, and spaces']),
     ]);
     if (count($violations)) {
       throw new ValidatorException($violations->get(0)->getMessage());

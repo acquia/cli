@@ -42,7 +42,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
         TRUE,
         // $inputs
         [
-          // Please choose a Factory to logout of
+          // Choose a Factory to logout of
           0,
         ],
         // $config.

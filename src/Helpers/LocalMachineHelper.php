@@ -79,7 +79,7 @@ class LocalMachineHelper {
   public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
       if (!$this->commandExists($binary)) {
-        throw new AcquiaCliException("The required binary `$binary` does not exist. Please install it and ensure in exists in a location listed in your system \$PATH");
+        throw new AcquiaCliException("The required binary `$binary` does not exist. Install it and ensure it exists in a location listed in your system \$PATH");
       }
     }
   }

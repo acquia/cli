@@ -74,7 +74,7 @@ class IdeServiceStopCommand extends IdeCommandBase {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
         'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
-        'message' => 'Please specify a valid service name: php, apache, or mysql',
+        'message' => 'Specify a valid service name: php, apache, or mysql',
       ]),
     ]);
     if (count($violations)) {

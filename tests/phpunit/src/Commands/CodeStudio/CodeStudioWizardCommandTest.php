@@ -81,7 +81,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [$this->getMockedGitLabProject($this->gitLabProjectId), $this->getMockedGitLabProject($this->gitLabProjectId)],
         // Inputs.
         [
-          //  Found multiple projects that could match the Sample application 1 application. Please choose which one to configure.
+          //  Found multiple projects that could match the Sample application 1 application. Choose which one to configure.
           '0',
           // Do you want to continue?
           'y',

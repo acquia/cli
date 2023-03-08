@@ -36,9 +36,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
           'yes',
           // Enter the full URL of the factory
           $this->acsfCurrentFactoryUrl,
-          // Please enter a value for username
+          // Enter a value for username
           $this->acsfUsername,
-          //  Please enter a value for key
+          //  Enter a value for key
           $this->acsfKey,
         ],
         // No arguments, all interactive.
@@ -56,9 +56,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         [
           // Enter the full URL of the factory
           '--factory-url' => $this->acsfCurrentFactoryUrl,
-          // Please enter a value for username
+          // Enter a value for username
           '--username' => $this->acsfUsername,
-          //  Please enter a value for key
+          //  Enter a value for key
           '--key' => $this->acsfKey,
         ],
         // Output to assert.
@@ -72,7 +72,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         TRUE,
         // $inputs
         [
-          // Please choose a factory to login to.
+          // Choose a factory to login to.
           $this->acsfCurrentFactoryUrl,
           // Choose which user to login as.
           $this->acsfUsername,

@@ -36,9 +36,9 @@ class AuthLoginCommandTest extends CommandTestBase {
           'yes',
           // Do you want to open this page to generate a token now?
           'no',
-          // Please enter your API Key:
+          // Enter your API Key:
           $this->key,
-          // Please enter your API Secret:
+          // Enter your API Secret:
           $this->secret,
         ],
         // No arguments, all interactive.
@@ -58,9 +58,9 @@ class AuthLoginCommandTest extends CommandTestBase {
           "Enter a new API key",
           // Do you want to open this page to generate a token now?
           'no',
-          // Please enter your API Key:
+          // Enter your API Key:
           $this->key,
-          // Please enter your API Secret:
+          // Enter your API Secret:
           $this->secret,
         ],
         // No arguments, all interactive.
@@ -173,8 +173,8 @@ class AuthLoginCommandTest extends CommandTestBase {
     // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
-    $this->assertStringContainsString('Please enter your API Key:', $output);
-    $this->assertStringContainsString('Please enter your API Secret', $output);
+    $this->assertStringContainsString('Enter your API Key:', $output);
+    $this->assertStringContainsString('Enter your API Secret', $output);
   }
 
   protected function assertKeySavedCorrectly(): void {

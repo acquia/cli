@@ -84,7 +84,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );
@@ -110,7 +110,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );
@@ -143,7 +143,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );

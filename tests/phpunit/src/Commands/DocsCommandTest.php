@@ -35,7 +35,7 @@ class DocsCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->executeCommand([], [$input]);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Please select the Acquia Product [Acquia CLI]:', $output);
+    $this->assertStringContainsString('Select the Acquia Product [Acquia CLI]:', $output);
     $this->assertStringContainsString($expectedOutput, $output);
   }
 

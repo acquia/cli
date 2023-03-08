@@ -44,11 +44,11 @@ class PullScriptsCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
     ];
 

@@ -18,7 +18,7 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
    */
   protected function checkAuthentication(): void {
     if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
-      throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Please run `acli auth:acsf-login`');
+      throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Run `acli auth:acsf-login`');
     }
   }
 
