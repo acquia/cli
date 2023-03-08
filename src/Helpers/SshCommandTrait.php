@@ -5,6 +5,7 @@ namespace Acquia\Cli\Helpers;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Zumba\Amplitude\Amplitude;
 
 trait SshCommandTrait {
 
@@ -75,7 +76,9 @@ trait SshCommandTrait {
    */
   protected function promptWaitForSsh(SymfonyStyle $io): bool {
     $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket for further assistance.");
-    return $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");
+    $wait = $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");
+    Amplitude::getInstance()->queueEvent('Prompt to wait for SSH key', ['wait' => $wait]);
+    return $wait;
   }
 
 }

@@ -162,6 +162,7 @@ EOT
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+            // @todo log cases where the upload fails as well
             Amplitude::getInstance()->queueEvent('SSH key uploaded', ['duration' => time() - $startTime]);
             $config['spinner']->finish();
             $loop->cancelTimer($config['timer']);
