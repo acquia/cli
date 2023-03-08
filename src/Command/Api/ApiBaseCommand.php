@@ -83,12 +83,12 @@ class ApiBaseCommand extends CommandBase {
           && array_key_exists('schema', $params[$argument->getName()])
           && array_key_exists('enum', $params[$argument->getName()]['schema'])) {
           $choices = $params[$argument->getName()]['schema']['enum'];
-          $answer = $this->io->choice("Please select a value for {$argument->getName()}", $choices, $argument->getDefault());
+          $answer = $this->io->choice("Select a value for {$argument->getName()}", $choices, $argument->getDefault());
         }
         elseif (array_key_exists($argument->getName(), $params)
           && array_key_exists('type', $params[$argument->getName()])
           && $params[$argument->getName()]['type'] === 'boolean') {
-          $answer = $this->io->choice("Please select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
+          $answer = $this->io->choice("Select a value for {$argument->getName()}", ['false', 'true'], $argument->getDefault());
           $answer = $answer === 'true';
         }
         // Free form.
@@ -475,7 +475,7 @@ class ApiBaseCommand extends CommandBase {
    * @return mixed
    */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
-    $question = new Question("Please enter a value for {$argument->getName()}", $argument->getDefault());
+    $question = new Question("Enter a value for {$argument->getName()}", $argument->getDefault());
     switch ($argument->getName()) {
       case 'applicationUuid':
         // @todo Provide a list of application UUIDs.

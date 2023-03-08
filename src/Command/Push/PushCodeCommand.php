@@ -30,7 +30,7 @@ class PushCodeCommand extends PullCommandBase {
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $output->writeln("Please use <options=bold>git</> to push code changes upstream.");
+    $output->writeln("Use <options=bold>git</> to push code changes upstream.");
 
     return 0;
   }

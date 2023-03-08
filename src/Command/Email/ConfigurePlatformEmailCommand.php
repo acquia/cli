@@ -76,7 +76,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
       "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
-      "After you've done this, please continue to domain verification."
+      "After you've done this, continue to domain verification."
     ]);
     $file_format = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
     $this->createDnsText($client, $subscription, $base_domain, $domain_uuid, $file_format);
@@ -90,7 +90,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     while (!$this->checkIfDomainVerified($subscription, $domain_uuid)) {
       $retry_verification = $this->io->confirm('Would you like to re-check domain verification?');
       if (!$retry_verification) {
-        $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
+        $this->io->writeln('Check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
         return 1;
       }
     }
@@ -98,7 +98,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
     if (!$this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid)) {
-      $this->io->error('Something went wrong with associating your application(s) or enabling your environment(s). Please try again.');
+      $this->io->error('Something went wrong with associating your application(s) or enabling your environment(s). Try again.');
       return 1;
     }
 
@@ -325,7 +325,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   private function createDnsText(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid, string $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     if (!isset($domain_registration_response->dns_records)) {
-      throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
+      throw new AcquiaCliException('Could not retrieve DNS records for this domain. Try again by rerunning this script with the domain that you just registered.');
     }
     $records = [];
     $this->localMachineHelper->getFilesystem()->remove('dns-records.json');

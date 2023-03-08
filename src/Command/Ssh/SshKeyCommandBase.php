@@ -252,7 +252,7 @@ EOT
   private function doCreateSshKey(string $filename, string $password): string {
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
-      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Please delete it and retry', ['filepath' => $filename]);
+      throw new AcquiaCliException('An SSH key with the filename {filepath} already exists. Delete it and retry', ['filepath' => $filename]);
     }
 
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh-keygen']);
@@ -286,7 +286,7 @@ EOT
     }
     else {
       $default = 'id_rsa_acquia';
-      $question = new Question("Please enter a filename for your new local SSH key. Press enter to use default value", $default);
+      $question = new Question("Enter a filename for your new local SSH key. Press enter to use default value", $default);
       $question->setNormalizer(static function ($value) {
         return $value ? trim($value) : '';
       });
@@ -437,7 +437,7 @@ EOT
       $label = $this->validateSshKeyLabel($label);
     }
     else {
-      $question = new Question('Please enter a Cloud Platform label for this SSH key');
+      $question = new Question('Enter a Cloud Platform label for this SSH key');
       $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
       $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
       $label = $this->io->askQuestion($question);

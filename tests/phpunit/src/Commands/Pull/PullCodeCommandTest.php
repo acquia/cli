@@ -55,11 +55,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like to clone a project into the current directory?
       'y',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
     ];
     $this->executeCommand([
@@ -95,11 +95,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
     ];
 
@@ -109,7 +109,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -148,11 +148,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
     ];
 
@@ -160,7 +160,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -213,7 +213,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
       '--dir' => $dir,
       '--no-scripts' => TRUE,
     ], [
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
       // Would you like to change the PHP version on this IDE to match the PHP version on ... ?
       'n',

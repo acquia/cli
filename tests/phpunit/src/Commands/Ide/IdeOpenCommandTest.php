@@ -45,11 +45,11 @@ class IdeOpenCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'y',
-      // Please select the IDE you'd like to open:
+      // Select the IDE you'd like to open:
       0,
     ];
     $this->executeCommand([], $inputs);
@@ -57,9 +57,9 @@ class IdeOpenCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
-    $this->assertStringContainsString('Please select the IDE you\'d like to open:', $output);
+    $this->assertStringContainsString('Select the IDE you\'d like to open:', $output);
     $this->assertStringContainsString('[0] IDE Label 1', $output);
     $this->assertStringContainsString('Your IDE URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.ides.acquia.com', $output);
     $this->assertStringContainsString('Your Drupal Site URL: https://9a83c081-ef78-4dbd-8852-11cc3eb248f7.web.ahdev.cloud', $output);

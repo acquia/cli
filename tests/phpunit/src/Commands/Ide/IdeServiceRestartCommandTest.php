@@ -51,7 +51,7 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     $this->mockRestartPhp($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->expectException(ValidatorException::class);
-    $this->expectExceptionMessage('Please specify a valid service name');
+    $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);
   }
 

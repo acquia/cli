@@ -183,7 +183,7 @@ abstract class PullCommandBase extends CommandBase {
   private function pullCodeFromCloud(EnvironmentResponse $chosen_environment, $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
+      throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
     }
     // @todo Validate that an Acquia remote is configured for this repository.
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
@@ -496,7 +496,7 @@ abstract class PullCommandBase extends CommandBase {
       $command = "pv $local_dump_filepath --bytes --rate | gunzip | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     }
     else {
-      $this->io->warning('Please install `pv` to see progress bar');
+      $this->io->warning('Install `pv` to see progress bar');
       $command = "gunzip $local_dump_filepath | MYSQL_PWD=$db_password mysql --host=$db_host --user=$db_user $db_name";
     }
 
@@ -787,7 +787,7 @@ abstract class PullCommandBase extends CommandBase {
 
     $output->writeln('Could not clone into the current directory because it is not empty');
 
-    throw new AcquiaCliException('Please execute this command from within a Drupal project directory or an empty directory');
+    throw new AcquiaCliException('Execute this command from within a Drupal project directory or an empty directory');
   }
 
   /**

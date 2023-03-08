@@ -73,7 +73,7 @@ class PushArtifactCommand extends PullCommandBase {
     $is_dirty = $this->isLocalGitRepoDirty();
     $commit_hash = $this->getLocalGitCommitHash();
     if ($is_dirty) {
-      throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Please either commit, reset, or stash your changes via git.');
+      throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
     $application_uuid = $this->determineCloudApplication();
@@ -481,7 +481,7 @@ class PushArtifactCommand extends PullCommandBase {
 
     $environment = $this->determineEnvironment($this->input, $this->output);
     if (str_starts_with($environment->vcs->path, 'tags')) {
-      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Please select a different environment.");
+      throw new AcquiaCliException("You cannot push to an environment that has a git tag deployed to it. Environment $environment->name has {$environment->vcs->path} deployed. Select a different environment.");
     }
 
     $this->destinationGitRef = $environment->vcs->path;

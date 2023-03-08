@@ -43,7 +43,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     foreach ($factories as $url => $factory) {
       $factories[$url]['url'] = $url;
     }
-    $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
+    $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Choose a Factory to logout of');
     $factory_url = $factory['url'];
 
     /** @var \Acquia\Cli\AcsfApi\AcsfCredentials $cloud_credentials */

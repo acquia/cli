@@ -33,7 +33,7 @@ class AliasesListCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       '0',
       // Would you like to link the project at ...
       'n',
