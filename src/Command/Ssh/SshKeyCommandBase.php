@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class SshKeyCommandBase.
@@ -141,6 +142,7 @@ EOT
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
     $timers = [];
+    $startTime = time();
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
     $perms = array_column($permissions, 'name');
@@ -155,11 +157,12 @@ EOT
         });
       $mappings[$env_name]['spinner'] = $spinner;
     }
-    $callback = function () use ($output, $loop, &$mappings, &$timers) {
+    $callback = function () use ($output, $loop, &$mappings, &$timers, $startTime) {
       foreach ($mappings as $env_name => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+            Amplitude::getInstance()->queueEvent('SSH key uploaded', ['duration' => time() - $startTime]);
             $config['spinner']->finish();
             $loop->cancelTimer($config['timer']);
             unset($mappings[$env_name]);
