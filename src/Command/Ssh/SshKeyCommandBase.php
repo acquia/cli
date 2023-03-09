@@ -162,13 +162,13 @@ EOT
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
-            // @todo log cases where the upload fails as well
-            Amplitude::getInstance()->queueEvent('SSH key uploaded', ['duration' => time() - $startTime]);
+            // SSH key is available on this host, but may be pending on others.
             $config['spinner']->finish();
             $loop->cancelTimer($config['timer']);
             unset($mappings[$env_name]);
           }
           else {
+            // SSH key isn't available on this host... yet.
             $this->logger->debug($process->getOutput() . $process->getErrorOutput());
           }
         }
@@ -177,6 +177,8 @@ EOT
         }
       }
       if (empty($mappings)) {
+        // SSH key is available on every host.
+        Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'success', 'duration' => time() - $startTime]);
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
         foreach ($timers as $timer) {
           $loop->cancelTimer($timer);
@@ -187,8 +189,10 @@ EOT
     // Poll Cloud every 5 seconds.
     $timers[] = $loop->addPeriodicTimer(5, $callback);
     $timers[] = $loop->addTimer(0.1, $callback);
-    $timers[] = $loop->addTimer(10 * 60, function () use ($output, $loop, &$timers) {
+    $timers[] = $loop->addTimer(60 * 60, function () use ($output, $loop, &$timers) {
+      // Upload timed out.
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
+      Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'timeout']);
       foreach ($timers as $timer) {
         $loop->cancelTimer($timer);
       }
