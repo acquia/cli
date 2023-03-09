@@ -20,8 +20,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
     $this->datastoreCloud = $datastoreCloud;
   }
 
-  /**
-   */
   public function getCloudKey(): ?string {
     if (getenv('ACSF_USERNAME')) {
       return getenv('ACSF_USERNAME');
@@ -49,8 +47,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   private function getCurrentFactory(): mixed {
     if (($factory = $this->datastoreCloud->get('acsf_active_factory')) && ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) && array_key_exists($factory, $acsf_factories)) {
       return $acsf_factories[$factory];
@@ -58,8 +54,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getCloudSecret(): ?string {
     if (getenv('ACSF_KEY')) {
       return getenv('ACSF_KEY');
@@ -72,8 +66,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getBaseUri(): ?string {
     if (getenv('ACSF_FACTORY_URI')) {
       return getenv('ACSF_FACTORY_URI');

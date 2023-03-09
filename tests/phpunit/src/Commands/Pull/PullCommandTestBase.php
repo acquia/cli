@@ -22,8 +22,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
     parent::setUp();
   }
 
-  /**
-   */
   protected function mockExecuteDrushExists(
     ObjectProphecy $local_machine_helper
   ): void {
@@ -58,8 +56,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteDrushCacheRebuild(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
@@ -76,8 +72,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteDrushSqlSanitize(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
@@ -94,8 +88,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteComposerExists(
     ObjectProphecy $local_machine_helper
   ): void {
@@ -105,8 +97,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteComposerInstall(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
@@ -121,8 +111,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockDrupalSettingsRefresh(
     ObjectProphecy $local_machine_helper
   ): void {
@@ -165,8 +153,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
     ], NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockFinder(): ObjectProphecy {
     $finder = $this->prophet->prophesize(Finder::class);
     $finder->files()->willReturn($finder);

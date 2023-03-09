@@ -50,9 +50,6 @@ class EnvDbCredsTest extends CommandTestBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
-  /**
-   *
-   */
   public function testEnvDbCreds(): void {
     $this->assertEquals($this->dbUser, $this->command->getDefaultLocalDbUser());
     $this->assertEquals($this->dbPassword, $this->command->getDefaultLocalDbPassword());

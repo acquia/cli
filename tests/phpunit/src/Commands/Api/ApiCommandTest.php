@@ -362,9 +362,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The environment configuration is being updated.', $output);
   }
 
-  /**
-   *
-   */
   public function providerTestApiCommandDefinitionParameters(): array {
     $api_accounts_ssh_keys_list_usage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [

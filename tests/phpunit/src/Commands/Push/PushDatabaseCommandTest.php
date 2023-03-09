@@ -80,8 +80,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Overwrite the jxr136 database on dev with a copy of the database from the current machine?', $output);
   }
 
-  /**
-   */
   protected function mockUploadDatabaseDump(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
@@ -121,8 +119,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process

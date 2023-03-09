@@ -60,8 +60,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     $this->requireCloudIdeEnvironment();
   }
 
-  /**
-   */
   protected function getSshKeyLabel(): string {
     return $this::getIdeSshKeyLabel($this->ide);
   }

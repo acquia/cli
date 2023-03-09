@@ -24,9 +24,6 @@ class AuthLoginCommand extends CommandBase {
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

@@ -6,9 +6,6 @@ use Acquia\Cli\Output\Spinner\Spinner;
 use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- *
- */
 class Checklist {
   /**
    * @var array*/
@@ -26,8 +23,6 @@ class Checklist {
     $this->output = $output;
   }
 
-  /**
-   */
   public function addItem(string $message): void {
     $item = ['message' => $message];
 
@@ -41,8 +36,6 @@ class Checklist {
     $this->items[] = $item;
   }
 
-  /**
-   */
   public function completePreviousItem(): void {
     if ($this->useSpinner()) {
       $item = $this->getLastItem();
@@ -55,9 +48,6 @@ class Checklist {
     }
   }
 
-  /**
-   *
-   */
   private function getLastItem() {
     return end($this->items);
   }
@@ -91,9 +81,6 @@ class Checklist {
     }
   }
 
-  /**
-   *
-   */
   private function useSpinner(): bool {
     return $this->output instanceof ConsoleOutput
       && (getenv('CI') !== 'true' || getenv('PHPUNIT_RUNNING'));

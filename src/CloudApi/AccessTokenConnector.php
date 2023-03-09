@@ -45,16 +45,12 @@ class AccessTokenConnector extends Connector {
     );
   }
 
-  /**
-   */
   public function setProvider(
     GenericProvider $provider
   ): void {
     $this->provider = $provider;
   }
 
-  /**
-   */
   public function getAccessToken(): AccessToken {
     return $this->accessToken;
   }

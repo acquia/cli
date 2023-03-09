@@ -18,9 +18,6 @@ class LandoInfoTest extends CommandTestBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
-  /**
-   *
-   */
   public function testLandoInfoTest(): void {
     $lando_info = LandoInfoHelper::getLandoInfo();
     $lando_info->database->creds = [

@@ -24,9 +24,6 @@ class PullScriptsCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

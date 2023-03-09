@@ -37,9 +37,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     parent::initialize($input, $output);
   }
 
-  /**
-   *
-   */
   protected function deleteLocalSshKey(): void {
     $this->localMachineHelper->getFilesystem()->remove([
       $this->publicSshKeyFilepath,
@@ -56,8 +53,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     return file_put_contents($this->passphraseFilepath, $passphrase);
   }
 
-  /**
-   */
   protected function getPassPhraseFromFile(): string {
     return file_get_contents($this->passphraseFilepath);
   }
@@ -85,14 +80,10 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     return FALSE;
   }
 
-  /**
-   */
   protected function passPhraseFileExists(): bool {
     return file_exists($this->passphraseFilepath);
   }
 
-  /**
-   */
   protected function localSshKeyExists(): bool {
     return file_exists($this->publicSshKeyFilepath) && file_exists($this->privateSshKeyFilepath);
   }

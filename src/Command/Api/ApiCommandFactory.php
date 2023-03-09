@@ -90,8 +90,6 @@ class ApiCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  /**
-   */
   public function createListCommand(): ApiListCommand {
     return new ApiListCommand(
       $this->localMachineHelper,

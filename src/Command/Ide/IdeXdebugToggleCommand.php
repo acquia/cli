@@ -16,9 +16,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
 
   private ?bool $xDebugEnabled;
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

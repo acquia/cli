@@ -7,14 +7,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class AcquiaCliConfig implements ConfigurationInterface {
 
-  /**
-   */
   public function getName(): string {
     return 'acquia_cli';
   }
 
-  /**
-   */
   public function getConfigTreeBuilder(): TreeBuilder {
     $treeBuilder = new TreeBuilder('acquia_cli');
     $treeBuilder

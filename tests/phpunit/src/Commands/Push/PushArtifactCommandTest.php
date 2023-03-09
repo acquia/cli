@@ -240,8 +240,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockReadComposerJson(ObjectProphecy $local_machine_helper, string $artifact_dir): void {
     $composer_json = json_encode([
       'extra' => [

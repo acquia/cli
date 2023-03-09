@@ -23,9 +23,6 @@ class DocsCommand extends CommandBase {
       ->addUsage(self::getDefaultName() . ' acli');
   }
 
-  /**
-   *
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_products = [
       'Acquia CLI' => [

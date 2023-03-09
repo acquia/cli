@@ -20,9 +20,6 @@ class HelloWorldCommand extends CommandBase {
       ->setHidden(TRUE);
   }
 
-  /**
-   *
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->io->success('Hello world!');
 

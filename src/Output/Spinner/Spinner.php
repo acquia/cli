@@ -9,9 +9,6 @@ use Symfony\Component\Console\Output\ConsoleSectionOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Terminal;
 
-/**
- *
- */
 class Spinner {
   private const CHARS = ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇'];
   private const COLORS = [
@@ -93,8 +90,6 @@ class Spinner {
 
   private int $indentLength;
 
-  /**
-   */
   public function __construct(OutputInterface $output, int $indent = 0, int $colorLevel = Color::COLOR_256) {
     $this->output = $output;
     $this->indentLength = $indent;
@@ -118,9 +113,6 @@ class Spinner {
     $this->progressBar->setOverwrite($output->getVerbosity() < OutputInterface::VERBOSITY_VERBOSE);
   }
 
-  /**
-   *
-   */
   public function start(): void {
     if (!$this->spinnerIsSupported()) {
       return;
@@ -128,9 +120,6 @@ class Spinner {
     $this->progressBar->start();
   }
 
-  /**
-   *
-   */
   public function advance(): void {
     if (!$this->spinnerIsSupported() || $this->progressBar->getProgressPercent() === 1.0) {
       return;
@@ -143,9 +132,6 @@ class Spinner {
     $this->progressBar->advance();
   }
 
-  /**
-   *
-   */
   private function getSpinnerCharacter(): ?string {
     if ($this->currentColorIdx === $this->colorCount) {
       $this->currentColorIdx = 0;
@@ -163,8 +149,6 @@ class Spinner {
     return NULL;
   }
 
-  /**
-   */
   public function setMessage(string $message, string $name = 'message'): void {
     if (!$this->spinnerIsSupported()) {
       return;
@@ -182,9 +166,6 @@ class Spinner {
     $this->progressBar->setMessage($message, $name);
   }
 
-  /**
-   *
-   */
   public function finish(): void {
     if (!$this->spinnerIsSupported()) {
       return;
@@ -194,9 +175,6 @@ class Spinner {
     $this->section->clear(1);
   }
 
-  /**
-   *
-   */
   public function fail(): void {
     if (!$this->spinnerIsSupported()) {
       return;
@@ -214,16 +192,11 @@ class Spinner {
     return 0.1;
   }
 
-  /**
-   *
-   */
   private function spinnerIsSupported(): bool {
     return $this->output instanceof ConsoleOutput
       && (getenv('CI') !== 'true' || getenv('PHPUNIT_RUNNING'));
   }
 
-  /**
-   */
   public function getProgressBar(): ProgressBar {
     return $this->progressBar;
   }

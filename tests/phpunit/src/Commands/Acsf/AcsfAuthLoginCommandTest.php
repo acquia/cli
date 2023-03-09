@@ -123,9 +123,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
   }
 
-  /**
-   *
-   */
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);

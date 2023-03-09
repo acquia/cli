@@ -52,16 +52,11 @@ class ApiBaseCommand extends CommandBase {
   /** @var array  */
   private array $pathParams = [];
 
-  /**
-   *
-   */
   protected function configure(): void {
     $this->setHidden(TRUE);
     parent::configure();
   }
 
-  /**
-   */
   protected function interact(InputInterface $input, OutputInterface $output): void {
     $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
     foreach ($this->getDefinition()->getArguments() as $argument) {
@@ -126,8 +121,6 @@ class ApiBaseCommand extends CommandBase {
     return $exit_code;
   }
 
-  /**
-   */
   public function setMethod(string $method): void {
     $this->method = $method;
   }
@@ -146,15 +139,10 @@ class ApiBaseCommand extends CommandBase {
     $this->servers = $servers;
   }
 
-  /**
-   */
   public function setPath(string $path): void {
     $this->path = $path;
   }
 
-  /**
-   *
-   */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;
 
@@ -171,8 +159,6 @@ class ApiBaseCommand extends CommandBase {
     return $path;
   }
 
-  /**
-   */
   public function getMethod(): string {
     return $this->method;
   }
@@ -193,8 +179,6 @@ class ApiBaseCommand extends CommandBase {
     $this->queryParams[$param_name] = $value;
   }
 
-  /**
-   */
   public function getPath(): string {
     return $this->path;
   }
@@ -256,9 +240,6 @@ class ApiBaseCommand extends CommandBase {
     return $this->doCastParamType($type, $value);
   }
 
-  /**
-   *
-   */
   private function doCastParamType(string $type, mixed $value): array|bool|int|string {
     return match ($type) {
       'int', 'integer' => (int) $value,
@@ -382,8 +363,6 @@ class ApiBaseCommand extends CommandBase {
     };
   }
 
-  /**
-   */
   protected function addQueryParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
     if ($this->queryParams) {
       foreach ($this->queryParams as $key => $param_spec) {
@@ -398,8 +377,6 @@ class ApiBaseCommand extends CommandBase {
     }
   }
 
-  /**
-   */
   private function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
     if ($this->postParams) {
       foreach ($this->postParams as $param_name => $param_spec) {
@@ -477,9 +454,6 @@ class ApiBaseCommand extends CommandBase {
     return $one_of;
   }
 
-  /**
-   *
-   */
   private function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
     if (array_key_exists('items', $param_spec) && array_key_exists('type', $param_spec['items'])) {
       if (!is_array($original_value)) {

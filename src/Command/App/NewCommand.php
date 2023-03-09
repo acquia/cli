@@ -73,9 +73,6 @@ class NewCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

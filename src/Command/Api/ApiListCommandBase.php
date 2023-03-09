@@ -14,8 +14,6 @@ class ApiListCommandBase extends CommandBase {
 
   protected string $namespace;
 
-  /**
-   */
   public function setNamespace(string $namespace): void {
     $this->namespace = $namespace;
   }

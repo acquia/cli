@@ -285,9 +285,6 @@ abstract class CommandTestBase extends TestBase {
     )->willReturn($cloud_multisite_fetch_process->reveal())->shouldBeCalled();
   }
 
-  /**
-   *
-   */
   protected function mockProcess(bool $success = TRUE): Process|ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
@@ -390,8 +387,6 @@ abstract class CommandTestBase extends TestBase {
     return $notification_response;
   }
 
-  /**
-   */
   protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $local_machine_helper): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess(TRUE);
@@ -401,8 +396,6 @@ abstract class CommandTestBase extends TestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecutePvExists(
         ObjectProphecy $local_machine_helper
     ): void {
@@ -412,8 +405,6 @@ abstract class CommandTestBase extends TestBase {
             ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteGlabExists(
     ObjectProphecy $local_machine_helper
   ): void {
@@ -441,9 +432,6 @@ abstract class CommandTestBase extends TestBase {
     $this->command->setUpdateClient($guzzle_client->reveal());
   }
 
-  /**
-   *
-   */
   protected function mockPollCloudViaSsh(object $environments_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -468,9 +456,6 @@ abstract class CommandTestBase extends TestBase {
     return $ssh_helper;
   }
 
-  /**
-   *
-   */
   protected function mockPollCloudGitViaSsh(object $environment_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);

@@ -32,8 +32,6 @@ class LocalMachineHelper {
 
   private SymfonyStyle $io;
 
-  /**
-   */
   public function __construct(
       InputInterface $input,
       OutputInterface $output,
@@ -223,8 +221,6 @@ class LocalMachineHelper {
     return FALSE;
   }
 
-  /**
-   */
   public function setIsTty(?bool $isTty): void {
     $this->isTty = $isTty;
   }

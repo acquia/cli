@@ -21,9 +21,6 @@ class AuthLogoutCommand extends CommandBase {
       ->setAliases(['logout']);
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

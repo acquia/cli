@@ -15,14 +15,10 @@ trait IdeCommandTrait {
     return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));
   }
 
-  /**
-   */
   public function setPhpVersionFilePath(string $path): void {
     $this->phpVersionFilePath = $path;
   }
 
-  /**
-   */
   protected function getIdePhpVersionFilePath(): string {
     if (!isset($this->phpVersionFilePath)) {
       $this->phpVersionFilePath = '/home/ide/configs/php/.version';

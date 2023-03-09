@@ -719,8 +719,6 @@ abstract class TestBase extends TestCase {
     $local_machine_helper->writeFile('something', Argument::type('string'))->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockSshAgentList(ObjectProphecy|LocalMachineHelper $local_machine_helper, bool $success = FALSE): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
@@ -734,9 +732,6 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  /**
-   *
-   */
   protected function mockUploadSshKey(): void {
     /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
     $response = $this->prophet->prophesize(ResponseInterface::class);
@@ -758,8 +753,6 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockDeleteSshKeyRequest(string $key_uuid): void {
     // Request ssh key deletion.
     $ssh_key_delete_response = $this->prophet->prophesize(ResponseInterface::class);
@@ -786,9 +779,6 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
   }
 
-  /**
-   *
-   */
   protected function mockStartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -801,9 +791,6 @@ abstract class TestBase extends TestCase {
     return $process;
   }
 
-  /**
-   *
-   */
   protected function mockStopPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -816,9 +803,6 @@ abstract class TestBase extends TestCase {
     return $process;
   }
 
-  /**
-   *
-   */
   protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);

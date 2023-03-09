@@ -284,14 +284,10 @@ abstract class PullCommandBase extends CommandBase {
     throw new AcquiaCliException('Could not download backup');
   }
 
-  /**
-   */
   public function setBackupDownloadUrl(UriInterface $url): void {
     $this->backupDownloadUrl = $url;
   }
 
-  /**
-   */
   private function getBackupDownloadUrl(): ?UriInterface {
     return $this->backupDownloadUrl ?? NULL;
   }

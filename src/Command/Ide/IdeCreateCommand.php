@@ -134,21 +134,14 @@ class IdeCreateCommand extends IdeCommandBase {
     // @todo Prompt to open browser.
   }
 
-  /**
-   */
   private function getClient(): ?Client {
     return $this->client ?? NULL;
   }
 
-  /**
-   */
   public function setClient(Client $client): void {
     $this->client = $client;
   }
 
-  /**
-   *
-   */
   private function getIdeFromResponse(
     OperationResponse $response,
     \AcquiaCloudApi\Connector\Client $acquia_cloud_client

@@ -50,8 +50,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return 0;
   }
 
-  /**
-   */
   private function getIdePhpFilePathPrefix(): string {
     if (!isset($this->idePhpFilePathPrefix)) {
       $this->idePhpFilePathPrefix = '/usr/local/php';
@@ -59,8 +57,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return $this->idePhpFilePathPrefix;
   }
 
-  /**
-   */
   public function setIdePhpFilePathPrefix(string $path): void {
     $this->idePhpFilePathPrefix = $path;
   }

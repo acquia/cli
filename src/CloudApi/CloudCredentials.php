@@ -57,8 +57,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getCloudKey(): ?string {
     if ($key = getenv('ACLI_KEY')) {
       return $key;
@@ -71,8 +69,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getCloudSecret(): ?string {
     if ($secret = getenv('ACLI_SECRET')) {
       return $secret;
@@ -89,8 +85,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getBaseUri(): ?string {
     if ($uri = getenv('ACLI_CLOUD_API_BASE_URI')) {
       return $uri;
@@ -98,8 +92,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   */
   public function getAccountsUri(): ?string {
     if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {
       return $uri;

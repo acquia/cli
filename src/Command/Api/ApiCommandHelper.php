@@ -15,9 +15,6 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- *
- */
 class ApiCommandHelper {
 
   protected InputInterface $input;
@@ -49,9 +46,6 @@ class ApiCommandHelper {
     return array_merge($api_commands, $api_list_commands);
   }
 
-  /**
-   *
-   */
   private function useCloudApiSpecCache(): bool {
     return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
   }
@@ -539,9 +533,6 @@ class ApiCommandHelper {
     return $prop_key;
   }
 
-  /**
-   *
-   */
   public static function restoreRenamedParameter(string $prop_key): int|string {
     $parameter_rename_map = array_flip(self::getParameterRenameMap());
     if (array_key_exists($prop_key, $parameter_rename_map)) {

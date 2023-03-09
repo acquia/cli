@@ -108,9 +108,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   *
-   */
   protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);

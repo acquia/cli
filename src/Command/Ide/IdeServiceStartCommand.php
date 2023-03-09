@@ -17,9 +17,6 @@ class IdeServiceStartCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:service-start';
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
@@ -62,9 +59,6 @@ class IdeServiceStartCommand extends IdeCommandBase {
     return 0;
   }
 
-  /**
-   *
-   */
   private function validateService(string $service): void {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([

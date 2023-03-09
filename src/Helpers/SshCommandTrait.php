@@ -43,9 +43,6 @@ trait SshCommandTrait {
     throw new AcquiaCliException($response->getBody()->getContents());
   }
 
-  /**
-   *
-   */
   private function determineCloudKey(Client $acquia_cloud_client): object|array|null {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     return $this->promptChooseFromObjectsOrArrays(
@@ -66,9 +63,6 @@ trait SshCommandTrait {
     return iterator_to_array($finder);
   }
 
-  /**
-   *
-   */
   protected function promptWaitForSsh(SymfonyStyle $io): bool {
     $io->note("It may take an hour or more before the SSH key is installed on all of your application's servers. Create a Support ticket for further assistance.");
     return $io->confirm("Would you like to wait until your key is installed on all of your application's servers?");

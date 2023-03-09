@@ -139,9 +139,6 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
   }
 
-  /**
-   *
-   */
   protected function mockExecuteComposerCreate(
     string $project_dir,
     ObjectProphecy $local_machine_helper,
@@ -179,9 +176,6 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   *
-   */
   protected function mockExecuteGitInit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -198,9 +192,6 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   *
-   */
   protected function mockExecuteGitAdd(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -217,8 +208,6 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   */
   protected function mockExecuteGitCommit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,

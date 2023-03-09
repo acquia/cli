@@ -94,15 +94,10 @@ abstract class IdeCommandBase extends CommandBase {
     }
   }
 
-  /**
-   */
   public function setXdebugIniFilepath(string $file_path): void {
     $this->xdebugIniFilepath = $file_path;
   }
 
-  /**
-   *
-   */
   protected function getXdebugIniFilePath(): string {
     return $this->xdebugIniFilepath;
   }

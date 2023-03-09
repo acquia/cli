@@ -118,9 +118,6 @@ class EnvMirrorCommand extends CommandBase {
     return NULL;
   }
 
-  /**
-   *
-   */
   private function mirrorDatabase(Client $acquia_cloud_client, mixed $source_environment_uuid, mixed $destination_environment_uuid, callable $output_callback): OperationResponse {
     $this->checklist->addItem("Initiating database copy");
     $output_callback('out', "Getting a list of databases");
@@ -135,9 +132,6 @@ class EnvMirrorCommand extends CommandBase {
     return $db_copy_response;
   }
 
-  /**
-   *
-   */
   private function mirrorCode(Client $acquia_cloud_client, mixed $destination_environment_uuid, EnvironmentResponse $source_environment, callable $output_callback): mixed {
     $this->checklist->addItem("Initiating code switch");
     $output_callback('out', "Switching to {$source_environment->vcs->path}");
@@ -151,9 +145,6 @@ class EnvMirrorCommand extends CommandBase {
     return $code_copy_response;
   }
 
-  /**
-   *
-   */
   private function mirrorFiles(Environments $environments_resource, mixed $source_environment_uuid, mixed $destination_environment_uuid): OperationResponse {
     $this->checklist->addItem("Initiating files copy");
     $files_copy_response = $environments_resource->copyFiles($source_environment_uuid, $destination_environment_uuid);
@@ -161,9 +152,6 @@ class EnvMirrorCommand extends CommandBase {
     return $files_copy_response;
   }
 
-  /**
-   *
-   */
   private function mirrorConfig(EnvironmentResponse $source_environment, EnvironmentResponse $destination_environment, Environments $environments_resource, mixed $destination_environment_uuid, callable $output_callback): OperationResponse {
     $this->checklist->addItem("Initiating config copy");
     $output_callback('out', "Copying PHP version, acpu memory limit, etc.");

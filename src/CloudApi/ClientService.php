@@ -36,20 +36,14 @@ class ClientService implements ClientServiceInterface {
     $this->credentials = $credentials;
   }
 
-  /**
-   */
   public function setConnector(ConnectorInterface $connector): void {
     $this->connector = $connector;
   }
 
-  /**
-   */
   private function setApplication(Application $application): void {
     $this->application = $application;
   }
 
-  /**
-   */
   public function getClient(): Client {
     $client = Client::factory($this->connector);
     $this->configureClient($client);
@@ -57,8 +51,6 @@ class ClientService implements ClientServiceInterface {
     return $client;
   }
 
-  /**
-   */
   protected function configureClient(Client $client): void {
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
     $custom_headers = [
@@ -70,8 +62,6 @@ class ClientService implements ClientServiceInterface {
     $client->addOption('headers', $custom_headers);
   }
 
-  /**
-   */
   public function isMachineAuthenticated(): bool {
     if ($this->machineIsAuthenticated !== NULL) {
       return $this->machineIsAuthenticated;

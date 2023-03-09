@@ -19,9 +19,6 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

@@ -24,8 +24,6 @@ class Application extends \Symfony\Component\Console\Application {
     return $this->helpMessages;
   }
 
-  /**
-   */
   public function setHelpMessages(mixed $helpMessages): void {
     $this->helpMessages = $helpMessages;
   }
@@ -50,8 +48,6 @@ class Application extends \Symfony\Component\Console\Application {
     return $version;
   }
 
-  /**
-   */
   public function renderThrowable(
     Throwable $e,
     OutputInterface $output

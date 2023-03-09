@@ -2,9 +2,6 @@
 
 namespace Acquia\Cli\Command\Acsf;
 
-/**
- *
- */
 class AcsfListCommand extends AcsfListCommandBase {
 
   protected static $defaultName = 'acsf:list';

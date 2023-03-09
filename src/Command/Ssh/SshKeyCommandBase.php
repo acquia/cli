@@ -36,18 +36,12 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   protected string $publicSshKeyFilepath;
 
-  /**
-   */
   protected function setSshKeyFilepath(string $private_ssh_key_filename): void {
     $this->privateSshKeyFilename = $private_ssh_key_filename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
 
-  /**
-   *
-   *
-   */
   public static function getIdeSshKeyLabel(IdeResponse $ide): string {
     return self::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
@@ -260,9 +254,6 @@ EOT
     return $filepath;
   }
 
-  /**
-   *
-   */
   protected function determineFilename(InputInterface $input): string {
     if ($input->getOption('filename')) {
       $filename = $input->getOption('filename');
@@ -281,9 +272,6 @@ EOT
     return $filename;
   }
 
-  /**
-   *
-   */
   private function validateFilename(string $filename): string {
     $violations = Validation::createValidator()->validate($filename, [
       new Length(['min' => 5]),
@@ -320,9 +308,6 @@ EOT
     throw new AcquiaCliException('Could not determine the SSH key password. Either use the --password option or else run this command in an interactive shell.');
   }
 
-  /**
-   *
-   */
   private function validatePassword(string $password): string {
     $violations = Validation::createValidator()->validate($password, [
       new Length(['min' => 5]),
@@ -335,9 +320,6 @@ EOT
     return $password;
   }
 
-  /**
-   *
-   */
   private function keyHasUploaded(Client $acquia_cloud_client, string $public_key): bool {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     foreach ($cloud_keys as $cloud_key) {
@@ -398,9 +380,6 @@ EOT
     return $this->io->askQuestion($question);
   }
 
-  /**
-   *
-   */
   protected function determineSshKeyLabel(InputInterface $input): string {
     if ($input->hasOption('label') && $input->getOption('label')) {
       $label = $input->getOption('label');

@@ -34,16 +34,11 @@ abstract class Datastore implements DataStoreInterface {
     $this->data = new Data();
   }
 
-  /**
-   */
   public function set(string $key, mixed $value): void {
     $this->data->set($key, $value);
     $this->dump();
   }
 
-  /**
-   *
-   */
   public function get(string $key): mixed {
     try {
       return $this->data->get($key);
@@ -53,16 +48,11 @@ abstract class Datastore implements DataStoreInterface {
     }
   }
 
-  /**
-   */
   public function remove(string $key): void {
     $this->data->remove($key);
     $this->dump();
   }
 
-  /**
-   *
-   */
   public function exists(string $key): bool {
     return $this->data->has($key);
   }

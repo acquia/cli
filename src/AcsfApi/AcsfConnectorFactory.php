@@ -23,8 +23,6 @@ class AcsfConnectorFactory implements ConnectorFactoryInterface {
     $this->baseUri = $base_uri;
   }
 
-  /**
-   */
   public function createConnector(): AcsfConnector {
     return new AcsfConnector($this->config, $this->baseUri);
   }

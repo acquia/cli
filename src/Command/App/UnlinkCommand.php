@@ -22,9 +22,6 @@ class UnlinkCommand extends CommandBase {
       ->setAliases(['unlink']);
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

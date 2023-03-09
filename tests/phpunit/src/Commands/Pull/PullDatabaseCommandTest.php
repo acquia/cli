@@ -399,8 +399,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ];
   }
 
-  /**
-   */
   protected function mockSettingsFiles(ObjectProphecy $fs): void {
     $fs->remove(Argument::type('string'))
       ->willReturn()

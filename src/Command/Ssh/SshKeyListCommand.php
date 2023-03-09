@@ -74,9 +74,6 @@ class SshKeyListCommand extends SshKeyCommandBase {
     return 0;
   }
 
-  /**
-   *
-   */
   private function createSshKeyTable(OutputInterface $output, string $title): Table {
     $headers = ['Cloud Platform label', 'Local filename', 'Fingerprint (sha256)'];
     $widths = [.4, .2, .2];

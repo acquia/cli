@@ -149,8 +149,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     parent::__construct();
   }
 
-  /**
-   */
   protected static function getUuidRegexConstraint(): Regex {
     return new Regex([
       'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
@@ -158,14 +156,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     ]);
   }
 
-  /**
-   */
   public function setProjectDir(string $projectDir): void {
     $this->projectDir = $projectDir;
   }
 
-  /**
-   */
   public function getProjectDir(): string {
     return $this->projectDir;
   }
@@ -198,8 +192,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   */
   public function getDefaultLocalDbPassword(): mixed {
     if (!isset($this->localDbPassword)) {
       $this->setLocalDbPassword();
@@ -218,8 +210,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   */
   public function getDefaultLocalDbName(): mixed {
     if (!isset($this->localDbName)) {
       $this->setLocalDbName();
@@ -238,8 +228,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   */
   public function getDefaultLocalDbHost(): mixed {
     if (!isset($this->localDbHost)) {
       $this->setLocalDbHost();
@@ -794,8 +782,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return NULL;
   }
 
-  /**
-   */
   protected function getCloudApplicationUuidFromBltYaml(): ?string {
     $blt_yaml_file_path = Path::join($this->projectDir, 'blt', 'blt.yml');
     if (file_exists($blt_yaml_file_path)) {
@@ -808,9 +794,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return NULL;
   }
 
-  /**
-   *
-   */
   public static function validateUuid(string $uuid): string {
     $violations = Validation::createValidator()->validate($uuid, [
       new Length([
@@ -836,8 +819,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return TRUE;
   }
 
-  /**
-   */
   protected function getCloudUuidFromDatastore(): mixed {
     return $this->datastoreAcli->get('cloud_app_uuid');
   }
@@ -896,9 +877,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return getenv('REMOTEIDE_UUID');
   }
 
-  /**
-   *
-   */
   protected function getCloudApplication(string $application_uuid): ApplicationResponse {
     $applications_resource = new Applications($this->cloudApiClientService->getClient());
     return $applications_resource->get($application_uuid);
@@ -914,9 +892,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $environment_resource->get($environment_id);
   }
 
-  /**
-   *
-   */
   public static function validateEnvironmentAlias(string $alias): string {
     $violations = Validation::createValidator()->validate($alias, [
       new Length(['min' => 5]),
@@ -930,9 +905,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $alias;
   }
 
-  /**
-   *
-   */
   protected function normalizeAlias(string $alias): string {
     return str_replace('@', '', $alias);
   }
@@ -1136,14 +1108,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return FALSE;
   }
 
-  /**
-   */
   public function setUpdateClient(\GuzzleHttp\Client $client): void {
     $this->updateClient = $client;
   }
 
-  /**
-   */
   public function getUpdateClient(): \GuzzleHttp\Client {
     if (!isset($this->updateClient)) {
       $stack = HandlerStack::create();
@@ -1349,8 +1317,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   */
   protected function determineDir(InputInterface $input): void {
     if (isset($this->dir)) {
       return;
@@ -1367,9 +1333,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   *
-   */
   protected function getOutputCallback(OutputInterface $output, Checklist $checklist): Closure {
     return static function ($type, $buffer) use ($checklist, $output): void {
       if (!$output->isVerbose() && $checklist->getItems()) {
@@ -1457,9 +1420,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   *
-   */
   protected function determineApiKey(InputInterface $input): string {
     if ($input->getOption('key')) {
       $api_key = $input->getOption('key');
@@ -1615,8 +1575,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   */
   protected function waitForNotificationToComplete(Client $acquia_cloud_client, string $uuid, string $message, callable $success = NULL): void {
     $notifications_resource = new Notifications($acquia_cloud_client);
     $notification = NULL;
@@ -1654,9 +1612,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $this->io->writeln("Duration: $duration seconds");
   }
 
-  /**
-   *
-   */
   protected function getNotificationUuidFromResponse(object $response): string {
     if (property_exists($response, 'links')) {
       $links = $response->links;

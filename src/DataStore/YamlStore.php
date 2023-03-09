@@ -28,9 +28,6 @@ class YamlStore extends Datastore {
     }
   }
 
-  /**
-   *
-   */
   public function dump(): void {
     $this->fileSystem->dumpFile($this->filepath, Yaml::dump($this->data->export()));
   }

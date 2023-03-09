@@ -24,9 +24,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "The URL of your factory. E.g., https://www.acquia.com");
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
@@ -91,8 +88,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     return 0;
   }
 
-  /**
-   */
   private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
@@ -105,9 +100,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $this->datastoreCloud->set('acsf_active_factory', $factory_url);
   }
 
-  /**
-   *
-   */
   private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE): mixed {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);

@@ -76,8 +76,6 @@ class AliasesDownloadCommand extends SshCommand {
     return array_search($this->io->choice($question, $choices, '9'), $choices, TRUE);
   }
 
-  /**
-   */
   public function getDrushArchiveTempFilepath(): string {
     if (!isset($this->drushArchiveFilepath)) {
       $this->drushArchiveFilepath = tempnam(sys_get_temp_dir(),
@@ -102,9 +100,6 @@ class AliasesDownloadCommand extends SshCommand {
     };
   }
 
-  /**
-   *
-   */
   protected function getAliasesFromCloud(Client $acquia_cloud_client, int $alias_version): StreamInterface {
     $acquia_cloud_client->addQuery('version', $alias_version);
     return (new Account($acquia_cloud_client))->getDrushAliases();

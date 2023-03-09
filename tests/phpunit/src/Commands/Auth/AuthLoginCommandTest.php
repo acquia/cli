@@ -166,8 +166,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
   }
 
-  /**
-   */
   protected function assertInteractivePrompts(string $output): void {
     // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);

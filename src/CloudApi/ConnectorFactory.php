@@ -49,8 +49,6 @@ class ConnectorFactory implements ConnectorFactoryInterface {
     return new Connector($this->config, $this->baseUri, $this->accountsUri);
   }
 
-  /**
-   */
   private function createAccessToken(): AccessToken {
     return new AccessToken([
       'access_token' => $this->config['accessToken'],

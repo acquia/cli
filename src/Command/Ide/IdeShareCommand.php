@@ -22,9 +22,6 @@ class IdeShareCommand extends CommandBase {
    */
   private array $shareCodeFilepaths;
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

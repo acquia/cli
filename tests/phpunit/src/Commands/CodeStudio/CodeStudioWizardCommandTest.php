@@ -244,8 +244,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ]);
   }
 
-  /**
-   */
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
     $tokens = [
       0 => [
@@ -284,8 +282,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   */
   protected function mockGitLabGroups(ObjectProphecy $gitlab_client): void {
     $groups = $this->prophet->prophesize(Groups::class);
     $groups->all(Argument::type('array'))->willReturn([
@@ -347,8 +343,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlab_client->groups()->willReturn($groups->reveal());
   }
 
-  /**
-   */
   protected function mockGitLabNamespaces(ObjectProphecy $gitlab_client): void {
     $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
     $namespaces->show(Argument::type('string'))->willReturn([

@@ -95,8 +95,6 @@ trait CodeStudioCommandTrait {
     return $url_parts['host'];
   }
 
-  /**
-   */
   private function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
       $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
@@ -107,14 +105,10 @@ trait CodeStudioCommandTrait {
     return $this->gitLabClient;
   }
 
-  /**
-   */
   public function setGitLabClient(Client $client): void {
     $this->gitLabClient = $client;
   }
 
-  /**
-   */
   private function writeApiTokenMessage(InputInterface $input): void {
     // Get Cloud access tokens.
     if (!$input->getOption('key') || !$input->getOption('secret')) {
@@ -243,9 +237,6 @@ trait CodeStudioCommandTrait {
     return $project;
   }
 
-  /**
-   *
-   */
   private function setGitLabProjectDescription($cloud_application_uuid): void {
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
   }

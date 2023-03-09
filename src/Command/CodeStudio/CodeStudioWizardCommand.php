@@ -114,9 +114,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return 0;
   }
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

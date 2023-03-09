@@ -44,8 +44,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
 
   private Client $httpClient;
 
-  /**
-   */
   public function __construct(
     LocalMachineHelper $localMachineHelper,
     CloudDataStore $datastoreCloud,
@@ -74,8 +72,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     $this->httpClient = $httpClient;
   }
 
-  /**
-   */
   public function createCommand(): AcsfApiBaseCommand {
     return new AcsfApiBaseCommand(
       $this->localMachineHelper,
@@ -93,8 +89,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  /**
-   */
   public function createListCommand(): AcsfListCommand {
     return new AcsfListCommand(
       $this->localMachineHelper,

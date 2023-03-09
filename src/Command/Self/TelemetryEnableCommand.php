@@ -14,9 +14,6 @@ class TelemetryEnableCommand extends CommandBase {
 
   protected static $defaultName = 'self:telemetry:enable';
 
-  /**
-   *
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }

@@ -61,9 +61,6 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     self::assertStringContainsString('foo/acli-archive-project-', $output);
   }
 
-  /**
-   *
-   */
   protected function mockFileSystem(string $destination_dir): ObjectProphecy {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $file_system->mirror($this->projectDir, Argument::type('string'),

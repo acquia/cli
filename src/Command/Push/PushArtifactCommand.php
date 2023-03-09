@@ -310,9 +310,6 @@ class PushArtifactCommand extends PullCommandBase {
     }
   }
 
-  /**
-   *
-   */
   private function generateCommitMessage(string $commit_hash): array|string {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
       return $env_var;
