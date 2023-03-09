@@ -35,6 +35,7 @@ use AcquiaCloudApi\Response\SubscriptionResponse;
 use AcquiaLogstream\LogstreamManager;
 use ArrayObject;
 use Closure;
+use Composer\Semver\Comparator;
 use Composer\Semver\VersionParser;
 use Exception;
 use GuzzleHttp\HandlerStack;
@@ -1070,7 +1071,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
          */
         $version = $release->tag_name;
         $versionStability = VersionParser::parseStability($version);
-        $versionIsNewer = version_compare($version, $this->getApplication()->getVersion());
+        $versionIsNewer = Comparator::greaterThanOrEqualTo($version, $this->getApplication()->getVersion());
         if ($versionStability === 'stable' && $versionIsNewer) {
           return $version;
         }
