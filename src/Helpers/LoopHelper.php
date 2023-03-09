@@ -12,15 +12,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class LoopHelper {
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Symfony\Component\Console\Style\SymfonyStyle $io
-   * @param \Psr\Log\LoggerInterface $logger
-   * @param string $spinnerMessage
    * @param callable $statusCallback
    *   A TRUE return value will cause the loop to exit and call $doneCallback.
-   * @param callable $doneCallback
    *
-   * @return void
    */
   public static function getLoopy(OutputInterface $output, SymfonyStyle $io, LoggerInterface $logger, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void {
     $timers = [];
@@ -28,12 +22,12 @@ class LoopHelper {
     $spinner->setMessage($spinnerMessage);
     $spinner->start();
 
-    $cancelTimers = static function () use (&$timers, $spinner) {
+    $cancelTimers = static function () use (&$timers, $spinner): void {
       array_map('\React\EventLoop\Loop::cancelTimer', $timers);
       $timers = [];
       $spinner->finish();
     };
-    $periodicCallback = static function () use ($logger, $statusCallback, $doneCallback, $cancelTimers) {
+    $periodicCallback = static function () use ($logger, $statusCallback, $doneCallback, $cancelTimers): void {
       try {
         if ($statusCallback()) {
           $cancelTimers();
@@ -47,7 +41,7 @@ class LoopHelper {
 
     // Spinner timer.
     $timers[] = Loop::addPeriodicTimer($spinner->interval(),
-      static function () use ($spinner) {
+      static function () use ($spinner): void {
         $spinner->advance();
       });
 
@@ -57,7 +51,7 @@ class LoopHelper {
     $timers[] = Loop::addTimer(0.1, $periodicCallback);
 
     // Watchdog timer.
-    $timers[] = Loop::addTimer(45 * 60, static function () use ($io, $doneCallback, $cancelTimers) {
+    $timers[] = Loop::addTimer(45 * 60, static function () use ($io, $doneCallback, $cancelTimers): void {
       $cancelTimers();
       $io->error("Timed out after 45 minutes!");
       $doneCallback();

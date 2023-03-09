@@ -7,9 +7,6 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 
 class CloudDataStore extends JsonDataStore {
 
-  /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
   protected LocalMachineHelper $localMachineHelper;
 
   /**
@@ -18,9 +15,6 @@ class CloudDataStore extends JsonDataStore {
   protected array $config;
 
   /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @param \Acquia\Cli\Config\CloudDataConfig $cloud_data_config
-   * @param string $cloudConfigFilepath
    *
    * @throws \JsonException
    * @throws \JsonException

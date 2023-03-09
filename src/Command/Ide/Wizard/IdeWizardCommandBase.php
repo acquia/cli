@@ -48,7 +48,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   /**
    * @param $ide_uuid
    *
-   * @return string
    */
   public static function getSshKeyFilename($ide_uuid): string {
     return 'id_rsa_acquia_ide_' . $ide_uuid;
@@ -62,7 +61,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
   }
 
   /**
-   * @return string
    */
   protected function getSshKeyLabel(): string {
     return $this::getIdeSshKeyLabel($this->ide);

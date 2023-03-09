@@ -62,9 +62,7 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param string $destination_dir
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockFileSystem(string $destination_dir): ObjectProphecy {
     $file_system = $this->prophet->prophesize(Filesystem::class);

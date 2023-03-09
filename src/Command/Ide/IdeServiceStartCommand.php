@@ -19,7 +19,6 @@ class IdeServiceStartCommand extends IdeCommandBase {
 
   /**
    *
-   * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
@@ -38,8 +37,6 @@ class IdeServiceStartCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -66,9 +63,7 @@ class IdeServiceStartCommand extends IdeCommandBase {
   }
 
   /**
-   * @param string $service
    *
-   * @return void
    */
   private function validateService(string $service): void {
     $violations = Validation::createValidator()->validate($service, [

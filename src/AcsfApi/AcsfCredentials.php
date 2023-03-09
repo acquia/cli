@@ -15,14 +15,12 @@ class AcsfCredentials implements ApiCredentialsInterface {
   /**
    * CloudCredentials constructor.
    *
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
    */
   public function __construct(CloudDataStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
   }
 
   /**
-   * @return string|null
    */
   public function getCloudKey(): ?string {
     if (getenv('ACSF_USERNAME')) {
@@ -39,7 +37,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
   /**
    * @param array $factory
    *
-   * @return mixed|null
    */
   public function getFactoryActiveUser(array $factory): mixed {
     if (array_key_exists('active_user', $factory)) {
@@ -53,7 +50,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
   }
 
   /**
-   * @return mixed|null
    */
   private function getCurrentFactory(): mixed {
     if (($factory = $this->datastoreCloud->get('acsf_active_factory')) && ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) && array_key_exists($factory, $acsf_factories)) {
@@ -63,7 +59,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
   }
 
   /**
-   * @return string|null
    */
   public function getCloudSecret(): ?string {
     if (getenv('ACSF_KEY')) {
@@ -78,7 +73,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
   }
 
   /**
-   * @return string|null
    */
   public function getBaseUri(): ?string {
     if (getenv('ACSF_FACTORY_URI')) {

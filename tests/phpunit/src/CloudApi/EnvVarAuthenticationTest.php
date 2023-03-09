@@ -24,7 +24,7 @@ class EnvVarAuthenticationTest extends TestBase {
     putenv('ACLI_SECRET');
   }
 
-  public function testKeyAndSecret() {
+  public function testKeyAndSecret(): void {
     $this->removeMockCloudConfigFile();
     self::assertEquals($this->key, $this->cloudCredentials->getCloudKey());
     self::assertEquals($this->secret, $this->cloudCredentials->getCloudSecret());

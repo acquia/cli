@@ -19,7 +19,6 @@ class ApplicationTestBase extends TestBase {
   /**
    * Symfony kernel.
    *
-   * @var \Acquia\Cli\Kernel
    */
   protected Kernel $kernel;
 
@@ -34,7 +33,6 @@ class ApplicationTestBase extends TestBase {
   }
 
   /**
-   * @return string
    * @throws \Exception
    */
   protected function runApp(): string {

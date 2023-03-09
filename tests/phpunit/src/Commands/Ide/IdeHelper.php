@@ -6,9 +6,6 @@ use Acquia\Cli\Tests\TestBase;
 
 class IdeHelper {
 
-  /**
-   * @var string
-   */
   public static string $remote_ide_uuid = '215824ff-272a-4a8c-9027-df32ed1d68a9';
 
   public static function setCloudIdeEnvVars(): void {

@@ -25,9 +25,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   private IdeResponse $ide;
 
-  /**
-   * @var \GuzzleHttp\Client
-   */
   private Client $client;
 
   /**
@@ -40,8 +37,6 @@ class IdeCreateCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -88,9 +83,7 @@ class IdeCreateCommand extends IdeCommandBase {
    * @todo use first-class callable syntax instead once we upgrade to PHP 8.1
    * @see https://www.php.net/manual/en/functions.first_class_callable_syntax.php
    *
-   * @param string $label
    *
-   * @return string
    */
   public function validateIdeLabel(string $label): string {
     $violations = Validation::createValidator()->validate($label, [
@@ -105,7 +98,6 @@ class IdeCreateCommand extends IdeCommandBase {
   /**
    * @param $ide_url
    *
-   * @return int
    */
   private function waitForDnsPropagation($ide_url): int {
     $ideCreated = FALSE;
@@ -119,7 +111,7 @@ class IdeCreateCommand extends IdeCommandBase {
       }
       return $ideCreated;
     };
-    $doneCallback = function () use (&$ideCreated) {
+    $doneCallback = function () use (&$ideCreated): void {
       if ($ideCreated) {
         $this->output->writeln('');
         $this->output->writeln('<info>Your IDE is ready!</info>');
@@ -143,24 +135,19 @@ class IdeCreateCommand extends IdeCommandBase {
   }
 
   /**
-   * @return \GuzzleHttp\Client|null
    */
   private function getClient(): ?Client {
     return $this->client ?? NULL;
   }
 
   /**
-   * @param \GuzzleHttp\Client $client
    */
   public function setClient(Client $client): void {
     $this->client = $client;
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\OperationResponse $response
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    *
-   * @return \AcquiaCloudApi\Response\IdeResponse
    */
   private function getIdeFromResponse(
     OperationResponse $response,

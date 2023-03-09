@@ -12,25 +12,13 @@ use Symfony\Component\Console\Command\Command;
  */
 class EnvDbCredsTest extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  private $dbUser;
+  private string $dbUser;
 
-  /**
-   * @var string
-   */
-  private $dbPassword;
+  private string $dbPassword;
 
-  /**
-   * @var string
-   */
-  private $dbName;
+  private string $dbName;
 
-  /**
-   * @var string
-   */
-  private $dbHost;
+  private string $dbHost;
 
   public function setUp($output = NULL): void {
     parent::setUp();

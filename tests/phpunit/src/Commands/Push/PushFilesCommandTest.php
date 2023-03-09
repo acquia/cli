@@ -106,8 +106,6 @@ class PushFilesCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteCloudRsync(
     ObjectProphecy $local_machine_helper,
@@ -129,8 +127,6 @@ class PushFilesCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteAcsfRsync(
     ObjectProphecy $local_machine_helper,

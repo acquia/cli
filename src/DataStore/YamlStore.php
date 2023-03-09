@@ -14,7 +14,6 @@ class YamlStore extends Datastore {
   /**
    * Creates a new store.
    *
-   * @param string $path
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $config_definition
    */
   public function __construct(string $path, ConfigurationInterface $config_definition = NULL) {

@@ -26,15 +26,12 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
   /**
    *
-   * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -95,9 +92,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   }
 
   /**
-   * @param string|null $factory_url
-   * @param string $username
-   * @param string $key
    */
   private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
@@ -112,11 +106,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param string $option_name
-   * @param bool $hidden
    *
-   * @return mixed|null
    */
   private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE): mixed {
     if (!$input->getOption($option_name)) {

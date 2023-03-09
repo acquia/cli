@@ -2,6 +2,8 @@
 
 namespace Acquia\Cli\Tests;
 
+use Acquia\Cli\Command\Acsf\AcsfCommandBase;
+use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Command\Api\ApiCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Command\CommandBase;
@@ -38,14 +40,10 @@ abstract class CommandTestBase extends TestBase {
   /**
    * The command tester.
    *
-   * @var \Symfony\Component\Console\Tester\CommandTester
    */
-  private $commandTester;
+  private \Symfony\Component\Console\Tester\CommandTester $commandTester;
 
-  /**
-   * @var \Acquia\Cli\Command\CommandBase
-   */
-  protected $command;
+  protected Command $command;
 
   protected string $apiCommandPrefix = 'api';
 
@@ -60,9 +58,9 @@ abstract class CommandTestBase extends TestBase {
   /**
    * This method is called before each test.
    *
-   * @param OutputInterface $output
+   * @throws \Exception
    */
-  protected function setUp($output = NULL): void {
+  protected function setUp(OutputInterface $output = NULL): void {
     parent::setUp();
     if (!isset($this->command)) {
       $this->command = $this->createCommand();
@@ -163,7 +161,7 @@ abstract class CommandTestBase extends TestBase {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   Output.
    */
-  protected function writeFullWidthLine($message, OutputInterface $output): void {
+  protected function writeFullWidthLine(string $message, OutputInterface $output): void {
     $terminal_width = (new Terminal())->getWidth();
     $padding_len = (int) (($terminal_width - strlen($message)) / 2);
     $pad = $padding_len > 0 ? str_repeat('-', $padding_len) : '';
@@ -223,7 +221,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
    */
@@ -237,9 +234,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param object $applications_response
    *
-   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
    */
@@ -262,7 +257,6 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $ssh_helper
    *
-   * @return void
    */
   protected function mockGetAcsfSites($ssh_helper): void {
     $acsf_multisite_fetch_process = $this->mockProcess();
@@ -278,7 +272,6 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $ssh_helper
    *
-   * @return void
    */
   protected function mockGetCloudSites($ssh_helper, $environment): void {
     $cloud_multisite_fetch_process = $this->mockProcess();
@@ -292,9 +285,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param bool $success
    *
-   * @return \Symfony\Component\Process\Process|\Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockProcess(bool $success = TRUE): Process|ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
@@ -310,7 +301,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param object $environments_response
    *
    * @return array
    * @throws \JsonException
@@ -328,17 +318,15 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param object $environments_response
    * @param $db_name
    * @param $backup_id
    *
-   * @return object
    */
   protected function mockDatabaseBackupsResponse(
-    $environments_response,
+    object $environments_response,
     $db_name,
     $backup_id
-  ) {
+  ): object {
     $database_backups_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
     foreach ($database_backups_response->_embedded->items as $backup) {
       $backup->_links->download->href = "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download";
@@ -359,13 +347,12 @@ abstract class CommandTestBase extends TestBase {
    * @param $db_name
    * @param $backup_id
    *
-   * @return void
    */
   protected function mockDownloadBackupResponse(
     $environments_response,
     $db_name,
     $backup_id
-  ) {
+  ): void {
     $stream = $this->prophet->prophesize(StreamInterface::class);
     $this->clientProphecy->stream('get', "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download", [])
       ->willReturn($stream->reveal())
@@ -397,7 +384,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $local_machine_helper): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
@@ -409,7 +395,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockExecutePvExists(
         ObjectProphecy $local_machine_helper
@@ -421,7 +406,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteGlabExists(
     ObjectProphecy $local_machine_helper
@@ -435,9 +419,8 @@ abstract class CommandTestBase extends TestBase {
   /**
    * Mock guzzle requests for update checks so we don't actually hit Github.
    *
-   * @param int $status_code
    */
-  protected function setUpdateClient($status_code = 200): void {
+  protected function setUpdateClient(int $status_code = 200): void {
     /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
     $stream = $this->prophet->prophesize(StreamInterface::class);
@@ -452,11 +435,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param object $environments_response
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockPollCloudViaSsh($environments_response): ObjectProphecy {
+  protected function mockPollCloudViaSsh(object $environments_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
@@ -481,11 +462,9 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param object $environment_response
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
    */
-  protected function mockPollCloudGitViaSsh($environment_response): ObjectProphecy {
+  protected function mockPollCloudGitViaSsh(object $environment_response): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(128);
@@ -500,7 +479,6 @@ abstract class CommandTestBase extends TestBase {
    * @param $local_machine_helper
    * @param $public_key
    *
-   * @return string
    */
   protected function mockGetLocalSshKey($local_machine_helper, $file_system, $public_key): string {
     $file_system->exists(Argument::type('string'))->willReturn(TRUE);
@@ -552,12 +530,10 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param string $name
    *
-   * @return \Acquia\Cli\Command\Api\ApiBaseCommand|\Acquia\Cli\Command\Acsf\AcsfCommandBase
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function getApiCommandByName(string $name) {
+  protected function getApiCommandByName(string $name): ApiBaseCommand|AcsfCommandBase|null {
     $api_commands = $this->getApiCommands();
     foreach ($api_commands as $api_command) {
       if ($api_command->getName() === $name) {
@@ -582,8 +558,7 @@ abstract class CommandTestBase extends TestBase {
       'path' => 'codestudiodemo',
       'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
       'default_branch' => 'master',
-      'topics' =>
-        [
+      'topics' => [
           0 => 'Acquia Cloud Application',
         ],
       'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
@@ -592,7 +567,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
    */
@@ -606,11 +580,8 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $local_machine_helper
-   * @param string $gitlab_token
-   * @param string $gitlab_host
-   * @param bool $success
    */
-  protected function mockGitlabGetToken($local_machine_helper, $gitlab_token, string $gitlab_host, bool $success = TRUE): void {
+  protected function mockGitlabGetToken($local_machine_helper, string $gitlab_token, string $gitlab_host, bool $success = TRUE): void {
     $process = $this->mockProcess($success);
     $process->getOutput()->willReturn($gitlab_token);
     $local_machine_helper->execute([
@@ -624,7 +595,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $local_machine_helper
-   * @param string $gitlab_host
    */
   protected function mockGitlabGetHost($local_machine_helper, string $gitlab_host): void {
     $process = $this->mockProcess();
@@ -673,8 +643,7 @@ abstract class CommandTestBase extends TestBase {
       'color_scheme_id' => 1,
       'projects_limit' => 100000,
       'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
-      'identities' =>
-        [],
+      'identities' => [],
       'can_create_group' => TRUE,
       'can_create_project' => TRUE,
       'two_factor_enabled' => FALSE,
@@ -728,8 +697,7 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function getMockGitLabVariables(): array {
     return [
-      0 =>
-        [
+      0 => [
           'variable_type' => 'env_var',
           'key' => 'ACQUIA_APPLICATION_UUID',
           'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
@@ -737,8 +705,7 @@ abstract class CommandTestBase extends TestBase {
           'masked' => FALSE,
           'environment_scope' => '*',
         ],
-      1 =>
-        [
+      1 => [
           'variable_type' => 'env_var',
           'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
           'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
@@ -754,11 +721,7 @@ abstract class CommandTestBase extends TestBase {
    *
    * @todo Remove for PHPUnit 10.
    *
-   * @param string $needle
-   * @param string $haystack
-   * @param string $message
    *
-   * @return void
    */
   final public static function assertStringContainsStringIgnoringLineEndings(string $needle, string $haystack, string $message = ''): void {
     $haystack = strtr(

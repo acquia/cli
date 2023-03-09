@@ -94,9 +94,6 @@ class Spinner {
   private int $indentLength;
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param int $indent
-   * @param int $colorLevel
    */
   public function __construct(OutputInterface $output, int $indent = 0, int $colorLevel = Color::COLOR_256) {
     $this->output = $output;
@@ -167,8 +164,6 @@ class Spinner {
   }
 
   /**
-   * @param string $message
-   * @param string $name
    */
   public function setMessage(string $message, string $name = 'message'): void {
     if (!$this->spinnerIsSupported()) {
@@ -214,7 +209,6 @@ class Spinner {
   /**
    * Returns spinner refresh interval.
    *
-   * @return float
    */
   public function interval(): float {
     return 0.1;
@@ -229,7 +223,6 @@ class Spinner {
   }
 
   /**
-   * @return \Symfony\Component\Console\Helper\ProgressBar
    */
   public function getProgressBar(): ProgressBar {
     return $this->progressBar;

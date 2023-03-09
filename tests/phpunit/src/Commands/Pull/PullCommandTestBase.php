@@ -23,7 +23,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteDrushExists(
     ObjectProphecy $local_machine_helper
@@ -35,14 +34,12 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $has_connection
-   * @param null $dir
    */
   protected function mockExecuteDrushStatus(
     ObjectProphecy $local_machine_helper,
     $has_connection,
-    $dir = NULL
+    null $dir = NULL
   ): void {
     $drush_status_process = $this->prophet->prophesize(Process::class);
     $drush_status_process->isSuccessful()->willReturn($has_connection);
@@ -62,8 +59,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteDrushCacheRebuild(
     ObjectProphecy $local_machine_helper,
@@ -82,8 +77,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteDrushSqlSanitize(
     ObjectProphecy $local_machine_helper,
@@ -102,7 +95,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockExecuteComposerExists(
     ObjectProphecy $local_machine_helper
@@ -114,8 +106,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteComposerInstall(
     ObjectProphecy $local_machine_helper,
@@ -132,7 +122,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    */
   protected function mockDrupalSettingsRefresh(
     ObjectProphecy $local_machine_helper
@@ -145,7 +134,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
 
   /**
    * @param $failed
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $cwd
    */
   protected function mockExecuteGitStatus(
@@ -159,7 +147,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $cwd
    * @param $commit_hash
    */
@@ -179,7 +166,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockFinder(): ObjectProphecy {
     $finder = $this->prophet->prophesize(Finder::class);

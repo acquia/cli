@@ -20,9 +20,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   protected static $defaultName = 'codestudio:wizard';
 
-  /**
-   * @var \Acquia\Cli\Output\Checklist
-   */
   private Checklist $checklist;
 
   /**
@@ -40,10 +37,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
-   * @return int
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -122,7 +116,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    *
-   * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
@@ -130,7 +123,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @param string $scheduled_pipeline_description
    *
    * @return array|null
    */
@@ -146,7 +138,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @param string $name
    *
    * @return array|null ?
    */
@@ -162,9 +153,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @param string $project_access_token_name
    *
-   * @return string
    */
   private function createProjectAccessToken(array $project, string $project_access_token_name): string {
     $this->io->writeln("Creating project access token...");
@@ -187,11 +176,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @param string $cloud_application_uuid
-   * @param string $cloud_key
-   * @param string $cloud_secret
-   * @param string $project_access_token_name
-   * @param string $project_access_token
    */
   private function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");

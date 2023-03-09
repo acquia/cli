@@ -4,14 +4,14 @@ namespace Acquia\Cli\DataStore;
 
 interface DataStoreInterface {
 
-  public function set(string $key, $value);
+  public function set(string $key, $value): void;
 
-  public function get(string $key, $default = NULL);
+  public function get(string $key): mixed;
 
-  public function dump();
+  public function dump(): void;
 
-  public function remove(string $key);
+  public function remove(string $key): void;
 
-  public function exists(string $key);
+  public function exists(string $key): bool;
 
 }

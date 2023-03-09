@@ -29,7 +29,6 @@ class ApiCommandHelper {
   /**
    * CommandBase constructor.
    *
-   * @param ConsoleLogger $logger
    */
   public function __construct(
     ConsoleLogger $logger
@@ -38,9 +37,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $acquia_cloud_spec_file_path
-   * @param string $command_prefix
-   * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
@@ -62,9 +58,7 @@ class ApiCommandHelper {
 
   /**
    * @param array $param_definition
-   * @param string $usage
    *
-   * @return mixed|string
    */
   protected function addArgumentExampleToUsageForGetEndpoint(array $param_definition, string $usage): mixed {
     if (array_key_exists('example', $param_definition)) {
@@ -84,9 +78,7 @@ class ApiCommandHelper {
 
   /**
    * @param array $param_definition
-   * @param string $usage
    *
-   * @return string
    */
   private function addOptionExampleToUsageForGetEndpoint(array $param_definition, string $usage): string {
     if (array_key_exists('example', $param_definition)) {
@@ -99,7 +91,6 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquia_cloud_spec
-   * @param CommandBase $command
    *
    * @throws \JsonException
    * @throws \JsonException
@@ -217,7 +208,6 @@ class ApiCommandHelper {
    * @param $type
    * @param $usage
    *
-   * @return string
    * @throws \JsonException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -313,11 +303,9 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $param_key
    * @param array $acquia_cloud_spec
    * @param $schema
    *
-   * @return mixed
    */
   private function getParameterDefinitionFromSpec(string $param_key, array $acquia_cloud_spec, $schema): mixed {
     $uppercase_key = ucfirst($param_key);
@@ -334,10 +322,8 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $param_key
    * @param array $acquia_cloud_spec
    *
-   * @return mixed
    */
   private function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec): mixed {
     return $acquia_cloud_spec['components']['schemas'][$param_key];
@@ -345,9 +331,7 @@ class ApiCommandHelper {
 
   /**
    * @param $cache_item
-   * @param string $acquia_cloud_spec_file_checksum
    *
-   * @return bool
    */
   private function isApiSpecChecksumCacheValid($cache_item, string $acquia_cloud_spec_file_checksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
@@ -363,7 +347,6 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $spec_file_path
    *
    * @return array
    * @throws \Psr\Cache\InvalidArgumentException
@@ -401,8 +384,6 @@ class ApiCommandHelper {
 
   /**
    * @param array $acquia_cloud_spec
-   * @param string $command_prefix
-   * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return ApiBaseCommand[]
    * @throws \JsonException
@@ -472,9 +453,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param \Acquia\Cli\Command\Api\ApiBaseCommand $command
    * @param array $input_definition
-   * @param string $usage
    */
   private function addAliasUsageExamples(ApiBaseCommand $command, array $input_definition, string $usage): void {
     foreach ($input_definition as $key => $parameter) {
@@ -530,7 +509,6 @@ class ApiCommandHelper {
    * @param array $request_body_schema
    * @param $parameter_definition
    *
-   * @return mixed
    */
   private function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition): mixed {
     return $request_body_schema['properties'][$parameter_definition->getName()] ?? NULL;
@@ -552,7 +530,6 @@ class ApiCommandHelper {
   /**
    * @param $prop_key
    *
-   * @return mixed
    */
   public static function renameParameter($prop_key): mixed {
     $parameter_rename_map = self::getParameterRenameMap();
@@ -563,9 +540,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param string $prop_key
    *
-   * @return int|string
    */
   public static function restoreRenamedParameter(string $prop_key): int|string {
     $parameter_rename_map = array_flip(self::getParameterRenameMap());
@@ -577,8 +552,6 @@ class ApiCommandHelper {
 
   /**
    * @param array $api_commands
-   * @param string $command_prefix
-   * @param \Acquia\Cli\CommandFactoryInterface $command_factory
    *
    * @return ApiListCommandBase[]
    */

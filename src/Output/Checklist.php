@@ -14,9 +14,6 @@ class Checklist {
    * @var array*/
   private array $items = [];
 
-  /**
-   * @var \Symfony\Component\Console\Output\OutputInterface
-   */
   private OutputInterface $output;
 
   private int $indentLength = 4;
@@ -24,14 +21,12 @@ class Checklist {
   /**
    * Checklist constructor.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   public function __construct(OutputInterface $output) {
     $this->output = $output;
   }
 
   /**
-   * @param string $message
    */
   public function addItem(string $message): void {
     $item = ['message' => $message];

@@ -123,10 +123,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $environment
-   * @param string $source_dir
-   * @param string $destination_dir
    */
   protected function mockExecuteRsync(
     ObjectProphecy $local_machine_helper,

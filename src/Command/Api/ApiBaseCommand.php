@@ -25,9 +25,6 @@ class ApiBaseCommand extends CommandBase {
 
   protected static $defaultName = 'api:base';
 
-  /**
-   * @var string
-   */
   protected string $method;
 
   /**
@@ -40,9 +37,6 @@ class ApiBaseCommand extends CommandBase {
    */
   protected array $servers;
 
-  /**
-   * @var string
-   */
   protected string $path;
 
   /**
@@ -67,8 +61,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   protected function interact(InputInterface $input, OutputInterface $output): void {
     $params = array_merge($this->queryParams, $this->postParams, $this->pathParams);
@@ -102,8 +94,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -137,7 +127,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param string $method
    */
   public function setMethod(string $method): void {
     $this->method = $method;
@@ -158,16 +147,13 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param string $path
    */
   public function setPath(string $path): void {
     $this->path = $path;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
-   * @return string
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;
@@ -186,7 +172,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @return string
    */
   public function getMethod(): string {
     return $this->method;
@@ -209,14 +194,12 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @return string
    */
   public function getPath(): string {
     return $this->path;
   }
 
   /**
-   * @param string $param_name
    * @param $value
    */
   public function addPathParameter(string $param_name, $value): void {
@@ -224,8 +207,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param string $param_name
    *
    * @return bool|string|string[]|null
    */
@@ -242,9 +223,7 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $param_spec
-   * @param array|string $value
    *
-   * @return bool|int|string|array
    */
   private function castParamType(array $param_spec, array|string $value): array|bool|int|string {
     $one_of = $this->getParamTypeOneOf($param_spec);
@@ -278,16 +257,13 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param string $type
-   * @param mixed $value
    *
-   * @return array|bool|int|string
    */
   private function doCastParamType(string $type, mixed $value): array|bool|int|string {
     return match ($type) {
       'int', 'integer' => (int) $value,
       'bool', 'boolean' => $this->castBool($value),
-      'array' => is_string($value) ? explode(',', $value): (array) $value,
+      'array' => is_string($value) ? explode(',', $value) : (array) $value,
       'string' => (string) $value,
       'mixed' => $value,
     };
@@ -296,7 +272,6 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param $val
    *
-   * @return bool
    */
   public function castBool($val): bool {
     return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
@@ -305,7 +280,6 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $param_spec
    *
-   * @return null|string
    */
   private function getParamType(array $param_spec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
@@ -320,10 +294,8 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputArgument $argument
    * @param array $params
    *
-   * @return callable|null
    */
   private function createCallableValidator(InputArgument $argument, array $params): ?callable {
     $validator = NULL;
@@ -398,7 +370,6 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $constraints
    *
-   * @return \Closure
    */
   private function createValidatorFromConstraints(array $constraints): Closure {
     return static function ($value) use ($constraints) {
@@ -412,8 +383,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    */
   protected function addQueryParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
     if ($this->queryParams) {
@@ -430,8 +399,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    */
   private function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
     if ($this->postParams) {
@@ -445,10 +412,7 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-  * @param string $param_name
   * @param array|null $param_spec
-  * @param mixed $param_value
-  * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
   */
   private function addPostParamToClient(string $param_name, ?array $param_spec, mixed $param_value, Client $acquia_cloud_client): void {
     $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
@@ -469,10 +433,8 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputArgument $argument
    * @param array $params
    *
-   * @return mixed
    */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
     $question = new Question("Enter a value for {$argument->getName()}", $argument->getDefault());
@@ -516,10 +478,7 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param mixed $param_spec
-   * @param array|string $original_value
    *
-   * @return array|bool|int|string
    */
   private function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
     if (array_key_exists('items', $param_spec) && array_key_exists('type', $param_spec['items'])) {

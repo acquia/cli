@@ -20,9 +20,6 @@ class EnvMirrorCommand extends CommandBase {
 
   protected static $defaultName = 'env:mirror';
 
-  /**
-   * @var \Acquia\Cli\Output\Checklist
-   */
   private Checklist $checklist;
 
   /**
@@ -45,8 +42,6 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -113,7 +108,6 @@ class EnvMirrorCommand extends CommandBase {
   /**
    * @param \stdClass[] $databases
    *
-   * @return object|null
    */
   private function getDefaultDatabase(array $databases): ?object {
     foreach ($databases as $database) {
@@ -125,12 +119,7 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param mixed $source_environment_uuid
-   * @param mixed $destination_environment_uuid
-   * @param callable $output_callback
    *
-   * @return \AcquiaCloudApi\Response\OperationResponse
    */
   private function mirrorDatabase(Client $acquia_cloud_client, mixed $source_environment_uuid, mixed $destination_environment_uuid, callable $output_callback): OperationResponse {
     $this->checklist->addItem("Initiating database copy");
@@ -147,12 +136,7 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param mixed $destination_environment_uuid
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
-   * @param callable $output_callback
    *
-   * @return mixed
    */
   private function mirrorCode(Client $acquia_cloud_client, mixed $destination_environment_uuid, EnvironmentResponse $source_environment, callable $output_callback): mixed {
     $this->checklist->addItem("Initiating code switch");
@@ -168,11 +152,7 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
-   * @param mixed $source_environment_uuid
-   * @param mixed $destination_environment_uuid
    *
-   * @return \AcquiaCloudApi\Response\OperationResponse
    */
   private function mirrorFiles(Environments $environments_resource, mixed $source_environment_uuid, mixed $destination_environment_uuid): OperationResponse {
     $this->checklist->addItem("Initiating files copy");
@@ -182,13 +162,7 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $source_environment
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $destination_environment
-   * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
-   * @param mixed $destination_environment_uuid
-   * @param callable $output_callback
    *
-   * @return \AcquiaCloudApi\Response\OperationResponse
    */
   private function mirrorConfig(EnvironmentResponse $source_environment, EnvironmentResponse $destination_environment, Environments $environments_resource, mixed $destination_environment_uuid, callable $output_callback): OperationResponse {
     $this->checklist->addItem("Initiating config copy");

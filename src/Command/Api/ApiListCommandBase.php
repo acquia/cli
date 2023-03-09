@@ -12,13 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ApiListCommandBase extends CommandBase {
 
-  /**
-   * @var string
-   */
   protected string $namespace;
 
   /**
-   * @param string $namespace
    */
   public function setNamespace(string $namespace): void {
     $this->namespace = $namespace;

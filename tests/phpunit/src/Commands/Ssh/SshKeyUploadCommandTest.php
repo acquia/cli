@@ -20,7 +20,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @var array
    */
-  private $sshKeysRequestBody;
+  private array $sshKeysRequestBody;
 
   /**
    * {@inheritdoc}

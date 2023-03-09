@@ -14,19 +14,10 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 
 trait CodeStudioCommandTrait {
 
-  /**
-   * @var string
-   */
   protected string $gitLabToken;
 
-  /**
-   * @var string
-   */
   protected string $gitLabHost;
 
-  /**
-   * @var \Gitlab\Client
-   */
   protected Client $gitLabClient;
 
   /**
@@ -34,16 +25,11 @@ trait CodeStudioCommandTrait {
    */
   protected array $gitLabAccount;
 
-  /**
-   * @var string
-   */
   private string $gitLabProjectDescription;
 
   /**
    * Getting the gitlab token from user.
-   * @param string $gitlab_host
    *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabToken(string $gitlab_host): string {
@@ -79,7 +65,6 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting gitlab host from user.
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabHost(): string {
@@ -111,7 +96,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return \Gitlab\Client
    */
   private function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
@@ -124,14 +108,12 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param Client $client
    */
   public function setGitLabClient(Client $client): void {
     $this->gitLabClient = $client;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    */
   private function writeApiTokenMessage(InputInterface $input): void {
     // Get Cloud access tokens.
@@ -186,7 +168,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param ApplicationResponse $cloud_application
    *
    * @return array
    */
@@ -232,7 +213,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\ApplicationResponse $cloud_application
    *
    * @return array
    */

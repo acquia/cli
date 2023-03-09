@@ -68,10 +68,9 @@ class IdeListCommandMineTest extends CommandTestBase {
   }
 
   /**
-   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockAccountIdeListRequest() {
+  protected function mockAccountIdeListRequest(): object {
     $response = $this->getMockResponseFromSpec('/account/ides',
       'get', '200');
     $this->clientProphecy->request('get',

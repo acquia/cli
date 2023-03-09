@@ -14,20 +14,13 @@ class SshHelper implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
-  /** @var OutputInterface */
   private OutputInterface $output;
 
-  /**
-   * @var LocalMachineHelper
-   */
   private LocalMachineHelper $localMachineHelper;
 
   /**
    * SshHelper constructor.
    *
-   * @param OutputInterface $output
-   * @param LocalMachineHelper $localMachineHelper
-   * @param LoggerInterface $logger
    */
   public function __construct(
       OutputInterface $output,
@@ -42,12 +35,9 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse|string $target
    * @param array $command_args
-   * @param bool $print_output
    * @param int|null $timeout
    *
-   * @return \Symfony\Component\Process\Process
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function executeCommand(EnvironmentResponse|string $target, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
@@ -90,7 +80,6 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param array $command_args
    *
-   * @return string
    */
   private function firstArguments(array $command_args): string {
     $result = '';
@@ -113,12 +102,12 @@ class SshHelper implements LoggerAwareInterface {
     if ($this->localMachineHelper->useTty() === FALSE) {
       $output = $this->output;
 
-      return static function ($type, $buffer) use ($output) {
+      return static function ($type, $buffer) use ($output): void {
         $output->write($buffer);
       };
     }
 
-    return static function ($type, $buffer) {};
+    return static function ($type, $buffer): void {};
   }
 
   /**
@@ -128,7 +117,6 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param array $command_args
    *
-   * @return string
    */
   private function getCommandSummary(array $command_args): string {
     return $this->firstArguments($command_args);
@@ -151,7 +139,6 @@ class SshHelper implements LoggerAwareInterface {
   }
 
   /**
-   * @param string $url
    * @param $command
    *
    * @return array

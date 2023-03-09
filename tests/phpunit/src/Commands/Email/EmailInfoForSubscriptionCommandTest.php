@@ -145,7 +145,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
     $app = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     for ($i = 2; $i < 101; $i++) {
-      $applications_response->_embedded->items[$i]= $app;
+      $applications_response->_embedded->items[$i] = $app;
       $applications_response->_embedded->items[$i]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
     }
 

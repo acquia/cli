@@ -19,9 +19,7 @@ class EnvCreateCommandTest extends CommandTestBase {
   private static string $validLabel = 'New CDE';
 
   /**
-   * @param string $label
    *
-   * @return string
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function setupCdeTest(string $label): string {
@@ -65,7 +63,6 @@ class EnvCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return string
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getBranch(): string {
@@ -74,7 +71,6 @@ class EnvCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return string
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getApplication(): string {

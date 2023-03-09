@@ -19,9 +19,6 @@ class EnvCreateCommand extends CommandBase {
 
   protected static $defaultName = 'env:create';
 
-  /**
-   * @var \Acquia\Cli\Output\Checklist
-   */
   private Checklist $checklist;
 
   /**
@@ -35,8 +32,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -58,7 +53,7 @@ class EnvCreateCommand extends CommandBase {
     $notification_uuid = $this->getNotificationUuidFromResponse($response);
     $this->checklist->completePreviousItem();
 
-    $success = function () use ($environments_resource, $cloud_app_uuid, $label) {
+    $success = function () use ($environments_resource, $cloud_app_uuid, $label): void {
       $environments = $environments_resource->getAll($cloud_app_uuid);
       foreach ($environments as $environment) {
         if ($environment->label === $label) {
@@ -78,9 +73,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
-   * @param string $cloud_app_uuid
-   * @param string $title
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -97,11 +89,7 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string|null $cloud_app_uuid
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): string {
@@ -117,8 +105,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string|null $cloud_app_uuid
    *
    * @return array
    */

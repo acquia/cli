@@ -17,14 +17,8 @@ use Symfony\Component\Console\Exception\RuntimeException;
  */
 class ExceptionListener {
 
-  /**
-   * @var string
-   */
   private string $messagesBgColor = 'blue';
 
-  /**
-   * @var string
-   */
   private string $messagesFgColor = 'white';
 
   /**
@@ -33,7 +27,6 @@ class ExceptionListener {
   private array $helpMessages = [];
 
   /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
   public function onConsoleError(ConsoleErrorEvent $event): void {
     $exitCode = $event->getExitCode();
@@ -119,7 +112,6 @@ class ExceptionListener {
   }
 
   /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
   private function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
@@ -130,7 +122,6 @@ class ExceptionListener {
   }
 
   /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
    */
   private function writeUpdateHelp(ConsoleErrorEvent $event): void {
     try {

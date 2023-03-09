@@ -27,8 +27,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -77,14 +75,12 @@ class NewCommand extends CommandBase {
 
   /**
    *
-   * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
-   * @param string $dir
    *
    * @throws \Exception
    */
@@ -103,7 +99,6 @@ class NewCommand extends CommandBase {
 
   /**
    * @param $project
-   * @param string $dir
    *
    * @throws \Exception
    */
@@ -121,7 +116,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   * @param string $dir
    *
    * @throws \Exception
    */

@@ -17,9 +17,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * @var string
-   */
   private string $xdebugFilePath;
 
   /**

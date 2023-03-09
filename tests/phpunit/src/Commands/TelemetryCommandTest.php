@@ -17,10 +17,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class TelemetryCommandTest extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  protected $legacyAcliConfigFilepath;
+  protected string $legacyAcliConfigFilepath;
 
   public function setUp($output = NULL): void {
     parent::setUp($output);

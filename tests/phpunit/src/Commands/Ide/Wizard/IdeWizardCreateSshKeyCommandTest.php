@@ -44,7 +44,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   }
 
   /**
-   * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockIdeRequest(): IdeResponse {

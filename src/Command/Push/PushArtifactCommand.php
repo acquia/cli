@@ -57,8 +57,6 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -134,7 +132,6 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @return false|mixed|null
    * @throws \Exception
    */
   private function determineDestinationGitUrls($application_uuid): mixed {
@@ -154,10 +151,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Prepare a directory to build the artifact.
    *
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
-   * @param string $vcs_url
-   * @param string $vcs_path
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
@@ -201,8 +194,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Build the artifact.
    *
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -231,8 +222,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Sanitize the artifact.
    *
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
    */
   private function sanitizeArtifact(Closure $output_callback, string $artifact_dir): void {
     $output_callback('out', 'Finding Drupal core text files');
@@ -295,9 +284,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Commit the artifact.
    *
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
-   * @param string $commit_hash
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
@@ -325,9 +311,7 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @param string $commit_hash
    *
-   * @return array|string
    */
   private function generateCommitMessage(string $commit_hash): array|string {
     if ($env_var = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
@@ -340,10 +324,7 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Push the artifact.
    *
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
    * @param array $vcs_urls
-   * @param string $dest_git_branch
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -396,7 +377,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Get a list of scaffold files from Drupal core's composer.json.
    *
-   * @param string $artifact_dir
    *
    * @return array
    * @throws \JsonException
@@ -437,7 +417,6 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -457,7 +436,6 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -491,8 +469,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * @param $tag_name
-   * @param \Closure $output_callback
-   * @param string $artifact_dir
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

@@ -56,7 +56,6 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
    *
    * @dataProvider providerTestAuthLogoutCommand
    *
-   * @param bool $machine_is_authenticated
    * @param array $inputs
    * @param array $config
    *

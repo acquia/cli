@@ -9,6 +9,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Prophecy\Argument;
 use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
@@ -24,10 +25,9 @@ abstract class WizardTestBase extends CommandTestBase {
   /**
    * This method is called before each test.
    *
-   * @param null $output
    *
    */
-  public function setUp($output = NULL): void {
+  public function setUp(OutputInterface $output = NULL): void {
     TestBase::setEnvVars(self::getEnvVars());
     parent::setUp();
     $this->getCommandTester();

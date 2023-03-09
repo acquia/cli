@@ -80,8 +80,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockUploadDatabaseDump(
     ObjectProphecy $local_machine_helper,
@@ -102,14 +100,13 @@ class PushDatabaseCommandTest extends CommandTestBase {
 
   /**
    * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
-   * @param object $environments_response
    * @param $process
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockImportDatabaseDumpOnRemote(
     ObjectProphecy $ssh_helper,
-    $environments_response,
+    object $environments_response,
     $process
   ): void {
     $ssh_helper->executeCommand(
@@ -123,8 +120,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,

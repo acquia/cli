@@ -16,8 +16,6 @@ class ConnectorFactory implements ConnectorFactoryInterface {
    * ConnectorFactory constructor.
    *
    * @param array $config
-   * @param string|null $base_uri
-   * @param string|null $accounts_uri
    */
   public function __construct(array $config, ?string $base_uri = NULL, ?string $accounts_uri = NULL) {
     $this->config = $config;
@@ -52,7 +50,6 @@ class ConnectorFactory implements ConnectorFactoryInterface {
   }
 
   /**
-   * @return \League\OAuth2\Client\Token\AccessToken
    */
   private function createAccessToken(): AccessToken {
     return new AccessToken([

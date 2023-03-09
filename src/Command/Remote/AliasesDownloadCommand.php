@@ -21,9 +21,6 @@ use Symfony\Component\Filesystem\Path;
  */
 class AliasesDownloadCommand extends SshCommand {
 
-  /**
-   * @var string
-   */
   private string $drushArchiveFilepath;
 
   protected static $defaultName = 'remote:aliases:download';
@@ -80,7 +77,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @return string
    */
   public function getDrushArchiveTempFilepath(): string {
     if (!isset($this->drushArchiveFilepath)) {
@@ -92,9 +88,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param string $version
    *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getDrushAliasesDir(string $version): string {
@@ -109,10 +103,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param int $alias_version
    *
-   * @return \Psr\Http\Message\StreamInterface
    */
   protected function getAliasesFromCloud(Client $acquia_cloud_client, int $alias_version): StreamInterface {
     $acquia_cloud_client->addQuery('version', $alias_version);
@@ -120,9 +111,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param bool $single_application
    *
-   * @return string
    * @throws \Exception
    */
   protected function getSitePrefix(bool $single_application): string {
@@ -137,11 +126,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param int $alias_version
-   * @param string $drush_archive_temp_filepath
-   * @param string $base_dir
    *
-   * @return \PharData
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -154,10 +139,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param int $alias_version
-   * @param string $drush_archive_temp_filepath
-   * @param string $drush_aliases_dir
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
@@ -183,9 +164,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param int $alias_version
-   * @param string $drush_archive_temp_filepath
-   * @param string $drush_aliases_dir
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -201,9 +179,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @param \PharData $archive
-   * @param string $site_prefix
-   * @param string $base_dir
    *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException

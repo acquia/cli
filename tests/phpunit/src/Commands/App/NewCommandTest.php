@@ -54,7 +54,6 @@ class NewCommandTest extends CommandTestBase {
    * @dataProvider provideTestNewDrupalCommand
    *
    * @param array $package
-   * @param string $directory
    *
    * @throws \Exception
    */
@@ -100,7 +99,6 @@ class NewCommandTest extends CommandTestBase {
    * @dataProvider provideTestNewNextJsAppCommand
    *
    * @param array $package
-   * @param string $directory
    *
    * @throws \Exception
    */
@@ -142,18 +140,13 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   * @param string $project
    *
-   * @return void
-  */
+   */
   protected function mockExecuteComposerCreate(
     string $project_dir,
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
-    $project
+    string $project
   ): void {
     $command = [
       'composer',
@@ -187,17 +180,13 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return void
-  */
+   */
   protected function mockExecuteGitInit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
     ObjectProphecy $process
-  ) {
+  ): void {
     $command = [
       'git',
       'init',
@@ -210,12 +199,8 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    *
-   * @return void
-  */
+   */
   protected function mockExecuteGitAdd(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -233,9 +218,6 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
    */
   protected function mockExecuteGitCommit(
     ObjectProphecy $local_machine_helper,

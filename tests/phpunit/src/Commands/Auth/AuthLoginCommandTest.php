@@ -167,7 +167,6 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param string $output
    */
   protected function assertInteractivePrompts(string $output): void {
     // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
@@ -192,10 +191,9 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockTokenRequest() {
+  protected function mockTokenRequest(): object {
     $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
       'get', '200');
     $this->clientProphecy->request('get', "/account/tokens/{$this->key}")

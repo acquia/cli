@@ -12,13 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class AcsfListCommandBase extends CommandBase {
 
-  /**
-   * @var string
-   */
   protected string $namespace;
 
   /**
-   * @param string $namespace
    */
   public function setNamespace(string $namespace): void {
     $this->namespace = $namespace;
@@ -28,7 +24,6 @@ class AcsfListCommandBase extends CommandBase {
    * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
    *
    *
-   * @return bool
    */
   protected function commandRequiresAuthentication(): bool {
     // Assume commands require authentication unless they opt out by overriding this method.

@@ -45,7 +45,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestIdePhpVersionCommand
    *
-   * @param string $version
    *
    * @throws \Exception
    */
@@ -85,8 +84,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestIdePhpVersionCommandFailure
    *
-   * @param string $version
-   * @param string $exception_class
    *
    * @throws \Exception
    */
@@ -112,9 +109,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
-   * @return \Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
@@ -129,7 +124,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */

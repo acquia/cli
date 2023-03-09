@@ -14,7 +14,6 @@ class ComposerScriptsListener {
    * Before a console command is executed, execute a corresponding script from
    * a local composer.json.
    *
-   * @param ConsoleCommandEvent $event
    *
    * @throws \JsonException
    * @throws \JsonException
@@ -28,7 +27,6 @@ class ComposerScriptsListener {
    * When a console command terminates successfully, execute a corresponding
    * script from a local composer.json.
    *
-   * @param ConsoleTerminateEvent $event
    *
    * @throws \JsonException
    * @throws \JsonException
@@ -41,7 +39,6 @@ class ComposerScriptsListener {
   }
 
   /**
-   * @param ConsoleCommandEvent|ConsoleTerminateEvent $event
    * @param string $prefix Added to the Composer script name. Expected values
    *   are 'pre' or 'post'.
    *

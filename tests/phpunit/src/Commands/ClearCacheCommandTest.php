@@ -24,7 +24,6 @@ class ClearCacheCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception

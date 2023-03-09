@@ -12,11 +12,6 @@ class CodeStudioCiCdVariables {
   }
 
   /**
-   * @param string|null $cloud_application_uuid
-   * @param string|null $cloud_key
-   * @param string|null $cloud_secret
-   * @param string|null $project_access_token_name
-   * @param string|null $project_access_token
    *
    * @return array[]
    */

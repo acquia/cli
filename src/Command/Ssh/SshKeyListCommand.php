@@ -22,8 +22,6 @@ class SshKeyListCommand extends SshKeyCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
    *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
@@ -77,10 +75,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param string $title
    *
-   * @return \Symfony\Component\Console\Helper\Table
    */
   private function createSshKeyTable(OutputInterface $output, string $title): Table {
     $headers = ['Cloud Platform label', 'Local filename', 'Fingerprint (sha256)'];

@@ -92,7 +92,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @return array
    */
-  public function providerTestConfigurePlatformEmail() {
+  public function providerTestConfigurePlatformEmail(): array {
 
     return [
       [
@@ -193,7 +193,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @return array
    */
-  public function providerTestConfigurePlatformEmailEnableEnv() {
+  public function providerTestConfigurePlatformEmailEnableEnv(): array {
     return [
       [
         'example.com',
@@ -542,8 +542,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
-    $inputs =
-      [
+    $inputs = [
         // What's the domain name you'd like to register?
         'test.com',
         // Select a Cloud Platform subscription
@@ -661,7 +660,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
    *
    * @return \Symfony\Component\Filesystem\Filesystem|\Prophecy\Prophecy\ObjectProphecy
    */
