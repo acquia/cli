@@ -12,12 +12,6 @@ class CodeStudioCiCdVariables {
   }
 
   /**
-   * @param string|null $cloud_application_uuid
-   * @param string|null $cloud_key
-   * @param string|null $cloud_secret
-   * @param string|null $project_access_token_name
-   * @param string|null $project_access_token
-   *
    * @return array[]
    */
   public static function getDefaults(?string $cloud_application_uuid = NULL, ?string $cloud_key = NULL, ?string $cloud_secret = NULL, ?string $project_access_token_name = NULL, ?string $project_access_token = NULL): array {

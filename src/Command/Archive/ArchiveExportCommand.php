@@ -19,14 +19,8 @@ use Symfony\Component\Filesystem\Path;
  */
 class ArchiveExportCommand extends CommandBase {
 
-  /**
-   * @var Checklist
-   */
   protected Checklist $checklist;
 
-  /**
-   * @var \Symfony\Component\Filesystem\Filesystem
-   */
   private Filesystem $fs;
 
   /**
@@ -51,9 +45,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -66,9 +57,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -113,8 +101,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function determineDestinationDir(InputInterface $input): void {
@@ -126,8 +112,6 @@ class ArchiveExportCommand extends CommandBase {
 
   /**
    * Build the artifact.
-   *
-   * @param string $artifact_dir
    */
   private function createArchiveDirectory(string $artifact_dir): void {
     $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
@@ -147,9 +131,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   * @param \Closure $output_callback
-   * @param string $archive_temp_dir
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -175,12 +156,9 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * @param $archive_dir
    * @param $destination_dir
-   * @param null $output_callback
-   *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function compressArchiveDirectory($archive_dir, $destination_dir, $output_callback = NULL): string {
+  private function compressArchiveDirectory($archive_dir, $destination_dir, Closure $output_callback = NULL): string {
     $destination_filename = basename($archive_dir) . '.tar.gz';
     $destination_filepath = Path::join($destination_dir, $destination_filename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);

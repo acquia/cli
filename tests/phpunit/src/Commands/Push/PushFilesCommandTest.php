@@ -105,10 +105,6 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteCloudRsync(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
@@ -128,10 +124,6 @@ class PushFilesCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteAcsfRsync(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process

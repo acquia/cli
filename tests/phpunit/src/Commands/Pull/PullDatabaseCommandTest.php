@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -215,7 +216,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
@@ -232,7 +232,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param $mysql_connect_successful *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -288,8 +287,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @param bool $success
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlConnect(
@@ -312,13 +309,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $local_machine_helper
-   * @param bool $success
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlDropDb(
-    $local_machine_helper,
+    \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $local_machine_helper,
     bool $success
   ): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
@@ -331,13 +325,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @param bool $success
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlCreateDb(
     ObjectProphecy $local_machine_helper,
-    $success
+    bool $success
   ): void {
     $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
@@ -358,7 +350,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @param bool $success
    */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
@@ -403,10 +394,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ];
   }
 
-  /**
-   * @param ObjectProphecy $fs
-   */
-  protected function mockSettingsFiles($fs): void {
+  protected function mockSettingsFiles(ObjectProphecy $fs): void {
     $fs->remove(Argument::type('string'))
       ->willReturn()
       ->shouldBeCalled();
@@ -428,14 +416,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param object $databases_response
-   * @param object $selected_environment
-   *
-   * @return object
    * @throws \GuzzleHttp\Exception\GuzzleException|\Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockDownloadBackup(object $databases_response, object $selected_environment, int $curl_code = 0): object {
-    $selected_database = $databases_response;
+  protected function mockDownloadBackup(DatabaseResponse $selected_database, object $selected_environment, int $curl_code = 0): DatabaseResponse {
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
     if ($curl_code) {

@@ -14,15 +14,8 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:xdebug-toggle';
 
-  /**
-   * @var boolean|null
-   */
   private ?bool $xDebugEnabled;
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
@@ -37,9 +30,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -94,7 +84,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Enables xDebug.
    *
-   * @param string $destination_file
    * @param string $contents
    *   The contents of php.ini.
    */
@@ -111,7 +100,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
   /**
    * Disables xDebug.
    *
-   * @param string $destination_file
    * @param string $contents
    *   The contents of php.ini.
    */

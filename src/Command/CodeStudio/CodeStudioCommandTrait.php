@@ -14,19 +14,10 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
 
 trait CodeStudioCommandTrait {
 
-  /**
-   * @var string
-   */
   protected string $gitLabToken;
 
-  /**
-   * @var string
-   */
   protected string $gitLabHost;
 
-  /**
-   * @var \Gitlab\Client
-   */
   protected Client $gitLabClient;
 
   /**
@@ -34,16 +25,11 @@ trait CodeStudioCommandTrait {
    */
   protected array $gitLabAccount;
 
-  /**
-   * @var string
-   */
   private string $gitLabProjectDescription;
 
   /**
    * Getting the gitlab token from user.
-   * @param string $gitlab_host
    *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabToken(string $gitlab_host): string {
@@ -79,7 +65,7 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting gitlab host from user.
-   * @return string
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabHost(): string {
@@ -110,9 +96,6 @@ trait CodeStudioCommandTrait {
     return $url_parts['host'];
   }
 
-  /**
-   * @return \Gitlab\Client
-   */
   private function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
       $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
@@ -123,16 +106,10 @@ trait CodeStudioCommandTrait {
     return $this->gitLabClient;
   }
 
-  /**
-   * @param Client $client
-   */
   public function setGitLabClient(Client $client): void {
     $this->gitLabClient = $client;
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   */
   private function writeApiTokenMessage(InputInterface $input): void {
     // Get Cloud access tokens.
     if (!$input->getOption('key') || !$input->getOption('secret')) {
@@ -186,8 +163,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param ApplicationResponse $cloud_application
-   *
    * @return array
    */
   private function determineGitLabProject(ApplicationResponse $cloud_application): array {
@@ -232,8 +207,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\ApplicationResponse $cloud_application
-   *
    * @return array
    */
   private function createGitLabProject(ApplicationResponse $cloud_application): array {
@@ -263,9 +236,6 @@ trait CodeStudioCommandTrait {
     return $project;
   }
 
-  /**
-   *
-   */
   private function setGitLabProjectDescription($cloud_application_uuid): void {
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
   }

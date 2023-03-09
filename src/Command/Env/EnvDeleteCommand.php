@@ -25,9 +25,6 @@ class EnvDeleteCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -47,10 +44,6 @@ class EnvDeleteCommand extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Endpoints\Environments $environments_resource
-   * @param string $cloud_app_uuid
-   *
-   * @return \AcquiaCloudApi\Response\EnvironmentResponse
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {

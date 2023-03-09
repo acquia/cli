@@ -52,10 +52,7 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'new' command for Drupal project.
    *
    * @dataProvider provideTestNewDrupalCommand
-   *
    * @param array $package
-   * @param string $directory
-   *
    * @throws \Exception
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
@@ -98,10 +95,7 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'new' command for Next.js App.
    *
    * @dataProvider provideTestNewNextJsAppCommand
-   *
    * @param array $package
-   * @param string $directory
-   *
    * @throws \Exception
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
@@ -141,19 +135,11 @@ class NewCommandTest extends CommandTestBase {
     $this->assertStringContainsString('New Next JS project created in ' . $this->newProjectDir, $output);
   }
 
-  /**
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   * @param string $project
-   *
-   * @return void
-  */
   protected function mockExecuteComposerCreate(
     string $project_dir,
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
-    $project
+    string $project
   ): void {
     $command = [
       'composer',
@@ -186,18 +172,11 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   *
-   * @return void
-  */
   protected function mockExecuteGitInit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
     ObjectProphecy $process
-  ) {
+  ): void {
     $command = [
       'git',
       'init',
@@ -209,13 +188,6 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   *
-   * @return void
-  */
   protected function mockExecuteGitAdd(
     ObjectProphecy $local_machine_helper,
     string $project_dir,
@@ -232,11 +204,6 @@ class NewCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $project_dir
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteGitCommit(
     ObjectProphecy $local_machine_helper,
     string $project_dir,

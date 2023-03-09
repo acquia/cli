@@ -40,7 +40,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the 'app:environment:delete' command.
    *
    * @dataProvider providerTestDeleteCde
-   *
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testDeleteCde($environment_id): void {

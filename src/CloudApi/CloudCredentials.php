@@ -15,15 +15,12 @@ class CloudCredentials implements ApiCredentialsInterface {
 
   /**
    * CloudCredentials constructor.
-   *
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
    */
   public function __construct(CloudDataStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
   }
 
   /**
-   * @return string|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getCloudAccessToken(): ?string {
@@ -42,7 +39,6 @@ class CloudCredentials implements ApiCredentialsInterface {
   }
 
   /**
-   * @return string|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getCloudAccessTokenExpiry(): ?string {
@@ -60,9 +56,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @return string|null
-   */
   public function getCloudKey(): ?string {
     if ($key = getenv('ACLI_KEY')) {
       return $key;
@@ -75,9 +68,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @return string|null
-   */
   public function getCloudSecret(): ?string {
     if ($secret = getenv('ACLI_SECRET')) {
       return $secret;
@@ -94,9 +84,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @return string|null
-   */
   public function getBaseUri(): ?string {
     if ($uri = getenv('ACLI_CLOUD_API_BASE_URI')) {
       return $uri;
@@ -104,9 +91,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @return string|null
-   */
   public function getAccountsUri(): ?string {
     if ($uri = getenv('ACLI_CLOUD_API_ACCOUNTS_URI')) {
       return $uri;

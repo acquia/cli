@@ -32,6 +32,7 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
 
   /**
    * {@inheritdoc}
+   *
    * @throws \JsonException
    */
   protected function createCommand(): Command {
@@ -103,7 +104,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
 
   /**
    * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testAcsfCommandExecutionForHttpGetMultiple($method, $spec_path, $path, $command, $arguments = [], $json_arguments = []): void {

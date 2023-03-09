@@ -36,10 +36,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return int
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -85,16 +81,13 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
    * Check whether wizard command is executed by checking the env variable of codestudio project.
+   *
    * @param array $project
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -113,7 +106,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    *
    * @param array $project
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -131,7 +123,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           $file_contents = file_get_contents($pipelines_filepath);
           return [
             'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
-            'filename' =>  $pipelines_filename
+            'filename' => $pipelines_filename
           ];
         }
       }
@@ -173,9 +165,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * @param array $acquia_pipelines_file_contents
-   * @param string $event_name
-   *
-   * @return mixed|null
    */
   private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name): mixed {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
@@ -259,7 +248,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
                   $answer = $this->io->confirm($message_config['message'] . PHP_EOL . $command, FALSE);
                   if ($answer == 1) {
                     $code_studio_jobs[$script_name]['script'][] = $command;
-                    $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                    $code_studio_jobs[$script_name]['script'] = array_values(array_unique($code_studio_jobs[$script_name]['script']));
                   }
                   else if (($key = array_search($command, $code_studio_jobs[$script_name]['script'], TRUE)) !== FALSE) {
                     unset($code_studio_jobs[$script_name]['script'][$key]);
@@ -279,7 +268,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
               }
               if (!array_key_exists($script_name, $event_map['skip']) ) {
                 $code_studio_jobs[$script_name]['script'][] = $command;
-                $code_studio_jobs[$script_name]['script']=array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                $code_studio_jobs[$script_name]['script'] = array_values(array_unique($code_studio_jobs[$script_name]['script']));
               }
               else if ($script_name === 'launch_ode') {
                 $code_studio_jobs[$script_name]['script'][] = $command;
@@ -310,7 +299,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   *
    * Removing empty script.
    */
   private function removeEmptyScript(array &$gitlab_ci_file_contents): void {
@@ -332,9 +320,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * @param array $keywords
-   * @param string $haystack
-   *
-   * @return string|null
    */
   private function assignStageFromKeywords(array $keywords, string $haystack): ?string {
     foreach ($keywords as $needle => $stage) {

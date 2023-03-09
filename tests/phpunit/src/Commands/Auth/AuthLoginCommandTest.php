@@ -104,12 +104,10 @@ class AuthLoginCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command.
    *
    * @dataProvider providerTestAuthLoginCommand
-   *
    * @param $machine_is_authenticated
    * @param $assert_cloud_prompts
    * @param $inputs
    * @param $args
-   *
    * @throws \Exception
    */
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
@@ -152,7 +150,6 @@ class AuthLoginCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command with invalid input.
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
-   *
    * @param $inputs
    * @param $args
    * @throws \Exception
@@ -166,9 +163,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
   }
 
-  /**
-   * @param string $output
-   */
   protected function assertInteractivePrompts(string $output): void {
     // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
@@ -192,10 +186,9 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return object
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockTokenRequest() {
+  protected function mockTokenRequest(): object {
     $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
       'get', '200');
     $this->clientProphecy->request('get', "/account/tokens/{$this->key}")

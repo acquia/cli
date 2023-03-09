@@ -40,7 +40,6 @@ class ClientServiceTest extends TestBase {
   /**
    * @dataProvider providerTestIsMachineAuthenticated
    * @param array $env_vars
-   * @param bool $is_authenticated
    */
   public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated): void {
     self::setEnvVars($env_vars);

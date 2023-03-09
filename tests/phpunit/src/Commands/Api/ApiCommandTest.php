@@ -34,10 +34,9 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testArgumentsInteraction() {
+  public function testArgumentsInteraction(): void {
     $this->command = $this->getApiCommandByName('api:environments:log-download');
     $this->executeCommand([], [
       '289576-53785bca-1946-4adc-a022-e50d24686c20',
@@ -52,7 +51,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testArgumentsInteractionValidation(): void {
@@ -72,10 +70,9 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testArgumentsInteractionValdationFormat() {
+  public function testArgumentsInteractionValdationFormat(): void {
     $this->command = $this->getApiCommandByName('api:notifications:find');
     try {
       $this->executeCommand([], [
@@ -120,7 +117,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -144,11 +140,10 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testInferApplicationUuidArgument() {
+  public function testInferApplicationUuidArgument(): void {
     $mock_body = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/applications')->willReturn([$mock_body])->shouldBeCalled();
     $this->clientProphecy->request('get', '/applications/' . $mock_body->uuid)->willReturn($mock_body)->shouldBeCalled();
@@ -179,13 +174,11 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestConvertApplicationAliasToUuidArgument
-   *
-   * @param bool $support
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
+   * @throws \Exception
    * @group serial
    */
-  public function testConvertApplicationAliasToUuidArgument($support): void {
+  public function testConvertApplicationAliasToUuidArgument(bool $support): void {
     ClearCacheCommand::clearCaches();
     $this->mockApplicationsRequest(1);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
@@ -205,12 +198,11 @@ class ApiCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -227,7 +219,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    * @serial
@@ -264,7 +255,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    * @serial
@@ -293,12 +283,11 @@ class ApiCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    * @group serial
@@ -318,7 +307,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -341,7 +329,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -373,9 +360,6 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The environment configuration is being updated.', $output);
   }
 
-  /**
-   *
-   */
   public function providerTestApiCommandDefinitionParameters(): array {
     $api_accounts_ssh_keys_list_usage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [
@@ -390,12 +374,10 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinitionParameters
-   *
    * @param $use_spec_cache
    * @param $command_name
    * @param $method
    * @param $usage
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testApiCommandDefinitionParameters($use_spec_cache, $command_name, $method, $usage): void {
@@ -423,7 +405,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testModifiedParameterDescriptions(): void {
@@ -443,11 +424,9 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinitionRequestBody
-   *
    * @param $command_name
    * @param $method
    * @param $usage
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testApiCommandDefinitionRequestBody($command_name, $method, $usage): void {
@@ -462,7 +441,6 @@ class ApiCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return void
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    */

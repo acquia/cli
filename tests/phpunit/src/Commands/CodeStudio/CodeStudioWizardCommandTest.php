@@ -21,7 +21,6 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
  * @package Acquia\Cli\Tests\Commands
- *
  * @requires OS linux|darwin
  */
 class CodeStudioWizardCommandTest extends WizardTestBase {
@@ -58,7 +57,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   /**
    * @return array
    */
-  public function providerTestCommand() {
+  public function providerTestCommand(): array {
     return [
       [
         // One project.
@@ -152,15 +151,13 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @dataProvider providerTestCommand
-   *
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testCommand($mocked_gitlab_projects, $inputs, $args) {
+  public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     $environments_response = $this->getMockEnvironmentsResponse();
     $selected_environment = $environments_response->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
@@ -244,19 +241,14 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ]);
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $projects
-   */
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
     $tokens = [
-      0 =>
-        [
+      0 => [
           'id' => $this->gitLabTokenId,
           'name' => 'acquia-codestudio',
           'revoked' => FALSE,
           'created_at' => '2021-12-28T20:08:21.629Z',
-          'scopes' =>
-            [
+          'scopes' => [
               0 => 'api',
               1 => 'write_repository',
             ],
@@ -287,14 +279,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
-   */
   protected function mockGitLabGroups(ObjectProphecy $gitlab_client): void {
     $groups = $this->prophet->prophesize(Groups::class);
     $groups->all(Argument::type('array'))->willReturn([
-      0 =>
-        [
+      0 => [
           'id' => 47,
           'web_url' => 'https://code.cloudservices.acquia.io/groups/awesome-demo',
           'name' => 'awesome-demo',
@@ -321,8 +309,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'ldap_access' => NULL,
           'marked_for_deletion_on' => NULL,
         ],
-      1 =>
-        [
+      1 => [
           'id' => 68,
           'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
           'name' => 'Nestle',
@@ -353,9 +340,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlab_client->groups()->willReturn($groups->reveal());
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $gitlab_client
-   */
   protected function mockGitLabNamespaces(ObjectProphecy $gitlab_client): void {
     $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
     $namespaces->show(Argument::type('string'))->willReturn([
@@ -379,7 +363,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @param $gitlab_project_id
-   * @param \Prophecy\Prophecy\ObjectProphecy $projects
    */
   protected function mockGitLabVariables($gitlab_project_id, ObjectProphecy $projects): void {
     $projects->variables($gitlab_project_id)->willReturn($this->getMockGitLabVariables());

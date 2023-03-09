@@ -17,14 +17,8 @@ use Symfony\Component\Console\Exception\RuntimeException;
  */
 class ExceptionListener {
 
-  /**
-   * @var string
-   */
   private string $messagesBgColor = 'blue';
 
-  /**
-   * @var string
-   */
   private string $messagesFgColor = 'white';
 
   /**
@@ -32,9 +26,6 @@ class ExceptionListener {
    */
   private array $helpMessages = [];
 
-  /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
-   */
   public function onConsoleError(ConsoleErrorEvent $event): void {
     $exitCode = $event->getExitCode();
     $error = $event->getError();
@@ -101,26 +92,17 @@ class ExceptionListener {
     }
   }
 
-  /**
-   *
-   */
   private function writeApplicationAliasHelp(): void {
     $this->helpMessages[] = "The <bg=$this->messagesBgColor;options=bold>applicationUuid</> argument must be a valid UUID or unique application alias accessible to your Cloud Platform user." . PHP_EOL . PHP_EOL
       . "An alias consists of an application name optionally prefixed with a hosting realm, e.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp</> or <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>prod.myapp</>." . PHP_EOL . PHP_EOL
       . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
-  /**
-   *
-   */
   private function writeSiteAliasHelp(): void {
     $this->helpMessages[] = "<bg=$this->messagesBgColor;options=bold>environmentId</> can also be a site alias. E.g. <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>myapp.dev</>." . PHP_EOL
     . "Run <bg=$this->messagesBgColor;options=bold>acli remote:aliases:list</> to see a list of all available aliases.";
   }
 
-  /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
-   */
   private function writeSupportTicketHelp(ConsoleErrorEvent $event): void {
     $message = "You can submit a support ticket at https://support-acquia.force.com/s/contactsupport";
     if (!$event->getOutput()->isVeryVerbose()) {
@@ -129,9 +111,6 @@ class ExceptionListener {
     $this->helpMessages[] = $message;
   }
 
-  /**
-   * @param \Symfony\Component\Console\Event\ConsoleErrorEvent $event
-   */
   private function writeUpdateHelp(ConsoleErrorEvent $event): void {
     try {
       $command = $event->getCommand();

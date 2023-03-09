@@ -52,8 +52,8 @@
         "symfony/process": "^5.4",
         "symfony/validator": "^6.0",
         "symfony/yaml": "^6.0",
-        "typhonius/acquia-logstream": "^0.0.12",
-        "typhonius/acquia-php-sdk-v2": "^2.5.0",
+        "typhonius/acquia-logstream": "^0.0.13",
+        "typhonius/acquia-php-sdk-v2": "^3",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
         "zumba/amplitude-php": "^1.0.4"
     },

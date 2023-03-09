@@ -12,6 +12,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * Class SshKeyCreateUploadCommandTest
+ *
  * @property SshKeyUploadCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
@@ -20,7 +21,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @var array
    */
-  private $sshKeysRequestBody;
+  private array $sshKeysRequestBody;
 
   /**
    * {@inheritdoc}

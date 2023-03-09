@@ -2,9 +2,6 @@
 
 namespace Acquia\Cli\Output\Spinner;
 
-/**
- *
- */
 class Color {
   public const NO_COLOR = 0;
   public const COLOR_16 = 16;

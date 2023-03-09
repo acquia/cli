@@ -45,18 +45,12 @@ class AccessTokenConnector extends Connector {
     );
   }
 
-  /**
-   * @param \League\OAuth2\Client\Provider\GenericProvider $provider
-   */
   public function setProvider(
     GenericProvider $provider
   ): void {
     $this->provider = $provider;
   }
 
-  /**
-   * @return \League\OAuth2\Client\Token\AccessToken
-   */
   public function getAccessToken(): AccessToken {
     return $this->accessToken;
   }

@@ -23,9 +23,6 @@ class AcsfConnectorFactory implements ConnectorFactoryInterface {
     $this->baseUri = $base_uri;
   }
 
-  /**
-   * @return \Acquia\Cli\AcsfApi\AcsfConnector
-   */
   public function createConnector(): AcsfConnector {
     return new AcsfConnector($this->config, $this->baseUri);
   }

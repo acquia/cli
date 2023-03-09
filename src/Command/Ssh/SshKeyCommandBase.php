@@ -36,21 +36,12 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   protected string $publicSshKeyFilepath;
 
-  /**
-   * @param string $private_ssh_key_filename
-   */
   protected function setSshKeyFilepath(string $private_ssh_key_filename): void {
     $this->privateSshKeyFilename = $private_ssh_key_filename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
 
-  /**
-   *
-   * @param \AcquiaCloudApi\Response\IdeResponse $ide
-   *
-   * @return string
-   */
   public static function getIdeSshKeyLabel(IdeResponse $ide): string {
     return self::normalizeSshKeyLabel('IDE_' . $ide->label . '_' . $ide->uuid);
   }
@@ -58,7 +49,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * @param string $label
    *   The label to normalize.
-   *
    * @return string|string[]|null
    */
   public static function normalizeSshKeyLabel(string $label): array|string|null {
@@ -68,10 +58,6 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   /**
    * Normalizes public SSH key by trimming and removing user and machine suffix.
-   *
-   * @param string $public_key
-   *
-   * @return string
    */
   protected function normalizePublicSshKey(string $public_key): string {
     $parts = explode('== ', $public_key);
@@ -83,7 +69,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * Asserts whether ANY SSH key has been added to the local keychain.
    *
-   * @return bool
    * @throws \Exception
    */
   protected function sshKeyIsAddedToKeychain(): bool {
@@ -104,8 +89,6 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @param string $filepath
    *   The filepath of the private SSH key.
-   * @param string $password
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent(string $filepath, string $password): void {
@@ -130,8 +113,6 @@ EOT
    * Polls the Cloud Platform until a successful SSH request is made to the dev
    * environment.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @throws \Exception
    * @infection-ignore-all
    */
@@ -150,12 +131,12 @@ EOT
       $spinner->setMessage("Waiting for the key to become available in Cloud Platform $env_name environments");
       $spinner->start();
       $mappings[$env_name]['timer'] = $loop->addPeriodicTimer($spinner->interval(),
-        static function () use ($spinner) {
+        static function () use ($spinner): void {
           $spinner->advance();
         });
       $mappings[$env_name]['spinner'] = $spinner;
     }
-    $callback = function () use ($output, $loop, &$mappings, &$timers) {
+    $callback = function () use ($output, $loop, &$mappings, &$timers): void {
       foreach ($mappings as $env_name => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
@@ -183,7 +164,7 @@ EOT
     // Poll Cloud every 5 seconds.
     $timers[] = $loop->addPeriodicTimer(5, $callback);
     $timers[] = $loop->addTimer(0.1, $callback);
-    $timers[] = $loop->addTimer(10 * 60, function () use ($output, $loop, &$timers) {
+    $timers[] = $loop->addTimer(10 * 60, function () use ($output, $loop, &$timers): void {
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
       foreach ($timers as $timer) {
         $loop->cancelTimer($timer);
@@ -226,10 +207,6 @@ EOT
   }
 
   /**
-   * @param string $filename
-   * @param string $password
-   *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -243,10 +220,6 @@ EOT
   }
 
   /**
-   * @param string $filename
-   * @param string $password
-   *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function doCreateSshKey(string $filename, string $password): string {
@@ -274,11 +247,6 @@ EOT
     return $filepath;
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return string
-   */
   protected function determineFilename(InputInterface $input): string {
     if ($input->getOption('filename')) {
       $filename = $input->getOption('filename');
@@ -297,11 +265,6 @@ EOT
     return $filename;
   }
 
-  /**
-   * @param string $filename
-   *
-   * @return string
-   */
   private function validateFilename(string $filename): string {
     $violations = Validation::createValidator()->validate($filename, [
       new Length(['min' => 5]),
@@ -316,9 +279,6 @@ EOT
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return string
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input): string {
@@ -340,11 +300,6 @@ EOT
     throw new AcquiaCliException('Could not determine the SSH key password. Either use the --password option or else run this command in an interactive shell.');
   }
 
-  /**
-   * @param string $password
-   *
-   * @return string
-   */
   private function validatePassword(string $password): string {
     $violations = Validation::createValidator()->validate($password, [
       new Length(['min' => 5]),
@@ -357,12 +312,6 @@ EOT
     return $password;
   }
 
-  /**
-   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
-   * @param string $public_key
-   *
-   * @return bool
-   */
   private function keyHasUploaded(Client $acquia_cloud_client, string $public_key): bool {
     $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
     foreach ($cloud_keys as $cloud_key) {
@@ -374,13 +323,11 @@ EOT
   }
 
   /**
-   * @param null $filepath
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
-  protected function determinePublicSshKey($filepath = NULL): array {
+  protected function determinePublicSshKey(string $filepath = NULL): array {
     if ($filepath) {
       $filepath = $this->localMachineHelper->getLocalFilepath($filepath);
     }
@@ -410,8 +357,6 @@ EOT
 
   /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   *
-   * @return string
    */
   private function promptChooseLocalSshKey(array $local_keys): string {
     $labels = [];
@@ -425,11 +370,6 @@ EOT
     return $this->io->askQuestion($question);
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   *
-   * @return string
-   */
   protected function determineSshKeyLabel(InputInterface $input): string {
     if ($input->hasOption('label') && $input->getOption('label')) {
       $label = $input->getOption('label');
@@ -448,8 +388,6 @@ EOT
 
   /**
    * @param $label
-   *
-   * @return mixed
    */
   private function validateSshKeyLabel($label): mixed {
     if (trim($label) === '') {
@@ -461,9 +399,6 @@ EOT
 
   /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   * @param string $chosen_local_key
-   *
-   * @return string
    * @throws \Exception
    */
   private function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
@@ -478,9 +413,6 @@ EOT
   }
 
   /**
-   * @param string $label
-   * @param string $public_key
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */

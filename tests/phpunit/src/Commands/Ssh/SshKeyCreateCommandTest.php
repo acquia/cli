@@ -10,6 +10,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * Class SshKeyCreateCommandTest
+ *
  * @property SshKeyCreateCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */

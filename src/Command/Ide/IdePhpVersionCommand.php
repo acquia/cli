@@ -15,9 +15,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:php-version';
 
-  /**
-   * @var string
-   */
   private string $idePhpFilePathPrefix;
 
   /*
@@ -39,9 +36,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -55,9 +49,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return 0;
   }
 
-  /**
-   * @return string
-   */
   private function getIdePhpFilePathPrefix(): string {
     if (!isset($this->idePhpFilePathPrefix)) {
       $this->idePhpFilePathPrefix = '/usr/local/php';
@@ -65,9 +56,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return $this->idePhpFilePathPrefix;
   }
 
-  /**
-   * @param string $path
-   */
   public function setIdePhpFilePathPrefix(string $path): void {
     $this->idePhpFilePathPrefix = $path;
   }

@@ -180,7 +180,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $vcs_path
    * @param $vcs_url
    * @param $artifact_dir
@@ -198,7 +197,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $artifact_dir
    */
   protected function mockLocalGitConfig(ObjectProphecy $local_machine_helper, $artifact_dir): void {
@@ -210,7 +208,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $artifact_dir
    */
   protected function mockComposerInstall(ObjectProphecy $local_machine_helper, $artifact_dir): void {
@@ -222,14 +219,13 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $artifact_dir
    * @param $commit_hash
    * @param $git_url
    * @param $git_branch
    */
   protected function mockGitAddCommit(ObjectProphecy $local_machine_helper, $artifact_dir, $commit_hash): void {
-    $process =  $this->mockProcess();
+    $process = $this->mockProcess();
     $local_machine_helper->execute(['git', 'add', '-A'], Argument::type('callable'), $artifact_dir, TRUE)
       ->willReturn($process->reveal())->shouldBeCalled();
     $local_machine_helper->execute(['git', 'add', '-f', 'docroot/index.php'], NULL, $artifact_dir, FALSE)
@@ -244,10 +240,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
       ->willReturn($process->reveal())->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param string $artifact_dir
-   */
   protected function mockReadComposerJson(ObjectProphecy $local_machine_helper, string $artifact_dir): void {
     $composer_json = json_encode([
       'extra' => [
@@ -269,12 +261,11 @@ class PushArtifactCommandTest extends PullCommandTestBase {
 
   /**
    * @param $git_urls
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $git_branch
    * @param $artifact_dir
    */
   protected function mockGitPush($git_urls, ObjectProphecy $local_machine_helper, $git_branch, $artifact_dir): void {
-    $process =  $this->mockProcess();
+    $process = $this->mockProcess();
     foreach ($git_urls as $git_url) {
       $local_machine_helper->execute(Argument::containing($git_url), Argument::type('callable'), $artifact_dir, TRUE)
         ->willReturn($process->reveal())->shouldBeCalled();
@@ -282,12 +273,11 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $git_tag
    * @param $artifact_dir
    */
   protected function mockGitTag(ObjectProphecy $local_machine_helper, $git_tag, $artifact_dir): void {
-    $process =  $this->mockProcess();
+    $process = $this->mockProcess();
     $local_machine_helper->execute([
       'git',
       'tag',

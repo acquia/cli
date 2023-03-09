@@ -21,7 +21,7 @@ class UpdateCommandTest extends CommandTestBase {
     return $this->injectCommand(HelloWorldCommand::class);
   }
 
-  public function testSelfUpdate() {
+  public function testSelfUpdate(): void {
     $this->setUpdateClient(403);
     $this->executeCommand([], []);
     self::assertEquals(0, $this->getStatusCode());

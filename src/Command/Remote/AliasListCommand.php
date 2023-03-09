@@ -27,6 +27,7 @@ class AliasListCommand extends CommandBase {
 
   /**
    * {@inheritdoc}
+   *
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {

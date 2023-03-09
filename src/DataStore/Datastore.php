@@ -14,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class YamlStore
+ *
  * @package Acquia\Cli\DataStore
  */
 abstract class Datastore implements DataStoreInterface {
@@ -34,22 +35,12 @@ abstract class Datastore implements DataStoreInterface {
     $this->data = new Data();
   }
 
-  /**
-   * @param string $key
-   * @param mixed $value
-   */
-  public function set(string $key, $value): void {
+  public function set(string $key, mixed $value): void {
     $this->data->set($key, $value);
     $this->dump();
   }
 
-  /**
-   * @param string $key
-   * @param null $default
-   *
-   * @return array|mixed|null
-   */
-  public function get(string $key, $default = NULL): mixed {
+  public function get(string $key): mixed {
     try {
       return $this->data->get($key);
     }
@@ -58,29 +49,19 @@ abstract class Datastore implements DataStoreInterface {
     }
   }
 
-  /**
-   * @param string $key
-   */
   public function remove(string $key): void {
     $this->data->remove($key);
     $this->dump();
   }
 
-  /**
-   * @param string $key
-   *
-   * @return bool
-   */
   public function exists(string $key): bool {
     return $this->data->has($key);
   }
 
   /**
    * @param array $config
-   * @param \Symfony\Component\Config\Definition\ConfigurationInterface $definition
    * @param string $path
    *   Path to the datastore on disk.
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

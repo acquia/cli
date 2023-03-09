@@ -14,9 +14,6 @@ class AcquiaCliException extends Exception {
    */
   private array $replacements;
 
-  /**
-   * @var null|string
-   */
   private ?string $raw_message;
 
   /**
@@ -71,8 +68,6 @@ class AcquiaCliException extends Exception {
    *   The raw, uninterpolated message string.
    * @param array $replacements
    *   The values to replace into the message.
-   *
-   * @return string
    */
   protected function interpolateString(array|string $message, array $replacements): string {
     $tr = [];

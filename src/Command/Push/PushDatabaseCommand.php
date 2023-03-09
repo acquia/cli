@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,9 +30,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -65,11 +63,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
-   * @param string $local_filepath
-   * @param callable $output_callback
-   *
-   * @return string
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function uploadDatabaseDump(
@@ -98,13 +91,9 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $environment
-   * @param string $remote_dump_filepath
-   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, $database): void {
+  private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, DatabaseResponse $database): void {
     $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
     $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
     $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
@@ -113,12 +102,7 @@ class PushDatabaseCommand extends PullCommandBase {
     }
   }
 
-  /**
-   * @param $database
-   *
-   * @return string
-   */
-  private function getNameFromDatabaseResponse($database): string {
+  private function getNameFromDatabaseResponse(DatabaseResponse $database): string {
     $db_url_parts = explode('/', $database->url);
     return end($db_url_parts);
   }

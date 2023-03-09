@@ -7,6 +7,7 @@ use Acquia\Cli\Command\Ssh\SshKeyDeleteCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IdeDeleteCommandTest.
@@ -18,11 +19,8 @@ class IdeDeleteCommandTest extends CommandTestBase {
 
   /**
    * This method is called before each test.
-   *
-   * @param null $output
-   *
    */
-  public function setUp($output = NULL): void {
+  public function setUp(OutputInterface $output = NULL): void {
     parent::setUp();
     $this->getCommandTester();
     $this->application->addCommands([

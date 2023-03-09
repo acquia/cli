@@ -16,7 +16,6 @@ use Symfony\Component\Console\Command\Command;
  * The IdeWizardCreateSshKeyCommand command is designed to thrown an exception if it
  * is executed from a non Cloud Platform IDE environment. Therefore we do not test Windows
  * compatibility. It should only ever be run in a Linux environment.
- *
  * @requires OS linux|darwin
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
@@ -44,7 +43,6 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
   }
 
   /**
-   * @return \AcquiaCloudApi\Response\IdeResponse
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockIdeRequest(): IdeResponse {

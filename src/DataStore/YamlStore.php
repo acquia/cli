@@ -7,6 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class YamlStore
+ *
  * @package Acquia\Cli\DataStore
  */
 class YamlStore extends Datastore {
@@ -14,7 +15,6 @@ class YamlStore extends Datastore {
   /**
    * Creates a new store.
    *
-   * @param string $path
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $config_definition
    */
   public function __construct(string $path, ConfigurationInterface $config_definition = NULL) {
@@ -29,9 +29,6 @@ class YamlStore extends Datastore {
     }
   }
 
-  /**
-   *
-   */
   public function dump(): void {
     $this->fileSystem->dumpFile($this->filepath, Yaml::dump($this->data->export()));
   }

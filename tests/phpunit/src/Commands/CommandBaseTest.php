@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Class CommandBaseTest.
+ *
  * @property LinkCommand $command
  */
 class CommandBaseTest extends CommandTestBase {
@@ -62,12 +63,9 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCloudAppUuidArg
-   *
-   * @param string $uuid
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testCloudAppUuidArg($uuid): void {
+  public function testCloudAppUuidArg(string $uuid): void {
     $this->mockApplicationRequest();
     $this->assertEquals($uuid, CommandBase::validateUuid($uuid));
   }
@@ -81,10 +79,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudAppUuidArg
-   *
-   * @param string $uuid
-   * @param string $message
-   *
    * @throws \Exception
    */
   public function testInvalidCloudAppUuidArg(string $uuid, string $message): void {
@@ -103,10 +97,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudEnvironmentAlias
-   *
-   * @param string $alias
-   * @param string $message
-   *
    * @throws \Exception
    */
   public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void {

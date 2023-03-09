@@ -28,8 +28,6 @@ class ClientService implements ClientServiceInterface {
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
-   * @param \Acquia\Cli\Application $application
-   * @param \Acquia\Cli\ApiCredentialsInterface $credentials
    */
   public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, ApiCredentialsInterface $credentials) {
     $this->connectorFactory = $connector_factory;
@@ -38,23 +36,14 @@ class ClientService implements ClientServiceInterface {
     $this->credentials = $credentials;
   }
 
-  /**
-   * @param \AcquiaCloudApi\Connector\ConnectorInterface $connector
-   */
   public function setConnector(ConnectorInterface $connector): void {
     $this->connector = $connector;
   }
 
-  /**
-   * @param \Acquia\Cli\Application $application
-   */
   private function setApplication(Application $application): void {
     $this->application = $application;
   }
 
-  /**
-   * @return \AcquiaCloudApi\Connector\Client
-   */
   public function getClient(): Client {
     $client = Client::factory($this->connector);
     $this->configureClient($client);
@@ -62,9 +51,6 @@ class ClientService implements ClientServiceInterface {
     return $client;
   }
 
-  /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   */
   protected function configureClient(Client $client): void {
     $user_agent = sprintf("acli/%s", $this->application->getVersion());
     $custom_headers = [
@@ -76,9 +62,6 @@ class ClientService implements ClientServiceInterface {
     $client->addOption('headers', $custom_headers);
   }
 
-  /**
-   * @return bool
-   */
   public function isMachineAuthenticated(): bool {
     if ($this->machineIsAuthenticated !== NULL) {
       return $this->machineIsAuthenticated;

@@ -23,6 +23,7 @@ class AliasesListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'remote:aliases:list' commands.
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesListCommand(): void {

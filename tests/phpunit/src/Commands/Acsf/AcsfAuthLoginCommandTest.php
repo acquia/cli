@@ -91,17 +91,15 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * Tests the 'acsf:auth:login' command.
    *
    * @dataProvider providerTestAuthLoginCommand
-   *
    * @param $machine_is_authenticated
    * @param $inputs
    * @param $args
    * @param $output_to_assert
    * @param array $config
-   *
    * @throws \Exception
    * @requires OS linux|darwin
    */
-  public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, $config = []): void {
+  public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, array $config = []): void {
     if (!$machine_is_authenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
@@ -123,9 +121,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
   }
 
-  /**
-   *
-   */
   protected function assertKeySavedCorrectly(): void {
     $creds_file = $this->cloudConfigFilepath;
     $this->assertFileExists($creds_file);

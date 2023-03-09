@@ -38,13 +38,10 @@ class AuthLogoutCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command.
    *
    * @dataProvider providerTestAuthLogoutCommand
-   *
-   * @param bool $machine_is_authenticated
    * @param array $inputs
-   *
    * @throws \Exception
    */
-  public function testAuthLogoutCommand($machine_is_authenticated, $inputs): void {
+  public function testAuthLogoutCommand(bool $machine_is_authenticated, array $inputs): void {
     if (!$machine_is_authenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
