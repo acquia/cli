@@ -176,7 +176,8 @@ class ApiCommandTest extends CommandTestBase {
    * @dataProvider providerTestConvertApplicationAliasToUuidArgument
    *
    *
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
+   * @throws \Exception
    * @group serial
    */
   public function testConvertApplicationAliasToUuidArgument(bool $support): void {
@@ -199,7 +200,7 @@ class ApiCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
 
@@ -284,7 +285,7 @@ class ApiCommandTest extends CommandTestBase {
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
   }
 

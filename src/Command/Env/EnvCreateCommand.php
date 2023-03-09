@@ -111,7 +111,7 @@ class EnvCreateCommand extends CommandBase {
   private function getDatabaseNames(Client $acquia_cloud_client, ?string $cloud_app_uuid): array {
     $this->checklist->addItem("Determining default database");
     $databases_resource = new Databases($acquia_cloud_client);
-    $databases = $databases_resource->getAll($cloud_app_uuid);
+    $databases = $databases_resource->getNames($cloud_app_uuid);
     $database_names = [];
     foreach ($databases as $database) {
       $database_names[] = $database->name;

@@ -164,7 +164,7 @@ class ArchiveExportCommand extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function compressArchiveDirectory($archive_dir, $destination_dir, OutputInterface $output_callback = NULL): string {
+  private function compressArchiveDirectory($archive_dir, $destination_dir, Closure $output_callback = NULL): string {
     $destination_filename = basename($archive_dir) . '.tar.gz';
     $destination_filepath = Path::join($destination_dir, $destination_filename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);

@@ -12,6 +12,7 @@ use AcquiaCloudApi\Endpoints\DatabaseBackups;
 use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\BackupResponse;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
 use Exception;
@@ -19,7 +20,6 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
 use React\EventLoop\Loop;
-use stdClass;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,7 +50,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param $backup_response
    *
    */
-  public static function getBackupPath($environment, $database, $backup_response): string {
+  public static function getBackupPath($environment, DatabaseResponse $database, $backup_response): string {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
     $filename = implode('-', [
         $environment->name,
@@ -166,7 +166,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function pullCodeFromCloud(EnvironmentResponse $chosen_environment, OutputInterface $output_callback = NULL): void {
+  private function pullCodeFromCloud(EnvironmentResponse $chosen_environment, Closure $output_callback = NULL): void {
     $is_dirty = $this->isLocalGitRepoDirty();
     if ($is_dirty) {
       throw new AcquiaCliException('Pulling code from your Cloud Platform environment was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
@@ -186,7 +186,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function checkoutBranchFromEnv(EnvironmentResponse $environment, OutputInterface $output_callback = NULL): void {
+  private function checkoutBranchFromEnv(EnvironmentResponse $environment, Closure $output_callback = NULL): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $this->localMachineHelper->execute([
       'git',
@@ -327,7 +327,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @param $acquia_cloud_client
    */
-  private function createBackup(EnvironmentResponse $environment, stdClass $database, $acquia_cloud_client): void {
+  private function createBackup(EnvironmentResponse $environment, DatabaseResponse $database, $acquia_cloud_client): void {
     $backups = new DatabaseBackups($acquia_cloud_client);
     $response = $backups->create($environment->uuid, $database->name);
     $url_parts = explode('/', $response->links->notification->href);
@@ -660,9 +660,7 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * @param string|null $site
    *
-   * @return \stdClass[]
-   *   The database instance. This is not a DatabaseResponse, since it's
-   *   specific to the environment.
+   * @return \AcquiaCloudApi\Response\DatabaseResponse[]
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
@@ -982,7 +980,7 @@ abstract class PullCommandBase extends CommandBase {
    *
    * @throws \Exception
    */
-  private function importRemoteDatabase(stdClass $database, string $local_filepath, Closure $output_callback = NULL): void {
+  private function importRemoteDatabase(DatabaseResponse $database, string $local_filepath, Closure $output_callback = NULL): void {
     if ($database->flags->default) {
       // Easy case, import the default db into the default db.
       $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $local_filepath, $output_callback);

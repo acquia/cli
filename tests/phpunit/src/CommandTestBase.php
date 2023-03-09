@@ -10,6 +10,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\CommandFactoryInterface;
 use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Helpers\SshHelper;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Exception;
 use Gitlab\Api\Projects;
@@ -121,7 +122,7 @@ abstract class CommandTestBase extends TestBase {
    *   A command tester.
    */
   protected function getCommandTester(): CommandTester {
-    if ($this->commandTester) {
+    if (isset($this->commandTester)) {
       return $this->commandTester;
     }
 
@@ -302,13 +303,19 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    *
-   * @return array
+   * @return \AcquiaCloudApi\Response\DatabaseResponse[]
    * @throws \JsonException
    */
   protected function mockAcsfDatabasesResponse(
     object $environments_response
   ): array {
-    $databases_response = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
+    $databases_response_json = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
+    $databases_response = array_map(
+      static function ($database_response) {
+        return new DatabaseResponse($database_response);
+      },
+      $databases_response_json
+    );
     $this->clientProphecy->request('get',
       "/environments/{$environments_response->id}/databases")
       ->willReturn($databases_response)

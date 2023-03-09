@@ -1384,8 +1384,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \JsonException
    * @throws \JsonException
    */
-  protected function getDrushDatabaseConnectionStatus(OutputInterface $output_callback = NULL): bool {
-    if (!is_null($this->drushHasActiveDatabaseConnection)) {
+  protected function getDrushDatabaseConnectionStatus(Closure $output_callback = NULL): bool {
+    if (isset($this->drushHasActiveDatabaseConnection)) {
       return $this->drushHasActiveDatabaseConnection;
     }
     if ($this->localMachineHelper->commandExists('drush')) {

@@ -27,6 +27,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
+   * @throws \Exception
    */
   public function testPushDatabase(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -99,7 +100,8 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
+   * @param object $environments_response
    * @param $process
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException

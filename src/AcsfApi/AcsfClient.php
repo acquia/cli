@@ -11,7 +11,7 @@ class AcsfClient extends Client {
   /**
    * @inheritdoc
    */
-  public function processResponse(ResponseInterface $response) {
+  public function processResponse(ResponseInterface $response): mixed {
     $body_json = $response->getBody();
     $body = json_decode($body_json, FALSE, 512, JSON_THROW_ON_ERROR);
 

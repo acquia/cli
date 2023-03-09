@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\Misc\LandoInfoHelper;
+use AcquiaCloudApi\Response\DatabaseResponse;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
 use Prophecy\Argument;
@@ -425,8 +426,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
    *
    * @throws \GuzzleHttp\Exception\GuzzleException|\Psr\Cache\InvalidArgumentException|\JsonException
    */
-  protected function mockDownloadBackup(object $databases_response, object $selected_environment, int $curl_code = 0): object {
-    $selected_database = $databases_response;
+  protected function mockDownloadBackup(DatabaseResponse $selected_database, object $selected_environment, int $curl_code = 0): DatabaseResponse {
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
     if ($curl_code) {
