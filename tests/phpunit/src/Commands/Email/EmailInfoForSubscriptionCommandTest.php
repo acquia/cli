@@ -39,7 +39,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
    */
   public function testEmailInfoForSubscription(): void {
     $inputs = [
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       0,
     ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -100,7 +100,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
    */
   public function testEmailInfoForSubscriptionNoApps(): void {
     $inputs = [
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       0,
     ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -126,7 +126,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
    */
   public function testEmailInfoForSubscriptionWith101Apps(): void {
     $inputs = [
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       0,
       // Do you wish to continue?
       'no'
@@ -145,7 +145,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
     $app = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     for ($i = 2; $i < 101; $i++) {
-      $applications_response->_embedded->items[$i]= $app;
+      $applications_response->_embedded->items[$i] = $app;
       $applications_response->_embedded->items[$i]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
     }
 
@@ -169,7 +169,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
    */
   public function testEmailInfoForSubscriptionNoDomains(): void {
     $inputs = [
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       0,
     ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
@@ -192,7 +192,7 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
    */
   public function testEmailInfoForSubscriptionNoAppDomains(): void {
     $inputs = [
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       0,
     ];
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');

@@ -10,6 +10,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * Class SshKeyCreateCommandTest
+ *
  * @property SshKeyCreateCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
@@ -45,7 +46,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
         [],
         // Inputs.
         [
-          // Please enter a filename for your new local SSH key:
+          // Enter a filename for your new local SSH key:
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',
@@ -57,7 +58,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
         [],
         // Inputs.
         [
-          // Please enter a filename for your new local SSH key:
+          // Enter a filename for your new local SSH key:
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',

@@ -8,6 +8,7 @@ use Symfony\Component\Console\Command\Command;
 
 /**
  * Class InferApplicationTest.
+ *
  * @property LinkCommand $command
  */
 class InferApplicationTest extends CommandTestBase {
@@ -24,9 +25,6 @@ class InferApplicationTest extends CommandTestBase {
     $this->createMockGitConfigFile();
   }
 
-  /**
-   *
-   */
   public function testInfer(): void {
 
     $applications_response = $this->mockApplicationsRequest();
@@ -57,9 +55,6 @@ class InferApplicationTest extends CommandTestBase {
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
-  /**
-   *
-   */
   public function testInferFailure(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -77,7 +72,7 @@ class InferApplicationTest extends CommandTestBase {
     $this->executeCommand([], [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'y',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ...
       'y',

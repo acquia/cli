@@ -15,18 +15,10 @@ abstract class IdeCommandBase extends CommandBase {
 
   use IdeCommandTrait;
 
-  /**
-   * @var string
-   */
   private string $xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
 
   /**
-   * @param string $question_text
-   * @param \AcquiaCloudApi\Endpoints\Ides $ides_resource
-   *
    * @param $cloud_application_uuid
-   *
-   * @return \AcquiaCloudApi\Response\IdeResponse|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
@@ -52,8 +44,6 @@ abstract class IdeCommandBase extends CommandBase {
   /**
    * Start service inside IDE.
    *
-   * @param string $service
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function startService(string $service): void {
@@ -69,8 +59,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Stop service inside IDE.
-   *
-   * @param string $service
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -88,8 +76,6 @@ abstract class IdeCommandBase extends CommandBase {
   /**
    * Restart service inside IDE.
    *
-   * @param string $service
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function restartService(string $service): void {
@@ -103,17 +89,10 @@ abstract class IdeCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param string $file_path
-   */
   public function setXdebugIniFilepath(string $file_path): void {
     $this->xdebugIniFilepath = $file_path;
   }
 
-  /**
-   *
-   * @return string
-   */
   protected function getXdebugIniFilePath(): string {
     return $this->xdebugIniFilepath;
   }

@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class CommandBase.
- *
  */
 class AcsfApiBaseCommand extends ApiBaseCommand {
   protected static $defaultName = 'acsf:base';
@@ -18,15 +17,12 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
    */
   protected function checkAuthentication(): void {
     if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
-      throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Please run `acli auth:acsf-login`');
+      throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Run `acli auth:acsf-login`');
     }
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @todo Remove this method when CLI-791 is resolved.
-   *
-   * @return string
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;

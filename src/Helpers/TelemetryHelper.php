@@ -14,21 +14,12 @@ use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
 
-  /**
-   * @var \Acquia\Cli\CloudApi\ClientService
-   */
   private ClientService $cloudApiClientService;
 
-  /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
-   */
   private CloudDataStore $datastoreCloud;
 
   /**
    * TelemetryHelper constructor.
-   *
-   * @param \Acquia\Cli\CloudApi\ClientService $client_service
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
    */
   public function __construct(
     ClientService $client_service,

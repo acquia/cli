@@ -12,6 +12,7 @@ use Symfony\Component\Filesystem\Path;
 
 /**
  * Class SshKeyCreateUploadCommandTest
+ *
  * @property SshKeyUploadCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
@@ -20,7 +21,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
   /**
    * @var array
    */
-  private $sshKeysRequestBody;
+  private array $sshKeysRequestBody;
 
   /**
    * {@inheritdoc}
@@ -43,7 +44,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
         [
           // Choose key.
           '0',
-          // Please enter a Cloud Platform label for this SSH key:
+          // Enter a Cloud Platform label for this SSH key:
           $this->sshKeysRequestBody['label'],
           // Would you like to wait until Cloud Platform is ready? (yes/no)
           'y',

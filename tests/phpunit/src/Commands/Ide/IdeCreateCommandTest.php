@@ -55,9 +55,9 @@ class IdeCreateCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'n',
       0,
-      // Please select the application for which you'd like to create a new IDE
+      // Select the application for which you'd like to create a new IDE
       0,
-      // Please enter a label for your Cloud IDE:
+      // Enter a label for your Cloud IDE:
       'Example IDE',
     ];
     $this->executeCommand([], $inputs);
@@ -65,10 +65,10 @@ class IdeCreateCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('  [0] Sample application 1', $output);
     $this->assertStringContainsString('  [1] Sample application 2', $output);
-    $this->assertStringContainsString("Please enter a label for your Cloud IDE", $output);
+    $this->assertStringContainsString("Enter a label for your Cloud IDE", $output);
     $this->assertStringContainsString("[Jane Doe's IDE]", $output);
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);

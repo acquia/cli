@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
  * Class CommandBaseTest.
+ *
  * @property LinkCommand $command
  */
 class CommandBaseTest extends CommandTestBase {
@@ -32,7 +33,7 @@ class CommandBaseTest extends CommandTestBase {
       'n',
     ];
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform. Please run `acli auth:login`');
+    $this->expectExceptionMessage('This machine is not yet authenticated with the Cloud Platform. Run `acli auth:login`');
     $this->executeCommand([], $inputs);
   }
 
@@ -43,7 +44,7 @@ class CommandBaseTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select the application.
+      // Select the application.
       0,
       // Would you like to link the project at ... ?
       'y',
@@ -62,12 +63,9 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCloudAppUuidArg
-   *
-   * @param string $uuid
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
-  public function testCloudAppUuidArg($uuid): void {
+  public function testCloudAppUuidArg(string $uuid): void {
     $this->mockApplicationRequest();
     $this->assertEquals($uuid, CommandBase::validateUuid($uuid));
   }
@@ -81,10 +79,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudAppUuidArg
-   *
-   * @param string $uuid
-   * @param string $message
-   *
    * @throws \Exception
    */
   public function testInvalidCloudAppUuidArg(string $uuid, string $message): void {
@@ -103,10 +97,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudEnvironmentAlias
-   *
-   * @param string $alias
-   * @param string $message
-   *
    * @throws \Exception
    */
   public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void {

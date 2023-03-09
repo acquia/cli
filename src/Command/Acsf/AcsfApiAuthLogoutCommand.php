@@ -19,18 +19,11 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -43,7 +36,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     foreach ($factories as $url => $factory) {
       $factories[$url]['url'] = $url;
     }
-    $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Please choose a Factory to logout of');
+    $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Choose a Factory to logout of');
     $factory_url = $factory['url'];
 
     /** @var \Acquia\Cli\AcsfApi\AcsfCredentials $cloud_credentials */

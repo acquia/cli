@@ -27,7 +27,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
    *   An InputInterface instance.
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
@@ -47,8 +46,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
 
   /**
    * @param $ide_uuid
-   *
-   * @return string
    */
   public static function getSshKeyFilename($ide_uuid): string {
     return 'id_rsa_acquia_ide_' . $ide_uuid;
@@ -61,9 +58,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     $this->requireCloudIdeEnvironment();
   }
 
-  /**
-   * @return string
-   */
   protected function getSshKeyLabel(): string {
     return $this::getIdeSshKeyLabel($this->ide);
   }

@@ -20,77 +20,30 @@ use Psr\Log\LoggerInterface;
  */
 class AcsfCommandFactory implements CommandFactoryInterface {
 
-  /**
-   * @var \Acquia\Cli\Helpers\LocalMachineHelper
-   */
   private LocalMachineHelper $localMachineHelper;
 
-  /**
-   * @var \Acquia\Cli\DataStore\CloudDataStore
-   */
   private CloudDataStore $datastoreCloud;
 
-  /**
-   * @var \Acquia\Cli\DataStore\YamlStore|\Acquia\Cli\DataStore\AcquiaCliDatastore
-   */
   private YamlStore|AcquiaCliDatastore $datastoreAcli;
 
-  /**
-   * @var \Acquia\Cli\AcsfApi\AcsfCredentials
-   */
   private AcsfCredentials $cloudCredentials;
 
-  /**
-   * @var \Acquia\Cli\Helpers\TelemetryHelper
-   */
   private TelemetryHelper $telemetryHelper;
 
-  /**
-   * @var string
-   */
   private string $projectDir;
 
-  /**
-   * @var \Acquia\Cli\AcsfApi\AcsfClientService
-   */
   private AcsfClientService $cloudApiClientService;
 
-  /**
-   * @var \AcquiaLogstream\LogstreamManager
-   */
   private LogstreamManager $logstreamManager;
 
-  /**
-   * @var \Acquia\Cli\Helpers\SshHelper
-   */
   private SshHelper $sshHelper;
 
-  /**
-   * @var string
-   */
   private string $sshDir;
 
-  /**
-   * @var \Psr\Log\LoggerInterface
-   */
   private LoggerInterface $logger;
 
   private Client $httpClient;
 
-  /**
-   * @param \Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   * @param \Acquia\Cli\DataStore\CloudDataStore $datastoreCloud
-   * @param \Acquia\Cli\DataStore\AcquiaCliDatastore $datastoreAcli
-   * @param \Acquia\Cli\AcsfApi\AcsfCredentials $cloudCredentials
-   * @param \Acquia\Cli\Helpers\TelemetryHelper $telemetryHelper
-   * @param string $projectDir
-   * @param \Acquia\Cli\AcsfApi\AcsfClientService $cloudApiClientService
-   * @param \AcquiaLogstream\LogstreamManager $logstreamManager
-   * @param \Acquia\Cli\Helpers\SshHelper $sshHelper
-   * @param string $sshDir
-   * @param \Psr\Log\LoggerInterface $logger
-   * @param \GuzzleHttp\Client $httpClient
-   */
   public function __construct(
     LocalMachineHelper $localMachineHelper,
     CloudDataStore $datastoreCloud,
@@ -119,9 +72,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     $this->httpClient = $httpClient;
   }
 
-  /**
-   * @return \Acquia\Cli\Command\Acsf\AcsfApiBaseCommand
-   */
   public function createCommand(): AcsfApiBaseCommand {
     return new AcsfApiBaseCommand(
       $this->localMachineHelper,
@@ -139,9 +89,6 @@ class AcsfCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  /**
-   * @return \Acquia\Cli\Command\Acsf\AcsfListCommand
-   */
   public function createListCommand(): AcsfListCommand {
     return new AcsfListCommand(
       $this->localMachineHelper,

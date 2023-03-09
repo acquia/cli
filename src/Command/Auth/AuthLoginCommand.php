@@ -24,18 +24,11 @@ class AuthLoginCommand extends CommandBase {
       ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
   }
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -77,9 +70,6 @@ class AuthLoginCommand extends CommandBase {
   }
 
   /**
-   * @param string $api_key
-   * @param string $api_secret
-   *
    * @throws \Exception
    */
   private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {

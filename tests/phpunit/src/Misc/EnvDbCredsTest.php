@@ -12,25 +12,13 @@ use Symfony\Component\Console\Command\Command;
  */
 class EnvDbCredsTest extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  private $dbUser;
+  private string $dbUser;
 
-  /**
-   * @var string
-   */
-  private $dbPassword;
+  private string $dbPassword;
 
-  /**
-   * @var string
-   */
-  private $dbName;
+  private string $dbName;
 
-  /**
-   * @var string
-   */
-  private $dbHost;
+  private string $dbHost;
 
   public function setUp($output = NULL): void {
     parent::setUp();
@@ -62,9 +50,6 @@ class EnvDbCredsTest extends CommandTestBase {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
-  /**
-   *
-   */
   public function testEnvDbCreds(): void {
     $this->assertEquals($this->dbUser, $this->command->getDefaultLocalDbUser());
     $this->assertEquals($this->dbPassword, $this->command->getDefaultLocalDbPassword());

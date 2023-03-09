@@ -17,10 +17,6 @@ class IdeServiceRestartCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:service-restart';
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
@@ -38,9 +34,6 @@ class IdeServiceRestartCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -65,16 +58,11 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     return 0;
   }
 
-  /**
-   * @param string $service
-   *
-   * @return void
-   */
   private function validateService(string $service): void {
     $violations = Validation::createValidator()->validate($service, [
       new Choice([
         'choices' => ['php', 'php-fpm', 'apache', 'apache2', 'mysql', 'mysqld'],
-        'message' => 'Please specify a valid service name: php, apache, or mysql',
+        'message' => 'Specify a valid service name: php, apache, or mysql',
       ]),
     ]);
     if (count($violations)) {

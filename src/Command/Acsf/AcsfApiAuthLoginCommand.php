@@ -24,18 +24,11 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "The URL of your factory. E.g., https://www.acquia.com");
   }
 
-  /**
-   *
-   * @return bool
-   */
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -52,7 +45,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       $factory_choices['add_new'] = [
         'url' => 'Enter a new factory URL',
       ];
-      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Please choose a Factory to login to');
+      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Choose a Factory to login to');
       if ($factory['url'] === 'Enter a new factory URL') {
         $factory_url = $this->io->ask('Enter the full URL of the factory');
         $factory = [
@@ -94,11 +87,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     return 0;
   }
 
-  /**
-   * @param string|null $factory_url
-   * @param string $username
-   * @param string $key
-   */
   private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
@@ -111,21 +99,14 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $this->datastoreCloud->set('acsf_active_factory', $factory_url);
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param string $option_name
-   * @param bool $hidden
-   *
-   * @return mixed|null
-   */
   private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE): mixed {
     if (!$input->getOption($option_name)) {
       $option = $this->getDefinition()->getOption($option_name);
       $this->io->note([
-        "Please a value for $option_name",
+        "Provide a value for $option_name",
         $option->getDescription(),
       ]);
-      $question = new Question("Please enter a value for $option_name", $option->getDefault());
+      $question = new Question("Enter a value for $option_name", $option->getDefault());
       $question->setMaxAttempts(NULL);
       $question->setHidden($hidden);
       $answer = $this->io->askQuestion($question);

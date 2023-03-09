@@ -27,6 +27,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
+   * @throws \Exception
    */
   public function testPushDatabase(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -53,7 +54,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -69,7 +70,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -79,10 +80,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Overwrite the jxr136 database on dev with a copy of the database from the current machine?', $output);
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockUploadDatabaseDump(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process
@@ -101,15 +98,14 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|SshHelper $ssh_helper
+   * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
    * @param object $environments_response
    * @param $process
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockImportDatabaseDumpOnRemote(
     ObjectProphecy $ssh_helper,
-    $environments_response,
+    object $environments_response,
     $process
   ): void {
     $ssh_helper->executeCommand(
@@ -122,10 +118,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process

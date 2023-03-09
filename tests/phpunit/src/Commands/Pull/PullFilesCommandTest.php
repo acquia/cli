@@ -46,11 +46,11 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
       // Choose site from which to copy files:
       0,
@@ -60,7 +60,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -88,11 +88,11 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
-      // Please choose an Acquia environment:
+      // Choose an Acquia environment:
       0,
       // Choose site from which to copy files:
       0,
@@ -102,7 +102,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -117,16 +117,13 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockDrupalSettingsRefresh($local_machine_helper);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Please run this command from the ');
+    $this->expectExceptionMessage('Run this command from the ');
     $this->executeCommand();
     IdeHelper::unsetCloudIdeEnvVars();
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
    * @param $environment
-   * @param string $source_dir
-   * @param string $destination_dir
    */
   protected function mockExecuteRsync(
     ObjectProphecy $local_machine_helper,

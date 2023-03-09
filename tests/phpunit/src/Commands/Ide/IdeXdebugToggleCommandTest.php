@@ -17,16 +17,12 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * @var string
-   */
   private string $xdebugFilePath;
 
   /**
    * This method is called before each test.
    *
    * @param $php_version
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function setUpXdebug($php_version): void {
@@ -72,7 +68,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    * Tests the 'ide:xdebug' command.
    *
    * @dataProvider providerTestXdebugCommandEnable
-   *
    * @throws \Exception
    */
   public function testXdebugCommandEnable($php_version): void {

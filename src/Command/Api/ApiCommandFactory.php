@@ -90,9 +90,6 @@ class ApiCommandFactory implements CommandFactoryInterface {
     );
   }
 
-  /**
-   * @return \Acquia\Cli\Command\Api\ApiListCommand
-   */
   public function createListCommand(): ApiListCommand {
     return new ApiListCommand(
       $this->localMachineHelper,

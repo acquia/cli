@@ -40,10 +40,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return int
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    * @throws \JsonException
@@ -76,7 +72,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
       "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
-      "After you've done this, please continue to domain verification."
+      "After you've done this, continue to domain verification."
     ]);
     $file_format = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
     $this->createDnsText($client, $subscription, $base_domain, $domain_uuid, $file_format);
@@ -90,7 +86,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     while (!$this->checkIfDomainVerified($subscription, $domain_uuid)) {
       $retry_verification = $this->io->confirm('Would you like to re-check domain verification?');
       if (!$retry_verification) {
-        $this->io->writeln('Please check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
+        $this->io->writeln('Check your DNS records with your DNS provider and try again by rerunning this script with the domain that you just registered.');
         return 1;
       }
     }
@@ -98,7 +94,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $this->io->success("The next step is associating your verified domain with an application (or applications) in the subscription where your domain has been registered.");
 
     if (!$this->addDomainToSubscriptionApplications($client, $subscription, $base_domain, $domain_uuid)) {
-      $this->io->error('Something went wrong with associating your application(s) or enabling your environment(s). Please try again.');
+      $this->io->error('Something went wrong with associating your application(s) or enabling your environment(s). Try again.');
       return 1;
     }
 
@@ -110,9 +106,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Generates Zone File for DNS records of the registered domain.
    *
-   * @param string $base_domain
    * @param array $records
-   *
    */
   private function generateZoneFile(string $base_domain, array $records): void {
 
@@ -145,9 +139,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
-   * @param Client $client
-   * @param SubscriptionResponse $subscription
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -178,11 +169,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Checks any error from Cloud API when associating a domain with an application.
    * Shows a warning and allows user to continue if the domain has been associated already.
    * For any other error from the API, the setup will exit.
-   *
-   * @param object $application
-   * @param ApiErrorException $exception
-   *
-   * @return bool|null
    */
   private function domainAlreadyAssociated(object $application, ApiErrorException $exception): ?bool {
     if (!str_contains($exception, 'is already associated with this application')) {
@@ -198,11 +184,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Checks any error from Cloud API when enabling Platform Email for an environment.
    * Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
    * For any other error from the API, the setup will exit.
-   *
-   * @param object $environment
-   * @param ApiErrorException $exception
-   *
-   * @return bool|null
    */
   private function environmentAlreadyEnabled(object $environment, ApiErrorException $exception): ?bool {
     if (!str_contains($exception, 'is already enabled on this environment')) {
@@ -219,12 +200,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * then enables Platform Email for an environment or environments
    * of the above applications.
    *
-   * @param Client $client
-   * @param SubscriptionResponse $subscription
-   * @param string $base_domain
-   * @param string $domain_uuid
-   *
-   * @return bool
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid): bool {
@@ -268,9 +243,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Validates the URL entered as the base domain name.
    *
-   * @param string $url
-   *
-   * @return string
    * @throws \Symfony\Component\Validator\Exception\ValidatorException
    */
   public static function validateUrl(string $url): string {
@@ -292,11 +264,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Retrieves a domain registration UUID given the domain name.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param SubscriptionResponse $subscription
-   * @param string $base_domain
-   *
-   * @return mixed
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function fetchDomainUuid(Client $client, SubscriptionResponse $subscription, string $base_domain): mixed {
@@ -313,19 +280,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Creates a file, either in Bind Zone File, JSON or YAML format,
    * of the DNS records needed to complete Platform Email setup.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param SubscriptionResponse $subscription
-   * @param string $base_domain
-   * @param string $domain_uuid
-   * @param string $file_format
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    */
   private function createDnsText(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid, string $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
     if (!isset($domain_registration_response->dns_records)) {
-      throw new AcquiaCliException('Could not retrieve DNS records for this domain. Please try again by rerunning this script with the domain that you just registered.');
+      throw new AcquiaCliException('Could not retrieve DNS records for this domain. Try again by rerunning this script with the domain that you just registered.');
     }
     $records = [];
     $this->localMachineHelper->getFilesystem()->remove('dns-records.json');
@@ -358,10 +319,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Checks the verification status of the registered domain.
    *
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
-   * @param string $domain_uuid
-   *
-   * @return bool
    * @throws \JsonException
    * @throws \JsonException
    */
@@ -399,8 +356,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Finds, validates, and trims the URL to be used as the base domain
    * for setting up Platform Email.
-   *
-   * @return string
    */
   private function determineDomain(): string {
     $domain = $this->io->ask("What's the domain name you'd like to register?", '', Closure::fromCallable([

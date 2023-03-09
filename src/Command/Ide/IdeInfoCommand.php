@@ -23,9 +23,6 @@ class IdeInfoCommand extends IdeCommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -35,7 +32,7 @@ class IdeInfoCommand extends IdeCommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $ides_resource = new Ides($acquia_cloud_client);
 
-    $ide = $this->promptIdeChoice("Please select an IDE to get more information:", $ides_resource, $application_uuid);
+    $ide = $this->promptIdeChoice("Select an IDE to get more information:", $ides_resource, $application_uuid);
     $response = $ides_resource->get($ide->uuid);
     $this->io->definitionList(
       ['IDE property' => 'IDE value'],

@@ -17,10 +17,7 @@ use Symfony\Component\Filesystem\Path;
  */
 class TelemetryCommandTest extends CommandTestBase {
 
-  /**
-   * @var string
-   */
-  protected $legacyAcliConfigFilepath;
+  protected string $legacyAcliConfigFilepath;
 
   public function setUp($output = NULL): void {
     parent::setUp($output);
@@ -62,10 +59,8 @@ class TelemetryCommandTest extends CommandTestBase {
    * Tests telemetry prompt.
    *
    * @dataProvider providerTestTelemetryPrompt
-   *
    * @param array $inputs
    * @param $message
-   *
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -85,6 +80,7 @@ class TelemetryCommandTest extends CommandTestBase {
 
   /**
    * Opted out by default.
+   *
    * @throws \Exception
    */
   public function testAmplitudeDisabled(): void {

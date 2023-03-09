@@ -23,12 +23,6 @@ class DocsCommand extends CommandBase {
       ->addUsage(self::getDefaultName() . ' acli');
   }
 
-  /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return int
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_products = [
       'Acquia CLI' => [
@@ -123,7 +117,7 @@ class DocsCommand extends CommandBase {
     }
 
     $labels = array_keys($acquia_products);
-    $question = new ChoiceQuestion('Please select the Acquia Product', $labels, $labels[0]);
+    $question = new ChoiceQuestion('Select the Acquia Product', $labels, $labels[0]);
     $choice_id = $this->io->askQuestion($question);
     $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $acquia_products[$choice_id]['url'] . '/');
 

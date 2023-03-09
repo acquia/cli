@@ -7,16 +7,10 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 class CloudDataConfig implements ConfigurationInterface {
 
-  /**
-   * @return string
-   */
   public function getName(): string {
     return 'cloud_api';
   }
 
-  /**
-   * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder
-   */
   public function getConfigTreeBuilder(): TreeBuilder {
     $treeBuilder = new TreeBuilder('cloud_api');
     $root_node = $treeBuilder->getRootNode();

@@ -13,13 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 abstract class WizardCommandBase extends SshKeyCommandBase {
 
-  abstract protected function validateEnvironment();
+  abstract protected function validateEnvironment(): void;
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return void
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -40,9 +36,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     parent::initialize($input, $output);
   }
 
-  /**
-   *
-   */
   protected function deleteLocalSshKey(): void {
     $this->localMachineHelper->getFilesystem()->remove([
       $this->publicSshKeyFilepath,
@@ -53,16 +46,11 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   /**
    * @param string $passphrase
    *   The passphrase.
-   *
-   * @return bool|int
    */
   protected function savePassPhraseToFile(string $passphrase): bool|int {
     return file_put_contents($this->passphraseFilepath, $passphrase);
   }
 
-  /**
-   * @return string
-   */
   protected function getPassPhraseFromFile(): string {
     return file_get_contents($this->passphraseFilepath);
   }
@@ -70,10 +58,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   /**
    * Assert whether ANY local key exists that has a corresponding key on the
    * Cloud Platform.
-   *
-   * @param string $label
-   *
-   * @return bool
    */
   protected function userHasUploadedThisKeyToCloud(string $label): bool {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -92,16 +76,10 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
     return FALSE;
   }
 
-  /**
-   * @return bool
-   */
   protected function passPhraseFileExists(): bool {
     return file_exists($this->passphraseFilepath);
   }
 
-  /**
-   * @return bool
-   */
   protected function localSshKeyExists(): bool {
     return file_exists($this->publicSshKeyFilepath) && file_exists($this->privateSshKeyFilepath);
   }

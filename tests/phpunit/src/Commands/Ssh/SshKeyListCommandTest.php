@@ -8,6 +8,7 @@ use Symfony\Component\Console\Command\Command;
 
 /**
  * Class SshKeyListCommandTest
+ *
  * @property SshKeyListCommand $command
  * @package Acquia\Cli\Tests\Ssh
  */
@@ -31,6 +32,7 @@ class SshKeyListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:upload' command.
+   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
    */

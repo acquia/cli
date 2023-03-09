@@ -92,7 +92,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @return array
    */
-  public function providerTestConfigurePlatformEmail() {
+  public function providerTestConfigurePlatformEmail(): array {
 
     return [
       [
@@ -102,7 +102,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -125,7 +125,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '1',
@@ -146,7 +146,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '2',
@@ -158,7 +158,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Status code.
         1,
         // Expected text.
-        ["Verification pending...", "Please check your DNS records with your DNS provider"],
+        ["Verification pending...", "Check your DNS records with your DNS provider"],
         // Domain registration responses.
         "202",
       ],
@@ -169,7 +169,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'test.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -183,7 +183,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Status code.
         1,
         // Expected text.
-        ["Refreshing...", "Please check your DNS records with your DNS provider"],
+        ["Refreshing...", "Check your DNS records with your DNS provider"],
         // Domain registration responses.
         "404",
       ],
@@ -193,14 +193,14 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @return array
    */
-  public function providerTestConfigurePlatformEmailEnableEnv() {
+  public function providerTestConfigurePlatformEmailEnableEnv(): array {
     return [
       [
         'example.com',
         [
           // What's the domain name you'd like to register?
           'example.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -223,7 +223,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         [
           // What's the domain name you'd like to register?
           'example.com',
-          // Please select a Cloud Platform subscription
+          // Select a Cloud Platform subscription
           '0',
           // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
           '0',
@@ -314,7 +314,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       'test.com',
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -402,7 +402,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -458,7 +458,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -500,7 +500,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $inputs = [
       // What's the domain name you'd like to register?
       $base_domain,
-      // Please select a Cloud Platform subscription
+      // Select a Cloud Platform subscription
       '0',
       // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
       '0',
@@ -542,11 +542,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
 
-    $inputs =
-      [
+    $inputs = [
         // What's the domain name you'd like to register?
         'test.com',
-        // Please select a Cloud Platform subscription
+        // Select a Cloud Platform subscription
         '0',
         // Would you like your DNS records in BIND Zone File, JSON, or YAML format?
         '2',
@@ -661,8 +660,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   *
    * @return \Symfony\Component\Filesystem\Filesystem|\Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): Filesystem|ObjectProphecy {

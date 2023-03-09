@@ -44,7 +44,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -60,7 +60,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
@@ -83,7 +83,7 @@ class PushFilesCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application:
+      // Select a Cloud Platform application:
       0,
       // Would you like to link the project at ... ?
       'n',
@@ -99,16 +99,12 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please select a Cloud Platform application:', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('Choose a Cloud Platform environment', $output);
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteCloudRsync(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process,
@@ -128,10 +124,6 @@ class PushFilesCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $local_machine_helper
-   * @param \Prophecy\Prophecy\ObjectProphecy $process
-   */
   protected function mockExecuteAcsfRsync(
     ObjectProphecy $local_machine_helper,
     ObjectProphecy $process

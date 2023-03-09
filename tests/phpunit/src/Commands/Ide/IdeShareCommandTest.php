@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Ide\IdeShareCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class IdeShareCommandTest.
@@ -20,20 +21,14 @@ class IdeShareCommandTest extends CommandTestBase {
   /**
    * @var array
    */
-  private $shareCodeFilepaths;
+  private array $shareCodeFilepaths;
 
-  /**
-   * @var string
-   */
-  private $shareCode;
+  private string $shareCode;
 
   /**
    * This method is called before each test.
-   *
-   * @param null $output
-   *
    */
-  public function setUp($output = NULL): void {
+  public function setUp(OutputInterface $output = NULL): void {
     parent::setUp();
     $this->shareCode = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $shareCodeFilepath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_share_uuid_');

@@ -54,7 +54,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * @param string|null $destination_dir
    * @param bool $all
    *   Download aliases for all applications.
-   *
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception

@@ -26,7 +26,7 @@ class PushCodeCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertStringContainsString('Please use git to push code changes upstream.', $output);
+    $this->assertStringContainsString('Use git to push code changes upstream.', $output);
   }
 
 }

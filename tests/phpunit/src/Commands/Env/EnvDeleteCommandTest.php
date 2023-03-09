@@ -40,7 +40,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the 'app:environment:delete' command.
    *
    * @dataProvider providerTestDeleteCde
-   *
    * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testDeleteCde($environment_id): void {
@@ -84,7 +83,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );
@@ -110,7 +109,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );
@@ -143,7 +142,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
         'n',
-        // Please select a Cloud Platform application: [Sample application 1]:
+        // Select a Cloud Platform application: [Sample application 1]:
         0,
       ]
     );

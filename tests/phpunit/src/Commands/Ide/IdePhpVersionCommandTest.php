@@ -44,9 +44,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommand
-   *
-   * @param string $version
-   *
    * @throws \Exception
    */
   public function testIdePhpVersionCommand(string $version): void {
@@ -84,10 +81,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommandFailure
-   *
-   * @param string $version
-   * @param string $exception_class
-   *
    * @throws \Exception
    */
   public function testIdePhpVersionCommandFailure(string $version, string $exception_class): void {
@@ -111,11 +104,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   *
-   * @return \Prophecy\Prophecy\ObjectProphecy
-   */
   protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -129,8 +117,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {

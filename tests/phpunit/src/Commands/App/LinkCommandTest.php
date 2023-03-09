@@ -35,14 +35,14 @@ class LinkCommandTest extends CommandTestBase {
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
-      // Please select a Cloud Platform application.
+      // Select a Cloud Platform application.
       0
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
-    $this->assertStringContainsString('Please select a Cloud Platform application', $output);
+    $this->assertStringContainsString('Select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
     $this->assertStringContainsString('[1] Sample application 2', $output);
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);

@@ -33,10 +33,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   }
 
   /**
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return int
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \League\Csv\CannotInsertRecord
    */
@@ -75,11 +71,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param array $domain_list
-   *
-   * @return void
    * @throws \League\Csv\CannotInsertRecord
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list): void {
@@ -174,8 +166,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Nicely renders a given array of tables.
    *
    * @param array $tables
-   *
-   * @return void
    */
   private function renderDomainInfoTables(array $tables): void {
     foreach ($tables as $table) {
@@ -186,9 +176,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Verifies the number of applications present in a subscription.
-   *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    *
    * @return array|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -221,12 +208,8 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders a table of applications in a subscription and the email domains
    * associated or dissociated with each application.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Connector\Client $client
    * @param $subscription
    * @param $subscription_applications
-   *
-   * @return void
    * @throws \League\Csv\CannotInsertRecord
    */
   private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications): void {
@@ -268,11 +251,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Creates a table of all domains registered in a subscription.
-   *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param string $title
-   *
-   * @return \Symfony\Component\Console\Helper\Table
    */
   private function createTotalDomainTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Domain UUID', 'Verification Status'];
@@ -282,11 +260,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Creates a table of domains of one verification status in a subscription.
-   *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param string $title
-   *
-   * @return \Symfony\Component\Console\Helper\Table
    */
   private function createDomainStatusTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Summary'];
@@ -297,10 +270,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Creates a table of applications in a subscription and the associated
    * or dissociated domains in each application.
-   *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   *
-   * @return \Symfony\Component\Console\Helper\Table
    */
   private function createApplicationDomainsTable(OutputInterface $output): Table {
     $headers = ['Domain Name', 'Associated?'];
@@ -311,10 +280,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Returns a human-readable string of whether a status code represents
    * a failed, pending, or successful domain verification.
-   *
-   * @param string $code
-   *
-   * @return string
    */
   private function showHumanReadableStatus(string $code): string {
     return match ($code) {

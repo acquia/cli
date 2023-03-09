@@ -24,9 +24,6 @@ class Application extends \Symfony\Component\Console\Application {
     return $this->helpMessages;
   }
 
-  /**
-   * @param mixed $helpMessages
-   */
   public function setHelpMessages(mixed $helpMessages): void {
     $this->helpMessages = $helpMessages;
   }
@@ -38,8 +35,6 @@ class Application extends \Symfony\Component\Console\Application {
    * normalized version.
    *
    * @see https://github.com/consolidation/self-update/pull/21
-   *
-   * @return string
    */
   public function getVersion(): string {
     $version = parent::getVersion();
@@ -52,10 +47,6 @@ class Application extends \Symfony\Component\Console\Application {
     return $version;
   }
 
-  /**
-   * @param \Throwable $e
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
   public function renderThrowable(
     Throwable $e,
     OutputInterface $output
