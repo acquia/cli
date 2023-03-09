@@ -25,7 +25,6 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException

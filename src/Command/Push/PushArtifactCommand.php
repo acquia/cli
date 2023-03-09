@@ -57,7 +57,6 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -151,7 +150,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Prepare a directory to build the artifact.
    *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    */
@@ -194,7 +192,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Build the artifact.
    *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function buildArtifact(Closure $output_callback, string $artifact_dir): void {
@@ -221,7 +218,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Sanitize the artifact.
-   *
    */
   private function sanitizeArtifact(Closure $output_callback, string $artifact_dir): void {
     $output_callback('out', 'Finding Drupal core text files');
@@ -284,7 +280,6 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Commit the artifact.
    *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    */
@@ -322,7 +317,6 @@ class PushArtifactCommand extends PullCommandBase {
    * Push the artifact.
    *
    * @param array $vcs_urls
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function pushArtifact(Closure $output_callback, string $artifact_dir, array $vcs_urls, string $dest_git_branch): void {
@@ -344,7 +338,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Get a list of Composer vendor directories from the root composer.json.
-   *
    *
    * @return array|string[]
    * @throws \JsonException
@@ -373,7 +366,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * Get a list of scaffold files from Drupal core's composer.json.
-   *
    *
    * @return array
    * @throws \JsonException
@@ -466,7 +458,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   /**
    * @param $tag_name
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function createTag($tag_name, Closure $output_callback, string $artifact_dir): void {

@@ -38,9 +38,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command.
    *
    * @dataProvider providerTestAuthLogoutCommand
-   *
    * @param array $inputs
-   *
    * @throws \Exception
    */
   public function testAuthLogoutCommand(bool $machine_is_authenticated, array $inputs): void {

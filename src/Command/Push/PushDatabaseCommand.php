@@ -30,7 +30,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -64,7 +63,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function uploadDatabaseDump(
@@ -93,7 +91,6 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, DatabaseResponse $database): void {

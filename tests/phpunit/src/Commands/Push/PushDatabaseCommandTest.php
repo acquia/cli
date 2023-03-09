@@ -101,7 +101,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
    * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
    * @param object $environments_response
    * @param $process
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockImportDatabaseDumpOnRemote(

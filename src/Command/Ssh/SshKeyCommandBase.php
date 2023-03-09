@@ -49,7 +49,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * @param string $label
    *   The label to normalize.
-   *
    * @return string|string[]|null
    */
   public static function normalizeSshKeyLabel(string $label): array|string|null {
@@ -59,8 +58,6 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   /**
    * Normalizes public SSH key by trimming and removing user and machine suffix.
-   *
-   *
    */
   protected function normalizePublicSshKey(string $public_key): string {
     $parts = explode('== ', $public_key);
@@ -92,7 +89,6 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @param string $filepath
    *   The filepath of the private SSH key.
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent(string $filepath, string $password): void {
@@ -116,7 +112,6 @@ EOT
   /**
    * Polls the Cloud Platform until a successful SSH request is made to the dev
    * environment.
-   *
    *
    * @throws \Exception
    * @infection-ignore-all
@@ -212,7 +207,6 @@ EOT
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -226,7 +220,6 @@ EOT
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function doCreateSshKey(string $filename, string $password): string {
@@ -286,7 +279,6 @@ EOT
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input): string {
@@ -331,7 +323,6 @@ EOT
   }
 
   /**
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
@@ -366,7 +357,6 @@ EOT
 
   /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   *
    */
   private function promptChooseLocalSshKey(array $local_keys): string {
     $labels = [];
@@ -398,7 +388,6 @@ EOT
 
   /**
    * @param $label
-   *
    */
   private function validateSshKeyLabel($label): mixed {
     if (trim($label) === '') {
@@ -410,7 +399,6 @@ EOT
 
   /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   *
    * @throws \Exception
    */
   private function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
@@ -425,7 +413,6 @@ EOT
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */

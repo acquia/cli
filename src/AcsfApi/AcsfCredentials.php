@@ -14,7 +14,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
 
   /**
    * CloudCredentials constructor.
-   *
    */
   public function __construct(CloudDataStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
@@ -34,7 +33,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
 
   /**
    * @param array $factory
-   *
    */
   public function getFactoryActiveUser(array $factory): mixed {
     if (array_key_exists('active_user', $factory)) {

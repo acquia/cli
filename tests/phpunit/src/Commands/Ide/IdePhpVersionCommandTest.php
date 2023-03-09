@@ -44,8 +44,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommand
-   *
-   *
    * @throws \Exception
    */
   public function testIdePhpVersionCommand(string $version): void {
@@ -83,8 +81,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommandFailure
-   *
-   *
    * @throws \Exception
    */
   public function testIdePhpVersionCommandFailure(string $version, string $exception_class): void {
@@ -121,7 +117,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {

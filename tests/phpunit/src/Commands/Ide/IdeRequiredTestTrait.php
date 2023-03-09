@@ -11,8 +11,6 @@ trait IdeRequiredTestTrait {
 
   /**
    * This method is called before each test.
-   *
-   *
    */
   public function setUp(OutputInterface $output = NULL): void {
     parent::setUp();

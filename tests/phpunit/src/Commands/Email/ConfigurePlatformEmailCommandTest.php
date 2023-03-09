@@ -660,7 +660,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   *
    * @return \Symfony\Component\Filesystem\Filesystem|\Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): Filesystem|ObjectProphecy {

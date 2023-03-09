@@ -14,7 +14,6 @@ class LoopHelper {
   /**
    * @param callable $statusCallback
    *   A TRUE return value will cause the loop to exit and call $doneCallback.
-   *
    */
   public static function getLoopy(OutputInterface $output, SymfonyStyle $io, LoggerInterface $logger, string $spinnerMessage, callable $statusCallback, callable $doneCallback): void {
     $timers = [];

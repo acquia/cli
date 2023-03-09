@@ -37,7 +37,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -120,7 +119,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   *
    * @return array|null
    */
   private function getGitLabScheduleByDescription(array $project, string $scheduled_pipeline_description): ?array {
@@ -135,7 +133,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   *
    * @return array|null ?
    */
   private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
@@ -150,7 +147,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   *
    */
   private function createProjectAccessToken(array $project, string $project_access_token_name): string {
     $this->io->writeln("Creating project access token...");

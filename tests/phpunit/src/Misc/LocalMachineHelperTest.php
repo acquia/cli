@@ -30,11 +30,9 @@ class LocalMachineHelperTest extends TestBase {
 
   /**
    * @dataProvider providerTestExecuteFromCmd()
-   *
    * @param $interactive
    * @param $is_tty
    * @param $print_output
-   *
    * @throws \Exception
    */
   public function testExecuteFromCmd($interactive, $is_tty, $print_output): void {

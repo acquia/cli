@@ -19,7 +19,6 @@ use Symfony\Component\Yaml\Yaml;
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand $command
  * @package Acquia\Cli\Tests\Commands
- *
  * @requires OS linux|darwin
  */
 class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
@@ -82,11 +81,9 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCommand
-   *
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {

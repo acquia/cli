@@ -27,7 +27,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -78,7 +77,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Exception
    */
   private function createNextJsProject(string $dir): void {
@@ -96,7 +94,6 @@ class NewCommand extends CommandBase {
 
   /**
    * @param $project
-   *
    * @throws \Exception
    */
   private function createDrupalProject($project, string $dir): void {
@@ -113,7 +110,6 @@ class NewCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Exception
    */
   private function initializeGitRepository(string $dir): void {

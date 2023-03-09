@@ -50,7 +50,6 @@ class LocalMachineHelper {
    * for commands that you _know_ to be system commands).
    *
    * @param $command
-   *
    */
   public function commandExists($command): bool {
     if (array_key_exists($command, $this->installedBinaries)) {
@@ -82,7 +81,6 @@ class LocalMachineHelper {
    *   The command to execute.
    * @param null $callback
    *   A function to run while waiting for the process to complete.
-   *
    */
   public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, float $timeout = NULL, array $env = NULL): Process {
     $process = new Process($cmd);
@@ -103,7 +101,6 @@ class LocalMachineHelper {
    * @param string|null $cwd
    * @param int|null $timeout
    * @param array|null $env
-   *
    */
   public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, int $timeout = NULL, array $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
@@ -115,7 +112,6 @@ class LocalMachineHelper {
   /**
    * @param string|null $cwd
    * @param array|null $env
-   *
    */
   private function configureProcess(Process $process, string $cwd = NULL, ?bool $print_output = TRUE, float $timeout = NULL, array $env = NULL): Process {
     if (function_exists('posix_isatty') && !posix_isatty(STDIN)) {
@@ -137,7 +133,6 @@ class LocalMachineHelper {
 
   /**
    * @param callable|null $callback
-   *
    */
   private function executeProcess(Process $process, callable $callback = NULL, ?bool $print_output = TRUE): Process {
     if ($callback === NULL && $print_output !== FALSE) {
@@ -158,7 +153,6 @@ class LocalMachineHelper {
 
   /**
    * Returns a set-up filesystem object.
-   *
    */
   public function getFilesystem(): Filesystem {
     return new Filesystem();
@@ -166,7 +160,6 @@ class LocalMachineHelper {
 
   /**
    * Returns a finder object.
-   *
    */
   public function getFinder(): Finder {
     return new Finder();
@@ -177,7 +170,6 @@ class LocalMachineHelper {
    *
    * @param string $filename
    *   Name of the file to read.
-   *
    * @return string Content read from that file
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -188,7 +180,6 @@ class LocalMachineHelper {
 
   /**
    * @param $filepath
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -198,7 +189,6 @@ class LocalMachineHelper {
 
   /**
    * Determine whether the use of a tty is appropriate.
-   *
    */
   public function useTty(): bool {
     if (isset($this->isTty)) {
@@ -232,7 +222,6 @@ class LocalMachineHelper {
    *   Name of the file to write to.
    * @param string $content
    *   Content to write to the file.
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -242,7 +231,6 @@ class LocalMachineHelper {
 
   /**
    * Accepts a filename/full path and localizes it to the user's system.
-   *
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -322,7 +310,6 @@ class LocalMachineHelper {
    *   Files.
    * @param int $max_height
    *   Max Height.
-   *
    * @return bool|string
    *   FALSE if file was not found. Otherwise, the directory path containing the
    *   file.
@@ -347,7 +334,6 @@ class LocalMachineHelper {
    *   Dir.
    * @param array $files
    *   Files.
-   *
    * @return bool
    *   Exists.
    */
@@ -389,7 +375,6 @@ class LocalMachineHelper {
    *   is specified, the current site home page uri will be prepended if the site's
    *   hostname resolves.
    * @param string|null $browser The command to run to launch a browser.
-   *
    * @return bool
    *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.

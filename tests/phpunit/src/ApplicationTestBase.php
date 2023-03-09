@@ -18,7 +18,6 @@ class ApplicationTestBase extends TestBase {
 
   /**
    * Symfony kernel.
-   *
    */
   protected Kernel $kernel;
 

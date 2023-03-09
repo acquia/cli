@@ -104,12 +104,10 @@ class AuthLoginCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command.
    *
    * @dataProvider providerTestAuthLoginCommand
-   *
    * @param $machine_is_authenticated
    * @param $assert_cloud_prompts
    * @param $inputs
    * @param $args
-   *
    * @throws \Exception
    */
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
@@ -152,7 +150,6 @@ class AuthLoginCommandTest extends CommandTestBase {
    * Tests the 'auth:login' command with invalid input.
    *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
-   *
    * @param $inputs
    * @param $args
    * @throws \Exception

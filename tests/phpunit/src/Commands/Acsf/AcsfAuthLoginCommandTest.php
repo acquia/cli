@@ -91,13 +91,11 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * Tests the 'acsf:auth:login' command.
    *
    * @dataProvider providerTestAuthLoginCommand
-   *
    * @param $machine_is_authenticated
    * @param $inputs
    * @param $args
    * @param $output_to_assert
    * @param array $config
-   *
    * @throws \Exception
    * @requires OS linux|darwin
    */

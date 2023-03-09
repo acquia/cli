@@ -52,9 +52,7 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'new' command for Drupal project.
    *
    * @dataProvider provideTestNewDrupalCommand
-   *
    * @param array $package
-   *
    * @throws \Exception
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
@@ -97,9 +95,7 @@ class NewCommandTest extends CommandTestBase {
    * Tests the 'new' command for Next.js App.
    *
    * @dataProvider provideTestNewNextJsAppCommand
-   *
    * @param array $package
-   *
    * @throws \Exception
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {

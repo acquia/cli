@@ -14,7 +14,6 @@ class ComposerScriptsListener {
    * Before a console command is executed, execute a corresponding script from
    * a local composer.json.
    *
-   *
    * @throws \JsonException
    * @throws \JsonException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -26,7 +25,6 @@ class ComposerScriptsListener {
   /**
    * When a console command terminates successfully, execute a corresponding
    * script from a local composer.json.
-   *
    *
    * @throws \JsonException
    * @throws \JsonException
@@ -41,7 +39,6 @@ class ComposerScriptsListener {
   /**
    * @param string $prefix Added to the Composer script name. Expected values
    *   are 'pre' or 'post'.
-   *
    * @throws \JsonException
    * @throws \JsonException
    * @throws \Acquia\Cli\Exception\AcquiaCliException

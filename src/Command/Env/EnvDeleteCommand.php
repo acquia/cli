@@ -25,7 +25,6 @@ class EnvDeleteCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -45,7 +44,6 @@ class EnvDeleteCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {

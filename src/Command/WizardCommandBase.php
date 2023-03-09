@@ -16,7 +16,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   abstract protected function validateEnvironment(): void;
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -47,7 +46,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   /**
    * @param string $passphrase
    *   The passphrase.
-   *
    */
   protected function savePassPhraseToFile(string $passphrase): bool|int {
     return file_put_contents($this->passphraseFilepath, $passphrase);
@@ -60,8 +58,6 @@ abstract class WizardCommandBase extends SshKeyCommandBase {
   /**
    * Assert whether ANY local key exists that has a corresponding key on the
    * Cloud Platform.
-   *
-   *
    */
   protected function userHasUploadedThisKeyToCloud(string $label): bool {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

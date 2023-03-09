@@ -20,7 +20,6 @@ class TelemetryHelper {
 
   /**
    * TelemetryHelper constructor.
-   *
    */
   public function __construct(
     ClientService $client_service,

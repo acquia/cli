@@ -46,6 +46,7 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class CommandTestBase.
+ *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class TestBase extends TestCase {
@@ -123,7 +124,6 @@ abstract class TestBase extends TestCase {
    * While hosting ids are not guaranteed to be unique, in practice they are
    * unique. This renames one of the applications to be unique.
    *
-   *
    * @see CXAPI-9647
    */
   public function filterApplicationsResponse(object $applications_response, int $count, bool $unique): object {
@@ -137,7 +137,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @todo get rid of this method and use virtual file systems (setupVfsFixture)
-   *
    * @throws \JsonException
    * @throws \Exception
    */
@@ -162,7 +161,6 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-   *
    * @throws \Exception
    */
   protected function setUp(OutputInterface $output = NULL): void {
@@ -262,7 +260,6 @@ abstract class TestBase extends TestCase {
   /**
    * @param $path
    * @param $method
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getResourceFromSpec($path, $method): mixed {
@@ -279,10 +276,8 @@ abstract class TestBase extends TestCase {
    * @param $path
    * @param $method
    * @param $http_code
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
-   *
    * @see CXAPI-7208
    */
   public function getMockResponseFromSpec($path, $method, $http_code): object {
@@ -317,8 +312,6 @@ abstract class TestBase extends TestCase {
    * bunch of dependencies injected. It would be tedious for every command test
    * to inject every dependency as part of createCommand(). They can use this
    * instead.
-   *
-   *
    */
   protected function injectCommand(string $commandName): Command {
     return new $commandName(
@@ -339,8 +332,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $path
-   *
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function getMockRequestBodyFromSpec($path, string $method = 'post'): mixed {
@@ -371,8 +362,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, string $acquia_cloud_spec_file_checksum): bool {
@@ -384,7 +373,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $api_spec
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function saveApiSpecCacheItems(
@@ -402,7 +390,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $contents
-   *
    */
   protected function createLocalSshKey($contents): string {
     $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
@@ -456,7 +443,6 @@ abstract class TestBase extends TestCase {
   /**
    * @param int $count
    *   The number of applications to return. Use this to simulate query filters.
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
@@ -540,7 +526,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockEnvironmentsRequest(
@@ -556,7 +541,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function mockApplicationCodeRequest(
@@ -592,8 +576,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
    */
@@ -627,7 +609,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockGetIdeRequest(string $ide_uuid): object {
@@ -637,7 +618,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockIdeDeleteRequest(string $ide_uuid): object {
@@ -675,7 +655,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
    */
@@ -689,7 +668,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper): void {
@@ -742,7 +720,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
@@ -765,7 +742,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $mock_request_args
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockListSshKeyRequestWithUploadedKey(
@@ -816,7 +792,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */
   protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {
@@ -840,7 +815,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param array $releases
-   *
    */
   public function mockGuzzleClientForUpdate(array $releases): ObjectProphecy {
     $stream = $this->prophet->prophesize(StreamInterface::class);

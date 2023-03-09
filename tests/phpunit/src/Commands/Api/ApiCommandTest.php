@@ -174,8 +174,6 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestConvertApplicationAliasToUuidArgument
-   *
-   *
    * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    * @throws \Exception
    * @group serial
@@ -376,12 +374,10 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinitionParameters
-   *
    * @param $use_spec_cache
    * @param $command_name
    * @param $method
    * @param $usage
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testApiCommandDefinitionParameters($use_spec_cache, $command_name, $method, $usage): void {
@@ -428,11 +424,9 @@ class ApiCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestApiCommandDefinitionRequestBody
-   *
    * @param $command_name
    * @param $method
    * @param $usage
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testApiCommandDefinitionRequestBody($command_name, $method, $usage): void {

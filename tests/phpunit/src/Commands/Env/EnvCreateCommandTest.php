@@ -19,7 +19,6 @@ class EnvCreateCommandTest extends CommandTestBase {
   private static string $validLabel = 'New CDE';
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function setupCdeTest(string $label): string {
@@ -107,7 +106,6 @@ class EnvCreateCommandTest extends CommandTestBase {
    * Tests the 'app:environment:create' command.
    *
    * @dataProvider providerTestCreateCde
-   *
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
    */

@@ -186,7 +186,6 @@ class Spinner {
 
   /**
    * Returns spinner refresh interval.
-   *
    */
   public function interval(): float {
     return 0.1;

@@ -45,7 +45,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -58,7 +57,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -103,7 +101,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function determineDestinationDir(InputInterface $input): void {
@@ -115,7 +112,6 @@ class ArchiveExportCommand extends CommandBase {
 
   /**
    * Build the artifact.
-   *
    */
   private function createArchiveDirectory(string $artifact_dir): void {
     $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
@@ -135,7 +131,6 @@ class ArchiveExportCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -161,7 +156,6 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * @param $archive_dir
    * @param $destination_dir
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function compressArchiveDirectory($archive_dir, $destination_dir, Closure $output_callback = NULL): string {

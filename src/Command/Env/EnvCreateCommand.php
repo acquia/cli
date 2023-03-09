@@ -32,7 +32,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -73,7 +72,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function validateLabel(Environments $environments_resource, string $cloud_app_uuid, string $title): void {
@@ -89,7 +87,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): string {
@@ -105,7 +102,6 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   *
    * @return array
    */
   private function getDatabaseNames(Client $acquia_cloud_client, ?string $cloud_app_uuid): array {

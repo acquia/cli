@@ -89,7 +89,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -191,7 +190,6 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   *
    * @return bool|string|string[]|null
    */
   private function getParamFromInput(InputInterface $input, string $param_name): array|bool|string|null {
@@ -207,7 +205,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $param_spec
-   *
    */
   private function castParamType(array $param_spec, array|string $value): array|bool|int|string {
     $one_of = $this->getParamTypeOneOf($param_spec);
@@ -252,7 +249,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param $val
-   *
    */
   public function castBool($val): bool {
     return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
@@ -260,7 +256,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $param_spec
-   *
    */
   private function getParamType(array $param_spec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
@@ -276,7 +271,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $params
-   *
    */
   private function createCallableValidator(InputArgument $argument, array $params): ?callable {
     $validator = NULL;
@@ -310,7 +304,6 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   *
    * @return array
    */
   private function createLengthConstraint(array $schema, array $constraints): array {
@@ -330,7 +323,6 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   *
    * @return array
    */
   protected function createRegexConstraint(array $schema, array $constraints): array {
@@ -350,7 +342,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $constraints
-   *
    */
   private function createValidatorFromConstraints(array $constraints): Closure {
     return static function ($value) use ($constraints) {
@@ -411,7 +402,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $params
-   *
    */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
     $question = new Question("Enter a value for {$argument->getName()}", $argument->getDefault());
@@ -443,7 +433,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $param_spec
-   *
    * @return null|array
    */
   private function getParamTypeOneOf(array $param_spec): ?array {

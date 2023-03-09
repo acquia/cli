@@ -216,7 +216,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
@@ -233,7 +232,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param $mysql_connect_successful *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \GuzzleHttp\Exception\GuzzleException
@@ -289,7 +287,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlConnect(
@@ -312,7 +309,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlDropDb(
@@ -329,7 +325,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlCreateDb(
@@ -421,7 +416,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   *
    * @throws \GuzzleHttp\Exception\GuzzleException|\Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockDownloadBackup(DatabaseResponse $selected_database, object $selected_environment, int $curl_code = 0): DatabaseResponse {

@@ -20,7 +20,6 @@ class SshHelper implements LoggerAwareInterface {
 
   /**
    * SshHelper constructor.
-   *
    */
   public function __construct(
       OutputInterface $output,
@@ -37,7 +36,6 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param array $command_args
    * @param int|null $timeout
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function executeCommand(EnvironmentResponse|string $target, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
@@ -79,7 +77,6 @@ class SshHelper implements LoggerAwareInterface {
    * Return the first item of the $command_args that is not an option.
    *
    * @param array $command_args
-   *
    */
   private function firstArguments(array $command_args): string {
     $result = '';
@@ -116,7 +113,6 @@ class SshHelper implements LoggerAwareInterface {
    * CI scripts.
    *
    * @param array $command_args
-   *
    */
   private function getCommandSummary(array $command_args): string {
     return $this->firstArguments($command_args);
@@ -124,7 +120,6 @@ class SshHelper implements LoggerAwareInterface {
 
   /**
    * @param $url
-   *
    * @return array SSH connection string
    */
   private function getConnectionArgs($url): array {
@@ -140,7 +135,6 @@ class SshHelper implements LoggerAwareInterface {
 
   /**
    * @param $command
-   *
    * @return array
    */
   private function getSshCommand(string $url, $command): array {

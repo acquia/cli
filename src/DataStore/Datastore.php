@@ -14,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * Class YamlStore
+ *
  * @package Acquia\Cli\DataStore
  */
 abstract class Datastore implements DataStoreInterface {
@@ -61,7 +62,6 @@ abstract class Datastore implements DataStoreInterface {
    * @param array $config
    * @param string $path
    *   Path to the datastore on disk.
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

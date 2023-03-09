@@ -35,7 +35,6 @@ class Application extends \Symfony\Component\Console\Application {
    * normalized version.
    *
    * @see https://github.com/consolidation/self-update/pull/21
-   *
    */
   public function getVersion(): string {
     $version = parent::getVersion();

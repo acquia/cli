@@ -42,7 +42,6 @@ class EnvMirrorCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -107,7 +106,6 @@ class EnvMirrorCommand extends CommandBase {
 
   /**
    * @param \stdClass[] $databases
-   *
    */
   private function getDefaultDatabase(array $databases): ?object {
     foreach ($databases as $database) {

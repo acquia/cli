@@ -15,7 +15,6 @@ class JsonDataStore extends Datastore {
    * Creates a new store.
    *
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $config_definition
-   *
    * @throws \JsonException
    * @throws \JsonException
    */
@@ -39,7 +38,6 @@ class JsonDataStore extends Datastore {
   }
 
   /**
-   *
    * @throws \JsonException
    */
   public function dump(): void {
@@ -48,8 +46,7 @@ class JsonDataStore extends Datastore {
 
   /**
   * @param array $array
-  *
-  */
+   */
   protected function cleanLegacyConfig(array &$array): bool {
     // Legacy format of credential storage.
     $dump = FALSE;

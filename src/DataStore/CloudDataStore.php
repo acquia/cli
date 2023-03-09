@@ -15,7 +15,6 @@ class CloudDataStore extends JsonDataStore {
   protected array $config;
 
   /**
-   *
    * @throws \JsonException
    * @throws \JsonException
    */

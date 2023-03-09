@@ -8,6 +8,7 @@ use Symfony\Component\Console\Command\Command;
 
 /**
  * Class InferApplicationTest.
+ *
  * @property LinkCommand $command
  */
 class InferApplicationTest extends CommandTestBase {

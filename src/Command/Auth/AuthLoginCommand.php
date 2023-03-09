@@ -29,7 +29,6 @@ class AuthLoginCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -71,7 +70,6 @@ class AuthLoginCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Exception
    */
   private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {

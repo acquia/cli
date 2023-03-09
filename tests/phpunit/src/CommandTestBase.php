@@ -34,13 +34,13 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class CommandTestBase.
+ *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class CommandTestBase extends TestBase {
 
   /**
    * The command tester.
-   *
    */
   private \Symfony\Component\Console\Tester\CommandTester $commandTester;
 
@@ -82,7 +82,6 @@ abstract class CommandTestBase extends TestBase {
    * @param string[] $inputs
    *   An array of strings representing each input passed to the command input
    *   stream.
-   *
    * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
@@ -235,7 +234,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \JsonException
    */
@@ -257,7 +255,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $ssh_helper
-   *
    */
   protected function mockGetAcsfSites($ssh_helper): void {
     $acsf_multisite_fetch_process = $this->mockProcess();
@@ -272,7 +269,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $ssh_helper
-   *
    */
   protected function mockGetCloudSites($ssh_helper, $environment): void {
     $cloud_multisite_fetch_process = $this->mockProcess();
@@ -299,7 +295,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
    * @return \AcquiaCloudApi\Response\DatabaseResponse[]
    * @throws \JsonException
    */
@@ -324,7 +319,6 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $db_name
    * @param $backup_id
-   *
    */
   protected function mockDatabaseBackupsResponse(
     object $environments_response,
@@ -350,7 +344,6 @@ abstract class CommandTestBase extends TestBase {
    * @param $environments_response
    * @param $db_name
    * @param $backup_id
-   *
    */
   protected function mockDownloadBackupResponse(
     $environments_response,
@@ -416,7 +409,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * Mock guzzle requests for update checks so we don't actually hit Github.
-   *
    */
   protected function setUpdateClient(int $status_code = 200): void {
     /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
@@ -470,7 +462,6 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $local_machine_helper
    * @param $public_key
-   *
    */
   protected function mockGetLocalSshKey($local_machine_helper, $file_system, $public_key): string {
     $file_system->exists(Argument::type('string'))->willReturn(TRUE);
@@ -522,7 +513,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommandByName(string $name): ApiBaseCommand|AcsfCommandBase|null {
@@ -538,7 +528,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $project_id
-   *
    * @return array
    */
   protected function getMockedGitLabProject($project_id): array {
@@ -559,7 +548,6 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   *
    * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
    */
   protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper, $gitlab_host, $gitlab_token): ObjectProphecy|\Gitlab\Client {
@@ -651,7 +639,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $application_uuid
-   *
    * @return array
    * @throws \JsonException
    * @throws \Psr\Cache\InvalidArgumentException
@@ -672,7 +659,6 @@ abstract class CommandTestBase extends TestBase {
    * @param $application_uuid
    * @param $gitlab_project_id
    * @param $mocked_gitlab_projects
-   *
    * @return \Gitlab\Api\Projects|\Prophecy\Prophecy\ObjectProphecy
    */
   protected function mockGetGitLabProjects($application_uuid, $gitlab_project_id, $mocked_gitlab_projects): Projects|ObjectProphecy {
@@ -712,8 +698,6 @@ abstract class CommandTestBase extends TestBase {
    * Normalize strings for Windows tests.
    *
    * @todo Remove for PHPUnit 10.
-   *
-   *
    */
   final public static function assertStringContainsStringIgnoringLineEndings(string $needle, string $haystack, string $message = ''): void {
     $haystack = strtr(

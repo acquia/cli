@@ -37,7 +37,6 @@ class PullCommand extends PullCommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    * @throws \GuzzleHttp\Exception\GuzzleException

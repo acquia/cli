@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class CommandBase.
- *
  */
 class AcsfApiBaseCommand extends ApiBaseCommand {
   protected static $defaultName = 'acsf:base';
@@ -24,7 +23,6 @@ class AcsfApiBaseCommand extends ApiBaseCommand {
 
   /**
    * @todo Remove this method when CLI-791 is resolved.
-   *
    */
   protected function getRequestPath(InputInterface $input): string {
     $path = $this->path;

@@ -36,7 +36,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -88,6 +87,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * Check whether wizard command is executed by checking the env variable of codestudio project.
+   *
    * @param array $project
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -106,7 +106,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    *
    * @param array $project
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -166,7 +165,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * @param array $acquia_pipelines_file_contents
-   *
    */
   private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name): mixed {
     if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
@@ -301,7 +299,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   }
 
   /**
-   *
    * Removing empty script.
    */
   private function removeEmptyScript(array &$gitlab_ci_file_contents): void {
@@ -323,7 +320,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   /**
    * @param array $keywords
-   *
    */
   private function assignStageFromKeywords(array $keywords, string $haystack): ?string {
     foreach ($keywords as $needle => $stage) {

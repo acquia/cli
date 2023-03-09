@@ -37,7 +37,6 @@ class IdeCreateCommand extends IdeCommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -82,8 +81,6 @@ class IdeCreateCommand extends IdeCommandBase {
    *
    * @todo use first-class callable syntax instead once we upgrade to PHP 8.1
    * @see https://www.php.net/manual/en/functions.first_class_callable_syntax.php
-   *
-   *
    */
   public function validateIdeLabel(string $label): string {
     $violations = Validation::createValidator()->validate($label, [
@@ -97,7 +94,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   /**
    * @param $ide_url
-   *
    */
   private function waitForDnsPropagation($ide_url): int {
     $ideCreated = FALSE;

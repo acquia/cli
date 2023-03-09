@@ -21,7 +21,6 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
  * @package Acquia\Cli\Tests\Commands
- *
  * @requires OS linux|darwin
  */
 class CodeStudioWizardCommandTest extends WizardTestBase {
@@ -152,11 +151,9 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @dataProvider providerTestCommand
-   *
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */

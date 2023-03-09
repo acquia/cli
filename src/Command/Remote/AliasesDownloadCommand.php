@@ -86,7 +86,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getDrushAliasesDir(string $version): string {
@@ -106,7 +105,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function getSitePrefix(bool $single_application): string {
@@ -121,7 +119,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -134,7 +131,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Exception
    */
@@ -159,7 +155,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -174,7 +169,6 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */

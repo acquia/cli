@@ -243,7 +243,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *   An InputInterface instance.
    * @param OutputInterface $output
    *   An OutputInterface instance.
-   *
    * @throws AcquiaCliException
    * @throws \Exception
    * @throws \Psr\Cache\InvalidArgumentException
@@ -301,7 +300,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Symfony\Component\Console\Exception\ExceptionInterface
    */
   public function run(InputInterface $input, OutputInterface $output): int {
@@ -369,8 +367,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Indicates whether the command requires the machine to be authenticated with the Cloud Platform.
-   *
-   *
    */
   protected function commandRequiresAuthentication(): bool {
     // Assume commands require authentication unless they opt out by overriding this method.
@@ -380,7 +376,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Prompts the user to choose from a list of available Cloud Platform
    * applications.
-   *
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -405,7 +400,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Prompts the user to choose from a list of available Cloud Platform
    * applications.
    *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function promptChooseApplication(
@@ -427,8 +421,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Prompts the user to choose from a list of environments for a given Cloud Platform application.
-   *
-   *
    */
   private function promptChooseEnvironment(
     Client $acquia_cloud_client,
@@ -447,7 +439,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
-   *
    */
   protected function promptChooseLogs(): object|array|null {
     $logs = array_map(static function ($log_type, $log_label) {
@@ -473,8 +464,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * @param array[]|object[] $items An array of objects or arrays.
    * @param string $unique_property The property of the $item that will be used to identify the object.
-   *
-   *
    */
   public function promptChooseFromObjectsOrArrays(array|ArrayObject $items, string $unique_property, string $label_property, string $question_text, bool $multiselect = FALSE): object|array|null {
     $list = [];
@@ -543,7 +532,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Gets an array of git remotes from a .git/config array.
    *
    * @param array $git_config
-   *
    * @return array
    *   A flat array of git remote urls.
    */
@@ -562,7 +550,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param array $local_git_remotes
-   *
    */
   private function findCloudApplicationByGitUrl(
         Client $acquia_cloud_client,
@@ -623,7 +610,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param array $local_git_remotes
-   *
    */
   private function searchApplicationEnvironmentsForGitUrl(
     ApplicationResponse $application,
@@ -646,8 +632,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    *
    * If the local git repository has a remote with a URL that matches a Cloud Platform application's VCS URL, assume
    * that we have a match.
-   *
-   *
    */
   protected function inferCloudAppFromLocalGitConfig(
     Client $acquia_cloud_client
@@ -718,7 +702,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Determine the Cloud application.
-   *
    *
    * @throws \Exception
    */
@@ -809,7 +792,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   private function saveCloudUuidToDatastore(ApplicationResponse $application): bool {
@@ -824,7 +806,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   private function promptLinkApplication(
@@ -871,7 +852,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the UUID from a Cloud IDE's environmental variable.
    *
    * This command assumes it is being run inside a Cloud IDE.
-   *
    */
   public static function getThisCloudIdeUuid(): false|string {
     return getenv('REMOTEIDE_UUID');
@@ -883,7 +863,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function getCloudEnvironment(string $environment_id): EnvironmentResponse {
@@ -910,7 +889,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getEnvironmentFromAliasArg(string $alias): EnvironmentResponse {
@@ -919,7 +897,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $alias
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getEnvFromAlias($alias): EnvironmentResponse {
@@ -930,7 +907,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $alias
-   *
    * @throws AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -954,7 +930,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getApplicationFromAlias(string $application_alias): mixed {
@@ -966,7 +941,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Return the ACLI alias cache.
-   *
    */
   public static function getAliasCache(): AliasCache {
     return new AliasCache('acli_aliases');
@@ -974,7 +948,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $application_alias
-   *
    * @throws AcquiaCliException
    */
   private function doGetApplicationFromAlias($application_alias): mixed {
@@ -1022,7 +995,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @return \stdClass|null
    */
   protected function findIdeSshKeyOnCloud(string $ide_uuid): ?stdClass {
@@ -1130,7 +1102,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function fillMissingRequiredApplicationUuid(InputInterface $input, OutputInterface $output): void {
@@ -1144,7 +1115,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
@@ -1156,9 +1126,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @param $argument_name
-   *
    * @throws AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -1173,7 +1141,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param string $ssh_url
    *   The SSH URL to the server.
-   *
    * @return string
    *   The sitegroup. E.g., eemgrasmick.
    */
@@ -1184,7 +1151,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $cloud_environment
-   *
    */
   protected function isAcsfEnv($cloud_environment): bool {
     if (str_contains($cloud_environment->sshUrl, 'enterprise-g1')) {
@@ -1200,7 +1166,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @return array
    * @throws AcquiaCliException
    * @throws \JsonException
@@ -1216,7 +1181,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @return array
    * @throws AcquiaCliException
    */
@@ -1243,7 +1207,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws AcquiaCliException
    * @throws \JsonException
    * @throws \JsonException
@@ -1263,7 +1226,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws AcquiaCliException
    */
   protected function promptChooseCloudSite(EnvironmentResponse $cloud_environment): mixed {
@@ -1307,7 +1269,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function setDirAndRequireProjectCwd(InputInterface $input): void {
@@ -1343,7 +1304,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \JsonException
    * @throws \JsonException
    */
@@ -1374,7 +1334,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function createMySqlDumpOnLocal(string $db_host, string $db_user, string $db_name, string $db_password, Closure $output_callback = NULL): string {
@@ -1404,7 +1363,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function promptOpenBrowserToCreateToken(
@@ -1434,7 +1392,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $key
-   *
    */
   private function validateApiKey($key): string {
     $violations = Validation::createValidator()->validate($key, [
@@ -1449,7 +1406,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input): string {
@@ -1470,8 +1426,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Get the first environment for a given Cloud application matching a filter.
-   *
-   *
    */
   private function getAnyAhEnvironment(string $cloud_app_uuid, callable $filter): ?EnvironmentResponse {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -1485,7 +1439,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the first non-prod environment for a given Cloud application.
    *
-   *
    * @throws \Exception
    */
   protected function getAnyNonProdAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
@@ -1497,7 +1450,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the first prod environment for a given Cloud application.
    *
-   *
    * @throws \Exception
    */
   protected function getAnyProdAhEnvironment(string $cloud_app_uuid): ?EnvironmentResponse {
@@ -1508,8 +1460,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Get the first VCS URL for a given Cloud application.
-   *
-   *
    */
   protected function getAnyVcsUrl(string $cloud_app_uuid): string {
     $environment = $this->getAnyAhEnvironment($cloud_app_uuid, function () {
@@ -1520,7 +1470,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $application_uuid_argument
-   *
    * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function validateApplicationUuid($application_uuid_argument): mixed {
@@ -1538,7 +1487,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * @param $env_uuid_argument
    * @param $argument_name
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Psr\Cache\InvalidArgumentException
    */
@@ -1591,7 +1539,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function writeCompletedMessage(NotificationResponse $notification): void {
@@ -1626,7 +1573,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param array $required_permissions
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validateRequiredCloudPermissions(Client $acquia_cloud_client, ?string $cloud_application_uuid, AccountResponse $account, array $required_permissions): void {
@@ -1646,7 +1592,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function validatePhpVersion(string $version): string {

@@ -24,8 +24,6 @@ abstract class WizardTestBase extends CommandTestBase {
 
   /**
    * This method is called before each test.
-   *
-   *
    */
   public function setUp(OutputInterface $output = NULL): void {
     TestBase::setEnvVars(self::getEnvVars());

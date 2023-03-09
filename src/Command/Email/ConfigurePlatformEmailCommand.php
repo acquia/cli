@@ -40,7 +40,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    * @throws \JsonException
@@ -108,7 +107,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Generates Zone File for DNS records of the registered domain.
    *
    * @param array $records
-   *
    */
   private function generateZoneFile(string $base_domain, array $records): void {
 
@@ -141,7 +139,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
-   *
    * @return array
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -172,8 +169,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Checks any error from Cloud API when associating a domain with an application.
    * Shows a warning and allows user to continue if the domain has been associated already.
    * For any other error from the API, the setup will exit.
-   *
-   *
    */
   private function domainAlreadyAssociated(object $application, ApiErrorException $exception): ?bool {
     if (!str_contains($exception, 'is already associated with this application')) {
@@ -189,8 +184,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Checks any error from Cloud API when enabling Platform Email for an environment.
    * Shows a warning and allows user to continue if Platform Email has already been enabled for the environment.
    * For any other error from the API, the setup will exit.
-   *
-   *
    */
   private function environmentAlreadyEnabled(object $environment, ApiErrorException $exception): ?bool {
     if (!str_contains($exception, 'is already enabled on this environment')) {
@@ -206,7 +199,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Associates a domain with an application or applications,
    * then enables Platform Email for an environment or environments
    * of the above applications.
-   *
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
@@ -251,7 +243,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Validates the URL entered as the base domain name.
    *
-   *
    * @throws \Symfony\Component\Validator\Exception\ValidatorException
    */
   public static function validateUrl(string $url): string {
@@ -273,7 +264,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Retrieves a domain registration UUID given the domain name.
    *
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function fetchDomainUuid(Client $client, SubscriptionResponse $subscription, string $base_domain): mixed {
@@ -289,7 +279,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Creates a file, either in Bind Zone File, JSON or YAML format,
    * of the DNS records needed to complete Platform Email setup.
-   *
    *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
@@ -330,7 +319,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Checks the verification status of the registered domain.
    *
-   *
    * @throws \JsonException
    * @throws \JsonException
    */
@@ -368,7 +356,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Finds, validates, and trims the URL to be used as the base domain
    * for setting up Platform Email.
-   *
    */
   private function determineDomain(): string {
     $domain = $this->io->ask("What's the domain name you'd like to register?", '', Closure::fromCallable([

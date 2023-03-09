@@ -33,7 +33,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \League\Csv\CannotInsertRecord
    */
@@ -73,7 +72,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * as well as exports these statuses to respective CSV files.
    *
    * @param array $domain_list
-   *
    * @throws \League\Csv\CannotInsertRecord
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list): void {
@@ -168,7 +166,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Nicely renders a given array of tables.
    *
    * @param array $tables
-   *
    */
   private function renderDomainInfoTables(array $tables): void {
     foreach ($tables as $table) {
@@ -179,7 +176,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Verifies the number of applications present in a subscription.
-   *
    *
    * @return array|null
    * @throws \Acquia\Cli\Exception\AcquiaCliException
@@ -214,7 +210,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @param $subscription
    * @param $subscription_applications
-   *
    * @throws \League\Csv\CannotInsertRecord
    */
   private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications): void {
@@ -256,8 +251,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Creates a table of all domains registered in a subscription.
-   *
-   *
    */
   private function createTotalDomainTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Domain UUID', 'Verification Status'];
@@ -267,8 +260,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
   /**
    * Creates a table of domains of one verification status in a subscription.
-   *
-   *
    */
   private function createDomainStatusTable(OutputInterface $output, string $title): Table {
     $headers = ['Domain Name', 'Summary'];
@@ -279,8 +270,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Creates a table of applications in a subscription and the associated
    * or dissociated domains in each application.
-   *
-   *
    */
   private function createApplicationDomainsTable(OutputInterface $output): Table {
     $headers = ['Domain Name', 'Associated?'];
@@ -291,8 +280,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Returns a human-readable string of whether a status code represents
    * a failed, pending, or successful domain verification.
-   *
-   *
    */
   private function showHumanReadableStatus(string $code): string {
     return match ($code) {

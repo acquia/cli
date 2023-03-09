@@ -25,5 +25,7 @@
   <rule ref="Drupal.ControlStructures.ControlSignature" />
   <rule ref="Drupal.Functions.FunctionDeclaration" />
   <rule ref="PSR12.Functions.ReturnTypeDeclaration" />
+  <rule ref="SlevomatCodingStandard.Commenting.EmptyComment" />
+  <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing" />
 
 </ruleset>

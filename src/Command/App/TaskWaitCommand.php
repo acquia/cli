@@ -26,7 +26,6 @@ class TaskWaitCommand extends CommandBase {
   }
 
   /**
-   *
    * @return int 0 if everything went fine, or an exit code
    * @throws \Exception
    */
@@ -37,7 +36,6 @@ class TaskWaitCommand extends CommandBase {
   }
 
   /**
-   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getNotificationUuid(InputInterface $input): string {

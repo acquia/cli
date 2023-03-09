@@ -65,6 +65,7 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting gitlab host from user.
+   *
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabHost(): string {
@@ -162,7 +163,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   *
    * @return array
    */
   private function determineGitLabProject(ApplicationResponse $cloud_application): array {
@@ -207,7 +207,6 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   *
    * @return array
    */
   private function createGitLabProject(ApplicationResponse $cloud_application): array {

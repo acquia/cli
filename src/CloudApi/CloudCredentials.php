@@ -15,7 +15,6 @@ class CloudCredentials implements ApiCredentialsInterface {
 
   /**
    * CloudCredentials constructor.
-   *
    */
   public function __construct(CloudDataStore $datastoreCloud) {
     $this->datastoreCloud = $datastoreCloud;
