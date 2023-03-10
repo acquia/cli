@@ -38,7 +38,7 @@ jobs:
             ;;
           esac
       env:
-        ISSUE_LABEL: ${{ github.event.label.name }}
+        ISSUE_LABEL: ${{ github.event.issue.labels.0.name }}
     - name: Create
       id: create
       uses: acquia/gajira-create@bearer
