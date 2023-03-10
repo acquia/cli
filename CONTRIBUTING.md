@@ -84,7 +84,32 @@ Acquia CLI stores a local copy of the Cloud Platform API spec in the `assets` di
 composer update-cloud-api-spec
 ```
 
-## Generate docs
+## Releasing
+
+0. The release drafter plugin should have already created a release for you, [visible in the GitHub UI](https://github.com/acquia/cli/releases), according to [Semantic Versioning](https://semver.org/). ![image](https://user-images.githubusercontent.com/539205/134036494-c7000fb0-94e6-4594-a09f-bb1601745d5a.png)
+3. Ensure that release notes are accurate and issues are correctly labeled.
+4. Ensure that release has been approved by maintainers and any other required stakeholders.
+5. Validate that testing has passed on the commit to be released.
+6. In the GitHub UI, publish the release. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
+
+
+### If the build fails...
+
+If the build fails to generate a phar and attach it properly, follow these steps to manually create and attach the phar.
+
+1. Check out the tag locally
+```
+git remote update
+git checkout [the tag]
+```
+2. Follow the steps above for [Building acli.phar](#building-acliphar)
+2. Validate that the phar works and has the right version defined:
+```
+./build/acli.phar --version
+```
+3. Attach the phar file to the release in the GitHub UI.
+
+## Generating docs
 
 To generate docs for all commands in RST format, run:
 ```
