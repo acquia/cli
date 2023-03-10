@@ -32,10 +32,6 @@ jobs:
             php: "8.2"
             coverage: "none"
     steps:
-      - name: test
-        run: echo $ISSUE_LABEL
-        env:
-          ISSUE_LABEL: ${{ github.event.pull_request.labels[0].name }}
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
         run: git config --global core.autocrlf false
