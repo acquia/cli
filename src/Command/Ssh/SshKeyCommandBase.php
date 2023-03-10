@@ -20,6 +20,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
+use Zumba\Amplitude\Amplitude;
 
 /**
  * Class SshKeyCommandBase.
@@ -122,6 +123,7 @@ EOT
     // Create a loop to periodically poll the Cloud Platform.
     $loop = Loop::get();
     $timers = [];
+    $startTime = time();
     $cloud_app_uuid = $this->determineCloudApplication(TRUE);
     $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
     $perms = array_column($permissions, 'name');
@@ -136,16 +138,18 @@ EOT
         });
       $mappings[$env_name]['spinner'] = $spinner;
     }
-    $callback = function () use ($output, $loop, &$mappings, &$timers): void {
+    $callback = function () use ($output, $loop, &$mappings, &$timers, $startTime): void {
       foreach ($mappings as $env_name => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
           if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+            // SSH key is available on this host, but may be pending on others.
             $config['spinner']->finish();
             $loop->cancelTimer($config['timer']);
             unset($mappings[$env_name]);
           }
           else {
+            // SSH key isn't available on this host... yet.
             $this->logger->debug($process->getOutput() . $process->getErrorOutput());
           }
         }
@@ -154,6 +158,8 @@ EOT
         }
       }
       if (empty($mappings)) {
+        // SSH key is available on every host.
+        Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'success', 'duration' => time() - $startTime]);
         $output->writeln("\n<info>Your SSH key is ready for use!</info>\n");
         foreach ($timers as $timer) {
           $loop->cancelTimer($timer);
@@ -164,8 +170,10 @@ EOT
     // Poll Cloud every 5 seconds.
     $timers[] = $loop->addPeriodicTimer(5, $callback);
     $timers[] = $loop->addTimer(0.1, $callback);
-    $timers[] = $loop->addTimer(10 * 60, function () use ($output, $loop, &$timers): void {
+    $timers[] = $loop->addTimer(60 * 60, function () use ($output, $loop, &$timers): void {
+      // Upload timed out.
       $output->writeln("\n<comment>This is taking longer than usual. It will happen eventually!</comment>\n");
+      Amplitude::getInstance()->queueEvent('SSH key upload', ['result' => 'timeout']);
       foreach ($timers as $timer) {
         $loop->cancelTimer($timer);
       }
