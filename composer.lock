@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a1fa6f7f9ca83a10e24cfc05845cf798",
+    "content-hash": "ee87ab3bc903b5a3e3fda99156606c47",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6361,16 +6361,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.0.1",
+            "version": "3.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "d34408b52d73b2657d3721f6b7a0d4e900dd306f"
+                "reference": "64397d321b78b4817c50c717e95afb5e971b30a7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/d34408b52d73b2657d3721f6b7a0d4e900dd306f",
-                "reference": "d34408b52d73b2657d3721f6b7a0d4e900dd306f",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/64397d321b78b4817c50c717e95afb5e971b30a7",
+                "reference": "64397d321b78b4817c50c717e95afb5e971b30a7",
                 "shasum": ""
             },
             "require": {
@@ -6414,7 +6414,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.1"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.2"
             },
             "funding": [
                 {
@@ -6422,7 +6422,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-13T17:50:09+00:00"
+            "time": "2023-03-13T19:54:23+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
