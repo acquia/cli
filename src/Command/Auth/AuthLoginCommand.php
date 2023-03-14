@@ -20,8 +20,8 @@ class AuthLoginCommand extends CommandBase {
   protected function configure(): void {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->setAliases(['login'])
-      ->addOption('key', 'k', InputOption::VALUE_REQUIRED)
-      ->addOption('secret', 's', InputOption::VALUE_REQUIRED);
+      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, 'Your Cloud API key')
+      ->addOption('secret', 's', InputOption::VALUE_REQUIRED, 'Your Cloud API secret');
   }
 
   protected function commandRequiresAuthentication(): bool {
