@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/box-project/box/main/res/schema.json",
+    "$schema": "https://raw.githubusercontent.com/box-project/box/4.3.7/res/schema.json",
     "directories":[
         "config",
         "var"
