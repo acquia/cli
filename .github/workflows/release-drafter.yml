@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
     permissions:
       pull-requests: write
-    if: github.event_name == 'pull_request_target' && github.event.action == 'opened'
+    if: github.event_name == 'pull_request_target'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PR: ${{ github.event.pull_request.number }}
@@ -58,7 +58,6 @@ jobs:
           GITHUB_PR: ${{ github.event.pull_request.number }}
   update_release_draft:
     runs-on: ubuntu-22.04
-    needs: require_label
     permissions:
       contents: write
       pull-requests: write
