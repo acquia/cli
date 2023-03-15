@@ -1025,8 +1025,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       || str_contains($this->input->getArgument('command'), 'acsf:')) {
       return FALSE;
     }
-    // Bail for development builds.
-    if ($this->getApplication()->getVersion() === '@package_version@') {
+    // Bail for development builds and tests.
+    if (in_array($this->getApplication()->getVersion(), ['UNKNOWN', '@package_version@'])) {
       return FALSE;
     }
     // Bail in Cloud IDEs to avoid hitting Github API rate limits.
@@ -1038,7 +1038,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         return $latest;
       }
     }
-    catch (Exception $e) {
+    catch (Exception) {
       $this->logger->debug("Could not determine if Acquia CLI has a new version available.");
     }
     return FALSE;
