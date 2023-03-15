@@ -29,4 +29,12 @@ class UpdateCommandTest extends CommandTestBase {
     self::assertStringContainsString('Acquia CLI 2.8.5 is available', $this->getDisplay());
   }
 
+  public function testSilentFailure(): void {
+    $this->setUpdateClient(403);
+    $this->application->setVersion('2.8.4');
+    $this->executeCommand([], []);
+    self::assertEquals(0, $this->getStatusCode());
+    self::assertStringNotContainsString('Acquia CLI 2.8.5 is available', $this->getDisplay());
+  }
+
 }
