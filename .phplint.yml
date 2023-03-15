@@ -4,6 +4,7 @@ cache: build/phplint.cache
 extensions:
   - php
 exclude:
+  - build
   - var
   - vendor
 warning: false
