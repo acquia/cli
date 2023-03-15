@@ -22,9 +22,11 @@ class UpdateCommandTest extends CommandTestBase {
   }
 
   public function testSelfUpdate(): void {
-    $this->setUpdateClient(403);
+    $this->setUpdateClient();
+    $this->application->setVersion('2.8.4');
     $this->executeCommand([], []);
     self::assertEquals(0, $this->getStatusCode());
+    self::assertStringContainsString('Acquia CLI 2.8.5 is available', $this->getDisplay());
   }
 
 }

@@ -66,7 +66,6 @@ abstract class CommandTestBase extends TestBase {
     if (!isset($this->command)) {
       $this->command = $this->createCommand();
     }
-    $this->setUpdateClient();
     $this->printTestName();
   }
 
@@ -414,7 +413,7 @@ abstract class CommandTestBase extends TestBase {
     /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
     $guzzle_response = $this->prophet->prophesize(Response::class);
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $stream->__toString()->willReturn('');
+    $stream->__toString()->willReturn(file_get_contents(Path::join(__DIR__, '..', '..', 'fixtures', 'github-releases.json')));
     $guzzle_response->getBody()->willReturn($stream->reveal());
     $guzzle_response->getReasonPhrase()->willReturn('');
     $guzzle_response->getStatusCode()->willReturn($status_code);
