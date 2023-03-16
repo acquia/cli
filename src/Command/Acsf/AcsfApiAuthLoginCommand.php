@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command\Acsf;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\Question;
 
 /**
  * Class AcsfLoginCommand.
@@ -19,9 +18,9 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    */
   protected function configure(): void {
     $this->setDescription('Register your Site Factory API key and secret to use API functionality')
-      ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "The username for the Site Factory that you'd like to login to")
-      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "The key for your Site Factory user")
-      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "The URL of your factory. E.g., https://www.acquia.com");
+      ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
+      ->addOption('key', 'k', InputOption::VALUE_REQUIRED, "Your Site Factory key")
+      ->addOption('factory-url', 'f', InputOption::VALUE_REQUIRED, "Your Site Factory URL");
   }
 
   protected function commandRequiresAuthentication(): bool {
@@ -73,11 +72,11 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       }
     }
     else {
-      $factory_url = $this->askForOptionValue($input, 'factory-url');
+      $factory_url = $this->determineOption('factory-url', $input);
     }
 
-    $this->askForOptionValue($input, 'username');
-    $this->askForOptionValue($input, 'key', TRUE);
+    $this->determineOption('username', $input);
+    $this->determineOption('key', $input, TRUE);
 
     $username = $input->getOption('username');
     $key = $input->getOption('key');
@@ -97,23 +96,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $keys[$factory_url]['active_user'] = $username;
     $this->datastoreCloud->set('acsf_factories', $keys);
     $this->datastoreCloud->set('acsf_active_factory', $factory_url);
-  }
-
-  private function askForOptionValue(InputInterface $input, string $option_name, bool $hidden = FALSE): mixed {
-    if (!$input->getOption($option_name)) {
-      $option = $this->getDefinition()->getOption($option_name);
-      $this->io->note([
-        "Provide a value for $option_name",
-        $option->getDescription(),
-      ]);
-      $question = new Question("Enter a value for $option_name", $option->getDefault());
-      $question->setMaxAttempts(NULL);
-      $question->setHidden($hidden);
-      $answer = $this->io->askQuestion($question);
-      $input->setOption($option_name, $answer);
-      return $answer;
-    }
-    return NULL;
   }
 
 }

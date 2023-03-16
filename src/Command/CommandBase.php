@@ -1380,15 +1380,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   protected function determineApiKey(InputInterface $input): string {
-    if ($input->getOption('key')) {
-      $api_key = $input->getOption('key');
-      $this->validateApiKey($api_key);
-    }
-    else {
-      $api_key = $this->io->ask('Enter your API Key', NULL, Closure::fromCallable([$this, 'validateApiKey']));
-    }
-
-    return $api_key;
+    return $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1410,19 +1402,49 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input): string {
-    if ($input->getOption('secret')) {
-      $api_secret = $input->getOption('secret');
-      $this->validateApiKey($api_secret);
+    return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+  }
+
+  /**
+   * Get an option, either passed as an argument or via interactive prompt.
+   *
+   * Default can be passed explicitly, separately from the option default,
+   * because Symfony does not make a distinction between an option value set
+   * explicitly or by default. In other words, we can't prompt for the value of
+   * an option that already has a default value.
+   *
+   * @param string $option_name
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param bool $hidden
+   * @param \Closure|null $validator
+   * @param string|null $default
+   * @return string
+   */
+  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?string $default = NULL): string {
+    if ($option_value = $input->getOption($option_name)) {
+      if (isset($validator)) {
+        $validator($option_value);
+      }
+      return $option_value;
+    }
+    $option = $this->getDefinition()->getOption($option_name);
+    $option_shortcut = $option->getShortcut();
+    if ($option_shortcut) {
+      $message = $option->getDescription() . " (option <options=bold>-$option_shortcut</>, <options=bold>--$option_name</>) is required";
     }
     else {
-      $question = new Question('Enter your API Secret (input will be hidden)');
-      $question->setHidden($this->localMachineHelper->useTty());
-      $question->setHiddenFallback(TRUE);
-      $question->setValidator(Closure::fromCallable([$this, 'validateApiKey']));
-      $api_secret = $this->io->askQuestion($question);
+      $message = $option->getDescription() . " (option <options=bold>--$option_name</>) is required";
     }
-
-    return $api_secret;
+    $message .= $hidden ? ' (input will be hidden)' : '';
+    $question = new Question($message, $default);
+    $question->setHidden($this->localMachineHelper->useTty() && $hidden);
+    $question->setHiddenFallback($hidden);
+    if (isset($validator)) {
+      $question->setValidator($validator);
+    }
+    $option_value = $this->io->askQuestion($question);
+    $input->setOption($option_name, $option_value);
+    return $option_value;
   }
 
   /**

@@ -68,7 +68,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('  [0] Sample application 1', $output);
     $this->assertStringContainsString('  [1] Sample application 2', $output);
-    $this->assertStringContainsString("Enter a label for your Cloud IDE", $output);
+    $this->assertStringContainsString("The label for the IDE", $output);
     $this->assertStringContainsString("[Jane Doe's IDE]", $output);
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);
