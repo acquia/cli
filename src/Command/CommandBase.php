@@ -1405,9 +1405,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
-  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL): string {
-    if ($input->getOption($option_name)) {
-      $option_value = $input->getOption($option_name);
+  /**
+   * Get an option, either passed as an argument or via interactive prompt.
+   *
+   * Default can be passed explicitly, separately from the option default,
+   * because Symfony does not make a distinction between an option value set
+   * explicitly or by default. In other words, we can't prompt for the value of
+   * an option that already has a default value.
+   *
+   * @param string $option_name
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param bool $hidden
+   * @param \Closure|null $validator
+   * @param string|null $default
+   * @return string
+   */
+  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?string $default = NULL): string {
+    if ($option_value = $input->getOption($option_name)) {
       if (isset($validator)) {
         $validator($option_value);
       }
@@ -1415,9 +1429,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     $option = $this->getDefinition()->getOption($option_name);
     $option_shortcut = $option->getShortcut();
-    $message = $option->getDescription() . " (option <options=bold>-$option_shortcut</>, <options=bold>--$option_name</>) is required";
+    if ($option_shortcut) {
+      $message = $option->getDescription() . " (option <options=bold>-$option_shortcut</>, <options=bold>--$option_name</>) is required";
+    }
+    else {
+      $message = $option->getDescription() . " (option <options=bold>--$option_name</>) is required";
+    }
     $message .= $hidden ? ' (input will be hidden)' : '';
-    $question = new Question($message, $option->getDefault());
+    $question = new Question($message, $default);
     $question->setHidden($this->localMachineHelper->useTty() && $hidden);
     $question->setHiddenFallback($hidden);
     if (isset($validator)) {
