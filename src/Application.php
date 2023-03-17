@@ -28,25 +28,6 @@ class Application extends \Symfony\Component\Console\Application {
     $this->helpMessages = $helpMessages;
   }
 
-  /**
-   * Return a Composer-compatible version string.
-   *
-   * Prevent conflicts with consolidation/self-update, which expects a Composer
-   * normalized version.
-   *
-   * @see https://github.com/consolidation/self-update/pull/21
-   */
-  public function getVersion(): string {
-    $version = parent::getVersion();
-    try {
-      $version = (new VersionParser())->normalize($version);
-    }
-    catch (UnexpectedValueException) {
-      // Use version as-is.
-    }
-    return $version;
-  }
-
   public function renderThrowable(
     Throwable $e,
     OutputInterface $output
