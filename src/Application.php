@@ -2,13 +2,11 @@
 
 namespace Acquia\Cli;
 
-use Composer\Semver\VersionParser;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Throwable;
-use UnexpectedValueException;
 
 class Application extends \Symfony\Component\Console\Application {
 
