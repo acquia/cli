@@ -1025,11 +1025,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       || str_contains($this->input->getArgument('command'), 'acsf:')) {
       return FALSE;
     }
-    // Bail for development builds and tests.
-    if (in_array($this->getApplication()->getVersion(), ['UNKNOWN', '@package_version@'])) {
-      return FALSE;
-    }
-    // Bail in Cloud IDEs to avoid hitting Github API rate limits.
+    // Bail in Cloud IDEs to avoid hitting GitHub API rate limits.
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       return FALSE;
     }
@@ -1048,9 +1044,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Check if an update is available.
    *
    * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
+   * @throws \UnexpectedValueException
    * @todo unify with consolidation/self-update and support unstable channels
    */
   protected function hasUpdate(): bool|string {
+    $versionParser = new VersionParser();
+    // Fail fast on development builds (throw UnexpectedValueException).
+    $currentVersion = $versionParser->normalize($this->getApplication()->getVersion());
     $client = $this->getUpdateClient();
     $response = $client->get('https://api.github.com/repos/acquia/cli/releases');
     if ($response->getStatusCode() !== 200) {
@@ -1071,9 +1071,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
          */
         $version = $release->tag_name;
         $versionStability = VersionParser::parseStability($version);
-        // This is a little extra, but it matches consolidation/self-update for consistency.
-        $versionParser = new VersionParser();
-        $versionIsNewer = Comparator::greaterThan($versionParser->normalize($version), $versionParser->normalize($this->getApplication()->getVersion()));
+        $versionIsNewer = Comparator::greaterThan($versionParser->normalize($version), $currentVersion);
         if ($versionStability === 'stable' && $versionIsNewer) {
           return $version;
         }
