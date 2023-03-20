@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
@@ -18,17 +19,24 @@ class TelemetryHelper {
 
   private CloudDataStore $datastoreCloud;
 
+  private string $version;
+
   /**
    * TelemetryHelper constructor.
    */
   public function __construct(
     ClientService $client_service,
-    CloudDataStore $datastoreCloud
+    CloudDataStore $datastoreCloud,
+    Application $application
   ) {
     $this->cloudApiClientService = $client_service;
     $this->datastoreCloud = $datastoreCloud;
+    $this->version = $application->getVersion();
   }
 
+  /**
+   * @throws \Exception
+   */
   public function initialize(): void {
     $this->initializeAmplitude();
     $this->initializeBugsnag();
@@ -43,6 +51,7 @@ class TelemetryHelper {
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
     // @todo verify that this actually catches errors and exceptions
     $bugsnag = Client::make('7b8b2f87d710e3ab29ec0fd6d9ca0474');
+    $bugsnag->setAppVersion($this->version);
     Handler::register($bugsnag);
   }
 
