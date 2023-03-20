@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1ea4b92d6cf8fa501112233259ab9cf4",
+    "content-hash": "4b16457a30ef69ab0929c45e597a7523",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6361,16 +6361,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.0.4",
+            "version": "3.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "7b77b24eb6b4eaebf6542a285565fdeeb0eb9e80"
+                "reference": "9fa01cf3ee21e463cf5738979901f5186a7bd44b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/7b77b24eb6b4eaebf6542a285565fdeeb0eb9e80",
-                "reference": "7b77b24eb6b4eaebf6542a285565fdeeb0eb9e80",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9fa01cf3ee21e463cf5738979901f5186a7bd44b",
+                "reference": "9fa01cf3ee21e463cf5738979901f5186a7bd44b",
                 "shasum": ""
             },
             "require": {
@@ -6414,7 +6414,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.4"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.5"
             },
             "funding": [
                 {
@@ -6422,7 +6422,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-15T15:35:21+00:00"
+            "time": "2023-03-20T15:00:02+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -9193,24 +9193,27 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.6.2",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "48f445a408c131e38cab1c235aa6d2bb7a0bb20d"
+                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/48f445a408c131e38cab1c235aa6d2bb7a0bb20d",
-                "reference": "48f445a408c131e38cab1c235aa6d2bb7a0bb20d",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
+                "reference": "1534aea9bde19a5c85c5d1e1f834ab63f4c5dcf5",
                 "shasum": ""
             },
             "require": {
+                "doctrine/deprecations": "^1.0",
                 "php": "^7.4 || ^8.0",
-                "phpdocumentor/reflection-common": "^2.0"
+                "phpdocumentor/reflection-common": "^2.0",
+                "phpstan/phpdoc-parser": "^1.13"
             },
             "require-dev": {
                 "ext-tokenizer": "*",
+                "phpbench/phpbench": "^1.2",
                 "phpstan/extension-installer": "^1.1",
                 "phpstan/phpstan": "^1.8",
                 "phpstan/phpstan-phpunit": "^1.1",
@@ -9242,9 +9245,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.6.2"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.7.0"
             },
-            "time": "2022-10-14T12:47:21+00:00"
+            "time": "2023-03-12T10:13:29+00:00"
         },
         {
             "name": "phpro/grumphp",
@@ -10057,12 +10060,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "b001be05b80bfa38fb266b30ec3108607af6ccd6"
+                "reference": "ad434708152844968e15adf8eb3f4a2d7066242e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/b001be05b80bfa38fb266b30ec3108607af6ccd6",
-                "reference": "b001be05b80bfa38fb266b30ec3108607af6ccd6",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ad434708152844968e15adf8eb3f4a2d7066242e",
+                "reference": "ad434708152844968e15adf8eb3f4a2d7066242e",
                 "shasum": ""
             },
             "conflict": {
@@ -10274,6 +10277,7 @@
                 "kimai/kimai": "<1.1",
                 "kitodo/presentation": "<3.1.2",
                 "klaviyo/magento2-extension": ">=1,<3",
+                "knplabs/knp-snappy": "<=1.4.1",
                 "krayin/laravel-crm": "<1.2.2",
                 "kreait/firebase-php": ">=3.2,<3.8.1",
                 "la-haute-societe/tcpdf": "<6.2.22",
@@ -10431,7 +10435,7 @@
                 "silverstripe/comments": ">=1.3,<1.9.99|>=2,<2.9.99|>=3,<3.1.1",
                 "silverstripe/forum": "<=0.6.1|>=0.7,<=0.7.3",
                 "silverstripe/framework": "<4.11.14",
-                "silverstripe/graphql": "<3.5.2|>=4-alpha.1,<4-alpha.2|= 4.0.0-alpha1",
+                "silverstripe/graphql": "<3.5.2|>=4-alpha.1,<4-alpha.2|>=4.1.1,<4.1.2|>=4.2.2,<4.2.3|= 4.0.0-alpha1",
                 "silverstripe/hybridsessions": ">=1,<2.4.1|>=2.5,<2.5.1",
                 "silverstripe/registry": ">=2.1,<2.1.2|>=2.2,<2.2.1",
                 "silverstripe/restfulserver": ">=1,<1.0.9|>=2,<2.0.4",
@@ -10642,7 +10646,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-13T21:04:29+00:00"
+            "time": "2023-03-17T19:03:58+00:00"
         },
         {
             "name": "sanmai/later",
