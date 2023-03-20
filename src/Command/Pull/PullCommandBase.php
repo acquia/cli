@@ -765,7 +765,7 @@ abstract class PullCommandBase extends CommandBase {
       $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosen_environment->label} ({$chosen_environment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
-        $command->run(new ArrayInput(['version' => $chosen_environment->configuration->php->version]),
+        $command->run(new ArrayInput(['command' => 'ide:php-version', 'version' => $chosen_environment->configuration->php->version]),
           $output);
       }
     }
