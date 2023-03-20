@@ -52,7 +52,7 @@ else {
 if (!isset($loader)) {
     throw new AcquiaCliException('Unable to find autoload.php');
 }
-// We must pre-load this class to prevent self-update command from breaking.
+// We must preload this class to prevent self-update command from breaking.
 // @see https://github.com/acquia/cli/issues/234
 $loader->loadClass('Symfony\Component\Console\Event\ConsoleTerminateEvent');
 $input = new ArgvInput();
@@ -86,11 +86,18 @@ $application = $container->get(Application::class);
 /** @var OutputInterface $output */
 $output = $container->get(OutputInterface::class);
 $application->setName('Acquia CLI');
+// Do not use the following version string anywhere else, as it will be replaced
+// in production builds.
 $application->setVersion('@package_version@');
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api', $container->get(ApiCommandFactory::class)));
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acsf-spec.yaml', 'acsf', $container->get(AcsfCommandFactory::class)));
-$application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
+try {
+  $application->add(new SelfUpdateCommand($application->getName(), $application->getVersion(), 'acquia/cli'));
+}
+catch (\UnexpectedValueException) {
+  // Do nothing for development builds.
+}
 
 $application->run($input, $output);
