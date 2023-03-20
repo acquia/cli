@@ -747,8 +747,12 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function checkEnvironmentPhpVersions(EnvironmentResponse $environment): void {
-    if (!$this->environmentPhpVersionMatches($environment)) {
-      $this->io->warning("You are using PHP version {$this->getIdePhpVersion()} but the upstream environment {$environment->label} is using PHP version {$environment->configuration->php->version}");
+    $version = $this->getIdePhpVersion();
+    if (empty($version)) {
+      $this->io->warning("Could not determine current PHP version. Set it by running acli ide:php-version.");
+    }
+    else if (!$this->environmentPhpVersionMatches($environment)) {
+      $this->io->warning("You are using PHP version $version but the upstream environment $environment->label is using PHP version {$environment->configuration->php->version}");
     }
   }
 
