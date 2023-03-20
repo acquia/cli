@@ -52,6 +52,7 @@
         "symfony/process": "^5.4",
         "symfony/validator": "^6.0",
         "symfony/yaml": "^6.0",
+        "thecodingmachine/safe": "^2.4",
         "typhonius/acquia-logstream": "^0.0.13",
         "typhonius/acquia-php-sdk-v2": "^3.0.5",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
