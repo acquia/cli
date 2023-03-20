@@ -14,6 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
+use function Safe\file_get_contents;
 
 /**
  * Class LocalMachineHelper.
@@ -173,6 +174,7 @@ class LocalMachineHelper {
    * @return string Content read from that file
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Safe\Exceptions\FilesystemException
    */
   public function readFile(string $filename): string {
     return file_get_contents($this->getLocalFilepath($filename));
