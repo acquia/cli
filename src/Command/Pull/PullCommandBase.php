@@ -46,8 +46,9 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * @param $environment
-   * @param $database
+   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
    * @param $backup_response
+   * @return string
    */
   public static function getBackupPath($environment, DatabaseResponse $database, $backup_response): string {
     // Filename roughly matches what you'd get with a manual download from Cloud UI.
@@ -211,7 +212,7 @@ abstract class PullCommandBase extends CommandBase {
    */
   private function downloadDatabaseBackup(
     EnvironmentResponse $environment,
-    object $database,
+    DatabaseResponse $database,
     BackupResponse $backup_response,
     callable $output_callback = NULL
   ): string {

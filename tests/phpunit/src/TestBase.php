@@ -153,7 +153,7 @@ abstract class TestBase extends TestCase {
     $this->createMockConfigFiles();
     $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud, $this->application);
     chdir($this->projectDir);
   }
 
@@ -186,7 +186,7 @@ abstract class TestBase extends TestCase {
     $this->createMockConfigFiles();
     $this->createDataStores();
     $this->cloudCredentials = new CloudCredentials($this->datastoreCloud);
-    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud);
+    $this->telemetryHelper = new TelemetryHelper($this->clientServiceProphecy->reveal(), $this->datastoreCloud, $this->application);
 
     $this->realFixtureDir = realpath(Path::join(__DIR__, '..', '..', 'fixtures'));
 
