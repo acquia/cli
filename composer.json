@@ -116,6 +116,9 @@
             ],
             "symfony/filesystem": [
                 "assets/symfony-fs-mirror.patch"
+            ],
+            "consolidation/self-update": [
+                "https://patch-diff.githubusercontent.com/raw/consolidation/self-update/pull/25.patch"
             ]
         },
         "patchLevel": {
