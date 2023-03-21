@@ -177,7 +177,9 @@ class LocalMachineHelper {
    * @throws \Safe\Exceptions\FilesystemException
    */
   public function readFile(string $filename): string {
-    return file_get_contents($this->getLocalFilepath($filename));
+    // @todo remove this blasphemy once upstream issue is fixed
+    // @ see https://github.com/thecodingmachine/safe/issues/120
+    return @file_get_contents($this->getLocalFilepath($filename));
   }
 
   /**
