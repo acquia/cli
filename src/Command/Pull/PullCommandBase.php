@@ -9,6 +9,7 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\DatabaseBackups;
+use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\BackupResponse;
@@ -640,10 +641,8 @@ abstract class PullCommandBase extends CommandBase {
    * @throws \JsonException
    */
   protected function determineCloudDatabases(Client $acquia_cloud_client, EnvironmentResponse $chosen_environment, string $site = NULL, bool $multiple_dbs = FALSE): array {
-    $databases = $acquia_cloud_client->request(
-      'get',
-      '/environments/' . $chosen_environment->uuid . '/databases'
-    );
+    $databases_request = new Databases($acquia_cloud_client);
+    $databases = $databases_request->getAll($chosen_environment->uuid);
 
     if (count($databases) > 1) {
       $this->logger->debug('Multiple databases detected on Cloud');
@@ -652,7 +651,7 @@ abstract class PullCommandBase extends CommandBase {
           $this->logger->debug('Site is set to default. Assuming default database');
           $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
         }
-        $database_names = array_column($databases, 'name');
+        $database_names = array_column((array) $databases, 'name');
         $database_key = array_search($site, $database_names, TRUE);
         if ($database_key !== FALSE) {
           return [$databases[$database_key]];
