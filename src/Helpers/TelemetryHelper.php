@@ -19,7 +19,7 @@ class TelemetryHelper {
 
   private CloudDataStore $datastoreCloud;
 
-  private string $version;
+  private Application $application;
 
   /**
    * TelemetryHelper constructor.
@@ -31,7 +31,7 @@ class TelemetryHelper {
   ) {
     $this->cloudApiClientService = $client_service;
     $this->datastoreCloud = $datastoreCloud;
-    $this->version = $application->getVersion();
+    $this->application = $application;
   }
 
   /**
@@ -49,9 +49,8 @@ class TelemetryHelper {
     }
     // It's safe-ish to make this key public.
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
-    // @todo verify that this actually catches errors and exceptions
     $bugsnag = Client::make('7b8b2f87d710e3ab29ec0fd6d9ca0474');
-    $bugsnag->setAppVersion($this->version);
+    $bugsnag->setAppVersion($this->application->getVersion());
     Handler::register($bugsnag);
   }
 
