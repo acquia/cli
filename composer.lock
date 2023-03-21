@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a289897c1b16625b72976b3e0e8c36cd",
+    "content-hash": "174b460e2a441a165cb950dabd45522d",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -6500,16 +6500,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.0.5",
+            "version": "3.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "9fa01cf3ee21e463cf5738979901f5186a7bd44b"
+                "reference": "9ef25dd36a9e0842e195d67d88ebed51846efc95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9fa01cf3ee21e463cf5738979901f5186a7bd44b",
-                "reference": "9fa01cf3ee21e463cf5738979901f5186a7bd44b",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9ef25dd36a9e0842e195d67d88ebed51846efc95",
+                "reference": "9ef25dd36a9e0842e195d67d88ebed51846efc95",
                 "shasum": ""
             },
             "require": {
@@ -6553,7 +6553,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.5"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.6"
             },
             "funding": [
                 {
@@ -6561,7 +6561,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-20T15:00:02+00:00"
+            "time": "2023-03-21T21:43:10+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -10199,12 +10199,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "ad434708152844968e15adf8eb3f4a2d7066242e"
+                "reference": "ea4755f8932eb1bd1c1152495811e9edb7cf3301"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ad434708152844968e15adf8eb3f4a2d7066242e",
-                "reference": "ad434708152844968e15adf8eb3f4a2d7066242e",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/ea4755f8932eb1bd1c1152495811e9edb7cf3301",
+                "reference": "ea4755f8932eb1bd1c1152495811e9edb7cf3301",
                 "shasum": ""
             },
             "conflict": {
@@ -10308,7 +10308,7 @@
                 "elgg/elgg": "<3.3.24|>=4,<4.0.5",
                 "encore/laravel-admin": "<=1.8.19",
                 "endroid/qr-code-bundle": "<3.4.2",
-                "enshrined/svg-sanitize": "<0.15",
+                "enshrined/svg-sanitize": "<0.16",
                 "erusev/parsedown": "<1.7.2",
                 "ether/logs": "<3.0.4",
                 "exceedone/exment": "<4.4.3|>=5,<5.0.3",
@@ -10785,7 +10785,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-17T19:03:58+00:00"
+            "time": "2023-03-20T21:03:58+00:00"
         },
         {
             "name": "sanmai/later",

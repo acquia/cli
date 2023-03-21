@@ -1379,8 +1379,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function determineApiKey(InputInterface $input): string {
-    return $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
+    $key = $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
+    if (is_null($key)) {
+      throw new AcquiaCliException('Secret cannot be empty');
+    }
+    return $key;
   }
 
   /**
@@ -1402,7 +1409,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input): string {
-    return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+    $secret = $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+    if (is_null($secret)) {
+      throw new AcquiaCliException('Secret cannot be empty');
+    }
+    return $secret;
   }
 
   /**
@@ -1418,9 +1429,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @param bool $hidden
    * @param \Closure|null $validator
    * @param string|null $default
-   * @return string
+   * @return string|null
    */
-  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?string $default = NULL): string {
+  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?string $default = NULL): ?string {
     if ($option_value = $input->getOption($option_name)) {
       if (isset($validator)) {
         $validator($option_value);
