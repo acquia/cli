@@ -48,11 +48,14 @@ abstract class SshKeyCommandBase extends CommandBase {
   }
 
   /**
-   * @param string $label
+   * @param string|null $label
    *   The label to normalize.
-   * @return string|string[]|null
+   * @return string|null
    */
-  public static function normalizeSshKeyLabel(string $label): array|string|null {
+  public static function normalizeSshKeyLabel(?string $label): string|null {
+    if (is_null($label)) {
+      throw new RuntimeException('The label cannot be empty');
+    }
     // It may only contain letters, numbers and underscores.
     return preg_replace('/[^A-Za-z0-9_]/', '', $label);
   }
