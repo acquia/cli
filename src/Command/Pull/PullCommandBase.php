@@ -635,7 +635,10 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    * @param string|null $site
+   * @param bool $multiple_dbs
    * @return \AcquiaCloudApi\Response\DatabaseResponse[]
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
@@ -644,25 +647,23 @@ abstract class PullCommandBase extends CommandBase {
     $databases_request = new Databases($acquia_cloud_client);
     $databases = $databases_request->getAll($chosen_environment->uuid);
 
-    if (count($databases) > 1) {
-      $this->logger->debug('Multiple databases detected on Cloud');
-      if ($site && !$multiple_dbs) {
-        if ($site === 'default') {
-          $this->logger->debug('Site is set to default. Assuming default database');
-          $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
-        }
-        $database_names = array_column((array) $databases, 'name');
-        $database_key = array_search($site, $database_names, TRUE);
-        if ($database_key !== FALSE) {
-          return [$databases[$database_key]];
-        }
-      }
-      return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
+    if (count($databases) === 1) {
+      $this->logger->debug('Only a single database detected on Cloud');
+      return [$databases[0]];
     }
-
-    $this->logger->debug('Only a single database detected on Cloud');
-
-    return [reset($databases)];
+    $this->logger->debug('Multiple databases detected on Cloud');
+    if ($site && !$multiple_dbs) {
+      if ($site === 'default') {
+        $this->logger->debug('Site is set to default. Assuming default database');
+        $site = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
+      }
+      $database_names = array_column((array) $databases, 'name');
+      $database_key = array_search($site, $database_names, TRUE);
+      if ($database_key !== FALSE) {
+        return [$databases[$database_key]];
+      }
+    }
+    return $this->promptChooseDatabases($chosen_environment, $databases, $multiple_dbs);
   }
 
   /**
@@ -892,13 +893,15 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
+   * @param \AcquiaCloudApi\Connector\Client $acquia_cloud_client
    * @param $environment
-   * @param $database
+   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
+   * @return mixed
    */
   private function getDatabaseBackup(
     Client $acquia_cloud_client,
     $environment,
-    $database
+    DatabaseResponse $database
   ): mixed {
     $database_backups = new DatabaseBackups($acquia_cloud_client);
     $backups_response = $database_backups->getAll($environment->uuid, $database->name);
