@@ -663,8 +663,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Determine the Cloud environment.
    *
    * @throws \Exception
+   * @return string
+   *   The environment UUID.
    */
-  protected function determineCloudEnvironment(): mixed {
+  protected function determineCloudEnvironment(): string {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
       return $this->input->getArgument('environmentId');
     }
