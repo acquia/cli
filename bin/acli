@@ -29,7 +29,7 @@ use Symfony\Component\Filesystem\Filesystem;
 // These aren't particularly sensitive. Here they won't be used if someone loads
 // ACLI as a library.
 putenv('AMPLITUDE_KEY=0bdb9aae813d628e1388b22bc2cf79f2');
-putenv('BUGSNAG_KEY=7b8b2f87d710e3ab29ec0fd6d9ca0474');
+putenv('BUGSNAG_KEY=42be215716bca4581d3e3dfb7fb05599');
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
   echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
