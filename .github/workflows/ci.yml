@@ -82,7 +82,6 @@ jobs:
           composer box-install
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
-          composer dump-env prod
           composer box-compile
       - name: Upload to transfer.sh
         run: echo "$(curl -s --upload-file build/acli.phar https://transfer.sh/acli.phar)"

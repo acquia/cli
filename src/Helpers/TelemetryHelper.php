@@ -32,8 +32,8 @@ class TelemetryHelper {
     ClientService $client_service,
     CloudDataStore $datastoreCloud,
     Application $application,
-    ?string $amplitudeKey,
-    ?string $bugSnagKey
+    string $amplitudeKey = '',
+    string $bugSnagKey = ''
   ) {
     $this->cloudApiClientService = $client_service;
     $this->datastoreCloud = $datastoreCloud;
@@ -51,7 +51,7 @@ class TelemetryHelper {
   }
 
   public function initializeBugsnag(): void {
-    if (!isset($this->bugSnagKey)) {
+    if (empty($this->bugSnagKey)) {
       return;
     }
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
@@ -71,7 +71,7 @@ class TelemetryHelper {
    * @throws \Exception
    */
   public function initializeAmplitude(): void {
-    if (!isset($this->amplitudeKey)) {
+    if (empty($this->amplitudeKey)) {
       return;
     }
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);

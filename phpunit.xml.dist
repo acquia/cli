@@ -12,6 +12,10 @@
         convertDeprecationsToExceptions="true"
         bootstrap="tests/phpunit/bootstrap.php"
 >
+  <php>
+    <env name="AMPLITUDE_KEY" value=""/>
+    <env name="BUGSNAG_KEY" value=""/>
+  </php>
   <coverage processUncoveredFiles="true">
     <include>
       <directory suffix=".php">src</directory>
