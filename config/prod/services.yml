@@ -19,6 +19,8 @@ services:
       # This should be root directory of the repository where acli is being invoked (not the root of acli itself).
       $projectDir: "%app.project_dir%"
       $sshDir: "%app.ssh_dir%"
+      $amplitudeKey: '%env(AMPLITUDE_KEY)%'
+      $bugSnagKey: '%env(BUGSNAG_KEY)%'
     public: true
 
   # Register nearly all Acquia CLI classes as services.

@@ -21,17 +21,25 @@ class TelemetryHelper {
 
   private Application $application;
 
+  private ?string $amplitudeKey;
+
+  private ?string $bugSnagKey;
+
   /**
    * TelemetryHelper constructor.
    */
   public function __construct(
     ClientService $client_service,
     CloudDataStore $datastoreCloud,
-    Application $application
+    Application $application,
+    string $amplitudeKey = '',
+    string $bugSnagKey = ''
   ) {
     $this->cloudApiClientService = $client_service;
     $this->datastoreCloud = $datastoreCloud;
     $this->application = $application;
+    $this->amplitudeKey = $amplitudeKey;
+    $this->bugSnagKey = $bugSnagKey;
   }
 
   /**
@@ -43,13 +51,16 @@ class TelemetryHelper {
   }
 
   public function initializeBugsnag(): void {
+    if (empty($this->bugSnagKey)) {
+      return;
+    }
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     if ($send_telemetry === FALSE) {
       return;
     }
     // It's safe-ish to make this key public.
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
-    $bugsnag = Client::make('7b8b2f87d710e3ab29ec0fd6d9ca0474');
+    $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
     Handler::register($bugsnag);
   }
@@ -60,6 +71,9 @@ class TelemetryHelper {
    * @throws \Exception
    */
   public function initializeAmplitude(): void {
+    if (empty($this->amplitudeKey)) {
+      return;
+    }
     $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     $amplitude = Amplitude::getInstance();
     $amplitude->setOptOut($send_telemetry === FALSE);
@@ -68,7 +82,7 @@ class TelemetryHelper {
       return;
     }
     try {
-      $amplitude->init('0bdb9aae813d628e1388b22bc2cf79f2');
+      $amplitude->init($this->amplitudeKey);
       // Method chaining breaks Prophecy?
       // @see https://github.com/phpspec/prophecy/issues/25
       $amplitude->setDeviceId(OsInfo::uuid());
