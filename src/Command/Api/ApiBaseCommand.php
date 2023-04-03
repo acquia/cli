@@ -404,7 +404,9 @@ class ApiBaseCommand extends CommandBase {
    * @param array $params
    */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
-    $question = new Question("Enter a value for {$argument->getName()}", $argument->getDefault());
+    // Default value may be an empty array, which causes Question to choke.
+    $default = $argument->getDefault() ?: NULL;
+    $question = new Question("Enter a value for {$argument->getName()}", $default);
     switch ($argument->getName()) {
       case 'applicationUuid':
         // @todo Provide a list of application UUIDs.
