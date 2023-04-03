@@ -72,9 +72,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         TRUE,
         // $inputs
         [
-          // Choose a factory to login to.
+          // Choose a factory to log in to.
           $this->acsfCurrentFactoryUrl,
-          // Choose which user to login as.
+          // Choose which user to log in as.
           $this->acsfUsername,
         ],
         // Arguments.
@@ -114,6 +114,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
+    if (!$machine_is_authenticated && !array_key_exists('--key', $args)) {
+      $this->assertStringContainsString('Your Site Factory key (option -k, --key) is required (input will be hidden):', $output);
+    }
     $this->assertKeySavedCorrectly();
     $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
     $this->assertEquals($this->acsfKey, $this->cloudCredentials->getCloudSecret());

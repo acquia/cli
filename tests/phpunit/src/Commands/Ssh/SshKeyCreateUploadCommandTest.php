@@ -84,6 +84,8 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);
     $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('The SSH key label to be used with the Cloud Platform (option --label) is required:', $output);
   }
 
 }

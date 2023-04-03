@@ -15,7 +15,6 @@ use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -259,22 +258,19 @@ EOT
     return $filepath;
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function determineFilename(InputInterface $input): string {
-    if ($input->getOption('filename')) {
-      $filename = $input->getOption('filename');
-      $this->validateFilename($filename);
-    }
-    else {
-      $default = 'id_rsa_acquia';
-      $question = new Question("Enter a filename for your new local SSH key. Press enter to use default value", $default);
-      $question->setNormalizer(static function ($value) {
-        return $value ? trim($value) : '';
-      });
-      $question->setValidator(Closure::fromCallable([$this, 'validateFilename']));
-      $filename = $this->io->askQuestion($question);
-    }
-
-    return $filename;
+    return $this->determineOption(
+      'filename',
+      $input,
+      FALSE,
+      Closure::fromCallable([$this, 'validateFilename']),
+      static function ($value) {
+        return $value ? trim($value) : '';},
+      'id_rsa_acquia'
+    );
   }
 
   private function validateFilename(string $filename): string {
@@ -294,22 +290,15 @@ EOT
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input): string {
-    if ($input->getOption('password')) {
-      $password = $input->getOption('password');
-      $this->validatePassword($password);
-      return $password;
-    }
-    if ($input->isInteractive()) {
-      $question = new Question('Enter a password for your SSH key');
-      $question->setHidden($this->localMachineHelper->useTty());
-      $question->setNormalizer(static function ($value) {
+    return $this->determineOption(
+      'password',
+      $input,
+      TRUE,
+      Closure::fromCallable([$this, 'validatePassword']),
+      static function ($value) {
         return $value ? trim($value) : '';
-      });
-      $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
-      return $this->io->askQuestion($question);
-    }
-
-    throw new AcquiaCliException('Could not determine the SSH key password. Either use the --password option or else run this command in an interactive shell.');
+      }
+    );
   }
 
   private function validatePassword(string $password): string {
