@@ -1383,11 +1383,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function determineApiKey(InputInterface $input): string {
-    $key = $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
-    if (is_null($key)) {
-      throw new AcquiaCliException('Secret cannot be empty');
-    }
-    return $key;
+    return $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1409,11 +1405,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @throws \Exception
    */
   protected function determineApiSecret(InputInterface $input): string {
-    $secret = $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
-    if (is_null($secret)) {
-      throw new AcquiaCliException('Secret cannot be empty');
-    }
-    return $secret;
+    return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1424,15 +1416,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
    *
+   * The answer must be a non-null string subject to validation.
+   *
    * @param string $option_name
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param bool $hidden
    * @param \Closure|null $validator
    * @param string|null $default
-   * @return string|null
+   * @return string
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?string $default = NULL): ?string {
+  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string {
     if ($option_value = $input->getOption($option_name)) {
+      if (isset($normalizer)) {
+        $option_value = $normalizer($option_value);
+      }
       if (isset($validator)) {
         $validator($option_value);
       }
@@ -1450,11 +1448,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     $question = new Question($message, $default);
     $question->setHidden($this->localMachineHelper->useTty() && $hidden);
     $question->setHiddenFallback($hidden);
+    if (isset($normalizer)) {
+      $question->setNormalizer($normalizer);
+    }
     if (isset($validator)) {
       $question->setValidator($validator);
     }
     $option_value = $this->io->askQuestion($question);
-    $input->setOption($option_name, $option_value);
+    // Question bypasses validation if session is non-interactive.
+    if (is_null($option_value)) {
+      throw new AcquiaCliException($message);
+    }
     return $option_value;
   }
 

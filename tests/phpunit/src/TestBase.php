@@ -670,8 +670,8 @@ abstract class TestBase extends TestCase {
   /**
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper): void {
-    $key_contents = 'thekey!';
+  protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper, ?string $key_contents = NULL): void {
+    $key_contents = $key_contents ?: 'thekey!';
     $public_key_path = 'id_rsa.pub';
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -710,13 +710,20 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  protected function mockUploadSshKey(): void {
-    /** @var \Prophecy\Prophecy\ObjectProphecy|ResponseInterface $response */
-    $response = $this->prophet->prophesize(ResponseInterface::class);
-    $response->getStatusCode()->willReturn(202);
-    $this->clientProphecy->makeRequest('post', '/account/ssh-keys', Argument::type('array'))
-      ->willReturn($response->reveal())
-      ->shouldBeCalled();
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
+  protected function mockUploadSshKey(?string $label = NULL): void {
+    $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $label = $label ?: $request['label'];
+    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
+    $this->clientProphecy->request(
+      'post',
+      '/account/ssh-keys',
+      ['json' => ['label' => $label, 'public_key' => $request['public_key']]]
+    )->willReturn($response)
+      ->shouldBecalled();
   }
 
   /**

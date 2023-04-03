@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -381,20 +382,11 @@ EOT
     return $this->io->askQuestion($question);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function determineSshKeyLabel(InputInterface $input): string {
-    if ($input->hasOption('label') && $input->getOption('label')) {
-      $label = $input->getOption('label');
-      $label = self::normalizeSshKeyLabel($label);
-      $label = $this->validateSshKeyLabel($label);
-    }
-    else {
-      $question = new Question('Enter a Cloud Platform label for this SSH key');
-      $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
-      $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
-      $label = $this->io->askQuestion($question);
-    }
-
-    return $label;
+    return $this->determineOption('label', $input, FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
   /**
@@ -428,18 +420,9 @@ EOT
    * @throws \Exception
    */
   protected function uploadSshKey(string $label, string $public_key): void {
-    $options = [
-      'form_params' => [
-        'label' => $label,
-        'public_key' => $public_key,
-      ],
-    ];
-
     // @todo If a key with this label already exists, let the user try again.
-    $response = $this->cloudApiClientService->getClient()->makeRequest('post', '/account/ssh-keys', $options);
-    if ($response->getStatusCode() !== 202) {
-      throw new AcquiaCliException($response->getBody()->getContents());
-    }
+    $sshKeys = new SshKeys($this->cloudApiClientService->getClient());
+    $sshKeys->create($label, $public_key);
 
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {

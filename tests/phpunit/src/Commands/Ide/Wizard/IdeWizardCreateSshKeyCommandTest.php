@@ -13,17 +13,18 @@ use Symfony\Component\Console\Command\Command;
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
  * @package Acquia\Cli\Tests\Ide
  *
- * The IdeWizardCreateSshKeyCommand command is designed to thrown an exception if it
- * is executed from a non Cloud Platform IDE environment. Therefore we do not test Windows
+ * The IdeWizardCreateSshKeyCommand command is designed to throw an exception if it
+ * is executed from a non Cloud Platform IDE environment. Therefore, we do not test Windows
  * compatibility. It should only ever be run in a Linux environment.
  * @requires OS linux|darwin
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
-  protected $ide;
+  protected IdeResponse $ide;
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   public function setUp($output = NULL): void {
     parent::setUp($output);
@@ -44,17 +45,25 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   /**
    * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
    */
   protected function mockIdeRequest(): IdeResponse {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . IdeHelper::$remote_ide_uuid)->willReturn($ide_response)->shouldBeCalled();
-    return new IdeResponse((object) $ide_response);
+    return new IdeResponse($ide_response);
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \JsonException
+   */
   public function testCreate(): void {
     parent::runTestCreate();
   }
 
+  /**
+   * @throws \Psr\Cache\InvalidArgumentException
+   */
   public function testSshKeyAlreadyUploaded(): void {
     parent::runTestSshKeyAlreadyUploaded();
   }
