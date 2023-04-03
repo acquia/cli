@@ -62,6 +62,14 @@ class TelemetryHelper {
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
     $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
+    $bugsnag->registerCallback(function ($report) {
+      $user_id = $this->getUserId();
+      if (isset($user_id)) {
+        $report->setUser([
+          'id' => $user_id,
+        ]);
+      }
+    });
     Handler::register($bugsnag);
   }
 
