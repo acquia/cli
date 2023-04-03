@@ -42,8 +42,11 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Acquia\Cli\Exception\AcquiaCliException
+   * @throws \Exception
    */
   public function testCreateUpload(): void {
+    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+
     // Create.
     $ssh_key_filename = 'id_rsa';
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -52,10 +55,9 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
-    $this->mockGenerateSshKey($local_machine_helper);
+    $this->mockGenerateSshKey($local_machine_helper, $mock_request_args['public_key']);
 
     // Upload.
-    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     //$this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
     //$applications_response = $this->mockApplicationsRequest();
@@ -82,6 +84,10 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);
     $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('The filename of the SSH key (option --filename) is required [id_rsa_acquia]:', $output);
+    $this->assertStringContainsString('The password for the SSH key (option --password) is required (input will be hidden):', $output);
+    $this->assertStringContainsString('The SSH key label to be used with the Cloud Platform (option --label) is required:', $output);
   }
 
 }

@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
 use Acquia\Cli\Output\Spinner\Spinner;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Endpoints\SshKeys;
 use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
@@ -14,7 +15,6 @@ use RuntimeException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
@@ -258,22 +258,19 @@ EOT
     return $filepath;
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function determineFilename(InputInterface $input): string {
-    if ($input->getOption('filename')) {
-      $filename = $input->getOption('filename');
-      $this->validateFilename($filename);
-    }
-    else {
-      $default = 'id_rsa_acquia';
-      $question = new Question("Enter a filename for your new local SSH key. Press enter to use default value", $default);
-      $question->setNormalizer(static function ($value) {
-        return $value ? trim($value) : '';
-      });
-      $question->setValidator(Closure::fromCallable([$this, 'validateFilename']));
-      $filename = $this->io->askQuestion($question);
-    }
-
-    return $filename;
+    return $this->determineOption(
+      'filename',
+      $input,
+      FALSE,
+      Closure::fromCallable([$this, 'validateFilename']),
+      static function ($value) {
+        return $value ? trim($value) : '';},
+      'id_rsa_acquia'
+    );
   }
 
   private function validateFilename(string $filename): string {
@@ -293,22 +290,15 @@ EOT
    * @throws \Exception
    */
   protected function determinePassword(InputInterface $input): string {
-    if ($input->getOption('password')) {
-      $password = $input->getOption('password');
-      $this->validatePassword($password);
-      return $password;
-    }
-    if ($input->isInteractive()) {
-      $question = new Question('Enter a password for your SSH key');
-      $question->setHidden($this->localMachineHelper->useTty());
-      $question->setNormalizer(static function ($value) {
+    return $this->determineOption(
+      'password',
+      $input,
+      TRUE,
+      Closure::fromCallable([$this, 'validatePassword']),
+      static function ($value) {
         return $value ? trim($value) : '';
-      });
-      $question->setValidator(Closure::fromCallable([$this, 'validatePassword']));
-      return $this->io->askQuestion($question);
-    }
-
-    throw new AcquiaCliException('Could not determine the SSH key password. Either use the --password option or else run this command in an interactive shell.');
+      }
+    );
   }
 
   private function validatePassword(string $password): string {
@@ -381,20 +371,11 @@ EOT
     return $this->io->askQuestion($question);
   }
 
+  /**
+   * @throws \Acquia\Cli\Exception\AcquiaCliException
+   */
   protected function determineSshKeyLabel(InputInterface $input): string {
-    if ($input->hasOption('label') && $input->getOption('label')) {
-      $label = $input->getOption('label');
-      $label = self::normalizeSshKeyLabel($label);
-      $label = $this->validateSshKeyLabel($label);
-    }
-    else {
-      $question = new Question('Enter a Cloud Platform label for this SSH key');
-      $question->setNormalizer(Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
-      $question->setValidator(Closure::fromCallable([$this, 'validateSshKeyLabel']));
-      $label = $this->io->askQuestion($question);
-    }
-
-    return $label;
+    return $this->determineOption('label', $input, FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
   /**
@@ -428,18 +409,9 @@ EOT
    * @throws \Exception
    */
   protected function uploadSshKey(string $label, string $public_key): void {
-    $options = [
-      'form_params' => [
-        'label' => $label,
-        'public_key' => $public_key,
-      ],
-    ];
-
     // @todo If a key with this label already exists, let the user try again.
-    $response = $this->cloudApiClientService->getClient()->makeRequest('post', '/account/ssh-keys', $options);
-    if ($response->getStatusCode() !== 202) {
-      throw new AcquiaCliException($response->getBody()->getContents());
-    }
+    $sshKeys = new SshKeys($this->cloudApiClientService->getClient());
+    $sshKeys->create($label, $public_key);
 
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {

@@ -23,6 +23,7 @@ class SshKeyListCommandTest extends CommandTestBase {
 
   /**
    * @throws \JsonException
+   * @throws \Exception
    */
   public function setUp($output = NULL): void {
     parent::setUp($output);
@@ -31,12 +32,12 @@ class SshKeyListCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ssh-key:upload' command.
+   * Tests the 'ssh-key:list' command.
    *
    * @throws \Psr\Cache\InvalidArgumentException
    * @throws \Exception
    */
-  public function testUpload(): void {
+  public function testList(): void {
 
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();

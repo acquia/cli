@@ -109,7 +109,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param $inputs
    * @param $args
    * @param $output_to_assert
-   * @throws \Psr\Cache\InvalidArgumentException
+   * @throws \Psr\Cache\InvalidArgumentException*@throws \Exception
    */
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
     $this->mockTokenRequest();
@@ -168,8 +168,8 @@ class AuthLoginCommandTest extends CommandTestBase {
     // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
     $this->assertStringContainsString('You will need a Cloud Platform API token from https://cloud.acquia.com/a/profile/tokens', $output);
     $this->assertStringContainsString('Do you want to open this page to generate a token now?', $output);
-    $this->assertStringContainsString('Cloud API key', $output);
-    $this->assertStringContainsString('Cloud API secret', $output);
+    $this->assertStringContainsString('Your Cloud API key (option -k, --key) is required:', $output);
+    $this->assertStringContainsString('Your Cloud API secret (option -s, --secret) is required (input will be hidden):', $output);
   }
 
   protected function assertKeySavedCorrectly(): void {
