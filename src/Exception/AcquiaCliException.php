@@ -9,11 +9,6 @@ use Zumba\Amplitude\Amplitude;
  * Class AcquiaCliException.
  */
 class AcquiaCliException extends Exception {
-  /**
-   * @var array
-   */
-  private array $replacements;
-
   private ?string $raw_message;
 
   /**
@@ -28,10 +23,9 @@ class AcquiaCliException extends Exception {
    */
   public function __construct(
     string $message = NULL,
-    array $replacements = [],
+    private array $replacements = [],
     int $code = 0
     ) {
-    $this->replacements = $replacements;
     $this->raw_message = $message;
 
     $event_properties = [

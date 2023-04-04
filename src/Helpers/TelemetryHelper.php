@@ -17,10 +17,6 @@ class TelemetryHelper {
 
   private ClientService $cloudApiClientService;
 
-  private CloudDataStore $datastoreCloud;
-
-  private Application $application;
-
   private ?string $amplitudeKey;
 
   private ?string $bugSnagKey;
@@ -30,14 +26,12 @@ class TelemetryHelper {
    */
   public function __construct(
     ClientService $client_service,
-    CloudDataStore $datastoreCloud,
-    Application $application,
+    private CloudDataStore $datastoreCloud,
+    private Application $application,
     string $amplitudeKey = '',
     string $bugSnagKey = ''
   ) {
     $this->cloudApiClientService = $client_service;
-    $this->datastoreCloud = $datastoreCloud;
-    $this->application = $application;
     $this->amplitudeKey = $amplitudeKey;
     $this->bugSnagKey = $bugSnagKey;
   }

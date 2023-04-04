@@ -21,15 +21,12 @@ class ApiCommandHelper {
 
   protected OutputInterface $output;
 
-  private ConsoleLogger $logger;
-
   /**
    * CommandBase constructor.
    */
   public function __construct(
-    ConsoleLogger $logger
+    private ConsoleLogger $logger
   ) {
-    $this->logger = $logger;
   }
 
   /**

@@ -14,20 +14,14 @@ class SshHelper implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
-  private OutputInterface $output;
-
-  private LocalMachineHelper $localMachineHelper;
-
   /**
    * SshHelper constructor.
    */
   public function __construct(
-      OutputInterface $output,
-      LocalMachineHelper $localMachineHelper,
+      private OutputInterface $output,
+      private LocalMachineHelper $localMachineHelper,
       LoggerInterface $logger
   ) {
-    $this->output = $output;
-    $this->localMachineHelper = $localMachineHelper;
     $this->setLogger($logger);
   }
 

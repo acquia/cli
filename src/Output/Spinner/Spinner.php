@@ -84,12 +84,9 @@ class Spinner {
 
   private ConsoleSectionOutput $section;
 
-  private OutputInterface $output;
-
   private int $indentLength;
 
-  public function __construct(OutputInterface $output, int $indent = 0) {
-    $this->output = $output;
+  public function __construct(private OutputInterface $output, int $indent = 0) {
     $this->indentLength = $indent;
     $indentString = str_repeat(' ', $indent);
 
