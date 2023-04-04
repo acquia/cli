@@ -21,7 +21,6 @@ class IdeListMineCommand extends IdeCommandBase {
    */
   protected function configure(): void {
     $this->setDescription('List Cloud IDEs belonging to you');
-    $this->acceptApplicationUuid();
   }
 
   /**
@@ -45,9 +44,9 @@ class IdeListMineCommand extends IdeCommandBase {
         $application_url = str_replace('/api', '/a', $application->links->self->href);
 
         $table->addRows([
-          ["<comment>{$ide->label}</comment>"],
-          ["UUID: {$ide->uuid}"],
-          ["Application: <href={$application_url}>{$application->name}</>"],
+          ["<comment>$ide->label</comment>"],
+          ["UUID: $ide->uuid"],
+          ["Application: <href=$application_url>$application->name</>"],
           ["Subscription: {$application->subscription->name}"],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
           ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],
