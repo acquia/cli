@@ -1,14 +1,14 @@
 ![Build status](https://github.com/acquia/cli/actions/workflows/ci.yml/badge.svg?branch=main) [![Coverage Status](https://coveralls.io/repos/github/acquia/cli/badge.svg?t=0iJBxN&service=github)](https://coveralls.io/github/acquia/cli) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Facquia%2Fcli%2Fmain)](https://dashboard.stryker-mutator.io/reports/github.com/acquia/cli/main)
 # Acquia CLI
 
-The official command-line tool for interacting with the Drupal Cloud Platform and services. Acquia CLI helps you run [Drush](http://www.drush.org/) commands and tail logs from your Acquia-hosted applications, manage [Acquia Cloud IDEs](https://docs.acquia.com/dev-studio/ide/), create and manage teams and applications via the [Cloud Platform API](https://cloudapi-docs.acquia.com/), and much more!
+The official command-line tool for interacting with the Drupal Cloud Platform and services. Acquia CLI (ACLI) helps you run [Drush](http://www.drush.org/) commands and tail logs from your Acquia-hosted applications, manage [Acquia Cloud IDEs](https://docs.acquia.com/dev-studio/ide/), create and manage teams and applications via the [Cloud Platform API](https://cloudapi-docs.acquia.com/), and much more!
 
 Acquia CLI does not provide or manage local development environments. If you are looking for a packaged development environment, consider [Acquia Cloud IDE](https://docs.acquia.com/dev-studio/ide/) or third-party tools such as [Lando](https://lando.dev/).
 
 
 ## Installation
 
-Install instructions and official documentation are available at https://docs.acquia.com/dev-studio/acquia-cli/install/
+Install instructions and official documentation are available at https://docs.acquia.com/acquia-cli/install/
 
 ## Example Usage
 
