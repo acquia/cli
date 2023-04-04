@@ -82,15 +82,13 @@ class Spinner {
 
   private ProgressBar $progressBar;
 
-  private int $colorLevel;
-
   private ConsoleSectionOutput $section;
 
   private OutputInterface $output;
 
   private int $indentLength;
 
-  public function __construct(OutputInterface $output, int $indent = 0, int $colorLevel = Color::COLOR_256) {
+  public function __construct(OutputInterface $output, int $indent = 0) {
     $this->output = $output;
     $this->indentLength = $indent;
     $indentString = str_repeat(' ', $indent);
@@ -99,7 +97,6 @@ class Spinner {
       return;
     }
     $this->section = $output->section();
-    $this->colorLevel = $colorLevel;
     $this->colorCount = count(self::COLORS);
 
     // Create progress bar.
@@ -132,21 +129,13 @@ class Spinner {
     $this->progressBar->advance();
   }
 
-  private function getSpinnerCharacter(): ?string {
+  private function getSpinnerCharacter(): string {
     if ($this->currentColorIdx === $this->colorCount) {
       $this->currentColorIdx = 0;
     }
     $char = self::CHARS[$this->currentCharIdx % 8];
     $color = self::COLORS[$this->currentColorIdx];
-
-    if (Color::COLOR_256 === $this->colorLevel) {
-      return "\033[38;5;{$color}m{$char}\033[0m";
-    }
-    if (Color::COLOR_16 === $this->colorLevel) {
-      return "\033[96m{$char}\033[0m";
-    }
-
-    return NULL;
+    return "\033[38;5;{$color}m$char\033[0m";
   }
 
   public function setMessage(string $message, string $name = 'message'): void {
