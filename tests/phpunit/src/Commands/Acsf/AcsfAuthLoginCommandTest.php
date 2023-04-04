@@ -115,7 +115,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
     if (!$machine_is_authenticated && !array_key_exists('--key', $args)) {
-      $this->assertStringContainsString('Your Site Factory key (option -k, --key) is required (input will be hidden):', $output);
+      $this->assertStringContainsString('Enter your Site Factory key (option -k, --key) (input will be hidden):', $output);
     }
     $this->assertKeySavedCorrectly();
     $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());

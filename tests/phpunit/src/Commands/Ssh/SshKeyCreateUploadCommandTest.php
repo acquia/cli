@@ -85,9 +85,9 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $this->executeCommand(['--no-wait' => ''], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The filename of the SSH key (option --filename) is required [id_rsa_acquia]:', $output);
-    $this->assertStringContainsString('The password for the SSH key (option --password) is required (input will be hidden):', $output);
-    $this->assertStringContainsString('The SSH key label to be used with the Cloud Platform (option --label) is required:', $output);
+    $this->assertStringContainsString('Enter the filename of the SSH key (option --filename) [id_rsa_acquia]:', $output);
+    $this->assertStringContainsString('Enter the password for the SSH key (option --password) (input will be hidden):', $output);
+    $this->assertStringContainsString('Enter the SSH key label to be used with the Cloud Platform (option --label):', $output);
   }
 
 }
