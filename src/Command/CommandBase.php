@@ -1438,11 +1438,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     $option = $this->getDefinition()->getOption($option_name);
     $option_shortcut = $option->getShortcut();
+    $description = lcfirst($option->getDescription());
     if ($option_shortcut) {
-      $message = $option->getDescription() . " (option <options=bold>-$option_shortcut</>, <options=bold>--$option_name</>) is required";
+      $message = "Enter $description (option <options=bold>-$option_shortcut</>, <options=bold>--$option_name</>)";
     }
     else {
-      $message = $option->getDescription() . " (option <options=bold>--$option_name</>) is required";
+      $message = "Enter $description (option <options=bold>--$option_name</>)";
     }
     $message .= $hidden ? ' (input will be hidden)' : '';
     $question = new Question($message, $default);
