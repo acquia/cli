@@ -27,5 +27,6 @@
   <rule ref="PSR12.Functions.ReturnTypeDeclaration" />
   <rule ref="SlevomatCodingStandard.Commenting.EmptyComment" />
   <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing" />
+  <rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion" />
 
 </ruleset>

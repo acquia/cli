@@ -21,56 +21,26 @@ use Psr\Log\LoggerInterface;
  */
 class ApiCommandFactory implements CommandFactoryInterface {
 
-  private LocalMachineHelper $localMachineHelper;
-
-  private CloudDataStore $datastoreCloud;
-
   private YamlStore|AcquiaCliDatastore $datastoreAcli;
-
-  private CloudCredentials $cloudCredentials;
-
-  private TelemetryHelper $telemetryHelper;
-
-  private string $projectDir;
 
   private ClientService|AcsfClientService $cloudApiClientService;
 
-  private LogstreamManager $logstreamManager;
-
-  private SshHelper $sshHelper;
-
-  private string $sshDir;
-
-  private LoggerInterface $logger;
-
-  private Client $httpClient;
-
   public function __construct(
-    LocalMachineHelper $localMachineHelper,
-    CloudDataStore $datastoreCloud,
+    private LocalMachineHelper $localMachineHelper,
+    private CloudDataStore $datastoreCloud,
     AcquiaCliDatastore $datastoreAcli,
-    CloudCredentials $cloudCredentials,
-    TelemetryHelper $telemetryHelper,
-    string $projectDir,
+    private CloudCredentials $cloudCredentials,
+    private TelemetryHelper $telemetryHelper,
+    private string $projectDir,
     ClientService $cloudApiClientService,
-    LogstreamManager $logstreamManager,
-    SshHelper $sshHelper,
-    string $sshDir,
-    LoggerInterface $logger,
-    Client $httpClient
+    private LogstreamManager $logstreamManager,
+    private SshHelper $sshHelper,
+    private string $sshDir,
+    private LoggerInterface $logger,
+    private Client $httpClient
   ) {
-    $this->localMachineHelper = $localMachineHelper;
-    $this->datastoreCloud = $datastoreCloud;
     $this->datastoreAcli = $datastoreAcli;
-    $this->cloudCredentials = $cloudCredentials;
-    $this->telemetryHelper = $telemetryHelper;
-    $this->projectDir = $projectDir;
     $this->cloudApiClientService = $cloudApiClientService;
-    $this->logstreamManager = $logstreamManager;
-    $this->sshHelper = $sshHelper;
-    $this->sshDir = $sshDir;
-    $this->logger = $logger;
-    $this->httpClient = $httpClient;
   }
 
   public function createCommand(): ApiBaseCommand {

@@ -24,16 +24,14 @@ class ClientService implements ClientServiceInterface {
   protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
   protected Application $application;
   protected ?bool $machineIsAuthenticated = NULL;
-  protected ApiCredentialsInterface $credentials;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    */
-  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, ApiCredentialsInterface $credentials) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, protected ApiCredentialsInterface $credentials) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);
-    $this->credentials = $credentials;
   }
 
   public function setConnector(ConnectorInterface $connector): void {

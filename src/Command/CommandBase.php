@@ -88,25 +88,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   private ApplicationResponse $cloudApplication;
 
-  protected TelemetryHelper $telemetryHelper;
-
-  public LocalMachineHelper $localMachineHelper;
-
-  protected CloudDataStore $datastoreCloud;
-
-  protected AcquiaCliDatastore $datastoreAcli;
-
   protected CloudCredentials|ApiCredentialsInterface $cloudCredentials;
 
-  protected string $projectDir;
-
   protected ClientService|ClientServiceInterface $cloudApiClientService;
-
-  protected LogstreamManager $logstreamManager;
-
-  public SshHelper $sshHelper;
-
-  protected string $sshDir;
 
   protected $dir;
 
@@ -119,34 +103,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected \GuzzleHttp\Client $updateClient;
 
-  protected \GuzzleHttp\Client $httpClient;
-
   public function __construct(
-    LocalMachineHelper $localMachineHelper,
-    CloudDataStore $datastoreCloud,
-    AcquiaCliDatastore $datastoreAcli,
+    public LocalMachineHelper $localMachineHelper,
+    protected CloudDataStore $datastoreCloud,
+    protected AcquiaCliDatastore $datastoreAcli,
     ApiCredentialsInterface $cloudCredentials,
-    TelemetryHelper $telemetryHelper,
-    string $projectDir,
+    protected TelemetryHelper $telemetryHelper,
+    protected string $projectDir,
     ClientServiceInterface $cloudApiClientService,
-    LogstreamManager $logstreamManager,
-    SshHelper $sshHelper,
-    string $sshDir,
+    protected LogstreamManager $logstreamManager,
+    public SshHelper $sshHelper,
+    protected string $sshDir,
     LoggerInterface $logger,
-    \GuzzleHttp\Client $httpClient
+    protected \GuzzleHttp\Client $httpClient
   ) {
-    $this->localMachineHelper = $localMachineHelper;
-    $this->datastoreCloud = $datastoreCloud;
-    $this->datastoreAcli = $datastoreAcli;
     $this->cloudCredentials = $cloudCredentials;
-    $this->telemetryHelper = $telemetryHelper;
-    $this->projectDir = $projectDir;
     $this->cloudApiClientService = $cloudApiClientService;
-    $this->logstreamManager = $logstreamManager;
-    $this->sshHelper = $sshHelper;
-    $this->sshDir = $sshDir;
     $this->logger = $logger;
-    $this->httpClient = $httpClient;
     parent::__construct();
   }
 

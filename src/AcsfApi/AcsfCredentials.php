@@ -10,13 +10,10 @@ use Acquia\Cli\DataStore\CloudDataStore;
  */
 class AcsfCredentials implements ApiCredentialsInterface {
 
-  private CloudDataStore $datastoreCloud;
-
   /**
    * CloudCredentials constructor.
    */
-  public function __construct(CloudDataStore $datastoreCloud) {
-    $this->datastoreCloud = $datastoreCloud;
+  public function __construct(private CloudDataStore $datastoreCloud) {
   }
 
   public function getCloudKey(): ?string {

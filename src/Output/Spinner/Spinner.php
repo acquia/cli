@@ -82,16 +82,11 @@ class Spinner {
 
   private ProgressBar $progressBar;
 
-  private int $colorLevel;
-
   private ConsoleSectionOutput $section;
-
-  private OutputInterface $output;
 
   private int $indentLength;
 
-  public function __construct(OutputInterface $output, int $indent = 0, int $colorLevel = Color::COLOR_256) {
-    $this->output = $output;
+  public function __construct(private OutputInterface $output, int $indent = 0, private int $colorLevel = Color::COLOR_256) {
     $this->indentLength = $indent;
     $indentString = str_repeat(' ', $indent);
 
@@ -99,7 +94,6 @@ class Spinner {
       return;
     }
     $this->section = $output->section();
-    $this->colorLevel = $colorLevel;
     $this->colorCount = count(self::COLORS);
 
     // Create progress bar.

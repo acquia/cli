@@ -8,7 +8,6 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface {
 
-  protected array $config;
   protected ?string $baseUri;
   protected ?string $accountsUri;
 
@@ -17,8 +16,7 @@ class ConnectorFactory implements ConnectorFactoryInterface {
    *
    * @param array $config
    */
-  public function __construct(array $config, ?string $base_uri = NULL, ?string $accounts_uri = NULL) {
-    $this->config = $config;
+  public function __construct(protected array $config, ?string $base_uri = NULL, ?string $accounts_uri = NULL) {
     $this->baseUri = $base_uri;
     $this->accountsUri = $accounts_uri;
   }

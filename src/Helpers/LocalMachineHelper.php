@@ -26,20 +26,16 @@ use function Safe\file_get_contents;
 class LocalMachineHelper {
   use LoggerAwareTrait;
 
-  private OutputInterface $output;
-  private InputInterface $input;
   private $isTty;
   private array $installedBinaries = [];
 
   private SymfonyStyle $io;
 
   public function __construct(
-      InputInterface $input,
-      OutputInterface $output,
+      private InputInterface $input,
+      private OutputInterface $output,
       LoggerInterface $logger
   ) {
-    $this->input = $input;
-    $this->output = $output;
     $this->setLogger($logger);
     $this->io = new SymfonyStyle($input, $output);
   }

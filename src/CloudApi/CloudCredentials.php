@@ -11,13 +11,10 @@ use Acquia\Cli\Exception\AcquiaCliException;
  */
 class CloudCredentials implements ApiCredentialsInterface {
 
-  private CloudDataStore $datastoreCloud;
-
   /**
    * CloudCredentials constructor.
    */
-  public function __construct(CloudDataStore $datastoreCloud) {
-    $this->datastoreCloud = $datastoreCloud;
+  public function __construct(private CloudDataStore $datastoreCloud) {
   }
 
   /**
