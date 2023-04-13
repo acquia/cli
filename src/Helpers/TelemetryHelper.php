@@ -11,6 +11,7 @@ use Bugsnag\Client;
 use Bugsnag\Handler;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
+use Symfony\Component\Filesystem\Path;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
@@ -56,6 +57,7 @@ class TelemetryHelper {
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
     $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
+    $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
     $bugsnag->registerCallback(function ($report) {
       $user_id = $this->getUserId();
       if (isset($user_id)) {
@@ -63,6 +65,18 @@ class TelemetryHelper {
           'id' => $user_id,
         ]);
       }
+    });
+    $bugsnag->registerCallback(function ($report) {
+      $context = $report->getContext();
+      // Strip working directory and binary from context.
+      if (str_contains($context, 'acli ')) {
+        $context = substr($context, strpos($context, 'acli ') + 5);
+      }
+      // Strip sensitive parameters from context
+      if (str_contains($context, "--password")) {
+        $context = substr($context, 0, strpos($context, "--password") + 10) . 'REDACTED';
+      }
+      $report->setContext($context);
     });
     Handler::register($bugsnag);
   }
