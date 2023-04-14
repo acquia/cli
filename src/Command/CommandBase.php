@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\ClientServiceInterface;
-use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -69,11 +67,6 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 use Zumba\Amplitude\Amplitude;
 
-/**
- * Class CommandBase.
- *
- * @package Grasmash\YamlCli\Command
- */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
@@ -83,43 +76,36 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected OutputInterface $output;
 
   protected SymfonyStyle $io;
-
   protected FormatterHelper $formatter;
-
   private ApplicationResponse $cloudApplication;
 
-  protected CloudCredentials|ApiCredentialsInterface $cloudCredentials;
-
-  protected ClientService|ClientServiceInterface $cloudApiClientService;
-
-  protected $dir;
-
-  protected $localDbUser;
-  protected $localDbPassword;
-  protected $localDbName;
-  protected $localDbHost;
-
+  protected string $dir;
+  protected string $localDbUser = 'drupal';
+  protected string $localDbPassword = 'drupal';
+  protected string $localDbName = 'drupal';
+  protected string $localDbHost = 'localhost';
   protected bool $drushHasActiveDatabaseConnection;
-
   protected \GuzzleHttp\Client $updateClient;
 
   public function __construct(
     public LocalMachineHelper $localMachineHelper,
     protected CloudDataStore $datastoreCloud,
     protected AcquiaCliDatastore $datastoreAcli,
-    ApiCredentialsInterface $cloudCredentials,
+    protected ApiCredentialsInterface $cloudCredentials,
     protected TelemetryHelper $telemetryHelper,
     protected string $projectDir,
-    ClientServiceInterface $cloudApiClientService,
+    protected ClientServiceInterface $cloudApiClientService,
     protected LogstreamManager $logstreamManager,
     public SshHelper $sshHelper,
     protected string $sshDir,
     LoggerInterface $logger,
     protected \GuzzleHttp\Client $httpClient
   ) {
-    $this->cloudCredentials = $cloudCredentials;
-    $this->cloudApiClientService = $cloudApiClientService;
     $this->logger = $logger;
+    $this->setLocalDbPassword();
+    $this->setLocalDbUser();
+    $this->setLocalDbName();
+    $this->setLocalDbHost();
     parent::__construct();
   }
 
@@ -139,74 +125,42 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   private function setLocalDbUser(): void {
-    $this->localDbUser = 'drupal';
-    if ($lando_info = self::getLandoInfo()) {
-      $this->localDbUser = $lando_info->database->creds->user;
-    }
     if (getenv('ACLI_DB_USER')) {
       $this->localDbUser = getenv('ACLI_DB_USER');
     }
   }
 
-  public function getDefaultLocalDbUser() {
-    if (!isset($this->localDbUser)) {
-      $this->setLocalDbUser();
-    }
-
+  public function getLocalDbUser(): string {
     return $this->localDbUser;
   }
 
   private function setLocalDbPassword(): void {
-    $this->localDbPassword = 'drupal';
-    if ($lando_info = self::getLandoInfo()) {
-      $this->localDbPassword = $lando_info->database->creds->password;
-    }
     if (getenv('ACLI_DB_PASSWORD')) {
       $this->localDbPassword = getenv('ACLI_DB_PASSWORD');
     }
   }
 
-  public function getDefaultLocalDbPassword(): mixed {
-    if (!isset($this->localDbPassword)) {
-      $this->setLocalDbPassword();
-    }
-
+  public function getLocalDbPassword(): string {
     return $this->localDbPassword;
   }
 
   private function setLocalDbName(): void {
-    $this->localDbName = 'drupal';
-    if ($lando_info = self::getLandoInfo()) {
-      $this->localDbName = $lando_info->database->creds->database;
-    }
     if (getenv('ACLI_DB_NAME')) {
       $this->localDbName = getenv('ACLI_DB_NAME');
     }
   }
 
-  public function getDefaultLocalDbName(): mixed {
-    if (!isset($this->localDbName)) {
-      $this->setLocalDbName();
-    }
-
+  public function getLocalDbName(): string {
     return $this->localDbName;
   }
 
   private function setLocalDbHost(): void {
-    $this->localDbHost = 'localhost';
-    if ($lando_info = self::getLandoInfo()) {
-      $this->localDbHost = $lando_info->database->hostnames[0];
-    }
     if (getenv('ACLI_DB_HOST')) {
       $this->localDbHost = getenv('ACLI_DB_HOST');
     }
   }
 
-  public function getDefaultLocalDbHost(): mixed {
-    if (!isset($this->localDbHost)) {
-      $this->setLocalDbHost();
-    }
-
+  public function getLocalDbHost(): string {
     return $this->localDbHost;
   }
 
@@ -1214,19 +1168,15 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
 
-  public static function getLandoInfo() {
-    if ($lando_info = AcquiaDrupalEnvironmentDetector::getLandoInfo()) {
-      return json_decode($lando_info, FALSE, 512, JSON_THROW_ON_ERROR);
-    }
-    return NULL;
-  }
-
   public static function isLandoEnv(): bool {
-    return (bool) self::getLandoInfo();
+    return AcquiaDrupalEnvironmentDetector::isLandoEnv();
   }
 
   /**
-   * @param $base_uri
+   * @param string $api_key
+   * @param string $api_secret
+   * @param string|null $base_uri
+   * @param string|null $accounts_uri
    */
   protected function reAuthenticate(string $api_key, string $api_secret, ?string $base_uri, ?string $accounts_uri): void {
     // Client service needs to be reinitialized with new credentials in case

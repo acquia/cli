@@ -26,10 +26,10 @@ class LandoInfoTest extends CommandTestBase {
       'user' => 'drupal9',
     ];
     LandoInfoHelper::setLandoInfo($lando_info);
-    $this->assertEquals('drupal9', $this->command->getDefaultLocalDbPassword());
-    $this->assertEquals('drupal9', $this->command->getDefaultLocalDbName());
-    $this->assertEquals('drupal9', $this->command->getDefaultLocalDbUser());
-    $this->assertEquals('database.mynewapp.internal', $this->command->getDefaultLocalDbHost());
+    $this->assertEquals('drupal9', $this->command->getLocalDbPassword());
+    $this->assertEquals('drupal9', $this->command->getLocalDbName());
+    $this->assertEquals('drupal9', $this->command->getLocalDbUser());
+    $this->assertEquals('database.mynewapp.internal', $this->command->getLocalDbHost());
     LandoInfoHelper::unsetLandoInfo();
   }
 

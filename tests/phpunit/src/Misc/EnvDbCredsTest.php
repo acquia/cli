@@ -51,10 +51,10 @@ class EnvDbCredsTest extends CommandTestBase {
   }
 
   public function testEnvDbCreds(): void {
-    $this->assertEquals($this->dbUser, $this->command->getDefaultLocalDbUser());
-    $this->assertEquals($this->dbPassword, $this->command->getDefaultLocalDbPassword());
-    $this->assertEquals($this->dbName, $this->command->getDefaultLocalDbName());
-    $this->assertEquals($this->dbHost, $this->command->getDefaultLocalDbHost());
+    $this->assertEquals($this->dbUser, $this->command->getLocalDbUser());
+    $this->assertEquals($this->dbPassword, $this->command->getLocalDbPassword());
+    $this->assertEquals($this->dbName, $this->command->getLocalDbName());
+    $this->assertEquals($this->dbHost, $this->command->getLocalDbHost());
   }
 
 }
