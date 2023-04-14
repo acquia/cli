@@ -84,11 +84,8 @@ class Spinner {
 
   private ConsoleSectionOutput $section;
 
-  private int $indentLength;
-
-  public function __construct(private OutputInterface $output, int $indent = 0) {
-    $this->indentLength = $indent;
-    $indentString = str_repeat(' ', $indent);
+  public function __construct(private OutputInterface $output, private int $indentLength = 0) {
+    $indentString = str_repeat(' ', $indentLength);
 
     if (!$this->spinnerIsSupported()) {
       return;

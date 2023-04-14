@@ -4,8 +4,6 @@ namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\ClientServiceInterface;
-use Acquia\Cli\CloudApi\ClientService;
-use Acquia\Cli\CloudApi\CloudCredentials;
 use Acquia\Cli\Command\Ssh\SshKeyCommandBase;
 use Acquia\Cli\DataStore\AcquiaCliDatastore;
 use Acquia\Cli\DataStore\CloudDataStore;
@@ -69,11 +67,6 @@ use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 use Zumba\Amplitude\Amplitude;
 
-/**
- * Class CommandBase.
- *
- * @package Grasmash\YamlCli\Command
- */
 abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
@@ -87,10 +80,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected FormatterHelper $formatter;
 
   private ApplicationResponse $cloudApplication;
-
-  protected CloudCredentials|ApiCredentialsInterface $cloudCredentials;
-
-  protected ClientService|ClientServiceInterface $cloudApiClientService;
 
   protected $dir;
 
@@ -107,18 +96,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     public LocalMachineHelper $localMachineHelper,
     protected CloudDataStore $datastoreCloud,
     protected AcquiaCliDatastore $datastoreAcli,
-    ApiCredentialsInterface $cloudCredentials,
+    protected ApiCredentialsInterface $cloudCredentials,
     protected TelemetryHelper $telemetryHelper,
     protected string $projectDir,
-    ClientServiceInterface $cloudApiClientService,
+    protected ClientServiceInterface $cloudApiClientService,
     protected LogstreamManager $logstreamManager,
     public SshHelper $sshHelper,
     protected string $sshDir,
     LoggerInterface $logger,
     protected \GuzzleHttp\Client $httpClient
   ) {
-    $this->cloudCredentials = $cloudCredentials;
-    $this->cloudApiClientService = $cloudApiClientService;
     $this->logger = $logger;
     parent::__construct();
   }

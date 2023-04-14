@@ -112,7 +112,7 @@ services:
         # @see https://symfony.com/doc/current/service_container/expression_language.html
         key: '@=service("acsf.credentials").getCloudKey()'
         secret: '@=service("acsf.credentials").getCloudSecret()'
-      $base_uri: '@=service("acsf.credentials").getBaseUri()'
+      $baseUri: '@=service("acsf.credentials").getBaseUri()'
   Acquia\Cli\AcsfApi\AcsfConnector:
     alias: Acquia\Cli\AcsfApi\AcsfConnectorFactory
   Acquia\Cli\Command\Acsf\AcsfCommandFactory: ~

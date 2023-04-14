@@ -5,36 +5,29 @@ namespace Acquia\Cli\Exception;
 use Exception;
 use Zumba\Amplitude\Amplitude;
 
-/**
- * Class AcquiaCliException.
- */
 class AcquiaCliException extends Exception {
-  private ?string $raw_message;
 
   /**
    * Object constructor. Sets context array as replacements property.
    *
-   * @param string|null $message
-   *   Message to send when throwing the exception.
+   * @param string|null $raw_message
    * @param array $replacements
    *   Context array to interpolate into message.
    * @param int $code
    *   Exit code.
    */
   public function __construct(
-    string $message = NULL,
-    private array $replacements = [],
+    private ?string $raw_message = NULL,
+    array $replacements = [],
     int $code = 0
     ) {
-    $this->raw_message = $message;
-
     $event_properties = [
-      'message' => $message,
+      'message' => $raw_message,
       'code' => $code
     ];
     Amplitude::getInstance()->queueEvent('Threw exception', $event_properties);
 
-    parent::__construct($this->interpolateString($message, $replacements), $code);
+    parent::__construct($this->interpolateString($raw_message, $replacements), $code);
   }
 
   /**
@@ -44,15 +37,6 @@ class AcquiaCliException extends Exception {
    */
   public function getRawMessage(): string {
     return $this->raw_message;
-  }
-
-  /**
-   * Returns the replacements context array.
-   *
-   * @return array $this->replacements The replacement variables.
-   */
-  public function getReplacements(): array {
-    return $this->replacements;
   }
 
   /**
