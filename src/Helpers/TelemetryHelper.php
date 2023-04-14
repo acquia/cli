@@ -16,25 +16,13 @@ use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
 
-  private ClientService $cloudApiClientService;
-
-  private ?string $amplitudeKey;
-
-  private ?string $bugSnagKey;
-
-  /**
-   * TelemetryHelper constructor.
-   */
   public function __construct(
-    ClientService $client_service,
+    private ClientService $cloudApiClientService,
     private CloudDataStore $datastoreCloud,
     private Application $application,
-    string $amplitudeKey = '',
-    string $bugSnagKey = ''
+    private ?string $amplitudeKey = '',
+    private ?string $bugSnagKey = ''
   ) {
-    $this->cloudApiClientService = $client_service;
-    $this->amplitudeKey = $amplitudeKey;
-    $this->bugSnagKey = $bugSnagKey;
   }
 
   /**

@@ -9,21 +9,12 @@ use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class ApiCommandHelper {
 
-  protected InputInterface $input;
-
-  protected OutputInterface $output;
-
-  /**
-   * CommandBase constructor.
-   */
   public function __construct(
     private ConsoleLogger $logger
   ) {
