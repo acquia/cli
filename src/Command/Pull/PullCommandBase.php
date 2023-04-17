@@ -14,6 +14,7 @@ use AcquiaCloudApi\Endpoints\Domains;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\BackupResponse;
 use AcquiaCloudApi\Response\DatabaseResponse;
+use AcquiaCloudApi\Response\DatabasesResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Closure;
 use Exception;
@@ -312,10 +313,8 @@ abstract class PullCommandBase extends CommandBase {
 
   /**
    * Create an on-demand backup and wait for it to become available.
-   *
-   * @param $acquia_cloud_client
    */
-  private function createBackup(EnvironmentResponse $environment, DatabaseResponse $database, $acquia_cloud_client): void {
+  private function createBackup(EnvironmentResponse $environment, DatabaseResponse $database, Client $acquia_cloud_client): void {
     $backups = new DatabaseBackups($acquia_cloud_client);
     $response = $backups->create($environment->uuid, $database->name);
     $url_parts = explode('/', $response->links->notification->href);
@@ -326,10 +325,9 @@ abstract class PullCommandBase extends CommandBase {
   /**
    * Wait for an on-demand backup to become available (Cloud API notification).
    *
-   * @param $acquia_cloud_client
    * @infection-ignore-all
    */
-  protected function waitForBackup(string $notification_uuid, $acquia_cloud_client): void {
+  protected function waitForBackup(string $notification_uuid, Client $acquia_cloud_client): void {
     $spinnerMessage = 'Waiting for database backup to complete...';
     $successCallback = function (): void {
       $this->output->writeln('');
@@ -340,7 +338,6 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param callable|null $output_callback
    * @throws \Exception
    */
   private function connectToLocalDatabase(string $db_host, string $db_user, string $db_name, string $db_password, callable $output_callback = NULL): void {
@@ -494,18 +491,18 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param $environment_databases
-   * @param $multiple_dbs
-   * @return array|null
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
+   * @param \AcquiaCloudApi\Response\DatabasesResponse $environment_databases
+   * @param bool $multiple_dbs
+   * @return DatabaseResponse[]
    * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
    * @throws \JsonException
    */
   private function promptChooseDatabases(
     EnvironmentResponse $cloud_environment,
-                        $environment_databases,
-                        $multiple_dbs
-  ): ?array {
+    DatabasesResponse $environment_databases,
+    bool $multiple_dbs
+  ): array {
     $choices = [];
     if ($multiple_dbs) {
       $choices['all'] = 'All';
@@ -544,7 +541,7 @@ abstract class PullCommandBase extends CommandBase {
         if (count($environment_databases) > 10) {
           $this->io->warning('You have chosen to pull down more than 10 databases. This could exhaust your disk space.');
         }
-        return $environment_databases;
+        return (array) $environment_databases;
       }
       foreach ($chosen_database_keys as $chosen_database_key) {
         $chosen_databases[] = $environment_databases[$chosen_database_key];
@@ -639,7 +636,7 @@ abstract class PullCommandBase extends CommandBase {
    * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosen_environment
    * @param string|null $site
    * @param bool $multiple_dbs
-   * @return \AcquiaCloudApi\Response\DatabaseResponse[]
+   * @return DatabaseResponse[]
    * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @throws \JsonException
    */
