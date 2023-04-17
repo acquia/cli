@@ -17,8 +17,6 @@ use Symfony\Component\Process\Process;
 use function Safe\file_get_contents;
 
 /**
- * Class LocalMachineHelper.
- *
  * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
  */
 class LocalMachineHelper {

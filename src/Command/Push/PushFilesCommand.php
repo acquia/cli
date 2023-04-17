@@ -9,9 +9,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PushFilesCommand.
- */
 class PushFilesCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:files';

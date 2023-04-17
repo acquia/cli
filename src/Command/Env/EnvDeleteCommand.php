@@ -9,9 +9,6 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class EnvDeleteCommand.
- */
 class EnvDeleteCommand extends CommandBase {
 
   protected static $defaultName = 'env:delete';

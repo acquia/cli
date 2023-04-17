@@ -2,9 +2,6 @@
 
 namespace Acquia\Cli\Tests\Misc;
 
-/**
- * Class LandoInfoHelper
- */
 class LandoInfoHelper {
 
   public static function setLandoInfo($lando_info): void {

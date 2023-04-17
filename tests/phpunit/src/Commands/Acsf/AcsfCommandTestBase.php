@@ -6,8 +6,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 
 /**
- * Class ApiCommandTest.
- *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
  */
 abstract class AcsfCommandTestBase extends CommandTestBase {

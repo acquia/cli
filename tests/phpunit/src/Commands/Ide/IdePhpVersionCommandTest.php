@@ -13,8 +13,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdePhpVersionCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdePhpVersionCommand $command
  */
 class IdePhpVersionCommandTest extends CommandTestBase {

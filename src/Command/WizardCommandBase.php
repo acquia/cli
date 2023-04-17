@@ -8,9 +8,6 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class WizardCommandBase.
- */
 abstract class WizardCommandBase extends SshKeyCommandBase {
 
   abstract protected function validateEnvironment(): void;

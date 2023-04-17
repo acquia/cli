@@ -9,8 +9,6 @@ use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeCreateCommandTest.
- *
  * @property IdeCreateCommand $command
  */
 class IdeCreateCommandTest extends CommandTestBase {

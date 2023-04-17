@@ -14,8 +14,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class ApiCommandTest.
- *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
  */
 class AcsfApiCommandTest extends AcsfCommandTestBase {

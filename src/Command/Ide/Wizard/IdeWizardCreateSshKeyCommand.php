@@ -8,9 +8,6 @@ use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardCreateSshKeyCommand.
- */
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';

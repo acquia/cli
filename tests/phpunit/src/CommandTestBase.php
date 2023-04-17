@@ -33,8 +33,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 
 /**
- * Class CommandTestBase.
- *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class CommandTestBase extends TestBase {

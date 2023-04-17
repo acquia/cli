@@ -11,8 +11,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class AliasesDownloadCommandTest.
- *
  * @property AliasesDownloadCommand $command
  */
 class AliasesDownloadCommandTest extends CommandTestBase {

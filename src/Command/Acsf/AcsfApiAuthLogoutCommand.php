@@ -5,9 +5,6 @@ namespace Acquia\Cli\Command\Acsf;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AcsfLoginCommand.
- */
 class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
   protected static $defaultName = 'auth:acsf-logout';

@@ -10,9 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeShareCommand.
- */
 class IdeShareCommand extends CommandBase {
 
   protected static $defaultName = 'ide:share';

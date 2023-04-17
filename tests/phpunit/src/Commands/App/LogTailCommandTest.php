@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class LogTailCommandTest.
- *
  * @property \Acquia\Cli\Command\App\LogTailCommand $command
  */
 class LogTailCommandTest extends CommandTestBase {

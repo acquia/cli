@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class SshKeyListCommandTest
- *
  * @property SshKeyListCommand $command
  */
 class SshKeyListCommandTest extends CommandTestBase {

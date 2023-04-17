@@ -10,8 +10,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PushFilesCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushFilesCommand $command
  */
 class PushFilesCommandTest extends CommandTestBase {

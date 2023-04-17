@@ -6,9 +6,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class SshKeyCreateCommand.
- */
 class SshKeyCreateCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:create';

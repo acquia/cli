@@ -12,8 +12,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class ArchiveExporterCommandTest.
- *
  * @property \Acquia\Cli\Command\Archive\ArchiveExportCommand $command
  */
 class ArchiveExporterCommandTest extends PullCommandTestBase {

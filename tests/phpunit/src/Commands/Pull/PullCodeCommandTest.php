@@ -12,8 +12,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class PullCodeCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullCodeCommand $command
  */
 class PullCodeCommandTest extends PullCommandTestBase {

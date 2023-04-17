@@ -9,8 +9,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class CreateCdeCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
  */
 class EnvCreateCommandTest extends CommandTestBase {

@@ -6,9 +6,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PullFilesCommand.
- */
 class PullFilesCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:files';

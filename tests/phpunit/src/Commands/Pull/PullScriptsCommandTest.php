@@ -7,8 +7,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class PullScriptsCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullScriptsCommand $command
  */
 class PullScriptsCommandTest extends PullCommandTestBase {

@@ -8,8 +8,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class TaskWaitCommand.
- *
  * @property \Acquia\Cli\Command\App\TaskWaitCommand $command
  */
 class TaskWaitCommandTest extends CommandTestBase {

@@ -6,9 +6,6 @@ use Acquia\Cli\Command\Api\ApiBaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 
-/**
- * Class CommandBase.
- */
 class AcsfApiBaseCommand extends ApiBaseCommand {
   protected static $defaultName = 'acsf:base';
 

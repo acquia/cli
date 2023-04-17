@@ -9,8 +9,6 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AcsfAuthLogoutCommandTest.
- *
  * @property AcsfAuthLogoutCommandTest $command
  */
 class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {

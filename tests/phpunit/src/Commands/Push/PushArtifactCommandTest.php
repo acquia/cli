@@ -12,8 +12,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 /**
- * Class PushCodeCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushCodeCommand $command
  */
 class PushArtifactCommandTest extends PullCommandTestBase {

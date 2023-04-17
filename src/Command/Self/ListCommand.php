@@ -8,9 +8,6 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class ListCommand.
- */
 class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
 
   protected function configure(): void {

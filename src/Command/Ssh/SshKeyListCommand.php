@@ -7,9 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
-/**
- * Class SshKeyListCommand.
- */
 class SshKeyListCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:list';

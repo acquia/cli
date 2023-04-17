@@ -8,8 +8,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class UnlinkCommandTest.
- *
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
  */
 class UnlinkCommandTest extends CommandTestBase {

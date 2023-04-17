@@ -7,9 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class UnlinkCommand.
- */
 class UnlinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:unlink';

@@ -7,9 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Command\Command;
 
-/**
- * Class EnvDbCredsTest
- */
 class EnvDbCredsTest extends CommandTestBase {
 
   private string $dbUser;

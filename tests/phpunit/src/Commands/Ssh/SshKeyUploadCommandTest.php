@@ -11,8 +11,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class SshKeyCreateUploadCommandTest
- *
  * @property SshKeyUploadCommand $command
  */
 class SshKeyUploadCommandTest extends CommandTestBase {

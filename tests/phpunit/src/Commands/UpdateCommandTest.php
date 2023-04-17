@@ -9,8 +9,6 @@ use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class UpdateCommandTest.
- *
  * @property \Acquia\Cli\Command\HelloWorldCommand $command
  */
 class UpdateCommandTest extends CommandTestBase {

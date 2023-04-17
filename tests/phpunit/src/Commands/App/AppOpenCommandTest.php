@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AppOpenCommandTest.
- *
  * @property \Acquia\Cli\Command\App\AppOpenCommand $command
  */
 class AppOpenCommandTest extends CommandTestBase {

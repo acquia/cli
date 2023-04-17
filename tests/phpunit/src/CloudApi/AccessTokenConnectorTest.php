@@ -17,9 +17,6 @@ use Prophecy\Argument;
 use Psr\Http\Message\RequestInterface;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class AccessTokenConnectorTest.
- */
 class AccessTokenConnectorTest extends TestBase {
 
   private static string $accessToken = 'testaccesstoken';

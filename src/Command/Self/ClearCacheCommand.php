@@ -8,9 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class ClearCacheCommand.
- */
 class ClearCacheCommand extends CommandBase {
 
   protected static $defaultName = 'self:clear-caches';

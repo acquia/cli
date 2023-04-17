@@ -7,9 +7,6 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AppOpenCommand.
- */
 class AppOpenCommand extends CommandBase {
 
   protected static $defaultName = 'app:open';

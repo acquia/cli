@@ -10,8 +10,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 /**
- * Class NewCommandTest.
- *
  * @property \Acquia\Cli\Command\App\NewCommand $command
  */
 class NewCommandTest extends CommandTestBase {

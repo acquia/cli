@@ -9,8 +9,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AuthLogoutCommandTest.
- *
  * @property AuthLogoutCommandTest $command
  */
 class AuthLogoutCommandTest extends CommandTestBase {

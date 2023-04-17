@@ -8,9 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdePhpVersionCommand.
- */
 class IdePhpVersionCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:php-version';

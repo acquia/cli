@@ -8,9 +8,6 @@ use Acquia\Cli\Helpers\IdeCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 
-/**
- * Class IdeCommandBase.
- */
 abstract class IdeCommandBase extends CommandBase {
 
   use IdeCommandTrait;

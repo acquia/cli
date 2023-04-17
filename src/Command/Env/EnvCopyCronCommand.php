@@ -9,9 +9,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class EnvCopyCronCommand.
- */
 class EnvCopyCronCommand extends CommandBase {
 
   protected static $defaultName = 'env:cron-copy';

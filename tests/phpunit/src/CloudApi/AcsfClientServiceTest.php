@@ -8,9 +8,6 @@ use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class ClientServiceTest.
- */
 class AcsfClientServiceTest extends TestBase {
 
   /**

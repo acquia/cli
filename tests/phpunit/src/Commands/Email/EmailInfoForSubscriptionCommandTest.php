@@ -8,8 +8,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class ConfigurePlatformEmailCommandTest.
- *
  * @property \Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand $command
  */
 class EmailInfoForSubscriptionCommandTest extends CommandTestBase {

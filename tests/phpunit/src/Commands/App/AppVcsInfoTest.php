@@ -8,8 +8,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AppVcsInfoTest.
- *
  * @property \Acquia\Cli\Command\App\AppVcsInfo $command
  */
 class AppVcsInfoTest extends CommandTestBase {

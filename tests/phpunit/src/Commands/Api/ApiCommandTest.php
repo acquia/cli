@@ -13,8 +13,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class ApiCommandTest.
- *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
  */
 class ApiCommandTest extends CommandTestBase {

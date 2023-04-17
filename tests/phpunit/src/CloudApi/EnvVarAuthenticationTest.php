@@ -4,9 +4,6 @@ namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class EnvVarAuthenticationTest.
- */
 class EnvVarAuthenticationTest extends TestBase {
 
   protected string $cloudApiBaseUri = 'https://www.acquia.com';

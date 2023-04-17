@@ -8,8 +8,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeServiceStopCommandTest.
- *
  * @property IdeServiceStopCommandTest $command
  */
 class IdeServiceStopCommandTest extends CommandTestBase {

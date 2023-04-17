@@ -7,7 +7,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
  */
 class DrushCommand extends SshBaseCommand {

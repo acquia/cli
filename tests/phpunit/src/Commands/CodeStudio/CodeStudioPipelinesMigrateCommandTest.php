@@ -15,8 +15,6 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class CodeStudioWizardCommandTest.
- *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand $command
  * @requires OS linux|darwin
  */

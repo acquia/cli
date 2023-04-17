@@ -7,9 +7,6 @@ use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class LogTailCommand.
- */
 class LogTailCommand extends CommandBase {
 
   protected static $defaultName = 'app:log:tail';

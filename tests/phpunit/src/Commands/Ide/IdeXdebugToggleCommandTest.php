@@ -8,8 +8,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
 /**
- * Class IdeXdebugCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeXdebugToggleCommand $command
  */
 class IdeXdebugToggleCommandTest extends CommandTestBase {

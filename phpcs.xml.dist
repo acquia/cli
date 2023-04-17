@@ -39,6 +39,11 @@
       <property name="forbiddenAnnotations" type="array" value="@author,@created,@version,@package,@copyright,@license,@throws" />
     </properties>
   </rule>
+  <rule ref="SlevomatCodingStandard.Commenting.ForbiddenComments">
+    <properties>
+      <property name="forbiddenCommentPatterns" type="array" value="/Class .*/" />
+    </properties>
+  </rule>
   <rule ref="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration" />
   <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment" />
   <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />

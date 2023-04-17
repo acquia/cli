@@ -11,9 +11,6 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PushDatabaseCommand.
- */
 class PushDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:database';

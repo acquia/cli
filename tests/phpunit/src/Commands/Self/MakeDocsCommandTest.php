@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class MakeDocsCommandTest.
- *
  * @property \Acquia\Cli\Command\Self\MakeDocsCommand $command
  */
 class MakeDocsCommandTest extends CommandTestBase {

@@ -14,9 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class ArchiveExportCommand.
- */
 class ArchiveExportCommand extends CommandBase {
 
   protected Checklist $checklist;

@@ -9,8 +9,6 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class SshKeyCreateCommandTest
- *
  * @property SshKeyCreateCommand $command
  */
 class SshKeyCreateCommandTest extends CommandTestBase {

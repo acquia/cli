@@ -11,8 +11,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class CommandBaseTest.
- *
  * @property LinkCommand $command
  */
 class CommandBaseTest extends CommandTestBase {

@@ -8,9 +8,6 @@ use Acquia\Cli\Helpers\SshCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardDeleteSshKeyCommand.
- */
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   use SshCommandTrait;

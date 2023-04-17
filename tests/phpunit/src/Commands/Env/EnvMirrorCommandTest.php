@@ -8,8 +8,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class EnvironmentMirrorCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
  */
 class EnvMirrorCommandTest extends CommandTestBase {

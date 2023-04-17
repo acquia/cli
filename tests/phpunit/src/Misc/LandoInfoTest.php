@@ -6,9 +6,6 @@ use Acquia\Cli\Command\Self\ClearCacheCommand;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
-/**
- * Class LandoInfoTest
- */
 class LandoInfoTest extends CommandTestBase {
 
   protected function createCommand(): Command {

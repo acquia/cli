@@ -7,9 +7,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeXdebugCommand.
- */
 class IdeXdebugToggleCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:xdebug-toggle';

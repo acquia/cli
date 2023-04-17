@@ -8,9 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class TaskWaitCommand.
- */
 class TaskWaitCommand extends CommandBase {
 
   protected static $defaultName = 'app:task-wait';

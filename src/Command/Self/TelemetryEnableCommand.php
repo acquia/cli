@@ -7,9 +7,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class TelemetryEnableCommand.
- */
 class TelemetryEnableCommand extends CommandBase {
 
   protected static $defaultName = 'self:telemetry:enable';

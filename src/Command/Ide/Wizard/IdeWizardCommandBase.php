@@ -9,9 +9,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardCommandBase.
- */
 abstract class IdeWizardCommandBase extends WizardCommandBase {
 
   use SshCommandTrait;

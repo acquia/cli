@@ -10,9 +10,6 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class IdeServiceStartCommand.
- */
 class IdeServiceStartCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:service-start';

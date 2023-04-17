@@ -4,9 +4,6 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class LocalMachineHelperTest.
- */
 class LocalMachineHelperTest extends TestBase {
 
   public function testStartBrowser(): void {

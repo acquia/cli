@@ -8,8 +8,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeWizardDeleteSshKeyCommand.
- *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
  */
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {

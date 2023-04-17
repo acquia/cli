@@ -9,8 +9,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class IdeShareCommandTest.
- *
  * @property IdeShareCommand $command
  */
 class IdeShareCommandTest extends CommandTestBase {

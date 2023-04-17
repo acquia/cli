@@ -45,8 +45,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class CommandTestBase.
- *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class TestBase extends TestCase {

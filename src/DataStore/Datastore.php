@@ -12,9 +12,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * Class YamlStore
- */
 abstract class Datastore implements DataStoreInterface {
 
   protected Data $data;

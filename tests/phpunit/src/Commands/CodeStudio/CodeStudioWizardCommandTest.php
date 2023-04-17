@@ -17,8 +17,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class CodeStudioWizardCommandTest.
- *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
  * @requires OS linux|darwin
  */

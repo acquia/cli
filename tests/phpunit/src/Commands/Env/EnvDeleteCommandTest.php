@@ -9,8 +9,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DeleteCdeCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
  */
 class EnvDeleteCommandTest extends CommandTestBase {

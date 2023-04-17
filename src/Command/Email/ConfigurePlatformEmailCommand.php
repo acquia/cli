@@ -22,9 +22,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class ConfigurePlatformEmailCommand.
- */
 class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected static $defaultName = 'email:configure';

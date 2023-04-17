@@ -10,8 +10,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class AuthCommandTest.
- *
  * @property AuthLoginCommand $command
  */
 class AuthLoginCommandTest extends CommandTestBase {

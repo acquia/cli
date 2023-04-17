@@ -11,12 +11,12 @@ use Throwable;
 class Application extends \Symfony\Component\Console\Application {
 
   /**
-   * @var array
+   * @var string[]
    */
   protected array $helpMessages = [];
 
   /**
-   * @return mixed
+   * @return string[]
    */
   private function getHelpMessages(): array {
     return $this->helpMessages;

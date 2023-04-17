@@ -7,9 +7,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PushCodeCommand.
- */
 class PushCodeCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:code';

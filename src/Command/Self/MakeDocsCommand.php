@@ -7,9 +7,6 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class MakeDocsCommand.
- */
 class MakeDocsCommand extends CommandBase {
 
   protected static $defaultName = 'self:make-docs';

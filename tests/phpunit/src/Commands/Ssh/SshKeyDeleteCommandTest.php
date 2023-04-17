@@ -8,8 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class SshKeyDeleteCommandTest
- *
  * @property SshKeyDeleteCommand $command
  */
 class SshKeyDeleteCommandTest extends CommandTestBase {

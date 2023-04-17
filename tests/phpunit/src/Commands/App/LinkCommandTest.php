@@ -8,8 +8,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class LinkCommandTest.
- *
  * @property \Acquia\Cli\Command\App\LinkCommand $command
  */
 class LinkCommandTest extends CommandTestBase {

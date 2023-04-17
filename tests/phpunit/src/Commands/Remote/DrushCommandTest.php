@@ -9,8 +9,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DrushCommandTest.
- *
  * @property DrushCommand $command
  */
 class DrushCommandTest extends SshCommandTestBase {

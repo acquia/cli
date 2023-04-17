@@ -4,9 +4,6 @@ namespace Acquia\Cli\DataStore;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * Class YamlStore
- */
 class JsonDataStore extends Datastore {
 
   /**

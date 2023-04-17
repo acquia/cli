@@ -16,9 +16,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class IdeCreateCommand.
- */
 class IdeCreateCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:create';

@@ -9,9 +9,6 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AliasListCommand.
- */
 class AliasListCommand extends CommandBase {
 
   protected static $defaultName = 'remote:aliases:list';

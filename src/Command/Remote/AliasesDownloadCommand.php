@@ -14,7 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
  */
 class AliasesDownloadCommand extends SshCommand {

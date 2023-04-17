@@ -13,9 +13,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class EnvMirrorCommand.
- */
 class EnvMirrorCommand extends CommandBase {
 
   protected static $defaultName = 'env:mirror';

@@ -22,9 +22,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Zumba\Amplitude\Amplitude;
 
-/**
- * Class SshKeyCommandBase.
- */
 abstract class SshKeyCommandBase extends CommandBase {
 
   use SshCommandTrait;

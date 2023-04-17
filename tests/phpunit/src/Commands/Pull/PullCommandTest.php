@@ -7,8 +7,6 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PullCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullCommand $command
  */
 class PullCommandTest extends PullCommandTestBase {

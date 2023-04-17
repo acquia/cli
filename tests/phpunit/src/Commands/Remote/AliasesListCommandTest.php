@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AliasesListCommandTest.
- *
  * @property AliasListCommand $command
  */
 class AliasesListCommandTest extends CommandTestBase {

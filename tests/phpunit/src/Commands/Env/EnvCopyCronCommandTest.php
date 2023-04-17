@@ -9,8 +9,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class CopyCronTasksCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvCopyCronCommand $command
  */
 class EnvCopyCronCommandTest extends CommandTestBase {

@@ -11,8 +11,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullFilesCommand $command
  */
 class PullFilesCommandTest extends PullCommandTestBase {

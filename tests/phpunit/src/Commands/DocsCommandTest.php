@@ -8,8 +8,6 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DocsCommandTest.
- *
  * @property \Acquia\Cli\Command\DocsCommandTest $command
  */
 class DocsCommandTest extends CommandTestBase {

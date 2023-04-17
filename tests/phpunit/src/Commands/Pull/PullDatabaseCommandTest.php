@@ -18,8 +18,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {

@@ -7,9 +7,6 @@ use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class CreateProjectCommand.
- */
 class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;

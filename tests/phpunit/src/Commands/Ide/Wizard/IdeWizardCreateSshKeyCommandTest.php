@@ -8,8 +8,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeWizardCreateSshKeyCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
  * @requires OS linux|darwin
  */

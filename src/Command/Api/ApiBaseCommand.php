@@ -18,9 +18,6 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class ApiBaseCommand.
- */
 class ApiBaseCommand extends CommandBase {
 
   protected static $defaultName = 'api:base';

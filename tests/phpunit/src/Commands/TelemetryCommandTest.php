@@ -10,8 +10,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class TelemetryCommandTest.
- *
  * @property \Acquia\Cli\Command\Self\TelemetryCommand $command
  */
 class TelemetryCommandTest extends CommandTestBase {

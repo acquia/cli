@@ -6,9 +6,6 @@ use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AuthLogoutCommand.
- */
 class AuthLogoutCommand extends CommandBase {
 
   protected static $defaultName = 'auth:logout';

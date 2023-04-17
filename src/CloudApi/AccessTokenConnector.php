@@ -9,9 +9,6 @@ use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\RequestInterface;
 
-/**
- * Class AccessTokenConnector
- */
 class AccessTokenConnector extends Connector {
 
   /**

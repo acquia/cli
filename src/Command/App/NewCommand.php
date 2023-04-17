@@ -10,9 +10,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class NewCommand.
- */
 class NewCommand extends CommandBase {
 
   protected static $defaultName = 'app:new:local';

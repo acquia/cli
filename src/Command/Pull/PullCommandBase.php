@@ -31,9 +31,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class PullCommandBase.
- */
 abstract class PullCommandBase extends CommandBase {
 
   use IdeCommandTrait;
