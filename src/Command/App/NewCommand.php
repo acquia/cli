@@ -14,9 +14,6 @@ class NewCommand extends CommandBase {
 
   protected static $defaultName = 'app:new:local';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a new Drupal or Next.js project')
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')

@@ -52,8 +52,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand([
-      '--no-scripts' => TRUE,
       '--dir' => $dir,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
@@ -184,10 +184,10 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
 
     $this->executeCommand([
-      // @todo Execute ONLY match php aspect, not the code pull.
-      'environmentId' => $environment_response->id,
       '--dir' => $dir,
       '--no-scripts' => TRUE,
+      // @todo Execute ONLY match php aspect, not the code pull.
+      'environmentId' => $environment_response->id,
     ], [
       // Choose an Acquia environment:
       0,

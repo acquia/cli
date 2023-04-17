@@ -40,6 +40,13 @@ class ApplicationTestBase extends TestBase {
   }
 
   protected function setInput(array $args): void {
+    // ArrayInput requires command to be the first parameter.
+    if (array_key_exists('command', $args)) {
+      $new_args = [];
+      $new_args['command'] = $args['command'];
+      unset($args['command']);
+      $args = array_merge($new_args, $args);
+    }
     $input = new ArrayInput($args);
     $input->setInteractive(FALSE);
     $this->kernel->getContainer()->set(InputInterface::class, $input);

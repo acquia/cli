@@ -11,9 +11,6 @@ class MakeDocsCommand extends CommandBase {
 
   protected static $defaultName = 'self:make-docs';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Generate documentation for all ACLI commands')
       ->setHidden(TRUE);

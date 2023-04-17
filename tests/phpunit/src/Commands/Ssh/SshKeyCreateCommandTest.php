@@ -29,10 +29,10 @@ class SshKeyCreateCommandTest extends CommandTestBase {
         // Args.
         [
           '--filename' => $this->filename,
-          '--password' => 'acli123'
+          '--password' => 'acli123',
         ],
         // Inputs.
-        []
+        [],
       ],
       [
         TRUE,
@@ -44,7 +44,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',
-        ]
+        ],
       ],
       [
         FALSE,
@@ -56,7 +56,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',
-        ]
+        ],
       ],
     ];
   }

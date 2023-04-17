@@ -13,9 +13,6 @@ class EnvDeleteCommand extends CommandBase {
 
   protected static $defaultName = 'env:delete';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Delete a Continuous Delivery Environment (CDE)');
     $this->acceptEnvironmentId();

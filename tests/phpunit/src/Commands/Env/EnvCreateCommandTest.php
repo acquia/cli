@@ -96,9 +96,9 @@ class EnvCreateCommandTest extends CommandTestBase {
 
     $this->executeCommand(
       [
-        'label' => self::$validLabel,
-        'branch' => $args[0],
         'applicationUuid' => $args[1],
+        'branch' => $args[0],
+        'label' => self::$validLabel,
       ],
       $input
     );
@@ -116,9 +116,9 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->expectExceptionMessage('An environment named Dev already exists.');
     $this->executeCommand(
       [
-        'label' => $label,
-        'branch' => $this->getBranch(),
         'applicationUuid' => $this->getApplication(),
+        'branch' => $this->getBranch(),
+        'label' => $label,
       ]
     );
   }
@@ -130,9 +130,9 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
     $this->executeCommand(
       [
-        'label' => self::$validLabel,
-        'branch' => 'bogus',
         'applicationUuid' => $this->getApplication(),
+        'branch' => 'bogus',
+        'label' => self::$validLabel,
       ]
     );
   }

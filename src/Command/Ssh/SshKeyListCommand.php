@@ -11,9 +11,6 @@ class SshKeyListCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:list';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List your local and remote SSH keys');
   }

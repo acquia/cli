@@ -12,9 +12,6 @@ class PullCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:all';
 
-  /**
-   * {inheritdoc}
-   */
   protected function configure(): void {
     $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')

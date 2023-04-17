@@ -16,17 +16,11 @@ class AccessTokenConnector extends Connector {
    */
   protected AbstractProvider $provider;
 
-  /**
-   * @inheritdoc
-   */
   public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
     parent::__construct($config, $base_uri, $url_access_token);
   }
 
-  /**
-   * @inheritdoc
-   */
   public function createRequest($verb, $path): RequestInterface {
     if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {
       if (!file_exists($file)) {

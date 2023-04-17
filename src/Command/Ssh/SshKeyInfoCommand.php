@@ -13,9 +13,6 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information about an SSH key')
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
@@ -60,10 +57,10 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->public_key;
       $keys[$fingerprint]['cloud'] = [
-        'fingerprint' => $key->fingerprint,
-        'uuid' => $key->uuid,
         'created_at' => $key->created_at,
+        'fingerprint' => $key->fingerprint,
         'label' => $key->label,
+        'uuid' => $key->uuid,
       ];
     }
     foreach ($localKeys as $key) {

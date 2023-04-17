@@ -74,12 +74,12 @@ class EnvMirrorCommandTest extends CommandTestBase {
 
     $this->executeCommand(
       [
-        'source-environment' => $environment_response->id,
         'destination-environment' => $environment_response->id,
+        'source-environment' => $environment_response->id,
       ],
       [
         // Are you sure that you want to overwrite everything ...
-        'y'
+        'y',
       ]
     );
 

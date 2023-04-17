@@ -12,9 +12,6 @@ class TaskWaitCommand extends CommandBase {
 
   protected static $defaultName = 'app:task-wait';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wait for a task to complete')
       ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The UUID of the task notification returned by the Cloud API')

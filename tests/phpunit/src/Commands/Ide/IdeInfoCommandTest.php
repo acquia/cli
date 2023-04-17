@@ -32,7 +32,7 @@ class IdeInfoCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'y',
       // Select an IDE ...
-      0
+      0,
     ];
     $this->executeCommand([], $inputs);
 

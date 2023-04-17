@@ -50,10 +50,10 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         [
           // Enter the full URL of the factory
           '--factory-url' => $this->acsfCurrentFactoryUrl,
-          // Enter a value for username
-          '--username' => $this->acsfUsername,
           //  Enter a value for key
           '--key' => $this->acsfKey,
+          // Enter a value for username
+          '--username' => $this->acsfUsername,
         ],
         // Output to assert.
         'Saved credentials',

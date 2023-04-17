@@ -10,9 +10,6 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:create';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create an SSH key on your local machine')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')

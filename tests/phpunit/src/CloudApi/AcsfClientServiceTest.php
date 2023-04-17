@@ -22,7 +22,7 @@ class AcsfClientServiceTest extends TestBase {
       [
         ['ACLI_ACCESS_TOKEN' => NULL, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => NULL],
         FALSE,
-      ]
+      ],
     ];
   }
 

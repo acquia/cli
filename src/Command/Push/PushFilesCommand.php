@@ -13,9 +13,6 @@ class PushFilesCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:files';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->acceptEnvironmentId()

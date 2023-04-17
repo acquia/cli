@@ -9,9 +9,6 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
   protected static $defaultName = 'auth:acsf-logout';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }

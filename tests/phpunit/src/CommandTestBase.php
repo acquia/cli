@@ -513,17 +513,17 @@ abstract class CommandTestBase extends TestBase {
    */
   protected function getMockedGitLabProject($project_id): array {
     return [
-      'id' => $project_id,
+      'default_branch' => 'master',
       'description' => '',
+      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
+      'id' => $project_id,
       'name' => 'codestudiodemo',
       'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
       'path' => 'codestudiodemo',
       'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
-      'default_branch' => 'master',
       'topics' => [
           0 => 'Acquia Cloud Application',
         ],
-      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
       'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
     ];
   }
@@ -550,7 +550,7 @@ abstract class CommandTestBase extends TestBase {
       'config',
       'get',
       'token',
-      '--host=' . $gitlab_host
+      '--host=' . $gitlab_host,
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
@@ -564,7 +564,7 @@ abstract class CommandTestBase extends TestBase {
       'glab',
       'config',
       'get',
-      'host'
+      'host',
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
@@ -574,45 +574,45 @@ abstract class CommandTestBase extends TestBase {
   protected function mockGitLabUsersMe(ObjectProphecy|\Gitlab\Client $gitlab_client): void {
     $users = $this->prophet->prophesize(Users::class);
     $me = [
-      'id' => 20,
-      'username' => 'matthew.grasmick',
-      'name' => 'Matthew Grasmick',
-      'state' => 'active',
       'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
-      'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
-      'created_at' => '2021-12-21T02:26:52.240Z',
       'bio' => '',
-      'location' => NULL,
-      'public_email' => '',
-      'skype' => '',
-      'linkedin' => '',
-      'twitter' => '',
-      'website_url' => '',
-      'organization' => NULL,
-      'job_title' => '',
-      'pronouns' => NULL,
       'bot' => FALSE,
-      'work_information' => NULL,
-      'followers' => 0,
-      'following' => 0,
-      'local_time' => '2:00 AM',
-      'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
-      'confirmed_at' => '2021-12-21T02:26:51.898Z',
-      'last_activity_on' => '2022-01-22',
-      'email' => 'matthew.grasmick@acquia.com',
-      'theme_id' => 1,
-      'color_scheme_id' => 1,
-      'projects_limit' => 100000,
-      'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
-      'identities' => [],
       'can_create_group' => TRUE,
       'can_create_project' => TRUE,
-      'two_factor_enabled' => FALSE,
-      'external' => FALSE,
-      'private_profile' => FALSE,
+      'color_scheme_id' => 1,
       'commit_email' => 'matthew.grasmick@acquia.com',
+      'confirmed_at' => '2021-12-21T02:26:51.898Z',
+      'created_at' => '2021-12-21T02:26:52.240Z',
+      'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
+      'email' => 'matthew.grasmick@acquia.com',
+      'external' => FALSE,
+      'followers' => 0,
+      'following' => 0,
+      'id' => 20,
+      'identities' => [],
       'is_admin' => TRUE,
+      'job_title' => '',
+      'last_activity_on' => '2022-01-22',
+      'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
+      'linkedin' => '',
+      'local_time' => '2:00 AM',
+      'location' => NULL,
+      'name' => 'Matthew Grasmick',
       'note' => '',
+      'organization' => NULL,
+      'private_profile' => FALSE,
+      'projects_limit' => 100000,
+      'pronouns' => NULL,
+      'public_email' => '',
+      'skype' => '',
+      'state' => 'active',
+      'theme_id' => 1,
+      'twitter' => '',
+      'two_factor_enabled' => FALSE,
+      'username' => 'matthew.grasmick',
+      'website_url' => '',
+      'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
+      'work_information' => NULL,
     ];
     $users->me()->willReturn($me);
     $gitlab_client->users()->willReturn($users->reveal());
@@ -655,20 +655,20 @@ abstract class CommandTestBase extends TestBase {
   protected function getMockGitLabVariables(): array {
     return [
       0 => [
-          'variable_type' => 'env_var',
-          'key' => 'ACQUIA_APPLICATION_UUID',
-          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
-          'protected' => FALSE,
-          'masked' => FALSE,
           'environment_scope' => '*',
+          'key' => 'ACQUIA_APPLICATION_UUID',
+          'masked' => FALSE,
+          'protected' => FALSE,
+          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
+          'variable_type' => 'env_var',
         ],
       1 => [
-          'variable_type' => 'env_var',
-          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
-          'protected' => FALSE,
-          'masked' => FALSE,
           'environment_scope' => '*',
+          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+          'masked' => FALSE,
+          'protected' => FALSE,
+          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
+          'variable_type' => 'env_var',
         ],
     ];
   }
@@ -682,8 +682,8 @@ abstract class CommandTestBase extends TestBase {
     $haystack = strtr(
       $haystack,
       [
-        "\r\n" => "\n",
         "\r"   => "\n",
+        "\r\n" => "\n",
       ]
     );
     static::assertThat($haystack, new StringContains($needle, FALSE), $message);

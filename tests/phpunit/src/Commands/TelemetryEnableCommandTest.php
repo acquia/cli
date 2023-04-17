@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
 class TelemetryEnableCommandTest extends CommandTestBase {
 
   /**b
-   * {@inheritdoc}
    */
   protected function createCommand(): Command {
     return $this->injectCommand(TelemetryEnableCommand::class);

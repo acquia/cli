@@ -11,9 +11,6 @@ class IdeOpenCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:open';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Open a Cloud IDE in your browser')
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());

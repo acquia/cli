@@ -10,9 +10,6 @@ class LinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:link';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Associate your project with a Cloud Platform application')
       ->setAliases(['link']);

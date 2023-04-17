@@ -69,7 +69,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       "Migration completed successfully.",
       "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.",
       "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.",
-      "Check your pipeline is running in Code Studio for your project."
+      "Check your pipeline is running in Code Studio for your project.",
     ]);
 
     return 0;
@@ -114,9 +114,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         if (file_exists($pipelines_filepath)) {
           $file_contents = file_get_contents($pipelines_filepath);
           return [
+            'filename' => $pipelines_filename,
             'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
-            'filename' => $pipelines_filename
-          ];
+];
         }
       }
     }
@@ -176,6 +176,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $gitlab_ci_file_contents
    */
   private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents): void {
+    // phpcs:disable
     $events_map = [
       'build' => [
         'skip' => [
@@ -220,6 +221,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         ]
       ]
     ];
+    // phpcs:enable
 
     $code_studio_jobs = [];
     foreach ($events_map as $event_name => $event_map) {

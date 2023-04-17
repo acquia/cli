@@ -112,8 +112,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   protected static function getUuidRegexConstraint(): Regex {
     return new Regex([
-      'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
       'message' => 'This is not a valid UUID.',
+      'pattern' => '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/i',
     ]);
   }
 
@@ -264,14 +264,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $exit_code;
     }
     $event_properties = [
-      'exit_code' => $exit_code,
-      'arguments' => $input->getArguments(),
-      'options' => $input->getOptions(),
       'app_version' => $this->getApplication()->getVersion(),
-      // phpcs:ignore
-      'platform' => OsInfo::family(),
+      'arguments' => $input->getArguments(),
+      'exit_code' => $exit_code,
+      'options' => $input->getOptions(),
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
+      // phpcs:ignore
+      'platform' => OsInfo::family(),
     ];
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
 
@@ -393,8 +393,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function promptChooseLogs(): object|array|null {
     $logs = array_map(static function ($log_type, $log_label) {
       return [
-        'type' => $log_type,
         'label' => $log_label,
+        'type' => $log_type,
       ];
     }, array_keys(LogstreamManager::AVAILABLE_TYPES), LogstreamManager::AVAILABLE_TYPES);
     return $this->promptChooseFromObjectsOrArrays(
@@ -1053,6 +1053,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $cloud_environment
+   * @return bool
    */
   protected function isAcsfEnv($cloud_environment): bool {
     if (str_contains($cloud_environment->sshUrl, 'enterprise-g1')) {
@@ -1068,6 +1069,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
+   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloud_environment
    * @return array
    */
   protected function getAcsfSites(EnvironmentResponse $cloud_environment): array {
@@ -1148,7 +1150,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     // @see https://github.com/acquia/cli/issues/403
     $this->cloudApiClientService->setConnector(new Connector([
       'key' => $api_key,
-      'secret' => $api_secret
+      'secret' => $api_secret,
     ], $base_uri, $accounts_uri));
   }
 
@@ -1477,7 +1479,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       if (!array_key_exists($name, $keyed_permissions)) {
         throw new AcquiaCliException("The Acquia Cloud Platform account {account} does not have the required '{name}' permission. Add the permissions to this user or use an API Token belonging to a different Acquia Cloud Platform user.", [
           'account' => $account->mail,
-          'name' => $name
+          'name' => $name,
         ]);
       }
     }

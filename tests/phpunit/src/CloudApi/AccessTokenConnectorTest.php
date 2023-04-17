@@ -50,10 +50,10 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
       [
-        'key' => NULL,
-        'secret' => NULL,
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
+        'key' => NULL,
+        'secret' => NULL,
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(AccessTokenConnector::class, $connector);
@@ -76,9 +76,9 @@ class AccessTokenConnectorTest extends TestBase {
   public function testTokenFile(): void {
     $accessTokenExpiry = time() + 300;
     $directory = [
+      'expiry' => (string) $accessTokenExpiry . "\n",
       'token' => self::$accessToken . "\n",
-      'expiry' => (string) $accessTokenExpiry . "\n"
-    ];
+];
     $vfs = vfsStream::setup('root', NULL, $directory);
     $token_file = Path::join($vfs->url(), 'token');
     $expiry_file = Path::join($vfs->url(), 'expiry');
@@ -91,7 +91,7 @@ class AccessTokenConnectorTest extends TestBase {
   public function testMissingTokenFile(): void {
     $accessTokenExpiry = time() + 300;
     $directory = [
-      'expiry' => (string) $accessTokenExpiry
+      'expiry' => (string) $accessTokenExpiry,
     ];
     $vfs = vfsStream::setup('root', NULL, $directory);
     $token_file = Path::join($vfs->url(), 'token');
@@ -127,10 +127,10 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     $connector_factory = new ConnectorFactory(
       [
-        'key' => $this->cloudCredentials->getCloudKey(),
-        'secret' => $this->cloudCredentials->getCloudSecret(),
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
+        'key' => $this->cloudCredentials->getCloudKey(),
+        'secret' => $this->cloudCredentials->getCloudSecret(),
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
@@ -140,10 +140,10 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars(TRUE);
     $connector_factory = new ConnectorFactory(
       [
-        'key' => NULL,
-        'secret' => NULL,
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
+        'key' => NULL,
+        'secret' => NULL,
       ]);
     $connector = $connector_factory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
@@ -153,9 +153,9 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars();
     $connector_factory = new ConnectorFactory(
       [
+        'accessToken' => NULL,
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
-        'accessToken' => NULL,
       ]);
     $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
@@ -170,9 +170,9 @@ class AccessTokenConnectorTest extends TestBase {
     IdeHelper::setCloudIdeEnvVars();
     $connector_factory = new ConnectorFactory(
       [
+        'accessToken' => NULL,
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
-        'accessToken' => NULL,
       ]);
     $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();

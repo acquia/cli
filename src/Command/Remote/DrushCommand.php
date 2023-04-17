@@ -13,9 +13,6 @@ class DrushCommand extends SshBaseCommand {
 
   protected static $defaultName = 'remote:drush';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setAliases(['drush', 'dr'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')

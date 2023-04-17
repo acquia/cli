@@ -12,9 +12,6 @@ class IdeListCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:app';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List available Cloud IDEs belonging to a given application');
     $this->setAliases(['ide:list']);

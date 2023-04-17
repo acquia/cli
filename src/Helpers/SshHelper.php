@@ -43,8 +43,8 @@ class SshHelper implements LoggerAwareInterface {
     $process = $this->sendCommand($target, $command_args, $print_output, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
-      'env' => $target,
       'command' => $command_summary,
+      'env' => $target,
       'exit' => $process->getExitCode(),
     ]);
 

@@ -12,9 +12,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
       ->setAliases(['ide:wizard'])

@@ -95,11 +95,11 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
       0,
       // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
-      '10,27'
+      '10,27',
     ];
     $this->executeCommand([
-      '--no-scripts' => TRUE,
       '--multiple-dbs' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
@@ -110,7 +110,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
-      '--on-demand' => TRUE
+      '--on-demand' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -128,8 +128,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $inputs = $this->getInputs();
 
     $this->executeCommand([
-      'site' => 'jxr5000596dev',
       '--no-scripts' => TRUE,
+      'site' => 'jxr5000596dev',
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -378,9 +378,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
     $this->clientProphecy->addOption('sink', $local_filepath)->shouldBeCalled();
     $this->clientProphecy->addOption('curl.options', [
+      'CURLOPT_FILE' => $local_filepath,
       'CURLOPT_RETURNTRANSFER' => FALSE,
-      'CURLOPT_FILE' => $local_filepath
-    ])->shouldBeCalled();
+])->shouldBeCalled();
     $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->getOptions()->willReturn([]);

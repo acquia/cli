@@ -13,9 +13,6 @@ class IdeDeleteCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:delete';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Delete a Cloud IDE');
     $this->acceptApplicationUuid();

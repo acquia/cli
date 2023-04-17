@@ -15,9 +15,6 @@ class AppVcsInfo extends CommandBase {
 
   protected static $defaultName = 'app:vcs:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Get all branches and tags of the application with the deployment status')
       ->addOption('deployed', NULL, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')

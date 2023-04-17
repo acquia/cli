@@ -19,9 +19,6 @@ class EnvMirrorCommand extends CommandBase {
 
   private Checklist $checklist;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Makes one environment identical to another in terms of code, database, files, and configuration.');
     $this->addArgument('source-environment', InputArgument::REQUIRED, 'The Cloud Platform source environment ID or alias')

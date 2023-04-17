@@ -13,9 +13,6 @@ class IdeListMineCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:mine';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List Cloud IDEs belonging to you');
   }

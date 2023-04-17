@@ -15,9 +15,6 @@ class TelemetryEnableCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Enable anonymous sharing of usage and performance data')
       ->setAliases(['telemetry:enable']);

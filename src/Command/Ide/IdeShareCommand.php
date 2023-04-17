@@ -23,9 +23,6 @@ class IdeShareCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Get the share URL for a Cloud IDE')
       ->addOption('regenerate', '', InputOption::VALUE_NONE, 'regenerate the share code')

@@ -14,9 +14,6 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   protected static $defaultName = 'ide:wizard:ssh-key:delete';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wizard to delete SSH key for IDE from Cloud')
       ->setHidden(!CommandBase::isAcquiaCloudIde());

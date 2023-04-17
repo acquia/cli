@@ -61,7 +61,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->command = $this->getApiCommandByName('api:notifications:find');
     try {
       $this->executeCommand([], [
-        'test'
+        'test',
       ]);
     }
     catch (MissingInputException $exception) {
@@ -90,7 +90,7 @@ class ApiCommandTest extends CommandTestBase {
       // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ]);
 
     // Assert.
@@ -131,7 +131,7 @@ class ApiCommandTest extends CommandTestBase {
       // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ]);
 
     // Assert.
@@ -168,7 +168,7 @@ class ApiCommandTest extends CommandTestBase {
       // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ]);
 
     // Assert.
@@ -241,7 +241,7 @@ class ApiCommandTest extends CommandTestBase {
       // Select a Cloud Platform application:
       '0',
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ]);
 
     // Assert.

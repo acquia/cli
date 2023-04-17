@@ -33,10 +33,10 @@ class EnvDbCredsTest extends CommandTestBase {
 
   protected function getEnvVars() {
     return [
-      'ACLI_DB_USER' => $this->dbUser,
-      'ACLI_DB_PASSWORD' => $this->dbPassword,
-      'ACLI_DB_NAME' => $this->dbName,
       'ACLI_DB_HOST' => $this->dbHost,
+      'ACLI_DB_NAME' => $this->dbName,
+      'ACLI_DB_PASSWORD' => $this->dbPassword,
+      'ACLI_DB_USER' => $this->dbUser,
     ];
   }
 

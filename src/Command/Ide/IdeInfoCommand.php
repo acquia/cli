@@ -11,9 +11,6 @@ class IdeInfoCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information about a Cloud IDE');
     $this->acceptApplicationUuid();

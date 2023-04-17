@@ -13,9 +13,6 @@ class SshCommand extends SshBaseCommand {
 
   protected static $defaultName = 'remote:ssh';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Use SSH to open a shell or run a command in a Cloud Platform environment')
       ->setAliases(['ssh'])

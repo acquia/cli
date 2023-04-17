@@ -22,9 +22,6 @@ class AliasesDownloadCommand extends SshCommand {
 
   protected static $defaultName = 'remote:aliases:download';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
       ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')

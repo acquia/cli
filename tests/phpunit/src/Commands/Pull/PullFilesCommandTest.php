@@ -121,7 +121,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $environment->ssh_url . ':' . $source_dir,
-      $destination_dir
+      $destination_dir,
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())

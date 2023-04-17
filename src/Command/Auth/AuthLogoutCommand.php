@@ -10,9 +10,6 @@ class AuthLogoutCommand extends CommandBase {
 
   protected static $defaultName = 'auth:logout';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Remove Cloud API key and secret from local machine.')
       ->setAliases(['logout']);

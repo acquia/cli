@@ -11,9 +11,6 @@ class PullScriptsCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:run-scripts';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Execute post pull scripts')
       ->acceptEnvironmentId()

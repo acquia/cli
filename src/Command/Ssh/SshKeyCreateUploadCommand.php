@@ -10,9 +10,6 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
   protected static $defaultName = 'ssh-key:create-upload';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create an SSH key on your local machine and upload it to the Cloud Platform')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')

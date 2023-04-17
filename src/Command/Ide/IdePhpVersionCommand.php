@@ -23,9 +23,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Change the PHP version in the current IDE')
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
@@ -56,9 +53,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->idePhpFilePathPrefix = $path;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function validatePhpVersion(string $version): string {
     parent::validatePhpVersion($version);
     $php_filepath = $this->getIdePhpFilePathPrefix() . $version;

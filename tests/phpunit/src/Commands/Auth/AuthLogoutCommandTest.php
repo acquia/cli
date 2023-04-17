@@ -24,7 +24,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
         TRUE,
         // Are you sure you'd like to remove your Cloud API login credentials from this machine?
         ['y'],
-      ]
+      ],
     ];
   }
 

@@ -11,9 +11,6 @@ class DocsCommand extends CommandBase {
 
   protected static $defaultName = 'docs';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Open Acquia product documentation in a web browser')
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
@@ -27,76 +24,76 @@ class DocsCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_products = [
       'Acquia CLI' => [
-        'url' => 'acquia-cli',
         'alias' => ['cli', 'acli'],
+        'url' => 'acquia-cli',
       ],
       'Acquia CMS' => [
-        'url' => 'acquia-cms',
         'alias' => ['acquia_cms', 'acms'],
-      ],
-      'Code Studio' => [
-        'url' => 'code-studio',
-        'alias' => ['code_studio', 'codestudio', 'cs'],
-      ],
-      'Campaign Studio' => [
-        'url' => 'campaign-studio',
-        'alias' => ['campaign-studio', 'campaignstudio'],
-      ],
-      'Content Hub' => [
-        'url' => 'contenthub',
-        'alias' => ['contenthub', 'ch'],
-      ],
-      'Acquia Migrate Accelerate' => [
-        'url' => 'acquia-migrate-accelerate',
-        'alias' => ['acquia-migrate-accelerate', 'ama'],
-      ],
-      'Site Factory' => [
-        'url' => 'site-factory',
-        'alias' => ['site-factory', 'acsf'],
-      ],
-      'Site Studio' => [
-        'url' => 'site-studio',
-        'alias' => ['site-studio', 'cohesion'],
-      ],
-      'Edge' => [
-        'url' => 'edge',
-        'alias' => ['edge', 'cloudedge'],
-      ],
-      'Search' => [
-        'url' => 'acquia-search',
-        'alias' => ['search', 'acquia-search'],
-      ],
-      'Shield' => [
-        'url' => 'shield',
-        'alias' => ['shield'],
-      ],
-      'Customer Data Plateform' => [
-        'url' => 'customer-data-platform',
-        'alias' => ['customer-data-platform', 'cdp'],
-      ],
-      'Cloud IDE' => [
-        'url' => 'ide',
-        'alias' => ['ide', 'cloud_ide', 'cloud-ide'],
-      ],
-      'BLT' => [
-        'url' => 'blt',
-        'alias' => ['blt'],
-      ],
-      'Cloud Platform' => [
-        'url' => 'cloud-platform',
-        'alias' => ['cloud-platform', 'acquiacloud', 'acquia_cloud', 'acquia-cloud', 'cloud'],
+        'url' => 'acquia-cms',
       ],
       'Acquia DAM Classic' => [
-        'url' => 'dam',
         'alias' => ['dam', 'acquia_dam', 'dam_classic', 'acquiadam', 'damclassic'],
+        'url' => 'dam',
       ],
-      'Personalization' => [
-        'url' => 'personalization',
-        'alias' => ['personalization'],
+      'Acquia Migrate Accelerate' => [
+        'alias' => ['acquia-migrate-accelerate', 'ama'],
+        'url' => 'acquia-migrate-accelerate',
+      ],
+      'BLT' => [
+        'alias' => ['blt'],
+        'url' => 'blt',
       ],
       'Campaign Factory' => [
-        'url' => 'campaign-factory',
         'alias' => ['campaign-factory', 'campaign_factory', 'campaignfactory'],
+        'url' => 'campaign-factory',
+      ],
+      'Campaign Studio' => [
+        'alias' => ['campaign-studio', 'campaignstudio'],
+        'url' => 'campaign-studio',
+      ],
+      'Cloud IDE' => [
+        'alias' => ['ide', 'cloud_ide', 'cloud-ide'],
+        'url' => 'ide',
+      ],
+      'Cloud Platform' => [
+        'alias' => ['cloud-platform', 'acquiacloud', 'acquia_cloud', 'acquia-cloud', 'cloud'],
+        'url' => 'cloud-platform',
+      ],
+      'Code Studio' => [
+        'alias' => ['code_studio', 'codestudio', 'cs'],
+        'url' => 'code-studio',
+      ],
+      'Content Hub' => [
+        'alias' => ['contenthub', 'ch'],
+        'url' => 'contenthub',
+      ],
+      'Customer Data Platform' => [
+        'alias' => ['customer-data-platform', 'cdp'],
+        'url' => 'customer-data-platform',
+      ],
+      'Edge' => [
+        'alias' => ['edge', 'cloudedge'],
+        'url' => 'edge',
+      ],
+      'Personalization' => [
+        'alias' => ['personalization'],
+        'url' => 'personalization',
+      ],
+      'Search' => [
+        'alias' => ['search', 'acquia-search'],
+        'url' => 'acquia-search',
+      ],
+      'Shield' => [
+        'alias' => ['shield'],
+        'url' => 'shield',
+      ],
+      'Site Factory' => [
+        'alias' => ['site-factory', 'acsf'],
+        'url' => 'site-factory',
+      ],
+      'Site Studio' => [
+        'alias' => ['site-studio', 'cohesion'],
+        'url' => 'site-studio',
       ],
     ];
 

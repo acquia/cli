@@ -12,9 +12,6 @@ class PullCodeCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:code';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Copy code from a Cloud Platform environment')
       ->acceptEnvironmentId()

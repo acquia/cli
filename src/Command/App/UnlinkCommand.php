@@ -11,9 +11,6 @@ class UnlinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:unlink';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Remove local association between your project and a Cloud Platform application')
       ->setAliases(['unlink']);

@@ -32,9 +32,6 @@ class PushArtifactCommand extends PullCommandBase {
 
   private string $destinationGitRef;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Build and push a code artifact to a Cloud Platform environment')
       ->addOption('dir', NULL, InputArgument::OPTIONAL, 'The directory containing the Drupal project to be pushed')
@@ -369,7 +366,7 @@ class PushArtifactCommand extends PullCommandBase {
   private function validateSourceCode(): void {
     $required_paths = [
       $this->composerJsonPath,
-      $this->docrootPath
+      $this->docrootPath,
     ];
     foreach ($required_paths as $required_path) {
       if (!file_exists($required_path)) {
@@ -429,7 +426,7 @@ class PushArtifactCommand extends PullCommandBase {
     $process = $this->localMachineHelper->execute([
       'git',
       'tag',
-      $tag_name
+      $tag_name,
     ], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to create Git tag: {message}', ['message' => $process->getErrorOutput()]);

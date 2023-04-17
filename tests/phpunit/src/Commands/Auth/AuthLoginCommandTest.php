@@ -127,15 +127,15 @@ class AuthLoginCommandTest extends CommandTestBase {
     return [
       [
         [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret]
+        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => 'shorty' , '--secret' => $this->secret]
+        ['--key' => 'shorty' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => ' ', '--secret' => $this->secret]
+        ['--key' => ' ', '--secret' => $this->secret],
       ],
     ];
   }

@@ -398,9 +398,9 @@ abstract class TestBase extends TestCase {
         'acli_key' => $this->key,
         'keys' => [
           (string) ($this->key) => [
-            'uuid' => $this->key,
             'label' => 'Test Key',
             'secret' => $this->secret,
+            'uuid' => $this->key,
           ],
         ],
         DataStoreContract::SEND_TELEMETRY => FALSE,
@@ -442,8 +442,8 @@ abstract class TestBase extends TestCase {
 
   public function mockApiError(): void {
     $response = (object) [
-      'message' => 'some error',
       'error' => 'some error',
+      'message' => 'some error',
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new ApiErrorException($response, $response->message));
@@ -451,8 +451,8 @@ abstract class TestBase extends TestCase {
 
   public function mockNoAvailableIdes(): void {
     $response = (object) [
-      'message' => "There are no available Cloud IDEs for this application.\n",
       'error' => "There are no available Cloud IDEs for this application.\n",
+      'message' => "There are no available Cloud IDEs for this application.\n",
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new ApiErrorException($response, $response->message));

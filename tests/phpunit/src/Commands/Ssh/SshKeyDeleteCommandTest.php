@@ -31,7 +31,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase {
       // Choose key.
       '0',
       // Do you also want to delete the corresponding local key files?
-      'n'
+      'n',
     ];
     $this->executeCommand([], $inputs);
 

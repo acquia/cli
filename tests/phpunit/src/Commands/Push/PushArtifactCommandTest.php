@@ -120,8 +120,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->setUpPushArtifact($local_machine_helper, 'master', $destination_git_urls);
     $this->executeCommand([
-      '--destination-git-urls' => $destination_git_urls,
       '--destination-git-branch' => 'master',
+      '--destination-git-urls' => $destination_git_urls,
     ], []);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -219,15 +219,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   protected function mockReadComposerJson(ObjectProphecy $local_machine_helper, string $artifact_dir): void {
     $composer_json = json_encode([
       'extra' => [
-        'installer-paths' => [
-          'docroot/core' => []
-        ],
         'drupal-scaffold' => [
           'file-mapping' => [
-            '[web-root]/index.php' => []
-          ]
-        ]
-      ]
+            '[web-root]/index.php' => [],
+          ],
+        ],
+        'installer-paths' => [
+          'docroot/core' => [],
+        ],
+],
     ]);
     $local_machine_helper->readFile(Path::join($this->projectDir, 'composer.json'))
       ->willReturn($composer_json);

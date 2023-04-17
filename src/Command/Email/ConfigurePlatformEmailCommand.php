@@ -26,9 +26,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   protected static $defaultName = 'email:configure';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Configure Platform email for one or more applications')
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID to register the domain with.')
@@ -64,7 +61,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       "Great! You've registered the domain {$base_domain} to subscription {$subscription->name}.",
       "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
-      "After you've done this, continue to domain verification."
+      "After you've done this, continue to domain verification.",
     ]);
     $file_format = $this->io->choice('Would you like your DNS records in BIND Zone File, JSON, or YAML format?', ['BIND Zone File', 'YAML', 'JSON'], 'BIND Zone File');
     $this->createDnsText($client, $subscription, $base_domain, $domain_uuid, $file_format);
@@ -339,7 +336,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   private function determineDomain(): string {
     $domain = $this->io->ask("What's the domain name you'd like to register?", '', Closure::fromCallable([
       $this,
-      'validateUrl'
+      'validateUrl',
     ]));
 
     $domain_parts = parse_url($domain);

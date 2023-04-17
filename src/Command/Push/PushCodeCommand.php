@@ -11,9 +11,6 @@ class PushCodeCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:code';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Push code from your IDE to a Cloud Platform environment')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());

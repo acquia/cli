@@ -34,7 +34,7 @@ class LogTailCommandTest extends CommandTestBase {
       // Select environment
       0,
       // Select log
-      0
+      0,
     ]);
 
     // Assert.

@@ -42,7 +42,7 @@ class ClearCacheCommandTest extends CommandTestBase {
     $args = ['applicationUuid' => $alias];
     $inputs = [
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ];
 
     $this->executeCommand($args, $inputs);

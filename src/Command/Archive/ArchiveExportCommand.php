@@ -27,9 +27,6 @@ class ArchiveExportCommand extends CommandBase {
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setName('archive:export');
     $this->setDescription('Generate an archive of the Drupal application')

@@ -20,9 +20,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $json = [
       'scripts' => [
         'pre-acli-hello-world' => [
-          'echo "good morning world"'
-        ]
-      ]
+          'echo "good morning world"',
+        ],
+      ],
     ];
     file_put_contents(
       Path::join($this->projectDir, 'composer.json'),
@@ -43,9 +43,9 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $json = [
       'scripts' => [
         'post-acli-hello-world' => [
-          'echo "goodbye world"'
-        ]
-      ]
+          'echo "goodbye world"',
+        ],
+      ],
     ];
     file_put_contents(
       Path::join($this->projectDir, 'composer.json'),
@@ -64,8 +64,8 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    */
   public function testInvalidApiCreds(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockUnauthorizedRequest();
     $buffer = $this->runApp();
@@ -78,8 +78,8 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    */
   public function testApiError(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockApiError();
     $buffer = $this->runApp();
@@ -91,8 +91,8 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    */
   public function testNoAvailableIdes(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockNoAvailableIdes();
     $buffer = $this->runApp();
@@ -142,8 +142,8 @@ class ExceptionApplicationTest extends ApplicationTestBase {
     $this->mockAccountRequest();
     $this->mockApplicationsRequest();
     $this->setInput([
-      'command' => 'ide:open',
       'applicationUuid' => 'aoeuthao',
+      'command' => 'ide:open',
     ]);
     $buffer = $this->runApp();
     self::assertStringContainsString('An alias consists of an application name', $buffer);

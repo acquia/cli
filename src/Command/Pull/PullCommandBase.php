@@ -55,7 +55,7 @@ abstract class PullCommandBase extends CommandBase {
         $environment->name,
         $database->name,
         trim(parse_url($database->url, PHP_URL_PATH), '/'),
-        $backup_response->completedAt
+        $backup_response->completedAt,
       ]) . '.sql.gz';
     return Path::join(sys_get_temp_dir(), $filename);
   }
@@ -201,9 +201,9 @@ abstract class PullCommandBase extends CommandBase {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $acquia_cloud_client->addOption('sink', $local_filepath);
     $acquia_cloud_client->addOption('curl.options', [
+      'CURLOPT_FILE' => $local_filepath,
       'CURLOPT_RETURNTRANSFER' => FALSE,
-      'CURLOPT_FILE' => $local_filepath
-    ]);
+]);
     $acquia_cloud_client->addOption('progress', static function ($total_bytes, $downloaded_bytes) use (&$progress, $output): void {
       self::displayDownloadProgress($total_bytes, $downloaded_bytes, $progress, $output);
     });
@@ -317,16 +317,16 @@ abstract class PullCommandBase extends CommandBase {
       $db_host,
       '--user',
       $db_user,
-      $db_name
+      $db_name,
     ];
     $process = $this->localMachineHelper->execute($command, $output_callback, NULL, FALSE, NULL, ['MYSQL_PWD' => $db_password]);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to connect to local database using credentials mysql:://{user}:{password}@{host}/{database}. {message}', [
-        'message' => $process->getErrorOutput(),
-        'host' => $db_host,
-        'user' => $db_user,
-        'password' => $db_password,
         'database' => $db_name,
+        'host' => $db_host,
+        'message' => $process->getErrorOutput(),
+        'password' => $db_password,
+        'user' => $db_user,
       ]);
     }
   }
@@ -847,7 +847,7 @@ abstract class PullCommandBase extends CommandBase {
     $messages = [
       "Using a database backup that is $hours_interval hours old. Backup #{$backup_response->id} was created at {$date_formatted}.",
       "You can view your backups here: {$web_link}",
-      "To generate a new backup, re-run this command with the --on-demand option."
+      "To generate a new backup, re-run this command with the --on-demand option.",
     ];
     if ($hours_interval > 24) {
       $this->io->warning($messages);

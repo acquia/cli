@@ -97,7 +97,7 @@ class ApiCommandHelper {
     if (array_key_exists('requestBody', $schema)) {
       [
         $body_input_definition,
-        $request_body_param_usage_suffix
+        $request_body_param_usage_suffix,
       ] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
@@ -474,10 +474,10 @@ class ApiCommandHelper {
   protected static function getParameterRenameMap(): array {
     // Format should be ['original => new'].
     return [
-      // @see api:environments:update.
-      'version' => 'lang_version',
       // @see api:environments:cron-create
       'command' => 'cron_command',
+      // @see api:environments:update.
+      'version' => 'lang_version',
     ];
   }
 
@@ -536,7 +536,7 @@ class ApiCommandHelper {
       'application/json',
       'application/x-www-form-urlencoded',
       'multipart/form-data',
-      'application/hal+json'
+      'application/hal+json',
     ];
     foreach ($knownContentTypes as $contentType) {
       if (array_key_exists($contentType, $content)) {

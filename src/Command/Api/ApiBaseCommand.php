@@ -329,8 +329,8 @@ class ApiBaseCommand extends CommandBase {
     }
     elseif (array_key_exists('pattern', $schema)) {
       $constraints[] = new Regex([
-        'pattern' => '/' . $schema['pattern'] . '/',
         'message' => 'It must match the pattern ' . $schema['pattern'],
+        'pattern' => '/' . $schema['pattern'] . '/',
       ]);
     }
     return $constraints;
@@ -386,8 +386,8 @@ class ApiBaseCommand extends CommandBase {
     if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
       $acquia_cloud_client->addOption('multipart', [
         [
-          'name' => $param_name,
           'contents' => Utils::tryFopen($param_value, 'r'),
+          'name' => $param_name,
         ],
       ]);
     }

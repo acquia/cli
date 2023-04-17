@@ -11,9 +11,6 @@ class AppOpenCommand extends CommandBase {
 
   protected static $defaultName = 'app:open';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Opens your browser to view a given Cloud application')
       ->acceptApplicationUuid()

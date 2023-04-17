@@ -24,9 +24,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   private Client $client;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();

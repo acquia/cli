@@ -12,9 +12,6 @@ class ClearCacheCommand extends CommandBase {
 
   protected static $defaultName = 'self:clear-caches';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Clears local Acquia CLI caches')
       ->setAliases(['cc', 'cr']);

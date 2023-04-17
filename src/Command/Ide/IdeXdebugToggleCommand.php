@@ -17,9 +17,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Toggle Xdebug on or off in the current IDE')
       ->setAliases(['xdebug'])

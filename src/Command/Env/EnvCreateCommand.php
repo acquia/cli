@@ -18,9 +18,6 @@ class EnvCreateCommand extends CommandBase {
 
   private Checklist $checklist;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
     $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');

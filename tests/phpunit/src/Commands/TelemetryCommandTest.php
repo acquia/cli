@@ -23,7 +23,6 @@ class TelemetryCommandTest extends CommandTestBase {
   }
 
   /**b
-   * {@inheritdoc}
    */
   protected function createCommand(): Command {
     return $this->injectCommand(TelemetryCommand::class);

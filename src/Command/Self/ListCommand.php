@@ -35,8 +35,8 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
     $helper = new DescriptorHelper();
     $helper->describe($output, $this->getApplication(), [
       'format' => $input->getOption('format'),
-      'raw_text' => $input->getOption('raw'),
       'namespace' => $input->getArgument('namespace'),
+      'raw_text' => $input->getOption('raw'),
     ]);
 
     return 0;

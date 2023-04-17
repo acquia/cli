@@ -14,9 +14,6 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
   protected static $defaultName = 'codestudio:php-version';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Change the PHP version in Code Studio')
       ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')

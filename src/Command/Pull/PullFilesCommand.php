@@ -10,9 +10,6 @@ class PullFilesCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:files';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Copy files from a Cloud Platform environment')
       ->acceptEnvironmentId()

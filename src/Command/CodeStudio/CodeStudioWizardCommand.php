@@ -19,9 +19,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   private Checklist $checklist;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create and/or configure a new Code Studio project for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
@@ -199,10 +196,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     if (!$this->getGitLabScheduleByDescription($project, $scheduled_pipeline_description)) {
       $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduled_pipeline_description</comment>");
       $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
-        'description' => $scheduled_pipeline_description,
-        'ref' => $project['default_branch'],
         # Every Thursday at midnight.
         'cron' => '0 0 * * 4',
+        'description' => $scheduled_pipeline_description,
+        'ref' => $project['default_branch'],
       ]);
       $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
         'key' => 'ACQUIA_JOBS_DEPRECATED_UPDATE',

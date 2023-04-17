@@ -18,9 +18,6 @@ class IdeServiceStopCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Stop a service in the Cloud IDE')
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to stop')
@@ -39,12 +36,12 @@ class IdeServiceStopCommand extends IdeCommandBase {
     $this->validateService($service);
 
     $service_name_map = [
-      'php' => 'php-fpm',
-      'php-fpm' => 'php-fpm',
       'apache' => 'apache2',
       'apache2' => 'apache2',
       'mysql' => 'mysqld',
       'mysqld' => 'mysqld',
+      'php' => 'php-fpm',
+      'php-fpm' => 'php-fpm',
     ];
     $output->writeln("Stopping <options=bold>$service</>...");
     $service_name = $service_name_map[$service];

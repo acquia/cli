@@ -50,8 +50,8 @@ class SshKeyUploadCommandTest extends CommandTestBase {
       [
         // Args.
         [
-          '--label' => $this->sshKeysRequestBody['label'],
           '--filepath' => 'id_rsa.pub',
+          '--label' => $this->sshKeysRequestBody['label'],
         ],
         // Inputs.
         [
@@ -113,7 +113,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
       // Choose key.
       '0',
       // Label
-      'Test'
+      'Test',
     ];
     $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
     $args = ['--filepath' => $filepath];

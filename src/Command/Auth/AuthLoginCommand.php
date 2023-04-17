@@ -11,9 +11,6 @@ class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->setAliases(['login'])
@@ -42,8 +39,8 @@ class AuthLoginCommand extends CommandBase {
         $keys[$uuid]['uuid'] = $uuid;
       }
       $keys['create_new'] = [
-        'uuid' => 'create_new',
         'label' => 'Enter a new API key',
+        'uuid' => 'create_new',
       ];
       $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
       if ($selected_key['uuid'] !== 'create_new') {
@@ -69,8 +66,8 @@ class AuthLoginCommand extends CommandBase {
     $keys = $this->datastoreCloud->get('keys');
     $keys[$api_key] = [
       'label' => $token_info->label,
-      'uuid' => $api_key,
       'secret' => $api_secret,
+      'uuid' => $api_key,
     ];
     $this->datastoreCloud->set('keys', $keys);
     $this->datastoreCloud->set('acli_key', $api_key);

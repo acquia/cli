@@ -144,7 +144,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // Would you like to retry verification?
-          'n'
+          'n',
         ],
         // Status code.
         1,
@@ -169,7 +169,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Would you like to refresh?
           'y',
           //  Would you like to re-check domain verification?
-          'n'
+          'n',
         ],
         // Status code.
         1,
@@ -198,7 +198,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-          '0'
+          '0',
         ],
         // Status code.
         0,
@@ -207,7 +207,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for enablement response code.
         'Already enabled',
         // Expected text.
-        ['already enabled', "You're all set to start using Platform Email!"]
+        ['already enabled', "You're all set to start using Platform Email!"],
       ],
       [
         'example.com',
@@ -221,7 +221,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-          '0'
+          '0',
         ],
         // Status code.
         1,
@@ -230,7 +230,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for enablement response code.
         'No permission',
         // Expected text.
-        ['You do not have permission', 'Something went wrong']
+        ['You do not have permission', 'Something went wrong'],
       ],
     ];
   }

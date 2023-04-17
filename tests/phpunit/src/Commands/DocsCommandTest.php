@@ -43,67 +43,67 @@ class DocsCommandTest extends CommandTestBase {
       ],
       [
         2,
-        '[2 ] Code Studio',
+        '[2 ] Acquia DAM Classic',
       ],
       [
         3,
-        '[3 ] Campaign Studio',
+        '[3 ] Acquia Migrate Accelerate',
       ],
       [
         4,
-        '[4 ] Content Hub',
+        '[4 ] BLT',
       ],
       [
         5,
-        '[5 ] Acquia Migrate Accelerate',
+        '[5 ] Campaign Factory',
       ],
       [
         6,
-        '[6 ] Site Factory',
+        '[6 ] Campaign Studio',
       ],
       [
         7,
-        '[7 ] Site Studio',
+        '[7 ] Cloud IDE',
       ],
       [
         8,
-        '[8 ] Edge',
+        '[8 ] Cloud Platform',
       ],
       [
         9,
-        '[9 ] Search',
+        '[9 ] Code Studio',
       ],
       [
         10,
-        '[10] Shield',
+        '[10] Content Hub',
       ],
       [
         11,
-        '[11] Customer Data Plateform',
+        '[11] Customer Data Platform',
       ],
       [
         12,
-        '[12] Cloud IDE',
+        '[12] Edge',
       ],
       [
         13,
-        '[13] BLT',
+        '[13] Personalization',
       ],
       [
         14,
-        '[14] Cloud Platform',
+        '[14] Search',
       ],
       [
         15,
-        '[15] Acquia DAM Classic',
+        '[15] Shield',
       ],
       [
         16,
-        '[16] Personalization',
+        '[16] Site Factory',
       ],
       [
         17,
-        '[17] Campaign Factory',
+        '[17] Site Studio',
       ],
     ];
   }

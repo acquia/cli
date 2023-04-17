@@ -13,9 +13,6 @@ class AliasListCommand extends CommandBase {
 
   protected static $defaultName = 'remote:aliases:list';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List all aliases for the Cloud Platform environments')
       ->setAliases(['aliases', 'sa']);

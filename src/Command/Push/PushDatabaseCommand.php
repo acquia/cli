@@ -15,9 +15,6 @@ class PushDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:database';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Push a database from your IDE to a Cloud Platform environment')
       ->setAliases(['push:db'])
