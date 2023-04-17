@@ -47,9 +47,6 @@ class AccessTokenConnectorTest extends TestBase {
     putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE');
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function testAccessToken(): void {
     self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
@@ -79,9 +76,6 @@ class AccessTokenConnectorTest extends TestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function testTokenFile(): void {
     $accessTokenExpiry = time() + 300;
     $directory = [
@@ -129,8 +123,6 @@ class AccessTokenConnectorTest extends TestBase {
   /**
    * Validate that if both an access token and API key/secret pair are present,
    * the pair is used.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testConnector(): void {
     self::setAccessTokenEnvVars();
@@ -147,9 +139,6 @@ class AccessTokenConnectorTest extends TestBase {
     self::assertInstanceOf(Connector::class, $connector);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function testExpiredAccessToken(): void {
     self::setAccessTokenEnvVars(TRUE);
     $connector_factory = new ConnectorFactory(

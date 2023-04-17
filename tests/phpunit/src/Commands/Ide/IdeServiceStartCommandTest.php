@@ -23,8 +23,6 @@ class IdeServiceStartCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:service-start' command.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceStartCommand(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -40,8 +38,6 @@ class IdeServiceStartCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:service-start' command with invalid choice.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceStartCommandInvalid(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();

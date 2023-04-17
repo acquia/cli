@@ -36,9 +36,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->checklist = new Checklist($output);
     $this->authenticateWithGitLab();
@@ -243,8 +240,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * Gets the default branch name for the deployment artifact.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getCurrentBranchName(): string {
     $process = $this->localMachineHelper->execute([

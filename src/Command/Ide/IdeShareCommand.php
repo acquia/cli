@@ -37,7 +37,6 @@ class IdeShareCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
@@ -77,9 +76,6 @@ class IdeShareCommand extends CommandBase {
     return $this->shareCodeFilepaths;
   }
 
-  /**
-   * @throws \Exception
-   */
   private function regenerateShareCode(): void {
     $new_share_code = Uuid::uuid4();
     foreach ($this->getShareCodeFilepaths() as $path) {

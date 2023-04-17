@@ -23,7 +23,6 @@ class SshCommandTest extends SshCommandTestBase {
   /**
    * Tests the 'remote:ssh' commands.
    *
-   * @throws \Psr\Cache\InvalidArgumentException
    * @group serial
    */
   public function testRemoteAliasesDownloadCommand(): void {

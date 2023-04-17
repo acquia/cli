@@ -20,8 +20,6 @@ class IdeListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListCommand(): void {
     $this->mockApplicationsRequest();
@@ -53,8 +51,6 @@ class IdeListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListEmptyCommand(): void {
     $this->mockApplicationsRequest();

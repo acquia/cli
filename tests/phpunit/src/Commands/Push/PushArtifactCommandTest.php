@@ -22,11 +22,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PushArtifactCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -58,11 +53,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushTagArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -95,11 +85,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushArtifactWithAcquiaCliFile(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -123,10 +108,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
   }
 
-  /**
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPushArtifactWithArgs(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));

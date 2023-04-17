@@ -22,10 +22,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullFilesCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testRefreshAcsfFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -63,10 +59,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testRefreshCloudFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -105,9 +97,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidCwd(): void {
     IdeHelper::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();

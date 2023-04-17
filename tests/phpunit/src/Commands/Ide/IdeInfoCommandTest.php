@@ -20,8 +20,6 @@ class IdeInfoCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:info' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeInfoCommand(): void {
 

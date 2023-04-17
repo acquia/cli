@@ -12,9 +12,6 @@ use Symfony\Component\Console\Input\InputInterface;
 class AcsfApiBaseCommand extends ApiBaseCommand {
   protected static $defaultName = 'acsf:base';
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function checkAuthentication(): void {
     if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
       throw new AcquiaCliException('This machine is not yet authenticated with the Acquia Cloud Site Factory. Run `acli auth:acsf-login`');

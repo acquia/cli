@@ -29,8 +29,6 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting the gitlab token from user.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabToken(string $gitlab_host): string {
     if ($this->input->getOption('gitlab-token')) {
@@ -65,8 +63,6 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting gitlab host from user.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabHost(): string {
     // If hostname is available as argument, use that.
@@ -130,18 +126,12 @@ trait CodeStudioCommandTrait {
     }
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function validateEnvironment(): void {
     if (!empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function authenticateWithGitLab(): void {
     $this->validateEnvironment();
     $this->gitLabHost = $this->getGitLabHost();

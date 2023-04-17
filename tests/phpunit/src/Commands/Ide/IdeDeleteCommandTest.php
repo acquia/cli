@@ -34,8 +34,6 @@ class IdeDeleteCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:delete' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeDeleteCommand(): void {
 

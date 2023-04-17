@@ -35,9 +35,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
@@ -89,7 +86,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check whether wizard command is executed by checking the env variable of codestudio project.
    *
    * @param array $project
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function checkGitLabCiCdVariables(array $project): void {
     $gitlab_cicd_variables = CodeStudioCiCdVariables::getList();
@@ -107,7 +103,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * @param array $project
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
     $pipelines_filepath_yml = Path::join($this->projectDir, 'acquia-pipelines.yml');

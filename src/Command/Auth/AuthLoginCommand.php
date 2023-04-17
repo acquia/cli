@@ -30,7 +30,6 @@ class AuthLoginCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($this->cloudApiClientService->isMachineAuthenticated()) {
@@ -68,9 +67,6 @@ class AuthLoginCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Exception
-   */
   private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
     $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
     $keys = $this->datastoreCloud->get('keys');

@@ -30,7 +30,6 @@ class EnvCopyCronCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // If both source and destination env inputs are same.

@@ -21,10 +21,6 @@ class PushFilesCommandTest extends CommandTestBase {
     return $this->injectCommand(PushFilesCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testPushFilesAcsf(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

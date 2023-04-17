@@ -15,8 +15,6 @@ class JsonDataStore extends Datastore {
    * Creates a new store.
    *
    * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $config_definition
-   * @throws \JsonException
-   * @throws \JsonException
    */
   public function __construct(string $path, ConfigurationInterface $config_definition = NULL) {
     parent::__construct($path);
@@ -37,9 +35,6 @@ class JsonDataStore extends Datastore {
     }
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function dump(): void {
     $this->fileSystem->dumpFile($this->filepath, json_encode($this->data->export(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
   }

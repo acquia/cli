@@ -13,9 +13,6 @@ class AcsfListCommandTest extends CommandTestBase {
   protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
@@ -27,8 +24,6 @@ class AcsfListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'acsf:list' command.
-   *
-   * @throws \Exception
    */
   public function testAcsfListCommand(): void {
     $this->executeCommand();
@@ -40,8 +35,6 @@ class AcsfListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'acsf:*' list commands.
-   *
-   * @throws \Exception
    */
   public function testApiNamespaceListCommand(): void {
     $this->command = $this->injectCommand(AcsfListCommandBase::class);
@@ -56,8 +49,6 @@ class AcsfListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'list' command.
-   *
-   * @throws \Exception
    */
   public function testListCommand(): void {
     $this->command = new ListCommand('list');

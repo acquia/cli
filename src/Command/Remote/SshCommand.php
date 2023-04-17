@@ -28,12 +28,6 @@ class SshCommand extends SshBaseCommand {
       ->addUsage("myapp.dev -- ls -al # list files in the myapp.dev environment and return");
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);

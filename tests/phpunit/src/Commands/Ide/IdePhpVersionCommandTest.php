@@ -41,7 +41,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommand
-   * @throws \Exception
    */
   public function testIdePhpVersionCommand(string $version): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -78,7 +77,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
    * Tests the 'ide:php-version' command.
    *
    * @dataProvider providerTestIdePhpVersionCommandFailure
-   * @throws \Exception
    */
   public function testIdePhpVersionCommandFailure(string $version, string $exception_class): void {
     $this->expectException($exception_class);
@@ -89,8 +87,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:php-version' command outside of IDE environment.
-   *
-   * @throws \Exception
    */
   public function testIdePhpVersionCommandOutsideIde(): void {
     IdeHelper::unsetCloudIdeEnvVars();

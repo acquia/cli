@@ -19,9 +19,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     return $this->injectCommand(EmailInfoForSubscriptionCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -30,9 +27,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'email:info' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testEmailInfoForSubscription(): void {
     $inputs = [
@@ -90,10 +84,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'email:info' command when the subscription has no applications.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testEmailInfoForSubscriptionNoApps(): void {
     $inputs = [
@@ -117,9 +107,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'email:info' command when the subscription has over 100 applications.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testEmailInfoForSubscriptionWith101Apps(): void {
     $inputs = [
@@ -160,9 +147,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'email:info' command when the subscription has no domains registred.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testEmailInfoForSubscriptionNoDomains(): void {
     $inputs = [
@@ -183,9 +167,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'email:info' command when the subscription's applications have no domains eligible for association.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testEmailInfoForSubscriptionNoAppDomains(): void {
     $inputs = [

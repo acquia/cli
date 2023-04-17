@@ -25,9 +25,6 @@ class TelemetryHelper {
   ) {
   }
 
-  /**
-   * @throws \Exception
-   */
   public function initialize(): void {
     $this->initializeAmplitude();
     $this->initializeBugsnag();
@@ -71,8 +68,6 @@ class TelemetryHelper {
 
   /**
    * Initializes Amplitude.
-   *
-   * @throws \Exception
    */
   public function initializeAmplitude(): void {
     if (empty($this->amplitudeKey)) {
@@ -104,7 +99,6 @@ class TelemetryHelper {
    *
    * @return array
    *   Telemetry user data.
-   * @throws \Exception
    */
   private function getTelemetryUserData(): array {
     $data = [
@@ -133,7 +127,6 @@ class TelemetryHelper {
    *
    * @return string|null
    *   User UUID from Cloud.
-   * @throws \Exception
    */
   private function getUserId(): ?string {
     $user = $this->getUserData();
@@ -149,7 +142,6 @@ class TelemetryHelper {
    *
    * @return array|null
    *   User account data from Cloud.
-   * @throws \Exception
    */
   private function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);

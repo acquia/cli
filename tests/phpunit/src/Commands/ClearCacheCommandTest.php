@@ -21,9 +21,6 @@ class ClearCacheCommandTest extends CommandTestBase {
   }
 
   /**
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testAliasesAreCached(): void {
@@ -63,9 +60,6 @@ class ClearCacheCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'clear-caches' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testClearCaches(): void {
     $this->executeCommand();

@@ -63,7 +63,6 @@ abstract class Datastore implements DataStoreInterface {
    * @param string $path
    *   Path to the datastore on disk.
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function processConfig(array $config, ConfigurationInterface $definition, string $path): array {
     try {

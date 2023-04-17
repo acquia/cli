@@ -13,9 +13,6 @@ use Symfony\Component\Process\Process;
  */
 abstract class SshCommandTestBase extends CommandTestBase {
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockForGetEnvironmentFromAliasArg(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->mockEnvironmentsRequest($applications_response);

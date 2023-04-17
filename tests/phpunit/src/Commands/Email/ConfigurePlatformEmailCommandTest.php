@@ -77,9 +77,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -245,8 +242,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * Tests the 'email:configure' command.
    *
    * @dataProvider providerTestConfigurePlatformEmail
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmail($base_domain, $file_dump_format, $file_dump, $inputs, $expected_exit_code, $expected_text, $response_code): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -386,11 +381,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testConfigurePlatformEmailNoApps(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
@@ -446,10 +436,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testConfigurePlatformEmailWithNoDomainMatch(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -487,11 +473,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testConfigurePlatformEmailWithErrorRetrievingDomainHealth(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -602,8 +583,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * Tests the 'email:configure' command when enabling email on an environment throws an API error.
    *
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');

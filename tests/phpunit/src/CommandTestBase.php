@@ -58,8 +58,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * This method is called before each test.
-   *
-   * @throws \Exception
    */
   protected function setUp(OutputInterface $output = NULL): void {
     parent::setUp();
@@ -81,7 +79,6 @@ abstract class CommandTestBase extends TestBase {
    * @param string[] $inputs
    *   An array of strings representing each input passed to the command input
    *   stream.
-   * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectDir;
@@ -219,10 +216,6 @@ abstract class CommandTestBase extends TestBase {
     return $this->prophet->prophesize(SshHelper::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function mockGetEnvironments(): object {
     $environment_response = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get',
@@ -232,10 +225,6 @@ abstract class CommandTestBase extends TestBase {
     return $environment_response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function mockAcsfEnvironmentsRequest(
     object $applications_response
   ): object {
@@ -295,7 +284,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @return \AcquiaCloudApi\Response\DatabaseResponse[]
-   * @throws \JsonException
    */
   protected function mockAcsfDatabasesResponse(
     object $environments_response
@@ -503,7 +491,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommands(): array {
     $api_command_helper = new ApiCommandHelper($this->logger);
@@ -511,9 +498,6 @@ abstract class CommandTestBase extends TestBase {
     return $api_command_helper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $command_factory);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function getApiCommandByName(string $name): ApiBaseCommand|AcsfCommandBase|null {
     $api_commands = $this->getApiCommands();
     foreach ($api_commands as $api_command) {
@@ -639,8 +623,6 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @param $application_uuid
    * @return array
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function mockGitLabPermissionsRequest($application_uuid): array {
     $permissions_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);

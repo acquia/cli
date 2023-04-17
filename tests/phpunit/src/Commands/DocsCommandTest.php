@@ -23,7 +23,6 @@ class DocsCommandTest extends CommandTestBase {
    * Tests the 'docs' command for Acquia Products.
    *
    * @dataProvider providerTestDocsCommand
-   * @throws \Exception
    */
   public function testDocsCommand($input, $expectedOutput): void {
     $local_machine_helper = $this->mockLocalMachineHelper();

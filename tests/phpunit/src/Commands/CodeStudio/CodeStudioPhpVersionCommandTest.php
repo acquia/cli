@@ -43,7 +43,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    * Test for the wrong PHP version passed as argument.
    *
    * @dataProvider providerTestPhpVersionFailure
-   * @throws \Exception
    */
   public function testPhpVersionFailure($php_version): void {
     $this->expectException(ValidatorException::class);
@@ -55,9 +54,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for CI/CD not enabled on the project.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCiCdNotEnabled(): void {
     $this->mockApplicationRequest();
@@ -85,9 +81,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version add.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAddFail(): void {
     $this->mockApplicationRequest();
@@ -120,9 +113,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version add.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAdd(): void {
     $this->mockApplicationRequest();
@@ -155,9 +145,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version update.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdateFail(): void {
     $this->mockApplicationRequest();
@@ -199,9 +186,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version update.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();

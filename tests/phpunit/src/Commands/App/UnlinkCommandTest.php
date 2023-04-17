@@ -21,9 +21,6 @@ class UnlinkCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'unlink' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUnlinkCommand(): void {
     $applications_response = $this->getMockResponseFromSpec('/applications',
@@ -44,9 +41,6 @@ class UnlinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString("Unlinked $this->projectDir from Cloud application " . $cloud_application->name, $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testUnlinkCommandInvalidDir(): void {
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There is no Cloud Platform application linked to ' . $this->projectDir);

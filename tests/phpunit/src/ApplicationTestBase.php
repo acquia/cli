@@ -31,9 +31,6 @@ class ApplicationTestBase extends TestBase {
     $this->kernel->getContainer()->set(OutputInterface::class, $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function runApp(): string {
     putenv("ACLI_REPO_ROOT=" . $this->projectDir);
     $input = $this->kernel->getContainer()->get(InputInterface::class);

@@ -19,7 +19,6 @@ class TaskWaitCommandTest extends CommandTestBase {
   }
 
   /**
-   * @throws \Exception
    * @dataProvider providerTestTaskWaitCommand
    */
   public function testTaskWaitCommand(string $status, string $message): void {
@@ -52,9 +51,6 @@ class TaskWaitCommandTest extends CommandTestBase {
     ];
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   */
   public function testTaskWaitCommandWithStandardInput(): void {
     $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     $task_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
@@ -65,9 +61,6 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testTaskWaitCommandWithInvalidInput(): void {
     $this->expectException(AcquiaCliException::class);
     $this->executeCommand(['notification-uuid' => '{}'], []);

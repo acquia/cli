@@ -61,7 +61,6 @@ class LocalMachineHelper {
 
   /**
    * @param string[] $binaries
-   * @throws AcquiaCliException
    */
   public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
@@ -168,9 +167,6 @@ class LocalMachineHelper {
    * @param string $filename
    *   Name of the file to read.
    * @return string Content read from that file
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Safe\Exceptions\FilesystemException
    */
   public function readFile(string $filename): string {
     // @todo remove this blasphemy once upstream issue is fixed
@@ -180,8 +176,6 @@ class LocalMachineHelper {
 
   /**
    * @param $filepath
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function getLocalFilepath($filepath): string {
     return $this->fixFilename($filepath);
@@ -222,8 +216,6 @@ class LocalMachineHelper {
    *   Name of the file to write to.
    * @param string $content
    *   Content to write to the file.
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function writeFile(string $filename, string $content): void {
     $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
@@ -231,8 +223,6 @@ class LocalMachineHelper {
 
   /**
    * Accepts a filename/full path and localizes it to the user's system.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function fixFilename(string $filename): string {
     // '~' is only an alias for $HOME if it's at the start of the path.
@@ -245,7 +235,6 @@ class LocalMachineHelper {
    *
    * Adapted from Ads Package Manager by Ed Reel.
    *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    * @author Ed Reel <@uberhacker>
    * @url https://github.com/uberhacker/tpm
    */

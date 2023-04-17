@@ -33,9 +33,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   private int $gitLabProjectId = 33;
   private int $gitLabTokenId = 118;
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
@@ -151,8 +148,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -204,9 +199,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
@@ -221,9 +213,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ]);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testMissingGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);

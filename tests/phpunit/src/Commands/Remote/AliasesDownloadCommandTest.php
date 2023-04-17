@@ -22,9 +22,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     return $this->injectCommand(AliasesDownloadCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -51,9 +48,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
    * @param string|null $destination_dir
    * @param bool $all
    *   Download aliases for all applications.
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @dataProvider providerTestRemoteAliasesDownloadCommand
    */
   public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destination_dir = NULL, bool $all = FALSE): void {

@@ -20,8 +20,6 @@ class LogTailCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'log:tail' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLogTailCommand(): void {
 
@@ -54,8 +52,6 @@ class LogTailCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'log:tail' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLogTailCommandWithEnvArg(): void {
     $this->mockLogStreamRequest();

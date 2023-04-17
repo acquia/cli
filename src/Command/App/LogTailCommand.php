@@ -25,7 +25,6 @@ class LogTailCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $environment_id = $this->determineCloudEnvironment();

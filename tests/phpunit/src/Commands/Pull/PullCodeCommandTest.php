@@ -23,11 +23,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullCodeCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   * @throws \Exception
-   */
   public function testCloneRepo(): void {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
     // to re-inject the parameter into the command.
@@ -66,12 +61,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPullCode(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -112,12 +101,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testWithScripts(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     $applications_response = $this->mockApplicationsRequest();
@@ -173,7 +156,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestMatchPhpVersion
-   * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException|\JsonException
    */
   public function testMatchPhpVersion(string $php_version): void {
     IdeHelper::setCloudIdeEnvVars();

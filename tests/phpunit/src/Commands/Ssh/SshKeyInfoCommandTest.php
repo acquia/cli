@@ -13,9 +13,6 @@ class SshKeyInfoCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyInfoCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();

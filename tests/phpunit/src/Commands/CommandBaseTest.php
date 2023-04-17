@@ -63,7 +63,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCloudAppUuidArg
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCloudAppUuidArg(string $uuid): void {
     $this->mockApplicationRequest();
@@ -79,7 +78,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudAppUuidArg
-   * @throws \Exception
    */
   public function testInvalidCloudAppUuidArg(string $uuid, string $message): void {
     $this->expectException(ValidatorException::class);
@@ -97,7 +95,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudEnvironmentAlias
-   * @throws \Exception
    */
   public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void {
     $this->expectException(ValidatorException::class);

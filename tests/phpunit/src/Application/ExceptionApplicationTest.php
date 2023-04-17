@@ -16,7 +16,6 @@ use Symfony\Component\Filesystem\Path;
 class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testPreScripts(): void {
@@ -40,7 +39,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testPostScripts(): void {
@@ -64,7 +62,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidApiCreds(): void {
@@ -79,7 +76,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testApiError(): void {
@@ -93,7 +89,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testNoAvailableIdes(): void {
@@ -107,7 +102,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testMissingEnvironmentUuid(): void {
@@ -119,8 +113,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidEnvironmentUuid(): void {
@@ -135,7 +127,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testMissingApplicationUuid(): void {
@@ -147,8 +138,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidApplicationUuid(): void {

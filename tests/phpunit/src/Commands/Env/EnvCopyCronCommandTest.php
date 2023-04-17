@@ -22,9 +22,6 @@ class EnvCopyCronCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'app:cron-copy' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCopyCronTasksCommandTest(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -62,8 +59,6 @@ class EnvCopyCronCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'app:cron-copy' command fail.
-   *
-   * @throws \Exception
    */
   public function testCopyCronTasksCommandTestFail(): void {
     $this->executeCommand([

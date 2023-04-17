@@ -18,10 +18,6 @@ class SshKeyListCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyListCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -30,9 +26,6 @@ class SshKeyListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:list' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testList(): void {
 

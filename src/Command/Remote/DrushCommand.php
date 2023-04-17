@@ -30,12 +30,6 @@ class DrushCommand extends SshBaseCommand {
       ->addUsage('myapp.dev -- status --fields=db-status');
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);

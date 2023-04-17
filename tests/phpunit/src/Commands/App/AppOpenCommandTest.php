@@ -19,9 +19,6 @@ class AppOpenCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'app:open' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testAppOpenCommand(): void {
     $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';

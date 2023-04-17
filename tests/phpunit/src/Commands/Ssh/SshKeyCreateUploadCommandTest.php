@@ -36,10 +36,6 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:create-upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   public function testCreateUpload(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');

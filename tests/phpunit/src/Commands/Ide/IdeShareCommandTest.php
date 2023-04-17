@@ -43,9 +43,6 @@ class IdeShareCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareCommand(): void {
     $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
@@ -61,9 +58,6 @@ class IdeShareCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareRegenerateCommand(): void {
     $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);

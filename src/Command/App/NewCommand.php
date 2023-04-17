@@ -28,7 +28,6 @@ class NewCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
@@ -76,9 +75,6 @@ class NewCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * @throws \Exception
-   */
   private function createNextJsProject(string $dir): void {
     $process = $this->localMachineHelper->execute([
       'npx',
@@ -94,7 +90,6 @@ class NewCommand extends CommandBase {
 
   /**
    * @param $project
-   * @throws \Exception
    */
   private function createDrupalProject($project, string $dir): void {
     $process = $this->localMachineHelper->execute([
@@ -109,9 +104,6 @@ class NewCommand extends CommandBase {
     }
   }
 
-  /**
-   * @throws \Exception
-   */
   private function initializeGitRepository(string $dir): void {
     if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');

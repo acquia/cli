@@ -29,7 +29,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
 
   /**
    * @return array[]
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestUpload(): array {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -74,11 +73,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
    * @dataProvider providerTestUpload
    *
    * Tests the 'ssh-key:upload' command.
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Safe\Exceptions\FilesystemException
-   * @throws \Exception
    */
   public function testUpload($args, $inputs, $perms): void {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -117,9 +111,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Your SSH key is ready for use!', $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidFilepath(): void {
     $inputs = [
       // Choose key.

@@ -30,11 +30,6 @@ class Kernel extends BaseKernel {
     return [];
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
   public function registerContainerConfiguration(LoaderInterface $loader): void {
     $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
     $this->registerExtensionConfiguration($loader);

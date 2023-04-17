@@ -26,9 +26,6 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     $this->acceptGitlabOptions();
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $php_version = $input->getArgument('php-version');
     $this->validatePhpVersion($php_version);

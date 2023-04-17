@@ -22,7 +22,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestDeleteCde(): array {
     $environment_response = $this->getMockEnvironmentsResponse();
@@ -37,7 +36,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the 'app:environment:delete' command.
    *
    * @dataProvider providerTestDeleteCde
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testDeleteCde($environment_id): void {
     $applications_response = $this->mockApplicationsRequest();

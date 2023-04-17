@@ -68,7 +68,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:create' command.
    *
    * @dataProvider providerTestCreate
-   * @throws \Exception
    */
   public function testCreate($ssh_add_success, $args, $inputs): void {
     $ssh_key_filepath = Path::join($this->sshDir, '/' . $this->filename);

@@ -14,10 +14,6 @@ class CloudDataStore extends JsonDataStore {
    */
   protected array $config;
 
-  /**
-   * @throws \JsonException
-   * @throws \JsonException
-   */
   public function __construct(
     LocalMachineHelper $local_machine_helper,
     CloudDataConfig $cloud_data_config,

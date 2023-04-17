@@ -22,8 +22,6 @@ class ApiCommandHelper {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
    */
   public function getApiCommands(string $acquia_cloud_spec_file_path, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file_path);
@@ -69,9 +67,6 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquia_cloud_spec
-   * @throws \JsonException
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function addApiCommandParameters(array $schema, array $acquia_cloud_spec, CommandBase $command): void {
     $input_definition = [];
@@ -125,8 +120,6 @@ class ApiCommandHelper {
    * @param array $schema
    * @param array $acquia_cloud_spec
    * @return array
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function addApiCommandParametersForRequestBody(array $schema, array $acquia_cloud_spec): array {
     $usage = '';
@@ -183,8 +176,6 @@ class ApiCommandHelper {
    * @param $param_definition
    * @param $type
    * @param $usage
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     $request_body_content = $this->getRequestBodyContent($request_body);
@@ -319,7 +310,6 @@ class ApiCommandHelper {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getCloudApiSpec(string $spec_file_path): array {
     $cache_key = basename($spec_file_path);
@@ -355,8 +345,6 @@ class ApiCommandHelper {
   /**
    * @param array $acquia_cloud_spec
    * @return ApiBaseCommand[]
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_commands = [];
@@ -457,7 +445,6 @@ class ApiCommandHelper {
    * @param array $schema
    * @param $acquia_cloud_spec
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
     $request_body_content = $this->getRequestBodyContent($schema['requestBody']);
@@ -542,7 +529,6 @@ class ApiCommandHelper {
   /**
    * @param $requestBody
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyContent($requestBody): array {
     $content = $requestBody['content'];

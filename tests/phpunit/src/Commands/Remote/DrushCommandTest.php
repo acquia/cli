@@ -44,7 +44,6 @@ class DrushCommandTest extends SshCommandTestBase {
    *
    * @dataProvider providerTestRemoteDrushCommand
    * @param array $args
-   * @throws \Psr\Cache\InvalidArgumentException
    * @group serial
    */
   public function testRemoteDrushCommand(array $args): void {

@@ -30,8 +30,6 @@ class IdeOpenCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:open' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeOpenCommand(): void {
 

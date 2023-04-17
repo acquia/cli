@@ -21,8 +21,6 @@ class EnvMirrorCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'app:environment-mirror' command.
-   *
-   * @throws \Exception
    */
   public function testEnvironmentMirror(): void {
     $environment_response = $this->mockGetEnvironments();

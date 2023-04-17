@@ -26,7 +26,6 @@ class EnvDeleteCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
@@ -43,9 +42,6 @@ class EnvDeleteCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {
     if ($this->input->getArgument('environmentId')) {
       // @todo Validate.

@@ -72,8 +72,6 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   /**
    * Asserts whether ANY SSH key has been added to the local keychain.
-   *
-   * @throws \Exception
    */
   protected function sshKeyIsAddedToKeychain(): bool {
     $process = $this->localMachineHelper->execute([
@@ -93,7 +91,6 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @param string $filepath
    *   The filepath of the private SSH key.
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
@@ -117,7 +114,6 @@ EOT
    * Polls the Cloud Platform until a successful SSH request is made to the dev
    * environment.
    *
-   * @throws \Exception
    * @infection-ignore-all
    */
   protected function pollAcquiaCloudUntilSshSuccess(
@@ -185,9 +181,6 @@ EOT
     $loop->run();
   }
 
-  /**
-   * @throws \Exception
-   */
   private function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
     $mappings = [];
     $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
@@ -217,10 +210,6 @@ EOT
     return $mappings;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function createSshKey(string $filename, string $password): string {
     $key_file_path = $this->doCreateSshKey($filename, $password);
     $this->setSshKeyFilepath(basename($key_file_path));
@@ -230,9 +219,6 @@ EOT
     return $key_file_path;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function doCreateSshKey(string $filename, string $password): string {
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
@@ -258,9 +244,6 @@ EOT
     return $filepath;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function determineFilename(InputInterface $input): string {
     return $this->determineOption(
       'filename',
@@ -286,9 +269,6 @@ EOT
     return $filename;
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function determinePassword(InputInterface $input): string {
     return $this->determineOption(
       'password',
@@ -325,8 +305,6 @@ EOT
 
   /**
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function determinePublicSshKey(string $filepath = NULL): array {
     if ($filepath) {
@@ -371,9 +349,6 @@ EOT
     return $this->io->askQuestion($question);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function determineSshKeyLabel(InputInterface $input): string {
     return $this->determineOption('label', $input, FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
@@ -391,7 +366,6 @@ EOT
 
   /**
    * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   * @throws \Exception
    */
   private function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
     $filepath = '';
@@ -404,10 +378,6 @@ EOT
     return $this->localMachineHelper->readFile($filepath);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function uploadSshKey(string $label, string $public_key): void {
     // @todo If a key with this label already exists, let the user try again.
     $sshKeys = new SshKeys($this->cloudApiClientService->getClient());

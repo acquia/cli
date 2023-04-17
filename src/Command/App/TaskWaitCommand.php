@@ -27,7 +27,6 @@ class TaskWaitCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notification_uuid = $this->getNotificationUuid($input);
@@ -35,9 +34,6 @@ class TaskWaitCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function getNotificationUuid(InputInterface $input): string {
     $notification_uuid = $input->getArgument('notification-uuid');
     $json = json_decode($notification_uuid, FALSE);

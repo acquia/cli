@@ -20,8 +20,6 @@ class IdeListCommandMineTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:list-mine' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListMineCommand(): void {
     $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
@@ -64,9 +62,6 @@ class IdeListCommandMineTest extends CommandTestBase {
     $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockAccountIdeListRequest(): object {
     $response = $this->getMockResponseFromSpec('/account/ides',
       'get', '200');

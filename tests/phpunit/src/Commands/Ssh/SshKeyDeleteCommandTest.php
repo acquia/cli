@@ -21,8 +21,6 @@ class SshKeyDeleteCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ssh-key:upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function testDelete(): void {
 

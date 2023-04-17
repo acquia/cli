@@ -38,7 +38,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $cloud_application_uuid = $this->determineCloudApplication();

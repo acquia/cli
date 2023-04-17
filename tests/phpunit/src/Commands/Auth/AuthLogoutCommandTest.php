@@ -36,7 +36,6 @@ class AuthLogoutCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLogoutCommand
    * @param array $inputs
-   * @throws \Exception
    */
   public function testAuthLogoutCommand(bool $machine_is_authenticated, array $inputs): void {
     if (!$machine_is_authenticated) {

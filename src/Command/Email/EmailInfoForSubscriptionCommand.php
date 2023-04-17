@@ -32,10 +32,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
       ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \League\Csv\CannotInsertRecord
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
 
     $client = $this->cloudApiClientService->getClient();
@@ -72,7 +68,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * as well as exports these statuses to respective CSV files.
    *
    * @param array $domain_list
-   * @throws \League\Csv\CannotInsertRecord
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list): void {
 
@@ -178,7 +173,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Verifies the number of applications present in a subscription.
    *
    * @return array|null
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
     $applications_resource = new Applications($client);
@@ -210,7 +204,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @param $subscription
    * @param $subscription_applications
-   * @throws \League\Csv\CannotInsertRecord
    */
   private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications): void {
     $apps_domains_table = $this->createApplicationDomainsTable($output);

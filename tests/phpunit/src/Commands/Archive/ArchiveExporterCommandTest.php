@@ -22,10 +22,6 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     return $this->injectCommand(ArchiveExportCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   public function testArchiveExport(): void {
     touch(Path::join($this->projectDir, '.gitignore'));
     $destination_dir = 'foo';

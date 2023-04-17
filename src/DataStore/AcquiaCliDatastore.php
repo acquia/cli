@@ -14,10 +14,6 @@ class AcquiaCliDatastore extends YamlStore {
    */
   protected array $config;
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function __construct(
     LocalMachineHelper $local_machine_helper,
     AcquiaCliConfig $config_definition,

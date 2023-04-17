@@ -20,8 +20,6 @@ class MakeDocsCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'self:make-docs' command.
-   *
-   * @throws \Exception
    */
   public function testMakeDocsCommand(): void {
     $this->executeCommand([], []);

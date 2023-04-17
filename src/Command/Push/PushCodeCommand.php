@@ -24,7 +24,6 @@ class PushCodeCommand extends PullCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $output->writeln("Use <options=bold>git</> to push code changes upstream.");

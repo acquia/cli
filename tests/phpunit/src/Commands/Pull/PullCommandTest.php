@@ -14,9 +14,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class PullCommandTest extends PullCommandTestBase {
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -26,9 +23,6 @@ class PullCommandTest extends PullCommandTestBase {
     return $this->injectCommand(PullCommand::class);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testMissingLocalRepo(): void {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
     // to re-inject the parameter into the command.

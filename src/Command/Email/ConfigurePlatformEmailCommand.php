@@ -39,11 +39,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       ->setAliases(['ec']);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
-   * @throws \JsonException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->io->writeln('Welcome to Platform Email setup! This script will walk you through the whole process setting up Platform Email, all through the command line and using the Cloud API!');
     $this->io->writeln('Before getting started, make sure you have the following: ');
@@ -140,7 +135,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * enablement of Platform Email.
    *
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function determineApplications(Client $client, SubscriptionResponse $subscription): array {
     $applications_resource = new Applications($client);
@@ -199,8 +193,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Associates a domain with an application or applications,
    * then enables Platform Email for an environment or environments
    * of the above applications.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function addDomainToSubscriptionApplications(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid): bool {
     $applications = $this->determineApplications($client, $subscription);
@@ -242,8 +234,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * Validates the URL entered as the base domain name.
-   *
-   * @throws \Symfony\Component\Validator\Exception\ValidatorException
    */
   public static function validateUrl(string $url): string {
     $constraints_list = [new NotBlank()];
@@ -263,8 +253,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * Retrieves a domain registration UUID given the domain name.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function fetchDomainUuid(Client $client, SubscriptionResponse $subscription, string $base_domain): mixed {
     $domains_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
@@ -279,9 +267,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Creates a file, either in Bind Zone File, JSON or YAML format,
    * of the DNS records needed to complete Platform Email setup.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
    */
   private function createDnsText(Client $client, SubscriptionResponse $subscription, string $base_domain, string $domain_uuid, string $file_format): void {
     $domain_registration_response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domain_uuid}");
@@ -318,9 +303,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
   /**
    * Checks the verification status of the registered domain.
-   *
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function checkIfDomainVerified(
     SubscriptionResponse $subscription,

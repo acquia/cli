@@ -25,11 +25,6 @@ class AliasListCommand extends CommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $applications_resource = new Applications($acquia_cloud_client);

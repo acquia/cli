@@ -9,10 +9,6 @@ use Zumba\Amplitude\Amplitude;
 
 trait SshCommandTrait {
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   private function deleteSshKeyFromCloud($output, $cloud_key = NULL): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     if (!$cloud_key) {
@@ -56,7 +52,6 @@ trait SshCommandTrait {
 
   /**
    * @return \Symfony\Component\Finder\SplFileInfo[]
-   * @throws \Exception
    */
   protected function findLocalSshKeys(): array {
     $finder = $this->localMachineHelper->getFinder();

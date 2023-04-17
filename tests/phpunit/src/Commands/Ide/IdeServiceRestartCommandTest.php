@@ -23,8 +23,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:service-restart' command.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceRestartCommand(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -40,8 +38,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:service-restart' command with invalid choice.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceRestartCommandInvalid(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();

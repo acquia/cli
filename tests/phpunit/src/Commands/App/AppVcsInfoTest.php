@@ -20,9 +20,6 @@ class AppVcsInfoTest extends CommandTestBase {
 
   /**
    * Test when no environment available for the app.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testNoEnvAvailableCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -45,9 +42,6 @@ class AppVcsInfoTest extends CommandTestBase {
 
   /**
    * Test when no branch or tag available for the app.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testNoVcsAvailableCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -70,9 +64,6 @@ class AppVcsInfoTest extends CommandTestBase {
 
   /**
    * Test the list of the VCS details of the application.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testShowVcsListCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -104,9 +95,6 @@ EOD;
 
   /**
    * Test the list of deployed VCS but no deployed VCS available.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testNoDeployedVcs(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -136,9 +124,6 @@ EOD;
 
   /**
    * Test the list of the only deployed VCS.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testListOnlyDeployedVcs(): void {
     $applications_response = $this->mockApplicationsRequest();

@@ -19,9 +19,6 @@ class NewCommandTest extends CommandTestBase {
 
   protected string $newProjectDir;
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -50,7 +47,6 @@ class NewCommandTest extends CommandTestBase {
    *
    * @dataProvider provideTestNewDrupalCommand
    * @param array $package
-   * @throws \Exception
    */
   public function testNewDrupalCommand(array $package, string $directory = 'drupal'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);
@@ -93,7 +89,6 @@ class NewCommandTest extends CommandTestBase {
    *
    * @dataProvider provideTestNewNextJsAppCommand
    * @param array $package
-   * @throws \Exception
    */
   public function testNewNextJSAppCommand(array $package, string $directory = 'nextjs'): void {
     $this->newProjectDir = Path::makeAbsolute($directory, $this->projectDir);

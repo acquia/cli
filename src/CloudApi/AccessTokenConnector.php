@@ -29,7 +29,6 @@ class AccessTokenConnector extends Connector {
 
   /**
    * @inheritdoc
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function createRequest($verb, $path): RequestInterface {
     if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {

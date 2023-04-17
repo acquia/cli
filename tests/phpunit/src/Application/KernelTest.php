@@ -10,7 +10,6 @@ use Acquia\Cli\Tests\ApplicationTestBase;
 class KernelTest extends ApplicationTestBase {
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testRun(): void {

@@ -31,10 +31,6 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
   private int $gitLabTokenId = 118;
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
@@ -81,7 +77,6 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     copy(
