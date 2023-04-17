@@ -7,8 +7,6 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Class YamlStore
- *
- * @package Acquia\Cli\DataStore
  */
 class YamlStore extends Datastore {
 

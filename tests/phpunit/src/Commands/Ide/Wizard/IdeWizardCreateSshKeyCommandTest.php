@@ -11,11 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeWizardCreateSshKeyCommandTest.
  *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
- * @package Acquia\Cli\Tests\Ide
- *
- * The IdeWizardCreateSshKeyCommand command is designed to throw an exception if it
- * is executed from a non Cloud Platform IDE environment. Therefore, we do not test Windows
- * compatibility. It should only ever be run in a Linux environment.
  * @requires OS linux|darwin
  */
 class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {

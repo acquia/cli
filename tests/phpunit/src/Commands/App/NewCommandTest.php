@@ -13,7 +13,6 @@ use Symfony\Component\Process\Process;
  * Class NewCommandTest.
  *
  * @property \Acquia\Cli\Command\App\NewCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class NewCommandTest extends CommandTestBase {
 

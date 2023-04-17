@@ -16,8 +16,6 @@ use Symfony\Component\Filesystem\Path;
 /**
  * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
- *
- * @package Acquia\Cli\Commands\Remote
  */
 class AliasesDownloadCommand extends SshCommand {
 

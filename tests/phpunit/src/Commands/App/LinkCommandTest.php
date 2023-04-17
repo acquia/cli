@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class LinkCommandTest.
  *
  * @property \Acquia\Cli\Command\App\LinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class LinkCommandTest extends CommandTestBase {
 

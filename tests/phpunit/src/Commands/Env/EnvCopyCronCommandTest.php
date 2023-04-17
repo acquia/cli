@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class CopyCronTasksCommandTest.
  *
  * @property \Acquia\Cli\Command\Env\EnvCopyCronCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EnvCopyCronCommandTest extends CommandTestBase {
 

@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class ClearCacheCommandTest.
  *
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class ClearCacheCommandTest extends CommandTestBase {
 

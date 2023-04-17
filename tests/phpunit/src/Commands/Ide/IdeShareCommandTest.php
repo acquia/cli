@@ -12,7 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IdeShareCommandTest.
  *
  * @property IdeShareCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeShareCommandTest extends CommandTestBase {
 

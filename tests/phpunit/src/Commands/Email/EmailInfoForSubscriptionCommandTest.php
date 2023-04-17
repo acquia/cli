@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class ConfigurePlatformEmailCommandTest.
  *
  * @property \Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 

@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
  * Class PullCommandTest.
  *
  * @property \Acquia\Cli\Command\Pull\PullCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullCommandTest extends PullCommandTestBase {
 

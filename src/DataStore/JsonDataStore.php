@@ -6,8 +6,6 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
  * Class YamlStore
- *
- * @package Acquia\Cli\DataStore
  */
 class JsonDataStore extends Datastore {
 

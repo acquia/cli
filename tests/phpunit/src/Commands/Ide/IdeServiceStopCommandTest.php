@@ -11,7 +11,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * Class IdeServiceStopCommandTest.
  *
  * @property IdeServiceStopCommandTest $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeServiceStopCommandTest extends CommandTestBase {
 

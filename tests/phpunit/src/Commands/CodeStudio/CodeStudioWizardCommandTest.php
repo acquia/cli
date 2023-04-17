@@ -20,7 +20,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class CodeStudioWizardCommandTest.
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
- * @package Acquia\Cli\Tests\Commands
  * @requires OS linux|darwin
  */
 class CodeStudioWizardCommandTest extends WizardTestBase {

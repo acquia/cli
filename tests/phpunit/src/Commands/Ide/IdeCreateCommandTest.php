@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeCreateCommandTest.
  *
  * @property IdeCreateCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeCreateCommandTest extends CommandTestBase {
 

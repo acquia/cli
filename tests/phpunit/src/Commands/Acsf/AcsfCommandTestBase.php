@@ -9,7 +9,6 @@ use Acquia\Cli\Tests\CommandTestBase;
  * Class ApiCommandTest.
  *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
- * @package Acquia\Cli\Tests\Api
  */
 abstract class AcsfCommandTestBase extends CommandTestBase {
 

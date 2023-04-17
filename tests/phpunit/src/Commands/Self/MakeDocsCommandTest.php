@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
  * Class MakeDocsCommandTest.
  *
  * @property \Acquia\Cli\Command\Self\MakeDocsCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class MakeDocsCommandTest extends CommandTestBase {
 

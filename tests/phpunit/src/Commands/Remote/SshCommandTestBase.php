@@ -8,8 +8,6 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class SshCommandTestBase.
- *
- * @package Acquia\Cli\Tests\Remote
  */
 abstract class SshCommandTestBase extends CommandTestBase {
 

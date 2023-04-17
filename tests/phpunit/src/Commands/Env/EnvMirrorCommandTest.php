@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class EnvironmentMirrorCommandTest.
  *
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EnvMirrorCommandTest extends CommandTestBase {
 

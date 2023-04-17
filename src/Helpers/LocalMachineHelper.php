@@ -20,8 +20,6 @@ use function Safe\file_get_contents;
  * Class LocalMachineHelper.
  *
  * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
- *
- * @package Acquia\Cli\Helpers
  */
 class LocalMachineHelper {
   use LoggerAwareTrait;
@@ -235,7 +233,6 @@ class LocalMachineHelper {
    *
    * Adapted from Ads Package Manager by Ed Reel.
    *
-   * @author Ed Reel <@uberhacker>
    * @url https://github.com/uberhacker/tpm
    */
   public static function getHomeDir(): string {

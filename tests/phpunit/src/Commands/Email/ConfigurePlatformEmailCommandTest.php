@@ -15,7 +15,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class ConfigurePlatformEmailCommandTest.
  *
  * @property \Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 

@@ -16,7 +16,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * Class IdePhpVersionCommandTest.
  *
  * @property \Acquia\Cli\Command\Ide\IdePhpVersionCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdePhpVersionCommandTest extends CommandTestBase {
 

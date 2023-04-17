@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class DocsCommandTest.
  *
  * @property \Acquia\Cli\Command\DocsCommandTest $command
- * @package Acquia\Cli\Tests\Commands
  */
 class DocsCommandTest extends CommandTestBase {
 

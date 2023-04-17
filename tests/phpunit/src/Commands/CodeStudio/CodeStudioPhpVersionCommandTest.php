@@ -14,7 +14,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * Class CodeStudioPhpVersionCommandTest.
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPhpVersionCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 

@@ -21,7 +21,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class PullDatabaseCommandTest.
  *
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {
 

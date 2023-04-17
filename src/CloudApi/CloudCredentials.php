@@ -6,9 +6,6 @@ use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 
-/**
- * @package Acquia\Cli\Helpers
- */
 class CloudCredentials implements ApiCredentialsInterface {
 
   /**

@@ -16,7 +16,6 @@ use Symfony\Component\Yaml\Yaml;
  * Class ApiCommandTest.
  *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
- * @package Acquia\Cli\Tests\Api
  */
 class ApiCommandTest extends CommandTestBase {
 

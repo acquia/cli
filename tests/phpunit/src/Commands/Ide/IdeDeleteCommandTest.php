@@ -13,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class IdeDeleteCommandTest.
  *
  * @property IdeDeleteCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeDeleteCommandTest extends CommandTestBase {
 

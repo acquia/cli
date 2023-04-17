@@ -13,7 +13,6 @@ use Symfony\Component\Console\Command\Command;
  * Class PushFilesCommandTest.
  *
  * @property \Acquia\Cli\Command\Push\PushFilesCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushFilesCommandTest extends CommandTestBase {
 

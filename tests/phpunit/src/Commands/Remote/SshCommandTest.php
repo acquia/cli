@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class SshCommandTest.
  *
  * @property SshCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class SshCommandTest extends SshCommandTestBase {
 

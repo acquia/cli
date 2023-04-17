@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
  * Class PushCodeCommandTest.
  *
  * @property \Acquia\Cli\Command\Push\PushCodeCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushCodeCommandTest extends CommandTestBase {
 

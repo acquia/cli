@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class AuthCommandTest.
  *
  * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 

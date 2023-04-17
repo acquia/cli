@@ -16,7 +16,6 @@ use Symfony\Component\Filesystem\Filesystem;
  * Class SshKeyCreateUploadCommandTest
  *
  * @property SshKeyCreateUploadCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 

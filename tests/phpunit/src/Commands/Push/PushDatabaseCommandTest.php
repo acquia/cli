@@ -13,7 +13,6 @@ use Symfony\Component\Console\Command\Command;
  * Class PullDatabaseCommandTest.
  *
  * @property \Acquia\Cli\Command\Push\PushDatabaseCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushDatabaseCommandTest extends CommandTestBase {
 

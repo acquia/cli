@@ -11,7 +11,6 @@ use Symfony\Component\Process\Process;
  * Class IdeXdebugCommandTest.
  *
  * @property \Acquia\Cli\Command\Ide\IdeXdebugToggleCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeXdebugToggleCommandTest extends CommandTestBase {
 

@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeWizardDeleteSshKeyCommand.
  *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 

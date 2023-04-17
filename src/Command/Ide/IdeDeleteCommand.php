@@ -9,8 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class CreateProjectCommand.
- *
- * @package Grasmash\YamlCli\Command
  */
 class IdeDeleteCommand extends IdeCommandBase {
 

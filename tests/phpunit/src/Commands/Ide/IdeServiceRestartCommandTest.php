@@ -11,7 +11,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * Class IdeServiceRestartCommandTest.
  *
  * @property IdeServiceRestartCommandTest $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeServiceRestartCommandTest extends CommandTestBase {
 

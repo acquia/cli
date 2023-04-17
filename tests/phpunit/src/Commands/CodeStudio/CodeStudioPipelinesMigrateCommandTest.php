@@ -18,7 +18,6 @@ use Symfony\Component\Yaml\Yaml;
  * Class CodeStudioWizardCommandTest.
  *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand $command
- * @package Acquia\Cli\Tests\Commands
  * @requires OS linux|darwin
  */
 class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {

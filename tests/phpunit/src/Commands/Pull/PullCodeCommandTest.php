@@ -15,7 +15,6 @@ use Symfony\Component\Finder\Finder;
  * Class PullCodeCommandTest.
  *
  * @property \Acquia\Cli\Command\Pull\PullCodeCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullCodeCommandTest extends PullCommandTestBase {
 

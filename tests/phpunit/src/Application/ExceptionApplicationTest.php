@@ -10,8 +10,6 @@ use Symfony\Component\Filesystem\Path;
  *
  * These must be tested using the ApplicationTestBase, since the Symfony
  * CommandTester does not fire Event Dispatchers.
- *
- * @package Acquia\Cli\Tests\Application
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 

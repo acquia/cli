@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class CreateCdeCommandTest.
  *
  * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
- * @package Acquia\Cli\Tests\Commands\Env
  */
 class EnvCreateCommandTest extends CommandTestBase {
 

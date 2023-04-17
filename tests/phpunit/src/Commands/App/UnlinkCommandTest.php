@@ -11,7 +11,6 @@ use Symfony\Component\Console\Command\Command;
  * Class UnlinkCommandTest.
  *
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class UnlinkCommandTest extends CommandTestBase {
 

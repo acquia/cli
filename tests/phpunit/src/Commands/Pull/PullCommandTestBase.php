@@ -11,8 +11,6 @@ use Symfony\Component\Process\Process;
 
 /**
  * Class PullCommandTestBase.
- *
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 abstract class PullCommandTestBase extends CommandTestBase {
 

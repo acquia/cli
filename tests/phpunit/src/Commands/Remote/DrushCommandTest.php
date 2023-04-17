@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class DrushCommandTest.
  *
  * @property DrushCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class DrushCommandTest extends SshCommandTestBase {
 

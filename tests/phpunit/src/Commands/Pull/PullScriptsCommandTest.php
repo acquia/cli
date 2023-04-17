@@ -10,7 +10,6 @@ use Symfony\Component\Filesystem\Path;
  * Class PullScriptsCommandTest.
  *
  * @property \Acquia\Cli\Command\Pull\PullScriptsCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullScriptsCommandTest extends PullCommandTestBase {
 

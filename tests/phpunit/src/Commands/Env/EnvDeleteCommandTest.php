@@ -12,7 +12,6 @@ use Symfony\Component\Console\Command\Command;
  * Class DeleteCdeCommandTest.
  *
  * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
- * @package Acquia\Cli\Tests\Commands\Env
  */
 class EnvDeleteCommandTest extends CommandTestBase {
 

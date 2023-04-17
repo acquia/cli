@@ -14,7 +14,6 @@ use Symfony\Component\Filesystem\Path;
  * Class AliasesDownloadCommandTest.
  *
  * @property AliasesDownloadCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class AliasesDownloadCommandTest extends CommandTestBase {
 

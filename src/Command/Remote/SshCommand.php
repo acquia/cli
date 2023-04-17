@@ -9,8 +9,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
- *
- * @package Acquia\Cli\Commands\Remote
  */
 class SshCommand extends SshBaseCommand {
 

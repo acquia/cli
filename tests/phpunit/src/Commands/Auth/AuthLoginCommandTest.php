@@ -13,7 +13,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  * Class AuthCommandTest.
  *
  * @property AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AuthLoginCommandTest extends CommandTestBase {
 

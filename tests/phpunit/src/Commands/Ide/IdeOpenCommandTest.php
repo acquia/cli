@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeOpenCommandTest.
  *
  * @property IdeOpenCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeOpenCommandTest extends CommandTestBase {
 

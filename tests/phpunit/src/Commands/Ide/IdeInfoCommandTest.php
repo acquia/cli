@@ -10,7 +10,6 @@ use Symfony\Component\Console\Command\Command;
  * Class IdeListCommandTest.
  *
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeInfoCommandTest extends CommandTestBase {
 
