@@ -45,8 +45,6 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class CommandTestBase.
- *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class TestBase extends TestCase {
@@ -137,8 +135,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @todo get rid of this method and use virtual file systems (setupVfsFixture)
-   * @throws \JsonException
-   * @throws \Exception
    */
   public function setupFsFixture(): void {
     $this->fixtureDir = $this->getTempDir();
@@ -161,7 +157,6 @@ abstract class TestBase extends TestCase {
    * This method is called before each test.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface|null $output
-   * @throws \Exception
    */
   protected function setUp(OutputInterface $output = NULL): void {
     putenv('COLUMNS=85');
@@ -198,8 +193,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * Create a guaranteed-unique temporary directory.
-   *
-   * @throws \Exception
    */
   protected function getTempDir(): string {
     /**
@@ -260,7 +253,6 @@ abstract class TestBase extends TestCase {
   /**
    * @param $path
    * @param $method
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getResourceFromSpec($path, $method): mixed {
     $acquia_cloud_spec = $this->getCloudApiSpec();
@@ -276,8 +268,6 @@ abstract class TestBase extends TestCase {
    * @param $path
    * @param $method
    * @param $http_code
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
    * @see CXAPI-7208
    */
   public function getMockResponseFromSpec($path, $method, $http_code): object {
@@ -332,16 +322,12 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $path
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function getMockRequestBodyFromSpec($path, string $method = 'post'): mixed {
     $endpoint = $this->getResourceFromSpec($path, $method);
     return $endpoint['requestBody']['content']['application/json']['example'];
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function getCloudApiSpec(): mixed {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
@@ -361,9 +347,6 @@ abstract class TestBase extends TestCase {
     return $api_spec;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, string $acquia_cloud_spec_file_checksum): bool {
     $api_spec_checksum_item = $cache->getItem($cache_key . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
@@ -373,7 +356,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $api_spec
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   private function saveApiSpecCacheItems(
     PhpArrayAdapter $cache,
@@ -400,9 +382,6 @@ abstract class TestBase extends TestCase {
     return $public_key_filepath;
   }
 
-  /**
-   * @throws \JsonException
-   */
   protected function createMockConfigFiles(): void {
     $this->createMockCloudConfigFile();
 
@@ -413,18 +392,15 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  /**
-   * @throws \JsonException
-   */
   protected function createMockCloudConfigFile($default_values = []): void {
     if (!$default_values) {
       $default_values = [
         'acli_key' => $this->key,
         'keys' => [
           (string) ($this->key) => [
-            'uuid' => $this->key,
             'label' => 'Test Key',
             'secret' => $this->secret,
+            'uuid' => $this->key,
           ],
         ],
         DataStoreContract::SEND_TELEMETRY => FALSE,
@@ -443,7 +419,6 @@ abstract class TestBase extends TestCase {
   /**
    * @param int $count
    *   The number of applications to return. Use this to simulate query filters.
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.
@@ -467,8 +442,8 @@ abstract class TestBase extends TestCase {
 
   public function mockApiError(): void {
     $response = (object) [
-      'message' => 'some error',
       'error' => 'some error',
+      'message' => 'some error',
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new ApiErrorException($response, $response->message));
@@ -476,16 +451,13 @@ abstract class TestBase extends TestCase {
 
   public function mockNoAvailableIdes(): void {
     $response = (object) [
-      'message' => "There are no available Cloud IDEs for this application.\n",
       'error' => "There are no available Cloud IDEs for this application.\n",
+      'message' => "There are no available Cloud IDEs for this application.\n",
     ];
     $this->clientProphecy->request('get', Argument::type('string'))
       ->willThrow(new ApiErrorException($response, $response->message));
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockApplicationRequest(): object {
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
@@ -498,10 +470,6 @@ abstract class TestBase extends TestCase {
     return $application_response;
   }
 
-  /**
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockPermissionsRequest($application_response, $perms = TRUE): object {
     $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
@@ -525,9 +493,6 @@ abstract class TestBase extends TestCase {
     return $permissions_response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function mockEnvironmentsRequest(
     object $applications_response
   ): object {
@@ -540,9 +505,6 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function mockApplicationCodeRequest(
     object $applications_response
   ): object {
@@ -575,28 +537,16 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request('get', '/account')->willReturn($account);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function getMockEnvironmentResponse(string $method = 'get', string $http_code = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $http_code);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function getMockEnvironmentsResponse(): object {
     return $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'get', 200);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function mockIdeListRequest(): object {
     $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides',
       'get', '200');
@@ -608,18 +558,12 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockGetIdeRequest(string $ide_uuid): object {
     $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
     return $ide_response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockIdeDeleteRequest(string $ide_uuid): object {
     $ide_delete_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
     $this->clientProphecy->request('delete', '/ides/' . $ide_uuid)
@@ -628,9 +572,6 @@ abstract class TestBase extends TestCase {
     return $ide_delete_response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockLogStreamRequest(): object {
     $response = $this->getMockResponseFromSpec('/environments/{environmentId}/logstream',
       'get', '200');
@@ -642,9 +583,6 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockListSshKeysRequest(): object {
     $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
@@ -654,10 +592,6 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
@@ -667,9 +601,6 @@ abstract class TestBase extends TestCase {
     return $mock_body;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper, ?string $key_contents = NULL): void {
     $key_contents = $key_contents ?: 'thekey!';
     $public_key_path = 'id_rsa.pub';
@@ -710,10 +641,6 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function mockUploadSshKey(?string $label = NULL): void {
     $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $label = $label ?: $request['label'];
@@ -726,9 +653,6 @@ abstract class TestBase extends TestCase {
       ->shouldBecalled();
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
@@ -749,7 +673,6 @@ abstract class TestBase extends TestCase {
 
   /**
    * @param $mock_request_args
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   protected function mockListSshKeyRequestWithUploadedKey(
     $mock_request_args

@@ -8,16 +8,10 @@ use AcquiaCloudApi\Endpoints\Account;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardCreateSshKeyCommand.
- */
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wizard to perform first time setup tasks within an IDE')
       ->setAliases(['ide:wizard'])
@@ -26,8 +20,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $checklist = new Checklist($output);

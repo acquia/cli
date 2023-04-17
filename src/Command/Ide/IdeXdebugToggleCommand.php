@@ -7,9 +7,6 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeXdebugCommand.
- */
 class IdeXdebugToggleCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:xdebug-toggle';
@@ -20,9 +17,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Toggle Xdebug on or off in the current IDE')
       ->setAliases(['xdebug'])
@@ -31,7 +25,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();

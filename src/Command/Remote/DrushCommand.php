@@ -7,18 +7,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
- *
- * @package Acquia\Cli\Commands\Remote
  */
 class DrushCommand extends SshBaseCommand {
 
   protected static $defaultName = 'remote:drush';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setAliases(['drush', 'dr'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
@@ -30,12 +24,6 @@ class DrushCommand extends SshBaseCommand {
       ->addUsage('myapp.dev -- status --fields=db-status');
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);

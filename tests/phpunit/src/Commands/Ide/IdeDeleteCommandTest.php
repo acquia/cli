@@ -10,10 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class IdeDeleteCommandTest.
- *
  * @property IdeDeleteCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeDeleteCommandTest extends CommandTestBase {
 
@@ -28,17 +25,12 @@ class IdeDeleteCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeDeleteCommand::class);
   }
 
   /**
    * Tests the 'ide:delete' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeDeleteCommand(): void {
 

@@ -12,18 +12,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class CreateCdeCommand.
- */
 class EnvCreateCommand extends CommandBase {
 
   protected static $defaultName = 'env:create';
 
   private Checklist $checklist;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a new Continuous Delivery Environment (CDE)');
     $this->addArgument('label', InputArgument::REQUIRED, 'The label of the new environment');
@@ -33,7 +27,6 @@ class EnvCreateCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
@@ -71,9 +64,6 @@ class EnvCreateCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function validateLabel(Environments $environments_resource, string $cloud_app_uuid, string $title): void {
     $this->checklist->addItem("Checking to see that label is unique");
     /** @var \AcquiaCloudApi\Response\EnvironmentResponse[] $environments */
@@ -86,9 +76,6 @@ class EnvCreateCommand extends CommandBase {
     $this->checklist->completePreviousItem();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function getBranch(Client $acquia_cloud_client, ?string $cloud_app_uuid, InputInterface $input): string {
     $branches_and_tags = $acquia_cloud_client->request('get', "/applications/$cloud_app_uuid/code");
     if ($input->getArgument('branch')) {

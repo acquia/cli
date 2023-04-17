@@ -8,24 +8,16 @@ use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class SshKeyDeleteCommandTest
- *
  * @property SshKeyDeleteCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyDeleteCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyDeleteCommand::class);
   }
 
   /**
    * Tests the 'ssh-key:upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
    */
   public function testDelete(): void {
 
@@ -39,7 +31,7 @@ class SshKeyDeleteCommandTest extends CommandTestBase {
       // Choose key.
       '0',
       // Do you also want to delete the corresponding local key files?
-      'n'
+      'n',
     ];
     $this->executeCommand([], $inputs);
 

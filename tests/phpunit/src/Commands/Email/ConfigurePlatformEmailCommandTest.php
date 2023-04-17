@@ -12,10 +12,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class ConfigurePlatformEmailCommandTest.
- *
  * @property \Acquia\Cli\Command\Email\ConfigurePlatformEmailCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
@@ -73,16 +70,10 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n" .
   "-\n    type: CNAME\n    name: abcdefgh1ijkl2mnopq34rstuvwxyz._domainkey.example.com\n    value: abcdefgh1ijkl2mnopq34rstuvwxyz.dkim.amazonses.com\n";
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -153,7 +144,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // Would you like to retry verification?
-          'n'
+          'n',
         ],
         // Status code.
         1,
@@ -178,7 +169,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Would you like to refresh?
           'y',
           //  Would you like to re-check domain verification?
-          'n'
+          'n',
         ],
         // Status code.
         1,
@@ -207,7 +198,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-          '0'
+          '0',
         ],
         // Status code.
         0,
@@ -216,7 +207,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for enablement response code.
         'Already enabled',
         // Expected text.
-        ['already enabled', "You're all set to start using Platform Email!"]
+        ['already enabled', "You're all set to start using Platform Email!"],
       ],
       [
         'example.com',
@@ -230,7 +221,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
           // Have you finished providing the DNS records to your DNS provider?
           'y',
           // What are the environments you'd like to enable email for? You may enter multiple separated by a comma.
-          '0'
+          '0',
         ],
         // Status code.
         1,
@@ -239,7 +230,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
         // Spec key for enablement response code.
         'No permission',
         // Expected text.
-        ['You do not have permission', 'Something went wrong']
+        ['You do not have permission', 'Something went wrong'],
       ],
     ];
   }
@@ -248,8 +239,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * Tests the 'email:configure' command.
    *
    * @dataProvider providerTestConfigurePlatformEmail
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmail($base_domain, $file_dump_format, $file_dump, $inputs, $expected_exit_code, $expected_text, $response_code): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -389,11 +378,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testConfigurePlatformEmailNoApps(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $mock_file_system = $this->mockGetFilesystem($local_machine_helper);
@@ -449,10 +433,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString("You're all set to start using Platform Email!", $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testConfigurePlatformEmailWithNoDomainMatch(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -490,11 +470,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testConfigurePlatformEmailWithErrorRetrievingDomainHealth(): void {
     $base_domain = 'test.com';
     $inputs = [
@@ -605,8 +580,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
    * Tests the 'email:configure' command when enabling email on an environment throws an API error.
    *
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($base_domain, $inputs, $expected_exit_code, $response_code, $spec_key, $expected_text): void {
     $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');

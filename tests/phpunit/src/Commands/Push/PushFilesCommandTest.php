@@ -10,24 +10,14 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PushFilesCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushFilesCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushFilesCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushFilesCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testPushFilesAcsf(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

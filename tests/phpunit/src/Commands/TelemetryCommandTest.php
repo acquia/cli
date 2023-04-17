@@ -10,10 +10,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class TelemetryCommandTest.
- *
  * @property \Acquia\Cli\Command\Self\TelemetryCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class TelemetryCommandTest extends CommandTestBase {
 
@@ -26,7 +23,6 @@ class TelemetryCommandTest extends CommandTestBase {
   }
 
   /**b
-   * {@inheritdoc}
    */
   protected function createCommand(): Command {
     return $this->injectCommand(TelemetryCommand::class);
@@ -61,8 +57,6 @@ class TelemetryCommandTest extends CommandTestBase {
    * @dataProvider providerTestTelemetryPrompt
    * @param array $inputs
    * @param $message
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testTelemetryPrompt(array $inputs, $message): void {
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
@@ -80,8 +74,6 @@ class TelemetryCommandTest extends CommandTestBase {
 
   /**
    * Opted out by default.
-   *
-   * @throws \Exception
    */
   public function testAmplitudeDisabled(): void {
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => FALSE];

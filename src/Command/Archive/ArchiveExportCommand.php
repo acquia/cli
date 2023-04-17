@@ -14,9 +14,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class ArchiveExportCommand.
- */
 class ArchiveExportCommand extends CommandBase {
 
   protected Checklist $checklist;
@@ -30,9 +27,6 @@ class ArchiveExportCommand extends CommandBase {
 
   private const PUBLIC_FILES_DIR = '/docroot/sites/default/files';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setName('archive:export');
     $this->setDescription('Generate an archive of the Drupal application')
@@ -44,11 +38,6 @@ class ArchiveExportCommand extends CommandBase {
       ->setHelp('Export an archive of the current Drupal application, including code, files, and database');
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
     $this->fs = $this->localMachineHelper->getFilesystem();
@@ -58,7 +47,6 @@ class ArchiveExportCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->determineDestinationDir($input);
@@ -100,9 +88,6 @@ class ArchiveExportCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function determineDestinationDir(InputInterface $input): void {
     $this->destinationDir = $input->getArgument('destination-dir');
     if (!$this->fs->exists($this->destinationDir)) {
@@ -130,10 +115,6 @@ class ArchiveExportCommand extends CommandBase {
     $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   private function exportDatabaseToArchiveDir(
     Closure $output_callback,
     string $archive_temp_dir
@@ -156,7 +137,6 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * @param $archive_dir
    * @param $destination_dir
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function compressArchiveDirectory($archive_dir, $destination_dir, Closure $output_callback = NULL): string {
     $destination_filename = basename($archive_dir) . '.tar.gz';

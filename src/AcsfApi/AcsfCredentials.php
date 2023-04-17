@@ -5,9 +5,6 @@ namespace Acquia\Cli\AcsfApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 
-/**
- * @package Acquia\Cli\Helpers
- */
 class AcsfCredentials implements ApiCredentialsInterface {
 
   /**

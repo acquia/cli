@@ -5,9 +5,6 @@ namespace Acquia\Cli\Tests\Misc;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class ApiSpecTest
- */
 class ApiSpecTest extends TestCase {
 
   public function testApiSpec(): void {

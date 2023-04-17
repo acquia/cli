@@ -5,11 +5,6 @@ namespace Acquia\Cli\DataStore;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class YamlStore
- *
- * @package Acquia\Cli\DataStore
- */
 class YamlStore extends Datastore {
 
   /**

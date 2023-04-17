@@ -6,9 +6,6 @@ use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Exception\AcquiaCliException;
 
-/**
- * @package Acquia\Cli\Helpers
- */
 class CloudCredentials implements ApiCredentialsInterface {
 
   /**
@@ -17,9 +14,6 @@ class CloudCredentials implements ApiCredentialsInterface {
   public function __construct(private CloudDataStore $datastoreCloud) {
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function getCloudAccessToken(): ?string {
     if ($token = getenv('ACLI_ACCESS_TOKEN')) {
       return $token;
@@ -35,9 +29,6 @@ class CloudCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function getCloudAccessTokenExpiry(): ?string {
     if ($token = getenv('ACLI_ACCESS_TOKEN_EXPIRY')) {
       return $token;

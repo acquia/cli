@@ -8,18 +8,12 @@ use Acquia\Cli\Helpers\SshCommandTrait;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardDeleteSshKeyCommand.
- */
 class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   use SshCommandTrait;
 
   protected static $defaultName = 'ide:wizard:ssh-key:delete';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wizard to delete SSH key for IDE from Cloud')
       ->setHidden(!CommandBase::isAcquiaCloudIde());
@@ -27,8 +21,6 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();

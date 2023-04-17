@@ -7,16 +7,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PullDatabaseCommand.
- */
 class PullDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:database';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Import database backup from a Cloud Platform environment')
       ->setHelp('This uses the latest available database backup, which may be up to 24 hours old. If no backup exists, one will be created.')
@@ -36,8 +30,6 @@ class PullDatabaseCommand extends PullCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);

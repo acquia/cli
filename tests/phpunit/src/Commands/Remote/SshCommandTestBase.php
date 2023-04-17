@@ -6,16 +6,8 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Process\Process;
 
-/**
- * Class SshCommandTestBase.
- *
- * @package Acquia\Cli\Tests\Remote
- */
 abstract class SshCommandTestBase extends CommandTestBase {
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockForGetEnvironmentFromAliasArg(): void {
     $applications_response = $this->mockApplicationsRequest(1);
     $this->mockEnvironmentsRequest($applications_response);

@@ -12,11 +12,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\Filesystem\Filesystem;
 
-/**
- * Class YamlStore
- *
- * @package Acquia\Cli\DataStore
- */
 abstract class Datastore implements DataStoreInterface {
 
   protected Data $data;
@@ -63,7 +58,6 @@ abstract class Datastore implements DataStoreInterface {
    * @param string $path
    *   Path to the datastore on disk.
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function processConfig(array $config, ConfigurationInterface $definition, string $path): array {
     try {

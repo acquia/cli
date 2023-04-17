@@ -8,16 +8,10 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeListCommand.
- */
 class IdeListCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:app';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List available Cloud IDEs belonging to a given application');
     $this->setAliases(['ide:list']);
@@ -26,7 +20,6 @@ class IdeListCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $application_uuid = $this->determineCloudApplication();

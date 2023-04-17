@@ -5,9 +5,6 @@ namespace Acquia\Cli\Tests\AcsfApi;
 use Acquia\Cli\AcsfApi\AcsfCredentials;
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class EnvVarAcsfAuthenticationTest.
- */
 class EnvVarAcsfAuthenticationTest extends TestBase {
 
   private string $acsfCurrentFactoryUrl = 'https://www.test-something.com';

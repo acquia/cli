@@ -8,9 +8,6 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class ClientServiceTest.
- */
 class ClientServiceTest extends TestBase {
 
   /**
@@ -33,7 +30,7 @@ class ClientServiceTest extends TestBase {
       [
         ['ACLI_ACCESS_TOKEN' => NULL, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => NULL],
         FALSE,
-      ]
+      ],
     ];
   }
 

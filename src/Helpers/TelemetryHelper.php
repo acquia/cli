@@ -25,9 +25,6 @@ class TelemetryHelper {
   ) {
   }
 
-  /**
-   * @throws \Exception
-   */
   public function initialize(): void {
     $this->initializeAmplitude();
     $this->initializeBugsnag();
@@ -71,8 +68,6 @@ class TelemetryHelper {
 
   /**
    * Initializes Amplitude.
-   *
-   * @throws \Exception
    */
   public function initializeAmplitude(): void {
     if (empty($this->amplitudeKey)) {
@@ -104,17 +99,16 @@ class TelemetryHelper {
    *
    * @return array
    *   Telemetry user data.
-   * @throws \Exception
    */
   private function getTelemetryUserData(): array {
     $data = [
+      'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
-      'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-      'ah_realm' => getenv('AH_REALM'),
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
-      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+      'ah_realm' => getenv('AH_REALM'),
       'CI' => getenv('CI'),
+      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     try {
       $user = $this->getUserData();
@@ -133,7 +127,6 @@ class TelemetryHelper {
    *
    * @return string|null
    *   User UUID from Cloud.
-   * @throws \Exception
    */
   private function getUserId(): ?string {
     $user = $this->getUserData();
@@ -149,7 +142,6 @@ class TelemetryHelper {
    *
    * @return array|null
    *   User account data from Cloud.
-   * @throws \Exception
    */
   private function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);
@@ -178,8 +170,8 @@ class TelemetryHelper {
     // @todo Cache this!
     $account = new Account($this->cloudApiClientService->getClient());
     return [
+      'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
       'uuid' => $account->get()->uuid,
-      'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com')
     ];
   }
 

@@ -6,16 +6,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class SshKeyCreateCommand.
- */
 class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
   protected static $defaultName = 'ssh-key:create-upload';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create an SSH key on your local machine and upload it to the Cloud Platform')
       ->addOption('filename', NULL, InputOption::VALUE_REQUIRED, 'The filename of the SSH key')
@@ -26,7 +20,6 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $filename = $this->determineFilename($input);

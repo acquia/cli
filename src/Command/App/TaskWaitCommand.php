@@ -8,16 +8,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class TaskWaitCommand.
- */
 class TaskWaitCommand extends CommandBase {
 
   protected static $defaultName = 'app:task-wait';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Wait for a task to complete')
       ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The UUID of the task notification returned by the Cloud API')
@@ -27,7 +21,6 @@ class TaskWaitCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notification_uuid = $this->getNotificationUuid($input);
@@ -35,9 +28,6 @@ class TaskWaitCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function getNotificationUuid(InputInterface $input): string {
     $notification_uuid = $input->getArgument('notification-uuid');
     $json = json_decode($notification_uuid, FALSE);

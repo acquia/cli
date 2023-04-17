@@ -9,24 +9,15 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class ClearCacheCommandTest.
- *
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class ClearCacheCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ClearCacheCommand::class);
   }
 
   /**
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testAliasesAreCached(): void {
@@ -51,7 +42,7 @@ class ClearCacheCommandTest extends CommandTestBase {
     $args = ['applicationUuid' => $alias];
     $inputs = [
       // Would you like to link the Cloud application Sample application to this repository?
-      'n'
+      'n',
     ];
 
     $this->executeCommand($args, $inputs);
@@ -66,9 +57,6 @@ class ClearCacheCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'clear-caches' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testClearCaches(): void {
     $this->executeCommand();

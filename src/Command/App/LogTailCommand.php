@@ -7,16 +7,10 @@ use AcquiaCloudApi\Endpoints\Logs;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class LogTailCommand.
- */
 class LogTailCommand extends CommandBase {
 
   protected static $defaultName = 'app:log:tail';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Tail the logs from your environments')
       ->acceptEnvironmentId()
@@ -25,7 +19,6 @@ class LogTailCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $environment_id = $this->determineCloudEnvironment();

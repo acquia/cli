@@ -12,24 +12,14 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Process\Process;
 
 /**
- * Class PushCodeCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushCodeCommand $command
  */
 class PushArtifactCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushArtifactCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -61,11 +51,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushTagArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -98,11 +83,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (site@svn-3.hosted.acquia-sites.com:site.git)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPushArtifactWithAcquiaCliFile(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -126,10 +106,6 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Pushing changes to Acquia Git (https://github.com/example2/cli.git)', $output);
   }
 
-  /**
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPushArtifactWithArgs(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
@@ -144,8 +120,8 @@ class PushArtifactCommandTest extends PullCommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->setUpPushArtifact($local_machine_helper, 'master', $destination_git_urls);
     $this->executeCommand([
-      '--destination-git-urls' => $destination_git_urls,
       '--destination-git-branch' => 'master',
+      '--destination-git-urls' => $destination_git_urls,
     ], []);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -243,15 +219,15 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   protected function mockReadComposerJson(ObjectProphecy $local_machine_helper, string $artifact_dir): void {
     $composer_json = json_encode([
       'extra' => [
-        'installer-paths' => [
-          'docroot/core' => []
-        ],
         'drupal-scaffold' => [
           'file-mapping' => [
-            '[web-root]/index.php' => []
-          ]
-        ]
-      ]
+            '[web-root]/index.php' => [],
+          ],
+        ],
+        'installer-paths' => [
+          'docroot/core' => [],
+        ],
+],
     ]);
     $local_machine_helper->readFile(Path::join($this->projectDir, 'composer.json'))
       ->willReturn($composer_json);

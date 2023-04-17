@@ -23,18 +23,10 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
  */
 class Kernel extends BaseKernel {
 
-  /**
-   * {@inheritdoc}
-   */
   public function registerBundles(): iterable {
     return [];
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
   public function registerContainerConfiguration(LoaderInterface $loader): void {
     $loader->load($this->getProjectDir() . '/config/' . $this->getEnvironment() . '/services.yml');
     $this->registerExtensionConfiguration($loader);
@@ -69,9 +61,6 @@ class Kernel extends BaseKernel {
     return new DelegatingLoader($resolver);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function build(ContainerBuilder $container_builder): void {
     $container_builder->addCompilerPass($this->createCollectingCompilerPass());
   }
@@ -82,9 +71,6 @@ class Kernel extends BaseKernel {
   private function createCollectingCompilerPass(): CompilerPassInterface {
     return new class implements CompilerPassInterface {
 
-      /**
-       * {@inheritdoc}
-       */
       public function process(ContainerBuilder $container_builder) {
         $app_definition = $container_builder->findDefinition(Application::class);
         $dispatcher_definition = $container_builder->findDefinition(EventDispatcher::class);
@@ -97,7 +83,7 @@ class Kernel extends BaseKernel {
                 $tag['event'],
                 [
                   new ServiceClosureArgument(new Reference($definition->getClass())),
-                  $tag['method']
+                  $tag['method'],
                 ],
               ]);
             }

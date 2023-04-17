@@ -13,10 +13,6 @@ class ComposerScriptsListener {
   /**
    * Before a console command is executed, execute a corresponding script from
    * a local composer.json.
-   *
-   * @throws \JsonException
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function onConsoleCommand(ConsoleCommandEvent $event): void {
     $this->executeComposerScripts($event, 'pre');
@@ -25,10 +21,6 @@ class ComposerScriptsListener {
   /**
    * When a console command terminates successfully, execute a corresponding
    * script from a local composer.json.
-   *
-   * @throws \JsonException
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function onConsoleTerminate(ConsoleTerminateEvent $event): void {
     if ($event->getExitCode() === 0) {
@@ -39,10 +31,6 @@ class ComposerScriptsListener {
   /**
    * @param string $prefix Added to the Composer script name. Expected values
    *   are 'pre' or 'post'.
-   * @throws \JsonException
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function executeComposerScripts(ConsoleCommandEvent|ConsoleTerminateEvent $event, string $prefix): void {
     /** @var CommandBase $command */

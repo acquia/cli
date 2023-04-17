@@ -7,24 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeListCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeListCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeListCommand::class);
   }
 
   /**
    * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListCommand(): void {
     $this->mockApplicationsRequest();
@@ -56,8 +48,6 @@ class IdeListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeListEmptyCommand(): void {
     $this->mockApplicationsRequest();

@@ -7,20 +7,12 @@ use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class CreateProjectCommand.
- *
- * @package Grasmash\YamlCli\Command
- */
 class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;
 
   protected static $defaultName = 'ide:delete';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Delete a Cloud IDE');
     $this->acceptApplicationUuid();
@@ -29,8 +21,6 @@ class IdeDeleteCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

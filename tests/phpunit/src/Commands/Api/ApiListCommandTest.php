@@ -10,25 +10,17 @@ use Symfony\Component\Console\Command\Command;
 
 class ApiListCommandTest extends CommandTestBase {
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ApiListCommand::class);
   }
 
   /**
    * Tests the 'api:list' command.
-   *
-   * @throws \Exception
    */
   public function testApiListCommand(): void {
     $this->executeCommand();
@@ -38,8 +30,6 @@ class ApiListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'api:*' list commands.
-   *
-   * @throws \Exception
    */
   public function testApiNamespaceListCommand(): void {
     $this->command = $this->injectCommand(ApiListCommandBase::class);
@@ -55,8 +45,6 @@ class ApiListCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'list' command.
-   *
-   * @throws \Exception
    */
   public function testListCommand(): void {
     $this->command = new ListCommand();

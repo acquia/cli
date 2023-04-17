@@ -9,23 +9,16 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DeleteCdeCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
- * @package Acquia\Cli\Tests\Commands\Env
  */
 class EnvDeleteCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvDeleteCommand::class);
   }
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestDeleteCde(): array {
     $environment_response = $this->getMockEnvironmentsResponse();
@@ -40,7 +33,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the 'app:environment:delete' command.
    *
    * @dataProvider providerTestDeleteCde
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   public function testDeleteCde($environment_id): void {
     $applications_response = $this->mockApplicationsRequest();

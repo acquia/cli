@@ -9,16 +9,10 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AuthCommandTest.
- *
  * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AcsfApiAuthLoginCommand::class);
@@ -56,10 +50,10 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         [
           // Enter the full URL of the factory
           '--factory-url' => $this->acsfCurrentFactoryUrl,
-          // Enter a value for username
-          '--username' => $this->acsfUsername,
           //  Enter a value for key
           '--key' => $this->acsfKey,
+          // Enter a value for username
+          '--username' => $this->acsfUsername,
         ],
         // Output to assert.
         'Saved credentials',
@@ -96,7 +90,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param $args
    * @param $output_to_assert
    * @param array $config
-   * @throws \Exception
    * @requires OS linux|darwin
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, array $config = []): void {

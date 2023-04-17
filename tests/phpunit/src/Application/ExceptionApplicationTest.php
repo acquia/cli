@@ -10,22 +10,19 @@ use Symfony\Component\Filesystem\Path;
  *
  * These must be tested using the ApplicationTestBase, since the Symfony
  * CommandTester does not fire Event Dispatchers.
- *
- * @package Acquia\Cli\Tests\Application
  */
 class ExceptionApplicationTest extends ApplicationTestBase {
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testPreScripts(): void {
     $json = [
       'scripts' => [
         'pre-acli-hello-world' => [
-          'echo "good morning world"'
-        ]
-      ]
+          'echo "good morning world"',
+        ],
+      ],
     ];
     file_put_contents(
       Path::join($this->projectDir, 'composer.json'),
@@ -40,16 +37,15 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testPostScripts(): void {
     $json = [
       'scripts' => [
         'post-acli-hello-world' => [
-          'echo "goodbye world"'
-        ]
-      ]
+          'echo "goodbye world"',
+        ],
+      ],
     ];
     file_put_contents(
       Path::join($this->projectDir, 'composer.json'),
@@ -64,13 +60,12 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidApiCreds(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockUnauthorizedRequest();
     $buffer = $this->runApp();
@@ -79,13 +74,12 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testApiError(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockApiError();
     $buffer = $this->runApp();
@@ -93,13 +87,12 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testNoAvailableIdes(): void {
     $this->setInput([
-      'command' => 'aliases',
       'applicationUuid' => '2ed281d4-9dec-4cc3-ac63-691c3ba002c2',
+      'command' => 'aliases',
     ]);
     $this->mockNoAvailableIdes();
     $buffer = $this->runApp();
@@ -107,7 +100,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testMissingEnvironmentUuid(): void {
@@ -119,8 +111,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidEnvironmentUuid(): void {
@@ -135,7 +125,6 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testMissingApplicationUuid(): void {
@@ -147,16 +136,14 @@ class ExceptionApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @group serial
    */
   public function testInvalidApplicationUuid(): void {
     $this->mockAccountRequest();
     $this->mockApplicationsRequest();
     $this->setInput([
-      'command' => 'ide:open',
       'applicationUuid' => 'aoeuthao',
+      'command' => 'ide:open',
     ]);
     $buffer = $this->runApp();
     self::assertStringContainsString('An alias consists of an application name', $buffer);

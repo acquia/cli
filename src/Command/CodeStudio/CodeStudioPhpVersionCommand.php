@@ -14,9 +14,6 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
   protected static $defaultName = 'codestudio:php-version';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Change the PHP version in Code Studio')
       ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
@@ -26,9 +23,6 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     $this->acceptGitlabOptions();
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $php_version = $input->getArgument('php-version');
     $this->validatePhpVersion($php_version);

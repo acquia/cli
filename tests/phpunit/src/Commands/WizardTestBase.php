@@ -13,9 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class WizardTestBase.
- */
 abstract class WizardTestBase extends CommandTestBase {
 
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -49,9 +46,6 @@ abstract class WizardTestBase extends CommandTestBase {
 
   /**
    * Tests the 'gitlab:wizard:ssh-key:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
    */
   protected function runTestCreate(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -93,10 +87,6 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   protected function runTestSshKeyAlreadyUploaded(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');

@@ -7,24 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class LogTailCommandTest.
- *
  * @property \Acquia\Cli\Command\App\LogTailCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class LogTailCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(LogTailCommand::class);
   }
 
   /**
    * Tests the 'log:tail' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLogTailCommand(): void {
 
@@ -42,7 +34,7 @@ class LogTailCommandTest extends CommandTestBase {
       // Select environment
       0,
       // Select log
-      0
+      0,
     ]);
 
     // Assert.
@@ -57,8 +49,6 @@ class LogTailCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'log:tail' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLogTailCommandWithEnvArg(): void {
     $this->mockLogStreamRequest();

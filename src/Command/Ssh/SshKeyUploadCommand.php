@@ -6,16 +6,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class SshKeyUploadCommand.
- */
 class SshKeyUploadCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:upload';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Upload a local SSH key to the Cloud Platform')
       ->addOption('filepath', NULL, InputOption::VALUE_REQUIRED, 'The filepath of the public SSH key to upload')
@@ -25,8 +19,6 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     [$chosen_local_key, $public_key] = $this->determinePublicSshKey();

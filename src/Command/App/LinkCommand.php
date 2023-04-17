@@ -6,16 +6,10 @@ use Acquia\Cli\Command\CommandBase;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class LinkCommand.
- */
 class LinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:link';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Associate your project with a Cloud Platform application')
       ->setAliases(['link']);
@@ -24,8 +18,6 @@ class LinkCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();

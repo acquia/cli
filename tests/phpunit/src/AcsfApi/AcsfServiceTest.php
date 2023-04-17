@@ -9,9 +9,6 @@ use Acquia\Cli\Application;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class ClientServiceTest.
- */
 class AcsfServiceTest extends TestBase {
 
   protected function setUp(OutputInterface $output = NULL): void {

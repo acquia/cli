@@ -7,24 +7,15 @@ use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class MakeDocsCommand.
- */
 class MakeDocsCommand extends CommandBase {
 
   protected static $defaultName = 'self:make-docs';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Generate documentation for all ACLI commands')
       ->setHidden(TRUE);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $helper = new DescriptorHelper();
 

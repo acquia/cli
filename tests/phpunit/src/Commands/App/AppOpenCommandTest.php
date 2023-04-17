@@ -7,24 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AppOpenCommandTest.
- *
  * @property \Acquia\Cli\Command\App\AppOpenCommand $command
  */
 class AppOpenCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AppOpenCommand::class);
   }
 
   /**
    * Tests the 'app:open' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testAppOpenCommand(): void {
     $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';

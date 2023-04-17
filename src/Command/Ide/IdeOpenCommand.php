@@ -7,16 +7,10 @@ use AcquiaCloudApi\Endpoints\Ides;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeOpenCommand.
- */
 class IdeOpenCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:open';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Open a Cloud IDE in your browser')
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -26,8 +20,6 @@ class IdeOpenCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();

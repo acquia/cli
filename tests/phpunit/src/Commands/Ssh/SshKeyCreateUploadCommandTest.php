@@ -13,10 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class SshKeyCreateUploadCommandTest
- *
  * @property SshKeyCreateUploadCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
@@ -30,19 +27,12 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyCreateUploadCommand::class);
   }
 
   /**
    * Tests the 'ssh-key:create-upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   public function testCreateUpload(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');

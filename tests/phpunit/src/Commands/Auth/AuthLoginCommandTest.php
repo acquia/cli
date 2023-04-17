@@ -10,16 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class AuthCommandTest.
- *
  * @property AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AuthLoginCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AuthLoginCommand::class);
   }
@@ -109,7 +103,6 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param $inputs
    * @param $args
    * @param $output_to_assert
-   * @throws \Psr\Cache\InvalidArgumentException*@throws \Exception
    */
   public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
     $this->mockTokenRequest();
@@ -134,15 +127,15 @@ class AuthLoginCommandTest extends CommandTestBase {
     return [
       [
         [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret]
+        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => 'shorty' , '--secret' => $this->secret]
+        ['--key' => 'shorty' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => ' ', '--secret' => $this->secret]
+        ['--key' => ' ', '--secret' => $this->secret],
       ],
     ];
   }
@@ -153,7 +146,6 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    * @param $inputs
    * @param $args
-   * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
@@ -186,9 +178,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertEquals($this->secret, $keys[$this->key]['secret']);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockTokenRequest(): object {
     $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
       'get', '200');

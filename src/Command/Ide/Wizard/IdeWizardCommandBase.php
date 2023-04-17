@@ -9,9 +9,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeWizardCommandBase.
- */
 abstract class IdeWizardCommandBase extends WizardCommandBase {
 
   use SshCommandTrait;
@@ -27,11 +24,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
    *   An InputInterface instance.
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    *   An OutputInterface instance.
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     parent::initialize($input, $output);
@@ -51,9 +43,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     return 'id_rsa_acquia_ide_' . $ide_uuid;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function validateEnvironment(): void {
     $this->requireCloudIdeEnvironment();
   }
@@ -62,9 +51,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     return $this::getIdeSshKeyLabel($this->ide);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function deleteThisSshKeyFromCloud($output): void {
     if ($cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($output, $cloud_key);

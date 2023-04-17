@@ -8,24 +8,16 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class EnvironmentMirrorCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EnvMirrorCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvMirrorCommand::class);
   }
 
   /**
    * Tests the 'app:environment-mirror' command.
-   *
-   * @throws \Exception
    */
   public function testEnvironmentMirror(): void {
     $environment_response = $this->mockGetEnvironments();
@@ -82,12 +74,12 @@ class EnvMirrorCommandTest extends CommandTestBase {
 
     $this->executeCommand(
       [
-        'source-environment' => $environment_response->id,
         'destination-environment' => $environment_response->id,
+        'source-environment' => $environment_response->id,
       ],
       [
         // Are you sure that you want to overwrite everything ...
-        'y'
+        'y',
       ]
     );
 

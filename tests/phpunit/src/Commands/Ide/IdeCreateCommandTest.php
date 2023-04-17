@@ -9,20 +9,12 @@ use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeCreateCommandTest.
- *
  * @property IdeCreateCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeCreateCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \Exception
    */
   public function testCreate(): void {
 

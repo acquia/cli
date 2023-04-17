@@ -16,9 +16,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class IdeCreateCommand.
- */
 class IdeCreateCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:create';
@@ -27,9 +24,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   private Client $client;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
@@ -38,7 +32,6 @@ class IdeCreateCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $cloud_application_uuid = $this->determineCloudApplication();

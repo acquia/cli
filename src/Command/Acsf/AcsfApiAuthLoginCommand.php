@@ -6,16 +6,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AcsfLoginCommand.
- */
 class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
   protected static $defaultName = 'auth:acsf-login';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Register your Site Factory API key and secret to use API functionality')
       ->addOption('username', 'u', InputOption::VALUE_REQUIRED, "Your Site Factory username")
@@ -29,7 +23,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($input->getOption('factory-url')) {
@@ -87,8 +80,8 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
   private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
     $keys[$factory_url]['users'][$username] = [
-      'username' => $username,
       'key' => $key,
+      'username' => $username,
     ];
     $keys[$factory_url]['url'] = $factory_url;
     $keys[$factory_url]['active_user'] = $username;
