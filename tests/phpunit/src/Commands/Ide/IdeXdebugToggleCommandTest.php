@@ -46,9 +46,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeXdebugToggleCommand::class);
   }

@@ -14,9 +14,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class LogTailCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(LogTailCommand::class);
   }

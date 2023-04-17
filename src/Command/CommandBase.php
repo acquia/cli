@@ -1027,7 +1027,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     foreach ($releases as $release) {
       if (!$release->prerelease) {
         /**
-         * @var $version string
+         * @var string $version
          */
         $version = $release->tag_name;
         $versionStability = VersionParser::parseStability($version);
@@ -1212,9 +1212,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return (bool) self::getLandoInfo();
   }
 
-  /**
-   * @param $base_uri
-   */
   protected function reAuthenticate(string $api_key, string $api_secret, ?string $base_uri, ?string $accounts_uri): void {
     // Client service needs to be reinitialized with new credentials in case
     // this is being run as a sub-command.

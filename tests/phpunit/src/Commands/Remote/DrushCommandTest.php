@@ -16,9 +16,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class DrushCommandTest extends SshCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(DrushCommand::class);
   }

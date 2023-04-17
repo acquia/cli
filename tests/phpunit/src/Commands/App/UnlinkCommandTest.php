@@ -15,9 +15,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class UnlinkCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(UnlinkCommand::class);
   }

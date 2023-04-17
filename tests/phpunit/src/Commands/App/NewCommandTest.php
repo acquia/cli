@@ -27,9 +27,6 @@ class NewCommandTest extends CommandTestBase {
     $this->setupFsFixture();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(NewCommand::class);
   }

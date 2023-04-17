@@ -17,9 +17,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class PushFilesCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushFilesCommand::class);
   }

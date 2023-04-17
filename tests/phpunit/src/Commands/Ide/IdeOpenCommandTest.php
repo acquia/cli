@@ -14,9 +14,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class IdeOpenCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeOpenCommand::class);
   }

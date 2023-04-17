@@ -22,9 +22,6 @@ class PullCommandTest extends PullCommandTestBase {
     $this->setupFsFixture();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullCommand::class);
   }

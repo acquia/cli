@@ -18,9 +18,6 @@ use Symfony\Component\Finder\Finder;
  */
 class ArchiveExporterCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ArchiveExportCommand::class);
   }

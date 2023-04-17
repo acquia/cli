@@ -11,9 +11,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class LandoInfoTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ClearCacheCommand::class);
   }

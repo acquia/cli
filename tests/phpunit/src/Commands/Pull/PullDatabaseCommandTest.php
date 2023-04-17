@@ -34,9 +34,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return [[51], [60]];
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullDatabaseCommand::class);
   }

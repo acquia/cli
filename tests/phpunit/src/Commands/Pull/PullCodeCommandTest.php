@@ -19,9 +19,6 @@ use Symfony\Component\Finder\Finder;
  */
 class PullCodeCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullCodeCommand::class);
   }

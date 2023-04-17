@@ -23,9 +23,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   private int $gitLabProjectId = 33;
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioPhpVersionCommand::class);
   }

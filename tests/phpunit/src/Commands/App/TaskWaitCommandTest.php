@@ -14,9 +14,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class TaskWaitCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(TaskWaitCommand::class);
   }

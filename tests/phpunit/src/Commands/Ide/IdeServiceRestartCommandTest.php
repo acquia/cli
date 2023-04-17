@@ -17,9 +17,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeServiceRestartCommand::class);
   }

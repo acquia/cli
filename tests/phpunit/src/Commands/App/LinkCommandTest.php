@@ -15,9 +15,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class LinkCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(LinkCommand::class);
   }

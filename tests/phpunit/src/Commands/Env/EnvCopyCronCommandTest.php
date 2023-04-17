@@ -16,9 +16,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class EnvCopyCronCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvCopyCronCommand::class);
   }

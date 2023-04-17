@@ -18,9 +18,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
 
   protected string $filename = 'id_rsa_acli_test';
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyCreateCommand::class);
   }

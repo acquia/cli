@@ -15,9 +15,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EmailInfoForSubscriptionCommand::class);
   }

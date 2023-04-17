@@ -28,5 +28,8 @@
   <rule ref="SlevomatCodingStandard.Commenting.EmptyComment" />
   <rule ref="SlevomatCodingStandard.Commenting.DocCommentSpacing" />
   <rule ref="SlevomatCodingStandard.Classes.RequireConstructorPropertyPromotion" />
+  <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment" />
+  <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />
+  <rule ref="SlevomatCodingStandard.Commenting.InlineDocCommentDeclaration" />
 
 </ruleset>

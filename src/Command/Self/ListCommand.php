@@ -19,9 +19,6 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
       ->setAliases(['list']);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     foreach (['api', 'acsf'] as $prefix) {
       if ($input->getArgument('namespace') !== $prefix) {

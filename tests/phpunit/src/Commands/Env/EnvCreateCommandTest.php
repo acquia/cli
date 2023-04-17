@@ -78,9 +78,6 @@ class EnvCreateCommandTest extends CommandTestBase {
     return $applications_response->{'_embedded'}->items[0]->uuid;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvCreateCommand::class);
   }

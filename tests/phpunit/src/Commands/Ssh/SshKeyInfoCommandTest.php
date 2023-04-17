@@ -9,9 +9,6 @@ use Symfony\Component\Console\Command\Command;
 
 class SshKeyInfoCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyInfoCommand::class);
   }

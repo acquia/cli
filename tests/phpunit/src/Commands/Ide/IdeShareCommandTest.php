@@ -37,9 +37,6 @@ class IdeShareCommandTest extends CommandTestBase {
     IdeHelper::setCloudIdeEnvVars();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeShareCommand::class);
   }

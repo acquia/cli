@@ -18,9 +18,6 @@ class ApiListCommandTest extends CommandTestBase {
     $this->application->addCommands($this->getApiCommands());
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ApiListCommand::class);
   }

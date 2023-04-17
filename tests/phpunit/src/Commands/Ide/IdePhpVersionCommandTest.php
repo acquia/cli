@@ -22,9 +22,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdePhpVersionCommand::class);
   }

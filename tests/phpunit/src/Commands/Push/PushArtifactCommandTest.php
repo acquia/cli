@@ -18,9 +18,6 @@ use Symfony\Component\Process\Process;
  */
 class PushArtifactCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushArtifactCommand::class);
   }

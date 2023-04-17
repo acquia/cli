@@ -16,9 +16,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AcsfApiAuthLogoutCommand::class);

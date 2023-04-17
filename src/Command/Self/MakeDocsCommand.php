@@ -22,9 +22,6 @@ class MakeDocsCommand extends CommandBase {
       ->setHidden(TRUE);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $helper = new DescriptorHelper();
 

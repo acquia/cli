@@ -17,9 +17,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
  */
 class AuthLoginCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AuthLoginCommand::class);
   }

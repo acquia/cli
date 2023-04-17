@@ -15,9 +15,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class SshKeyDeleteCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyDeleteCommand::class);
   }

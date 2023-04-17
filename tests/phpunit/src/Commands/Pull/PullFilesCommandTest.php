@@ -18,9 +18,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class PullFilesCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullFilesCommand::class);
   }

@@ -17,9 +17,6 @@ class IdeServiceStopCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeServiceStopCommand::class);
   }

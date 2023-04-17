@@ -16,9 +16,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class AuthLogoutCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AuthLogoutCommand::class);
   }

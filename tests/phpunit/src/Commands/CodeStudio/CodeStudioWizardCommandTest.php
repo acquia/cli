@@ -47,9 +47,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioWizardCommand::class);
   }

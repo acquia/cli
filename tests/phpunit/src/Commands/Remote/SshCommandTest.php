@@ -16,9 +16,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class SshCommandTest extends SshCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshCommand::class);
   }

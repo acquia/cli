@@ -18,9 +18,6 @@ use Symfony\Component\Filesystem\Path;
  */
 class AliasesDownloadCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AliasesDownloadCommand::class);
   }

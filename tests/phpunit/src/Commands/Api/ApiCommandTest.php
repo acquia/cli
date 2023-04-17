@@ -26,9 +26,6 @@ class ApiCommandTest extends CommandTestBase {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ApiBaseCommand::class);
   }

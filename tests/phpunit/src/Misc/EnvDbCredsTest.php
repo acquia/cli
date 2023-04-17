@@ -43,9 +43,6 @@ class EnvDbCredsTest extends CommandTestBase {
     ];
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ClearCacheCommand::class);
   }

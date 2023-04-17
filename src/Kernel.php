@@ -69,9 +69,6 @@ class Kernel extends BaseKernel {
     return new DelegatingLoader($resolver);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function build(ContainerBuilder $container_builder): void {
     $container_builder->addCompilerPass($this->createCollectingCompilerPass());
   }
