@@ -27,14 +27,13 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     $php_version = $input->getArgument('php-version');
     $this->validatePhpVersion($php_version);
     $this->authenticateWithGitLab();
-    $acquiaCloudAppId = $input->getArgument('applicationUuid');
+    $acquiaCloudAppId = $this->determineCloudApplication();
 
-    // Get the gitlab project details attached with the given
-    // cloud application.
+    // Get the GitLab project details attached with the given Cloud application.
     $cloud_application = $this->getCloudApplication($acquiaCloudAppId);
     $project = $this->determineGitLabProject($cloud_application);
 
-    // if CI/CD is not enabled for the project in code studio.
+    // If CI/CD is not enabled for the project in Code Studio.
     if (empty($project['jobs_enabled'])) {
       $this->io->error('CI/CD is not enabled for this application in code studio. Enable it first and then try again.');
       return self::FAILURE;
@@ -57,12 +56,12 @@ class CodeStudioPhpVersionCommand extends CommandBase {
         $this->gitLabClient->projects()->updateVariable($project['id'], 'PHP_VERSION', $php_version);
       }
     }
-    catch (RuntimeException $exception) {
-      $this->io->error("Unable to update the PHP version to {$php_version}");
+    catch (RuntimeException) {
+      $this->io->error("Unable to update the PHP version to $php_version");
       return self::FAILURE;
     }
 
-    $this->io->success("PHP version is updated to {$php_version} successfully!");
+    $this->io->success("PHP version is updated to $php_version successfully!");
     return self::SUCCESS;
   }
 
