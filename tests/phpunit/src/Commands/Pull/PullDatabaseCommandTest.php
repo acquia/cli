@@ -176,7 +176,8 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The certificate for www.example.com is invalid, trying alternative host other.example.com', $output);
+    $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
+    $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
   /**
