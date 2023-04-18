@@ -178,9 +178,6 @@ abstract class PullCommandBase extends CommandBase {
     $this->localMachineHelper->getFilesystem()->remove($local_filepath);
   }
 
-  /**
-   * @param callable|null $output_callback
-   */
   private function downloadDatabaseBackup(
     EnvironmentResponse $environment,
     DatabaseResponse $database,
@@ -222,6 +219,7 @@ abstract class PullCommandBase extends CommandBase {
       // Deal with broken SSL certificates.
       // @see https://timi.eu/docs/anatella/5_1_9_1_list_of_curl_error_codes.html
       if (in_array($exception->getHandlerContext()['errno'], [51, 60], TRUE)) {
+        $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid.</comment>');
         assert($url !== NULL);
         $domains_resource = new Domains($this->cloudApiClientService->getClient());
         $domains = $domains_resource->getAll($environment->uuid);
@@ -229,7 +227,7 @@ abstract class PullCommandBase extends CommandBase {
           if ($domain->hostname === $url->getHost()) {
             continue;
           }
-          $output_callback('out', '<comment>The certificate for ' . $url->getHost() . ' is invalid, trying alternative host ' . $domain->hostname . ' </comment>');
+          $output_callback('out', '<comment>Trying alternative host ' . $domain->hostname . ' </comment>');
           $download_url = $url->withHost($domain->hostname);
           try {
             $this->httpClient->request('GET', $download_url, ['sink' => $local_filepath]);
