@@ -131,4 +131,7 @@ brew install restview
 
 Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
 
-Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`). Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`).
+- Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`).
+- Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`). Do not use a trailing period for argument and option descriptions.
+- Use camelCase for all property, method, and variable names.
+- Use hyphens to separate words in options and arguments (`addOption('ssh-key')`), or any other variable exposed to end users.
