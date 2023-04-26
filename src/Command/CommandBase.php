@@ -1282,23 +1282,21 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * Get an option, either passed as an argument or via interactive prompt.
+   * Get an option, either passed explicitly or via interactive prompt.
    *
    * Default can be passed explicitly, separately from the option default,
    * because Symfony does not make a distinction between an option value set
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
    *
-   * The answer must be a non-null string subject to validation.
-   *
    * @param string $option_name
    * @param bool $hidden
    * @param \Closure|null $validator
    * @param \Closure|null $normalizer
    * @param string|null $default
-   * @return string
+   * @return string|null
    */
-  protected function determineOption(string $option_name, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string {
+  protected function determineOption(string $option_name, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): ?string {
     if ($option_value = $this->input->getOption($option_name)) {
       if (isset($normalizer)) {
         $option_value = $normalizer($option_value);
@@ -1317,6 +1315,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     else {
       $message = "Enter $description (option <options=bold>--$option_name</>)";
     }
+    $optional = $option->isValueOptional();
+    $message .= $optional ? ' (optional)' : '';
     $message .= $hidden ? ' (input will be hidden)' : '';
     $question = new Question($message, $default);
     $question->setHidden($this->localMachineHelper->useTty() && $hidden);
@@ -1329,7 +1329,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     $option_value = $this->io->askQuestion($question);
     // Question bypasses validation if session is non-interactive.
-    if (is_null($option_value)) {
+    if (!$optional && is_null($option_value)) {
       throw new AcquiaCliException($message);
     }
     return $option_value;
