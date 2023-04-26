@@ -12,7 +12,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
 use RuntimeException;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Validator\Constraints\Length;
@@ -241,10 +240,9 @@ EOT
     return $filepath;
   }
 
-  protected function determineFilename(InputInterface $input): string {
+  protected function determineFilename(): string {
     return $this->determineOption(
       'filename',
-      $input,
       FALSE,
       Closure::fromCallable([$this, 'validateFilename']),
       static function ($value) {
@@ -266,10 +264,9 @@ EOT
     return $filename;
   }
 
-  protected function determinePassword(InputInterface $input): string {
+  protected function determinePassword(): string {
     return $this->determineOption(
       'password',
-      $input,
       TRUE,
       Closure::fromCallable([$this, 'validatePassword']),
       static function ($value) {
@@ -346,8 +343,8 @@ EOT
     return $this->io->askQuestion($question);
   }
 
-  protected function determineSshKeyLabel(InputInterface $input): string {
-    return $this->determineOption('label', $input, FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
+  protected function determineSshKeyLabel(): string {
+    return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
   /**

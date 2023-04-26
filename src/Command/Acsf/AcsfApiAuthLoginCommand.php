@@ -65,11 +65,11 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
       }
     }
     else {
-      $factory_url = $this->determineOption('factory-url', $input);
+      $factory_url = $this->determineOption('factory-url');
     }
 
-    $username = $this->determineOption('username', $input);
-    $key = $this->determineOption('key', $input, TRUE);
+    $username = $this->determineOption('username');
+    $key = $this->determineOption('key', TRUE);
 
     $this->writeAcsfCredentialsToDisk($factory_url, $username, $key);
     $output->writeln("<info>Saved credentials</info>");

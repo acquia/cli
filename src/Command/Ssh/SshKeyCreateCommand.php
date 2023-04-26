@@ -20,8 +20,8 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $filename = $this->determineFilename($input);
-    $password = $this->determinePassword($input);
+    $filename = $this->determineFilename();
+    $password = $this->determinePassword();
     $this->createSshKey($filename, $password);
     $output->writeln('<info>Created new SSH key.</info> ' . $this->publicSshKeyFilepath);
 

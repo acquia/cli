@@ -35,8 +35,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey($input);
-    $cloud_secret = $this->determineApiSecret($input);
+    $cloud_key = $this->determineApiKey();
+    $cloud_secret = $this->determineApiSecret();
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.

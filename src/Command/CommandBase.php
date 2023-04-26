@@ -1258,8 +1258,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function determineApiKey(InputInterface $input): string {
-    return $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
+  protected function determineApiKey(): string {
+    return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1277,8 +1277,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $key;
   }
 
-  protected function determineApiSecret(InputInterface $input): string {
-    return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+  protected function determineApiSecret(): string {
+    return $this->determineOption('secret', TRUE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1292,14 +1292,14 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * The answer must be a non-null string subject to validation.
    *
    * @param string $option_name
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param bool $hidden
    * @param \Closure|null $validator
+   * @param \Closure|null $normalizer
    * @param string|null $default
    * @return string
    */
-  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string {
-    if ($option_value = $input->getOption($option_name)) {
+  protected function determineOption(string $option_name, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string {
+    if ($option_value = $this->input->getOption($option_name)) {
       if (isset($normalizer)) {
         $option_value = $normalizer($option_value);
       }
