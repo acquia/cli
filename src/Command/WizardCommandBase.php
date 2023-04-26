@@ -8,18 +8,10 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class WizardCommandBase.
- */
 abstract class WizardCommandBase extends SshKeyCommandBase {
 
   abstract protected function validateEnvironment(): void;
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException|\Psr\Cache\InvalidArgumentException
-   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   protected function initialize(InputInterface $input, OutputInterface $output): void {
     if ($this->commandRequiresAuthentication() && !$this->cloudApiClientService->isMachineAuthenticated()) {
       $command_name = 'auth:login';

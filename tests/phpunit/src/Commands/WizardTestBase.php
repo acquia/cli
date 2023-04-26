@@ -13,9 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class WizardTestBase.
- */
 abstract class WizardTestBase extends CommandTestBase {
 
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -49,15 +46,14 @@ abstract class WizardTestBase extends CommandTestBase {
 
   /**
    * Tests the 'gitlab:wizard:ssh-key:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function runTestCreate(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
+    $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
     // List uploaded keys.
-    $this->mockUploadSshKey();
+    $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
 
     $local_machine_helper = $this->mockLocalMachineHelper();
 
@@ -67,7 +63,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper);
+    $this->mockGenerateSshKey($local_machine_helper, $request['public_key']);
     $local_machine_helper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
@@ -91,10 +87,6 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   protected function runTestSshKeyAlreadyUploaded(): void {
     $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
@@ -122,7 +114,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $local_machine_helper = $this->mockLocalMachineHelper();
 
     // List uploaded keys.
-    $this->mockUploadSshKey();
+    $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
 
     // Poll Cloud.
     $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
@@ -130,7 +122,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
     /** @var Filesystem|ObjectProphecy $file_system */
     $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper);
+    $this->mockGenerateSshKey($local_machine_helper, $mock_request_args['public_key']);
     $file_system->remove(Argument::size(2))->shouldBeCalled();
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $local_machine_helper->getFilesystem()
@@ -144,9 +136,7 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
     $this->createLocalSshKey($mock_request_args['public_key']);
-    //$this->expectException(AcquiaCliException::class);
-    //$this->expectExceptionMessage('You have already uploaded a local key to the Cloud Platform. You don\'t need to create a new one.');
-    $this->executeCommand([], []);
+    $this->executeCommand();
   }
 
 }

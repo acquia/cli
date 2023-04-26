@@ -8,10 +8,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
 /**
- * Class IdeXdebugCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeXdebugToggleCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeXdebugToggleCommandTest extends CommandTestBase {
 
@@ -23,7 +20,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    * This method is called before each test.
    *
    * @param $php_version
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function setUpXdebug($php_version): void {
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
@@ -46,9 +42,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeXdebugToggleCommand::class);
   }
@@ -68,7 +61,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    * Tests the 'ide:xdebug' command.
    *
    * @dataProvider providerTestXdebugCommandEnable
-   * @throws \Exception
    */
   public function testXdebugCommandEnable($php_version): void {
     $this->setUpXdebug($php_version);
@@ -84,7 +76,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    * Tests the 'ide:xdebug' command.
    *
    * @dataProvider providerTestXdebugCommandEnable
-   * @throws \Exception
    */
   public function testXdebugCommandDisable($php_version): void {
     $this->setUpXdebug($php_version);

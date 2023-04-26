@@ -9,16 +9,10 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AcsfAuthLogoutCommandTest.
- *
  * @property AcsfAuthLogoutCommandTest $command
- * @package Acquia\Cli\Tests
  */
 class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AcsfApiAuthLogoutCommand::class);
@@ -57,7 +51,6 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
    * @dataProvider providerTestAuthLogoutCommand
    * @param array $inputs
    * @param array $config
-   * @throws \Exception
    */
   public function testAcsfAuthLogoutCommand(bool $machine_is_authenticated, array $inputs, array $config = []): void {
     if (!$machine_is_authenticated) {

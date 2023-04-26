@@ -9,16 +9,10 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DrushCommandTest.
- *
  * @property DrushCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class DrushCommandTest extends SshCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(DrushCommand::class);
   }
@@ -27,16 +21,16 @@ class DrushCommandTest extends SshCommandTestBase {
     return [
       [
         [
+          '-vvv' => '',
           'alias' => 'devcloud2.dev',
           'drush_command' => 'status --fields=db-status',
-          '-vvv' => '',
         ],
       ],
       [
         [
+          '-vvv' => '',
           'alias' => '@devcloud2.dev',
           'drush_command' => 'status --fields=db-status',
-          '-vvv' => '',
         ],
       ],
     ];
@@ -47,7 +41,6 @@ class DrushCommandTest extends SshCommandTestBase {
    *
    * @dataProvider providerTestRemoteDrushCommand
    * @param array $args
-   * @throws \Psr\Cache\InvalidArgumentException
    * @group serial
    */
   public function testRemoteDrushCommand(array $args): void {

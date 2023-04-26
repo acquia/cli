@@ -4,9 +4,6 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class LocalMachineHelperTest.
- */
 class LocalMachineHelperTest extends TestBase {
 
   public function testStartBrowser(): void {
@@ -33,7 +30,6 @@ class LocalMachineHelperTest extends TestBase {
    * @param $interactive
    * @param $is_tty
    * @param $print_output
-   * @throws \Exception
    */
   public function testExecuteFromCmd($interactive, $is_tty, $print_output): void {
     $local_machine_helper = $this->localMachineHelper;
@@ -50,9 +46,6 @@ class LocalMachineHelperTest extends TestBase {
     }
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function testExecuteWithCwd(): void {
     $this->setupFsFixture();
     $local_machine_helper = $this->localMachineHelper;

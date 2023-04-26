@@ -5,16 +5,10 @@ namespace Acquia\Cli\Command\Acsf;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AcsfLoginCommand.
- */
 class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
   protected static $defaultName = 'auth:acsf-logout';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Remove your Site Factory key and secret from your local machine.');
   }
@@ -25,7 +19,6 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if (!$this->cloudApiClientService->isMachineAuthenticated()) {

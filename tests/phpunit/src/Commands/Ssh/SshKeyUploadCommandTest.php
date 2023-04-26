@@ -11,10 +11,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class SshKeyCreateUploadCommandTest
- *
  * @property SshKeyUploadCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyUploadCommandTest extends CommandTestBase {
 
@@ -23,16 +20,12 @@ class SshKeyUploadCommandTest extends CommandTestBase {
    */
   private array $sshKeysRequestBody;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
   /**
    * @return array[]
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestUpload(): array {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -57,8 +50,8 @@ class SshKeyUploadCommandTest extends CommandTestBase {
       [
         // Args.
         [
-          '--label' => $this->sshKeysRequestBody['label'],
           '--filepath' => 'id_rsa.pub',
+          '--label' => $this->sshKeysRequestBody['label'],
         ],
         // Inputs.
         [
@@ -77,7 +70,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
    * @dataProvider providerTestUpload
    *
    * Tests the 'ssh-key:upload' command.
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testUpload($args, $inputs, $perms): void {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
@@ -116,15 +108,12 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Your SSH key is ready for use!', $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidFilepath(): void {
     $inputs = [
       // Choose key.
       '0',
       // Label
-      'Test'
+      'Test',
     ];
     $filepath = Path::join(sys_get_temp_dir(), 'notarealfile');
     $args = ['--filepath' => $filepath];

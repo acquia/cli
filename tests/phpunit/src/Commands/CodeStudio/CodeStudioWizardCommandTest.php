@@ -17,10 +17,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class CodeStudioWizardCommandTest.
- *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioWizardCommand $command
- * @package Acquia\Cli\Tests\Commands
  * @requires OS linux|darwin
  */
 class CodeStudioWizardCommandTest extends WizardTestBase {
@@ -33,9 +30,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   private int $gitLabProjectId = 33;
   private int $gitLabTokenId = 118;
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
@@ -47,9 +41,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioWizardCommand::class);
   }
@@ -73,7 +64,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           '--key' => $this->key,
           '--secret' => $this->secret,
-        ]
+        ],
       ],
       // Two projects.
       [
@@ -91,7 +82,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           '--key' => $this->key,
           '--secret' => $this->secret,
-        ]
+        ],
       ],
       [
         // No projects.
@@ -109,7 +100,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           '--key' => $this->key,
           '--secret' => $this->secret,
-        ]
+        ],
       ],
       [
         // No projects.
@@ -127,7 +118,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
         [
           '--key' => $this->key,
           '--secret' => $this->secret,
-        ]
+        ],
       ],
       [
         // No projects.
@@ -144,8 +135,8 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'y',
         ],
         // Args
-        []
-      ]
+        [],
+      ],
     ];
   }
 
@@ -154,8 +145,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -207,9 +196,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
@@ -224,9 +210,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ]);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testMissingGitLabCredentials(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
     $this->mockExecuteGlabExists($local_machine_helper);
@@ -244,18 +227,18 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   protected function mockGitLabProjectsTokens(ObjectProphecy $projects): void {
     $tokens = [
       0 => [
+          'access_level' => 40,
+          'active' => TRUE,
+          'created_at' => '2021-12-28T20:08:21.629Z',
+          'expires_at' => NULL,
           'id' => $this->gitLabTokenId,
           'name' => 'acquia-codestudio',
           'revoked' => FALSE,
-          'created_at' => '2021-12-28T20:08:21.629Z',
           'scopes' => [
               0 => 'api',
               1 => 'write_repository',
             ],
           'user_id' => 154,
-          'active' => TRUE,
-          'expires_at' => NULL,
-          'access_level' => 40,
         ],
     ];
     $projects->projectAccessTokens($this->gitLabProjectId)->willReturn($tokens);
@@ -283,58 +266,58 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $groups = $this->prophet->prophesize(Groups::class);
     $groups->all(Argument::type('array'))->willReturn([
       0 => [
-          'id' => 47,
-          'web_url' => 'https://code.cloudservices.acquia.io/groups/awesome-demo',
-          'name' => 'awesome-demo',
-          'path' => 'awesome-demo',
-          'description' => '',
-          'visibility' => 'private',
-          'share_with_group_lock' => FALSE,
-          'require_two_factor_authentication' => FALSE,
-          'two_factor_grace_period' => 48,
-          'project_creation_level' => 'developer',
           'auto_devops_enabled' => NULL,
-          'subgroup_creation_level' => 'maintainer',
-          'emails_disabled' => NULL,
-          'mentions_disabled' => NULL,
-          'lfs_enabled' => TRUE,
-          'default_branch_protection' => 2,
           'avatar_url' => NULL,
-          'request_access_enabled' => TRUE,
+          'created_at' => '2021-11-16T18:54:31.275Z',
+          'default_branch_protection' => 2,
+          'description' => '',
+          'emails_disabled' => NULL,
           'full_name' => 'awesome-demo',
           'full_path' => 'awesome-demo',
-          'created_at' => '2021-11-16T18:54:31.275Z',
-          'parent_id' => NULL,
-          'ldap_cn' => NULL,
+          'id' => 47,
           'ldap_access' => NULL,
+          'ldap_cn' => NULL,
+          'lfs_enabled' => TRUE,
           'marked_for_deletion_on' => NULL,
+          'mentions_disabled' => NULL,
+          'name' => 'awesome-demo',
+          'parent_id' => NULL,
+          'path' => 'awesome-demo',
+          'project_creation_level' => 'developer',
+          'request_access_enabled' => TRUE,
+          'require_two_factor_authentication' => FALSE,
+          'share_with_group_lock' => FALSE,
+          'subgroup_creation_level' => 'maintainer',
+          'two_factor_grace_period' => 48,
+          'visibility' => 'private',
+          'web_url' => 'https://code.cloudservices.acquia.io/groups/awesome-demo',
         ],
       1 => [
-          'id' => 68,
-          'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
-          'name' => 'Nestle',
-          'path' => 'nestle',
-          'description' => '',
-          'visibility' => 'private',
-          'share_with_group_lock' => FALSE,
-          'require_two_factor_authentication' => FALSE,
-          'two_factor_grace_period' => 48,
-          'project_creation_level' => 'developer',
           'auto_devops_enabled' => NULL,
-          'subgroup_creation_level' => 'maintainer',
-          'emails_disabled' => NULL,
-          'mentions_disabled' => NULL,
-          'lfs_enabled' => TRUE,
-          'default_branch_protection' => 2,
           'avatar_url' => NULL,
-          'request_access_enabled' => TRUE,
+          'created_at' => '2021-12-14T18:49:50.724Z',
+          'default_branch_protection' => 2,
+          'description' => '',
+          'emails_disabled' => NULL,
           'full_name' => 'Nestle',
           'full_path' => 'nestle',
-          'created_at' => '2021-12-14T18:49:50.724Z',
-          'parent_id' => NULL,
-          'ldap_cn' => NULL,
+          'id' => 68,
           'ldap_access' => NULL,
+          'ldap_cn' => NULL,
+          'lfs_enabled' => TRUE,
           'marked_for_deletion_on' => NULL,
+          'mentions_disabled' => NULL,
+          'name' => 'Nestle',
+          'parent_id' => NULL,
+          'path' => 'nestle',
+          'project_creation_level' => 'developer',
+          'request_access_enabled' => TRUE,
+          'require_two_factor_authentication' => FALSE,
+          'share_with_group_lock' => FALSE,
+          'subgroup_creation_level' => 'maintainer',
+          'two_factor_grace_period' => 48,
+          'visibility' => 'private',
+          'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
         ],
     ]);
     $gitlab_client->groups()->willReturn($groups->reveal());
@@ -343,20 +326,20 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   protected function mockGitLabNamespaces(ObjectProphecy $gitlab_client): void {
     $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
     $namespaces->show(Argument::type('string'))->willReturn([
-      'id' => 48,
-      'name' => 'Matthew Grasmick',
-      'path' => 'matthew.grasmick',
-      'kind' => 'user',
-      'full_path' => 'matthew.grasmick',
-      'parent_id' => NULL,
       'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
-      'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
       'billable_members_count' => 1,
-      'seats_in_use' => 0,
+      'full_path' => 'matthew.grasmick',
+      'id' => 48,
+      'kind' => 'user',
       'max_seats_used' => 0,
+      'name' => 'Matthew Grasmick',
+      'parent_id' => NULL,
+      'path' => 'matthew.grasmick',
       'plan' => 'default',
-      'trial_ends_on' => NULL,
+      'seats_in_use' => 0,
       'trial' => FALSE,
+      'trial_ends_on' => NULL,
+      'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
     ]);
     $gitlab_client->namespaces()->willReturn($namespaces->reveal());
   }

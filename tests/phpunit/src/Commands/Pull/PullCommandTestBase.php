@@ -9,11 +9,6 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
 
-/**
- * Class PullCommandTestBase.
- *
- * @package Acquia\Cli\Tests\Commands\Pull
- */
 abstract class PullCommandTestBase extends CommandTestBase {
 
   use IdeRequiredTestTrait;

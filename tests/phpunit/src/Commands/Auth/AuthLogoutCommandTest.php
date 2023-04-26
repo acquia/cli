@@ -9,16 +9,10 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AuthLogoutCommandTest.
- *
  * @property AuthLogoutCommandTest $command
- * @package Acquia\Cli\Tests
  */
 class AuthLogoutCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AuthLogoutCommand::class);
   }
@@ -30,7 +24,7 @@ class AuthLogoutCommandTest extends CommandTestBase {
         TRUE,
         // Are you sure you'd like to remove your Cloud API login credentials from this machine?
         ['y'],
-      ]
+      ],
     ];
   }
 
@@ -39,7 +33,6 @@ class AuthLogoutCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestAuthLogoutCommand
    * @param array $inputs
-   * @throws \Exception
    */
   public function testAuthLogoutCommand(bool $machine_is_authenticated, array $inputs): void {
     if (!$machine_is_authenticated) {

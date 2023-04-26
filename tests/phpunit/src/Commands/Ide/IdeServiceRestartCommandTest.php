@@ -8,26 +8,18 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeServiceRestartCommandTest.
- *
  * @property IdeServiceRestartCommandTest $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeServiceRestartCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeServiceRestartCommand::class);
   }
 
   /**
    * Tests the 'ide:service-restart' command.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceRestartCommand(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -43,8 +35,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:service-restart' command with invalid choice.
-   *
-   * @throws \Exception
    */
   public function testIdeServiceRestartCommandInvalid(): void {
     $local_machine_helper = $this->mockLocalMachineHelper();

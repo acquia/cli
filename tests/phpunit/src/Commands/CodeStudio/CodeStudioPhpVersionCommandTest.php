@@ -11,10 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class CodeStudioPhpVersionCommandTest.
- *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPhpVersionCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
@@ -23,9 +20,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   private int $gitLabProjectId = 33;
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioPhpVersionCommand::class);
   }
@@ -38,7 +32,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
       ['', ValidatorException::class],
       ['8', ValidatorException::class],
       ['8 1', ValidatorException::class],
-      ['ABC', ValidatorException::class]
+      ['ABC', ValidatorException::class],
     ];
   }
 
@@ -46,21 +40,17 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    * Test for the wrong PHP version passed as argument.
    *
    * @dataProvider providerTestPhpVersionFailure
-   * @throws \Exception
    */
   public function testPhpVersionFailure($php_version): void {
     $this->expectException(ValidatorException::class);
     $this->executeCommand([
-      'php-version' => $php_version,
       'applicationUuid' => self::$application_uuid,
+      'php-version' => $php_version,
     ]);
   }
 
   /**
    * Test for CI/CD not enabled on the project.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCiCdNotEnabled(): void {
     $this->mockApplicationRequest();
@@ -76,10 +66,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->executeCommand([
-      'php-version' => '8.1',
-      'applicationUuid' => self::$application_uuid,
-      '--gitlab-token' => $this->gitLabToken,
       '--gitlab-host-name' => $this->gitLabHost,
+      '--gitlab-token' => $this->gitLabToken,
+      'applicationUuid' => self::$application_uuid,
+      'php-version' => '8.1',
     ]);
 
     $output = $this->getDisplay();
@@ -88,9 +78,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version add.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAddFail(): void {
     $this->mockApplicationRequest();
@@ -111,10 +98,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
     $gitlab_client->projects()->willReturn($projects);
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->executeCommand([
-      'php-version' => '8.1',
-      'applicationUuid' => self::$application_uuid,
-      '--gitlab-token' => $this->gitLabToken,
       '--gitlab-host-name' => $this->gitLabHost,
+      '--gitlab-token' => $this->gitLabToken,
+      'applicationUuid' => self::$application_uuid,
+      'php-version' => '8.1',
     ]);
 
     $output = $this->getDisplay();
@@ -123,9 +110,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version add.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionAdd(): void {
     $this->mockApplicationRequest();
@@ -146,10 +130,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->executeCommand([
-      'php-version' => '8.1',
-      'applicationUuid' => self::$application_uuid,
-      '--gitlab-token' => $this->gitLabToken,
       '--gitlab-host-name' => $this->gitLabHost,
+      '--gitlab-token' => $this->gitLabToken,
+      'applicationUuid' => self::$application_uuid,
+      'php-version' => '8.1',
     ]);
 
     $output = $this->getDisplay();
@@ -158,9 +142,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for failed PHP version update.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdateFail(): void {
     $this->mockApplicationRequest();
@@ -176,12 +157,12 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
     $variables = $this->getMockGitLabVariables();
     $variables[] = [
-      'variable_type' => 'env_var',
-      'key' => 'PHP_VERSION',
-      'value' => '8.1',
-      'protected' => FALSE,
-      'masked' => FALSE,
       'environment_scope' => '*',
+      'key' => 'PHP_VERSION',
+      'masked' => FALSE,
+      'protected' => FALSE,
+      'value' => '8.1',
+      'variable_type' => 'env_var',
     ];
     $projects->variables($this->gitLabProjectId)->willReturn($variables);
     $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
@@ -190,10 +171,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
     $gitlab_client->projects()->willReturn($projects);
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->executeCommand([
-      'php-version' => '8.1',
-      'applicationUuid' => self::$application_uuid,
-      '--gitlab-token' => $this->gitLabToken,
       '--gitlab-host-name' => $this->gitLabHost,
+      '--gitlab-token' => $this->gitLabToken,
+      'applicationUuid' => self::$application_uuid,
+      'php-version' => '8.1',
     ]);
 
     $output = $this->getDisplay();
@@ -202,9 +183,6 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
   /**
    * Test for successful PHP version update.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();
@@ -220,12 +198,12 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
     $variables = $this->getMockGitLabVariables();
     $variables[] = [
-      'variable_type' => 'env_var',
-      'key' => 'PHP_VERSION',
-      'value' => '8.1',
-      'protected' => FALSE,
-      'masked' => FALSE,
       'environment_scope' => '*',
+      'key' => 'PHP_VERSION',
+      'masked' => FALSE,
+      'protected' => FALSE,
+      'value' => '8.1',
+      'variable_type' => 'env_var',
     ];
     $projects->variables($this->gitLabProjectId)->willReturn($variables);
     $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
@@ -234,10 +212,10 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
 
     $this->command->setGitLabClient($gitlab_client->reveal());
     $this->executeCommand([
-      'php-version' => '8.1',
-      'applicationUuid' => self::$application_uuid,
-      '--gitlab-token' => $this->gitLabToken,
       '--gitlab-host-name' => $this->gitLabHost,
+      '--gitlab-token' => $this->gitLabToken,
+      'applicationUuid' => self::$application_uuid,
+      'php-version' => '8.1',
     ]);
 
     $output = $this->getDisplay();

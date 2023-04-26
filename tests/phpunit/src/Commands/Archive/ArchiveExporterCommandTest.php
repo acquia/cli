@@ -12,23 +12,14 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class ArchiveExporterCommandTest.
- *
  * @property \Acquia\Cli\Command\Archive\ArchiveExportCommand $command
  */
 class ArchiveExporterCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ArchiveExportCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   public function testArchiveExport(): void {
     touch(Path::join($this->projectDir, '.gitignore'));
     $destination_dir = 'foo';

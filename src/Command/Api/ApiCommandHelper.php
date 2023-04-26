@@ -9,33 +9,19 @@ use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Logger\ConsoleLogger;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 class ApiCommandHelper {
 
-  protected InputInterface $input;
-
-  protected OutputInterface $output;
-
-  private ConsoleLogger $logger;
-
-  /**
-   * CommandBase constructor.
-   */
   public function __construct(
-    ConsoleLogger $logger
+    private ConsoleLogger $logger
   ) {
-    $this->logger = $logger;
   }
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
    */
   public function getApiCommands(string $acquia_cloud_spec_file_path, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file_path);
@@ -81,9 +67,6 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquia_cloud_spec
-   * @throws \JsonException
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function addApiCommandParameters(array $schema, array $acquia_cloud_spec, CommandBase $command): void {
     $input_definition = [];
@@ -114,7 +97,7 @@ class ApiCommandHelper {
     if (array_key_exists('requestBody', $schema)) {
       [
         $body_input_definition,
-        $request_body_param_usage_suffix
+        $request_body_param_usage_suffix,
       ] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
       $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
       /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
@@ -137,8 +120,6 @@ class ApiCommandHelper {
    * @param array $schema
    * @param array $acquia_cloud_spec
    * @return array
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function addApiCommandParametersForRequestBody(array $schema, array $acquia_cloud_spec): array {
     $usage = '';
@@ -195,8 +176,6 @@ class ApiCommandHelper {
    * @param $param_definition
    * @param $type
    * @param $usage
-   * @throws \JsonException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
     $request_body_content = $this->getRequestBodyContent($request_body);
@@ -331,7 +310,6 @@ class ApiCommandHelper {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   private function getCloudApiSpec(string $spec_file_path): array {
     $cache_key = basename($spec_file_path);
@@ -367,8 +345,6 @@ class ApiCommandHelper {
   /**
    * @param array $acquia_cloud_spec
    * @return ApiBaseCommand[]
-   * @throws \JsonException
-   * @throws \JsonException
    */
   private function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
     $api_commands = [];
@@ -469,7 +445,6 @@ class ApiCommandHelper {
    * @param array $schema
    * @param $acquia_cloud_spec
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
     $request_body_content = $this->getRequestBodyContent($schema['requestBody']);
@@ -499,10 +474,10 @@ class ApiCommandHelper {
   protected static function getParameterRenameMap(): array {
     // Format should be ['original => new'].
     return [
-      // @see api:environments:update.
-      'version' => 'lang_version',
       // @see api:environments:cron-create
       'command' => 'cron_command',
+      // @see api:environments:update.
+      'version' => 'lang_version',
     ];
   }
 
@@ -554,7 +529,6 @@ class ApiCommandHelper {
   /**
    * @param $requestBody
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getRequestBodyContent($requestBody): array {
     $content = $requestBody['content'];
@@ -562,7 +536,7 @@ class ApiCommandHelper {
       'application/json',
       'application/x-www-form-urlencoded',
       'multipart/form-data',
-      'application/hal+json'
+      'application/hal+json',
     ];
     foreach ($knownContentTypes as $contentType) {
       if (array_key_exists($contentType, $content)) {

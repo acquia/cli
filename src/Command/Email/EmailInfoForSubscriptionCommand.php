@@ -16,26 +16,16 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class EmailInfoForSubscriptionCommand.
- */
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
   protected static $defaultName = 'email:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information related to Platform Email set up in a subscription.')
       ->addArgument('subscriptionUuid', InputArgument::OPTIONAL, 'The subscription UUID whose Platform Email configuration is to be checked.')
       ->setHelp('This command lists information related to Platform Email for a subscription, including which domains have been validated, which have not, and which applications have Platform Email domains associated.');
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \League\Csv\CannotInsertRecord
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
 
     $client = $this->cloudApiClientService->getClient();
@@ -72,7 +62,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * as well as exports these statuses to respective CSV files.
    *
    * @param array $domain_list
-   * @throws \League\Csv\CannotInsertRecord
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list): void {
 
@@ -123,13 +112,13 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
       $all_domains_table->addRow([
         $domain->domain_name,
         $domain->uuid,
-        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
+        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
       ]);
 
       $writer_all_domains->insertOne([
         $domain->domain_name,
         $domain->uuid,
-        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code
+        $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
       ]);
 
       foreach ($domain->dns_records as $index => $record) {
@@ -141,7 +130,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
             $record->name,
             $record->type,
             $record->value,
-            $record->health->details
+            $record->health->details,
           ]);
         }
         else {
@@ -152,7 +141,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
             $record->name,
             $record->type,
             $record->value,
-            $record->health->details
+            $record->health->details,
           ]);
         }
       }
@@ -178,7 +167,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Verifies the number of applications present in a subscription.
    *
    * @return array|null
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
     $applications_resource = new Applications($client);
@@ -210,7 +198,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    *
    * @param $subscription
    * @param $subscription_applications
-   * @throws \League\Csv\CannotInsertRecord
    */
   private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications): void {
     $apps_domains_table = $this->createApplicationDomainsTable($output);
@@ -230,7 +217,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
         foreach ($app_domains as $domain) {
           $apps_domains_table->addRow([
             $domain->domain_name,
-            var_export($domain->flags->associated, TRUE)
+            var_export($domain->flags->associated, TRUE),
           ]);
           $writer_apps_domains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, TRUE)]);
         }
@@ -239,9 +226,9 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
         $apps_domains_table->addRow([new TableCell("No domains eligible for association.", [
           'colspan' => 2,
           'style' => new TableCellStyle([
-            'fg' => 'yellow'
+            'fg' => 'yellow',
           ]),
-        ])
+        ]),
         ]);
         $writer_apps_domains->insertOne([$app->name, 'No domains eligible for association', '']);
       }

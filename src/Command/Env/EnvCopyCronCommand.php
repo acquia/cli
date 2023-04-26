@@ -9,16 +9,10 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class EnvCopyCronCommand.
- */
 class EnvCopyCronCommand extends CommandBase {
 
   protected static $defaultName = 'env:cron-copy';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
       ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
@@ -30,7 +24,6 @@ class EnvCopyCronCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // If both source and destination env inputs are same.
@@ -99,9 +92,9 @@ class EnvCopyCronCommand extends CommandBase {
           // Log the error for debugging purpose.
           $this->logger->debug('Error @error while copying the cron task @cron from @source env to @dest env', [
             '@cron' => $cron->label,
-            '@source' => $source_env_id,
             '@dest' => $dest_env_id,
             '@error' => $e->getMessage(),
+            '@source' => $source_env_id,
           ]);
           return 1;
         }

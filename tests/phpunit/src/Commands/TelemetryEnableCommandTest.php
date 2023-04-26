@@ -7,15 +7,11 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class TelemetryEnableCommandTest.
- *
  * @property \Acquia\Cli\Command\Self\TelemetryEnableCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class TelemetryEnableCommandTest extends CommandTestBase {
 
   /**b
-   * {@inheritdoc}
    */
   protected function createCommand(): Command {
     return $this->injectCommand(TelemetryEnableCommand::class);

@@ -8,17 +8,12 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeWizardDeleteSshKeyCommand.
- *
  * @property \Acquia\Cli\Command\Ide\Wizard\IdeWizardCreateSshKeyCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 
   /**
    * Tests the 'ide:wizard:ssh-key:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testDelete(): void {
     // Request for IDE data.

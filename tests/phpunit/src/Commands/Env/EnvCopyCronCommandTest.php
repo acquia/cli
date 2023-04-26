@@ -9,25 +9,16 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class CopyCronTasksCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvCopyCronCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EnvCopyCronCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvCopyCronCommand::class);
   }
 
   /**
    * Tests the 'app:cron-copy' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCopyCronTasksCommandTest(): void {
     $environments_response = $this->getMockEnvironmentsResponse();
@@ -47,11 +38,11 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $this->executeCommand(
       [
-      'source_env' => $source,
       'dest_env' => $dest,
+      'source_env' => $source,
       ],
       [
-        'y'
+        'y',
       ]
     );
 
@@ -65,14 +56,12 @@ class EnvCopyCronCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'app:cron-copy' command fail.
-   *
-   * @throws \Exception
    */
   public function testCopyCronTasksCommandTestFail(): void {
     $this->executeCommand([
+        'dest_env' => 'app.test',
         'source_env' => 'app.test',
-        'dest_env' => 'app.test'
-      ],
+],
     );
     $output = $this->getDisplay();
     $this->assertStringContainsString('The source and destination environments can not be same', $output);
@@ -92,11 +81,11 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $this->executeCommand(
       [
-        'source_env' => $source,
         'dest_env' => $dest,
+        'source_env' => $source,
       ],
       [
-        'y'
+        'y',
       ]
     );
 
@@ -124,11 +113,11 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     $dest = '32-a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $this->executeCommand(
       [
-        'source_env' => $source,
         'dest_env' => $dest,
+        'source_env' => $source,
       ],
       [
-        'y'
+        'y',
       ]
     );
 

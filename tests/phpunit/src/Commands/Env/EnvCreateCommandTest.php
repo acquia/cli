@@ -9,18 +9,12 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class CreateCdeCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvCreateCommand $command
- * @package Acquia\Cli\Tests\Commands\Env
  */
 class EnvCreateCommandTest extends CommandTestBase {
 
   private static string $validLabel = 'New CDE';
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   private function setupCdeTest(string $label): string {
     $applications_response = $this->mockApplicationsRequest();
     $application_response = $this->mockApplicationRequest();
@@ -61,33 +55,23 @@ class EnvCreateCommandTest extends CommandTestBase {
     return $response2->_embedded->items[3]->domains[0];
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   private function getBranch(): string {
     $code_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
     return $code_response->_embedded->items[0]->name;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   private function getApplication(): string {
     $applications_response = $this->getMockResponseFromSpec('/applications',
       'get', '200');
     return $applications_response->{'_embedded'}->items[0]->uuid;
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvCreateCommand::class);
   }
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestCreateCde(): array {
     $application = $this->getApplication();
@@ -106,17 +90,15 @@ class EnvCreateCommandTest extends CommandTestBase {
    * Tests the 'app:environment:create' command.
    *
    * @dataProvider providerTestCreateCde
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCreateCde($args, $input): void {
     $domain = $this->setupCdeTest(self::$validLabel);
 
     $this->executeCommand(
       [
-        'label' => self::$validLabel,
-        'branch' => $args[0],
         'applicationUuid' => $args[1],
+        'branch' => $args[0],
+        'label' => self::$validLabel,
       ],
       $input
     );
@@ -126,10 +108,6 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString("Your CDE URL: $domain", $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   public function testCreateCdeNonUniqueLabel(): void {
     $label = 'Dev';
     $this->setupCdeTest($label);
@@ -138,17 +116,13 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->expectExceptionMessage('An environment named Dev already exists.');
     $this->executeCommand(
       [
-        'label' => $label,
-        'branch' => $this->getBranch(),
         'applicationUuid' => $this->getApplication(),
+        'branch' => $this->getBranch(),
+        'label' => $label,
       ]
     );
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   public function testCreateCdeInvalidTag(): void {
     $this->setupCdeTest(self::$validLabel);
 
@@ -156,9 +130,9 @@ class EnvCreateCommandTest extends CommandTestBase {
     $this->expectExceptionMessage('There is no branch or tag with the name bogus on the remote VCS.');
     $this->executeCommand(
       [
-        'label' => self::$validLabel,
-        'branch' => 'bogus',
         'applicationUuid' => $this->getApplication(),
+        'branch' => 'bogus',
+        'label' => self::$validLabel,
       ]
     );
   }

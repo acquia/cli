@@ -7,16 +7,10 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class UnlinkCommand.
- */
 class UnlinkCommand extends CommandBase {
 
   protected static $defaultName = 'app:unlink';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Remove local association between your project and a Cloud Platform application')
       ->setAliases(['unlink']);
@@ -28,8 +22,6 @@ class UnlinkCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();

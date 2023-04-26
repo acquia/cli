@@ -8,21 +8,15 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class TaskWaitCommand.
- *
  * @property \Acquia\Cli\Command\App\TaskWaitCommand $command
  */
 class TaskWaitCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(TaskWaitCommand::class);
   }
 
   /**
-   * @throws \Exception
    * @dataProvider providerTestTaskWaitCommand
    */
   public function testTaskWaitCommand(string $status, string $message): void {
@@ -46,18 +40,15 @@ class TaskWaitCommandTest extends CommandTestBase {
     return [
       [
         'completed',
-        ' [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed'
+        ' [OK] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 completed',
       ],
       [
         'failed',
-        ' [ERROR] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 failed'
-      ]
+        ' [ERROR] The task with notification uuid 1bd3487e-71d1-4fca-a2d9-5f969b3d35c1 failed',
+      ],
     ];
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   */
   public function testTaskWaitCommandWithStandardInput(): void {
     $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     $task_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
@@ -68,9 +59,6 @@ class TaskWaitCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testTaskWaitCommandWithInvalidInput(): void {
     $this->expectException(AcquiaCliException::class);
     $this->executeCommand(['notification-uuid' => '{}'], []);

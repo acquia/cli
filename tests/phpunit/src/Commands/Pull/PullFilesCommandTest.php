@@ -11,24 +11,14 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullFilesCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullFilesCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullFilesCommand::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testRefreshAcsfFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -66,10 +56,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function testRefreshCloudFiles(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -108,9 +94,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testInvalidCwd(): void {
     IdeHelper::setCloudIdeEnvVars();
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -138,7 +121,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $environment->ssh_url . ':' . $source_dir,
-      $destination_dir
+      $destination_dir,
     ];
     $local_machine_helper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
       ->willReturn($process->reveal())

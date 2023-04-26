@@ -11,15 +11,12 @@ class Checklist {
    * @var array*/
   private array $items = [];
 
-  private OutputInterface $output;
-
   private int $indentLength = 4;
 
   /**
    * Checklist constructor.
    */
-  public function __construct(OutputInterface $output) {
-    $this->output = $output;
+  public function __construct(private OutputInterface $output) {
   }
 
   public function addItem(string $message): void {

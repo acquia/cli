@@ -7,23 +7,14 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class SshKeyListCommandTest
- *
  * @property SshKeyListCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyListCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyListCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -31,12 +22,9 @@ class SshKeyListCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ssh-key:upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
+   * Tests the 'ssh-key:list' command.
    */
-  public function testUpload(): void {
+  public function testList(): void {
 
     $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();

@@ -7,9 +7,6 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class TelemetryCommand.
- */
 class TelemetryCommand extends CommandBase {
 
   protected static $defaultName = 'self:telemetry:toggle';
@@ -18,9 +15,6 @@ class TelemetryCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Toggle anonymous sharing of usage and performance data')
       ->setAliases(['telemetry']);
@@ -28,7 +22,6 @@ class TelemetryCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;

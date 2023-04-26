@@ -9,16 +9,10 @@ use Acquia\Cli\DataStore\CloudDataStore;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AuthCommandTest.
- *
  * @property \Acquia\Cli\Command\Auth\AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
     return $this->injectCommand(AcsfApiAuthLoginCommand::class);
@@ -56,10 +50,10 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         [
           // Enter the full URL of the factory
           '--factory-url' => $this->acsfCurrentFactoryUrl,
-          // Enter a value for username
-          '--username' => $this->acsfUsername,
           //  Enter a value for key
           '--key' => $this->acsfKey,
+          // Enter a value for username
+          '--username' => $this->acsfUsername,
         ],
         // Output to assert.
         'Saved credentials',
@@ -72,9 +66,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
         TRUE,
         // $inputs
         [
-          // Choose a factory to login to.
+          // Choose a factory to log in to.
           $this->acsfCurrentFactoryUrl,
-          // Choose which user to login as.
+          // Choose which user to log in as.
           $this->acsfUsername,
         ],
         // Arguments.
@@ -96,7 +90,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param $args
    * @param $output_to_assert
    * @param array $config
-   * @throws \Exception
    * @requires OS linux|darwin
    */
   public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, array $config = []): void {
@@ -114,6 +107,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
     $this->assertStringContainsString($output_to_assert, $output);
+    if (!$machine_is_authenticated && !array_key_exists('--key', $args)) {
+      $this->assertStringContainsString('Enter your Site Factory key (option -k, --key) (input will be hidden):', $output);
+    }
     $this->assertKeySavedCorrectly();
     $this->assertEquals($this->acsfActiveUser, $this->cloudCredentials->getCloudKey());
     $this->assertEquals($this->acsfKey, $this->cloudCredentials->getCloudSecret());

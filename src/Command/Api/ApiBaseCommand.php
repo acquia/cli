@@ -18,9 +18,6 @@ use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class ApiBaseCommand.
- */
 class ApiBaseCommand extends CommandBase {
 
   protected static $defaultName = 'api:base';
@@ -90,7 +87,6 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // Build query from non-null options.
@@ -333,8 +329,8 @@ class ApiBaseCommand extends CommandBase {
     }
     elseif (array_key_exists('pattern', $schema)) {
       $constraints[] = new Regex([
-        'pattern' => '/' . $schema['pattern'] . '/',
         'message' => 'It must match the pattern ' . $schema['pattern'],
+        'pattern' => '/' . $schema['pattern'] . '/',
       ]);
     }
     return $constraints;
@@ -390,8 +386,8 @@ class ApiBaseCommand extends CommandBase {
     if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
       $acquia_cloud_client->addOption('multipart', [
         [
-          'name' => $param_name,
           'contents' => Utils::tryFopen($param_value, 'r'),
+          'name' => $param_name,
         ],
       ]);
     }
@@ -404,7 +400,9 @@ class ApiBaseCommand extends CommandBase {
    * @param array $params
    */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
-    $question = new Question("Enter a value for {$argument->getName()}", $argument->getDefault());
+    // Default value may be an empty array, which causes Question to choke.
+    $default = $argument->getDefault() ?: NULL;
+    $question = new Question("Enter a value for {$argument->getName()}", $default);
     switch ($argument->getName()) {
       case 'applicationUuid':
         // @todo Provide a list of application UUIDs.

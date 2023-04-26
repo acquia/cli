@@ -7,16 +7,10 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AuthLoginCommand.
- */
 class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->setAliases(['login'])
@@ -30,10 +24,8 @@ class AuthLoginCommand extends CommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
     if ($this->cloudApiClientService->isMachineAuthenticated()) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
@@ -47,8 +39,8 @@ class AuthLoginCommand extends CommandBase {
         $keys[$uuid]['uuid'] = $uuid;
       }
       $keys['create_new'] = [
-        'uuid' => 'create_new',
         'label' => 'Enter a new API key',
+        'uuid' => 'create_new',
       ];
       $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
       if ($selected_key['uuid'] !== 'create_new') {
@@ -69,16 +61,13 @@ class AuthLoginCommand extends CommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Exception
-   */
   private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
     $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
     $keys = $this->datastoreCloud->get('keys');
     $keys[$api_key] = [
       'label' => $token_info->label,
-      'uuid' => $api_key,
       'secret' => $api_secret,
+      'uuid' => $api_key,
     ];
     $this->datastoreCloud->set('keys', $keys);
     $this->datastoreCloud->set('acli_key', $api_key);

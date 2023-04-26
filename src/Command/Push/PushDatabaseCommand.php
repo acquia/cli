@@ -11,16 +11,10 @@ use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PushDatabaseCommand.
- */
 class PushDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:database';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Push a database from your IDE to a Cloud Platform environment')
       ->setAliases(['push:db'])
@@ -31,7 +25,6 @@ class PushDatabaseCommand extends PullCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $destination_environment = $this->determineEnvironment($input, $output);
@@ -62,9 +55,6 @@ class PushDatabaseCommand extends PullCommandBase {
     return 0;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function uploadDatabaseDump(
     EnvironmentResponse $environment,
     string $local_filepath,
@@ -90,9 +80,6 @@ class PushDatabaseCommand extends PullCommandBase {
     return $remote_filepath;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, DatabaseResponse $database): void {
     $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
     $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";

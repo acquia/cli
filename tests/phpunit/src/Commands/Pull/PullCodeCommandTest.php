@@ -12,25 +12,14 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class PullCodeCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullCodeCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullCodeCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullCodeCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   * @throws \Exception
-   */
   public function testCloneRepo(): void {
     // Unset repo root. Mimics failing to find local git repo. Command must be re-created
     // to re-inject the parameter into the command.
@@ -63,18 +52,12 @@ class PullCodeCommandTest extends PullCommandTestBase {
       0,
     ];
     $this->executeCommand([
-      '--no-scripts' => TRUE,
       '--dir' => $dir,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testPullCode(): void {
     $applications_response = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -115,12 +98,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \JsonException
-   * @throws \Exception
-   */
   public function testWithScripts(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     $applications_response = $this->mockApplicationsRequest();
@@ -176,7 +153,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestMatchPhpVersion
-   * @throws \Psr\Cache\InvalidArgumentException|\Acquia\Cli\Exception\AcquiaCliException|\JsonException
    */
   public function testMatchPhpVersion(string $php_version): void {
     IdeHelper::setCloudIdeEnvVars();
@@ -208,10 +184,10 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
 
     $this->executeCommand([
-      // @todo Execute ONLY match php aspect, not the code pull.
-      'environmentId' => $environment_response->id,
       '--dir' => $dir,
       '--no-scripts' => TRUE,
+      // @todo Execute ONLY match php aspect, not the code pull.
+      'environmentId' => $environment_response->id,
     ], [
       // Choose an Acquia environment:
       0,

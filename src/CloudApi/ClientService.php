@@ -15,8 +15,6 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
  * This class is only necessary as a testing shim, so that we can prophesize
  * client queries. Consumers could otherwise just call
  * Client::factory($connector) directly.
- *
- * @package Acquia\Cli\Helpers
  */
 class ClientService implements ClientServiceInterface {
 
@@ -24,16 +22,14 @@ class ClientService implements ClientServiceInterface {
   protected ConnectorFactoryInterface|ConnectorFactory $connectorFactory;
   protected Application $application;
   protected ?bool $machineIsAuthenticated = NULL;
-  protected ApiCredentialsInterface $credentials;
 
   /**
    * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
    */
-  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, ApiCredentialsInterface $credentials) {
+  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, protected ApiCredentialsInterface $credentials) {
     $this->connectorFactory = $connector_factory;
     $this->setConnector($connector_factory->createConnector());
     $this->setApplication($application);
-    $this->credentials = $credentials;
   }
 
   public function setConnector(ConnectorInterface $connector): void {

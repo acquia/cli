@@ -5,18 +5,12 @@ namespace Acquia\Cli\AcsfApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 
-/**
- * @package Acquia\Cli\Helpers
- */
 class AcsfCredentials implements ApiCredentialsInterface {
-
-  private CloudDataStore $datastoreCloud;
 
   /**
    * CloudCredentials constructor.
    */
-  public function __construct(CloudDataStore $datastoreCloud) {
-    $this->datastoreCloud = $datastoreCloud;
+  public function __construct(private CloudDataStore $datastoreCloud) {
   }
 
   public function getCloudKey(): ?string {

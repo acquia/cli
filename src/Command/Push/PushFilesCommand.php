@@ -9,16 +9,10 @@ use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PushFilesCommand.
- */
 class PushFilesCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:files';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
       ->acceptEnvironmentId()
@@ -28,7 +22,6 @@ class PushFilesCommand extends PullCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
@@ -59,7 +52,6 @@ class PushFilesCommand extends PullCommandBase {
    * @param $chosen_environment
    * @param callable|null $output_callback
    * @param string|null $site
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function rsyncFilesToCloud($chosen_environment, callable $output_callback = NULL, string $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/files/';

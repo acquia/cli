@@ -14,10 +14,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class ApiCommandTest.
- *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
- * @package Acquia\Cli\Tests\Api
  */
 class AcsfApiCommandTest extends AcsfCommandTestBase {
 
@@ -30,11 +27,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \JsonException
-   */
   protected function createCommand(): Command {
     $this->createMockCloudConfigFile($this->getAcsfCredentialsFileContents());
     $this->cloudCredentials = new AcsfCredentials($this->datastoreCloud);
@@ -104,7 +96,6 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
 
   /**
    * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testAcsfCommandExecutionForHttpGetMultiple($method, $spec_path, $path, $command, $arguments = [], $json_arguments = []): void {
     $mock_body = $this->getMockResponseFromSpec($spec_path, $method, '200');

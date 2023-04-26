@@ -9,16 +9,10 @@ use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class UpdateCommandTest.
- *
- * @package Acquia\Cli\Tests\Commands
  * @property \Acquia\Cli\Command\HelloWorldCommand $command
  */
 class UpdateCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(HelloWorldCommand::class);
   }

@@ -18,10 +18,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {
 
@@ -34,17 +31,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return [[51], [60]];
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -64,10 +54,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Downloading backup 1', $output);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabasesLocalConnectionFailure(): void {
     $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -79,9 +65,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ], $inputs);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException|\GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabasesIntoLando(): void {
     $lando_info = LandoInfoHelper::getLandoInfo();
     LandoInfoHelper::setLandoInfo($lando_info);
@@ -98,10 +81,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     self::assertStringContainsString('Acquia CLI assumes that the local name', $output);
   }
 
-  /**
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPullMultipleDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
@@ -116,26 +95,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
       0,
       // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
-      '10,27'
+      '10,27',
     ];
     $this->executeCommand([
-      '--no-scripts' => TRUE,
       '--multiple-dbs' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPullDatabasesOnDemand(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
-      '--on-demand' => TRUE
+      '--on-demand' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -148,18 +123,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
-      'site' => 'jxr5000596dev',
       '--no-scripts' => TRUE,
+      'site' => 'jxr5000596dev',
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -171,11 +141,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringNotContainsString('Choose a database', $output);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -184,12 +149,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlCreateError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
@@ -199,12 +158,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
@@ -216,10 +169,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabaseWithInvalidSslCertificate($errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
@@ -227,15 +176,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The certificate for www.example.com is invalid, trying alternative host other.example.com', $output);
+    $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
+    $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
   /**
    * @param $mysql_connect_successful *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \JsonException
    */
   protected function setupPullDatabase($mysql_connect_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE, int $curl_code = 0): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -287,7 +233,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlConnect(
     ObjectProphecy $local_machine_helper,
@@ -308,9 +253,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockExecuteMySqlDropDb(
     \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $local_machine_helper,
     bool $success
@@ -325,7 +267,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function mockExecuteMySqlCreateDb(
     ObjectProphecy $local_machine_helper,
@@ -415,9 +356,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
-  /**
-   * @throws \GuzzleHttp\Exception\GuzzleException|\Psr\Cache\InvalidArgumentException|\JsonException
-   */
   protected function mockDownloadBackup(DatabaseResponse $selected_database, object $selected_environment, int $curl_code = 0): DatabaseResponse {
     $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
     $selected_backup = $database_backups_response->_embedded->items[0];
@@ -441,9 +379,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
     $this->clientProphecy->addOption('sink', $local_filepath)->shouldBeCalled();
     $this->clientProphecy->addOption('curl.options', [
+      'CURLOPT_FILE' => $local_filepath,
       'CURLOPT_RETURNTRANSFER' => FALSE,
-      'CURLOPT_FILE' => $local_filepath
-    ])->shouldBeCalled();
+])->shouldBeCalled();
     $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->getOptions()->willReturn([]);

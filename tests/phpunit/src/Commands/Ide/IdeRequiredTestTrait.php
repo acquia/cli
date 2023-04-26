@@ -4,9 +4,6 @@ namespace Acquia\Cli\Tests\Commands\Ide;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeRequiredTestBase.
- */
 trait IdeRequiredTestTrait {
 
   /**

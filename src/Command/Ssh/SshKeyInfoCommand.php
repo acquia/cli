@@ -13,9 +13,6 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information about an SSH key')
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
@@ -23,7 +20,6 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -51,10 +47,6 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     return 0;
   }
 
-  /**
-   * @throws \violuke\RsaSshKeyFingerprint\InvalidInputException
-   * @throws \Exception
-   */
   private function determineSshKey($acquia_cloud_client): array {
     $cloudKeysResponse = new SshKeys($acquia_cloud_client);
     $cloudKeys = (array) $cloudKeysResponse->getAll();
@@ -65,10 +57,10 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->public_key;
       $keys[$fingerprint]['cloud'] = [
-        'fingerprint' => $key->fingerprint,
-        'uuid' => $key->uuid,
         'created_at' => $key->created_at,
+        'fingerprint' => $key->fingerprint,
         'label' => $key->label,
+        'uuid' => $key->uuid,
       ];
     }
     foreach ($localKeys as $key) {

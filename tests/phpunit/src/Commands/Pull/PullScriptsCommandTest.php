@@ -7,16 +7,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class PullScriptsCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullScriptsCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullScriptsCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullScriptsCommand::class);
   }

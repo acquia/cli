@@ -8,25 +8,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class LinkCommandTest.
- *
  * @property \Acquia\Cli\Command\App\LinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class LinkCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(LinkCommand::class);
   }
 
   /**
    * Tests the 'link' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    */
   public function testLinkCommand(): void {
     $applications_response = $this->mockApplicationsRequest();
@@ -36,7 +27,7 @@ class LinkCommandTest extends CommandTestBase {
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
       // Select a Cloud Platform application.
-      0
+      0,
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
@@ -50,9 +41,6 @@ class LinkCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'link' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLinkCommandAlreadyLinked(): void {
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
@@ -65,9 +53,6 @@ class LinkCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'link' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testLinkCommandInvalidDir(): void {
     $this->mockApplicationsRequest();

@@ -15,10 +15,7 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
 /**
- * Class CodeStudioWizardCommandTest.
- *
  * @property \Acquia\Cli\Command\CodeStudio\CodeStudioPipelinesMigrateCommand $command
- * @package Acquia\Cli\Tests\Commands
  * @requires OS linux|darwin
  */
 class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
@@ -31,10 +28,6 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
   private int $gitLabTokenId = 118;
   public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
@@ -46,9 +39,6 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     TestBase::unsetEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioPipelinesMigrateCommand::class);
   }
@@ -84,7 +74,6 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @param $mocked_gitlab_projects
    * @param $args
    * @param $inputs
-   * @throws \Psr\Cache\InvalidArgumentException|\Exception
    */
   public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
     copy(
@@ -116,7 +105,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->assertFileExists($gitlab_ci_yml_file_path);
     // @todo Assert things about skips. Composer install, BLT, launch_ode.
     $contents = Yaml::parseFile($gitlab_ci_yml_file_path);
-    $array_skip_map = ['composer install','${BLT_DIR}','launch_ode'];
+    $array_skip_map = ['composer install', '${BLT_DIR}', 'launch_ode'];
     foreach ($contents as $values) {
       if (array_key_exists('script', $values)) {
         foreach ($array_skip_map as $map) {

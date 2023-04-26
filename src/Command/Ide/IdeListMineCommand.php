@@ -9,24 +9,16 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeListMineCommand.
- */
 class IdeListMineCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:mine';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List Cloud IDEs belonging to you');
-    $this->acceptApplicationUuid();
   }
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
@@ -45,9 +37,9 @@ class IdeListMineCommand extends IdeCommandBase {
         $application_url = str_replace('/api', '/a', $application->links->self->href);
 
         $table->addRows([
-          ["<comment>{$ide->label}</comment>"],
-          ["UUID: {$ide->uuid}"],
-          ["Application: <href={$application_url}>{$application->name}</>"],
+          ["<comment>$ide->label</comment>"],
+          ["UUID: $ide->uuid"],
+          ["Application: <href=$application_url>$application->name</>"],
           ["Subscription: {$application->subscription->name}"],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
           ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],

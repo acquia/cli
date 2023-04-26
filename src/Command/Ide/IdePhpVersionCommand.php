@@ -8,9 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdePhpVersionCommand.
- */
 class IdePhpVersionCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:php-version';
@@ -26,9 +23,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Change the PHP version in the current IDE')
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
@@ -37,7 +31,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
@@ -60,11 +53,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->idePhpFilePathPrefix = $path;
   }
 
-  /**
-   * {inheritdoc}.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function validatePhpVersion(string $version): string {
     parent::validatePhpVersion($version);
     $php_filepath = $this->getIdePhpFilePathPrefix() . $version;

@@ -7,24 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class AliasesListCommandTest.
- *
  * @property AliasListCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class AliasesListCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AliasListCommand::class);
   }
 
   /**
    * Tests the 'remote:aliases:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testRemoteAliasesListCommand(): void {
     $applications_response = $this->mockApplicationsRequest();

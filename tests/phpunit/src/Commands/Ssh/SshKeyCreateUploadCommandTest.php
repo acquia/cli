@@ -13,10 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class SshKeyCreateUploadCommandTest
- *
  * @property SshKeyCreateUploadCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
@@ -30,20 +27,16 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyCreateUploadCommand::class);
   }
 
   /**
    * Tests the 'ssh-key:create-upload' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function testCreateUpload(): void {
+    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+
     // Create.
     $ssh_key_filename = 'id_rsa';
     $local_machine_helper = $this->mockLocalMachineHelper();
@@ -52,10 +45,9 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $file_system = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
     $this->mockSshAgentList($local_machine_helper);
-    $this->mockGenerateSshKey($local_machine_helper);
+    $this->mockGenerateSshKey($local_machine_helper, $mock_request_args['public_key']);
 
     // Upload.
-    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     //$this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
     //$applications_response = $this->mockApplicationsRequest();
@@ -82,6 +74,10 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);
     $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertStringContainsString('Enter the filename of the SSH key (option --filename) [id_rsa_acquia]:', $output);
+    $this->assertStringContainsString('Enter the password for the SSH key (option --password) (input will be hidden):', $output);
+    $this->assertStringContainsString('Enter the SSH key label to be used with the Cloud Platform (option --label):', $output);
   }
 
 }

@@ -11,40 +11,20 @@ use Bugsnag\Client;
 use Bugsnag\Handler;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use loophp\phposinfo\OsInfo;
+use Symfony\Component\Filesystem\Path;
 use Zumba\Amplitude\Amplitude;
 
 class TelemetryHelper {
 
-  private ClientService $cloudApiClientService;
-
-  private CloudDataStore $datastoreCloud;
-
-  private Application $application;
-
-  private ?string $amplitudeKey;
-
-  private ?string $bugSnagKey;
-
-  /**
-   * TelemetryHelper constructor.
-   */
   public function __construct(
-    ClientService $client_service,
-    CloudDataStore $datastoreCloud,
-    Application $application,
-    string $amplitudeKey = '',
-    string $bugSnagKey = ''
+    private ClientService $cloudApiClientService,
+    private CloudDataStore $datastoreCloud,
+    private Application $application,
+    private ?string $amplitudeKey = '',
+    private ?string $bugSnagKey = ''
   ) {
-    $this->cloudApiClientService = $client_service;
-    $this->datastoreCloud = $datastoreCloud;
-    $this->application = $application;
-    $this->amplitudeKey = $amplitudeKey;
-    $this->bugSnagKey = $bugSnagKey;
   }
 
-  /**
-   * @throws \Exception
-   */
   public function initialize(): void {
     $this->initializeAmplitude();
     $this->initializeBugsnag();
@@ -62,13 +42,32 @@ class TelemetryHelper {
     // @see https://github.com/bugsnag/bugsnag-js/issues/595
     $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
+    $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
+    $bugsnag->registerCallback(function ($report) {
+      $user_id = $this->getUserId();
+      if (isset($user_id)) {
+        $report->setUser([
+          'id' => $user_id,
+        ]);
+      }
+    });
+    $bugsnag->registerCallback(function ($report) {
+      $context = $report->getContext();
+      // Strip working directory and binary from context.
+      if (str_contains($context, 'acli ')) {
+        $context = substr($context, strpos($context, 'acli ') + 5);
+      }
+      // Strip sensitive parameters from context
+      if (str_contains($context, "--password")) {
+        $context = substr($context, 0, strpos($context, "--password") + 10) . 'REDACTED';
+      }
+      $report->setContext($context);
+    });
     Handler::register($bugsnag);
   }
 
   /**
    * Initializes Amplitude.
-   *
-   * @throws \Exception
    */
   public function initializeAmplitude(): void {
     if (empty($this->amplitudeKey)) {
@@ -100,17 +99,16 @@ class TelemetryHelper {
    *
    * @return array
    *   Telemetry user data.
-   * @throws \Exception
    */
   private function getTelemetryUserData(): array {
     $data = [
+      'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
       'ah_env' => AcquiaDrupalEnvironmentDetector::getAhEnv(),
       'ah_group' => AcquiaDrupalEnvironmentDetector::getAhGroup(),
-      'ah_app_uuid' => getenv('AH_APPLICATION_UUID'),
-      'ah_realm' => getenv('AH_REALM'),
       'ah_non_production' => getenv('AH_NON_PRODUCTION'),
-      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+      'ah_realm' => getenv('AH_REALM'),
       'CI' => getenv('CI'),
+      'php_version' => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
     ];
     try {
       $user = $this->getUserData();
@@ -129,7 +127,6 @@ class TelemetryHelper {
    *
    * @return string|null
    *   User UUID from Cloud.
-   * @throws \Exception
    */
   private function getUserId(): ?string {
     $user = $this->getUserData();
@@ -145,7 +142,6 @@ class TelemetryHelper {
    *
    * @return array|null
    *   User account data from Cloud.
-   * @throws \Exception
    */
   private function getUserData(): ?array {
     $user = $this->datastoreCloud->get(DataStoreContract::USER);
@@ -174,8 +170,8 @@ class TelemetryHelper {
     // @todo Cache this!
     $account = new Account($this->cloudApiClientService->getClient());
     return [
+      'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com'),
       'uuid' => $account->get()->uuid,
-      'is_acquian' => str_ends_with($account->get()->mail, 'acquia.com')
     ];
   }
 

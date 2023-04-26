@@ -18,14 +18,6 @@ class ApiListCommandBase extends CommandBase {
     $this->namespace = $namespace;
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @param \Symfony\Component\Console\Input\InputInterface $input
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @return int
-   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $commands = $this->getApplication()->all();
     foreach ($commands as $command) {

@@ -8,9 +8,6 @@ use Acquia\Cli\Helpers\IdeCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 
-/**
- * Class IdeCommandBase.
- */
 abstract class IdeCommandBase extends CommandBase {
 
   use IdeCommandTrait;
@@ -19,7 +16,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * @param $cloud_application_uuid
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function promptIdeChoice(
     string $question_text,
@@ -43,8 +39,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Start service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function startService(string $service): void {
     $process = $this->localMachineHelper->execute([
@@ -59,8 +53,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Stop service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function stopService(string $service): void {
     $process = $this->localMachineHelper->execute([
@@ -75,8 +67,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Restart service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function restartService(string $service): void {
     $process = $this->localMachineHelper->execute([

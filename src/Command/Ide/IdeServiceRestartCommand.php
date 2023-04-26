@@ -10,9 +10,6 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class IdeServiceRestartCommand.
- */
 class IdeServiceRestartCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:service-restart';
@@ -21,9 +18,6 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Restart a service in the Cloud IDE')
       ->addArgument('service', InputArgument::REQUIRED, 'The name of the service to restart')
@@ -35,7 +29,6 @@ class IdeServiceRestartCommand extends IdeCommandBase {
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
@@ -43,12 +36,12 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     $this->validateService($service);
 
     $service_name_map = [
-      'php' => 'php-fpm',
-      'php-fpm' => 'php-fpm',
       'apache' => 'apache2',
       'apache2' => 'apache2',
       'mysql' => 'mysqld',
       'mysqld' => 'mysqld',
+      'php' => 'php-fpm',
+      'php-fpm' => 'php-fpm',
     ];
     $output->writeln("Restarting <options=bold>$service</>...");
     $service_name = $service_name_map[$service];

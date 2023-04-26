@@ -9,18 +9,12 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class SshKeyCreateCommandTest
- *
  * @property SshKeyCreateCommand $command
- * @package Acquia\Cli\Tests\Ssh
  */
 class SshKeyCreateCommandTest extends CommandTestBase {
 
   protected string $filename = 'id_rsa_acli_test';
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyCreateCommand::class);
   }
@@ -35,10 +29,10 @@ class SshKeyCreateCommandTest extends CommandTestBase {
         // Args.
         [
           '--filename' => $this->filename,
-          '--password' => 'acli123'
+          '--password' => 'acli123',
         ],
         // Inputs.
-        []
+        [],
       ],
       [
         TRUE,
@@ -50,7 +44,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',
-        ]
+        ],
       ],
       [
         FALSE,
@@ -62,7 +56,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
           $this->filename,
           // Enter a password for your SSH key:
           'acli123',
-        ]
+        ],
       ],
     ];
   }
@@ -71,7 +65,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:create' command.
    *
    * @dataProvider providerTestCreate
-   * @throws \Exception
    */
   public function testCreate($ssh_add_success, $args, $inputs): void {
     $ssh_key_filepath = Path::join($this->sshDir, '/' . $this->filename);

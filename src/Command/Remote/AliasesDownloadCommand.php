@@ -14,10 +14,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
- *
- * @package Acquia\Cli\Commands\Remote
  */
 class AliasesDownloadCommand extends SshCommand {
 
@@ -25,9 +22,6 @@ class AliasesDownloadCommand extends SshCommand {
 
   protected static $defaultName = 'remote:aliases:download';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Download Drush aliases for the Cloud Platform')
       ->addOption('destination-dir', NULL, InputOption::VALUE_REQUIRED, 'The directory to which aliases will be downloaded')
@@ -35,11 +29,6 @@ class AliasesDownloadCommand extends SshCommand {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $alias_version = $this->promptChooseDrushAliasVersion();
     $drush_archive_temp_filepath = $this->getDrushArchiveTempFilepath();
@@ -85,9 +74,6 @@ class AliasesDownloadCommand extends SshCommand {
     return $this->drushArchiveFilepath;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function getDrushAliasesDir(string $version): string {
     if ($this->input->getOption('destination-dir')) {
       return $this->input->getOption('destination-dir');
@@ -104,9 +90,6 @@ class AliasesDownloadCommand extends SshCommand {
     return (new Account($acquia_cloud_client))->getDrushAliases();
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function getSitePrefix(bool $single_application): string {
     $site_prefix = '';
     if ($single_application) {
@@ -118,11 +101,6 @@ class AliasesDownloadCommand extends SshCommand {
     return $site_prefix;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function downloadArchive(int $alias_version, string $drush_archive_temp_filepath, string $base_dir): PharData {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
     $aliases = $this->getAliasesFromCloud($acquia_cloud_client, $alias_version);
@@ -130,10 +108,6 @@ class AliasesDownloadCommand extends SshCommand {
     return new PharData($drush_archive_temp_filepath . '/' . $base_dir);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function downloadDrush9Aliases(InputInterface $input, int $alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
     $this->setDirAndRequireProjectCwd($input);
     $all = $input->getOption('all');
@@ -154,10 +128,6 @@ class AliasesDownloadCommand extends SshCommand {
     $archive->extractTo($drush_aliases_dir, $drushFiles, TRUE);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function downloadDrush8Aliases(int $alias_version, string $drush_archive_temp_filepath, string $drush_aliases_dir): void {
     $base_dir = '.drush';
     $archive = $this->downloadArchive($alias_version, $drush_archive_temp_filepath, $base_dir);
@@ -170,7 +140,6 @@ class AliasesDownloadCommand extends SshCommand {
 
   /**
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function getSingleAliasForSite(PharData $archive, string $site_prefix, string $base_dir): array {
     $drushFiles = [];

@@ -9,10 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class IdeShareCommandTest.
- *
  * @property IdeShareCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeShareCommandTest extends CommandTestBase {
 
@@ -37,18 +34,12 @@ class IdeShareCommandTest extends CommandTestBase {
     IdeHelper::setCloudIdeEnvVars();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeShareCommand::class);
   }
 
   /**
    * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareCommand(): void {
     $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
@@ -64,9 +55,6 @@ class IdeShareCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testIdeShareRegenerateCommand(): void {
     $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);

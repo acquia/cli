@@ -14,20 +14,14 @@ class SshHelper implements LoggerAwareInterface {
 
   use LoggerAwareTrait;
 
-  private OutputInterface $output;
-
-  private LocalMachineHelper $localMachineHelper;
-
   /**
    * SshHelper constructor.
    */
   public function __construct(
-      OutputInterface $output,
-      LocalMachineHelper $localMachineHelper,
+      private OutputInterface $output,
+      private LocalMachineHelper $localMachineHelper,
       LoggerInterface $logger
   ) {
-    $this->output = $output;
-    $this->localMachineHelper = $localMachineHelper;
     $this->setLogger($logger);
   }
 
@@ -36,7 +30,6 @@ class SshHelper implements LoggerAwareInterface {
    *
    * @param array $command_args
    * @param int|null $timeout
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   public function executeCommand(EnvironmentResponse|string $target, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
     $command_summary = $this->getCommandSummary($command_args);
@@ -50,8 +43,8 @@ class SshHelper implements LoggerAwareInterface {
     $process = $this->sendCommand($target, $command_args, $print_output, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
-      'env' => $target,
       'command' => $command_summary,
+      'env' => $target,
       'exit' => $process->getExitCode(),
     ]);
 
@@ -62,10 +55,6 @@ class SshHelper implements LoggerAwareInterface {
     return $process;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   private function sendCommand($url, $command, $print_output, $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
@@ -93,7 +82,6 @@ class SshHelper implements LoggerAwareInterface {
 
   /**
    * @return \Closure
-   * @throws \Exception
    */
   private function getOutputCallback(): callable {
     if ($this->localMachineHelper->useTty() === FALSE) {

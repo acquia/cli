@@ -9,20 +9,12 @@ use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeCreateCommandTest.
- *
  * @property IdeCreateCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeCreateCommandTest extends CommandTestBase {
 
   /**
    * Tests the 'ide:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \Exception
    */
   public function testCreate(): void {
 
@@ -68,8 +60,7 @@ class IdeCreateCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Select a Cloud Platform application:', $output);
     $this->assertStringContainsString('  [0] Sample application 1', $output);
     $this->assertStringContainsString('  [1] Sample application 2', $output);
-    $this->assertStringContainsString("The label for the IDE", $output);
-    $this->assertStringContainsString("[Jane Doe's IDE]", $output);
+    $this->assertStringContainsString("Enter the label for the IDE (option --label) [Jane Doe's IDE]:", $output);
     $this->assertStringContainsString('Your IDE is ready!', $output);
     $this->assertStringContainsString('Your IDE URL: https://215824ff-272a-4a8c-9027-df32ed1d68a9.ides.acquia.com', $output);
     $this->assertStringContainsString('Your Drupal Site URL: https://ide-215824ff-272a-4a8c-9027-df32ed1d68a9.prod.acquia-sites.com', $output);

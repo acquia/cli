@@ -7,23 +7,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
-/**
- * Class SshKeyListCommand.
- */
 class SshKeyListCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:list';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List your local and remote SSH keys');
   }
 
   /**
    * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquia_cloud_client = $this->cloudApiClientService->getClient();
