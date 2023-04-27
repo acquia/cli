@@ -49,7 +49,6 @@ class LocalMachineHelper {
       return (bool) $this->installedBinaries[$command];
     }
     $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
-    // phpcs:ignore
     $exists = $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
     $this->installedBinaries[$command] = $exists;
     return $exists;

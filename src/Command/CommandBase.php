@@ -270,7 +270,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'options' => $input->getOptions(),
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
-      // phpcs:ignore
       'platform' => OsInfo::family(),
     ];
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);

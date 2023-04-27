@@ -44,13 +44,12 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
     $this->executeCommand(
-      // phpcs:ignore SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
       [
-        'certificate' => $certName,
-        'private-key' => $keyName,
         '--csr-id' => $csrId,
         '--label' => $label,
         '--legacy' => FALSE,
+        'certificate' => $certName,
+        'private-key' => $keyName,
       ],
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
