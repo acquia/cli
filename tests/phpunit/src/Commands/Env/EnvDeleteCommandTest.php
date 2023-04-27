@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Env;
 use Acquia\Cli\Command\Env\EnvDeleteCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
@@ -36,10 +35,10 @@ class EnvDeleteCommandTest extends CommandTestBase {
    */
   public function testDeleteCde($environment_id): void {
     $applications_response = $this->mockApplicationsRequest();
-    $application_response = $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+    $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applications_response);
 
-    $response1 = $this->getMockEnvironmentsResponse();
+    $this->getMockEnvironmentsResponse();
     $response2 = $this->getMockEnvironmentsResponse();
     $cde = $response2->_embedded->items[0];
     $cde->flags->cde = TRUE;
@@ -57,15 +56,10 @@ class EnvDeleteCommandTest extends CommandTestBase {
       ->willReturn($environments_response)
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', 200);
     $this->clientProphecy->request('get', "/environments/" . $cde->id)
       ->willReturn($cde)
-      ->shouldBeCalled();
-
-    $notifications_response = $this->getMockResponseFromSpec( "/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
       ->shouldBeCalled();
 
     $this->executeCommand(
@@ -79,10 +73,9 @@ class EnvDeleteCommandTest extends CommandTestBase {
         0,
       ]
     );
-
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
-    $this->assertStringContainsString("The {$cde->label} environment is being deleted", $output);
+    $this->assertStringContainsString("The $cde->label environment is being deleted", $output);
 
   }
 

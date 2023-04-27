@@ -67,10 +67,10 @@ class EnvMirrorCommandTest extends CommandTestBase {
       ->willReturn($environment_update_response)
       ->shouldBeCalled();
 
-    $notifications_response = $this->getMockResponseFromSpec( "/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
-      ->shouldBeCalled();
+    $this->mockNotificationResponse('bfd9a39b-a85e-4de3-8a70-042d1c7e607a');
+    $this->mockNotificationResponse('a49eeebb-0929-444a-972c-07b94ce93ab9');
+    $this->mockNotificationResponse('d53fccec-5c1b-4ad4-b431-5cd39ad2b453');
+    $this->mockNotificationResponse('737a97a4-4c02-47e4-9924-d008de1aa7e5');
 
     $this->executeCommand(
       [

@@ -48,10 +48,7 @@ class EnvCreateCommandTest extends CommandTestBase {
       ->willReturn($environments_response->{'Adding environment'}->value)
       ->shouldBeCalled();
 
-    $notifications_response = $this->getMockResponseFromSpec("/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
-      ->shouldBeCalled();
+    $this->mockNotificationResponse('23d9184d-40b8-4f21-a3d5-416aef9bcd39');
     return $response2->_embedded->items[3]->domains[0];
   }
 
