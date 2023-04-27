@@ -50,8 +50,8 @@ class TaskWaitCommandTest extends CommandTestBase {
   }
 
   public function testTaskWaitCommandWithStandardInput(): void {
-    $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
     $task_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
+    $this->mockNotificationResponseFromObject($task_response->{'Clearing cache'}->value);
     $json = json_encode($task_response->{'Clearing cache'}->value);
     $this->executeCommand(['notification-uuid' => $json], []);
 

@@ -205,9 +205,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     }
 
     if ($on_demand) {
-      $this->mockDatabaseBackupCreateResponse($selected_environment, $selected_database->name);
+      $backup_response = $this->mockDatabaseBackupCreateResponse($selected_environment, $selected_database->name);
       // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
-      $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
+      $this->mockNotificationResponseFromObject($backup_response);
     }
 
     $fs = $this->prophet->prophesize(Filesystem::class);

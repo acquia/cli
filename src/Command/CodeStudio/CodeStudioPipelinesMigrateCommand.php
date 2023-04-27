@@ -35,8 +35,8 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey($input);
-    $cloud_secret = $this->determineApiSecret($input);
+    $cloud_key = $this->determineApiKey();
+    $cloud_secret = $this->determineApiSecret();
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
@@ -176,7 +176,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * @param array $gitlab_ci_file_contents
    */
   private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents): void {
-    // phpcs:disable
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
     $events_map = [
       'build' => [
         'skip' => [
@@ -202,7 +202,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         ],
         'needs' => [
           'Build Code',
-          'Manage Secrets'
+          'Manage Secrets',
         ],
       ],
       'post-deploy' => [
@@ -210,16 +210,16 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           'launch_ode' => [
             'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
             'prompt' => FALSE,
-            ]
+            ],
         ],
         'default_stage' => 'Deploy Drupal',
         'stage' => [
           'launch_ode' => 'Deploy Drupal',
         ],
         'needs' => [
-          'Create artifact from branch'
-        ]
-      ]
+          'Create artifact from branch',
+        ],
+      ],
     ];
     // phpcs:enable
 

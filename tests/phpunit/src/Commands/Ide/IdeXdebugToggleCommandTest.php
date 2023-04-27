@@ -16,12 +16,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
 
   private string $xdebugFilePath;
 
-  /**
-   * This method is called before each test.
-   *
-   * @param $php_version
-   */
-  public function setUpXdebug($php_version): void {
+  public function setUpXdebug(string $php_version): void {
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
     $this->fs->copy($this->realFixtureDir . '/xdebug.ini', $this->xdebugFilePath, TRUE);
     $this->command->setXdebugIniFilepath($this->xdebugFilePath);
@@ -38,7 +33,6 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
       ], NULL, NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn($php_version);
     $this->command->localMachineHelper = $local_machine_helper->reveal();
   }
 

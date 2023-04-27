@@ -62,6 +62,7 @@ Available commands:
   email:configure          [ec] Configure Platform email for one or more applications
   email:info               Print information related to Platform Email set up in a subscription.
  env
+  env:certificate-create   Install an SSL certificate.
   env:create               Create a new Continuous Delivery Environment (CDE)
   env:cron-copy            Copy all cron tasks from one Acquia Cloud Platform environment to another
   env:delete               Delete a Continuous Delivery Environment (CDE)

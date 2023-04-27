@@ -270,7 +270,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       'options' => $input->getOptions(),
       'os_name' => OsInfo::os(),
       'os_version' => OsInfo::version(),
-      // phpcs:ignore
       'platform' => OsInfo::family(),
     ];
     Amplitude::getInstance()->queueEvent('Ran command', $event_properties);
@@ -610,8 +609,11 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * Determine the Cloud environment.
+   *
+   * @return string
+   *   The environment UUID.
    */
-  protected function determineCloudEnvironment(): mixed {
+  protected function determineCloudEnvironment(): string {
     if ($this->input->hasArgument('environmentId') && $this->input->getArgument('environmentId')) {
       return $this->input->getArgument('environmentId');
     }
@@ -1255,8 +1257,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  protected function determineApiKey(InputInterface $input): string {
-    return $this->determineOption('key', $input, FALSE, Closure::fromCallable([$this, 'validateApiKey']));
+  protected function determineApiKey(): string {
+    return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
@@ -1274,29 +1276,27 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $key;
   }
 
-  protected function determineApiSecret(InputInterface $input): string {
-    return $this->determineOption('secret', $input, TRUE, Closure::fromCallable([$this, 'validateApiKey']));
+  protected function determineApiSecret(): string {
+    return $this->determineOption('secret', TRUE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
   /**
-   * Get an option, either passed as an argument or via interactive prompt.
+   * Get an option, either passed explicitly or via interactive prompt.
    *
    * Default can be passed explicitly, separately from the option default,
    * because Symfony does not make a distinction between an option value set
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
    *
-   * The answer must be a non-null string subject to validation.
-   *
    * @param string $option_name
-   * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param bool $hidden
    * @param \Closure|null $validator
+   * @param \Closure|null $normalizer
    * @param string|null $default
-   * @return string
+   * @return string|null
    */
-  protected function determineOption(string $option_name, InputInterface $input, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string {
-    if ($option_value = $input->getOption($option_name)) {
+  protected function determineOption(string $option_name, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): ?string {
+    if ($option_value = $this->input->getOption($option_name)) {
       if (isset($normalizer)) {
         $option_value = $normalizer($option_value);
       }
@@ -1314,6 +1314,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     else {
       $message = "Enter $description (option <options=bold>--$option_name</>)";
     }
+    $optional = $option->isValueOptional();
+    $message .= $optional ? ' (optional)' : '';
     $message .= $hidden ? ' (input will be hidden)' : '';
     $question = new Question($message, $default);
     $question->setHidden($this->localMachineHelper->useTty() && $hidden);
@@ -1326,7 +1328,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
     $option_value = $this->io->askQuestion($question);
     // Question bypasses validation if session is non-interactive.
-    if (is_null($option_value)) {
+    if (!$optional && is_null($option_value)) {
       throw new AcquiaCliException($message);
     }
     return $option_value;

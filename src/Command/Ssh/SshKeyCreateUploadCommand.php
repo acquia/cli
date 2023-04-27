@@ -22,12 +22,12 @@ class SshKeyCreateUploadCommand extends SshKeyCreateCommand {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $filename = $this->determineFilename($input);
-    $password = $this->determinePassword($input);
+    $filename = $this->determineFilename();
+    $password = $this->determinePassword();
     $this->createSshKey($filename, $password);
     $public_key = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
     $chosen_local_key = basename($this->privateSshKeyFilepath);
-    $label = $this->determineSshKeyLabel($input);
+    $label = $this->determineSshKeyLabel();
     $this->uploadSshKey($label, $public_key);
     $this->io->success("Uploaded $chosen_local_key to the Cloud Platform with label $label");
 

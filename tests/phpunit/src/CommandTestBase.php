@@ -195,16 +195,18 @@ abstract class CommandTestBase extends TestBase {
     $this->fs->remove([$this->getTargetGitConfigFixture(), dirname($this->getTargetGitConfigFixture())]);
   }
 
-  /**
-   * Create a mock LocalMachineHelper.
-   */
-  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
+  protected function mockReadIdePhpVersion(string $php_version = '7.1'): LocalMachineHelper|ObjectProphecy {
+    $local_machine_helper = $this->mockLocalMachineHelper();
     $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
-    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn("7.1\n");
+    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn("$php_version\n")->shouldBeCalled();
 
     return $local_machine_helper;
+  }
+
+  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
+    $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $localMachineHelper->useTty()->willReturn(FALSE);
+    return $localMachineHelper;
   }
 
   /**
@@ -346,14 +348,18 @@ abstract class CommandTestBase extends TestBase {
     $db_name
   ) {
     $backup_create_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
-    $this->clientProphecy->request('post', "/environments/{$environments_response->id}/databases/{$db_name}/backups")
+    $this->clientProphecy->request('post', "/environments/$environments_response->id/databases/{$db_name}/backups")
       ->willReturn($backup_create_response)
       ->shouldBeCalled();
 
     return $backup_create_response;
   }
 
-  protected function mockNotificationResponse($notification_uuid, $status = NULL) {
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink) {
+    return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
+  }
+
+  protected function mockNotificationResponse(string $notification_uuid, string $status = NULL) {
     $notification_response = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
     if ($status) {
       $notification_response->status = $status;

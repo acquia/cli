@@ -30,7 +30,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockApplicationRequest();
     $environments_response = $this->mockEnvironmentsRequest($applications_response);
     $selected_environment = $environments_response->_embedded->items[0];
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper = $this->mockReadIdePhpVersion();
     $process = $this->mockProcess();
     $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
     mkdir($dir);
@@ -65,7 +65,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper = $this->mockReadIdePhpVersion();
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
@@ -106,7 +106,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $selected_environment = $environments_response->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper = $this->mockReadIdePhpVersion();
     $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
@@ -163,12 +163,11 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $dir = '/home/ide/project';
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $local_machine_helper = $this->mockReadIdePhpVersion($php_version);
     $local_machine_helper->checkRequiredBinariesExist(["git"])
       ->shouldBeCalled();
     $finder = $this->mockFinder();
     $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn($php_version . "\n")->shouldBeCalled();
     $this->command->localMachineHelper = $local_machine_helper->reveal();
 
     $process = $this->mockProcess();

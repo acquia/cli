@@ -23,6 +23,7 @@ class EnvMirrorCommandTest extends CommandTestBase {
     $environment_response = $this->mockGetEnvironments();
     $code_switch_response = $this->getMockResponseFromSpec("/environments/{environmentId}/code/actions/switch", 'post', '202');
     $response = $code_switch_response->{'Switching code'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
     $this->clientProphecy->request('post',
       "/environments/{$environment_response->id}/code/actions/switch", [
@@ -41,6 +42,7 @@ class EnvMirrorCommandTest extends CommandTestBase {
 
     $db_copy_response = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'post', '202');
     $response = $db_copy_response->{'Database being copied'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
     $this->clientProphecy->request('post', "/environments/{$environment_response->id}/databases", [
       'json' => [
@@ -53,6 +55,7 @@ class EnvMirrorCommandTest extends CommandTestBase {
 
     $files_copy_response = $this->getMockResponseFromSpec("/environments/{environmentId}/files", 'post', '202');
     $response = $files_copy_response->{'Files queued for copying'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
     $this->clientProphecy->request('post', "/environments/{$environment_response->id}/files", [
       'json' => [
@@ -66,11 +69,7 @@ class EnvMirrorCommandTest extends CommandTestBase {
     $this->clientProphecy->request('put', "/environments/{$environment_response->id}", Argument::type('array'))
       ->willReturn($environment_update_response)
       ->shouldBeCalled();
-
-    $notifications_response = $this->getMockResponseFromSpec( "/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
-      ->shouldBeCalled();
+    $this->mockNotificationResponseFromObject($environment_update_response);
 
     $this->executeCommand(
       [
