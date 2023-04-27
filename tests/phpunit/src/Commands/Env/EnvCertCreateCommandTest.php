@@ -19,8 +19,12 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $certContents = 'cert-contents';
     $keyContents = 'key-contents';
-    $localMachineHelper->readFile('cert.pem')->willReturn($certContents)->shouldBeCalled();
-    $localMachineHelper->readFile('key.pem')->willReturn($keyContents)->shouldBeCalled();
+    $certName = 'cert.pem';
+    $keyName = 'key.pem';
+    $label = 'My certificate';
+    $csrId = 123;
+    $localMachineHelper->readFile($certName)->willReturn($certContents)->shouldBeCalled();
+    $localMachineHelper->readFile($keyName)->willReturn($keyContents)->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $sslResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/ssl/certificates',
       'post', '202');
@@ -28,8 +32,8 @@ class EnvCertCreateCommandTest extends CommandTestBase {
       'json' => [
         'ca_certificates' => NULL,
         'certificate' => $certContents,
-        'csr_id' => 0,
-        'label' => 'My certificate',
+        'csr_id' => $csrId,
+        'label' => $label,
         'legacy' => FALSE,
         'private_key' => $keyContents,
         ],
@@ -40,9 +44,13 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
     $this->executeCommand(
+      // phpcs:ignore SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
       [
-        'certificate' => 'cert.pem',
-        'private-key' => 'key.pem',
+        'certificate' => $certName,
+        'private-key' => $keyName,
+        '--csr-id' => $csrId,
+        '--label' => $label,
+        '--legacy' => FALSE,
       ],
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
