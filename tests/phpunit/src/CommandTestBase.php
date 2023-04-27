@@ -348,14 +348,18 @@ abstract class CommandTestBase extends TestBase {
     $db_name
   ) {
     $backup_create_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
-    $this->clientProphecy->request('post', "/environments/{$environments_response->id}/databases/{$db_name}/backups")
+    $this->clientProphecy->request('post', "/environments/$environments_response->id/databases/{$db_name}/backups")
       ->willReturn($backup_create_response)
       ->shouldBeCalled();
 
     return $backup_create_response;
   }
 
-  protected function mockNotificationResponse($notification_uuid, $status = NULL) {
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink) {
+    return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
+  }
+
+  protected function mockNotificationResponse(string $notification_uuid, string $status = NULL) {
     $notification_response = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
     if ($status) {
       $notification_response->status = $status;

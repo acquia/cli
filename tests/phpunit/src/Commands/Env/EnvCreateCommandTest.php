@@ -48,7 +48,7 @@ class EnvCreateCommandTest extends CommandTestBase {
       ->willReturn($environments_response->{'Adding environment'}->value)
       ->shouldBeCalled();
 
-    $this->mockNotificationResponse('23d9184d-40b8-4f21-a3d5-416aef9bcd39');
+    $this->mockNotificationResponseFromObject($environments_response->{'Adding environment'}->value);
     return $response2->_embedded->items[3]->domains[0];
   }
 

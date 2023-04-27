@@ -24,7 +24,6 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $sslResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/ssl/certificates',
       'post', '202');
-    $sslResponseValue = $sslResponse->{'Site is being imported'}->value;
     $options = [
       'json' => [
         'ca_certificates' => NULL,
@@ -36,10 +35,9 @@ class EnvCertCreateCommandTest extends CommandTestBase {
         ],
     ];
     $this->clientProphecy->request('post', "/environments/{$environmentsResponse->{'_embedded'}->items[0]->id}/ssl/certificates", $options)
-      ->willReturn($sslResponseValue)
+      ->willReturn($sslResponse->{'Site is being imported'}->value)
       ->shouldBeCalled();
-    $notificationUuid = substr($sslResponseValue->_links->notification->href, -36);
-    $this->mockNotificationResponse($notificationUuid);
+    $this->mockNotificationResponseFromObject($sslResponse->{'Site is being imported'}->value);
 
     $this->executeCommand(
       [
