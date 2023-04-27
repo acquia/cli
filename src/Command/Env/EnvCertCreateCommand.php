@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Env;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\SslCertificates;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,8 +19,8 @@ class EnvCertCreateCommand extends CommandBase {
    */
   protected function configure(): void {
     $this->setDescription('Install an SSL certificate.')
-      ->addOption('certificate', '', InputOption::VALUE_REQUIRED, 'Filename of the SSL certificate being installed')
-      ->addOption('private-key', '', InputOption::VALUE_REQUIRED, 'Filename of the SSL private key')
+      ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')
+      ->addArgument('private-key', InputArgument::REQUIRED, 'Filename of the SSL private key')
       ->addOption('legacy', '', InputOption::VALUE_OPTIONAL, 'True for legacy certificates', FALSE)
       ->addOption('ca-certificates', '', InputOption::VALUE_OPTIONAL, 'Filename of the CA intermediary certificates')
       ->addOption('csr-id', '', InputOption::VALUE_OPTIONAL, 'The CSR (certificate signing request) to associate with this certificate')
@@ -30,8 +31,8 @@ class EnvCertCreateCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $envUuid = $this->determineCloudEnvironment();
-    $certificate = $this->determineOption('certificate');
-    $privateKey = $this->determineOption('private-key');
+    $certificate = $input->getArgument('certificate');
+    $privateKey = $input->getArgument('private-key');
     $label = $this->determineOption('label');
     $caCertificates = $this->determineOption('ca-certificates');
     $csrId = (int) $this->determineOption('csr-id');
