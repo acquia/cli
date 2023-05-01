@@ -63,8 +63,7 @@ jobs:
         run: composer coverage
       - name: test
         if: matrix.coverage == 'pcov'
-        run: |
-          echo "Repo variable : ${{ vars.CODECOV_TOKEN }}"
+        run: env
       - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v3
