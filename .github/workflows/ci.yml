@@ -61,16 +61,11 @@ jobs:
       - name: Run coverage
         if: matrix.coverage == 'pcov'
         run: composer coverage
-      - name: Upload coverage results to Coveralls
-        if: matrix.coverage == 'pcov'
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: composer coveralls
       - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v3
         with:
-          token: ${{ vars.CODECOV_TOKEN}}
+          token: ${{ vars.CODECOV_TOKEN }}
   build-release:
     runs-on: ubuntu-22.04
     permissions:
