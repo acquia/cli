@@ -31,8 +31,6 @@ jobs:
           - os: "windows-2022"
             php: "8.2"
             coverage: "none"
-    env:
-      CODECOV_TOKEN: ${{ vars.CODECOV_TOKEN }}
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
@@ -65,7 +63,8 @@ jobs:
         run: composer coverage
       - name: test
         if: matrix.coverage == 'pcov'
-        run: echo $CODECOV_TOKEN
+        run: |
+          echo "Repo variable : ${{ vars.CODECOV_TOKEN }}"
       - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v3
