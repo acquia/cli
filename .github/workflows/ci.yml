@@ -31,6 +31,8 @@ jobs:
           - os: "windows-2022"
             php: "8.2"
             coverage: "none"
+    env:
+      CODECOV_TOKEN: ${{ vars.CODECOV_TOKEN }}
     steps:
       - name: Prepare Git
         # Windows corrupts line endings on checkout, causing test failures.
