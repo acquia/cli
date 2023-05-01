@@ -15,6 +15,13 @@ defaults:
     # to install more dependencies. Ubuntu default shell is already Bash.
     # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash
+
+env:
+  # Using upload token helps against rate limiting errors.
+  # Cannot define it as secret as we need it accessible from forks.
+  # See https://github.com/codecov/codecov-action/issues/837
+  CODECOV_TOKEN: 39b3f423-92e0-491b-aba0-f9b56c451c72
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -61,13 +68,11 @@ jobs:
       - name: Run coverage
         if: matrix.coverage == 'pcov'
         run: composer coverage
-      - name: test
-        if: matrix.coverage == 'pcov'
-        run: |
-          echo "Repo variable : ${{ vars.CODECOV_TOKEN }}"
       - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
         uses: codecov/codecov-action@v3
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
   build-release:
     runs-on: ubuntu-22.04
     permissions:
