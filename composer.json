@@ -54,7 +54,7 @@
         "symfony/yaml": "^6.0",
         "thecodingmachine/safe": "^2.4",
         "typhonius/acquia-logstream": "^0.0.13",
-        "typhonius/acquia-php-sdk-v2": "^3.0.6",
+        "typhonius/acquia-php-sdk-v2": "^3.0.7",
         "violuke/rsa-ssh-key-fingerprint": "^1.1",
         "zumba/amplitude-php": "^1.0.4"
     },
