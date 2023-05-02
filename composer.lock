@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b07d625d2f827aba59720ff460ebbdbf",
+    "content-hash": "7136c4132953b2aad31ad7536a1ebc6f",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -3424,23 +3424,23 @@
         },
         {
             "name": "react/promise",
-            "version": "v2.9.0",
+            "version": "v2.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "234f8fd1023c9158e2314fa9d7d0e6a83db42910"
+                "reference": "f913fb8cceba1e6644b7b90c4bfb678ed8a3ef38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/234f8fd1023c9158e2314fa9d7d0e6a83db42910",
-                "reference": "234f8fd1023c9158e2314fa9d7d0e6a83db42910",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/f913fb8cceba1e6644b7b90c4bfb678ed8a3ef38",
+                "reference": "f913fb8cceba1e6644b7b90c4bfb678ed8a3ef38",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.36"
+                "phpunit/phpunit": "^9.5 || ^5.7 || ^4.8.36"
             },
             "type": "library",
             "autoload": {
@@ -3484,19 +3484,15 @@
             ],
             "support": {
                 "issues": "https://github.com/reactphp/promise/issues",
-                "source": "https://github.com/reactphp/promise/tree/v2.9.0"
+                "source": "https://github.com/reactphp/promise/tree/v2.10.0"
             },
             "funding": [
                 {
-                    "url": "https://github.com/WyriHaximus",
-                    "type": "github"
-                },
-                {
-                    "url": "https://github.com/clue",
-                    "type": "github"
+                    "url": "https://opencollective.com/reactphp",
+                    "type": "open_collective"
                 }
             ],
-            "time": "2022-02-11T10:27:51+00:00"
+            "time": "2023-05-02T15:15:43+00:00"
         },
         {
             "name": "react/promise-timer",
@@ -6474,16 +6470,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.0.6",
+            "version": "3.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "9ef25dd36a9e0842e195d67d88ebed51846efc95"
+                "reference": "06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/9ef25dd36a9e0842e195d67d88ebed51846efc95",
-                "reference": "9ef25dd36a9e0842e195d67d88ebed51846efc95",
+                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f",
+                "reference": "06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f",
                 "shasum": ""
             },
             "require": {
@@ -6527,7 +6523,7 @@
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
                 "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.6"
+                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.7"
             },
             "funding": [
                 {
@@ -6535,7 +6531,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-21T21:43:10+00:00"
+            "time": "2023-05-02T19:10:19+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -9516,16 +9512,16 @@
         },
         {
             "name": "phpstan/phpdoc-parser",
-            "version": "1.20.3",
+            "version": "1.20.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpdoc-parser.git",
-                "reference": "6c04009f6cae6eda2f040745b6b846080ef069c2"
+                "reference": "7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/6c04009f6cae6eda2f040745b6b846080ef069c2",
-                "reference": "6c04009f6cae6eda2f040745b6b846080ef069c2",
+                "url": "https://api.github.com/repos/phpstan/phpdoc-parser/zipball/7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd",
+                "reference": "7d568c87a9df9c5f7e8b5f075fc469aa8cb0a4cd",
                 "shasum": ""
             },
             "require": {
@@ -9555,9 +9551,9 @@
             "description": "PHPDoc parser with support for nullable, intersection and generic types",
             "support": {
                 "issues": "https://github.com/phpstan/phpdoc-parser/issues",
-                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.20.3"
+                "source": "https://github.com/phpstan/phpdoc-parser/tree/1.20.4"
             },
-            "time": "2023-04-25T09:01:03+00:00"
+            "time": "2023-05-02T09:19:37+00:00"
         },
         {
             "name": "phpstan/phpstan",
@@ -10096,12 +10092,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "a31b8b0ce0409fca4e8fcdda046e8d4b603dc739"
+                "reference": "5e3dfa62068e207fd3b00be0f6d4657185c1b262"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a31b8b0ce0409fca4e8fcdda046e8d4b603dc739",
-                "reference": "a31b8b0ce0409fca4e8fcdda046e8d4b603dc739",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/5e3dfa62068e207fd3b00be0f6d4657185c1b262",
+                "reference": "5e3dfa62068e207fd3b00be0f6d4657185c1b262",
                 "shasum": ""
             },
             "conflict": {
@@ -10566,7 +10562,7 @@
                 "thelia/thelia": ">=2.1-beta.1,<2.1.3",
                 "theonedemon/phpwhois": "<=4.2.5",
                 "thinkcmf/thinkcmf": "<=5.1.7",
-                "thorsten/phpmyfaq": "<3.1.12",
+                "thorsten/phpmyfaq": "<3.1.13",
                 "tinymce/tinymce": "<5.10.7|>=6,<6.3.1",
                 "tinymighty/wiki-seo": "<1.2.2",
                 "titon/framework": ">=0,<9.9.99",
@@ -10694,7 +10690,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-28T21:04:09+00:00"
+            "time": "2023-05-01T23:04:11+00:00"
         },
         {
             "name": "sanmai/later",
