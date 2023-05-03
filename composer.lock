@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7136c4132953b2aad31ad7536a1ebc6f",
+    "content-hash": "2bf79222788f52938b52a198a29809a1",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -2124,16 +2124,16 @@
         },
         {
             "name": "php-http/discovery",
-            "version": "1.17.0",
+            "version": "1.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/discovery.git",
-                "reference": "bd810d15957cf165230e65d9e1a130793265e3b7"
+                "reference": "29ae6fae35f4116bbfe4c8b96ccc3f687eb07cd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/discovery/zipball/bd810d15957cf165230e65d9e1a130793265e3b7",
-                "reference": "bd810d15957cf165230e65d9e1a130793265e3b7",
+                "url": "https://api.github.com/repos/php-http/discovery/zipball/29ae6fae35f4116bbfe4c8b96ccc3f687eb07cd9",
+                "reference": "29ae6fae35f4116bbfe4c8b96ccc3f687eb07cd9",
                 "shasum": ""
             },
             "require": {
@@ -2196,9 +2196,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-http/discovery/issues",
-                "source": "https://github.com/php-http/discovery/tree/1.17.0"
+                "source": "https://github.com/php-http/discovery/tree/1.18.0"
             },
-            "time": "2023-04-26T15:39:13+00:00"
+            "time": "2023-05-03T14:49:12+00:00"
         },
         {
             "name": "php-http/httplug",
@@ -6470,16 +6470,16 @@
         },
         {
             "name": "typhonius/acquia-php-sdk-v2",
-            "version": "3.0.7",
+            "version": "dev-CLI-1046",
             "source": {
                 "type": "git",
-                "url": "https://github.com/typhonius/acquia-php-sdk-v2.git",
-                "reference": "06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f"
+                "url": "https://github.com/danepowell/acquia-php-sdk-v2.git",
+                "reference": "6fe753cbc302e7fc2aaa27dbf6f664181d9b4c85"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/typhonius/acquia-php-sdk-v2/zipball/06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f",
-                "reference": "06fa9c8fc1e2e0976ab9883533ae1bd276cabf4f",
+                "url": "https://api.github.com/repos/danepowell/acquia-php-sdk-v2/zipball/6fe753cbc302e7fc2aaa27dbf6f664181d9b4c85",
+                "reference": "6fe753cbc302e7fc2aaa27dbf6f664181d9b4c85",
                 "shasum": ""
             },
             "require": {
@@ -6504,13 +6504,47 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Connector\\": "src/Connector",
                     "AcquiaCloudApi\\Endpoints\\": "src/Endpoints",
+                    "AcquiaCloudApi\\Response\\": "src/Response",
                     "AcquiaCloudApi\\Exception\\": "src/Exception"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "AcquiaCloudApi\\Tests\\": "tests/",
+                    "League\\OAuth2\\Client\\Test\\": "vendor/league/oauth2-client/test/src/"
+                }
+            },
+            "scripts": {
+                "lint": [
+                    "phplint"
+                ],
+                "cs": [
+                    "phpcs"
+                ],
+                "cbf": [
+                    "phpcbf"
+                ],
+                "unit": [
+                    "php -dpcov.enabled=1 -dpcov.directory=. -dpcov.exclude='~vendor~' ./vendor/bin/phpunit --configuration=phpunit.xml --testdox"
+                ],
+                "stan": [
+                    "phpstan analyse"
+                ],
+                "test": [
+                    "@lint",
+                    "@unit",
+                    "@cs",
+                    "@stan"
+                ],
+                "release": [
+                    "release VERSION"
+                ],
+                "coveralls": [
+                    "php ./vendor/bin/php-coveralls -v"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -6522,16 +6556,15 @@
             ],
             "description": "A PHP SDK for Acquia CloudAPI v2",
             "support": {
-                "issues": "https://github.com/typhonius/acquia-php-sdk-v2/issues",
-                "source": "https://github.com/typhonius/acquia-php-sdk-v2/tree/3.0.7"
+                "source": "https://github.com/danepowell/acquia-php-sdk-v2/tree/CLI-1046"
             },
             "funding": [
                 {
-                    "url": "https://github.com/typhonius",
-                    "type": "github"
+                    "type": "github",
+                    "url": "https://github.com/typhonius"
                 }
             ],
-            "time": "2023-05-02T19:10:19+00:00"
+            "time": "2023-05-03T18:40:54+00:00"
         },
         {
             "name": "violuke/rsa-ssh-key-fingerprint",
@@ -10092,12 +10125,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "5e3dfa62068e207fd3b00be0f6d4657185c1b262"
+                "reference": "a4fe21553eb3bbf33bbecf26cb0e2f0973f50c83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/5e3dfa62068e207fd3b00be0f6d4657185c1b262",
-                "reference": "5e3dfa62068e207fd3b00be0f6d4657185c1b262",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a4fe21553eb3bbf33bbecf26cb0e2f0973f50c83",
+                "reference": "a4fe21553eb3bbf33bbecf26cb0e2f0973f50c83",
                 "shasum": ""
             },
             "conflict": {
@@ -10360,7 +10393,7 @@
                 "modx/revolution": "<= 2.8.3-pl|<2.8",
                 "mojo42/jirafeau": "<4.4",
                 "monolog/monolog": ">=1.8,<1.12",
-                "moodle/moodle": "<4.0.7|>=4.1-beta,<4.1.2|= 3.11",
+                "moodle/moodle": "<4.2-rc.2|= 3.11",
                 "mustache/mustache": ">=2,<2.14.1",
                 "namshi/jose": "<2.2",
                 "neoan3-apps/template": "<1.1.1",
@@ -10690,7 +10723,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-01T23:04:11+00:00"
+            "time": "2023-05-03T00:13:26+00:00"
         },
         {
             "name": "sanmai/later",
@@ -12208,10 +12241,18 @@
             "time": "2022-06-03T18:03:27+00:00"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "package": "typhonius/acquia-php-sdk-v2",
+            "version": "dev-CLI-1046",
+            "alias": "3.0.7",
+            "alias_normalized": "3.0.7.0"
+        }
+    ],
     "minimum-stability": "dev",
     "stability-flags": {
         "ltd-beget/dns-zone-configurator": 20,
+        "typhonius/acquia-php-sdk-v2": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
