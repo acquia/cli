@@ -14,14 +14,11 @@ class TaskWaitCommand extends CommandBase {
 
   protected function configure(): void {
     $this->setDescription('Wait for a task to complete')
-      ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The UUID of the task notification returned by the Cloud API')
-      ->setHelp('This command will accepts either a notification uuid as an argument or else a json string passed through standard input. The json string must contain the _links->notification->href property.')
+      ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The task notification UUID or Cloud Platform API response containing a linked notification')
+      ->setHelp('Accepts either a notification UUID or Cloud Platform API response as JSON string. The JSON string must contain the _links->notification->href property.')
       ->addUsage('acli app:task-wait "$(api:environments:domain-clear-caches [environmentId] [domain])"');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notification_uuid = $this->getNotificationUuid($input);
     $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notification_uuid, "Waiting for task $notification_uuid to complete");
@@ -32,7 +29,7 @@ class TaskWaitCommand extends CommandBase {
     $notification_uuid = $input->getArgument('notification-uuid');
     $json = json_decode($notification_uuid, FALSE);
     if (json_last_error() === JSON_ERROR_NONE) {
-      if (property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
+      if (is_object($json) && property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
         return $this->getNotificationUuidFromResponse($json);
       }
       throw new AcquiaCliException("Input JSON must contain the _links.notification.href property.");
