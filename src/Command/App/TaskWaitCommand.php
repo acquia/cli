@@ -14,8 +14,8 @@ class TaskWaitCommand extends CommandBase {
 
   protected function configure(): void {
     $this->setDescription('Wait for a task to complete')
-      ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The task notification UUID or Cloud API response containing a linked notification')
-      ->setHelp('Accepts either a notification UUID or Cloud API response as JSON string. The JSON string must contain the _links->notification->href property.')
+      ->addArgument('notification-uuid', InputArgument::REQUIRED, 'The task notification UUID or Cloud Platform API response containing a linked notification')
+      ->setHelp('Accepts either a notification UUID or Cloud Platform API response as JSON string. The JSON string must contain the _links->notification->href property.')
       ->addUsage('acli app:task-wait "$(api:environments:domain-clear-caches [environmentId] [domain])"');
   }
 
