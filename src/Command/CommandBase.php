@@ -1401,11 +1401,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       self::validateUuid($application_uuid);
     }
     catch (ValidatorException) {
-      // Since this isn't a valid environment ID, let's see if it's a valid alias.
-      $alias = $env_uuid_argument;
-      $alias = $this->normalizeAlias($alias);
-      $alias = self::validateEnvironmentAlias($alias);
-      return $this->getEnvironmentFromAliasArg($alias)->uuid;
+      try {
+        // Since this isn't a valid environment ID, let's see if it's a valid alias.
+        $alias = $env_uuid_argument;
+        $alias = $this->normalizeAlias($alias);
+        $alias = self::validateEnvironmentAlias($alias);
+        return $this->getEnvironmentFromAliasArg($alias)->uuid;
+      }
+      catch (AcquiaCliException) {
+        throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
+      }
     }
     return $env_uuid_argument;
   }
