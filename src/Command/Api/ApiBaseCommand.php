@@ -396,9 +396,6 @@ class ApiBaseCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param array $params
-   */
   private function askFreeFormQuestion(InputArgument $argument, array $params): mixed {
     // Default value may be an empty array, which causes Question to choke.
     $default = $argument->getDefault() ?: NULL;

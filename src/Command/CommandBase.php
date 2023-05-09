@@ -1389,30 +1389,23 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $application_uuid_argument;
   }
 
-  /**
-   * @param $env_uuid_argument
-   * @param $argument_name
-   */
   protected function validateEnvironmentUuid($env_uuid_argument, $argument_name): string {
+    if (is_null($env_uuid_argument)) {
+      throw new AcquiaCliException("{{$argument_name}} must not be null");
+    }
     try {
       // Environment IDs take the form of [env-num]-[app-uuid].
       $uuid_parts = explode('-', $env_uuid_argument);
-      $env_id = $uuid_parts[0];
       unset($uuid_parts[0]);
       $application_uuid = implode('-', $uuid_parts);
       self::validateUuid($application_uuid);
     }
-    catch (ValidatorException $validator_exception) {
-      try {
-        // Since this isn't a valid environment ID, let's see if it's a valid alias.
-        $alias = $env_uuid_argument;
-        $alias = $this->normalizeAlias($alias);
-        $alias = self::validateEnvironmentAlias($alias);
-        return $this->getEnvironmentFromAliasArg($alias)->uuid;
-      }
-      catch (AcquiaCliException $exception) {
-        throw new AcquiaCliException("{{$argument_name}} must be a valid UUID or site alias.");
-      }
+    catch (ValidatorException) {
+      // Since this isn't a valid environment ID, let's see if it's a valid alias.
+      $alias = $env_uuid_argument;
+      $alias = $this->normalizeAlias($alias);
+      $alias = self::validateEnvironmentAlias($alias);
+      return $this->getEnvironmentFromAliasArg($alias)->uuid;
     }
     return $env_uuid_argument;
   }
