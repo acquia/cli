@@ -116,16 +116,16 @@
         },
         {
             "name": "bugsnag/bugsnag",
-            "version": "v3.29.0",
+            "version": "v3.29.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bugsnag/bugsnag-php.git",
-                "reference": "362b93bb4b1318bb4bfe3a9e553413e6c2c1f382"
+                "reference": "7fff8512b237a57323f600975ada6376e2b912c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bugsnag/bugsnag-php/zipball/362b93bb4b1318bb4bfe3a9e553413e6c2c1f382",
-                "reference": "362b93bb4b1318bb4bfe3a9e553413e6c2c1f382",
+                "url": "https://api.github.com/repos/bugsnag/bugsnag-php/zipball/7fff8512b237a57323f600975ada6376e2b912c1",
+                "reference": "7fff8512b237a57323f600975ada6376e2b912c1",
                 "shasum": ""
             },
             "require": {
@@ -173,9 +173,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bugsnag/bugsnag-php/issues",
-                "source": "https://github.com/bugsnag/bugsnag-php/tree/v3.29.0"
+                "source": "https://github.com/bugsnag/bugsnag-php/tree/v3.29.1"
             },
-            "time": "2022-10-19T09:54:15+00:00"
+            "time": "2023-05-10T11:07:22+00:00"
         },
         {
             "name": "clue/stream-filter",
