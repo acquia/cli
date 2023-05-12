@@ -177,29 +177,33 @@ EOT
     $loop->run();
   }
 
-  private function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
+  private function checkPermissions(array $userPerms, string $cloud_app_uuid, OutputInterface $output): array {
     $mappings = [];
-    $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
-    foreach ($needed_perms as $index => $perm) {
-      if (in_array($perm, $perms, TRUE)) {
-        switch ($perm) {
+    $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+    foreach ($requiredPerms as $index => $requiredPerm) {
+      if (in_array($requiredPerm, $userPerms, TRUE)) {
+        switch ($requiredPerm) {
           case 'add ssh key to git':
             $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
             $url_parts = explode(':', $full_url);
             $mappings['git']['ssh_target'] = $url_parts[0];
             break;
           case 'add ssh key to non-prod':
-            $mappings['nonprod']['ssh_target'] = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+            if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloud_app_uuid)) {
+              $mappings['nonprod']['ssh_target'] = $nonProdEnv;
+            }
             break;
           case 'add ssh key to prod':
-            $mappings['prod']['ssh_target'] = $this->getAnyProdAhEnvironment($cloud_app_uuid);
+            if ($prodEnv = $this->getAnyProdAhEnvironment($cloud_app_uuid)) {
+              $mappings['prod']['ssh_target'] = $prodEnv;
+            }
             break;
         }
-        unset($needed_perms[$index]);
+        unset($requiredPerms[$index]);
       }
     }
-    if (!empty($needed_perms)) {
-      $perm_string = implode(", ", $needed_perms);
+    if (!empty($requiredPerms)) {
+      $perm_string = implode(", ", $requiredPerms);
       $output->writeln('<comment>You do not have access to some environments on this application.</comment>');
       $output->writeln("<comment>Check that you have the following permissions: <options=bold>$perm_string</></comment>");
     }
