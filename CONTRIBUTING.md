@@ -129,7 +129,7 @@ brew install restview
 
 ## Style guide
 
-Code, comment, and other style standards should generally follow those set by upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), and [ORCA](https://github.com/acquia/coding-standards-php). PHPCodeSniffer enforces many of these standards.
+Code, comment, and other style standards should generally follow those set by the PHP community and upstream projects, especially [Drupal](https://www.drupal.org/docs/develop/standards), [Symfony](https://symfony.com/doc/current/contributing/code/standards.html), [ORCA](https://github.com/acquia/coding-standards-php), and [PSR-1](https://www.php-fig.org/psr/psr-1/). PHPCodeSniffer enforces many of these standards.
 
 - Organize commands by topic (noun) first and action (verb) second, separated by a colon (`ide:create`).
 - Write command descriptions in sentence case and imperative mood without a trailing period (`Create a Cloud IDE`). Do not use a trailing period for argument and option descriptions.
