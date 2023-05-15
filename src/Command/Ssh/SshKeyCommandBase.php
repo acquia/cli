@@ -177,29 +177,33 @@ EOT
     $loop->run();
   }
 
-  private function checkPermissions(array $perms, string $cloudAppUuid, OutputInterface $output): array {
+  private function checkPermissions(array $userPerms, string $cloudAppUuid, OutputInterface $output): array {
     $mappings = [];
-    $neededPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
-    foreach ($neededPerms as $index => $perm) {
-      if (in_array($perm, $perms, TRUE)) {
-        switch ($perm) {
+    $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+    foreach ($requiredPerms as $index => $requiredPerm) {
+      if (in_array($requiredPerm, $userPerms, TRUE)) {
+        switch ($requiredPerm) {
           case 'add ssh key to git':
             $fullUrl = $this->getAnyVcsUrl($cloudAppUuid);
             $urlParts = explode(':', $fullUrl);
             $mappings['git']['ssh_target'] = $urlParts[0];
             break;
           case 'add ssh key to non-prod':
-            $mappings['nonprod']['ssh_target'] = $this->getAnyNonProdAhEnvironment($cloudAppUuid);
+            if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloudAppUuid)) {
+              $mappings['nonprod']['ssh_target'] = $nonProdEnv;
+            }
             break;
           case 'add ssh key to prod':
-            $mappings['prod']['ssh_target'] = $this->getAnyProdAhEnvironment($cloudAppUuid);
+            if ($prodEnv = $this->getAnyProdAhEnvironment($cloudAppUuid)) {
+              $mappings['prod']['ssh_target'] = $prodEnv;
+            }
             break;
         }
-        unset($neededPerms[$index]);
+        unset($requiredPerms[$index]);
       }
     }
-    if (!empty($neededPerms)) {
-      $permString = implode(", ", $neededPerms);
+    if (!empty($requiredPerms)) {
+      $permString = implode(", ", $requiredPerms);
       $output->writeln('<comment>You do not have access to some environments on this application.</comment>');
       $output->writeln("<comment>Check that you have the following permissions: <options=bold>$permString</></comment>");
     }

@@ -1337,7 +1337,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the first environment for a given Cloud application matching a filter.
    */
-  private function getAnyAhEnvironment(string $cloudAppUuid, callable $filter): ?EnvironmentResponse {
+  private function getAnyAhEnvironment(string $cloudAppUuid, callable $filter): EnvironmentResponse|false {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $environmentResource = new Environments($acquiaCloudClient);
     /** @var EnvironmentResponse[] $applicationEnvironments */
@@ -1349,7 +1349,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the first non-prod environment for a given Cloud application.
    */
-  protected function getAnyNonProdAhEnvironment(string $cloudAppUuid): ?EnvironmentResponse {
+  protected function getAnyNonProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
     return $this->getAnyAhEnvironment($cloudAppUuid, function ($environment) {
       return !$environment->flags->production;
     });
@@ -1358,7 +1358,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the first prod environment for a given Cloud application.
    */
-  protected function getAnyProdAhEnvironment(string $cloudAppUuid): ?EnvironmentResponse {
+  protected function getAnyProdAhEnvironment(string $cloudAppUuid): EnvironmentResponse|false {
     return $this->getAnyAhEnvironment($cloudAppUuid, function ($environment) {
       return $environment->flags->production;
     });
