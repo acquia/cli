@@ -4,8 +4,8 @@ namespace Acquia\Cli\Tests\Misc;
 
 class LandoInfoHelper {
 
-  public static function setLandoInfo($lando_info): void {
-    putenv('LANDO_INFO=' . json_encode($lando_info));
+  public static function setLandoInfo($landoInfo): void {
+    putenv('LANDO_INFO=' . json_encode($landoInfo));
     putenv('LANDO=ON');
   }
 

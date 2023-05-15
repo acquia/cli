@@ -8,17 +8,7 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface {
 
-  protected ?string $baseUri;
-  protected ?string $accountsUri;
-
-  /**
-   * ConnectorFactory constructor.
-   *
-   * @param array $config
-   */
-  public function __construct(protected array $config, ?string $base_uri = NULL, ?string $accounts_uri = NULL) {
-    $this->baseUri = $base_uri;
-    $this->accountsUri = $accounts_uri;
+  public function __construct(protected array $config, protected ?string $baseUri = NULL, protected ?string $accountsUri = NULL) {
   }
 
   /**
@@ -32,11 +22,11 @@ class ConnectorFactory implements ConnectorFactoryInterface {
 
     // Fall back to a valid access token.
     if ($this->config['accessToken']) {
-      $access_token = $this->createAccessToken();
-      if (!$access_token->hasExpired()) {
+      $accessToken = $this->createAccessToken();
+      if (!$accessToken->hasExpired()) {
         // @todo Add debug log entry indicating that access token is being used.
         return new AccessTokenConnector([
-          'access_token' => $access_token,
+          'access_token' => $accessToken,
           'key' => NULL,
           'secret' => NULL,
         ], $this->baseUri, $this->accountsUri);

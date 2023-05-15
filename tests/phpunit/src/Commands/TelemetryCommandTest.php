@@ -88,8 +88,8 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->cloudConfig = [DataStoreContract::SEND_TELEMETRY => NULL];
     $this->createMockConfigFiles();
     $this->fs->remove($this->legacyAcliConfigFilepath);
-    $legacy_acli_config = ['send_telemetry' => FALSE];
-    $contents = json_encode($legacy_acli_config);
+    $legacyAcliConfig = ['send_telemetry' => FALSE];
+    $contents = json_encode($legacyAcliConfig);
     $this->fs->dumpFile($this->legacyAcliConfigFilepath, $contents);
     $this->executeCommand();
     $this->prophet->checkPredictions();

@@ -21,25 +21,25 @@ class IdeListMineCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides = new Ides($acquia_cloud_client);
-    $account_ides = $ides->getMine();
-    $application_resource = new Applications($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $ides = new Ides($acquiaCloudClient);
+    $accountIdes = $ides->getMine();
+    $applicationResource = new Applications($acquiaCloudClient);
 
-    if (count($account_ides)) {
+    if (count($accountIdes)) {
       $table = new Table($output);
       $table->setStyle('borderless');
       $table->setHeaders(['IDEs']);
-      foreach ($account_ides as $ide) {
-        $app_url_parts = explode('/', $ide->links->application->href);
-        $app_uuid = end($app_url_parts);
-        $application = $application_resource->get($app_uuid);
-        $application_url = str_replace('/api', '/a', $application->links->self->href);
+      foreach ($accountIdes as $ide) {
+        $appUrlParts = explode('/', $ide->links->application->href);
+        $appUuid = end($appUrlParts);
+        $application = $applicationResource->get($appUuid);
+        $applicationUrl = str_replace('/api', '/a', $application->links->self->href);
 
         $table->addRows([
           ["<comment>$ide->label</comment>"],
           ["UUID: $ide->uuid"],
-          ["Application: <href=$application_url>$application->name</>"],
+          ["Application: <href=$applicationUrl>$application->name</>"],
           ["Subscription: {$application->subscription->name}"],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
           ["Web URL: <href={$ide->links->web->href}>{$ide->links->web->href}</>"],

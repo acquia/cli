@@ -33,8 +33,8 @@ class TelemetryCommand extends CommandBase {
       $datastore->set(DataStoreContract::SEND_TELEMETRY, TRUE);
       $this->io->success('Telemetry has been enabled.');
     }
-    $opposite_verb = $datastore->get(DataStoreContract::SEND_TELEMETRY) ? 'disable' : 'enable';
-    $this->io->writeln("Run this command again to $opposite_verb telemetry");
+    $oppositeVerb = $datastore->get(DataStoreContract::SEND_TELEMETRY) ? 'disable' : 'enable';
+    $this->io->writeln("Run this command again to $oppositeVerb telemetry");
 
     return 0;
   }

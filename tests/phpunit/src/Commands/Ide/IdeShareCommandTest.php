@@ -42,8 +42,8 @@ class IdeShareCommandTest extends CommandTestBase {
    * Tests the 'ide:share' command.
    */
   public function testIdeShareCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
-    $ide = new IdeResponse((object) $ide_get_response);
+    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand([], []);
 
     // Assert.
@@ -57,8 +57,8 @@ class IdeShareCommandTest extends CommandTestBase {
    * Tests the 'ide:share' command.
    */
   public function testIdeShareRegenerateCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
-    $ide = new IdeResponse((object) $ide_get_response);
+    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand(['--regenerate' => TRUE], []);
 
     // Assert.

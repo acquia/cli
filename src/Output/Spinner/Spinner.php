@@ -137,12 +137,12 @@ class Spinner {
       return;
     }
     if ($name === 'detail') {
-      $terminal_width = (new Terminal())->getWidth();
-      $message_length = Helper::length($message) + ($this->indentLength * 2);
-      if ($message_length > $terminal_width) {
+      $terminalWidth = (new Terminal())->getWidth();
+      $messageLength = Helper::length($message) + ($this->indentLength * 2);
+      if ($messageLength > $terminalWidth) {
         $suffix = '...';
-        $new_message_len = ($terminal_width - ($this->indentLength * 2) - strlen($suffix));
-        $message = Helper::substr($message, 0, $new_message_len);
+        $newMessageLen = ($terminalWidth - ($this->indentLength * 2) - strlen($suffix));
+        $message = Helper::substr($message, 0, $newMessageLen);
         $message .= $suffix;
       }
     }

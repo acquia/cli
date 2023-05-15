@@ -24,14 +24,14 @@ class CodeStudioPhpVersionCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $php_version = $input->getArgument('php-version');
-    $this->validatePhpVersion($php_version);
+    $phpVersion = $input->getArgument('php-version');
+    $this->validatePhpVersion($phpVersion);
     $this->authenticateWithGitLab();
     $acquiaCloudAppId = $this->determineCloudApplication();
 
     // Get the GitLab project details attached with the given Cloud application.
-    $cloud_application = $this->getCloudApplication($acquiaCloudAppId);
-    $project = $this->determineGitLabProject($cloud_application);
+    $cloudApplication = $this->getCloudApplication($acquiaCloudAppId);
+    $project = $this->determineGitLabProject($cloudApplication);
 
     // If CI/CD is not enabled for the project in Code Studio.
     if (empty($project['jobs_enabled'])) {
@@ -40,28 +40,28 @@ class CodeStudioPhpVersionCommand extends CommandBase {
     }
 
     try {
-      $php_version_already_set = FALSE;
+      $phpVersionAlreadySet = FALSE;
       // Get all variables of the project.
-      $all_project_variables = $this->gitLabClient->projects()->variables($project['id']);
-      if (!empty($all_project_variables)) {
-        $variables = array_column($all_project_variables, 'value', 'key');
-        $php_version_already_set = $variables['PHP_VERSION'] ?? FALSE;
+      $allProjectVariables = $this->gitLabClient->projects()->variables($project['id']);
+      if (!empty($allProjectVariables)) {
+        $variables = array_column($allProjectVariables, 'value', 'key');
+        $phpVersionAlreadySet = $variables['PHP_VERSION'] ?? FALSE;
       }
       // If PHP version is not set in variables.
-      if (!$php_version_already_set) {
-        $this->gitLabClient->projects()->addVariable($project['id'], 'PHP_VERSION', $php_version);
+      if (!$phpVersionAlreadySet) {
+        $this->gitLabClient->projects()->addVariable($project['id'], 'PHP_VERSION', $phpVersion);
       }
       else {
         // If variable already exists, updating the variable.
-        $this->gitLabClient->projects()->updateVariable($project['id'], 'PHP_VERSION', $php_version);
+        $this->gitLabClient->projects()->updateVariable($project['id'], 'PHP_VERSION', $phpVersion);
       }
     }
     catch (RuntimeException) {
-      $this->io->error("Unable to update the PHP version to $php_version");
+      $this->io->error("Unable to update the PHP version to $phpVersion");
       return self::FAILURE;
     }
 
-    $this->io->success("PHP version is updated to $php_version successfully!");
+    $this->io->success("PHP version is updated to $phpVersion successfully!");
     return self::SUCCESS;
   }
 

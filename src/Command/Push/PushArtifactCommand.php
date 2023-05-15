@@ -55,134 +55,134 @@ class PushArtifactCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $artifact_dir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
+    $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
     $this->composerJsonPath = Path::join($this->dir, 'composer.json');
     $this->docrootPath = Path::join($this->dir, 'docroot');
     $this->validateSourceCode();
 
-    $is_dirty = $this->isLocalGitRepoDirty();
-    $commit_hash = $this->getLocalGitCommitHash();
-    if ($is_dirty) {
+    $isDirty = $this->isLocalGitRepoDirty();
+    $commitHash = $this->getLocalGitCommitHash();
+    if ($isDirty) {
       throw new AcquiaCliException('Pushing code was aborted because your local Git repository has uncommitted changes. Either commit, reset, or stash your changes via git.');
     }
     $this->checklist = new Checklist($output);
-    $application_uuid = $this->determineCloudApplication();
-    $destination_git_urls = $this->determineDestinationGitUrls($application_uuid);
-    $destination_git_ref = $this->determineDestinationGitRef();
-    $source_git_branch = $this->determineSourceGitRef();
+    $applicationUuid = $this->determineCloudApplication();
+    $destinationGitUrls = $this->determineDestinationGitUrls($applicationUuid);
+    $destinationGitRef = $this->determineDestinationGitRef();
+    $sourceGitBranch = $this->determineSourceGitRef();
 
-    $destination_git_urls_string = implode(',', $destination_git_urls);
-    $ref_type = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
+    $destinationGitUrlsString = implode(',', $destinationGitUrls);
+    $refType = $this->input->getOption('destination-git-tag') ? 'tag' : 'branch';
     $this->io->note([
       "Acquia CLI will:",
-      "- git clone $source_git_branch from $destination_git_urls[0]",
+      "- git clone $sourceGitBranch from $destinationGitUrls[0]",
       "- Compile the contents of $this->dir into an artifact in a temporary directory",
-      "- Copy the artifact files into the checked out copy of $source_git_branch",
-      "- Commit changes and push the $destination_git_ref $ref_type to the following git remote(s):",
-      "  $destination_git_urls_string",
+      "- Copy the artifact files into the checked out copy of $sourceGitBranch",
+      "- Commit changes and push the $destinationGitRef $refType to the following git remote(s):",
+      "  $destinationGitUrlsString",
     ]);
 
-    $output_callback = $this->getOutputCallback($output, $this->checklist);
+    $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Preparing artifact directory');
-    $this->cloneSourceBranch($output_callback, $artifact_dir, $destination_git_urls[0], $source_git_branch);
+    $this->cloneSourceBranch($outputCallback, $artifactDir, $destinationGitUrls[0], $sourceGitBranch);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating build artifact');
-    $this->buildArtifact($output_callback, $artifact_dir);
+    $this->buildArtifact($outputCallback, $artifactDir);
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('no-sanitize')) {
       $this->checklist->addItem('Sanitizing build artifact');
-      $this->sanitizeArtifact($output_callback, $artifact_dir);
+      $this->sanitizeArtifact($outputCallback, $artifactDir);
       $this->checklist->completePreviousItem();
     }
 
-    $this->checklist->addItem("Committing changes (commit hash: $commit_hash)");
-    $this->commit($output_callback, $artifact_dir, $commit_hash);
+    $this->checklist->addItem("Committing changes (commit hash: $commitHash)");
+    $this->commit($outputCallback, $artifactDir, $commitHash);
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('dry-run')) {
-      if ($tag_name = $input->getOption('destination-git-tag')) {
-        $this->checklist->addItem("Creating <options=bold>$tag_name</> tag.");
-        $this->createTag($tag_name, $output_callback, $artifact_dir);
+      if ($tagName = $input->getOption('destination-git-tag')) {
+        $this->checklist->addItem("Creating <options=bold>$tagName</> tag.");
+        $this->createTag($tagName, $outputCallback, $artifactDir);
         $this->checklist->completePreviousItem();
-        $this->checklist->addItem("Pushing changes to <options=bold>$tag_name</> tag.");
-        $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $tag_name);
+        $this->checklist->addItem("Pushing changes to <options=bold>$tagName</> tag.");
+        $this->pushArtifact($outputCallback, $artifactDir, $destinationGitUrls, $tagName);
       }
       else {
-        $this->checklist->addItem("Pushing changes to <options=bold>$destination_git_ref</> branch.");
-        $this->pushArtifact($output_callback, $artifact_dir, $destination_git_urls, $destination_git_ref . ':' . $destination_git_ref);
+        $this->checklist->addItem("Pushing changes to <options=bold>$destinationGitRef</> branch.");
+        $this->pushArtifact($outputCallback, $artifactDir, $destinationGitUrls, $destinationGitRef . ':' . $destinationGitRef);
       }
       $this->checklist->completePreviousItem();
     }
     else {
-      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifact_dir</>");
+      $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifactDir</>");
     }
 
     return 0;
   }
 
-  private function determineDestinationGitUrls($application_uuid): mixed {
+  private function determineDestinationGitUrls($applicationUuid): mixed {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
-      return explode(',', $env_var);
+    if ($envVar = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_URLS')) {
+      return explode(',', $envVar);
     }
     if ($this->datastoreAcli->get('push.artifact.destination-git-urls')) {
       return $this->datastoreAcli->get('push.artifact.destination-git-urls');
     }
 
-    return [$this->getAnyVcsUrl($application_uuid)];
+    return [$this->getAnyVcsUrl($applicationUuid)];
   }
 
   /**
    * Prepare a directory to build the artifact.
    */
-  private function cloneSourceBranch(Closure $output_callback, string $artifact_dir, string $vcs_url, string $vcs_path): void {
+  private function cloneSourceBranch(Closure $outputCallback, string $artifactDir, string $vcsUrl, string $vcsPath): void {
     $fs = $this->localMachineHelper->getFilesystem();
 
-    $output_callback('out', "Removing $artifact_dir if it exists");
-    $fs->remove($artifact_dir);
+    $outputCallback('out', "Removing $artifactDir if it exists");
+    $fs->remove($artifactDir);
 
-    $output_callback('out', "Initializing Git in $artifact_dir");
+    $outputCallback('out', "Initializing Git in $artifactDir");
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcs_url, $artifact_dir], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'clone', '--depth=1', $vcsUrl, $artifactDir], $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to clone repository from the Cloud Platform: {message}', ['message' => $process->getErrorOutput()]);
     }
-    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcs_url, $vcs_path . ':' . $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'fetch', '--depth=1', $vcsUrl, $vcsPath . ':' . $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       // Remote branch does not exist. Just create it locally. This will create
       // the new branch off of the current commit.
-      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      $process = $this->localMachineHelper->execute(['git', 'checkout', '-b', $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     }
     else {
-      $process = $this->localMachineHelper->execute(['git', 'checkout', $vcs_path], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      $process = $this->localMachineHelper->execute(['git', 'checkout', $vcsPath], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     }
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException("Could not checkout $vcs_path branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
+      throw new AcquiaCliException("Could not checkout $vcsPath branch locally: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
 
-    $output_callback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
-    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
-    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $outputCallback('out', 'Global .gitignore file is temporarily disabled during artifact builds.');
+    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.excludesFile', 'false'], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $this->localMachineHelper->execute(['git', 'config', '--local', 'core.fileMode', 'true'], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
 
     // Vendor directories can be "corrupt" (i.e. missing scaffold files due to earlier sanitization) in ways that break composer install.
-    $output_callback('out', 'Removing vendor directories');
-    foreach ($this->vendorDirs() as $vendor_directory) {
-      $fs->remove(Path::join($artifact_dir, $vendor_directory));
+    $outputCallback('out', 'Removing vendor directories');
+    foreach ($this->vendorDirs() as $vendorDirectory) {
+      $fs->remove(Path::join($artifactDir, $vendorDirectory));
     }
   }
 
   /**
    * Build the artifact.
    */
-  private function buildArtifact(Closure $output_callback, string $artifact_dir): void {
+  private function buildArtifact(Closure $outputCallback, string $artifactDir): void {
     // @todo generate a deploy identifier
     // @see https://git.drupalcode.org/project/drupal/-/blob/9.1.x/sites/default/default.settings.php#L295
-    $output_callback('out', "Mirroring source files from $this->dir to $artifact_dir");
+    $outputCallback('out', "Mirroring source files from $this->dir to $artifactDir");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
@@ -190,12 +190,12 @@ class PushArtifactCommand extends PullCommandBase {
       // Ignore VCS ignored files (e.g. vendor) to speed up the mirror (Composer will restore them later).
       ->ignoreVCSIgnored(TRUE);
     $targetFinder = $this->localMachineHelper->getFinder();
-    $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
-    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
+    $targetFinder->files()->in($artifactDir)->ignoreDotFiles(FALSE);
+    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
 
     $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
-    $output_callback('out', 'Installing Composer production dependencies');
-    $process = $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $outputCallback('out', 'Installing Composer production dependencies');
+    $process = $this->localMachineHelper->execute(['composer', 'install', '--no-dev', '--no-interaction', '--optimize-autoloader'], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Unable to install composer dependencies: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
     }
@@ -204,41 +204,41 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Sanitize the artifact.
    */
-  private function sanitizeArtifact(Closure $output_callback, string $artifact_dir): void {
-    $output_callback('out', 'Finding Drupal core text files');
+  private function sanitizeArtifact(Closure $outputCallback, string $artifactDir): void {
+    $outputCallback('out', 'Finding Drupal core text files');
     $sanitizeFinder = $this->localMachineHelper->getFinder()
       ->files()
       ->name('*.txt')
       ->notName('LICENSE.txt')
-      ->in("$artifact_dir/docroot/core");
+      ->in("$artifactDir/docroot/core");
 
-    $output_callback('out', 'Finding VCS directories');
+    $outputCallback('out', 'Finding VCS directories');
     $vcsFinder = $this->localMachineHelper->getFinder()
       ->ignoreDotFiles(FALSE)
       ->ignoreVCS(FALSE)
       ->directories()
-      ->in(["$artifact_dir/docroot",
-        "$artifact_dir/vendor",
+      ->in(["$artifactDir/docroot",
+        "$artifactDir/vendor",
       ])
       ->name('.git');
-    $drush_dir = "$artifact_dir/drush";
-    if (file_exists($drush_dir)) {
-      $vcsFinder->in($drush_dir);
+    $drushDir = "$artifactDir/drush";
+    if (file_exists($drushDir)) {
+      $vcsFinder->in($drushDir);
     }
     if ($vcsFinder->hasResults()) {
       $sanitizeFinder->append($vcsFinder);
     }
 
-    $output_callback('out', 'Finding INSTALL database text files');
+    $outputCallback('out', 'Finding INSTALL database text files');
     $dbInstallFinder = $this->localMachineHelper->getFinder()
       ->files()
-      ->in([$artifact_dir])
+      ->in([$artifactDir])
       ->name('/INSTALL\.[a-z]+\.(md|txt)$/');
     if ($dbInstallFinder->hasResults()) {
       $sanitizeFinder->append($dbInstallFinder);
     }
 
-    $output_callback('out', 'Finding other common text files');
+    $outputCallback('out', 'Finding other common text files');
     $filenames = [
       'AUTHORS',
       'CHANGELOG',
@@ -252,65 +252,65 @@ class PushArtifactCommand extends PullCommandBase {
     ];
     $textFileFinder = $this->localMachineHelper->getFinder()
       ->files()
-      ->in(["$artifact_dir/docroot"])
+      ->in(["$artifactDir/docroot"])
       ->name('/(' . implode('|', $filenames) . ')\.(md|txt)$/');
     if ($textFileFinder->hasResults()) {
       $sanitizeFinder->append($textFileFinder);
     }
 
-    $output_callback('out', "Removing sensitive files from build");
+    $outputCallback('out', "Removing sensitive files from build");
     $this->localMachineHelper->getFilesystem()->remove($sanitizeFinder);
   }
 
   /**
    * Commit the artifact.
    */
-  private function commit(Closure $output_callback, string $artifact_dir, string $commit_hash): void {
-    $output_callback('out', 'Adding and committing changed files');
+  private function commit(Closure $outputCallback, string $artifactDir, string $commitHash): void {
+    $outputCallback('out', 'Adding and committing changed files');
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    $process = $this->localMachineHelper->execute(['git', 'add', '-A'], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['git', 'add', '-A'], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not add files to artifact via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
-    foreach (array_merge($this->vendorDirs(), $this->scaffoldFiles($artifact_dir)) as $file) {
+    foreach (array_merge($this->vendorDirs(), $this->scaffoldFiles($artifactDir)) as $file) {
       $this->logger->debug("Forcibly adding $file");
-      $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifact_dir, FALSE);
+      $this->localMachineHelper->execute(['git', 'add', '-f', $file], NULL, $artifactDir, FALSE);
       if (!$process->isSuccessful()) {
         // This will fatally error if the file doesn't exist. Suppress error output.
         $this->io->warning("Unable to forcibly add $file to new branch");
       }
     }
-    $commit_message = $this->generateCommitMessage($commit_hash);
-    $process = $this->localMachineHelper->execute(['git', 'commit', '-m', $commit_message], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $commitMessage = $this->generateCommitMessage($commitHash);
+    $process = $this->localMachineHelper->execute(['git', 'commit', '-m', $commitMessage], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException("Could not commit via git: {message}", ['message' => $process->getErrorOutput() . $process->getOutput()]);
     }
   }
 
-  private function generateCommitMessage(string $commit_hash): array|string {
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
-      return $env_var;
+  private function generateCommitMessage(string $commitHash): array|string {
+    if ($envVar = getenv('ACLI_PUSH_ARTIFACT_COMMIT_MSG')) {
+      return $envVar;
     }
 
-    return "Automated commit by Acquia CLI (source commit: $commit_hash)";
+    return "Automated commit by Acquia CLI (source commit: $commitHash)";
   }
 
   /**
    * Push the artifact.
    *
-   * @param array $vcs_urls
+   * @param array $vcsUrls
    */
-  private function pushArtifact(Closure $output_callback, string $artifact_dir, array $vcs_urls, string $dest_git_branch): void {
+  private function pushArtifact(Closure $outputCallback, string $artifactDir, array $vcsUrls, string $destGitBranch): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
-    foreach ($vcs_urls as $vcs_url) {
-      $output_callback('out', "Pushing changes to Acquia Git ($vcs_url)");
+    foreach ($vcsUrls as $vcsUrl) {
+      $outputCallback('out', "Pushing changes to Acquia Git ($vcsUrl)");
       $args = [
         'git',
         'push',
-        $vcs_url,
-        $dest_git_branch,
+        $vcsUrl,
+        $destGitBranch,
       ];
-      $process = $this->localMachineHelper->execute($args, $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      $process = $this->localMachineHelper->execute($args, $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
       if (!$process->isSuccessful()) {
         throw new AcquiaCliException("Unable to push artifact: {message}", ['message' => $process->getOutput() . $process->getErrorOutput()]);
       }
@@ -331,9 +331,9 @@ class PushArtifactCommand extends PullCommandBase {
       'vendor',
     ];
     if (file_exists($this->composerJsonPath)) {
-      $composer_json = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE, 512, JSON_THROW_ON_ERROR);
+      $composerJson = json_decode($this->localMachineHelper->readFile($this->composerJsonPath), TRUE, 512, JSON_THROW_ON_ERROR);
 
-      foreach ($composer_json['extra']['installer-paths'] as $path => $type) {
+      foreach ($composerJson['extra']['installer-paths'] as $path => $type) {
         $this->vendorDirs[] = str_replace('/{$name}', '', $path);
       }
       return $this->vendorDirs;
@@ -346,14 +346,14 @@ class PushArtifactCommand extends PullCommandBase {
    *
    * @return array
    */
-  private function scaffoldFiles(string $artifact_dir): array {
+  private function scaffoldFiles(string $artifactDir): array {
     if (!empty($this->scaffoldFiles)) {
       return $this->scaffoldFiles;
     }
 
     $this->scaffoldFiles = [];
-    $composer_json = json_decode($this->localMachineHelper->readFile(Path::join($artifact_dir, 'docroot', 'core', 'composer.json')), TRUE, 512, JSON_THROW_ON_ERROR);
-    foreach ($composer_json['extra']['drupal-scaffold']['file-mapping'] as $file => $asset_path) {
+    $composerJson = json_decode($this->localMachineHelper->readFile(Path::join($artifactDir, 'docroot', 'core', 'composer.json')), TRUE, 512, JSON_THROW_ON_ERROR);
+    foreach ($composerJson['extra']['drupal-scaffold']['file-mapping'] as $file => $assetPath) {
       if (str_starts_with($file, '[web-root]')) {
         $this->scaffoldFiles[] = str_replace('[web-root]', 'docroot', $file);
       }
@@ -364,13 +364,13 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   private function validateSourceCode(): void {
-    $required_paths = [
+    $requiredPaths = [
       $this->composerJsonPath,
       $this->docrootPath,
     ];
-    foreach ($required_paths as $required_path) {
-      if (!file_exists($required_path)) {
-        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $required_path is missing.");
+    foreach ($requiredPaths as $requiredPath) {
+      if (!file_exists($requiredPath)) {
+        throw new AcquiaCliException("Your current directory does not look like a valid Drupal application. $requiredPath is missing.");
       }
     }
   }
@@ -379,8 +379,8 @@ class PushArtifactCommand extends PullCommandBase {
     if ($this->input->getOption('source-git-tag')) {
       return $this->input->getOption('source-git-tag');
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_TAG')) {
-      return $env_var;
+    if ($envVar = getenv('ACLI_PUSH_ARTIFACT_SOURCE_GIT_TAG')) {
+      return $envVar;
     }
     if ($this->input->getOption('destination-git-tag')) {
       throw new AcquiaCliException('You must also set the --source-git-tag option when setting the --destination-git-tag option.');
@@ -395,16 +395,16 @@ class PushArtifactCommand extends PullCommandBase {
       $this->destinationGitRef = $this->input->getOption('destination-git-tag');
       return $this->destinationGitRef;
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_TAG')) {
-      $this->destinationGitRef = $env_var;
+    if ($envVar = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_TAG')) {
+      $this->destinationGitRef = $envVar;
       return $this->destinationGitRef;
     }
     if ($this->input->getOption('destination-git-branch')) {
       $this->destinationGitRef = $this->input->getOption('destination-git-branch');
       return $this->destinationGitRef;
     }
-    if ($env_var = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
-      $this->destinationGitRef = $env_var;
+    if ($envVar = getenv('ACLI_PUSH_ARTIFACT_DESTINATION_GIT_BRANCH')) {
+      $this->destinationGitRef = $envVar;
       return $this->destinationGitRef;
     }
 
@@ -419,15 +419,15 @@ class PushArtifactCommand extends PullCommandBase {
   }
 
   /**
-   * @param $tag_name
+   * @param $tagName
    */
-  private function createTag($tag_name, Closure $output_callback, string $artifact_dir): void {
+  private function createTag($tagName, Closure $outputCallback, string $artifactDir): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',
       'tag',
-      $tag_name,
-    ], $output_callback, $artifact_dir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+      $tagName,
+    ], $outputCallback, $artifactDir, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Failed to create Git tag: {message}', ['message' => $process->getErrorOutput()]);
     }

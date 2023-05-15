@@ -20,10 +20,10 @@ class TaskWaitCommandTest extends CommandTestBase {
    * @dataProvider providerTestTaskWaitCommand
    */
   public function testTaskWaitCommand(string $status, string $message): void {
-    $notification_uuid = '94835c3e-b112-4660-a14d-d541906c205b';
-    $this->mockNotificationResponse($notification_uuid, $status);
+    $notificationUuid = '94835c3e-b112-4660-a14d-d541906c205b';
+    $this->mockNotificationResponse($notificationUuid, $status);
     $this->executeCommand([
-      'notification-uuid' => $notification_uuid,
+      'notification-uuid' => $notificationUuid,
     ], []);
 
     // Assert.
@@ -50,9 +50,9 @@ class TaskWaitCommandTest extends CommandTestBase {
   }
 
   public function testTaskWaitCommandWithStandardInput(): void {
-    $task_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
-    $this->mockNotificationResponseFromObject($task_response->{'Clearing cache'}->value);
-    $json = json_encode($task_response->{'Clearing cache'}->value);
+    $taskResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains/{domain}/actions/clear-caches', 'post', 202);
+    $this->mockNotificationResponseFromObject($taskResponse->{'Clearing cache'}->value);
+    $json = json_encode($taskResponse->{'Clearing cache'}->value);
     $this->executeCommand(['notification-uuid' => $json], []);
 
     // Assert.

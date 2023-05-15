@@ -22,9 +22,9 @@ class IdeServiceStopCommandTest extends CommandTestBase {
    * Tests the 'ide:service-stop' command.
    */
   public function testIdeServiceStopCommand(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockStopPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockStopPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
@@ -37,9 +37,9 @@ class IdeServiceStopCommandTest extends CommandTestBase {
    * Tests the 'ide:service-stop' command with invalid choice.
    */
   public function testIdeServiceStopCommandInvalid(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockStopPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockStopPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(ValidatorException::class);
     $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);

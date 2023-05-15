@@ -25,12 +25,12 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
 
-    $cloud_key = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid());
-    if (!$cloud_key) {
+    $cloudKey = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid());
+    if (!$cloudKey) {
       throw new AcquiaCliException('Could not find an SSH key on the Cloud Platform matching any local key in this IDE.');
     }
 
-    $this->deleteSshKeyFromCloud($output, $cloud_key);
+    $this->deleteSshKeyFromCloud($output, $cloudKey);
     $this->deleteLocalSshKey();
 
     $this->output->writeln("<info>Deleted local files <options=bold>{$this->publicSshKeyFilepath}</> and <options=bold>{$this->privateSshKeyFilepath}</>");

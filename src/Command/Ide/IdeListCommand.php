@@ -22,17 +22,17 @@ class IdeListCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
+    $applicationUuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides_resource = new Ides($acquia_cloud_client);
-    $application_ides = $ides_resource->getAll($application_uuid);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $idesResource = new Ides($acquiaCloudClient);
+    $applicationIdes = $idesResource->getAll($applicationUuid);
 
-    if ($application_ides->count()) {
+    if ($applicationIdes->count()) {
       $table = new Table($output);
       $table->setStyle('borderless');
       $table->setHeaders(['IDEs']);
-      foreach ($application_ides as $ide) {
+      foreach ($applicationIdes as $ide) {
         $table->addRows([
           ["<comment>{$ide->label} ({$ide->owner->mail})</comment>"],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],

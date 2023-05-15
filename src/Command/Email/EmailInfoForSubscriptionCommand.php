@@ -40,13 +40,13 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
       $this->writeDomainsToTables($output, $subscription, $response);
 
-      $subscription_applications = $this->validateSubscriptionApplicationCount($client, $subscription);
+      $subscriptionApplications = $this->validateSubscriptionApplicationCount($client, $subscription);
 
-      if (!isset($subscription_applications)) {
+      if (!isset($subscriptionApplications)) {
         return 1;
       }
 
-      $this->renderApplicationAssociations($output, $client, $subscription, $subscription_applications);
+      $this->renderApplicationAssociations($output, $client, $subscription, $subscriptionApplications);
 
       $this->output->writeln("<info>CSV files with these tables have been exported to <options=bold>/subscription-{$subscription->uuid}-domains</>. A detailed breakdown of each domain's DNS records has been exported there as well.</info>");
     }
@@ -61,61 +61,61 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
    *
-   * @param array $domain_list
+   * @param array $domainList
    */
-  private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domain_list): void {
+  private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
 
     // initialize tables to be displayed in console
-    $all_domains_table = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
-    $verified_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Verified Domains");
-    $pending_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Pending Domains");
-    $failed_domains_table = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
+    $allDomainsTable = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
+    $verifiedDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Verified Domains");
+    $pendingDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Pending Domains");
+    $failedDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
 
     // initialize csv writers for each file
-    $writer_all_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-summary.csv", 'w+');
-    $writer_verified_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/verified-domains-summary.csv", 'w+');
-    $writer_pending_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/pending-domains-summary.csv", 'w+');
-    $writer_failed_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/failed-domains-summary.csv", 'w+');
-    $writer_all_domains_dns_health = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-dns-health.csv", 'w+');
+    $writerAllDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-summary.csv", 'w+');
+    $writerVerifiedDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/verified-domains-summary.csv", 'w+');
+    $writerPendingDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/pending-domains-summary.csv", 'w+');
+    $writerFailedDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/failed-domains-summary.csv", 'w+');
+    $writerAllDomainsDnsHealth = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-dns-health.csv", 'w+');
 
-    $all_domains_summary_header = ['Domain Name', 'Domain UUID', 'Verification Status'];
-    $writer_all_domains->insertOne($all_domains_summary_header);
+    $allDomainsSummaryHeader = ['Domain Name', 'Domain UUID', 'Verification Status'];
+    $writerAllDomains->insertOne($allDomainsSummaryHeader);
 
-    $verified_domains_header = ['Domain Name', 'Summary'];
-    $writer_verified_domains->insertOne($verified_domains_header);
+    $verifiedDomainsHeader = ['Domain Name', 'Summary'];
+    $writerVerifiedDomains->insertOne($verifiedDomainsHeader);
 
-    $pending_domains_header = $verified_domains_header;
-    $writer_pending_domains->insertOne($pending_domains_header);
+    $pendingDomainsHeader = $verifiedDomainsHeader;
+    $writerPendingDomains->insertOne($pendingDomainsHeader);
 
-    $failed_domains_header = $verified_domains_header;
-    $writer_failed_domains->insertOne($failed_domains_header);
+    $failedDomainsHeader = $verifiedDomainsHeader;
+    $writerFailedDomains->insertOne($failedDomainsHeader);
 
-    $all_domains_dns_health_csv_header = ['Domain Name', 'Domain UUID', 'Domain Health', 'DNS Record Name', 'DNS Record Type', 'DNS Record Value', 'DNS Record Health Details'];
-    $writer_all_domains_dns_health->insertOne($all_domains_dns_health_csv_header);
+    $allDomainsDnsHealthCsvHeader = ['Domain Name', 'Domain UUID', 'Domain Health', 'DNS Record Name', 'DNS Record Type', 'DNS Record Value', 'DNS Record Health Details'];
+    $writerAllDomainsDnsHealth->insertOne($allDomainsDnsHealthCsvHeader);
 
-    foreach ($domain_list as $domain) {
-      $domain_name_and_summary = [$domain->domain_name, $domain->health->summary];
+    foreach ($domainList as $domain) {
+      $domainNameAndSummary = [$domain->domain_name, $domain->health->summary];
 
       if ($domain->health->code === '200') {
-        $verified_domains_table->addRow($domain_name_and_summary);
-        $writer_verified_domains->insertOne($domain_name_and_summary);
+        $verifiedDomainsTable->addRow($domainNameAndSummary);
+        $writerVerifiedDomains->insertOne($domainNameAndSummary);
       }
       else if ($domain->health->code === '202') {
-        $pending_domains_table->addRow($domain_name_and_summary);
-        $writer_pending_domains->insertOne($domain_name_and_summary);
+        $pendingDomainsTable->addRow($domainNameAndSummary);
+        $writerPendingDomains->insertOne($domainNameAndSummary);
       }
       else {
-        $failed_domains_table->addRow($domain_name_and_summary);
-        $writer_failed_domains->insertOne($domain_name_and_summary);
+        $failedDomainsTable->addRow($domainNameAndSummary);
+        $writerFailedDomains->insertOne($domainNameAndSummary);
       }
 
-      $all_domains_table->addRow([
+      $allDomainsTable->addRow([
         $domain->domain_name,
         $domain->uuid,
         $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
       ]);
 
-      $writer_all_domains->insertOne([
+      $writerAllDomains->insertOne([
         $domain->domain_name,
         $domain->uuid,
         $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
@@ -123,7 +123,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
       foreach ($domain->dns_records as $index => $record) {
         if ($index === 0) {
-          $writer_all_domains_dns_health->insertOne([
+          $writerAllDomainsDnsHealth->insertOne([
             $domain->domain_name,
             $domain->uuid,
             $this->showHumanReadableStatus($domain->health->code) . ' - ' . $domain->health->code,
@@ -134,7 +134,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
           ]);
         }
         else {
-          $writer_all_domains_dns_health->insertOne([
+          $writerAllDomainsDnsHealth->insertOne([
             '',
             '',
             '',
@@ -147,7 +147,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
       }
     }
 
-    $this->renderDomainInfoTables([$all_domains_table, $verified_domains_table, $pending_domains_table, $failed_domains_table]);
+    $this->renderDomainInfoTables([$allDomainsTable, $verifiedDomainsTable, $pendingDomainsTable, $failedDomainsTable]);
 
   }
 
@@ -169,19 +169,19 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @return array|null
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
-    $applications_resource = new Applications($client);
-    $applications = $applications_resource->getAll();
-    $subscription_applications = [];
+    $applicationsResource = new Applications($client);
+    $applications = $applicationsResource->getAll();
+    $subscriptionApplications = [];
 
     foreach ($applications as $application) {
       if ($application->subscription->uuid === $subscription->uuid) {
-        $subscription_applications[] = $application;
+        $subscriptionApplications[] = $application;
       }
     }
-    if (count($subscription_applications) === 0) {
+    if (count($subscriptionApplications) === 0) {
       throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
     }
-    if (count($subscription_applications) > 100) {
+    if (count($subscriptionApplications) > 100) {
       $this->io->warning('You have over 100 applications in this subscription. Retrieving the email domains for each could take a while!');
       $continue = $this->io->confirm('Do you wish to continue?');
       if (!$continue) {
@@ -189,7 +189,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
       }
     }
 
-    return $subscription_applications;
+    return $subscriptionApplications;
   }
 
   /**
@@ -197,43 +197,43 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * associated or dissociated with each application.
    *
    * @param $subscription
-   * @param $subscription_applications
+   * @param $subscriptionApplications
    */
-  private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscription_applications): void {
-    $apps_domains_table = $this->createApplicationDomainsTable($output);
-    $writer_apps_domains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/apps-domain-associations.csv", 'w+');
+  private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscriptionApplications): void {
+    $appsDomainsTable = $this->createApplicationDomainsTable($output);
+    $writerAppsDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/apps-domain-associations.csv", 'w+');
 
-    $apps_domains_header = ['Application', 'Domain Name', 'Associated?'];
-    $writer_apps_domains->insertOne($apps_domains_header);
+    $appsDomainsHeader = ['Application', 'Domain Name', 'Associated?'];
+    $writerAppsDomains->insertOne($appsDomainsHeader);
 
-    foreach ($subscription_applications as $index => $app) {
-      $app_domains = $client->request('get', "/applications/{$app->uuid}/email/domains");
+    foreach ($subscriptionApplications as $index => $app) {
+      $appDomains = $client->request('get', "/applications/{$app->uuid}/email/domains");
 
       if ($index !== 0) {
-        $apps_domains_table->addRow([new TableSeparator(['colspan' => 2])]);
+        $appsDomainsTable->addRow([new TableSeparator(['colspan' => 2])]);
       }
-      $apps_domains_table->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
-      if (count($app_domains)) {
-        foreach ($app_domains as $domain) {
-          $apps_domains_table->addRow([
+      $appsDomainsTable->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
+      if (count($appDomains)) {
+        foreach ($appDomains as $domain) {
+          $appsDomainsTable->addRow([
             $domain->domain_name,
             var_export($domain->flags->associated, TRUE),
           ]);
-          $writer_apps_domains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, TRUE)]);
+          $writerAppsDomains->insertOne([$app->name, $domain->domain_name, var_export($domain->flags->associated, TRUE)]);
         }
       }
       else {
-        $apps_domains_table->addRow([new TableCell("No domains eligible for association.", [
+        $appsDomainsTable->addRow([new TableCell("No domains eligible for association.", [
           'colspan' => 2,
           'style' => new TableCellStyle([
             'fg' => 'yellow',
           ]),
         ]),
         ]);
-        $writer_apps_domains->insertOne([$app->name, 'No domains eligible for association', '']);
+        $writerAppsDomains->insertOne([$app->name, 'No domains eligible for association', '']);
       }
     }
-    $apps_domains_table->render();
+    $appsDomainsTable->render();
   }
 
   /**

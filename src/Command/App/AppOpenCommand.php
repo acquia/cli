@@ -22,8 +22,8 @@ class AppOpenCommand extends CommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
-    $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $application_uuid);
+    $applicationUuid = $this->determineCloudApplication();
+    $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid);
 
     return 0;
   }

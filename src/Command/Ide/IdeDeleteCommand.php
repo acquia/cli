@@ -23,27 +23,27 @@ class IdeDeleteCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides_resource = new Ides($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $idesResource = new Ides($acquiaCloudClient);
 
-    $cloud_application_uuid = $this->determineCloudApplication();
-    $ide = $this->promptIdeChoice("Select the IDE you'd like to delete:", $ides_resource, $cloud_application_uuid);
+    $cloudApplicationUuid = $this->determineCloudApplication();
+    $ide = $this->promptIdeChoice("Select the IDE you'd like to delete:", $idesResource, $cloudApplicationUuid);
     $answer = $this->io->confirm("Are you sure you want to delete <options=bold>{$ide->label}</>");
     if (!$answer) {
       $this->io->writeln('Ok, nevermind.');
       return 1;
     }
-    $response = $ides_resource->delete($ide->uuid);
+    $response = $idesResource->delete($ide->uuid);
     $this->io->writeln($response->message);
     // @todo Remove after CXAPI-8261 is closed.
     $this->io->writeln("This process usually takes a few minutes.");
 
     // Check to see if an SSH key for this IDE exists on Cloud.
-    $cloud_key = $this->findIdeSshKeyOnCloud($ide->uuid);
-    if ($cloud_key) {
+    $cloudKey = $this->findIdeSshKeyOnCloud($ide->uuid);
+    if ($cloudKey) {
       $answer = $this->io->confirm('Would you like to delete the SSH key associated with this IDE from your Cloud Platform account?');
       if ($answer) {
-        $this->deleteSshKeyFromCloud($output, $cloud_key);
+        $this->deleteSshKeyFromCloud($output, $cloudKey);
       }
     }
 

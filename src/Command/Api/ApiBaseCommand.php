@@ -90,30 +90,30 @@ class ApiBaseCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // Build query from non-null options.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $this->addQueryParamsToClient($input, $acquia_cloud_client);
-    $this->addPostParamsToClient($input, $acquia_cloud_client);
-    $acquia_cloud_client->addOption('headers', [
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $this->addQueryParamsToClient($input, $acquiaCloudClient);
+    $this->addPostParamsToClient($input, $acquiaCloudClient);
+    $acquiaCloudClient->addOption('headers', [
       'Accept' => 'application/json',
     ]);
 
     try {
       if ($this->output->isVeryVerbose()) {
-        $acquia_cloud_client->addOption('debug', $this->output);
+        $acquiaCloudClient->addOption('debug', $this->output);
       }
       $path = $this->getRequestPath($input);
-      $response = $acquia_cloud_client->request($this->method, $path);
-      $exit_code = 0;
+      $response = $acquiaCloudClient->request($this->method, $path);
+      $exitCode = 0;
     }
     catch (ApiErrorException $exception) {
       $response = $exception->getResponseBody();
-      $exit_code = 1;
+      $exitCode = 1;
     }
 
     $contents = json_encode($response, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
     $this->output->writeln($contents);
 
-    return $exit_code;
+    return $exitCode;
   }
 
   public function setMethod(string $method): void {
@@ -159,19 +159,19 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param $param_name
+   * @param $paramName
    * @param $value
    */
-  public function addPostParameter($param_name, $value): void {
-    $this->postParams[$param_name] = $value;
+  public function addPostParameter($paramName, $value): void {
+    $this->postParams[$paramName] = $value;
   }
 
   /**
-   * @param $param_name
+   * @param $paramName
    * @param $value
    */
-  public function addQueryParameter($param_name, $value): void {
-    $this->queryParams[$param_name] = $value;
+  public function addQueryParameter($paramName, $value): void {
+    $this->queryParams[$paramName] = $value;
   }
 
   public function getPath(): string {
@@ -181,32 +181,32 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param $value
    */
-  public function addPathParameter(string $param_name, $value): void {
-    $this->pathParams[$param_name] = $value;
+  public function addPathParameter(string $paramName, $value): void {
+    $this->pathParams[$paramName] = $value;
   }
 
   /**
    * @return bool|string|string[]|null
    */
-  private function getParamFromInput(InputInterface $input, string $param_name): array|bool|string|null {
-    if ($input->hasArgument($param_name)) {
-      return $input->getArgument($param_name);
+  private function getParamFromInput(InputInterface $input, string $paramName): array|bool|string|null {
+    if ($input->hasArgument($paramName)) {
+      return $input->getArgument($paramName);
     }
 
-    if ($input->hasParameterOption('--' . $param_name)) {
-      return $input->getOption($param_name);
+    if ($input->hasParameterOption('--' . $paramName)) {
+      return $input->getOption($paramName);
     }
     return NULL;
   }
 
   /**
-   * @param array $param_spec
+   * @param array $paramSpec
    */
-  private function castParamType(array $param_spec, array|string $value): array|bool|int|string {
-    $one_of = $this->getParamTypeOneOf($param_spec);
-    if (isset($one_of)) {
+  private function castParamType(array $paramSpec, array|string $value): array|bool|int|string {
+    $oneOf = $this->getParamTypeOneOf($paramSpec);
+    if (isset($oneOf)) {
       $types = [];
-      foreach ($one_of as $type) {
+      foreach ($oneOf as $type) {
         if ($type['type'] === 'array' && str_contains($value, ',')) {
           return $this->castParamToArray($type, $value);
         }
@@ -217,15 +217,15 @@ class ApiBaseCommand extends CommandBase {
         return $this->doCastParamType('integer', $value);
       }
     }
-    elseif ($param_spec['type'] === 'array') {
+    elseif ($paramSpec['type'] === 'array') {
       if (count($value) === 1) {
-        return $this->castParamToArray($param_spec, $value[0]);
+        return $this->castParamToArray($paramSpec, $value[0]);
       }
 
-      return $this->castParamToArray($param_spec, $value);
+      return $this->castParamToArray($paramSpec, $value);
     }
 
-    $type = $this->getParamType($param_spec);
+    $type = $this->getParamType($paramSpec);
     if (!$type) {
       return $value;
     }
@@ -251,16 +251,16 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param array $param_spec
+   * @param array $paramSpec
    */
-  private function getParamType(array $param_spec): ?string {
+  private function getParamType(array $paramSpec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
-    if (array_key_exists('type', $param_spec)) {
-      return $param_spec['type'];
+    if (array_key_exists('type', $paramSpec)) {
+      return $paramSpec['type'];
     }
 
-    if (array_key_exists('schema', $param_spec) && array_key_exists('type', $param_spec['schema'])) {
-      return $param_spec['schema']['type'];
+    if (array_key_exists('schema', $paramSpec) && array_key_exists('type', $paramSpec['schema'])) {
+      return $paramSpec['schema']['type'];
     }
     return NULL;
   }
@@ -271,11 +271,11 @@ class ApiBaseCommand extends CommandBase {
   private function createCallableValidator(InputArgument $argument, array $params): ?callable {
     $validator = NULL;
     if (array_key_exists($argument->getName(), $params)) {
-      $param_spec = $params[$argument->getName()];
+      $paramSpec = $params[$argument->getName()];
       $constraints = [
         new NotBlank(),
       ];
-      if ($type = $this->getParamType($param_spec)) {
+      if ($type = $this->getParamType($paramSpec)) {
         if (in_array($type, ['int', 'integer'])) {
           // Need to evaluate whether a string contains only digits.
           $constraints[] = new Type('digit');
@@ -287,8 +287,8 @@ class ApiBaseCommand extends CommandBase {
           $constraints[] = new Type($type);
         }
       }
-      if (array_key_exists('schema', $param_spec)) {
-        $schema = $param_spec['schema'];
+      if (array_key_exists('schema', $paramSpec)) {
+        $schema = $paramSpec['schema'];
         $constraints = $this->createLengthConstraint($schema, $constraints);
         $constraints = $this->createRegexConstraint($schema, $constraints);
       }
@@ -304,14 +304,14 @@ class ApiBaseCommand extends CommandBase {
    */
   private function createLengthConstraint(array $schema, array $constraints): array {
     if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
-      $length_options = [];
+      $lengthOptions = [];
       if (array_key_exists('minLength', $schema)) {
-        $length_options['min'] = $schema['minLength'];
+        $lengthOptions['min'] = $schema['minLength'];
       }
       if (array_key_exists('maxLength', $schema)) {
-        $length_options['max'] = $schema['maxLength'];
+        $lengthOptions['max'] = $schema['maxLength'];
       }
-      $constraints[] = new Length($length_options);
+      $constraints[] = new Length($lengthOptions);
     }
     return $constraints;
   }
@@ -350,49 +350,49 @@ class ApiBaseCommand extends CommandBase {
     };
   }
 
-  protected function addQueryParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
+  protected function addQueryParamsToClient(InputInterface $input, Client $acquiaCloudClient): void {
     if ($this->queryParams) {
-      foreach ($this->queryParams as $key => $param_spec) {
+      foreach ($this->queryParams as $key => $paramSpec) {
         // We may have a queryParam that is used in the path rather than the query string.
         if ($input->hasOption($key) && $input->getOption($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getOption($key));
+          $acquiaCloudClient->addQuery($key, $input->getOption($key));
         }
         elseif ($input->hasArgument($key) && $input->getArgument($key) !== NULL) {
-          $acquia_cloud_client->addQuery($key, $input->getArgument($key));
+          $acquiaCloudClient->addQuery($key, $input->getArgument($key));
         }
       }
     }
   }
 
-  private function addPostParamsToClient(InputInterface $input, Client $acquia_cloud_client): void {
+  private function addPostParamsToClient(InputInterface $input, Client $acquiaCloudClient): void {
     if ($this->postParams) {
-      foreach ($this->postParams as $param_name => $param_spec) {
-        $param_value = $this->getParamFromInput($input, $param_name);
-        if (!is_null($param_value)) {
-          $this->addPostParamToClient($param_name, $param_spec, $param_value, $acquia_cloud_client);
+      foreach ($this->postParams as $paramName => $paramSpec) {
+        $paramValue = $this->getParamFromInput($input, $paramName);
+        if (!is_null($paramValue)) {
+          $this->addPostParamToClient($paramName, $paramSpec, $paramValue, $acquiaCloudClient);
         }
       }
     }
   }
 
   /**
-  * @param array|null $param_spec
+  * @param array|null $paramSpec
   */
-  private function addPostParamToClient(string $param_name, ?array $param_spec, mixed $param_value, Client $acquia_cloud_client): void {
-    $param_name = ApiCommandHelper::restoreRenamedParameter($param_name);
-    if ($param_spec) {
-      $param_value = $this->castParamType($param_spec, $param_value);
+  private function addPostParamToClient(string $paramName, ?array $paramSpec, mixed $paramValue, Client $acquiaCloudClient): void {
+    $paramName = ApiCommandHelper::restoreRenamedParameter($paramName);
+    if ($paramSpec) {
+      $paramValue = $this->castParamType($paramSpec, $paramValue);
     }
-    if ($param_spec && array_key_exists('format', $param_spec) && $param_spec["format"] === 'binary') {
-      $acquia_cloud_client->addOption('multipart', [
+    if ($paramSpec && array_key_exists('format', $paramSpec) && $paramSpec["format"] === 'binary') {
+      $acquiaCloudClient->addOption('multipart', [
         [
-          'contents' => Utils::tryFopen($param_value, 'r'),
-          'name' => $param_name,
+          'contents' => Utils::tryFopen($paramValue, 'r'),
+          'name' => $paramName,
         ],
       ]);
     }
     else {
-      $acquia_cloud_client->addOption('json', [$param_name => $param_value]);
+      $acquiaCloudClient->addOption('json', [$paramName => $paramValue]);
     }
   }
 
@@ -427,30 +427,30 @@ class ApiBaseCommand extends CommandBase {
   }
 
   /**
-   * @param array $param_spec
+   * @param array $paramSpec
    * @return null|array
    */
-  private function getParamTypeOneOf(array $param_spec): ?array {
-    $one_of = $param_spec['oneOf'] ?? NULL;
-    if (array_key_exists('schema', $param_spec) && array_key_exists('oneOf', $param_spec['schema'])) {
-      $one_of = $param_spec['schema']['oneOf'];
+  private function getParamTypeOneOf(array $paramSpec): ?array {
+    $oneOf = $paramSpec['oneOf'] ?? NULL;
+    if (array_key_exists('schema', $paramSpec) && array_key_exists('oneOf', $paramSpec['schema'])) {
+      $oneOf = $paramSpec['schema']['oneOf'];
     }
-    return $one_of;
+    return $oneOf;
   }
 
-  private function castParamToArray(mixed $param_spec, array|string $original_value): string|array|bool|int {
-    if (array_key_exists('items', $param_spec) && array_key_exists('type', $param_spec['items'])) {
-      if (!is_array($original_value)) {
-        $original_value = $this->doCastParamType('array', $original_value);
+  private function castParamToArray(mixed $paramSpec, array|string $originalValue): string|array|bool|int {
+    if (array_key_exists('items', $paramSpec) && array_key_exists('type', $paramSpec['items'])) {
+      if (!is_array($originalValue)) {
+        $originalValue = $this->doCastParamType('array', $originalValue);
       }
-      $item_type = $param_spec['items']['type'];
+      $itemType = $paramSpec['items']['type'];
       $array = [];
-      foreach ($original_value as $key => $v) {
-        $array[$key] = $this->doCastParamType($item_type, $v);
+      foreach ($originalValue as $key => $v) {
+        $array[$key] = $this->doCastParamType($itemType, $v);
       }
       return $array;
     }
-    return $this->doCastParamType('array', $original_value);
+    return $this->doCastParamType('array', $originalValue);
   }
 
 }

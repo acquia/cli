@@ -10,23 +10,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * @property SshKeyUploadCommand $command
- */
 class SshKeyUploadCommandTest extends CommandTestBase {
 
-  /**
-   * @var array
-   */
   private array $sshKeysRequestBody;
 
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
-  /**
-   * @return array[]
-   */
   public function providerTestUpload(): array {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     return [
@@ -75,26 +66,26 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     $this->mockUploadSshKey();
     $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
-    $applications_response = $this->mockApplicationsRequest();
-    $application_response = $this->mockApplicationRequest();
-    $this->mockPermissionsRequest($application_response, $perms);
+    $applicationsResponse = $this->mockApplicationsRequest();
+    $applicationResponse = $this->mockApplicationRequest();
+    $this->mockPermissionsRequest($applicationResponse, $perms);
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $file_name = $this->mockGetLocalSshKey($local_machine_helper, $file_system, $this->sshKeysRequestBody['public_key']);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $fileName = $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $this->sshKeysRequestBody['public_key']);
 
-    $local_machine_helper->getFilesystem()->willReturn($file_system);
-    $file_system->exists(Argument::type('string'))->willReturn(TRUE);
-    $local_machine_helper->getLocalFilepath(Argument::containingString('id_rsa'))->willReturn('id_rsa.pub');
-    $local_machine_helper->readFile(Argument::type('string'))->willReturn($this->sshKeysRequestBody['public_key']);
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem);
+    $fileSystem->exists(Argument::type('string'))->willReturn(TRUE);
+    $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))->willReturn('id_rsa.pub');
+    $localMachineHelper->readFile(Argument::type('string'))->willReturn($this->sshKeysRequestBody['public_key']);
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     if ($perms) {
-      $environments_response = $this->mockEnvironmentsRequest($applications_response);
-      $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-      $this->command->sshHelper = $ssh_helper->reveal();
+      $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+      $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
+      $this->command->sshHelper = $sshHelper->reveal();
     }
 
     // Choose a local SSH key to upload to the Cloud Platform.
@@ -103,7 +94,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString("Uploaded $file_name to the Cloud Platform with label " . $this->sshKeysRequestBody['label'], $output);
+    $this->assertStringContainsString("Uploaded $fileName to the Cloud Platform with label " . $this->sshKeysRequestBody['label'], $output);
     $this->assertStringContainsString('Would you like to wait until your key is installed on all of your application\'s servers?', $output);
     $this->assertStringContainsString('Your SSH key is ready for use!', $output);
   }

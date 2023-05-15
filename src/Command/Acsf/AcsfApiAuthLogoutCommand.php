@@ -30,25 +30,25 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
       $factories[$url]['url'] = $url;
     }
     $factory = $this->promptChooseFromObjectsOrArrays($factories, 'url', 'url', 'Choose a Factory to logout of');
-    $factory_url = $factory['url'];
+    $factoryUrl = $factory['url'];
 
-    /** @var \Acquia\Cli\AcsfApi\AcsfCredentials $cloud_credentials */
-    $cloud_credentials = $this->cloudCredentials;
-    $active_user = $cloud_credentials->getFactoryActiveUser($factory);
+    /** @var \Acquia\Cli\AcsfApi\AcsfCredentials $cloudCredentials */
+    $cloudCredentials = $this->cloudCredentials;
+    $activeUser = $cloudCredentials->getFactoryActiveUser($factory);
     // @todo Only show factories the user is logged into.
-    if (!$active_user) {
-      $this->io->error("You're already logged out of $factory_url");
+    if (!$activeUser) {
+      $this->io->error("You're already logged out of $factoryUrl");
       return 1;
     }
-    $answer = $this->io->confirm("Are you sure you'd like to logout the user {$active_user['username']} from $factory_url?");
+    $answer = $this->io->confirm("Are you sure you'd like to logout the user {$activeUser['username']} from $factoryUrl?");
     if (!$answer) {
       return 0;
     }
-    $factories[$factory_url]['active_user'] = NULL;
+    $factories[$factoryUrl]['active_user'] = NULL;
     $this->datastoreCloud->set('acsf_factories', $factories);
     $this->datastoreCloud->remove('acsf_active_factory');
 
-    $output->writeln("Logged {$active_user['username']} out of $factory_url</info>");
+    $output->writeln("Logged {$activeUser['username']} out of $factoryUrl</info>");
 
     return 0;
   }

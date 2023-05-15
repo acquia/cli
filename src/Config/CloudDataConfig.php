@@ -13,8 +13,8 @@ class CloudDataConfig implements ConfigurationInterface {
 
   public function getConfigTreeBuilder(): TreeBuilder {
     $treeBuilder = new TreeBuilder('cloud_api');
-    $root_node = $treeBuilder->getRootNode();
-    $root_node
+    $rootNode = $treeBuilder->getRootNode();
+    $rootNode
       ->children()
 
         // I can't find a better node type that accepts TRUE, FALSE, and NULL.

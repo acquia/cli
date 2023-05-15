@@ -38,13 +38,13 @@ class IdeDeleteCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 
-    $ide_uuid = '9a83c081-ef78-4dbd-8852-11cc3eb248f7';
-    $ide_delete_response = $this->mockIdeDeleteRequest($ide_uuid);
-    $ide_get_response = $this->mockGetIdeRequest($ide_uuid);
-    $ide = new IdeResponse((object) $ide_get_response);
-    $ssh_key_get_response = $this->mockListSshKeysRequestWithIdeKey($ide);
+    $ideUuid = '9a83c081-ef78-4dbd-8852-11cc3eb248f7';
+    $ideDeleteResponse = $this->mockIdeDeleteRequest($ideUuid);
+    $ideGetResponse = $this->mockGetIdeRequest($ideUuid);
+    $ide = new IdeResponse((object) $ideGetResponse);
+    $sshKeyGetResponse = $this->mockListSshKeysRequestWithIdeKey($ide);
 
-    $this->mockDeleteSshKeyRequest($ssh_key_get_response->{'_embedded'}->items[0]->uuid);
+    $this->mockDeleteSshKeyRequest($sshKeyGetResponse->{'_embedded'}->items[0]->uuid);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -64,7 +64,7 @@ class IdeDeleteCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString($ide_delete_response->{'De-provisioning IDE'}->value->message, $output);
+    $this->assertStringContainsString($ideDeleteResponse->{'De-provisioning IDE'}->value->message, $output);
   }
 
 }

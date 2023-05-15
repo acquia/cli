@@ -55,8 +55,8 @@ class IdePhpVersionCommand extends IdeCommandBase {
 
   protected function validatePhpVersion(string $version): string {
     parent::validatePhpVersion($version);
-    $php_filepath = $this->getIdePhpFilePathPrefix() . $version;
-    if (!$this->localMachineHelper->getFilesystem()->exists($php_filepath)) {
+    $phpFilepath = $this->getIdePhpFilePathPrefix() . $version;
+    if (!$this->localMachineHelper->getFilesystem()->exists($phpFilepath)) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 

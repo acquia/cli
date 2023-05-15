@@ -35,42 +35,42 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:create-upload' command.
    */
   public function testCreateUpload(): void {
-    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
     // Create.
-    $ssh_key_filename = 'id_rsa';
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $this->mockSshAgentList($local_machine_helper);
-    $this->mockGenerateSshKey($local_machine_helper, $mock_request_args['public_key']);
+    $sshKeyFilename = 'id_rsa';
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+    /** @var Filesystem|ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+    $this->mockSshAgentList($localMachineHelper);
+    $this->mockGenerateSshKey($localMachineHelper, $mockRequestArgs['public_key']);
 
     // Upload.
     $this->mockUploadSshKey();
-    //$this->mockListSshKeyRequestWithUploadedKey($mock_request_args);
-    //$applications_response = $this->mockApplicationsRequest();
+    //$this->mockListSshKeyRequestWithUploadedKey($mockRequestArgs);
+    //$applicationsResponse = $this->mockApplicationsRequest();
     //$this->mockApplicationRequest();
-    $this->mockGetLocalSshKey($local_machine_helper, $file_system, $mock_request_args['public_key']);
-    //$this->mockEnvironmentsRequest($applications_response);
+    $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $mockRequestArgs['public_key']);
+    //$this->mockEnvironmentsRequest($applicationsResponse);
 
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
-    //$environments_response = $this->getMockEnvironmentsResponse();
-    //$ssh_helper = $this->mockPollCloudViaSsh($environments_response->_embedded->items[0]);
-    //$this->command->sshHelper = $ssh_helper->reveal();
+    //$environmentsResponse = $this->getMockEnvironmentsResponse();
+    //$sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items[0]);
+    //$this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
       // Enter a filename for your new local SSH key:
-      $ssh_key_filename,
+      $sshKeyFilename,
       // Enter a password for your SSH key:
       'acli123',
       // Label
-      $mock_request_args['label'],
+      $mockRequestArgs['label'],
     ];
     $this->executeCommand(['--no-wait' => ''], $inputs);
     $this->prophet->checkPredictions();

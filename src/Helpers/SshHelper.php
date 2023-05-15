@@ -28,22 +28,22 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param array $command_args
+   * @param array $commandArgs
    * @param int|null $timeout
    */
-  public function executeCommand(EnvironmentResponse|string $target, array $command_args, bool $print_output = TRUE, int $timeout = NULL): Process {
-    $command_summary = $this->getCommandSummary($command_args);
+  public function executeCommand(EnvironmentResponse|string $target, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
+    $commandSummary = $this->getCommandSummary($commandArgs);
 
     if (is_a($target, EnvironmentResponse::class)) {
       $target = $target->sshUrl;
     }
 
     // Remove site_env arg.
-    unset($command_args['alias']);
-    $process = $this->sendCommand($target, $command_args, $print_output, $timeout);
+    unset($commandArgs['alias']);
+    $process = $this->sendCommand($target, $commandArgs, $printOutput, $timeout);
 
     $this->logger->debug('Command: {command} [Exit: {exit}]', [
-      'command' => $command_summary,
+      'command' => $commandSummary,
       'env' => $target,
       'exit' => $process->getExitCode(),
     ]);
@@ -55,22 +55,22 @@ class SshHelper implements LoggerAwareInterface {
     return $process;
   }
 
-  private function sendCommand($url, $command, $print_output, $timeout = NULL): Process {
+  private function sendCommand($url, $command, $printOutput, $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
-    return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $print_output, $timeout);
+    return $this->localMachineHelper->execute($command, $this->getOutputCallback(), NULL, $printOutput, $timeout);
   }
 
   /**
-   * Return the first item of the $command_args that is not an option.
+   * Return the first item of the $commandArgs that is not an option.
    *
-   * @param array $command_args
+   * @param array $commandArgs
    */
-  private function firstArguments(array $command_args): string {
+  private function firstArguments(array $commandArgs): string {
     $result = '';
-    while (!empty($command_args)) {
-      $first = array_shift($command_args);
+    while (!empty($commandArgs)) {
+      $first = array_shift($commandArgs);
       if ($first != '' && $first[0] == '-') {
         return $result;
       }
@@ -100,10 +100,10 @@ class SshHelper implements LoggerAwareInterface {
    * arguments. This avoids potential information disclosure in
    * CI scripts.
    *
-   * @param array $command_args
+   * @param array $commandArgs
    */
-  private function getCommandSummary(array $command_args): string {
-    return $this->firstArguments($command_args);
+  private function getCommandSummary(array $commandArgs): string {
+    return $this->firstArguments($commandArgs);
   }
 
   /**

@@ -10,24 +10,24 @@ class AcquiaCliException extends Exception {
   /**
    * Object constructor. Sets context array as replacements property.
    *
-   * @param string|null $raw_message
+   * @param string|null $rawMessage
    * @param array $replacements
    *   Context array to interpolate into message.
    * @param int $code
    *   Exit code.
    */
   public function __construct(
-    private ?string $raw_message = NULL,
+    private ?string $rawMessage = NULL,
     array $replacements = [],
     int $code = 0
     ) {
-    $event_properties = [
+    $eventProperties = [
       'code' => $code,
-      'message' => $raw_message,
+      'message' => $rawMessage,
 ];
-    Amplitude::getInstance()->queueEvent('Threw exception', $event_properties);
+    Amplitude::getInstance()->queueEvent('Threw exception', $eventProperties);
 
-    parent::__construct($this->interpolateString($raw_message, $replacements), $code);
+    parent::__construct($this->interpolateString($rawMessage, $replacements), $code);
   }
 
   /**
@@ -36,7 +36,7 @@ class AcquiaCliException extends Exception {
    * @return string $this->replacements
    */
   public function getRawMessage(): string {
-    return $this->raw_message;
+    return $this->rawMessage;
   }
 
   /**

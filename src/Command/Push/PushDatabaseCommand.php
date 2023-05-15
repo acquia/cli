@@ -27,29 +27,29 @@ class PushDatabaseCommand extends PullCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $destination_environment = $this->determineEnvironment($input, $output);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $databases = $this->determineCloudDatabases($acquia_cloud_client, $destination_environment, $input->getArgument('site'));
+    $destinationEnvironment = $this->determineEnvironment($input, $output);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $databases = $this->determineCloudDatabases($acquiaCloudClient, $destinationEnvironment, $input->getArgument('site'));
     // We only support pushing a single database.
     $database = $databases[0];
-    $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the database from the current machine?");
+    $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
       return 0;
     }
 
     $this->checklist = new Checklist($output);
-    $output_callback = $this->getOutputCallback($output, $this->checklist);
+    $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
     $this->checklist->addItem('Creating local database dump');
-    $local_dump_filepath = $this->createMySqlDumpOnLocal($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $output_callback);
+    $localDumpFilepath = $this->createMySqlDumpOnLocal($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $outputCallback);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Uploading database dump to remote machine');
-    $remote_dump_filepath = $this->uploadDatabaseDump($destination_environment, $local_dump_filepath, $output_callback);
+    $remoteDumpFilepath = $this->uploadDatabaseDump($destinationEnvironment, $localDumpFilepath, $outputCallback);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Importing database dump into MySQL on remote machine');
-    $this->importDatabaseDumpOnRemote($destination_environment, $remote_dump_filepath, $database);
+    $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
     $this->checklist->completePreviousItem();
 
     return 0;
@@ -57,32 +57,32 @@ class PushDatabaseCommand extends PullCommandBase {
 
   private function uploadDatabaseDump(
     EnvironmentResponse $environment,
-    string $local_filepath,
-    callable $output_callback
+    string $localFilepath,
+    callable $outputCallback
   ): string {
     $sitegroup = self::getSiteGroupFromSshUrl($environment->sshUrl);
-    $remote_filepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($local_filepath);
-    $this->logger->debug("Uploading database dump to $remote_filepath on remote machine");
+    $remoteFilepath = "/mnt/tmp/{$sitegroup}.{$environment->name}/" . basename($localFilepath);
+    $this->logger->debug("Uploading database dump to $remoteFilepath on remote machine");
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
       '-tDvPhe',
       'ssh -o StrictHostKeyChecking=no',
-      $local_filepath,
-      $environment->sshUrl . ':' . $remote_filepath,
+      $localFilepath,
+      $environment->sshUrl . ':' . $remoteFilepath,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Could not upload local database dump: {message}',
         ['message' => $process->getOutput()]);
     }
 
-    return $remote_filepath;
+    return $remoteFilepath;
   }
 
-  private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remote_dump_filepath, DatabaseResponse $database): void {
-    $this->logger->debug("Importing $remote_dump_filepath to MySQL on remote machine");
-    $command = "pv $remote_dump_filepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
+  private function importDatabaseDumpOnRemote(EnvironmentResponse $environment, string $remoteDumpFilepath, DatabaseResponse $database): void {
+    $this->logger->debug("Importing $remoteDumpFilepath to MySQL on remote machine");
+    $command = "pv $remoteDumpFilepath --bytes --rate | gunzip | MYSQL_PWD={$database->password} mysql --host={$this->getHostFromDatabaseResponse($environment, $database)} --user={$database->user_name} {$this->getNameFromDatabaseResponse($database)}";
     $process = $this->sshHelper->executeCommand($environment, [$command], ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to import database on remote machine. {message}', ['message' => $process->getErrorOutput()]);
@@ -90,8 +90,8 @@ class PushDatabaseCommand extends PullCommandBase {
   }
 
   private function getNameFromDatabaseResponse(DatabaseResponse $database): string {
-    $db_url_parts = explode('/', $database->url);
-    return end($db_url_parts);
+    $dbUrlParts = explode('/', $database->url);
+    return end($dbUrlParts);
   }
 
 }

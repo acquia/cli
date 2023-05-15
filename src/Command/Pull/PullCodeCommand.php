@@ -29,9 +29,9 @@ class PullCodeCommand extends PullCommandBase {
     $this->checkEnvironmentPhpVersions($this->sourceEnvironment);
     $this->matchIdePhpVersion($output, $this->sourceEnvironment);
     if (!$input->getOption('no-scripts')) {
-      $output_callback = $this->getOutputCallback($output, $this->checklist);
-      $this->runComposerScripts($output_callback);
-      $this->runDrushCacheClear($output_callback);
+      $outputCallback = $this->getOutputCallback($output, $this->checklist);
+      $this->runComposerScripts($outputCallback);
+      $this->runDrushCacheClear($outputCallback);
     }
 
     return 0;
