@@ -35,7 +35,7 @@ class IdeServiceStopCommand extends IdeCommandBase {
     $service = $input->getArgument('service');
     $this->validateService($service);
 
-    $service_name_map = [
+    $serviceNameMap = [
       'apache' => 'apache2',
       'apache2' => 'apache2',
       'mysql' => 'mysqld',
@@ -44,8 +44,8 @@ class IdeServiceStopCommand extends IdeCommandBase {
       'php-fpm' => 'php-fpm',
     ];
     $output->writeln("Stopping <options=bold>$service</>...");
-    $service_name = $service_name_map[$service];
-    $this->stopService($service_name);
+    $serviceName = $serviceNameMap[$service];
+    $this->stopService($serviceName);
     $output->writeln("<info>Stopped <options=bold>$service</></info>");
 
     return 0;

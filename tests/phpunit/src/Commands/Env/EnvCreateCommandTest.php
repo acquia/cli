@@ -16,9 +16,9 @@ class EnvCreateCommandTest extends CommandTestBase {
   private static string $validLabel = 'New CDE';
 
   private function setupCdeTest(string $label): string {
-    $applications_response = $this->mockApplicationsRequest();
-    $application_response = $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applications_response);
+    $applicationsResponse = $this->mockApplicationsRequest();
+    $applicationResponse = $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applicationsResponse);
 
     $response1 = $this->getMockEnvironmentsResponse();
     $response2 = $this->getMockEnvironmentsResponse();
@@ -26,41 +26,41 @@ class EnvCreateCommandTest extends CommandTestBase {
     $cde->label = $label;
     $response2->_embedded->items[3] = $cde;
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response1->_embedded->items, $response2->_embedded->items)
       ->shouldBeCalled();
 
-    $code_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
+    $codeResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
     $this->clientProphecy->request('get',
-      "/applications/$application_response->uuid/code")
-      ->willReturn($code_response->_embedded->items)
+      "/applications/$applicationResponse->uuid/code")
+      ->willReturn($codeResponse->_embedded->items)
       ->shouldBeCalled();
 
-    $databases_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/databases", 'get', '200');
+    $databasesResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/databases", 'get', '200');
     $this->clientProphecy->request('get',
-      "/applications/$application_response->uuid/databases")
-      ->willReturn($databases_response->_embedded->items)
+      "/applications/$applicationResponse->uuid/databases")
+      ->willReturn($databasesResponse->_embedded->items)
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
+    $environmentsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/environments',
       'post', 202);
-    $this->clientProphecy->request('post', "/applications/$application_response->uuid/environments", Argument::type('array'))
-      ->willReturn($environments_response->{'Adding environment'}->value)
+    $this->clientProphecy->request('post', "/applications/$applicationResponse->uuid/environments", Argument::type('array'))
+      ->willReturn($environmentsResponse->{'Adding environment'}->value)
       ->shouldBeCalled();
 
-    $this->mockNotificationResponseFromObject($environments_response->{'Adding environment'}->value);
+    $this->mockNotificationResponseFromObject($environmentsResponse->{'Adding environment'}->value);
     return $response2->_embedded->items[3]->domains[0];
   }
 
   private function getBranch(): string {
-    $code_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
-    return $code_response->_embedded->items[0]->name;
+    $codeResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/code", 'get', '200');
+    return $codeResponse->_embedded->items[0]->name;
   }
 
   private function getApplication(): string {
-    $applications_response = $this->getMockResponseFromSpec('/applications',
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    return $applications_response->{'_embedded'}->items[0]->uuid;
+    return $applicationsResponse->{'_embedded'}->items[0]->uuid;
   }
 
   protected function createCommand(): Command {

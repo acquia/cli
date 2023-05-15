@@ -25,11 +25,11 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $checklist = new Checklist($output);
 
     // Get Cloud account.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_adapter = new Account($acquia_cloud_client);
-    $account = $account_adapter->get();
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $accountAdapter = new Account($acquiaCloudClient);
+    $account = $accountAdapter->get();
     $this->validateRequiredCloudPermissions(
-      $acquia_cloud_client,
+      $acquiaCloudClient,
       self::getThisCloudIdeCloudAppUuid(),
       $account,
       [
@@ -40,7 +40,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       ]
     );
 
-    $key_was_uploaded = FALSE;
+    $keyWasUploaded = FALSE;
     // Create local SSH key.
     if (!$this->localSshKeyExists() || !$this->passPhraseFileExists()) {
       // Just in case the public key exists and the private doesn't, remove the public key.
@@ -56,7 +56,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       $this->createSshKey($this->privateSshKeyFilename, $password);
 
       $checklist->completePreviousItem();
-      $key_was_uploaded = TRUE;
+      $keyWasUploaded = TRUE;
     }
     else {
       $checklist->addItem('Already created a local key');
@@ -70,12 +70,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       // Just in case there is an uploaded key,  but it doesn't actually match
       // the local key, delete remote key!
       $this->deleteThisSshKeyFromCloud($output);
-      $public_key = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
-      $chosen_local_key = basename($this->publicSshKeyFilepath);
-      $this->uploadSshKey($this->getSshKeyLabel(), $public_key);
+      $publicKey = $this->localMachineHelper->readFile($this->publicSshKeyFilepath);
+      $chosenLocalKey = basename($this->publicSshKeyFilepath);
+      $this->uploadSshKey($this->getSshKeyLabel(), $publicKey);
 
       $checklist->completePreviousItem();
-      $key_was_uploaded = TRUE;
+      $keyWasUploaded = TRUE;
     }
     else {
       $checklist->addItem('Already uploaded the local key to the Cloud Platform');
@@ -93,7 +93,7 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     $checklist->completePreviousItem();
 
     // Wait for the key to register on the Cloud Platform.
-    if ($key_was_uploaded) {
+    if ($keyWasUploaded) {
       if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
         $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
         return 0;

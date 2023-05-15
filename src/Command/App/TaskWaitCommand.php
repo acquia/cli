@@ -20,14 +20,14 @@ class TaskWaitCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $notification_uuid = $this->getNotificationUuid($input);
-    $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notification_uuid, "Waiting for task $notification_uuid to complete");
+    $notificationUuid = $this->getNotificationUuid($input);
+    $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
     return 0;
   }
 
   private function getNotificationUuid(InputInterface $input): string {
-    $notification_uuid = $input->getArgument('notification-uuid');
-    $json = json_decode($notification_uuid, FALSE);
+    $notificationUuid = $input->getArgument('notification-uuid');
+    $json = json_decode($notificationUuid, FALSE);
     if (json_last_error() === JSON_ERROR_NONE) {
       if (is_object($json) && property_exists($json, '_links') && property_exists($json->_links, 'notification') && property_exists($json->_links->notification, 'href')) {
         return $this->getNotificationUuidFromResponse($json);

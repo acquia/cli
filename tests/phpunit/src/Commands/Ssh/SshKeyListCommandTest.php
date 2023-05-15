@@ -26,11 +26,11 @@ class SshKeyListCommandTest extends CommandTestBase {
    */
   public function testList(): void {
 
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mock_body->{'_embedded'}->items)->shouldBeCalled();
-    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $temp_file_name = $this->createLocalSshKey($mock_request_args['public_key']);
-    $base_filename = basename($temp_file_name);
+    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $this->clientProphecy->request('get', '/account/ssh-keys')->willReturn($mockBody->{'_embedded'}->items)->shouldBeCalled();
+    $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $tempFileName = $this->createLocalSshKey($mockRequestArgs['public_key']);
+    $baseFilename = basename($tempFileName);
     $this->executeCommand();
 
     // Assert.
@@ -39,10 +39,10 @@ class SshKeyListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Local filename', $output);
     $this->assertStringContainsString('Cloud Platform label', $output);
     $this->assertStringContainsString('Fingerprint', $output);
-    $this->assertStringContainsString($base_filename, $output);
-    $this->assertStringContainsString($mock_body->_embedded->items[0]->label, $output);
-    $this->assertStringContainsString($mock_body->_embedded->items[1]->label, $output);
-    $this->assertStringContainsString($mock_body->_embedded->items[2]->label, $output);
+    $this->assertStringContainsString($baseFilename, $output);
+    $this->assertStringContainsString($mockBody->_embedded->items[0]->label, $output);
+    $this->assertStringContainsString($mockBody->_embedded->items[1]->label, $output);
+    $this->assertStringContainsString($mockBody->_embedded->items[2]->label, $output);
   }
 
 }

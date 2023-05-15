@@ -26,67 +26,67 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($input->getOption('factory-url')) {
-      $factory_url = $input->getOption('factory-url');
+      $factoryUrl = $input->getOption('factory-url');
     }
     elseif ($input->isInteractive() && $this->datastoreCloud->get('acsf_factories')) {
       $factories = $this->datastoreCloud->get('acsf_factories');
-      $factory_choices = $factories;
-      foreach ($factory_choices as $url => $factory_choice) {
-        $factory_choices[$url]['url'] = $url;
+      $factoryChoices = $factories;
+      foreach ($factoryChoices as $url => $factoryChoice) {
+        $factoryChoices[$url]['url'] = $url;
       }
-      $factory_choices['add_new'] = [
+      $factoryChoices['add_new'] = [
         'url' => 'Enter a new factory URL',
       ];
-      $factory = $this->promptChooseFromObjectsOrArrays($factory_choices, 'url', 'url', 'Choose a Factory to login to');
+      $factory = $this->promptChooseFromObjectsOrArrays($factoryChoices, 'url', 'url', 'Choose a Factory to login to');
       if ($factory['url'] === 'Enter a new factory URL') {
-        $factory_url = $this->io->ask('Enter the full URL of the factory');
+        $factoryUrl = $this->io->ask('Enter the full URL of the factory');
         $factory = [
-          'url' => $factory_url,
+          'url' => $factoryUrl,
           'users' => [],
         ];
       }
       else {
-        $factory_url = $factory['url'];
+        $factoryUrl = $factory['url'];
       }
 
       $users = $factory['users'];
       $users['add_new'] = [
         'username' => 'Enter a new user',
       ];
-      $selected_user = $this->promptChooseFromObjectsOrArrays($users, 'username', 'username', 'Choose which user to login as');
-      if ($selected_user['username'] !== 'Enter a new user') {
-        $this->datastoreCloud->set('acsf_active_factory', $factory_url);
-        $factories[$factory_url]['active_user'] = $selected_user['username'];
+      $selectedUser = $this->promptChooseFromObjectsOrArrays($users, 'username', 'username', 'Choose which user to login as');
+      if ($selectedUser['username'] !== 'Enter a new user') {
+        $this->datastoreCloud->set('acsf_active_factory', $factoryUrl);
+        $factories[$factoryUrl]['active_user'] = $selectedUser['username'];
         $this->datastoreCloud->set('acsf_factories', $factories);
         $output->writeln([
-          "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selected_user['username']}</></info>",
+          "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selectedUser['username']}</></info>",
         ]);
         return 0;
       }
     }
     else {
-      $factory_url = $this->determineOption('factory-url');
+      $factoryUrl = $this->determineOption('factory-url');
     }
 
     $username = $this->determineOption('username');
     $key = $this->determineOption('key', TRUE);
 
-    $this->writeAcsfCredentialsToDisk($factory_url, $username, $key);
+    $this->writeAcsfCredentialsToDisk($factoryUrl, $username, $key);
     $output->writeln("<info>Saved credentials</info>");
 
     return 0;
   }
 
-  private function writeAcsfCredentialsToDisk(?string $factory_url, string $username, string $key): void {
+  private function writeAcsfCredentialsToDisk(?string $factoryUrl, string $username, string $key): void {
     $keys = $this->datastoreCloud->get('acsf_factories');
-    $keys[$factory_url]['users'][$username] = [
+    $keys[$factoryUrl]['users'][$username] = [
       'key' => $key,
       'username' => $username,
     ];
-    $keys[$factory_url]['url'] = $factory_url;
-    $keys[$factory_url]['active_user'] = $username;
+    $keys[$factoryUrl]['url'] = $factoryUrl;
+    $keys[$factoryUrl]['active_user'] = $username;
     $this->datastoreCloud->set('acsf_factories', $keys);
-    $this->datastoreCloud->set('acsf_active_factory', $factory_url);
+    $this->datastoreCloud->set('acsf_active_factory', $factoryUrl);
   }
 
 }

@@ -35,8 +35,8 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   }
 
   public function testAcsfCommandExecutionForHttpPostWithMultipleDataTypes(): void {
-    $mock_body = $this->getMockResponseFromSpec('/api/v1/groups/{group_id}/members', 'post', '200');
-    $this->clientProphecy->request('post', '/api/v1/groups/1/members')->willReturn($mock_body)->shouldBeCalled();
+    $mockBody = $this->getMockResponseFromSpec('/api/v1/groups/{group_id}/members', 'post', '200');
+    $this->clientProphecy->request('post', '/api/v1/groups/1/members')->willReturn($mockBody)->shouldBeCalled();
     $this->clientProphecy->addOption('json', ["uids" => ["1", "2", "3"]])->shouldBeCalled();
     $this->command = $this->getApiCommandByName('acsf:groups:add-members');
     $this->executeCommand([
@@ -52,8 +52,8 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   }
 
   public function testAcsfCommandExecutionBool(): void {
-    $mock_body = $this->getMockResponseFromSpec('/api/v1/update/pause', 'post', '200');
-    $this->clientProphecy->request('post', '/api/v1/update/pause')->willReturn($mock_body)->shouldBeCalled();
+    $mockBody = $this->getMockResponseFromSpec('/api/v1/update/pause', 'post', '200');
+    $this->clientProphecy->request('post', '/api/v1/update/pause')->willReturn($mockBody)->shouldBeCalled();
     $this->clientProphecy->addOption('json', ["pause" => TRUE])->shouldBeCalled();
     $this->command = $this->getApiCommandByName('acsf:updates:pause');
     $this->executeCommand([], [
@@ -66,9 +66,9 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   }
 
   public function testAcsfCommandExecutionForHttpGet(): void {
-    $mock_body = $this->getMockResponseFromSpec('/api/v1/audit', 'get', '200');
+    $mockBody = $this->getMockResponseFromSpec('/api/v1/audit', 'get', '200');
     $this->clientProphecy->addQuery('limit', '1')->shouldBeCalled();
-    $this->clientProphecy->request('get', '/api/v1/audit')->willReturn($mock_body)->shouldBeCalled();
+    $this->clientProphecy->request('get', '/api/v1/audit')->willReturn($mockBody)->shouldBeCalled();
     $this->command = $this->getApiCommandByName('acsf:info:audit-events-find');
     // Our mock Client doesn't actually return a limited dataset, but we still assert it was passed added to the
     // client's query correctly.
@@ -97,11 +97,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
   /**
    * @dataProvider providerTestAcsfCommandExecutionForHttpGetMultiple
    */
-  public function testAcsfCommandExecutionForHttpGetMultiple($method, $spec_path, $path, $command, $arguments = [], $json_arguments = []): void {
-    $mock_body = $this->getMockResponseFromSpec($spec_path, $method, '200');
-    $this->clientProphecy->request($method, $path)->willReturn($mock_body)->shouldBeCalled();
-    foreach ($json_arguments as $argument_name => $value) {
-      $this->clientProphecy->addOption('json', [$argument_name => $value]);
+  public function testAcsfCommandExecutionForHttpGetMultiple($method, $specPath, $path, $command, $arguments = [], $jsonArguments = []): void {
+    $mockBody = $this->getMockResponseFromSpec($specPath, $method, '200');
+    $this->clientProphecy->request($method, $path)->willReturn($mockBody)->shouldBeCalled();
+    foreach ($jsonArguments as $argumentName => $value) {
+      $this->clientProphecy->addOption('json', [$argumentName => $value]);
     }
     $this->command = $this->getApiCommandByName($command);
     $this->executeCommand($arguments, []);
@@ -114,11 +114,11 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $contents = json_decode($output, TRUE);
   }
 
-  protected function setClientProphecies($client_service_class = ClientService::class): void {
+  protected function setClientProphecies($clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(AcsfClient::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
+    $this->clientServiceProphecy = $this->prophet->prophesize($clientServiceClass);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
     $this->clientServiceProphecy->isMachineAuthenticated()

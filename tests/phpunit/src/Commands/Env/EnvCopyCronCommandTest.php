@@ -21,17 +21,17 @@ class EnvCopyCronCommandTest extends CommandTestBase {
    * Tests the 'app:cron-copy' command.
    */
   public function testCopyCronTasksCommandTest(): void {
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $source_crons_list_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    $sourceCronsListResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
     $this->clientProphecy->request('get',
-      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
-      ->willReturn($source_crons_list_response->{'_embedded'}->items)
+      '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons')
+      ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
       ->shouldBeCalled();
 
-    $create_cron_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
+    $createCronResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
     $this->clientProphecy->request('post',
-      '/environments/' . $environments_response->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
-      ->willReturn($create_cron_response->{'Adding cron'}->value)
+      '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
+      ->willReturn($createCronResponse->{'Adding cron'}->value)
       ->shouldBeCalled();
 
     $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';
@@ -71,9 +71,9 @@ class EnvCopyCronCommandTest extends CommandTestBase {
    * Tests for no cron job available on source environment to copy.
    */
   public function testNoCronJobOnSource(): void {
-    $environments_response = $this->getMockEnvironmentsResponse();
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
-      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
+      '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons')
       ->willReturn([])
       ->shouldBeCalled();
 
@@ -97,16 +97,16 @@ class EnvCopyCronCommandTest extends CommandTestBase {
    * Tests for exception during the cron job copy.
    */
   public function testExceptionOnCronJobCopy(): void {
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $source_crons_list_response = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    $sourceCronsListResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
     $this->clientProphecy->request('get',
-      '/environments/' . $environments_response->{'_embedded'}->items[0]->id . '/crons')
-      ->willReturn($source_crons_list_response->{'_embedded'}->items)
+      '/environments/' . $environmentsResponse->{'_embedded'}->items[0]->id . '/crons')
+      ->willReturn($sourceCronsListResponse->{'_embedded'}->items)
       ->shouldBeCalled();
 
     $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'post', '202');
     $this->clientProphecy->request('post',
-      '/environments/' . $environments_response->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
+      '/environments/' . $environmentsResponse->{'_embedded'}->items[2]->id . '/crons', Argument::type('array'))
       ->willThrow(Exception::class);
 
     $source = '24-a47ac10b-58cc-4372-a567-0e02b2c3d470';

@@ -22,9 +22,9 @@ class DocsCommandTest extends CommandTestBase {
    * @dataProvider providerTestDocsCommand
    */
   public function testDocsCommand($input, $expectedOutput): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->startBrowser(Argument::any())->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->startBrowser(Argument::any())->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand([], [$input]);
     $output = $this->getDisplay();
     $this->assertStringContainsString('Select the Acquia Product [Acquia CLI]:', $output);

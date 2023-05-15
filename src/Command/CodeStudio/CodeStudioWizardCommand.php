@@ -34,20 +34,20 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->checklist = new Checklist($output);
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey();
-    $cloud_secret = $this->determineApiSecret();
+    $cloudKey = $this->determineApiKey();
+    $cloudSecret = $this->determineApiSecret();
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
-    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+    $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
     $appUuid = $this->determineCloudApplication();
 
     // Get Cloud account.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_adapter = new Account($acquia_cloud_client);
-    $account = $account_adapter->get();
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $accountAdapter = new Account($acquiaCloudClient);
+    $account = $accountAdapter->get();
     $this->validateRequiredCloudPermissions(
-      $acquia_cloud_client,
+      $acquiaCloudClient,
       $appUuid,
       $account,
       [
@@ -67,13 +67,13 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->setGitLabProjectDescription($appUuid);
 
     // Get Cloud application.
-    $cloud_application = $this->getCloudApplication($appUuid);
-    $project = $this->determineGitLabProject($cloud_application);
+    $cloudApplication = $this->getCloudApplication($appUuid);
+    $project = $this->determineGitLabProject($cloudApplication);
 
     $this->io->writeln([
       "",
       "This command will configure the Code Studio project <comment>{$project['path_with_namespace']}</comment> for automatic deployment to the",
-      "Acquia Cloud Platform application <comment>{$cloud_application->name}</comment> (<comment>$appUuid</comment>)",
+      "Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment> (<comment>$appUuid</comment>)",
       "using credentials (API Token and SSH Key) belonging to <comment>{$account->mail}</comment>.",
       "",
       "If the <comment>{$account->mail}</comment> Cloud account is deleted in the future, this Code Studio project will need to be re-configured.",
@@ -83,10 +83,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       return 0;
     }
 
-    $project_access_token_name = 'acquia-codestudio';
-    $project_access_token = $this->createProjectAccessToken($project, $project_access_token_name);
+    $projectAccessTokenName = 'acquia-codestudio';
+    $projectAccessToken = $this->createProjectAccessToken($project, $projectAccessTokenName);
     $this->updateGitLabProject($project);
-    $this->setGitLabCiCdVariables($project, $appUuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
+    $this->setGitLabCiCdVariables($project, $appUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken);
     $this->createScheduledPipeline($project);
 
     $this->io->success([
@@ -112,10 +112,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @param array $project
    * @return array|null
    */
-  private function getGitLabScheduleByDescription(array $project, string $scheduled_pipeline_description): ?array {
-    $existing_schedules = $this->gitLabClient->schedules()->showAll($project['id']);
-    foreach ($existing_schedules as $schedule) {
-      if ($schedule['description'] == $scheduled_pipeline_description) {
+  private function getGitLabScheduleByDescription(array $project, string $scheduledPipelineDescription): ?array {
+    $existingSchedules = $this->gitLabClient->schedules()->showAll($project['id']);
+    foreach ($existingSchedules as $schedule) {
+      if ($schedule['description'] == $scheduledPipelineDescription) {
         return $schedule;
       }
     }
@@ -127,8 +127,8 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    * @return array|null ?
    */
   private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
-    $existing_project_access_tokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
-    foreach ($existing_project_access_tokens as $key => $token) {
+    $existingProjectAccessTokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);
+    foreach ($existingProjectAccessTokens as $key => $token) {
       if ($token['name'] == $name) {
         return $token;
       }
@@ -139,42 +139,42 @@ class CodeStudioWizardCommand extends WizardCommandBase {
   /**
    * @param array $project
    */
-  private function createProjectAccessToken(array $project, string $project_access_token_name): string {
+  private function createProjectAccessToken(array $project, string $projectAccessTokenName): string {
     $this->io->writeln("Creating project access token...");
 
-    if ($existing_token = $this->getGitLabProjectAccessTokenByName($project, $project_access_token_name)) {
-      $this->checklist->addItem("Deleting access token named <comment>$project_access_token_name</comment>");
+    if ($existingToken = $this->getGitLabProjectAccessTokenByName($project, $projectAccessTokenName)) {
+      $this->checklist->addItem("Deleting access token named <comment>$projectAccessTokenName</comment>");
       $this->gitLabClient->projects()
-            ->deleteProjectAccessToken($project['id'], $existing_token['id']);
+            ->deleteProjectAccessToken($project['id'], $existingToken['id']);
       $this->checklist->completePreviousItem();
     }
-    $this->checklist->addItem("Creating access token named <comment>$project_access_token_name</comment>");
-    $project_access_token = $this->gitLabClient->projects()
+    $this->checklist->addItem("Creating access token named <comment>$projectAccessTokenName</comment>");
+    $projectAccessToken = $this->gitLabClient->projects()
           ->createProjectAccessToken($project['id'], [
-          'name' => $project_access_token_name,
+          'name' => $projectAccessTokenName,
           'scopes' => ['api', 'write_repository'],
         ]);
     $this->checklist->completePreviousItem();
-    return $project_access_token['token'];
+    return $projectAccessToken['token'];
   }
 
   /**
    * @param array $project
    */
-  private function setGitLabCiCdVariables(array $project, string $cloud_application_uuid, string $cloud_key, string $cloud_secret, string $project_access_token_name, string $project_access_token): void {
+  private function setGitLabCiCdVariables(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
-    $gitlab_cicd_variables = CodeStudioCiCdVariables::getDefaults($cloud_application_uuid, $cloud_key, $cloud_secret, $project_access_token_name, $project_access_token);
-    $gitlab_cicd_existing_variables = $this->gitLabClient->projects()
+    $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaults($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken);
+    $gitlabCicdExistingVariables = $this->gitLabClient->projects()
       ->variables($project['id']);
-    $gitlab_cicd_existing_variables_keyed = [];
-    foreach ($gitlab_cicd_existing_variables as $variable) {
+    $gitlabCicdExistingVariablesKeyed = [];
+    foreach ($gitlabCicdExistingVariables as $variable) {
       $key = $variable['key'];
-      $gitlab_cicd_existing_variables_keyed[$key] = $variable;
+      $gitlabCicdExistingVariablesKeyed[$key] = $variable;
     }
 
-    foreach ($gitlab_cicd_variables as $variable) {
+    foreach ($gitlabCicdVariables as $variable) {
       $this->checklist->addItem("Setting CI/CD variable <comment>{$variable['key']}</comment>");
-      if (!array_key_exists($variable['key'], $gitlab_cicd_existing_variables_keyed)) {
+      if (!array_key_exists($variable['key'], $gitlabCicdExistingVariablesKeyed)) {
         $this->gitLabClient->projects()
           ->addVariable($project['id'], $variable['key'], $variable['value'], $variable['protected'], NULL, ['masked' => $variable['masked'], 'variable_type' => $variable['variable_type']]);
       }
@@ -191,14 +191,14 @@ class CodeStudioWizardCommand extends WizardCommandBase {
    */
   private function createScheduledPipeline(array $project): void {
     $this->io->writeln("Creating scheduled pipeline");
-    $scheduled_pipeline_description = "Code Studio Automatic Updates";
+    $scheduledPipelineDescription = "Code Studio Automatic Updates";
 
-    if (!$this->getGitLabScheduleByDescription($project, $scheduled_pipeline_description)) {
-      $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduled_pipeline_description</comment>");
+    if (!$this->getGitLabScheduleByDescription($project, $scheduledPipelineDescription)) {
+      $this->checklist->addItem("Creating scheduled pipeline <comment>$scheduledPipelineDescription</comment>");
       $pipeline = $this->gitLabClient->schedules()->create($project['id'], [
         # Every Thursday at midnight.
         'cron' => '0 0 * * 4',
-        'description' => $scheduled_pipeline_description,
+        'description' => $scheduledPipelineDescription,
         'ref' => $project['default_branch'],
       ]);
       $this->gitLabClient->schedules()->addVariable($project['id'], $pipeline['id'], [
@@ -211,7 +211,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
       ]);
     }
     else {
-      $this->checklist->addItem("Scheduled pipeline named <comment>$scheduled_pipeline_description</comment> already exists");
+      $this->checklist->addItem("Scheduled pipeline named <comment>$scheduledPipelineDescription</comment> already exists");
     }
     $this->checklist->completePreviousItem();
   }

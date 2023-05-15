@@ -33,14 +33,14 @@ class PullDatabaseCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
-    $no_scripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
-    $on_demand = $input->hasOption('on-demand') && $input->getOption('on-demand');
-    $no_import = $input->hasOption('no-import') && $input->getOption('no-import');
-    $multiple_dbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
-    // $no_import implies $no_scripts.
-    $no_scripts = $no_import || $no_scripts;
-    $this->pullDatabase($input, $output, $on_demand, $no_import, $multiple_dbs);
-    if (!$no_scripts) {
+    $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
+    $onDemand = $input->hasOption('on-demand') && $input->getOption('on-demand');
+    $noImport = $input->hasOption('no-import') && $input->getOption('no-import');
+    $multipleDbs = $input->hasOption('multiple-dbs') && $input->getOption('multiple-dbs');
+    // $noImport implies $noScripts.
+    $noScripts = $noImport || $noScripts;
+    $this->pullDatabase($input, $output, $onDemand, $noImport, $multipleDbs);
+    if (!$noScripts) {
       $this->runDrushCacheClear($this->getOutputCallback($output, $this->checklist));
       $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist));
     }

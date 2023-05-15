@@ -46,9 +46,9 @@ class DrushCommandTest extends SshCommandTestBase {
   public function testRemoteDrushCommand(array $args): void {
     ClearCacheCommand::clearCaches();
     $this->mockForGetEnvironmentFromAliasArg();
-    [$process, $local_machine_helper] = $this->mockForExecuteCommand();
-    $local_machine_helper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
-    $ssh_command = [
+    [$process, $localMachineHelper] = $this->mockForExecuteCommand();
+    $localMachineHelper->checkRequiredBinariesExist(['ssh'])->shouldBeCalled();
+    $sshCommand = [
       'ssh',
       'site.dev@sitedev.ssh.hosted.acquia-sites.com',
       '-t',
@@ -59,12 +59,12 @@ class DrushCommandTest extends SshCommandTestBase {
       'drush',
       'status --fields=db-status',
     ];
-    $local_machine_helper
-      ->execute($ssh_command, Argument::type('callable'), NULL, TRUE, NULL)
+    $localMachineHelper
+      ->execute($sshCommand, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->sshHelper = new SshHelper($this->output, $local_machine_helper->reveal(), $this->logger);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->command->sshHelper = new SshHelper($this->output, $localMachineHelper->reveal(), $this->logger);
     $this->executeCommand($args);
 
     // Assert.

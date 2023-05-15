@@ -22,8 +22,8 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $key = $this->determineSshKey($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $key = $this->determineSshKey($acquiaCloudClient);
 
     $location = 'Local';
     if (array_key_exists('cloud', $key)) {
@@ -47,11 +47,12 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     return 0;
   }
 
-  private function determineSshKey($acquia_cloud_client): array {
-    $cloudKeysResponse = new SshKeys($acquia_cloud_client);
-    $cloudKeys = (array) $cloudKeysResponse->getAll();
+  private function determineSshKey($acquiaCloudClient): array {
+    $cloudKeysResponse = new SshKeys($acquiaCloudClient);
+    $cloudKeys = $cloudKeysResponse->getAll();
     $localKeys = $this->findLocalSshKeys();
     $keys = [];
+    /** @var SshKeyResponse $key */
     foreach ($cloudKeys as $key) {
       $fingerprint = FingerprintGenerator::getFingerprint($key->public_key, 'sha256');
       $keys[$fingerprint]['fingerprint'] = $fingerprint;

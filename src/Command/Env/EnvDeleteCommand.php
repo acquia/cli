@@ -23,11 +23,11 @@ class EnvDeleteCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
-    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $environments_resource = new Environments($acquia_cloud_client);
-    $environment = $this->determineEnvironment($environments_resource, $cloud_app_uuid);
-    $environments_resource->delete($environment->uuid);
+    $cloudAppUuid = $this->determineCloudApplication(TRUE);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $environmentsResource = new Environments($acquiaCloudClient);
+    $environment = $this->determineEnvironment($environmentsResource, $cloudAppUuid);
+    $environmentsResource->delete($environment->uuid);
 
     $this->io->success([
       "The {$environment->label} environment is being deleted",
@@ -36,13 +36,13 @@ class EnvDeleteCommand extends CommandBase {
     return 0;
   }
 
-  private function determineEnvironment(Environments $environments_resource, string $cloud_app_uuid): EnvironmentResponse {
+  private function determineEnvironment(Environments $environmentsResource, string $cloudAppUuid): EnvironmentResponse {
     if ($this->input->getArgument('environmentId')) {
       // @todo Validate.
-      $environment_id = $this->input->getArgument('environmentId');
-      return $environments_resource->get($environment_id);
+      $environmentId = $this->input->getArgument('environmentId');
+      return $environmentsResource->get($environmentId);
     }
-    $environments = $environments_resource->getAll($cloud_app_uuid);
+    $environments = $environmentsResource->getAll($cloudAppUuid);
     $cdes = [];
     foreach ($environments as $environment) {
       if ($environment->flags->cde) {
@@ -50,7 +50,7 @@ class EnvDeleteCommand extends CommandBase {
       }
     }
     if (!$cdes) {
-      throw new AcquiaCliException('There are no existing CDEs for Application ' . $cloud_app_uuid);
+      throw new AcquiaCliException('There are no existing CDEs for Application ' . $cloudAppUuid);
     }
     return $this->promptChooseFromObjectsOrArrays($cdes, 'uuid', 'label', "Which Continuous Delivery Environment (CDE) do you want to delete?");
   }

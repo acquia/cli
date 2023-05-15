@@ -26,17 +26,17 @@ class ChecklistTest extends TestBase {
     $checklist->addItem('Testing!');
 
     // Make the spinner spin with some output.
-    $output_callback = static function ($type, $buffer) use ($checklist): void {
+    $outputCallback = static function ($type, $buffer) use ($checklist): void {
       $checklist->updateProgressBar($buffer);
     };
-    $this->localMachineHelper->execute(['echo', 'hello world'], $output_callback, NULL, FALSE);
+    $this->localMachineHelper->execute(['echo', 'hello world'], $outputCallback, NULL, FALSE);
 
     // Complete the item.
     $checklist->completePreviousItem();
     $items = $checklist->getItems();
-    /** @var \Symfony\Component\Console\Helper\ProgressBar $progress_bar */
-    $progress_bar = $items[0]['spinner']->getProgressBar();
-    $this->assertEquals('Testing!', $progress_bar->getMessage());
+    /** @var \Symfony\Component\Console\Helper\ProgressBar $progressBar */
+    $progressBar = $items[0]['spinner']->getProgressBar();
+    $this->assertEquals('Testing!', $progressBar->getMessage());
 
     putenv('PHPUNIT_RUNNING');
   }

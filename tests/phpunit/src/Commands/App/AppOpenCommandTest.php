@@ -19,11 +19,11 @@ class AppOpenCommandTest extends CommandTestBase {
    * Tests the 'app:open' command.
    */
   public function testAppOpenCommand(): void {
-    $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->startBrowser('https://cloud.acquia.com/a/applications/' . $application_uuid)->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->createMockAcliConfigFile($application_uuid);
+    $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid)->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->createMockAcliConfigFile($applicationUuid);
     $this->mockApplicationRequest();
     $this->executeCommand([], []);
 

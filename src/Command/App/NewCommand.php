@@ -47,12 +47,12 @@ class NewCommand extends CommandBase {
     $output->writeln('<info>Creating project. This may take a few minutes.</info>');
 
     if ($project === 'acquia_next_acms') {
-      $success_message = "<info>New Next JS project created in $dir. 🎉</info>";
+      $successMessage = "<info>New Next JS project created in $dir. 🎉</info>";
       $this->localMachineHelper->checkRequiredBinariesExist(['node']);
       $this->createNextJsProject($dir);
     }
     else {
-      $success_message = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
+      $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
       $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
       $this->createDrupalProject($distros[$project], $dir);
     }
@@ -60,7 +60,7 @@ class NewCommand extends CommandBase {
     $this->initializeGitRepository($dir);
 
     $output->writeln('');
-    $output->writeln($success_message);
+    $output->writeln($successMessage);
 
     return 0;
   }

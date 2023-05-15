@@ -42,35 +42,35 @@ class AuthLoginCommand extends CommandBase {
         'label' => 'Enter a new API key',
         'uuid' => 'create_new',
       ];
-      $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
-      if ($selected_key['uuid'] !== 'create_new') {
-        $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
-        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
+      $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
+      if ($selectedKey['uuid'] !== 'create_new') {
+        $this->datastoreCloud->set('acli_key', $selectedKey['uuid']);
+        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selectedKey['label']}</></info>");
         $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
         return 0;
       }
     }
 
     $this->promptOpenBrowserToCreateToken($input);
-    $api_key = $this->determineApiKey();
-    $api_secret = $this->determineApiSecret();
-    $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-    $this->writeApiCredentialsToDisk($api_key, $api_secret);
+    $apiKey = $this->determineApiKey();
+    $apiSecret = $this->determineApiSecret();
+    $this->reAuthenticate($apiKey, $apiSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+    $this->writeApiCredentialsToDisk($apiKey, $apiSecret);
     $output->writeln("<info>Saved credentials</info>");
 
     return 0;
   }
 
-  private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
-    $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
+  private function writeApiCredentialsToDisk(string $apiKey, string $apiSecret): void {
+    $tokenInfo = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$apiKey}");
     $keys = $this->datastoreCloud->get('keys');
-    $keys[$api_key] = [
-      'label' => $token_info->label,
-      'secret' => $api_secret,
-      'uuid' => $api_key,
+    $keys[$apiKey] = [
+      'label' => $tokenInfo->label,
+      'secret' => $apiSecret,
+      'uuid' => $apiKey,
     ];
     $this->datastoreCloud->set('keys', $keys);
-    $this->datastoreCloud->set('acli_key', $api_key);
+    $this->datastoreCloud->set('acli_key', $apiKey);
   }
 
 }

@@ -34,8 +34,8 @@ class TelemetryHelper {
     if (empty($this->bugSnagKey)) {
       return;
     }
-    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
-    if ($send_telemetry === FALSE) {
+    $sendTelemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    if ($sendTelemetry === FALSE) {
       return;
     }
     // It's safe-ish to make this key public.
@@ -44,10 +44,10 @@ class TelemetryHelper {
     $bugsnag->setAppVersion($this->application->getVersion());
     $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
     $bugsnag->registerCallback(function ($report) {
-      $user_id = $this->getUserId();
-      if (isset($user_id)) {
+      $userId = $this->getUserId();
+      if (isset($userId)) {
         $report->setUser([
-          'id' => $user_id,
+          'id' => $userId,
         ]);
       }
     });
@@ -73,11 +73,11 @@ class TelemetryHelper {
     if (empty($this->amplitudeKey)) {
       return;
     }
-    $send_telemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
+    $sendTelemetry = $this->datastoreCloud->get(DataStoreContract::SEND_TELEMETRY);
     $amplitude = Amplitude::getInstance();
-    $amplitude->setOptOut($send_telemetry === FALSE);
+    $amplitude->setOptOut($sendTelemetry === FALSE);
 
-    if ($send_telemetry === FALSE) {
+    if ($sendTelemetry === FALSE) {
       return;
     }
     try {
