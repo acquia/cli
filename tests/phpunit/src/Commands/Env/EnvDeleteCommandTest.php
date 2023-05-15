@@ -20,8 +20,8 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * @return array
    */
   public function providerTestDeleteCde(): array {
-    $environment_response = $this->getMockEnvironmentsResponse();
-    $environment = $environment_response->_embedded->items[0];
+    $environmentResponse = $this->getMockEnvironmentsResponse();
+    $environment = $environmentResponse->_embedded->items[0];
     return [
       [$environment->id],
       [NULL],
@@ -33,10 +33,10 @@ class EnvDeleteCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestDeleteCde
    */
-  public function testDeleteCde($environment_id): void {
-    $applications_response = $this->mockApplicationsRequest();
+  public function testDeleteCde($environmentId): void {
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applications_response);
+    $this->mockEnvironmentsRequest($applicationsResponse);
 
     $this->getMockEnvironmentsResponse();
     $response2 = $this->getMockEnvironmentsResponse();
@@ -46,14 +46,14 @@ class EnvDeleteCommandTest extends CommandTestBase {
     $cde->label = $label;
     $response2->_embedded->items[3] = $cde;
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response2->_embedded->items)
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $environmentsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'delete', 202);
     $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-      ->willReturn($environments_response)
+      ->willReturn($environmentsResponse)
       ->shouldBeCalled();
 
     $this->getMockResponseFromSpec('/environments/{environmentId}',
@@ -64,7 +64,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
 
     $this->executeCommand(
       [
-        'environmentId' => $environment_id,
+        'environmentId' => $environmentId,
       ],
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
@@ -83,9 +83,9 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the case when no CDE available for application.
    */
   public function testNoExistingCDEEnvironment(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applications_response);
+    $this->mockEnvironmentsRequest($applicationsResponse);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There are no existing CDEs for Application');
@@ -104,7 +104,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the case when multiple CDE available for application.
    */
   public function testNoEnvironmentArgumentPassed(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $response = $this->getMockEnvironmentsResponse();
     foreach ($response->{'_embedded'}->items as $key => $env) {
@@ -112,15 +112,15 @@ class EnvDeleteCommandTest extends CommandTestBase {
       $response->{'_embedded'}->items[$key] = $env;
     }
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
     $cde = $response->_embedded->items[0];
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $environmentsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'delete', 202);
     $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-      ->willReturn($environments_response)
+      ->willReturn($environmentsResponse)
       ->shouldBeCalled();
 
     $this->executeCommand([],

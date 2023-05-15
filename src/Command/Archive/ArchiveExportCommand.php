@@ -50,37 +50,37 @@ class ArchiveExportCommand extends CommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->determineDestinationDir($input);
-    $output_callback = $this->getOutputCallback($output, $this->checklist);
+    $outputCallback = $this->getOutputCallback($output, $this->checklist);
 
-    $random_string = (string) random_int(10000, 100000);
-    $temp_dir_name = 'acli-archive-' . basename($this->dir) . '-' . time() . '-' . $random_string;
-    $archive_temp_dir = Path::join(sys_get_temp_dir(), $temp_dir_name);
+    $randomString = (string) random_int(10000, 100000);
+    $tempDirName = 'acli-archive-' . basename($this->dir) . '-' . time() . '-' . $randomString;
+    $archiveTempDir = Path::join(sys_get_temp_dir(), $tempDirName);
     $this->io->confirm("This will generate a new archive in <options=bold>{$this->destinationDir}</> containing the contents of your Drupal application at <options=bold>{$this->dir}</>.\n Do you want to continue?");
 
     $this->checklist->addItem('Removing temporary artifact directory');
-    $this->checklist->updateProgressBar("Removing $archive_temp_dir");
-    $this->fs->remove($archive_temp_dir);
-    $this->fs->mkdir([$archive_temp_dir, $archive_temp_dir . '/repository']);
+    $this->checklist->updateProgressBar("Removing $archiveTempDir");
+    $this->fs->remove($archiveTempDir);
+    $this->fs->mkdir([$archiveTempDir, $archiveTempDir . '/repository']);
     $this->checklist->completePreviousItem();
 
     $this->checklist->addItem('Generating temporary archive directory');
-    $this->createArchiveDirectory($archive_temp_dir . '/repository');
+    $this->createArchiveDirectory($archiveTempDir . '/repository');
     $this->checklist->completePreviousItem();
 
     if (!$input->getOption('no-database')) {
       $this->checklist->addItem('Dumping MySQL database');
-      $this->exportDatabaseToArchiveDir($output_callback, $archive_temp_dir);
+      $this->exportDatabaseToArchiveDir($outputCallback, $archiveTempDir);
       $this->checklist->completePreviousItem();
     }
 
     $this->checklist->addItem('Compressing archive into a tarball');
-    $destination_filepath = $this->compressArchiveDirectory($archive_temp_dir, $this->destinationDir, $output_callback);
-    $output_callback('out', "Removing $archive_temp_dir");
-    $this->fs->remove($archive_temp_dir);
+    $destinationFilepath = $this->compressArchiveDirectory($archiveTempDir, $this->destinationDir, $outputCallback);
+    $outputCallback('out', "Removing $archiveTempDir");
+    $this->fs->remove($archiveTempDir);
     $this->checklist->completePreviousItem();
 
     $this->io->newLine();
-    $this->io->success("An archive of your Drupal application was created at $destination_filepath");
+    $this->io->success("An archive of your Drupal application was created at $destinationFilepath");
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
       $this->io->note('You can download the archive through the Cloud IDE user interface by right-clicking the file in your IDE workspace file browser and selecting "Download."');
     }
@@ -98,8 +98,8 @@ class ArchiveExportCommand extends CommandBase {
   /**
    * Build the artifact.
    */
-  private function createArchiveDirectory(string $artifact_dir): void {
-    $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifact_dir}");
+  private function createArchiveDirectory(string $artifactDir): void {
+    $this->checklist->updateProgressBar("Mirroring source files from {$this->dir} to {$artifactDir}");
     $originFinder = $this->localMachineHelper->getFinder();
     $originFinder->files()->in($this->dir)
       // Include dot files like .htaccess.
@@ -111,42 +111,42 @@ class ArchiveExportCommand extends CommandBase {
       $originFinder->exclude([self::PUBLIC_FILES_DIR]);
     }
     $targetFinder = $this->localMachineHelper->getFinder();
-    $targetFinder->files()->in($artifact_dir)->ignoreDotFiles(FALSE);
-    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifact_dir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
+    $targetFinder->files()->in($artifactDir)->ignoreDotFiles(FALSE);
+    $this->localMachineHelper->getFilesystem()->mirror($this->dir, $artifactDir, $originFinder, ['override' => TRUE, 'delete' => TRUE], $targetFinder);
   }
 
   private function exportDatabaseToArchiveDir(
-    Closure $output_callback,
-    string $archive_temp_dir
+    Closure $outputCallback,
+    string $archiveTempDir
   ): void {
-    if (!$this->getDrushDatabaseConnectionStatus($output_callback)) {
+    if (!$this->getDrushDatabaseConnectionStatus($outputCallback)) {
       throw new AcquiaCliException("Could not connect to local database.");
     }
-    $dump_temp_filepath = $this->createMySqlDumpOnLocal(
+    $dumpTempFilepath = $this->createMySqlDumpOnLocal(
       $this->getDefaultLocalDbHost(),
       $this->getDefaultLocalDbUser(),
       $this->getDefaultLocalDbName(),
       $this->getDefaultLocalDbPassword(),
-      $output_callback
+      $outputCallback
     );
-    $dump_filepath = Path::join($archive_temp_dir, basename($dump_temp_filepath));
-    $this->checklist->updateProgressBar("Moving MySQL dump to $dump_filepath");
-    $this->fs->rename($dump_temp_filepath, $dump_filepath);
+    $dumpFilepath = Path::join($archiveTempDir, basename($dumpTempFilepath));
+    $this->checklist->updateProgressBar("Moving MySQL dump to $dumpFilepath");
+    $this->fs->rename($dumpTempFilepath, $dumpFilepath);
   }
 
   /**
-   * @param $archive_dir
-   * @param $destination_dir
+   * @param $archiveDir
+   * @param $destinationDir
    */
-  private function compressArchiveDirectory($archive_dir, $destination_dir, Closure $output_callback = NULL): string {
-    $destination_filename = basename($archive_dir) . '.tar.gz';
-    $destination_filepath = Path::join($destination_dir, $destination_filename);
+  private function compressArchiveDirectory($archiveDir, $destinationDir, Closure $outputCallback = NULL): string {
+    $destinationFilename = basename($archiveDir) . '.tar.gz';
+    $destinationFilepath = Path::join($destinationDir, $destinationFilename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);
-    $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destination_filepath, '--directory', $archive_dir, '.'], $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute(['tar', '-zcvf', $destinationFilepath, '--directory', $archiveDir, '.'], $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to create tarball: {message}', ['message' => $process->getErrorOutput()]);
     }
-    return $destination_filepath;
+    return $destinationFilepath;
   }
 
 }

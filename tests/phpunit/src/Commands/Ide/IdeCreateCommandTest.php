@@ -35,12 +35,12 @@ class IdeCreateCommandTest extends CommandTestBase {
     $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
     $this->clientProphecy->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
 
-    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
-    $guzzle_response = $this->prophet->prophesize(Response::class);
-    $guzzle_response->getStatusCode()->willReturn(200);
-    $guzzle_client = $this->prophet->prophesize(Client::class);
-    $guzzle_client->request('GET', '/health')->willReturn($guzzle_response->reveal())->shouldBeCalled();
-    $this->command->setClient($guzzle_client->reveal());
+    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
+    $guzzleResponse = $this->prophet->prophesize(Response::class);
+    $guzzleResponse->getStatusCode()->willReturn(200);
+    $guzzleClient = $this->prophet->prophesize(Client::class);
+    $guzzleClient->request('GET', '/health')->willReturn($guzzleResponse->reveal())->shouldBeCalled();
+    $this->command->setClient($guzzleClient->reveal());
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?

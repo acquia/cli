@@ -30,14 +30,14 @@ class DrushCommand extends SshBaseCommand {
     $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
 
-    $acli_arguments = $input->getArguments();
-    $drush_command_arguments = [
+    $acliArguments = $input->getArguments();
+    $drushCommandArguments = [
       "cd /var/www/html/{$alias}/docroot; ",
       'drush',
-      implode(' ', (array) $acli_arguments['drush_command']),
+      implode(' ', (array) $acliArguments['drush_command']),
     ];
 
-    return $this->sshHelper->executeCommand($environment, $drush_command_arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $drushCommandArguments)->getExitCode();
   }
 
 }

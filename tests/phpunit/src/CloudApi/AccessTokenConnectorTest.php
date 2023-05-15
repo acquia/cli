@@ -48,14 +48,14 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
-    $connector_factory = new ConnectorFactory(
+    $connectorFactory = new ConnectorFactory(
       [
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
         'key' => NULL,
         'secret' => NULL,
       ]);
-    $connector = $connector_factory->createConnector();
+    $connector = $connectorFactory->createConnector();
     self::assertInstanceOf(AccessTokenConnector::class, $connector);
     self::assertEquals(self::$accessToken, $connector->getAccessToken()->getToken());
 
@@ -63,11 +63,11 @@ class AccessTokenConnectorTest extends TestBase {
     $path = 'api';
 
     // Make sure that new access tokens are fetched using the refresh token.
-    $mock_provider = $this->prophet->prophesize(GenericProvider::class);
-    $mock_provider->getAuthenticatedRequest($verb, ConnectorInterface::BASE_URI . $path, Argument::type(AccessTokenInterface::class))
+    $mockProvider = $this->prophet->prophesize(GenericProvider::class);
+    $mockProvider->getAuthenticatedRequest($verb, ConnectorInterface::BASE_URI . $path, Argument::type(AccessTokenInterface::class))
       ->willReturn($this->prophet->prophesize(RequestInterface::class)->reveal())
       ->shouldBeCalled();
-    $connector->setProvider($mock_provider->reveal());
+    $connector->setProvider($mockProvider->reveal());
     $connector->createRequest($verb, $path);
 
     $this->prophet->checkPredictions();
@@ -80,10 +80,10 @@ class AccessTokenConnectorTest extends TestBase {
       'token' => self::$accessToken . "\n",
 ];
     $vfs = vfsStream::setup('root', NULL, $directory);
-    $token_file = Path::join($vfs->url(), 'token');
-    $expiry_file = Path::join($vfs->url(), 'expiry');
-    putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
-    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
+    $tokenFile = Path::join($vfs->url(), 'token');
+    $expiryFile = Path::join($vfs->url(), 'expiry');
+    putenv('ACLI_ACCESS_TOKEN_FILE=' . $tokenFile);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiryFile);
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
     self::assertEquals($accessTokenExpiry, $this->cloudCredentials->getCloudAccessTokenExpiry());
   }
@@ -94,12 +94,12 @@ class AccessTokenConnectorTest extends TestBase {
       'expiry' => (string) $accessTokenExpiry,
     ];
     $vfs = vfsStream::setup('root', NULL, $directory);
-    $token_file = Path::join($vfs->url(), 'token');
-    $expiry_file = Path::join($vfs->url(), 'expiry');
-    putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
-    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
+    $tokenFile = Path::join($vfs->url(), 'token');
+    $expiryFile = Path::join($vfs->url(), 'expiry');
+    putenv('ACLI_ACCESS_TOKEN_FILE=' . $tokenFile);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiryFile);
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Access token file not found at ' . $token_file);
+    $this->expectExceptionMessage('Access token file not found at ' . $tokenFile);
     $this->cloudCredentials->getCloudAccessToken();
   }
 
@@ -108,12 +108,12 @@ class AccessTokenConnectorTest extends TestBase {
       'token' => self::$accessToken,
     ];
     $vfs = vfsStream::setup('root', NULL, $directory);
-    $token_file = Path::join($vfs->url(), 'token');
-    $expiry_file = Path::join($vfs->url(), 'expiry');
-    putenv('ACLI_ACCESS_TOKEN_FILE=' . $token_file);
-    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiry_file);
+    $tokenFile = Path::join($vfs->url(), 'token');
+    $expiryFile = Path::join($vfs->url(), 'expiry');
+    putenv('ACLI_ACCESS_TOKEN_FILE=' . $tokenFile);
+    putenv('ACLI_ACCESS_TOKEN_EXPIRY_FILE=' . $expiryFile);
     $this->expectException(AcquiaCliException::class);
-    $this->expectExceptionMessage('Access token expiry file not found at ' . $expiry_file);
+    $this->expectExceptionMessage('Access token expiry file not found at ' . $expiryFile);
     $this->cloudCredentials->getCloudAccessTokenExpiry();
   }
 
@@ -125,39 +125,39 @@ class AccessTokenConnectorTest extends TestBase {
     self::setAccessTokenEnvVars();
     // Ensure that ACLI_ACCESS_TOKEN was used to populate the refresh token.
     self::assertEquals(self::$accessToken, $this->cloudCredentials->getCloudAccessToken());
-    $connector_factory = new ConnectorFactory(
+    $connectorFactory = new ConnectorFactory(
       [
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
       ]);
-    $connector = $connector_factory->createConnector();
+    $connector = $connectorFactory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
   }
 
   public function testExpiredAccessToken(): void {
     self::setAccessTokenEnvVars(TRUE);
-    $connector_factory = new ConnectorFactory(
+    $connectorFactory = new ConnectorFactory(
       [
         'accessToken' => $this->cloudCredentials->getCloudAccessToken(),
         'accessTokenExpiry' => $this->cloudCredentials->getCloudAccessTokenExpiry(),
         'key' => NULL,
         'secret' => NULL,
       ]);
-    $connector = $connector_factory->createConnector();
+    $connector = $connectorFactory->createConnector();
     self::assertInstanceOf(Connector::class, $connector);
   }
 
   public function testConnectorConfig(): void {
     self::setAccessTokenEnvVars();
-    $connector_factory = new ConnectorFactory(
+    $connectorFactory = new ConnectorFactory(
       [
         'accessToken' => NULL,
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
       ]);
-    $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
+    $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
     $options = $client->getOptions();
     $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN']], $options['headers']);
@@ -168,16 +168,16 @@ class AccessTokenConnectorTest extends TestBase {
   public function testIdeHeader(): void {
     self::setAccessTokenEnvVars();
     IdeHelper::setCloudIdeEnvVars();
-    $connector_factory = new ConnectorFactory(
+    $connectorFactory = new ConnectorFactory(
       [
         'accessToken' => NULL,
         'key' => $this->cloudCredentials->getCloudKey(),
         'secret' => $this->cloudCredentials->getCloudSecret(),
       ]);
-    $clientService = new ClientService($connector_factory, $this->application, $this->cloudCredentials);
+    $clientService = new ClientService($connectorFactory, $this->application, $this->cloudCredentials);
     $client = $clientService->getClient();
     $options = $client->getOptions();
-    $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN'], 'X-Cloud-IDE-UUID' => IdeHelper::$remote_ide_uuid], $options['headers']);
+    $this->assertEquals(['User-Agent' => [0 => 'acli/UNKNOWN'], 'X-Cloud-IDE-UUID' => IdeHelper::$remoteIdeUuid], $options['headers']);
 
     $this->prophet->checkPredictions();
     IdeHelper::unsetCloudIdeEnvVars();

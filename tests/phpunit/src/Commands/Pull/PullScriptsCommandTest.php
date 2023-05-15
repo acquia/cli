@@ -17,22 +17,22 @@ class PullScriptsCommandTest extends PullCommandTestBase {
 
   public function testRefreshScripts(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $localMachineHelper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     // Composer.
-    $this->mockExecuteComposerExists($local_machine_helper);
-    $this->mockExecuteComposerInstall($local_machine_helper, $process);
+    $this->mockExecuteComposerExists($localMachineHelper);
+    $this->mockExecuteComposerInstall($localMachineHelper, $process);
 
     // Drush.
-    $drush_connection_exists = TRUE;
-    $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, $drush_connection_exists, $this->projectDir);
-    if ($drush_connection_exists) {
-      $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
-      $this->mockExecuteDrushSqlSanitize($local_machine_helper, $process);
+    $drushConnectionExists = TRUE;
+    $this->mockExecuteDrushExists($localMachineHelper);
+    $this->mockExecuteDrushStatus($localMachineHelper, $drushConnectionExists, $this->projectDir);
+    if ($drushConnectionExists) {
+      $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
+      $this->mockExecuteDrushSqlSanitize($localMachineHelper, $process);
     }
 
     $inputs = [

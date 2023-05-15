@@ -22,9 +22,9 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
    * Tests the 'ide:service-restart' command.
    */
   public function testIdeServiceRestartCommand(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockRestartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockRestartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
@@ -37,9 +37,9 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
    * Tests the 'ide:service-restart' command with invalid choice.
    */
   public function testIdeServiceRestartCommandInvalid(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockRestartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockRestartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(ValidatorException::class);
     $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);

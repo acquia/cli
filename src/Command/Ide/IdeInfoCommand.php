@@ -20,13 +20,13 @@ class IdeInfoCommand extends IdeCommandBase {
    * @return int 0 if everything went fine, or an exit code
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
+    $applicationUuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides_resource = new Ides($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $idesResource = new Ides($acquiaCloudClient);
 
-    $ide = $this->promptIdeChoice("Select an IDE to get more information:", $ides_resource, $application_uuid);
-    $response = $ides_resource->get($ide->uuid);
+    $ide = $this->promptIdeChoice("Select an IDE to get more information:", $idesResource, $applicationUuid);
+    $response = $idesResource->get($ide->uuid);
     $this->io->definitionList(
       ['IDE property' => 'IDE value'],
       new TableSeparator(),

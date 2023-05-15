@@ -25,14 +25,14 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
     return [
       // Data set 0.
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         FALSE,
         // $inputs
         [],
       ],
       // Data set 1.
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         TRUE,
         // $inputs
         [
@@ -52,8 +52,8 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
    * @param array $inputs
    * @param array $config
    */
-  public function testAcsfAuthLogoutCommand(bool $machine_is_authenticated, array $inputs, array $config = []): void {
-    if (!$machine_is_authenticated) {
+  public function testAcsfAuthLogoutCommand(bool $machineIsAuthenticated, array $inputs, array $config = []): void {
+    if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }

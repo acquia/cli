@@ -23,11 +23,11 @@ class ApiCommandHelper {
   /**
    * @return array
    */
-  public function getApiCommands(string $acquia_cloud_spec_file_path, string $command_prefix, CommandFactoryInterface $command_factory): array {
-    $acquia_cloud_spec = $this->getCloudApiSpec($acquia_cloud_spec_file_path);
-    $api_commands = $this->generateApiCommandsFromSpec($acquia_cloud_spec, $command_prefix, $command_factory);
-    $api_list_commands = $this->generateApiListCommands($api_commands, $command_prefix, $command_factory);
-    return array_merge($api_commands, $api_list_commands);
+  public function getApiCommands(string $acquiaCloudSpecFilePath, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
+    $acquiaCloudSpec = $this->getCloudApiSpec($acquiaCloudSpecFilePath);
+    $apiCommands = $this->generateApiCommandsFromSpec($acquiaCloudSpec, $commandPrefix, $commandFactory);
+    $apiListCommands = $this->generateApiListCommands($apiCommands, $commandPrefix, $commandFactory);
+    return array_merge($apiCommands, $apiListCommands);
   }
 
   private function useCloudApiSpecCache(): bool {
@@ -35,18 +35,18 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $param_definition
+   * @param array $paramDefinition
    */
-  protected function addArgumentExampleToUsageForGetEndpoint(array $param_definition, string $usage): mixed {
-    if (array_key_exists('example', $param_definition)) {
-      if (is_array($param_definition['example'])) {
-        $usage = reset($param_definition['example']);
+  protected function addArgumentExampleToUsageForGetEndpoint(array $paramDefinition, string $usage): mixed {
+    if (array_key_exists('example', $paramDefinition)) {
+      if (is_array($paramDefinition['example'])) {
+        $usage = reset($paramDefinition['example']);
       }
-      elseif (str_contains($param_definition['example'], ' ')) {
-        $usage .= '"' . $param_definition['example'] . '" ';
+      elseif (str_contains($paramDefinition['example'], ' ')) {
+        $usage .= '"' . $paramDefinition['example'] . '" ';
       }
       else {
-        $usage .= $param_definition['example'] . ' ';
+        $usage .= $paramDefinition['example'] . ' ';
       }
     }
 
@@ -54,11 +54,11 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $param_definition
+   * @param array $paramDefinition
    */
-  private function addOptionExampleToUsageForGetEndpoint(array $param_definition, string $usage): string {
-    if (array_key_exists('example', $param_definition)) {
-      $usage .= '--' . $param_definition['name'] . '="' . $param_definition['example'] . '" ';
+  private function addOptionExampleToUsageForGetEndpoint(array $paramDefinition, string $usage): string {
+    if (array_key_exists('example', $paramDefinition)) {
+      $usage .= '--' . $paramDefinition['name'] . '="' . $paramDefinition['example'] . '" ';
     }
 
     return $usage;
@@ -66,133 +66,133 @@ class ApiCommandHelper {
 
   /**
    * @param array $schema
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    */
-  private function addApiCommandParameters(array $schema, array $acquia_cloud_spec, CommandBase $command): void {
-    $input_definition = [];
+  private function addApiCommandParameters(array $schema, array $acquiaCloudSpec, CommandBase $command): void {
+    $inputDefinition = [];
     $usage = '';
 
     // Parameters to be used in the request query and path.
     if (array_key_exists('parameters', $schema)) {
-      [$query_input_definition, $query_param_usage_suffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquia_cloud_spec);
-      /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
-      foreach ($query_input_definition as $parameter_definition) {
-        $parameter_specification = $this->getParameterDefinitionFromSpec($parameter_definition->getName(), $acquia_cloud_spec, $schema);
-        if ($parameter_specification['in'] === 'query') {
-          $command->addQueryParameter($parameter_definition->getName(), $parameter_specification);
+      [$queryInputDefinition, $queryParamUsageSuffix] = $this->addApiCommandParametersForPathAndQuery($schema, $acquiaCloudSpec);
+      /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
+      foreach ($queryInputDefinition as $parameterDefinition) {
+        $parameterSpecification = $this->getParameterDefinitionFromSpec($parameterDefinition->getName(), $acquiaCloudSpec, $schema);
+        if ($parameterSpecification['in'] === 'query') {
+          $command->addQueryParameter($parameterDefinition->getName(), $parameterSpecification);
         }
-        elseif ($parameter_specification['in'] === 'path') {
-          $command->addPathParameter($parameter_definition->getName(), $parameter_specification);
+        elseif ($parameterSpecification['in'] === 'path') {
+          $command->addPathParameter($parameterDefinition->getName(), $parameterSpecification);
         }
         // @todo Remove this! It is a workaround for CLI-769.
-        elseif ($parameter_specification['in'] === 'header') {
-          $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
+        elseif ($parameterSpecification['in'] === 'header') {
+          $command->addPostParameter($parameterDefinition->getName(), $parameterSpecification);
         }
       }
-      $usage .= $query_param_usage_suffix;
-      $input_definition = array_merge($input_definition, $query_input_definition);
+      $usage .= $queryParamUsageSuffix;
+      $inputDefinition = array_merge($inputDefinition, $queryInputDefinition);
     }
 
     // Parameters to be used in the request body.
     if (array_key_exists('requestBody', $schema)) {
       [
-        $body_input_definition,
-        $request_body_param_usage_suffix,
-      ] = $this->addApiCommandParametersForRequestBody($schema, $acquia_cloud_spec);
-      $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
-      /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameter_definition */
-      foreach ($body_input_definition as $parameter_definition) {
-        $parameter_specification = $this->getPropertySpecFromRequestBodyParam($request_body_schema, $parameter_definition);
-        $command->addPostParameter($parameter_definition->getName(), $parameter_specification);
+        $bodyInputDefinition,
+        $requestBodyParamUsageSuffix,
+      ] = $this->addApiCommandParametersForRequestBody($schema, $acquiaCloudSpec);
+      $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
+      /** @var \Symfony\Component\Console\Input\InputOption|InputArgument $parameterDefinition */
+      foreach ($bodyInputDefinition as $parameterDefinition) {
+        $parameterSpecification = $this->getPropertySpecFromRequestBodyParam($requestBodySchema, $parameterDefinition);
+        $command->addPostParameter($parameterDefinition->getName(), $parameterSpecification);
       }
-      $usage .= $request_body_param_usage_suffix;
-      $input_definition = array_merge($input_definition, $body_input_definition);
+      $usage .= $requestBodyParamUsageSuffix;
+      $inputDefinition = array_merge($inputDefinition, $bodyInputDefinition);
     }
 
-    $command->setDefinition(new InputDefinition($input_definition));
+    $command->setDefinition(new InputDefinition($inputDefinition));
     if ($usage) {
       $command->addUsage(rtrim($usage));
     }
-    $this->addAliasUsageExamples($command, $input_definition, rtrim($usage));
+    $this->addAliasUsageExamples($command, $inputDefinition, rtrim($usage));
   }
 
   /**
    * @param array $schema
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    * @return array
    */
-  private function addApiCommandParametersForRequestBody(array $schema, array $acquia_cloud_spec): array {
+  private function addApiCommandParametersForRequestBody(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
-    $input_definition = [];
-    $request_body_schema = $this->getRequestBodyFromParameterSchema($schema, $acquia_cloud_spec);
+    $inputDefinition = [];
+    $requestBodySchema = $this->getRequestBodyFromParameterSchema($schema, $acquiaCloudSpec);
 
-    if (!array_key_exists('properties', $request_body_schema)) {
+    if (!array_key_exists('properties', $requestBodySchema)) {
       return [];
     }
-    foreach ($request_body_schema['properties'] as $prop_key => $param_definition) {
-      $is_required = array_key_exists('required', $request_body_schema) && in_array($prop_key, $request_body_schema['required'], TRUE);
-      $prop_key = self::renameParameter($prop_key);
+    foreach ($requestBodySchema['properties'] as $propKey => $paramDefinition) {
+      $isRequired = array_key_exists('required', $requestBodySchema) && in_array($propKey, $requestBodySchema['required'], TRUE);
+      $propKey = self::renameParameter($propKey);
 
-      if ($is_required) {
-        if (!array_key_exists('description', $param_definition)) {
-          $description = $param_definition["additionalProperties"]["description"];
+      if ($isRequired) {
+        if (!array_key_exists('description', $paramDefinition)) {
+          $description = $paramDefinition["additionalProperties"]["description"];
         }
         else {
-          $description = $param_definition['description'];
+          $description = $paramDefinition['description'];
         }
-        $input_definition[] = new InputArgument(
-          $prop_key,
-          array_key_exists('type', $param_definition) && $param_definition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
+        $inputDefinition[] = new InputArgument(
+          $propKey,
+          array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputArgument::IS_ARRAY | InputArgument::REQUIRED : InputArgument::REQUIRED,
               $description
           );
-        $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $prop_key, $param_definition, 'argument', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema['requestBody'], $propKey, $paramDefinition, 'argument', $usage);
       }
       else {
-        $input_definition[] = new InputOption(
-          $prop_key,
+        $inputDefinition[] = new InputOption(
+          $propKey,
               NULL,
-              array_key_exists('type', $param_definition) && $param_definition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
-              array_key_exists('description', $param_definition) ? $param_definition['description'] : $prop_key
+              array_key_exists('type', $paramDefinition) && $paramDefinition['type'] === 'array' ? InputOption::VALUE_IS_ARRAY | InputOption::VALUE_REQUIRED : InputOption::VALUE_REQUIRED,
+              array_key_exists('description', $paramDefinition) ? $paramDefinition['description'] : $propKey
                 );
-        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $prop_key, $param_definition, 'option', $usage);
+        $usage = $this->addPostArgumentUsageToExample($schema["requestBody"], $propKey, $paramDefinition, 'option', $usage);
         // @todo Add validator for $param['enum'] values?
       }
     }
-    /** @var \Symfony\Component\Console\Input\InputArgument|InputOption $parameter_definition */
-    foreach ($input_definition as $index => $parameter_definition) {
-      if ($parameter_definition->isArray()) {
+    /** @var \Symfony\Component\Console\Input\InputArgument|InputOption $parameterDefinition */
+    foreach ($inputDefinition as $index => $parameterDefinition) {
+      if ($parameterDefinition->isArray()) {
         // Move to the end of the array.
-        unset($input_definition[$index]);
-        $input_definition[] = $parameter_definition;
+        unset($inputDefinition[$index]);
+        $inputDefinition[] = $parameterDefinition;
       }
     }
 
-    return [$input_definition, $usage];
+    return [$inputDefinition, $usage];
   }
 
   /**
-   * @param $request_body
-   * @param $prop_key
-   * @param $param_definition
+   * @param $requestBody
+   * @param $propKey
+   * @param $paramDefinition
    * @param $type
    * @param $usage
    */
-  private function addPostArgumentUsageToExample($request_body, $prop_key, $param_definition, $type, $usage): string {
-    $request_body_content = $this->getRequestBodyContent($request_body);
+  private function addPostArgumentUsageToExample($requestBody, $propKey, $paramDefinition, $type, $usage): string {
+    $requestBodyContent = $this->getRequestBodyContent($requestBody);
 
-    if (array_key_exists('example', $request_body_content)) {
-      $example = $request_body_content['example'];
-      $prefix = $type === 'argument' ? '' : "--{$prop_key}=";
-      if (array_key_exists($prop_key, $example)) {
-        switch ($param_definition['type']) {
+    if (array_key_exists('example', $requestBodyContent)) {
+      $example = $requestBodyContent['example'];
+      $prefix = $type === 'argument' ? '' : "--{$propKey}=";
+      if (array_key_exists($propKey, $example)) {
+        switch ($paramDefinition['type']) {
           case 'object':
-            $usage .= $prefix . '"' . json_encode($example[$prop_key], JSON_THROW_ON_ERROR) . '"" ';
+            $usage .= $prefix . '"' . json_encode($example[$propKey], JSON_THROW_ON_ERROR) . '"" ';
             break;
 
           case 'array':
-            $is_multidimensional = count($example[$prop_key]) !== count($example[$prop_key], COUNT_RECURSIVE);
-            if (!$is_multidimensional) {
-              foreach ($example[$prop_key] as $value) {
+            $isMultidimensional = count($example[$propKey]) !== count($example[$propKey], COUNT_RECURSIVE);
+            if (!$isMultidimensional) {
+              foreach ($example[$propKey] as $value) {
                 $usage .= $prefix . "\"$value\" ";
               }
             }
@@ -200,7 +200,7 @@ class ApiCommandHelper {
               // @todo Pretty sure prevents the user from using the arguments.
               // Probably a bug. How can we allow users to specify a multidimensional array as an
               // argument?
-              $value = json_encode($example[$prop_key], JSON_THROW_ON_ERROR);
+              $value = json_encode($example[$propKey], JSON_THROW_ON_ERROR);
               $usage .= $prefix . "\"$value\" ";
             }
             break;
@@ -208,11 +208,11 @@ class ApiCommandHelper {
           case 'string':
           case 'boolean':
           case 'integer':
-            if (is_array($example[$prop_key])) {
-              $value = reset($example[$prop_key]);
+            if (is_array($example[$propKey])) {
+              $value = reset($example[$propKey]);
             }
             else {
-              $value = $example[$prop_key];
+              $value = $example[$propKey];
             }
             $usage .= $prefix . "\"{$value}\" ";
             break;
@@ -224,61 +224,61 @@ class ApiCommandHelper {
 
   /**
    * @param array $schema
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    * @return array
    */
-  private function addApiCommandParametersForPathAndQuery(array $schema, array $acquia_cloud_spec): array {
+  private function addApiCommandParametersForPathAndQuery(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
-    $input_definition = [];
+    $inputDefinition = [];
     if (!array_key_exists('parameters', $schema)) {
       return [];
     }
     foreach ($schema['parameters'] as $parameter) {
       if (array_key_exists('$ref', $parameter)) {
         $parts = explode('/', $parameter['$ref']);
-        $param_key = end($parts);
-        $param_definition = $this->getParameterDefinitionFromSpec($param_key, $acquia_cloud_spec, $schema);
+        $paramKey = end($parts);
+        $paramDefinition = $this->getParameterDefinitionFromSpec($paramKey, $acquiaCloudSpec, $schema);
       }
       else {
-        $param_definition = $parameter;
+        $paramDefinition = $parameter;
       }
 
-      $required = array_key_exists('required', $param_definition) && $param_definition['required'];
-      $this->addAliasParameterDescriptions($param_definition);
+      $required = array_key_exists('required', $paramDefinition) && $paramDefinition['required'];
+      $this->addAliasParameterDescriptions($paramDefinition);
       if ($required) {
-        $input_definition[] = new InputArgument(
-              $param_definition['name'],
+        $inputDefinition[] = new InputArgument(
+              $paramDefinition['name'],
               InputArgument::REQUIRED,
-              $param_definition['description']
+              $paramDefinition['description']
           );
-        $usage = $this->addArgumentExampleToUsageForGetEndpoint($param_definition, $usage);
+        $usage = $this->addArgumentExampleToUsageForGetEndpoint($paramDefinition, $usage);
       }
       else {
-        $input_definition[] = new InputOption(
-              $param_definition['name'],
+        $inputDefinition[] = new InputOption(
+              $paramDefinition['name'],
               NULL,
               InputOption::VALUE_REQUIRED,
-              $param_definition['description']
+              $paramDefinition['description']
                 );
-        $usage = $this->addOptionExampleToUsageForGetEndpoint($param_definition, $usage);
+        $usage = $this->addOptionExampleToUsageForGetEndpoint($paramDefinition, $usage);
       }
     }
 
-    return [$input_definition, $usage];
+    return [$inputDefinition, $usage];
   }
 
   /**
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    * @param $schema
    */
-  private function getParameterDefinitionFromSpec(string $param_key, array $acquia_cloud_spec, $schema): mixed {
-    $uppercase_key = ucfirst($param_key);
-    if (array_key_exists('parameters', $acquia_cloud_spec['components'])
-      && array_key_exists($uppercase_key, $acquia_cloud_spec['components']['parameters'])) {
-      return $acquia_cloud_spec['components']['parameters'][$uppercase_key];
+  private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, $schema): mixed {
+    $uppercaseKey = ucfirst($paramKey);
+    if (array_key_exists('parameters', $acquiaCloudSpec['components'])
+      && array_key_exists($uppercaseKey, $acquiaCloudSpec['components']['parameters'])) {
+      return $acquiaCloudSpec['components']['parameters'][$uppercaseKey];
     }
     foreach ($schema['parameters'] as $parameter) {
-      if ($parameter['name'] === $param_key) {
+      if ($parameter['name'] === $paramKey) {
         return $parameter;
       }
     }
@@ -286,22 +286,22 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    */
-  private function getParameterSchemaFromSpec(string $param_key, array $acquia_cloud_spec): mixed {
-    return $acquia_cloud_spec['components']['schemas'][$param_key];
+  private function getParameterSchemaFromSpec(string $paramKey, array $acquiaCloudSpec): mixed {
+    return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
   /**
-   * @param $cache_item
+   * @param $cacheItem
    */
-  private function isApiSpecChecksumCacheValid($cache_item, string $acquia_cloud_spec_file_checksum): bool {
+  private function isApiSpecChecksumCacheValid($cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
-    if ($cache_item->isHit() && !$acquia_cloud_spec_file_checksum) {
+    if ($cacheItem->isHit() && !$acquiaCloudSpecFileChecksum) {
       return TRUE;
     }
     // If there's an invalid entry OR there's no entry, return false.
-    if (!$cache_item->isHit() || ($cache_item->isHit() && $cache_item->get() !== $acquia_cloud_spec_file_checksum)) {
+    if (!$cacheItem->isHit() || ($cacheItem->isHit() && $cacheItem->get() !== $acquiaCloudSpecFileChecksum)) {
       return FALSE;
     }
 
@@ -311,44 +311,44 @@ class ApiCommandHelper {
   /**
    * @return array
    */
-  private function getCloudApiSpec(string $spec_file_path): array {
-    $cache_key = basename($spec_file_path);
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new NullAdapter());
-    $cache_item_checksum = $cache->getItem($cache_key . '.checksum');
-    $cache_item_spec = $cache->getItem($cache_key);
+  private function getCloudApiSpec(string $specFilePath): array {
+    $cacheKey = basename($specFilePath);
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new NullAdapter());
+    $cacheItemChecksum = $cache->getItem($cacheKey . '.checksum');
+    $cacheItemSpec = $cache->getItem($cacheKey);
 
     // When running the phar, the original file may not exist. In that case, always use the cache.
-    if (!file_exists($spec_file_path) && $cache_item_spec->isHit()) {
-      return $cache_item_spec->get();
+    if (!file_exists($specFilePath) && $cacheItemSpec->isHit()) {
+      return $cacheItemSpec->get();
     }
 
     // Otherwise, only use cache when it is valid.
-    $checksum = md5_file($spec_file_path);
+    $checksum = md5_file($specFilePath);
     if ($this->useCloudApiSpecCache()
-      && $this->isApiSpecChecksumCacheValid($cache_item_checksum, $checksum) && $cache_item_spec->isHit()
+      && $this->isApiSpecChecksumCacheValid($cacheItemChecksum, $checksum) && $cacheItemSpec->isHit()
     ) {
-      return $cache_item_spec->get();
+      return $cacheItemSpec->get();
     }
 
     // Parse file. This can take a long while!
     $this->logger->debug("Rebuilding caches...");
-    $spec = Yaml::parseFile($spec_file_path);
+    $spec = Yaml::parseFile($specFilePath);
 
     $cache->warmUp([
-      $cache_key => $spec,
-      $cache_key . '.checksum' => $checksum,
+      $cacheKey => $spec,
+      $cacheKey . '.checksum' => $checksum,
     ]);
 
     return $spec;
   }
 
   /**
-   * @param array $acquia_cloud_spec
+   * @param array $acquiaCloudSpec
    * @return ApiBaseCommand[]
    */
-  private function generateApiCommandsFromSpec(array $acquia_cloud_spec, string $command_prefix, CommandFactoryInterface $command_factory): array {
-    $api_commands = [];
-    foreach ($acquia_cloud_spec['paths'] as $path => $endpoint) {
+  private function generateApiCommandsFromSpec(array $acquiaCloudSpec, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
+    $apiCommands = [];
+    foreach ($acquiaCloudSpec['paths'] as $path => $endpoint) {
       // Skip internal endpoints. These shouldn't actually be in the spec.
       if (array_key_exists('x-internal', $endpoint) && $endpoint['x-internal']) {
         continue;
@@ -368,24 +368,24 @@ class ApiCommandHelper {
           continue;
         }
 
-        $command_name = $command_prefix . ':' . $schema['x-cli-name'];
-        $command = $command_factory->createCommand();
-        $command->setName($command_name);
+        $commandName = $commandPrefix . ':' . $schema['x-cli-name'];
+        $command = $commandFactory->createCommand();
+        $command->setName($commandName);
         $command->setDescription($schema['summary']);
         $command->setMethod($method);
         $command->setResponses($schema['responses']);
         $command->setHidden(FALSE);
-        if (array_key_exists('servers', $acquia_cloud_spec)) {
-          $command->setServers($acquia_cloud_spec['servers']);
+        if (array_key_exists('servers', $acquiaCloudSpec)) {
+          $command->setServers($acquiaCloudSpec['servers']);
         }
         $command->setPath($path);
         $command->setHelp("For more help, see https://cloudapi-docs.acquia.com/ or https://dev.acquia.com/api-documentation/acquia-cloud-site-factory-api for acsf commands.");
-        $this->addApiCommandParameters($schema, $acquia_cloud_spec, $command);
-        $api_commands[] = $command;
+        $this->addApiCommandParameters($schema, $acquiaCloudSpec, $command);
+        $apiCommands[] = $command;
       }
     }
 
-    return $api_commands;
+    return $apiCommands;
   }
 
   /**
@@ -410,62 +410,62 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param array $input_definition
+   * @param array $inputDefinition
    */
-  private function addAliasUsageExamples(ApiBaseCommand $command, array $input_definition, string $usage): void {
-    foreach ($input_definition as $key => $parameter) {
+  private function addAliasUsageExamples(ApiBaseCommand $command, array $inputDefinition, string $usage): void {
+    foreach ($inputDefinition as $key => $parameter) {
       if ($parameter->getName() === 'applicationUuid') {
-        $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "myapp";
-        $usage = implode(' ', $usage_parts);
+        $usageParts = explode(' ', $usage);
+        $usageParts[$key] = "myapp";
+        $usage = implode(' ', $usageParts);
         $command->addUsage($usage);
       }
       if ($parameter->getName() === 'environmentId') {
-        $usage_parts = explode(' ', $usage);
-        $usage_parts[$key] = "myapp.dev";
-        $usage = implode(' ', $usage_parts);
+        $usageParts = explode(' ', $usage);
+        $usageParts[$key] = "myapp.dev";
+        $usage = implode(' ', $usageParts);
         $command->addUsage($usage);
       }
     }
   }
 
   /**
-   * @param $param_definition
+   * @param $paramDefinition
    */
-  private function addAliasParameterDescriptions(&$param_definition): void {
-    if ($param_definition['name'] === 'applicationUuid') {
-      $param_definition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
+  private function addAliasParameterDescriptions(&$paramDefinition): void {
+    if ($paramDefinition['name'] === 'applicationUuid') {
+      $paramDefinition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
     }
-    if ($param_definition['name'] === 'environmentId') {
-      $param_definition['description'] .= " You may also use an environment alias or UUID.";
+    if ($paramDefinition['name'] === 'environmentId') {
+      $paramDefinition['description'] .= " You may also use an environment alias or UUID.";
     }
   }
 
   /**
    * @param array $schema
-   * @param $acquia_cloud_spec
+   * @param $acquiaCloudSpec
    * @return array
    */
-  private function getRequestBodyFromParameterSchema(array $schema, $acquia_cloud_spec): array {
-    $request_body_content = $this->getRequestBodyContent($schema['requestBody']);
-    $request_body_schema = $request_body_content['schema'];
+  private function getRequestBodyFromParameterSchema(array $schema, $acquiaCloudSpec): array {
+    $requestBodyContent = $this->getRequestBodyContent($schema['requestBody']);
+    $requestBodySchema = $requestBodyContent['schema'];
 
     // If this is a reference to the top level schema, go grab the referenced component.
-    if (array_key_exists('$ref', $request_body_schema)) {
-      $parts = explode('/', $request_body_schema['$ref']);
-      $param_key = end($parts);
-      $request_body_schema = $this->getParameterSchemaFromSpec($param_key, $acquia_cloud_spec);
+    if (array_key_exists('$ref', $requestBodySchema)) {
+      $parts = explode('/', $requestBodySchema['$ref']);
+      $paramKey = end($parts);
+      $requestBodySchema = $this->getParameterSchemaFromSpec($paramKey, $acquiaCloudSpec);
     }
 
-    return $request_body_schema;
+    return $requestBodySchema;
   }
 
   /**
-   * @param array $request_body_schema
-   * @param $parameter_definition
+   * @param array $requestBodySchema
+   * @param $parameterDefinition
    */
-  private function getPropertySpecFromRequestBodyParam(array $request_body_schema, $parameter_definition): mixed {
-    return $request_body_schema['properties'][$parameter_definition->getName()] ?? NULL;
+  private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, $parameterDefinition): mixed {
+    return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? NULL;
   }
 
   /*
@@ -482,48 +482,48 @@ class ApiCommandHelper {
   }
 
   /**
-   * @param $prop_key
+   * @param $propKey
    */
-  public static function renameParameter($prop_key): mixed {
-    $parameter_rename_map = self::getParameterRenameMap();
-    if (array_key_exists($prop_key, $parameter_rename_map)) {
-      $prop_key = $parameter_rename_map[$prop_key];
+  public static function renameParameter($propKey): mixed {
+    $parameterRenameMap = self::getParameterRenameMap();
+    if (array_key_exists($propKey, $parameterRenameMap)) {
+      $propKey = $parameterRenameMap[$propKey];
     }
-    return $prop_key;
+    return $propKey;
   }
 
-  public static function restoreRenamedParameter(string $prop_key): int|string {
-    $parameter_rename_map = array_flip(self::getParameterRenameMap());
-    if (array_key_exists($prop_key, $parameter_rename_map)) {
-      $prop_key = $parameter_rename_map[$prop_key];
+  public static function restoreRenamedParameter(string $propKey): int|string {
+    $parameterRenameMap = array_flip(self::getParameterRenameMap());
+    if (array_key_exists($propKey, $parameterRenameMap)) {
+      $propKey = $parameterRenameMap[$propKey];
     }
-    return $prop_key;
+    return $propKey;
   }
 
   /**
-   * @param array $api_commands
+   * @param array $apiCommands
    * @return ApiListCommandBase[]
    */
-  private function generateApiListCommands(array $api_commands, string $command_prefix, CommandFactoryInterface $command_factory): array {
-    $api_list_commands = [];
-    foreach ($api_commands as $api_command) {
-      $command_name_parts = explode(':', $api_command->getName());
-      if (count($command_name_parts) < 3) {
+  private function generateApiListCommands(array $apiCommands, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
+    $apiListCommands = [];
+    foreach ($apiCommands as $apiCommand) {
+      $commandNameParts = explode(':', $apiCommand->getName());
+      if (count($commandNameParts) < 3) {
         continue;
       }
-      $namespace = $command_name_parts[1];
-      if (!array_key_exists($namespace, $api_list_commands)) {
+      $namespace = $commandNameParts[1];
+      if (!array_key_exists($namespace, $apiListCommands)) {
         /** @var \Acquia\Cli\Command\Acsf\AcsfListCommand|\Acquia\Cli\Command\Api\ApiListCommand $command */
-        $command = $command_factory->createListCommand();
-        $name = $command_prefix . ':' . $namespace;
+        $command = $commandFactory->createListCommand();
+        $name = $commandPrefix . ':' . $namespace;
         $command->setName($name);
         $command->setNamespace($name);
         $command->setAliases([]);
         $command->setDescription("List all API commands for the {$namespace} resource");
-        $api_list_commands[$name] = $command;
+        $apiListCommands[$name] = $command;
       }
     }
-    return $api_list_commands;
+    return $apiListCommands;
   }
 
   /**

@@ -22,7 +22,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     return [
       // Data set 0.
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         FALSE,
         // $inputs
         [
@@ -42,7 +42,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
       ],
       // Data set 1.
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         FALSE,
         // $inputs
         [],
@@ -62,7 +62,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
       ],
       // Data set 2.
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         TRUE,
         // $inputs
         [
@@ -85,15 +85,15 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * Tests the 'acsf:auth:login' command.
    *
    * @dataProvider providerTestAuthLoginCommand
-   * @param $machine_is_authenticated
+   * @param $machineIsAuthenticated
    * @param $inputs
    * @param $args
-   * @param $output_to_assert
+   * @param $outputToAssert
    * @param array $config
    * @requires OS linux|darwin
    */
-  public function testAcsfAuthLoginCommand($machine_is_authenticated, $inputs, $args, $output_to_assert, array $config = []): void {
-    if (!$machine_is_authenticated) {
+  public function testAcsfAuthLoginCommand($machineIsAuthenticated, $inputs, $args, $outputToAssert, array $config = []): void {
+    if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
     }
@@ -106,8 +106,8 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
 
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
-    $this->assertStringContainsString($output_to_assert, $output);
-    if (!$machine_is_authenticated && !array_key_exists('--key', $args)) {
+    $this->assertStringContainsString($outputToAssert, $output);
+    if (!$machineIsAuthenticated && !array_key_exists('--key', $args)) {
       $this->assertStringContainsString('Enter your Site Factory key (option -k, --key) (input will be hidden):', $output);
     }
     $this->assertKeySavedCorrectly();
@@ -118,15 +118,15 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
   }
 
   protected function assertKeySavedCorrectly(): void {
-    $creds_file = $this->cloudConfigFilepath;
-    $this->assertFileExists($creds_file);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $creds_file);
+    $credsFile = $this->cloudConfigFilepath;
+    $this->assertFileExists($credsFile);
+    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $credsFile);
     $this->assertTrue($config->exists('acsf_active_factory'));
-    $factory_url = $config->get('acsf_active_factory');
+    $factoryUrl = $config->get('acsf_active_factory');
     $this->assertTrue($config->exists('acsf_factories'));
     $factories = $config->get('acsf_factories');
-    $this->assertArrayHasKey($factory_url, $factories);
-    $factory = $factories[$factory_url];
+    $this->assertArrayHasKey($factoryUrl, $factories);
+    $factory = $factories[$factoryUrl];
     $this->assertArrayHasKey('users', $factory);
     $this->assertArrayHasKey('active_user', $factory);
     $this->assertEquals($this->acsfUsername, $factory['active_user']);

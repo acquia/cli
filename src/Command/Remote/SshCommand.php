@@ -27,18 +27,18 @@ class SshCommand extends SshBaseCommand {
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
-    $ssh_command = [
+    $sshCommand = [
       'cd /var/www/html/' . $alias,
     ];
     $arguments = $input->getArguments();
     if (empty($arguments['ssh_command'])) {
-      $ssh_command[] = 'exec $SHELL -l';
+      $sshCommand[] = 'exec $sHELL -l';
     }
     else {
-      $ssh_command[] = implode(' ', $arguments['ssh_command']);
+      $sshCommand[] = implode(' ', $arguments['ssh_command']);
     }
-    $ssh_command = (array) implode('; ', $ssh_command);
-    return $this->sshHelper->executeCommand($environment, $ssh_command)->getExitCode();
+    $sshCommand = (array) implode('; ', $sshCommand);
+    return $this->sshHelper->executeCommand($environment, $sshCommand)->getExitCode();
   }
 
 }

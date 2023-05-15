@@ -16,9 +16,9 @@ class AccessTokenConnector extends Connector {
    */
   protected AbstractProvider $provider;
 
-  public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
+  public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
-    parent::__construct($config, $base_uri, $url_access_token);
+    parent::__construct($config, $baseUri, $urlAccessToken);
   }
 
   public function createRequest($verb, $path): RequestInterface {

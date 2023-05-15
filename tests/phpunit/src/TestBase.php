@@ -124,13 +124,13 @@ abstract class TestBase extends TestCase {
    *
    * @see CXAPI-9647
    */
-  public function filterApplicationsResponse(object $applications_response, int $count, bool $unique): object {
+  public function filterApplicationsResponse(object $applicationsResponse, int $count, bool $unique): object {
     if ($unique) {
-      $applications_response->{'_embedded'}->items[1]->hosting->id = 'devcloud:devcloud3';
+      $applicationsResponse->{'_embedded'}->items[1]->hosting->id = 'devcloud:devcloud3';
     }
-    $applications_response->total = $count;
-    $applications_response->{'_embedded'}->items = array_slice($applications_response->{'_embedded'}->items, 0, $count);
-    return $applications_response;
+    $applicationsResponse->total = $count;
+    $applicationsResponse->{'_embedded'}->items = array_slice($applicationsResponse->{'_embedded'}->items, 0, $count);
+    return $applicationsResponse;
   }
 
   /**
@@ -230,14 +230,14 @@ abstract class TestBase extends TestCase {
     return $path;
   }
 
-  public static function setEnvVars(array $env_vars): void {
-    foreach ($env_vars as $key => $value) {
+  public static function setEnvVars(array $envVars): void {
+    foreach ($envVars as $key => $value) {
       putenv($key . '=' . $value);
     }
   }
 
-  public static function unsetEnvVars($env_vars): void {
-    foreach ($env_vars as $key => $value) {
+  public static function unsetEnvVars($envVars): void {
+    foreach ($envVars as $key => $value) {
       putenv($key);
     }
   }
@@ -255,8 +255,8 @@ abstract class TestBase extends TestCase {
    * @param $method
    */
   protected function getResourceFromSpec($path, $method): mixed {
-    $acquia_cloud_spec = $this->getCloudApiSpec();
-    return $acquia_cloud_spec['paths'][$path][$method];
+    $acquiaCloudSpec = $this->getCloudApiSpec();
+    return $acquiaCloudSpec['paths'][$path][$method];
   }
 
   /**
@@ -267,32 +267,32 @@ abstract class TestBase extends TestCase {
    *
    * @param $path
    * @param $method
-   * @param $http_code
+   * @param $httpCode
    * @see CXAPI-7208
    */
-  public function getMockResponseFromSpec($path, $method, $http_code): object {
+  public function getMockResponseFromSpec($path, $method, $httpCode): object {
     $endpoint = $this->getResourceFromSpec($path, $method);
-    $response = $endpoint['responses'][$http_code];
+    $response = $endpoint['responses'][$httpCode];
     $content = $response['content']['application/json'];
 
     if (array_key_exists('example', $content)) {
-      $response_body = json_encode($content['example'], JSON_THROW_ON_ERROR);
+      $responseBody = json_encode($content['example'], JSON_THROW_ON_ERROR);
     }
     elseif (array_key_exists('examples', $content)) {
-      $response_body = json_encode($content['examples'], JSON_THROW_ON_ERROR);
+      $responseBody = json_encode($content['examples'], JSON_THROW_ON_ERROR);
     }
     elseif (array_key_exists('schema', $content)
       && array_key_exists('$ref', $content['schema'])) {
       $ref = $content['schema']['$ref'];
-      $param_key = str_replace('#/components/schemas/', '', $ref);
+      $paramKey = str_replace('#/components/schemas/', '', $ref);
       $spec = $this->getCloudApiSpec();
-      return (object) $spec['components']['schemas'][$param_key]['properties'];
+      return (object) $spec['components']['schemas'][$paramKey]['properties'];
     }
     else {
       return (object) [];
     }
 
-    return json_decode($response_body, FALSE, 512, JSON_THROW_ON_ERROR);
+    return json_decode($responseBody, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
   /**
@@ -331,70 +331,70 @@ abstract class TestBase extends TestCase {
   protected function getCloudApiSpec(): mixed {
     // We cache the yaml file because it's 20k+ lines and takes FOREVER
     // to parse when xDebug is enabled.
-    $acquia_cloud_spec_file = $this->apiSpecFixtureFilePath;
-    $acquia_cloud_spec_file_checksum = md5_file($acquia_cloud_spec_file);
+    $acquiaCloudSpecFile = $this->apiSpecFixtureFilePath;
+    $acquiaCloudSpecFileChecksum = md5_file($acquiaCloudSpecFile);
 
-    $cache_key = basename($acquia_cloud_spec_file);
-    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cache_key . '.cache', new FilesystemAdapter());
-    $is_command_cache_valid = $this->isApiSpecCacheValid($cache, $cache_key, $acquia_cloud_spec_file_checksum);
-    $api_spec_cache_item = $cache->getItem($cache_key);
-    if ($is_command_cache_valid && $api_spec_cache_item->isHit()) {
-      return $api_spec_cache_item->get();
+    $cacheKey = basename($acquiaCloudSpecFile);
+    $cache = new PhpArrayAdapter(__DIR__ . '/../../../var/cache/' . $cacheKey . '.cache', new FilesystemAdapter());
+    $isCommandCacheValid = $this->isApiSpecCacheValid($cache, $cacheKey, $acquiaCloudSpecFileChecksum);
+    $apiSpecCacheItem = $cache->getItem($cacheKey);
+    if ($isCommandCacheValid && $apiSpecCacheItem->isHit()) {
+      return $apiSpecCacheItem->get();
     }
-    $api_spec = Yaml::parseFile($acquia_cloud_spec_file);
-    $this->saveApiSpecCacheItems($cache, $acquia_cloud_spec_file_checksum, $api_spec_cache_item, $api_spec);
+    $apiSpec = Yaml::parseFile($acquiaCloudSpecFile);
+    $this->saveApiSpecCacheItems($cache, $acquiaCloudSpecFileChecksum, $apiSpecCacheItem, $apiSpec);
 
-    return $api_spec;
+    return $apiSpec;
   }
 
-  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cache_key, string $acquia_cloud_spec_file_checksum): bool {
-    $api_spec_checksum_item = $cache->getItem($cache_key . '.checksum');
+  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cacheKey, string $acquiaCloudSpecFileChecksum): bool {
+    $apiSpecChecksumItem = $cache->getItem($cacheKey . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
-    return !(!$api_spec_checksum_item->isHit() || ($api_spec_checksum_item->isHit()
-        && $api_spec_checksum_item->get() !== $acquia_cloud_spec_file_checksum));
+    return !(!$apiSpecChecksumItem->isHit() || ($apiSpecChecksumItem->isHit()
+        && $apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
   }
 
   /**
-   * @param $api_spec
+   * @param $apiSpec
    */
   private function saveApiSpecCacheItems(
     PhpArrayAdapter $cache,
-    string $acquia_cloud_spec_file_checksum,
-    CacheItem $api_spec_cache_item,
-    $api_spec
+    string $acquiaCloudSpecFileChecksum,
+    CacheItem $apiSpecCacheItem,
+    $apiSpec
   ): void {
-    $api_spec_checksum_item = $cache->getItem('api_spec.checksum');
-    $api_spec_checksum_item->set($acquia_cloud_spec_file_checksum);
-    $cache->save($api_spec_checksum_item);
-    $api_spec_cache_item->set($api_spec);
-    $cache->save($api_spec_cache_item);
+    $apiSpecChecksumItem = $cache->getItem('api_spec.checksum');
+    $apiSpecChecksumItem->set($acquiaCloudSpecFileChecksum);
+    $cache->save($apiSpecChecksumItem);
+    $apiSpecCacheItem->set($apiSpec);
+    $cache->save($apiSpecCacheItem);
   }
 
   /**
    * @param $contents
    */
   protected function createLocalSshKey($contents): string {
-    $private_key_filepath = $this->fs->tempnam($this->sshDir, 'acli');
-    $this->fs->touch($private_key_filepath);
-    $public_key_filepath = $private_key_filepath . '.pub';
-    $this->fs->dumpFile($public_key_filepath, $contents);
+    $privateKeyFilepath = $this->fs->tempnam($this->sshDir, 'acli');
+    $this->fs->touch($privateKeyFilepath);
+    $publicKeyFilepath = $privateKeyFilepath . '.pub';
+    $this->fs->dumpFile($publicKeyFilepath, $contents);
 
-    return $public_key_filepath;
+    return $publicKeyFilepath;
   }
 
   protected function createMockConfigFiles(): void {
     $this->createMockCloudConfigFile();
 
-    $default_values = [];
-    $acli_config = array_merge($default_values, $this->acliConfig);
-    $contents = json_encode($acli_config, JSON_THROW_ON_ERROR);
+    $defaultValues = [];
+    $acliConfig = array_merge($defaultValues, $this->acliConfig);
+    $contents = json_encode($acliConfig, JSON_THROW_ON_ERROR);
     $filepath = $this->acliConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockCloudConfigFile($default_values = []): void {
-    if (!$default_values) {
-      $default_values = [
+  protected function createMockCloudConfigFile($defaultValues = []): void {
+    if (!$defaultValues) {
+      $defaultValues = [
         'acli_key' => $this->key,
         'keys' => [
           (string) ($this->key) => [
@@ -406,14 +406,14 @@ abstract class TestBase extends TestCase {
         DataStoreContract::SEND_TELEMETRY => FALSE,
       ];
     }
-    $cloud_config = array_merge($default_values, $this->cloudConfig);
-    $contents = json_encode($cloud_config, JSON_THROW_ON_ERROR);
+    $cloudConfig = array_merge($defaultValues, $this->cloudConfig);
+    $contents = json_encode($cloudConfig, JSON_THROW_ON_ERROR);
     $filepath = $this->cloudConfigFilepath;
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockAcliConfigFile($cloud_app_uuid): void {
-    $this->datastoreAcli->set('cloud_app_uuid', $cloud_app_uuid);
+  protected function createMockAcliConfigFile($cloudAppUuid): void {
+    $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
   /**
@@ -422,13 +422,13 @@ abstract class TestBase extends TestCase {
    */
   public function mockApplicationsRequest(int $count = 2, bool $unique = TRUE): object {
     // Request for applications.
-    $applications_response = $this->getMockResponseFromSpec('/applications',
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $applications_response = $this->filterApplicationsResponse($applications_response, $count, $unique);
+    $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, $count, $unique);
     $this->clientProphecy->request('get', '/applications')
-      ->willReturn($applications_response->{'_embedded'}->items)
+      ->willReturn($applicationsResponse->{'_embedded'}->items)
       ->shouldBeCalled();
-    return $applications_response;
+    return $applicationsResponse;
   }
 
   public function mockUnauthorizedRequest(): void {
@@ -459,46 +459,46 @@ abstract class TestBase extends TestCase {
   }
 
   protected function mockApplicationRequest(): object {
-    $applications_response = $this->getMockResponseFromSpec('/applications',
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $application_response = $applications_response->{'_embedded'}->items[0];
+    $applicationResponse = $applicationsResponse->{'_embedded'}->items[0];
     $this->clientProphecy->request('get',
-      '/applications/' . $applications_response->{'_embedded'}->items[0]->uuid)
-      ->willReturn($application_response)
+      '/applications/' . $applicationsResponse->{'_embedded'}->items[0]->uuid)
+      ->willReturn($applicationResponse)
       ->shouldBeCalled();
 
-    return $application_response;
+    return $applicationResponse;
   }
 
-  protected function mockPermissionsRequest($application_response, $perms = TRUE): object {
-    $permissions_response = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
+  protected function mockPermissionsRequest($applicationResponse, $perms = TRUE): object {
+    $permissionsResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
     if (!$perms) {
-      $delete_perms = [
+      $deletePerms = [
         'add ssh key to git',
         'add ssh key to non-prod',
         'add ssh key to prod',
       ];
-      foreach ($permissions_response->_embedded->items as $index => $item) {
-        if (in_array($item->name, $delete_perms, TRUE)) {
-          unset($permissions_response->_embedded->items[$index]);
+      foreach ($permissionsResponse->_embedded->items as $index => $item) {
+        if (in_array($item->name, $deletePerms, TRUE)) {
+          unset($permissionsResponse->_embedded->items[$index]);
         }
       }
     }
     $this->clientProphecy->request('get',
-      '/applications/' . $application_response->uuid . '/permissions')
-      ->willReturn($permissions_response->_embedded->items)
+      '/applications/' . $applicationResponse->uuid . '/permissions')
+      ->willReturn($permissionsResponse->_embedded->items)
       ->shouldBeCalled();
 
-    return $permissions_response;
+    return $permissionsResponse;
   }
 
   public function mockEnvironmentsRequest(
-    object $applications_response
+    object $applicationsResponse
   ): object {
     $response = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
@@ -506,11 +506,11 @@ abstract class TestBase extends TestCase {
   }
 
   public function mockApplicationCodeRequest(
-    object $applications_response
+    object $applicationsResponse
   ): object {
     $response = $this->getApplicationCodeResponse();
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/code")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/code")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
@@ -537,9 +537,9 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request('get', '/account')->willReturn($account);
   }
 
-  protected function getMockEnvironmentResponse(string $method = 'get', string $http_code = '200'): object {
+  protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
-      $method, $http_code);
+      $method, $httpCode);
   }
 
   protected function getMockEnvironmentsResponse(): object {
@@ -558,18 +558,18 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  protected function mockGetIdeRequest(string $ide_uuid): object {
-    $ide_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/' . $ide_uuid)->willReturn($ide_response)->shouldBeCalled();
-    return $ide_response;
+  protected function mockGetIdeRequest(string $ideUuid): object {
+    $ideResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
+    $this->clientProphecy->request('get', '/ides/' . $ideUuid)->willReturn($ideResponse)->shouldBeCalled();
+    return $ideResponse;
   }
 
-  protected function mockIdeDeleteRequest(string $ide_uuid): object {
-    $ide_delete_response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
-    $this->clientProphecy->request('delete', '/ides/' . $ide_uuid)
-      ->willReturn($ide_delete_response->{'De-provisioning IDE'}->value)
+  protected function mockIdeDeleteRequest(string $ideUuid): object {
+    $ideDeleteResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'delete', '202');
+    $this->clientProphecy->request('delete', '/ides/' . $ideUuid)
+      ->willReturn($ideDeleteResponse->{'De-provisioning IDE'}->value)
       ->shouldBeCalled();
-    return $ide_delete_response;
+    return $ideDeleteResponse;
   }
 
   protected function mockLogStreamRequest(): object {
@@ -593,49 +593,49 @@ abstract class TestBase extends TestCase {
   }
 
   protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
     $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($mock_body->{'_embedded'}->items)
+      ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();
-    return $mock_body;
+    return $mockBody;
   }
 
-  protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $local_machine_helper, ?string $key_contents = NULL): void {
-    $key_contents = $key_contents ?: 'thekey!';
-    $public_key_path = 'id_rsa.pub';
+  protected function mockGenerateSshKey(ObjectProphecy|LocalMachineHelper $localMachineHelper, ?string $keyContents = NULL): void {
+    $keyContents = $keyContents ?: 'thekey!';
+    $publicKeyPath = 'id_rsa.pub';
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
-    $process->getOutput()->willReturn($key_contents);
-    $local_machine_helper->checkRequiredBinariesExist(["ssh-keygen"])->shouldBeCalled();
-    $local_machine_helper->execute(Argument::withEntry(0, 'ssh-keygen'), NULL, NULL, FALSE)
+    $process->getOutput()->willReturn($keyContents);
+    $localMachineHelper->checkRequiredBinariesExist(["ssh-keygen"])->shouldBeCalled();
+    $localMachineHelper->execute(Argument::withEntry(0, 'ssh-keygen'), NULL, NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $local_machine_helper->readFile($public_key_path)->willReturn($key_contents);
-    $local_machine_helper->readFile(Argument::containingString('id_rsa'))->willReturn($key_contents);
+    $localMachineHelper->readFile($publicKeyPath)->willReturn($keyContents);
+    $localMachineHelper->readFile(Argument::containingString('id_rsa'))->willReturn($keyContents);
   }
 
   /**
-   * @param $local_machine_helper
+   * @param $localMachineHelper
    */
-  protected function mockAddSshKeyToAgent($local_machine_helper, $file_system): void {
+  protected function mockAddSshKeyToAgent($localMachineHelper, $fileSystem): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
-    $local_machine_helper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
-    $file_system->tempnam(Argument::type('string'), 'acli')->willReturn('something');
-    $file_system->chmod('something', 493)->shouldBeCalled();
-    $file_system->remove('something')->shouldBeCalled();
-    $local_machine_helper->writeFile('something', Argument::type('string'))->shouldBeCalled();
+    $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
+    $fileSystem->tempnam(Argument::type('string'), 'acli')->willReturn('something');
+    $fileSystem->chmod('something', 493)->shouldBeCalled();
+    $fileSystem->remove('something')->shouldBeCalled();
+    $localMachineHelper->writeFile('something', Argument::type('string'))->shouldBeCalled();
   }
 
-  protected function mockSshAgentList(ObjectProphecy|LocalMachineHelper $local_machine_helper, bool $success = FALSE): void {
+  protected function mockSshAgentList(ObjectProphecy|LocalMachineHelper $localMachineHelper, bool $success = FALSE): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn($success);
     $process->getExitCode()->willReturn($success ? 0 : 1);
     $process->getOutput()->willReturn('thekey!');
-    $local_machine_helper->getLocalFilepath($this->passphraseFilepath)
+    $localMachineHelper->getLocalFilepath($this->passphraseFilepath)
       ->willReturn('/tmp/.passphrase');
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'ssh-add',
       '-L',
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
@@ -648,48 +648,54 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request(
       'post',
       '/account/ssh-keys',
-      ['json' => ['label' => $label, 'public_key' => $request['public_key']]]
+      [
+        'json' => [
+          'label' => $label,
+          'public_key' => $request['public_key'],
+        ],
+      ]
     )->willReturn($response)
       ->shouldBecalled();
   }
 
   protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mock_body->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
-    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mock_body->{'_embedded'}->items[0]->uuid)
-      ->willReturn($mock_body->{'_embedded'}->items[0])
+    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mockBody->{'_embedded'}->items[0]->uuid)
+      ->willReturn($mockBody->{'_embedded'}->items[0])
       ->shouldBeCalled();
   }
 
-  protected function mockDeleteSshKeyRequest(string $key_uuid): void {
+  protected function mockDeleteSshKeyRequest(string $keyUuid): void {
     // Request ssh key deletion.
-    $ssh_key_delete_response = $this->prophet->prophesize(ResponseInterface::class);
-    $ssh_key_delete_response->getStatusCode()->willReturn(202);
+    $sshKeyDeleteResponse = $this->prophet->prophesize(ResponseInterface::class);
+    $sshKeyDeleteResponse->getStatusCode()->willReturn(202);
     $this->clientProphecy->makeRequest('delete',
-      '/account/ssh-keys/' . $key_uuid)
-      ->willReturn($ssh_key_delete_response->reveal())
+      '/account/ssh-keys/' . $keyUuid)
+      ->willReturn($sshKeyDeleteResponse->reveal())
       ->shouldBeCalled();
   }
 
   /**
-   * @param $mock_request_args
+   * @param $mockRequestArgs
    */
   protected function mockListSshKeyRequestWithUploadedKey(
-    $mock_request_args
+    $mockRequestArgs
   ): void {
-    $mock_body = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
+    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
-    $mock_body->_embedded->items[3] = (object) $mock_request_args;
+    $newItem = array_merge((array) $mockBody->_embedded->items[2], $mockRequestArgs);
+    $mockBody->_embedded->items[3] = (object) $newItem;
     $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($mock_body->{'_embedded'}->items)
+      ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();
   }
 
-  protected function mockStartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
+  protected function mockStartPhp(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'supervisorctl',
       'start',
       'php-fpm',
@@ -697,11 +703,11 @@ abstract class TestBase extends TestCase {
     return $process;
   }
 
-  protected function mockStopPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
+  protected function mockStopPhp(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'supervisorctl',
       'stop',
       'php-fpm',
@@ -709,11 +715,11 @@ abstract class TestBase extends TestCase {
     return $process;
   }
 
-  protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy {
+  protected function mockRestartPhp(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'supervisorctl',
       'restart',
       'php-fpm',
@@ -724,8 +730,8 @@ abstract class TestBase extends TestCase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy|\Symfony\Component\Filesystem\Filesystem
    */
-  protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $local_machine_helper): ObjectProphecy|Filesystem {
-    $local_machine_helper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
+  protected function mockGetFilesystem(ObjectProphecy|LocalMachineHelper $localMachineHelper): ObjectProphecy|Filesystem {
+    $localMachineHelper->getFilesystem()->willReturn($this->fs)->shouldBeCalled();
 
     return $this->fs;
   }
@@ -751,26 +757,26 @@ abstract class TestBase extends TestCase {
     $stream->getContents()->willReturn(json_encode($releases));
     $response = $this->prophet->prophesize(Response::class);
     $response->getBody()->willReturn($stream->reveal());
-    $guzzle_client = $this->prophet->prophesize(\GuzzleHttp\Client::class);
-    $guzzle_client->request('GET', Argument::containingString('https://api.github.com/repos'), Argument::type('array'))
+    $guzzleClient = $this->prophet->prophesize(\GuzzleHttp\Client::class);
+    $guzzleClient->request('GET', Argument::containingString('https://api.github.com/repos'), Argument::type('array'))
       ->willReturn($response->reveal());
 
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $phar_contents = file_get_contents(Path::join($this->fixtureDir, 'test.phar'));
-    $stream->getContents()->willReturn($phar_contents);
+    $pharContents = file_get_contents(Path::join($this->fixtureDir, 'test.phar'));
+    $stream->getContents()->willReturn($pharContents);
     $response = $this->prophet->prophesize(Response::class);
     $response->getBody()->willReturn($stream->reveal());
-    $guzzle_client->request('GET', 'https://github.com/acquia/cli/releases/download/v1.0.0-beta3/acli.phar',
+    $guzzleClient->request('GET', 'https://github.com/acquia/cli/releases/download/v1.0.0-beta3/acli.phar',
       Argument::type('array'))->willReturn($response->reveal());
 
-    return $guzzle_client;
+    return $guzzleClient;
   }
 
-  protected function setClientProphecies($client_service_class = ClientService::class): void {
+  protected function setClientProphecies($clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));
-    $this->clientServiceProphecy = $this->prophet->prophesize($client_service_class);
+    $this->clientServiceProphecy = $this->prophet->prophesize($clientServiceClass);
     $this->clientServiceProphecy->getClient()
       ->willReturn($this->clientProphecy->reveal());
     $this->clientServiceProphecy->isMachineAuthenticated()

@@ -20,22 +20,22 @@ class AliasListCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $applications_resource = new Applications($acquia_cloud_client);
-    $cloud_application_uuid = $this->determineCloudApplication();
-    $customer_application = $applications_resource->get($cloud_application_uuid);
-    $environments_resource = new Environments($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $applicationsResource = new Applications($acquiaCloudClient);
+    $cloudApplicationUuid = $this->determineCloudApplication();
+    $customerApplication = $applicationsResource->get($cloudApplicationUuid);
+    $environmentsResource = new Environments($acquiaCloudClient);
 
     $table = new Table($this->output);
     $table->setHeaders(['Application', 'Environment Alias', 'Environment UUID']);
 
-    $site_id = $customer_application->hosting->id;
-    $parts = explode(':', $site_id);
-    $site_prefix = $parts[1];
-    $environments = $environments_resource->getAll($customer_application->uuid);
+    $siteId = $customerApplication->hosting->id;
+    $parts = explode(':', $siteId);
+    $sitePrefix = $parts[1];
+    $environments = $environmentsResource->getAll($customerApplication->uuid);
     foreach ($environments as $environment) {
-      $alias = $site_prefix . '.' . $environment->name;
-      $table->addRow([$customer_application->name, $alias, $environment->uuid]);
+      $alias = $sitePrefix . '.' . $environment->name;
+      $table->addRow([$customerApplication->name, $alias, $environment->uuid]);
     }
 
     $table->render();

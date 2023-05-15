@@ -13,13 +13,13 @@ class LandoInfoTest extends CommandTestBase {
   }
 
   public function testLandoInfoTest(): void {
-    $lando_info = LandoInfoHelper::getLandoInfo();
-    $lando_info->database->creds = [
+    $landoInfo = LandoInfoHelper::getLandoInfo();
+    $landoInfo->database->creds = [
       'database' => 'drupal9',
       'password' => 'drupal9',
       'user' => 'drupal9',
     ];
-    LandoInfoHelper::setLandoInfo($lando_info);
+    LandoInfoHelper::setLandoInfo($landoInfo);
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbPassword());
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbName());
     $this->assertEquals('drupal9', $this->command->getDefaultLocalDbUser());

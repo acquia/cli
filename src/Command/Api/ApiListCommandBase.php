@@ -38,9 +38,9 @@ class ApiListCommandBase extends CommandBase {
       'command' => 'list',
       'namespace' => 'api',
     ];
-    $list_input = new ArrayInput($arguments);
+    $listInput = new ArrayInput($arguments);
 
-    return $command->run($list_input, $output);
+    return $command->run($listInput, $output);
   }
 
 }
