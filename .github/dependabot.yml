@@ -8,3 +8,6 @@ updates:
       dependencies:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "acquia/coding-standards"
+        update-types: ["version-update:semver-major"]
