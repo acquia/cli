@@ -648,7 +648,12 @@ abstract class TestBase extends TestCase {
     $this->clientProphecy->request(
       'post',
       '/account/ssh-keys',
-      ['json' => ['label' => $label, 'public_key' => $request['public_key']]]
+      [
+        'json' => [
+          'label' => $label,
+          'public_key' => $request['public_key'],
+        ],
+      ]
     )->willReturn($response)
       ->shouldBecalled();
   }
@@ -679,7 +684,8 @@ abstract class TestBase extends TestCase {
   ): void {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
-    $mockBody->_embedded->items[3] = (object) $mockRequestArgs;
+    $newItem = array_merge((array) $mockBody->_embedded->items[2], $mockRequestArgs);
+    $mockBody->_embedded->items[3] = (object) $newItem;
     $this->clientProphecy->request('get', '/account/ssh-keys')
       ->willReturn($mockBody->{'_embedded'}->items)
       ->shouldBeCalled();
