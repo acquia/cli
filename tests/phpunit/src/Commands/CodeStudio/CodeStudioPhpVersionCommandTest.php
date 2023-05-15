@@ -18,7 +18,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   private string $gitLabHost = 'gitlabhost';
   private string $gitLabToken = 'gitlabtoken';
   private int $gitLabProjectId = 33;
-  public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+  public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   protected function createCommand(): Command {
     return $this->injectCommand(CodeStudioPhpVersionCommand::class);
@@ -41,11 +41,11 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestPhpVersionFailure
    */
-  public function testPhpVersionFailure($php_version): void {
+  public function testPhpVersionFailure($phpVersion): void {
     $this->expectException(ValidatorException::class);
     $this->executeCommand([
-      'applicationUuid' => self::$application_uuid,
-      'php-version' => $php_version,
+      'applicationUuid' => self::$applicationUuid,
+      'php-version' => $phpVersion,
     ]);
   }
 
@@ -54,21 +54,21 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    */
   public function testCiCdNotEnabled(): void {
     $this->mockApplicationRequest();
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
     $projects = $this->mockGetGitLabProjects(
-      self::$application_uuid,
+      self::$applicationUuid,
       $this->gitLabProjectId,
       [$this->getMockedGitLabProject($this->gitLabProjectId)],
     );
 
-    $gitlab_client->projects()->willReturn($projects);
+    $gitlabClient->projects()->willReturn($projects);
 
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->setGitLabClient($gitlabClient->reveal());
     $this->executeCommand([
       '--gitlab-host-name' => $this->gitLabHost,
       '--gitlab-token' => $this->gitLabToken,
-      'applicationUuid' => self::$application_uuid,
+      'applicationUuid' => self::$applicationUuid,
       'php-version' => '8.1',
     ]);
 
@@ -81,26 +81,26 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    */
   public function testPhpVersionAddFail(): void {
     $this->mockApplicationRequest();
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
-    $mocked_project = $this->getMockedGitLabProject($this->gitLabProjectId);
-    $mocked_project['jobs_enabled'] = TRUE;
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
+    $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+    $mockedProject['jobs_enabled'] = TRUE;
     $projects = $this->mockGetGitLabProjects(
-      self::$application_uuid,
+      self::$applicationUuid,
       $this->gitLabProjectId,
-      [$mocked_project],
+      [$mockedProject],
     );
 
     $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
     $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
       ->willThrow(RuntimeException::class);
 
-    $gitlab_client->projects()->willReturn($projects);
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $gitlabClient->projects()->willReturn($projects);
+    $this->command->setGitLabClient($gitlabClient->reveal());
     $this->executeCommand([
       '--gitlab-host-name' => $this->gitLabHost,
       '--gitlab-token' => $this->gitLabToken,
-      'applicationUuid' => self::$application_uuid,
+      'applicationUuid' => self::$applicationUuid,
       'php-version' => '8.1',
     ]);
 
@@ -113,26 +113,26 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    */
   public function testPhpVersionAdd(): void {
     $this->mockApplicationRequest();
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
-    $mocked_project = $this->getMockedGitLabProject($this->gitLabProjectId);
-    $mocked_project['jobs_enabled'] = TRUE;
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
+    $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+    $mockedProject['jobs_enabled'] = TRUE;
     $projects = $this->mockGetGitLabProjects(
-      self::$application_uuid,
+      self::$applicationUuid,
       $this->gitLabProjectId,
-      [$mocked_project],
+      [$mockedProject],
     );
 
     $projects->variables($this->gitLabProjectId)->willReturn($this->getMockGitLabVariables());
     $projects->addVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
-    $gitlab_client->projects()->willReturn($projects);
+    $gitlabClient->projects()->willReturn($projects);
 
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->setGitLabClient($gitlabClient->reveal());
     $this->executeCommand([
       '--gitlab-host-name' => $this->gitLabHost,
       '--gitlab-token' => $this->gitLabToken,
-      'applicationUuid' => self::$application_uuid,
+      'applicationUuid' => self::$applicationUuid,
       'php-version' => '8.1',
     ]);
 
@@ -145,14 +145,14 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    */
   public function testPhpVersionUpdateFail(): void {
     $this->mockApplicationRequest();
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
-    $mocked_project = $this->getMockedGitLabProject($this->gitLabProjectId);
-    $mocked_project['jobs_enabled'] = TRUE;
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
+    $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+    $mockedProject['jobs_enabled'] = TRUE;
     $projects = $this->mockGetGitLabProjects(
-      self::$application_uuid,
+      self::$applicationUuid,
       $this->gitLabProjectId,
-      [$mocked_project],
+      [$mockedProject],
     );
 
     $variables = $this->getMockGitLabVariables();
@@ -168,12 +168,12 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
     $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'))
       ->willThrow(RuntimeException::class);
 
-    $gitlab_client->projects()->willReturn($projects);
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $gitlabClient->projects()->willReturn($projects);
+    $this->command->setGitLabClient($gitlabClient->reveal());
     $this->executeCommand([
       '--gitlab-host-name' => $this->gitLabHost,
       '--gitlab-token' => $this->gitLabToken,
-      'applicationUuid' => self::$application_uuid,
+      'applicationUuid' => self::$applicationUuid,
       'php-version' => '8.1',
     ]);
 
@@ -186,14 +186,14 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    */
   public function testPhpVersionUpdate(): void {
     $this->mockApplicationRequest();
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
-    $mocked_project = $this->getMockedGitLabProject($this->gitLabProjectId);
-    $mocked_project['jobs_enabled'] = TRUE;
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
+    $mockedProject = $this->getMockedGitLabProject($this->gitLabProjectId);
+    $mockedProject['jobs_enabled'] = TRUE;
     $projects = $this->mockGetGitLabProjects(
-      self::$application_uuid,
+      self::$applicationUuid,
       $this->gitLabProjectId,
-      [$mocked_project],
+      [$mockedProject],
     );
 
     $variables = $this->getMockGitLabVariables();
@@ -208,13 +208,13 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
     $projects->variables($this->gitLabProjectId)->willReturn($variables);
     $projects->updateVariable($this->gitLabProjectId, Argument::type('string'), Argument::type('string'));
 
-    $gitlab_client->projects()->willReturn($projects);
+    $gitlabClient->projects()->willReturn($projects);
 
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->setGitLabClient($gitlabClient->reveal());
     $this->executeCommand([
       '--gitlab-host-name' => $this->gitLabHost,
       '--gitlab-token' => $this->gitLabToken,
-      'applicationUuid' => self::$application_uuid,
+      'applicationUuid' => self::$applicationUuid,
       'php-version' => '8.1',
     ]);
 

@@ -41,21 +41,21 @@ class ComposerScriptsListener {
     }
     // Only successful commands should be executed.
     if (is_a($command, CommandBase::class)) {
-      $composer_json_filepath = Path::join($command->getProjectDir(), 'composer.json');
-      if (file_exists($composer_json_filepath)) {
-        $composer_json = json_decode($command->localMachineHelper->readFile($composer_json_filepath), TRUE, 512, JSON_THROW_ON_ERROR);
+      $composerJsonFilepath = Path::join($command->getProjectDir(), 'composer.json');
+      if (file_exists($composerJsonFilepath)) {
+        $composerJson = json_decode($command->localMachineHelper->readFile($composerJsonFilepath), TRUE, 512, JSON_THROW_ON_ERROR);
         // Protect against invalid JSON.
-        if ($composer_json) {
-          $command_name = $command->getName();
+        if ($composerJson) {
+          $commandName = $command->getName();
           // Replace colons with hyphens. E.g., pull:db becomes pull-db.
-          $script_name = $prefix . '-acli-' . str_replace(':', '-', $command_name);
-          if (array_key_exists('scripts', $composer_json) && array_key_exists($script_name, $composer_json['scripts'])) {
-            $event->getOutput()->writeln("Executing composer script `$script_name` defined in `$composer_json_filepath`", OutputInterface::VERBOSITY_VERBOSE);
-            $event->getOutput()->writeln($script_name);
-            $command->localMachineHelper->execute(['composer', 'run-script', $script_name]);
+          $scriptName = $prefix . '-acli-' . str_replace(':', '-', $commandName);
+          if (array_key_exists('scripts', $composerJson) && array_key_exists($scriptName, $composerJson['scripts'])) {
+            $event->getOutput()->writeln("Executing composer script `$scriptName` defined in `$composerJsonFilepath`", OutputInterface::VERBOSITY_VERBOSE);
+            $event->getOutput()->writeln($scriptName);
+            $command->localMachineHelper->execute(['composer', 'run-script', $scriptName]);
           }
           else {
-            $event->getOutput()->writeln("Notice: Composer script `$script_name` does not exist in `$composer_json_filepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
+            $event->getOutput()->writeln("Notice: Composer script `$scriptName` does not exist in `$composerJsonFilepath`, skipping. This is not an error.", OutputInterface::VERBOSITY_VERBOSE);
           }
         }
       }

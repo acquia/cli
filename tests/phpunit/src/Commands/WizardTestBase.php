@@ -15,7 +15,7 @@ use Symfony\Component\Filesystem\Path;
 
 abstract class WizardTestBase extends CommandTestBase {
 
-  public static string $application_uuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
+  public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
   protected string $sshKeyFileName;
 
@@ -40,7 +40,7 @@ abstract class WizardTestBase extends CommandTestBase {
 
   public static function getEnvVars(): array {
     return [
-      'ACQUIA_APPLICATION_UUID' => self::$application_uuid,
+      'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,
     ];
   }
 
@@ -48,28 +48,28 @@ abstract class WizardTestBase extends CommandTestBase {
    * Tests the 'gitlab:wizard:ssh-key:create' command.
    */
   protected function runTestCreate(): void {
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
     $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
     // List uploaded keys.
     $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $localMachineHelper = $this->mockLocalMachineHelper();
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-    $this->command->sshHelper = $ssh_helper->reveal();
+    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
+    $this->command->sshHelper = $sshHelper->reveal();
 
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper, $request['public_key']);
-    $local_machine_helper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
-    $file_system->remove(Argument::size(2))->shouldBeCalled();
-    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $this->mockSshAgentList($local_machine_helper);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    /** @var Filesystem|ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($localMachineHelper, $request['public_key']);
+    $localMachineHelper->getLocalFilepath($this->passphraseFilepath)->willReturn($this->passphraseFilepath);
+    $fileSystem->remove(Argument::size(2))->shouldBeCalled();
+    $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+    $this->mockSshAgentList($localMachineHelper);
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
@@ -88,54 +88,54 @@ abstract class WizardTestBase extends CommandTestBase {
   }
 
   protected function runTestSshKeyAlreadyUploaded(): void {
-    $mock_request_args = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $ssh_keys_response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
+    $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $sshKeysResponse = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     // Make the uploaded key match the created one.
-    $ssh_keys_response->_embedded->items[0]->public_key = $mock_request_args['public_key'];
+    $sshKeysResponse->_embedded->items[0]->public_key = $mockRequestArgs['public_key'];
     $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($ssh_keys_response->{'_embedded'}->items)
+      ->willReturn($sshKeysResponse->{'_embedded'}->items)
       ->shouldBeCalled();
 
-    $this->clientProphecy->request('get', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
-      ->willReturn($ssh_keys_response->{'_embedded'}->items[0])
+    $this->clientProphecy->request('get', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
+      ->willReturn($sshKeysResponse->{'_embedded'}->items[0])
       ->shouldBeCalled();
 
-    $delete_response = $this->prophet->prophesize(ResponseInterface::class);
-    $delete_response->getStatusCode()->willReturn(202);
-    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $ssh_keys_response->_embedded->items[0]->uuid)
-      ->willReturn($delete_response->reveal())
+    $deleteResponse = $this->prophet->prophesize(ResponseInterface::class);
+    $deleteResponse->getStatusCode()->willReturn(202);
+    $this->clientProphecy->makeRequest('delete', '/account/ssh-keys/' . $sshKeysResponse->_embedded->items[0]->uuid)
+      ->willReturn($deleteResponse->reveal())
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")
-      ->willReturn($environments_response->_embedded->items)
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")
+      ->willReturn($environmentsResponse->_embedded->items)
       ->shouldBeCalled();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $localMachineHelper = $this->mockLocalMachineHelper();
 
     // List uploaded keys.
     $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
 
     // Poll Cloud.
-    $ssh_helper = $this->mockPollCloudViaSsh($environments_response);
-    $this->command->sshHelper = $ssh_helper->reveal();
+    $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);
+    $this->command->sshHelper = $sshHelper->reveal();
 
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockGenerateSshKey($local_machine_helper, $mock_request_args['public_key']);
-    $file_system->remove(Argument::size(2))->shouldBeCalled();
-    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $local_machine_helper->getFilesystem()
-      ->willReturn($file_system->reveal())
+    /** @var Filesystem|ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $this->mockGenerateSshKey($localMachineHelper, $mockRequestArgs['public_key']);
+    $fileSystem->remove(Argument::size(2))->shouldBeCalled();
+    $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+    $localMachineHelper->getFilesystem()
+      ->willReturn($fileSystem->reveal())
       ->shouldBeCalled();
-    $this->mockSshAgentList($local_machine_helper);
+    $this->mockSshAgentList($localMachineHelper);
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyDeleteCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
 
-    $this->createLocalSshKey($mock_request_args['public_key']);
+    $this->createLocalSshKey($mockRequestArgs['public_key']);
     $this->executeCommand();
   }
 

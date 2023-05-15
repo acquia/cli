@@ -142,23 +142,23 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
 
   /**
    * @dataProvider providerTestCommand
-   * @param $mocked_gitlab_projects
+   * @param $mockedGitlabProjects
    * @param $args
    * @param $inputs
    */
-  public function testCommand($mocked_gitlab_projects, $inputs, $args): void {
-    $environments_response = $this->getMockEnvironmentsResponse();
-    $selected_environment = $environments_response->_embedded->items[0];
-    $this->clientProphecy->request('get', "/applications/{$this::$application_uuid}/environments")->willReturn($environments_response->_embedded->items)->shouldBeCalled();
+  public function testCommand($mockedGitlabProjects, $inputs, $args): void {
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
     $this->mockAccountRequest();
-    $this->mockGitLabPermissionsRequest($this::$application_uuid);
+    $this->mockGitLabPermissionsRequest($this::$applicationUuid);
 
-    $gitlab_client = $this->prophet->prophesize(Client::class);
-    $this->mockGitLabUsersMe($gitlab_client);
-    $this->mockGitLabGroups($gitlab_client);
-    $this->mockGitLabNamespaces($gitlab_client);
+    $gitlabClient = $this->prophet->prophesize(Client::class);
+    $this->mockGitLabUsersMe($gitlabClient);
+    $this->mockGitLabGroups($gitlabClient);
+    $this->mockGitLabNamespaces($gitlabClient);
 
-    $projects = $this->mockGetGitLabProjects($this::$application_uuid, $this->gitLabProjectId, $mocked_gitlab_projects);
+    $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
     $projects->create(Argument::type('string'), Argument::type('array'))->willReturn($this->getMockedGitLabProject($this->gitLabProjectId));
     $this->mockGitLabProjectsTokens($projects);
     $projects->update($this->gitLabProjectId, Argument::type('array'));
@@ -168,26 +168,26 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $pipeline = ['id' => 1];
     $schedules->create($this->gitLabProjectId, Argument::type('array'))->willReturn($pipeline);
     $schedules->addVariable($this->gitLabProjectId, $pipeline['id'], Argument::type('array'));
-    $gitlab_client->schedules()->willReturn($schedules->reveal());
-    $gitlab_client->projects()->willReturn($projects);
+    $gitlabClient->schedules()->willReturn($schedules->reveal());
+    $gitlabClient->projects()->willReturn($projects);
 
-    $this->command->setGitLabClient($gitlab_client->reveal());
+    $this->command->setGitLabClient($gitlabClient->reveal());
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->checkRequiredBinariesExist(['git']);
-    $this->mockExecuteGlabExists($local_machine_helper);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->checkRequiredBinariesExist(['git']);
+    $this->mockExecuteGlabExists($localMachineHelper);
     $process = $this->mockProcess();
-    $local_machine_helper->execute(Argument::containing('remote'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
-    $local_machine_helper->execute(Argument::containing('push'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
+    $localMachineHelper->execute(Argument::containing('remote'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
+    $localMachineHelper->execute(Argument::containing('push'), Argument::type('callable'), '/home/ide/project', FALSE)->willReturn($process->reveal());
 
-    $this->mockGetCurrentBranchName($local_machine_helper);
-    $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
-    $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost);
+    $this->mockGetCurrentBranchName($localMachineHelper);
+    $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
+    $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
 
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    /** @var Filesystem|ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
@@ -197,11 +197,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   public function testInvalidGitLabCredentials(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockExecuteGlabExists($local_machine_helper);
-    $gitlab_client = $this->mockGitLabAuthenticate($local_machine_helper, $this->gitLabHost, $this->gitLabToken);
-    $this->command->setGitLabClient($gitlab_client->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteGlabExists($localMachineHelper);
+    $gitlabClient = $this->mockGitLabAuthenticate($localMachineHelper, $this->gitLabHost, $this->gitLabToken);
+    $this->command->setGitLabClient($gitlabClient->reveal());
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Unable to authenticate with Code Studio');
     $this->executeCommand([
@@ -211,11 +211,11 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   public function testMissingGitLabCredentials(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockExecuteGlabExists($local_machine_helper);
-    $this->mockGitlabGetHost($local_machine_helper, $this->gitLabHost);
-    $this->mockGitlabGetToken($local_machine_helper, $this->gitLabToken, $this->gitLabHost, FALSE);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteGlabExists($localMachineHelper);
+    $this->mockGitlabGetHost($localMachineHelper, $this->gitLabHost);
+    $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost, FALSE);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not determine GitLab token');
     $this->executeCommand([
@@ -249,12 +249,12 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @param $local_machine_helper
+   * @param $localMachineHelper
    */
-  protected function mockGetCurrentBranchName($local_machine_helper): void {
+  protected function mockGetCurrentBranchName($localMachineHelper): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('main');
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'git',
       'rev-parse',
       '--abbrev-ref',
@@ -262,7 +262,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  protected function mockGitLabGroups(ObjectProphecy $gitlab_client): void {
+  protected function mockGitLabGroups(ObjectProphecy $gitlabClient): void {
     $groups = $this->prophet->prophesize(Groups::class);
     $groups->all(Argument::type('array'))->willReturn([
       0 => [
@@ -320,10 +320,10 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
           'web_url' => 'https://code.cloudservices.acquia.io/groups/nestle',
         ],
     ]);
-    $gitlab_client->groups()->willReturn($groups->reveal());
+    $gitlabClient->groups()->willReturn($groups->reveal());
   }
 
-  protected function mockGitLabNamespaces(ObjectProphecy $gitlab_client): void {
+  protected function mockGitLabNamespaces(ObjectProphecy $gitlabClient): void {
     $namespaces = $this->prophet->prophesize(ProjectNamespaces::class);
     $namespaces->show(Argument::type('string'))->willReturn([
       'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
@@ -341,15 +341,15 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
       'trial_ends_on' => NULL,
       'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick',
     ]);
-    $gitlab_client->namespaces()->willReturn($namespaces->reveal());
+    $gitlabClient->namespaces()->willReturn($namespaces->reveal());
   }
 
   /**
-   * @param $gitlab_project_id
+   * @param $gitlabProjectId
    */
-  protected function mockGitLabVariables($gitlab_project_id, ObjectProphecy $projects): void {
-    $projects->variables($gitlab_project_id)->willReturn($this->getMockGitLabVariables());
-    $projects->addVariable($gitlab_project_id, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
+  protected function mockGitLabVariables($gitlabProjectId, ObjectProphecy $projects): void {
+    $projects->variables($gitlabProjectId)->willReturn($this->getMockGitLabVariables());
+    $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
   }
 
 }

@@ -10,8 +10,8 @@ use Acquia\Cli\CloudApi\ClientService;
  */
 class AcsfClientService extends ClientService {
 
-  public function __construct(AcsfConnectorFactory $connector_factory, Application $application, AcsfCredentials $cloudCredentials) {
-    parent::__construct($connector_factory, $application, $cloudCredentials);
+  public function __construct(AcsfConnectorFactory $connectorFactory, Application $application, AcsfCredentials $cloudCredentials) {
+    parent::__construct($connectorFactory, $application, $cloudCredentials);
   }
 
   public function getClient(): AcsfClient {

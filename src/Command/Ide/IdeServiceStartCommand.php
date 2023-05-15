@@ -35,7 +35,7 @@ class IdeServiceStartCommand extends IdeCommandBase {
     $service = $input->getArgument('service');
     $this->validateService($service);
 
-    $service_name_map = [
+    $serviceNameMap = [
       'apache' => 'apache2',
       'apache2' => 'apache2',
       'mysql' => 'mysqld',
@@ -44,8 +44,8 @@ class IdeServiceStartCommand extends IdeCommandBase {
       'php-fpm' => 'php-fpm',
     ];
     $output->writeln("Starting <options=bold>$service</>...");
-    $service_name = $service_name_map[$service];
-    $this->startService($service_name);
+    $serviceName = $serviceNameMap[$service];
+    $this->startService($serviceName);
     $output->writeln("<info>Started <options=bold>$service</></info>");
 
     return 0;

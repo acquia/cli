@@ -61,8 +61,8 @@ class Kernel extends BaseKernel {
     return new DelegatingLoader($resolver);
   }
 
-  protected function build(ContainerBuilder $container_builder): void {
-    $container_builder->addCompilerPass($this->createCollectingCompilerPass());
+  protected function build(ContainerBuilder $containerBuilder): void {
+    $containerBuilder->addCompilerPass($this->createCollectingCompilerPass());
   }
 
   /**
@@ -71,15 +71,15 @@ class Kernel extends BaseKernel {
   private function createCollectingCompilerPass(): CompilerPassInterface {
     return new class implements CompilerPassInterface {
 
-      public function process(ContainerBuilder $container_builder) {
-        $app_definition = $container_builder->findDefinition(Application::class);
-        $dispatcher_definition = $container_builder->findDefinition(EventDispatcher::class);
+      public function process(ContainerBuilder $containerBuilder) {
+        $appDefinition = $containerBuilder->findDefinition(Application::class);
+        $dispatcherDefinition = $containerBuilder->findDefinition(EventDispatcher::class);
 
-        foreach ($container_builder->getDefinitions() as $definition) {
+        foreach ($containerBuilder->getDefinitions() as $definition) {
           // Handle event listeners.
           if ($definition->hasTag('kernel.event_listener')) {
             foreach ($definition->getTag('kernel.event_listener') as $tag) {
-              $dispatcher_definition->addMethodCall('addListener', [
+              $dispatcherDefinition->addMethodCall('addListener', [
                 $tag['event'],
                 [
                   new ServiceClosureArgument(new Reference($definition->getClass())),
@@ -99,13 +99,13 @@ class Kernel extends BaseKernel {
             continue;
           }
 
-          $app_definition->addMethodCall('add', [
+          $appDefinition->addMethodCall('add', [
             new Reference($definition->getClass()),
           ]);
         }
 
-        $app_definition->addMethodCall('setDispatcher', [
-          $dispatcher_definition,
+        $appDefinition->addMethodCall('setDispatcher', [
+          $dispatcherDefinition,
         ]);
       }
 

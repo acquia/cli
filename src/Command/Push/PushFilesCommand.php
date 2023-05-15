@@ -25,43 +25,43 @@ class PushFilesCommand extends PullCommandBase {
    */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
-    $destination_environment = $this->determineEnvironment($input, $output);
-    $chosen_site = $input->getArgument('site');
-    if (!$chosen_site) {
-      if ($this->isAcsfEnv($destination_environment)) {
-        $chosen_site = $this->promptChooseAcsfSite($destination_environment);
+    $destinationEnvironment = $this->determineEnvironment($input, $output);
+    $chosenSite = $input->getArgument('site');
+    if (!$chosenSite) {
+      if ($this->isAcsfEnv($destinationEnvironment)) {
+        $chosenSite = $this->promptChooseAcsfSite($destinationEnvironment);
       }
       else {
-        $chosen_site = $this->promptChooseCloudSite($destination_environment);
+        $chosenSite = $this->promptChooseCloudSite($destinationEnvironment);
       }
     }
-    $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destination_environment->name}</> with a copy of the files from the current machine?");
+    $answer = $this->io->confirm("Overwrite the public files directory on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the files from the current machine?");
     if (!$answer) {
       return 0;
     }
 
     $this->checklist = new Checklist($output);
     $this->checklist->addItem('Pushing public files directory to remote machine');
-    $this->rsyncFilesToCloud($destination_environment, $this->getOutputCallback($output, $this->checklist), $chosen_site);
+    $this->rsyncFilesToCloud($destinationEnvironment, $this->getOutputCallback($output, $this->checklist), $chosenSite);
     $this->checklist->completePreviousItem();
 
     return 0;
   }
 
   /**
-   * @param $chosen_environment
-   * @param callable|null $output_callback
+   * @param $chosenEnvironment
+   * @param callable|null $outputCallback
    * @param string|null $site
    */
-  private function rsyncFilesToCloud($chosen_environment, callable $output_callback = NULL, string $site = NULL): void {
+  private function rsyncFilesToCloud($chosenEnvironment, callable $outputCallback = NULL, string $site = NULL): void {
     $source = $this->dir . '/docroot/sites/default/files/';
-    $sitegroup = self::getSiteGroupFromSshUrl($chosen_environment->sshUrl);
+    $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
 
-    if ($this->isAcsfEnv($chosen_environment)) {
-      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/g/files/' . $site . '/files';
+    if ($this->isAcsfEnv($chosenEnvironment)) {
+      $destDir = '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      $dest_dir = '/mnt/files/' . $sitegroup . '.' . $chosen_environment->name . '/sites/' . $site . '/files';
+      $destDir = '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/' . $site . '/files';
     }
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
@@ -75,9 +75,9 @@ class PushFilesCommand extends PullCommandBase {
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
       $source,
-      $chosen_environment->sshUrl . ':' . $dest_dir,
+      $chosenEnvironment->sshUrl . ':' . $destDir,
     ];
-    $process = $this->localMachineHelper->execute($command, $output_callback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
+    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to sync files to Cloud. {message}', ['message' => $process->getErrorOutput()]);
     }

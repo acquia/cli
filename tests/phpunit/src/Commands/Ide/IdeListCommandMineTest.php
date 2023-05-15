@@ -19,15 +19,15 @@ class IdeListCommandMineTest extends CommandTestBase {
    * Tests the 'ide:list-mine' commands.
    */
   public function testIdeListMineCommand(): void {
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $ides_response = $this->mockAccountIdeListRequest();
-    foreach ($ides_response->{'_embedded'}->items as $key => $ide) {
-      $application_response = $applications_response->{'_embedded'}->items[$key];
-      $app_url_parts = explode('/', $ide->_links->application->href);
-      $app_uuid = end($app_url_parts);
-      $application_response->uuid = $app_uuid;
-      $this->clientProphecy->request('get', '/applications/' . $app_uuid)
-        ->willReturn($application_response)
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+    $idesResponse = $this->mockAccountIdeListRequest();
+    foreach ($idesResponse->{'_embedded'}->items as $key => $ide) {
+      $applicationResponse = $applicationsResponse->{'_embedded'}->items[$key];
+      $appUrlParts = explode('/', $ide->_links->application->href);
+      $appUuid = end($appUrlParts);
+      $applicationResponse->uuid = $appUuid;
+      $this->clientProphecy->request('get', '/applications/' . $appUuid)
+        ->willReturn($applicationResponse)
         ->shouldBeCalled();
     }
 

@@ -18,28 +18,28 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   protected function mockExecuteDrushExists(
-    ObjectProphecy $local_machine_helper
+    ObjectProphecy $localMachineHelper
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->commandExists('drush')
       ->willReturn(TRUE)
       ->shouldBeCalled();
   }
 
   /**
-   * @param $has_connection
+   * @param $hasConnection
    */
   protected function mockExecuteDrushStatus(
-    ObjectProphecy $local_machine_helper,
-    $has_connection,
+    ObjectProphecy $localMachineHelper,
+    $hasConnection,
     string $dir = NULL
   ): void {
-    $drush_status_process = $this->prophet->prophesize(Process::class);
-    $drush_status_process->isSuccessful()->willReturn($has_connection);
-    $drush_status_process->getExitCode()->willReturn($has_connection ? 0 : 1);
-    $drush_status_process->getOutput()
+    $drushStatusProcess = $this->prophet->prophesize(Process::class);
+    $drushStatusProcess->isSuccessful()->willReturn($hasConnection);
+    $drushStatusProcess->getExitCode()->willReturn($hasConnection ? 0 : 1);
+    $drushStatusProcess->getOutput()
       ->willReturn(json_encode(['db-status' => 'Connected']));
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'drush',
         'status',
@@ -47,15 +47,15 @@ abstract class PullCommandTestBase extends CommandTestBase {
         '--format=json',
         '--no-interaction',
       ], Argument::any(), $dir, FALSE)
-      ->willReturn($drush_status_process->reveal())
+      ->willReturn($drushStatusProcess->reveal())
       ->shouldBeCalled();
   }
 
   protected function mockExecuteDrushCacheRebuild(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'drush',
         'cache:rebuild',
@@ -68,10 +68,10 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   protected function mockExecuteDrushSqlSanitize(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'drush',
         'sql:sanitize',
@@ -84,19 +84,19 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   protected function mockExecuteComposerExists(
-    ObjectProphecy $local_machine_helper
+    ObjectProphecy $localMachineHelper
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->commandExists('composer')
       ->willReturn(TRUE)
       ->shouldBeCalled();
   }
 
   protected function mockExecuteComposerInstall(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'composer',
         'install',
@@ -107,9 +107,9 @@ abstract class PullCommandTestBase extends CommandTestBase {
   }
 
   protected function mockDrupalSettingsRefresh(
-    ObjectProphecy $local_machine_helper
+    ObjectProphecy $localMachineHelper
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         '/ide/drupal-setup.sh',
       ]);
@@ -121,27 +121,27 @@ abstract class PullCommandTestBase extends CommandTestBase {
    */
   protected function mockExecuteGitStatus(
     $failed,
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     $cwd
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(!$failed)->shouldBeCalled();
-    $local_machine_helper->executeFromCmd('git add . && git diff-index --cached --quiet HEAD', NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
+    $localMachineHelper->executeFromCmd('git add . && git diff-index --cached --quiet HEAD', NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
   }
 
   /**
    * @param $cwd
-   * @param $commit_hash
+   * @param $commitHash
    */
   protected function mockGetLocalCommitHash(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     $cwd,
-    $commit_hash
+    $commitHash
   ): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE)->shouldBeCalled();
-    $process->getOutput()->willReturn($commit_hash)->shouldBeCalled();
-    $local_machine_helper->execute([
+    $process->getOutput()->willReturn($commitHash)->shouldBeCalled();
+    $localMachineHelper->execute([
       'git',
       'rev-parse',
       'HEAD',

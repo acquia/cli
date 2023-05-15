@@ -20,7 +20,7 @@ class LinkCommandTest extends CommandTestBase {
    * Tests the 'link' command.
    */
   public function testLinkCommand(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
     $inputs = [
@@ -31,7 +31,7 @@ class LinkCommandTest extends CommandTestBase {
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
+    $this->assertEquals($applicationsResponse->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);

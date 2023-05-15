@@ -32,7 +32,7 @@ class ExceptionListener {
     $errorMessage = $error->getMessage();
 
     if ($error instanceof IdentityProviderException && $error->getMessage() === 'invalid_client') {
-      $new_error_message = 'Your Cloud Platform API credentials are invalid.';
+      $newErrorMessage = 'Your Cloud Platform API credentials are invalid.';
       $this->helpMessages[] = "Run <bg=$this->messagesBgColor;fg=$this->messagesFgColor;options=bold>acli auth:login</> to reset your API credentials.";
     }
 
@@ -72,7 +72,7 @@ class ExceptionListener {
           $this->helpMessages[] = "Run `acli login` to authenticate via API token and then try again.";
           break;
         default:
-          $new_error_message = 'Cloud Platform API returned an error: ' . $errorMessage;
+          $newErrorMessage = 'Cloud Platform API returned an error: ' . $errorMessage;
           $this->helpMessages[] = "You can learn more about Cloud Platform API at https://docs.acquia.com/cloud-platform/develop/api/";
       }
     }
@@ -87,8 +87,8 @@ class ExceptionListener {
       $application->setHelpMessages($this->helpMessages);
     }
 
-    if (isset($new_error_message)) {
-      $event->setError(new AcquiaCliException($new_error_message, [], $exitCode));
+    if (isset($newErrorMessage)) {
+      $event->setError(new AcquiaCliException($newErrorMessage, [], $exitCode));
     }
   }
 

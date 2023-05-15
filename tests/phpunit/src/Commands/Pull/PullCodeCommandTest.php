@@ -26,20 +26,20 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->acliRepoRoot = '';
     $this->command = $this->createCommand();
     // Client responses.
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
-    $local_machine_helper = $this->mockReadIdePhpVersion();
+    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
+    $localMachineHelper = $this->mockReadIdePhpVersion();
     $process = $this->mockProcess();
     $dir = Path::join($this->vfsRoot->url(), 'empty-dir');
     mkdir($dir);
-    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
-    $this->mockExecuteGitClone($local_machine_helper, $selected_environment, $process, $dir);
-    $this->mockExecuteGitCheckout($local_machine_helper, $selected_environment->vcs->path, $dir, $process);
-    $local_machine_helper->getFinder()->willReturn(new Finder());
+    $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+    $this->mockExecuteGitClone($localMachineHelper, $selectedEnvironment, $process, $dir);
+    $this->mockExecuteGitCheckout($localMachineHelper, $selectedEnvironment->vcs->path, $dir, $process);
+    $localMachineHelper->getFinder()->willReturn(new Finder());
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // Would you like to clone a project into the current directory?
@@ -59,21 +59,21 @@ class PullCodeCommandTest extends PullCommandTestBase {
   }
 
   public function testPullCode(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockReadIdePhpVersion();
-    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+    $localMachineHelper = $this->mockReadIdePhpVersion();
+    $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper->getFinder()->willReturn($finder->reveal());
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $selectedEnvironment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -100,27 +100,27 @@ class PullCodeCommandTest extends PullCommandTestBase {
 
   public function testWithScripts(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockReadIdePhpVersion();
-    $local_machine_helper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
+    $localMachineHelper = $this->mockReadIdePhpVersion();
+    $localMachineHelper->checkRequiredBinariesExist(["git"])->shouldBeCalled();
     $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper->getFinder()->willReturn($finder->reveal());
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $this->projectDir, $selected_environment->vcs->path);
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $this->projectDir);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $this->projectDir, $selectedEnvironment->vcs->path);
+    $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $this->projectDir);
     $process = $this->mockProcess();
-    $this->mockExecuteComposerExists($local_machine_helper);
-    $this->mockExecuteComposerInstall($local_machine_helper, $process);
-    $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectDir);
-    $this->mockExecuteDrushCacheRebuild($local_machine_helper, $process);
+    $this->mockExecuteComposerExists($localMachineHelper);
+    $this->mockExecuteComposerInstall($localMachineHelper, $process);
+    $this->mockExecuteDrushExists($localMachineHelper);
+    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockExecuteDrushCacheRebuild($localMachineHelper, $process);
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -154,7 +154,7 @@ class PullCodeCommandTest extends PullCommandTestBase {
   /**
    * @dataProvider providerTestMatchPhpVersion
    */
-  public function testMatchPhpVersion(string $php_version): void {
+  public function testMatchPhpVersion(string $phpVersion): void {
     IdeHelper::setCloudIdeEnvVars();
     $this->application->addCommands([
       $this->injectCommand(IdePhpVersionCommand::class),
@@ -163,30 +163,30 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $dir = '/home/ide/project';
     $this->createMockGitConfigFile();
 
-    $local_machine_helper = $this->mockReadIdePhpVersion($php_version);
-    $local_machine_helper->checkRequiredBinariesExist(["git"])
+    $localMachineHelper = $this->mockReadIdePhpVersion($phpVersion);
+    $localMachineHelper->checkRequiredBinariesExist(["git"])
       ->shouldBeCalled();
     $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper->getFinder()->willReturn($finder->reveal());
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $process = $this->mockProcess();
-    $this->mockExecuteGitFetchAndCheckout($local_machine_helper, $process, $dir, 'master');
-    $this->mockExecuteGitStatus(FALSE, $local_machine_helper, $dir);
+    $this->mockExecuteGitFetchAndCheckout($localMachineHelper, $process, $dir, 'master');
+    $this->mockExecuteGitStatus(FALSE, $localMachineHelper, $dir);
 
-    $environment_response = $this->getMockEnvironmentResponse();
-    $environment_response->configuration->php->version = '7.1';
-    $environment_response->sshUrl = $environment_response->ssh_url;
+    $environmentResponse = $this->getMockEnvironmentResponse();
+    $environmentResponse->configuration->php->version = '7.1';
+    $environmentResponse->sshUrl = $environmentResponse->ssh_url;
     $this->clientProphecy->request('get',
-      "/environments/" . $environment_response->id)
-      ->willReturn($environment_response)
+      "/environments/" . $environmentResponse->id)
+      ->willReturn($environmentResponse)
       ->shouldBeCalled();
 
     $this->executeCommand([
       '--dir' => $dir,
       '--no-scripts' => TRUE,
       // @todo Execute ONLY match php aspect, not the code pull.
-      'environmentId' => $environment_response->id,
+      'environmentId' => $environmentResponse->id,
     ], [
       // Choose an Acquia environment:
       0,
@@ -196,8 +196,8 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
     IdeHelper::unsetCloudIdeEnvVars();
-    $message = "Would you like to change the PHP version on this IDE to match the PHP version on the {$environment_response->label} ({$environment_response->configuration->php->version}) environment?";
-    if ($php_version === '7.1') {
+    $message = "Would you like to change the PHP version on this IDE to match the PHP version on the {$environmentResponse->label} ({$environmentResponse->configuration->php->version}) environment?";
+    if ($phpVersion === '7.1') {
       $this->assertStringNotContainsString($message, $output);
     }
     else {
@@ -209,51 +209,51 @@ class PullCodeCommandTest extends PullCommandTestBase {
    * @param $dir
    */
   protected function mockExecuteGitClone(
-    ObjectProphecy $local_machine_helper,
-    object $environments_response,
+    ObjectProphecy $localMachineHelper,
+    object $environmentsResponse,
     ObjectProphecy $process,
                    $dir
   ): void {
     $command = [
       'git',
       'clone',
-      $environments_response->vcs->url,
+      $environmentsResponse->vcs->url,
       $dir,
     ];
-    $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
+    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL, ['GIT_SSH_COMMAND' => 'ssh -o StrictHostKeyChecking=no'])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
   /**
    * @param $cwd
-   * @param $vcs_path
+   * @param $vcsPath
    */
   protected function mockExecuteGitFetchAndCheckout(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
     $cwd,
-    $vcs_path
+    $vcsPath
   ): void {
-    $local_machine_helper->execute([
+    $localMachineHelper->execute([
       'git',
       'fetch',
       '--all',
     ], Argument::type('callable'), $cwd, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->mockExecuteGitCheckout($local_machine_helper, $vcs_path, $cwd, $process);
+    $this->mockExecuteGitCheckout($localMachineHelper, $vcsPath, $cwd, $process);
   }
 
   /**
-   * @param $vcs_path
+   * @param $vcsPath
    * @param $cwd
    */
-  protected function mockExecuteGitCheckout(ObjectProphecy $local_machine_helper, $vcs_path, $cwd, ObjectProphecy $process): void {
-    $local_machine_helper->execute([
+  protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, $vcsPath, $cwd, ObjectProphecy $process): void {
+    $localMachineHelper->execute([
       'git',
       'checkout',
-      $vcs_path,
+      $vcsPath,
     ], Argument::type('callable'), $cwd, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();

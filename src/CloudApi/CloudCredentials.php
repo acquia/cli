@@ -61,11 +61,11 @@ class CloudCredentials implements ApiCredentialsInterface {
       return $secret;
     }
 
-    $acli_key = $this->getCloudKey();
+    $acliKey = $this->getCloudKey();
     if ($this->datastoreCloud->get('keys')) {
       $keys = $this->datastoreCloud->get('keys');
-      if (is_array($keys) && array_key_exists($acli_key, $keys)) {
-        return $this->datastoreCloud->get('keys')[$acli_key]['secret'];
+      if (is_array($keys) && array_key_exists($acliKey, $keys)) {
+        return $this->datastoreCloud->get('keys')[$acliKey]['secret'];
       }
     }
 

@@ -16,7 +16,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
 
   private string $xdebugFilePath;
 
-  public function setUpXdebug(string $php_version): void {
+  public function setUpXdebug(string $phpVersion): void {
     $this->xdebugFilePath = $this->fs->tempnam(sys_get_temp_dir(), 'acli_xdebug_ini_');
     $this->fs->copy($this->realFixtureDir . '/xdebug.ini', $this->xdebugFilePath, TRUE);
     $this->command->setXdebugIniFilepath($this->xdebugFilePath);
@@ -24,8 +24,8 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper
       ->execute([
         'supervisorctl',
         'restart',
@@ -33,7 +33,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
       ], NULL, NULL, FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
   }
 
   protected function createCommand(): Command {
@@ -56,8 +56,8 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestXdebugCommandEnable
    */
-  public function testXdebugCommandEnable($php_version): void {
-    $this->setUpXdebug($php_version);
+  public function testXdebugCommandEnable($phpVersion): void {
+    $this->setUpXdebug($phpVersion);
     $this->executeCommand([], []);
     $this->prophet->checkPredictions();
     $this->assertFileExists($this->xdebugFilePath);
@@ -71,8 +71,8 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestXdebugCommandEnable
    */
-  public function testXdebugCommandDisable($php_version): void {
-    $this->setUpXdebug($php_version);
+  public function testXdebugCommandDisable($phpVersion): void {
+    $this->setUpXdebug($phpVersion);
     // Modify fixture to disable xdebug.
     file_put_contents($this->xdebugFilePath, str_replace(';zend_extension=xdebug.so', 'zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath)));
     $this->executeCommand([], []);

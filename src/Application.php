@@ -34,8 +34,8 @@ class Application extends \Symfony\Component\Console\Application {
 
     if ($this->getHelpMessages()) {
       $io = new SymfonyStyle(new ArrayInput([]), $output);
-      $output_style = new OutputFormatterStyle('white', 'blue');
-      $output->getFormatter()->setStyle('help', $output_style);
+      $outputStyle = new OutputFormatterStyle('white', 'blue');
+      $output->getFormatter()->setStyle('help', $outputStyle);
       $io->block($this->getHelpMessages(), 'help', 'help', ' ', TRUE, FALSE);
     }
   }

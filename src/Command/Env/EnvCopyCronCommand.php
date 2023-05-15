@@ -34,41 +34,41 @@ class EnvCopyCronCommand extends CommandBase {
 
     // Get source env alias.
     $this->convertEnvironmentAliasToUuid($input, 'source_env');
-    $source_env_id = $input->getArgument('source_env');
+    $sourceEnvId = $input->getArgument('source_env');
 
     // Get destination env alias.
     $this->convertEnvironmentAliasToUuid($input, 'dest_env');
-    $dest_env_id = $input->getArgument('dest_env');
+    $destEnvId = $input->getArgument('dest_env');
 
     // Get the cron resource.
-    $cron_resource = new Crons($this->cloudApiClientService->getClient());
-    $source_env_cron_list = $cron_resource->getAll($source_env_id);
+    $cronResource = new Crons($this->cloudApiClientService->getClient());
+    $sourceEnvCronList = $cronResource->getAll($sourceEnvId);
 
     // Ask for confirmation before starting the copy.
-    $answer = $this->io->confirm('Are you sure you\'d like to copy the cron jobs from ' . $source_env_id . ' to ' . $dest_env_id . '?');
+    $answer = $this->io->confirm('Are you sure you\'d like to copy the cron jobs from ' . $sourceEnvId . ' to ' . $destEnvId . '?');
     if (!$answer) {
       return 0;
     }
 
-    $only_system_crons = TRUE;
-    foreach ($source_env_cron_list as $cron) {
+    $onlySystemCrons = TRUE;
+    foreach ($sourceEnvCronList as $cron) {
       if (!$cron->flags->system) {
-        $only_system_crons = FALSE;
+        $onlySystemCrons = FALSE;
       }
     }
 
     // If source environment doesn't have any cron job or only
     // has system crons.
-    if ($only_system_crons || $source_env_cron_list->count() === 0) {
+    if ($onlySystemCrons || $sourceEnvCronList->count() === 0) {
       $this->io->error('There are no cron jobs in the source environment for copying.');
       return 1;
     }
 
-    foreach ($source_env_cron_list as $cron) {
+    foreach ($sourceEnvCronList as $cron) {
       // We don't copy the system cron as those should already be there
       // when environment is provisioned.
       if (!$cron->flags->system) {
-        $cron_frequency = implode(' ', [
+        $cronFrequency = implode(' ', [
           $cron->minute,
           $cron->hour,
           $cron->dayMonth,
@@ -76,13 +76,13 @@ class EnvCopyCronCommand extends CommandBase {
           $cron->dayWeek,
         ]);
 
-        $this->io->info('Copying the cron task "' . $cron->label . '" from ' . $source_env_id . ' to ' . $dest_env_id);
+        $this->io->info('Copying the cron task "' . $cron->label . '" from ' . $sourceEnvId . ' to ' . $destEnvId);
         try {
           // Copying the cron on destination environment.
-          $cron_resource->create(
-            $dest_env_id,
+          $cronResource->create(
+            $destEnvId,
             $cron->command,
-            $cron_frequency,
+            $cronFrequency,
             $cron->label,
           );
 
@@ -92,9 +92,9 @@ class EnvCopyCronCommand extends CommandBase {
           // Log the error for debugging purpose.
           $this->logger->debug('Error @error while copying the cron task @cron from @source env to @dest env', [
             '@cron' => $cron->label,
-            '@dest' => $dest_env_id,
+            '@dest' => $destEnvId,
             '@error' => $e->getMessage(),
-            '@source' => $source_env_id,
+            '@source' => $sourceEnvId,
           ]);
           return 1;
         }

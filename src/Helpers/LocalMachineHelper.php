@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
-use function Safe\file_get_contents;
+use function safe\file_get_contents;
 
 /**
  * A helper for executing commands on the local client. A wrapper for 'exec' and 'passthru'.
@@ -48,8 +48,8 @@ class LocalMachineHelper {
     if (array_key_exists($command, $this->installedBinaries)) {
       return (bool) $this->installedBinaries[$command];
     }
-    $os_command = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
-    $exists = $this->execute($os_command, NULL, NULL, FALSE)->isSuccessful();
+    $osCommand = OsInfo::isWindows() ? ['where', $command] : ['which', $command];
+    $exists = $this->execute($osCommand, NULL, NULL, FALSE)->isSuccessful();
     $this->installedBinaries[$command] = $exists;
     return $exists;
   }
@@ -60,7 +60,7 @@ class LocalMachineHelper {
   public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
       if (!$this->commandExists($binary)) {
-        throw new AcquiaCliException("The required binary `$binary` does not exist. Install it and ensure it exists in a location listed in your system \$PATH");
+        throw new AcquiaCliException("The required binary `$binary` does not exist. Install it and ensure it exists in a location listed in your system \$pATH");
       }
     }
   }
@@ -73,10 +73,10 @@ class LocalMachineHelper {
    * @param null $callback
    *   A function to run while waiting for the process to complete.
    */
-  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, float $timeout = NULL, array $env = NULL): Process {
+  public function execute(array $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
     $process = new Process($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
-    return $this->executeProcess($process, $callback, $print_output);
+    $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
+    return $this->executeProcess($process, $callback, $printOutput);
   }
 
   /**
@@ -93,25 +93,25 @@ class LocalMachineHelper {
    * @param int|null $timeout
    * @param array|null $env
    */
-  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $print_output = TRUE, int $timeout = NULL, array $env = NULL): Process {
+  public function executeFromCmd(string $cmd, callable $callback = NULL, string $cwd = NULL, ?bool $printOutput = TRUE, int $timeout = NULL, array $env = NULL): Process {
     $process = Process::fromShellCommandline($cmd);
-    $process = $this->configureProcess($process, $cwd, $print_output, $timeout, $env);
+    $process = $this->configureProcess($process, $cwd, $printOutput, $timeout, $env);
 
-    return $this->executeProcess($process, $callback, $print_output);
+    return $this->executeProcess($process, $callback, $printOutput);
   }
 
   /**
    * @param string|null $cwd
    * @param array|null $env
    */
-  private function configureProcess(Process $process, string $cwd = NULL, ?bool $print_output = TRUE, float $timeout = NULL, array $env = NULL): Process {
+  private function configureProcess(Process $process, string $cwd = NULL, ?bool $printOutput = TRUE, float $timeout = NULL, array $env = NULL): Process {
     if (function_exists('posix_isatty') && !@posix_isatty(STDIN)) {
       $process->setInput(STDIN);
     }
     if ($cwd) {
       $process->setWorkingDirectory($cwd);
     }
-    if ($print_output) {
+    if ($printOutput) {
       $process->setTty($this->useTty());
     }
     if ($env) {
@@ -125,8 +125,8 @@ class LocalMachineHelper {
   /**
    * @param callable|null $callback
    */
-  private function executeProcess(Process $process, callable $callback = NULL, ?bool $print_output = TRUE): Process {
-    if ($callback === NULL && $print_output !== FALSE) {
+  private function executeProcess(Process $process, callable $callback = NULL, ?bool $printOutput = TRUE): Process {
+    if ($callback === NULL && $printOutput !== FALSE) {
       $callback = function ($type, $buffer): void {
         $this->output->write($buffer);
       };
@@ -220,7 +220,7 @@ class LocalMachineHelper {
    * Accepts a filename/full path and localizes it to the user's system.
    */
   private function fixFilename(string $filename): string {
-    // '~' is only an alias for $HOME if it's at the start of the path.
+    // '~' is only an alias for $hOME if it's at the start of the path.
     // On Windows, '~' (not as an alias) can appear other places in the path.
     return preg_replace('/^~/', self::getHomeDir(), $filename);
   }
@@ -245,7 +245,7 @@ class LocalMachineHelper {
     }
 
     if (!$home) {
-      throw new AcquiaCliException('Could not determine $HOME directory. Ensure $HOME is set in your shell.');
+      throw new AcquiaCliException('Could not determine $hOME directory. Ensure $hOME is set in your shell.');
     }
 
     return $home;
@@ -265,16 +265,16 @@ class LocalMachineHelper {
    *   Root.
    */
   public static function getProjectDir(): ?string {
-    $possible_project_roots = [
+    $possibleProjectRoots = [
       getcwd(),
     ];
     // Check for PWD - some local environments will not have this key.
-    if (getenv('PWD') && !in_array(getenv('PWD'), $possible_project_roots, TRUE)) {
-      array_unshift($possible_project_roots, getenv('PWD'));
+    if (getenv('PWD') && !in_array(getenv('PWD'), $possibleProjectRoots, TRUE)) {
+      array_unshift($possibleProjectRoots, getenv('PWD'));
     }
-    foreach ($possible_project_roots as $possible_project_root) {
-      if ($project_root = self::find_directory_containing_files($possible_project_root, ['docroot'])) {
-        return realpath($project_root);
+    foreach ($possibleProjectRoots as $possibleProjectRoot) {
+      if ($projectRoot = self::findDirectoryContainingFiles($possibleProjectRoot, ['docroot'])) {
+        return realpath($projectRoot);
       }
     }
 
@@ -284,27 +284,27 @@ class LocalMachineHelper {
   /**
    * Traverses file system upwards in search of a given file.
    *
-   * Begins searching for $file in $working_directory and climbs up directories
-   * $max_height times, repeating search.
+   * Begins searching for $file in $workingDirectory and climbs up directories
+   * $maxHeight times, repeating search.
    *
-   * @param string $working_directory
+   * @param string $workingDirectory
    *   Working directory.
    * @param array $files
    *   Files.
-   * @param int $max_height
+   * @param int $maxHeight
    *   Max Height.
    * @return bool|string
    *   FALSE if file was not found. Otherwise, the directory path containing the
    *   file.
    */
-  private static function find_directory_containing_files(string $working_directory, array $files, int $max_height = 10): bool|string {
-    $file_path = $working_directory;
-    for ($i = 0; $i <= $max_height; $i++) {
-      if (self::files_exist($file_path, $files)) {
-        return $file_path;
+  private static function findDirectoryContainingFiles(string $workingDirectory, array $files, int $maxHeight = 10): bool|string {
+    $filePath = $workingDirectory;
+    for ($i = 0; $i <= $maxHeight; $i++) {
+      if (self::filesExist($filePath, $files)) {
+        return $filePath;
       }
 
-      $file_path = dirname($file_path);
+      $filePath = dirname($filePath);
     }
 
     return FALSE;
@@ -320,7 +320,7 @@ class LocalMachineHelper {
    * @return bool
    *   Exists.
    */
-  private static function files_exist(string $dir, array $files): bool {
+  private static function filesExist(string $dir, array $files): bool {
     foreach ($files as $file) {
       if (file_exists(Path::join($dir, $file))) {
         return TRUE;

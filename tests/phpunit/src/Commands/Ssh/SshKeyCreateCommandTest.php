@@ -66,19 +66,19 @@ class SshKeyCreateCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestCreate
    */
-  public function testCreate($ssh_add_success, $args, $inputs): void {
-    $ssh_key_filepath = Path::join($this->sshDir, '/' . $this->filename);
-    $this->fs->remove($ssh_key_filepath);
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $local_machine_helper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
-    /** @var Filesystem|ObjectProphecy $file_system */
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $this->mockAddSshKeyToAgent($local_machine_helper, $file_system);
-    $this->mockSshAgentList($local_machine_helper, $ssh_add_success);
-    $this->mockGenerateSshKey($local_machine_helper);
+  public function testCreate($sshAddSuccess, $args, $inputs): void {
+    $sshKeyFilepath = Path::join($this->sshDir, '/' . $this->filename);
+    $this->fs->remove($sshKeyFilepath);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
+    /** @var Filesystem|ObjectProphecy $fileSystem */
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
+    $this->mockSshAgentList($localMachineHelper, $sshAddSuccess);
+    $this->mockGenerateSshKey($localMachineHelper);
 
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand($args, $inputs);
   }
 

@@ -22,7 +22,7 @@ class DocsCommand extends CommandBase {
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_products = [
+    $acquiaProducts = [
       'Acquia CLI' => [
         'alias' => ['cli', 'acli'],
         'url' => 'acquia-cli',
@@ -99,25 +99,25 @@ class DocsCommand extends CommandBase {
 
     // If user has provided any acquia product in command.
     if ($acquiaProductName = $input->getArgument('product')) {
-      $product_url = NULL;
-      foreach ($acquia_products as $acquia_product) {
+      $productUrl = NULL;
+      foreach ($acquiaProducts as $acquiaProduct) {
         // If product provided by the user exists in the alias
-        if (in_array(strtolower($acquiaProductName), $acquia_product['alias'], TRUE)) {
-          $product_url = $acquia_product['url'];
+        if (in_array(strtolower($acquiaProductName), $acquiaProduct['alias'], TRUE)) {
+          $productUrl = $acquiaProduct['url'];
           break;
         }
       }
 
-      if ($product_url) {
-        $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $product_url . '/');
+      if ($productUrl) {
+        $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $productUrl . '/');
         return 0;
       }
     }
 
-    $labels = array_keys($acquia_products);
+    $labels = array_keys($acquiaProducts);
     $question = new ChoiceQuestion('Select the Acquia Product', $labels, $labels[0]);
-    $choice_id = $this->io->askQuestion($question);
-    $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $acquia_products[$choice_id]['url'] . '/');
+    $choiceId = $this->io->askQuestion($question);
+    $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $acquiaProducts[$choiceId]['url'] . '/');
 
     return 0;
   }

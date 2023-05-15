@@ -25,11 +25,11 @@ class ClearCacheCommandTest extends CommandTestBase {
     $this->command = $this->injectCommand(IdeListCommand::class);
 
     // Request for applications.
-    $applications_response = $this->getMockResponseFromSpec('/applications',
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $applications_response = $this->filterApplicationsResponse($applications_response, 1, TRUE);
+    $applicationsResponse = $this->filterApplicationsResponse($applicationsResponse, 1, TRUE);
     $this->clientProphecy->request('get', '/applications')
-      ->willReturn($applications_response->{'_embedded'}->items)
+      ->willReturn($applicationsResponse->{'_embedded'}->items)
       // Ensure this is only called once, even though we execute the command twice.
       ->shouldBeCalledTimes(1);
 

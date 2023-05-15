@@ -35,7 +35,7 @@ class IdeServiceRestartCommand extends IdeCommandBase {
     $service = $input->getArgument('service');
     $this->validateService($service);
 
-    $service_name_map = [
+    $serviceNameMap = [
       'apache' => 'apache2',
       'apache2' => 'apache2',
       'mysql' => 'mysqld',
@@ -44,8 +44,8 @@ class IdeServiceRestartCommand extends IdeCommandBase {
       'php-fpm' => 'php-fpm',
     ];
     $output->writeln("Restarting <options=bold>$service</>...");
-    $service_name = $service_name_map[$service];
-    $this->restartService($service_name);
+    $serviceName = $serviceNameMap[$service];
+    $this->restartService($serviceName);
     $output->writeln("<info>Restarted <options=bold>$service</></info>");
 
     return 0;
