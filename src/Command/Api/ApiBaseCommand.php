@@ -218,7 +218,7 @@ class ApiBaseCommand extends CommandBase {
       }
     }
     elseif ($paramSpec['type'] === 'array') {
-      if (count($value) === 1) {
+      if (is_array($value) && count($value) === 1) {
         return $this->castParamToArray($paramSpec, $value[0]);
       }
 
