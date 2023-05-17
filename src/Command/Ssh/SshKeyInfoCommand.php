@@ -7,7 +7,6 @@ use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
@@ -52,9 +51,9 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     $cloudKeys = $cloudKeysResponse->getAll();
     $localKeys = $this->findLocalSshKeys();
     $keys = [];
-    /** @var SshKeyResponse $key */
+    /** @var \AcquiaCloudApi\Response\SshKeyResponse $key */
     foreach ($cloudKeys as $key) {
-      $fingerprint = FingerprintGenerator::getFingerprint($key->public_key, 'sha256');
+      $fingerprint = self::getFingerprint($key->public_key);
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->public_key;
       $keys[$fingerprint]['cloud'] = [
@@ -65,7 +64,7 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       ];
     }
     foreach ($localKeys as $key) {
-      $fingerprint = FingerprintGenerator::getFingerprint($key->getContents(), 'sha256');
+      $fingerprint = self::getFingerprint($key->getContents());
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->getContents();
       $keys[$fingerprint]['local'] = [

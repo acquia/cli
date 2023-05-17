@@ -60,7 +60,7 @@ class LocalMachineHelper {
   public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
       if (!$this->commandExists($binary)) {
-        throw new AcquiaCliException("The required binary `$binary` does not exist. Install it and ensure it exists in a location listed in your system \$pATH");
+        throw new AcquiaCliException("The required binary `$binary` does not exist. Install it and ensure it exists in a location listed in your system \$PATH");
       }
     }
   }
@@ -220,7 +220,7 @@ class LocalMachineHelper {
    * Accepts a filename/full path and localizes it to the user's system.
    */
   private function fixFilename(string $filename): string {
-    // '~' is only an alias for $hOME if it's at the start of the path.
+    // '~' is only an alias for $HOME if it's at the start of the path.
     // On Windows, '~' (not as an alias) can appear other places in the path.
     return preg_replace('/^~/', self::getHomeDir(), $filename);
   }
@@ -245,7 +245,7 @@ class LocalMachineHelper {
     }
 
     if (!$home) {
-      throw new AcquiaCliException('Could not determine $hOME directory. Ensure $hOME is set in your shell.');
+      throw new AcquiaCliException('Could not determine $HOME directory. Ensure $HOME is set in your shell.');
     }
 
     return $home;
