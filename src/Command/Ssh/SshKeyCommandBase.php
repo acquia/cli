@@ -94,7 +94,7 @@ abstract class SshKeyCommandBase extends CommandBase {
     $tempFilepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
     $this->localMachineHelper->writeFile($tempFilepath, <<<'EOT'
 #!/usr/bin/env bash
-echo $sSHPASS
+echo $SSH_PASS
 EOT
     );
     $this->localMachineHelper->getFilesystem()->chmod($tempFilepath, 0755);
@@ -120,7 +120,7 @@ EOT
     $timers = [];
     $startTime = time();
     $cloudAppUuid = $this->determineCloudApplication(TRUE);
-    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloudAppUuid}/permissions");
+    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/$cloudAppUuid/permissions");
     $perms = array_column($permissions, 'name');
     $mappings = $this->checkPermissions($perms, $cloudAppUuid, $output);
     foreach ($mappings as $envName => $config) {
@@ -389,6 +389,14 @@ EOT
         $this->pollAcquiaCloudUntilSshSuccess($this->output);
       }
     }
+  }
+
+  protected static function getFingerprint($sshPublicKey): string {
+    if (!str_starts_with($sshPublicKey, 'ssh-rsa ')) {
+      throw new AcquiaCliException('SSH keys must start with "ssh-rsa ".');
+    }
+    $content = explode(' ', $sshPublicKey, 3);
+    return base64_encode(hash('sha256', base64_decode($content[1]), TRUE));
   }
 
 }

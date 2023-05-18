@@ -49,14 +49,14 @@ jobs:
           php-version: ${{ matrix.php }}
           # Only report coverage once
           coverage: ${{ matrix.coverage }}
-      - name: Check dependencies on Ubuntu
+      - name: Check for abandoned dependencies
         if: matrix.os == 'ubuntu-22.04'
-        # Tests for the SSH key commands rely on ssh-agent running.
-        run: |
-          eval "$(ssh-agent -s)"
-          cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
+        run: cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
       - name: Composer install
         run: composer install --prefer-dist --no-interaction --optimize-autoloader
+      - name: Check dependency licenses
+        if: matrix.os == 'ubuntu-22.04'
+        run: ./vendor/bin/composer-license-checker check --allowlist GPL-2.0-or-later --allowlist MIT --allowlist BSD-2-Clause --allowlist Apache-2.0 --allowlist LGPL-3.0-or-later --allowlist BSD-3-Clause --allowlist GPL-2.0-only --allow ltd-beget
       - name: Run tests
         if: matrix.coverage == 'none'
         run: |

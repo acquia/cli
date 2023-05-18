@@ -6,7 +6,6 @@ use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 class SshKeyListCommand extends SshKeyCommandBase {
 
@@ -26,10 +25,10 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $localKeys = $this->findLocalSshKeys();
     $table = $this->createSshKeyTable($output, 'Cloud Platform keys with matching local keys');
     foreach ($localKeys as $localIndex => $localFile) {
-      /** @var SshKeyResponse $cloudKey */
+      /** @var \AcquiaCloudApi\Response\SshKeyResponse $cloudKey */
       foreach ($cloudKeys as $index => $cloudKey) {
         if (trim($localFile->getContents()) === trim($cloudKey->public_key)) {
-          $hash = FingerprintGenerator::getFingerprint($cloudKey->public_key, 'sha256');
+          $hash = self::getFingerprint($cloudKey->public_key);
           $table->addRow([
             $cloudKey->label,
             $localFile->getFilename(),
@@ -44,8 +43,8 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $this->io->newLine();
 
     $table = $this->createSshKeyTable($output, 'Cloud Platform keys with no matching local keys');
-    foreach ($cloudKeys as $index => $cloudKey) {
-      $hash = FingerprintGenerator::getFingerprint($cloudKey->public_key, 'sha256');
+    foreach ($cloudKeys as $cloudKey) {
+      $hash = self::getFingerprint($cloudKey->public_key);
       $table->addRow([
         $cloudKey->label,
         'none',
@@ -56,8 +55,8 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $this->io->newLine();
 
     $table = $this->createSshKeyTable($output, 'Local keys with no matching Cloud Platform keys');
-    foreach ($localKeys as $index => $localFile) {
-      $hash = FingerprintGenerator::getFingerprint($localFile->getContents(), 'sha256');
+    foreach ($localKeys as $localFile) {
+      $hash = self::getFingerprint($localFile->getContents());
       $table->addRow([
         'none',
         $localFile->getFilename(),
