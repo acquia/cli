@@ -44,23 +44,18 @@ abstract class PullCommandBase extends CommandBase {
 
   private UriInterface $backupDownloadUrl;
 
-  public function getCloudFilesDir($chosenEnvironment, string $site): string {
+  public function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
     $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
     if ($this->isAcsfEnv($chosenEnvironment)) {
       return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
     }
     else {
-      return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files/";
+      return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
     }
   }
 
-  public function getLocalFilesDir($chosenEnvironment, string $site): string {
-    if ($this->isAcsfEnv($chosenEnvironment)) {
-      return $this->dir . '/docroot/sites/' . $site . '/';
-    }
-    else {
-      return $this->dir . '/docroot/sites/' . $site . '/files';
-    }
+  public function getLocalFilesDir(string $site): string {
+    return $this->dir . '/docroot/sites/' . $site . '/files';
   }
 
   public static function getBackupPath($environment, DatabaseResponse $database, $backupResponse): string {
@@ -548,7 +543,7 @@ abstract class PullCommandBase extends CommandBase {
       // -e specify the remote shell to use.
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $sourceDir,
+      $sourceDir . '/',
       $destinationDir,
     ];
     $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
@@ -557,9 +552,9 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function rsyncFilesFromCloud($chosenEnvironment, Closure $outputCallback, string $site): void {
+  private function rsyncFilesFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback, string $site): void {
     $sourceDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
-    $destinationDir = $this->getLocalFilesDir($chosenEnvironment, $site);
+    $destinationDir = $this->getLocalFilesDir($site);
     $this->localMachineHelper->getFilesystem()->mkdir($destinationDir);
 
     $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);

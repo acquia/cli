@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -45,8 +46,8 @@ class PushFilesCommand extends PullCommandBase {
     return Command::SUCCESS;
   }
 
-  private function rsyncFilesToCloud($chosenEnvironment, callable $outputCallback = NULL, string $site = NULL): void {
-    $sourceDir = $this->getLocalFilesDir($chosenEnvironment, $site);
+  private function rsyncFilesToCloud(EnvironmentResponse $chosenEnvironment, callable $outputCallback = NULL, string $site = NULL): void {
+    $sourceDir = $this->getLocalFilesDir($site);
     $destinationDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
 
     $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);

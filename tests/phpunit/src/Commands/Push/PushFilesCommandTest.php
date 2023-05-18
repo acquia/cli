@@ -9,9 +9,6 @@ use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
-/**
- * @property \Acquia\Cli\Command\Push\PushFilesCommand $command
- */
 class PushFilesCommandTest extends CommandTestBase {
 
   protected function createCommand(): Command {
@@ -23,10 +20,10 @@ class PushFilesCommandTest extends CommandTestBase {
     $this->mockApplicationRequest();
     $this->mockAcsfEnvironmentsRequest($applicationsResponse);
     $sshHelper = $this->mockSshHelper();
-    $this->mockGetAcsfSites($sshHelper);
+    $multisiteConfig = $this->mockGetAcsfSites($sshHelper);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $process = $this->mockProcess();
-    $this->mockExecuteAcsfRsync($localMachineHelper, $process);
+    $this->mockExecuteAcsfRsync($localMachineHelper, $process, reset($multisiteConfig['sites'])['name']);
 
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
@@ -106,27 +103,28 @@ class PushFilesCommandTest extends CommandTestBase {
       'rsync',
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $this->projectDir . '/docroot/sites/default/files/',
+      $this->projectDir . '/docroot/sites/bar/files/',
       $environment->ssh_url . ':/mnt/files/' . $sitegroup . '.' . $environment->name . '/sites/bar/files',
     ];
-    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
+    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
   protected function mockExecuteAcsfRsync(
     ObjectProphecy $localMachineHelper,
-    ObjectProphecy $process
+    ObjectProphecy $process,
+    string $site
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $this->projectDir . '/docroot/sites/default/files/',
-      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files',
+      $this->projectDir . '/docroot/sites/' . $site . '/files/',
+      'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/files/profserv2.dev/sites/g/files/' . $site . '/files',
     ];
-    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
+    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
