@@ -44,7 +44,7 @@ abstract class PullCommandBase extends CommandBase {
 
   private UriInterface $backupDownloadUrl;
 
-  public function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
+  protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
     $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
     if ($this->isAcsfEnv($chosenEnvironment)) {
       return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
@@ -54,7 +54,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  public function getLocalFilesDir(string $site): string {
+  protected function getLocalFilesDir(string $site): string {
     return $this->dir . '/docroot/sites/' . $site . '/files';
   }
 
@@ -531,7 +531,7 @@ abstract class PullCommandBase extends CommandBase {
     return $site;
   }
 
-  public function rsyncFiles(string $sourceDir, string $destinationDir, ?callable $outputCallback): void {
+  protected function rsyncFiles(string $sourceDir, string $destinationDir, ?callable $outputCallback): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
     $command = [
       'rsync',
