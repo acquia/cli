@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\Acsf\AcsfListCommandBase;
 use Acquia\Cli\Command\Api\ApiListCommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -39,7 +40,7 @@ class ListCommand extends \Symfony\Component\Console\Command\ListCommand {
       'raw_text' => $input->getOption('raw'),
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

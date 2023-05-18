@@ -36,9 +36,6 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     $this->ide = $idesResource->get($this->ideUuid);
   }
 
-  /**
-   * @param $ideUuid
-   */
   public static function getSshKeyFilename($ideUuid): string {
     return 'id_rsa_acquia_ide_' . $ideUuid;
   }

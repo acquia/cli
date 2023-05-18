@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -18,9 +19,6 @@ class IdeOpenCommand extends IdeCommandBase {
     // @todo Add option to accept an ide UUID.
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $cloudApplicationUuid = $this->determineCloudApplication();
@@ -34,7 +32,7 @@ class IdeOpenCommand extends IdeCommandBase {
 
     $this->localMachineHelper->startBrowser($ide->links->ide->href);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

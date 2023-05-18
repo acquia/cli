@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,9 +18,6 @@ class IdeListMineCommand extends IdeCommandBase {
     $this->setDescription('List Cloud IDEs belonging to you');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $ides = new Ides($acquiaCloudClient);
@@ -52,7 +50,7 @@ class IdeListMineCommand extends IdeCommandBase {
       $output->writeln('No IDE exists for your account.');
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

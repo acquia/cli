@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -16,13 +17,10 @@ class PushCodeCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $output->writeln("Use <options=bold>git</> to push code changes upstream.");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

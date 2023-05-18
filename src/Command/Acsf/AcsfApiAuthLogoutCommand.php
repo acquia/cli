@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Acsf;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,9 +18,6 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     return FALSE;
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if (!$this->cloudApiClientService->isMachineAuthenticated()) {
       $this->io->error(['You are not logged into any factories.']);
@@ -42,7 +40,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
     }
     $answer = $this->io->confirm("Are you sure you'd like to logout the user {$activeUser['username']} from $factoryUrl?");
     if (!$answer) {
-      return 0;
+      return Command::SUCCESS;
     }
     $factories[$factoryUrl]['active_user'] = NULL;
     $this->datastoreCloud->set('acsf_factories', $factories);
@@ -50,7 +48,7 @@ class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
     $output->writeln("Logged {$activeUser['username']} out of $factoryUrl</info>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

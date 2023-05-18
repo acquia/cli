@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -16,9 +17,6 @@ class LinkCommand extends CommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
     if ($cloudApplicationUuid = $this->getCloudUuidFromDatastore()) {
@@ -28,7 +26,7 @@ class LinkCommand extends CommandBase {
     }
     $this->determineCloudApplication(TRUE);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

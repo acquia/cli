@@ -103,9 +103,6 @@ class PullFilesCommandTest extends PullCommandTestBase {
     IdeHelper::unsetCloudIdeEnvVars();
   }
 
-  /**
-   * @param $environment
-   */
   protected function mockExecuteRsync(
     LocalMachineHelper|ObjectProphecy $localMachineHelper,
                    $environment,

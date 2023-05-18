@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,16 +17,13 @@ class SshKeyCreateCommand extends SshKeyCommandBase {
       ->addOption('password', NULL, InputOption::VALUE_REQUIRED, 'The password for the SSH key');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $filename = $this->determineFilename();
     $password = $this->determinePassword();
     $this->createSshKey($filename, $password);
     $output->writeln('<info>Created new SSH key.</info> ' . $this->publicSshKeyFilepath);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

@@ -9,6 +9,7 @@ use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use AcquiaCloudApi\Response\OperationResponse;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,9 +36,6 @@ class EnvMirrorCommand extends CommandBase {
     $this->addOption('no-config', 'p');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->checklist = new Checklist($output);
     $outputCallback = $this->getOutputCallback($output, $this->checklist);
@@ -94,12 +92,9 @@ class EnvMirrorCommand extends CommandBase {
       "https://" . $destinationEnvironment->domains[0],
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
-  /**
-   * @param \stdClass[] $databases
-   */
   private function getDefaultDatabase(array $databases): ?object {
     foreach ($databases as $database) {
       if ($database->flags->default) {

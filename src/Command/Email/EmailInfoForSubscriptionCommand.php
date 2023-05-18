@@ -8,6 +8,7 @@ use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use League\Csv\Writer;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
 use Symfony\Component\Console\Helper\TableCellStyle;
@@ -54,7 +55,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
       $this->io->info("No email domains registered in {$subscription->name}.");
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**

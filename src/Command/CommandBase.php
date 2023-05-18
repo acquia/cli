@@ -497,9 +497,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $localVcsRemotes;
   }
 
-  /**
-   * @param array $localGitRemotes
-   */
   private function findCloudApplicationByGitUrl(
         Client $acquiaCloudClient,
         array $localGitRemotes
@@ -557,9 +554,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $table;
   }
 
-  /**
-   * @param array $localGitRemotes
-   */
   private function searchApplicationEnvironmentsForGitUrl(
     ApplicationResponse $application,
     EnvironmentsResponse $applicationEnvironments,
@@ -822,18 +816,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->getEnvFromAlias($alias);
   }
 
-  /**
-   * @param $alias
-   */
   private function getEnvFromAlias($alias): EnvironmentResponse {
     return self::getAliasCache()->get($alias, function () use ($alias) {
       return $this->doGetEnvFromAlias($alias);
     });
   }
 
-  /**
-   * @param $alias
-   */
   private function doGetEnvFromAlias($alias): EnvironmentResponse {
     $siteEnvParts = explode('.', $alias);
     [$applicationAlias, $environmentAlias] = $siteEnvParts;
@@ -867,9 +855,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return new AliasCache('acli_aliases');
   }
 
-  /**
-   * @param $applicationAlias
-   */
   private function doGetApplicationFromAlias($applicationAlias): mixed {
     if (!strpos($applicationAlias, ':')) {
       $applicationAlias = '*:' . $applicationAlias;
@@ -1031,9 +1016,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   * @param $argumentName
-   */
   protected function convertEnvironmentAliasToUuid(InputInterface $input, $argumentName): void {
     if ($input->hasArgument($argumentName) && $input->getArgument($argumentName)) {
       $envUuidArgument = $input->getArgument($argumentName);
@@ -1261,9 +1243,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
-  /**
-   * @param $key
-   */
   private function validateApiKey($key): string {
     $violations = Validation::createValidator()->validate($key, [
       new Length(['min' => 10]),
@@ -1374,9 +1353,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $environment->vcs->url;
   }
 
-  /**
-   * @param $applicationUuidArgument
-   */
   protected function validateApplicationUuid($applicationUuidArgument): mixed {
     try {
       self::validateUuid($applicationUuidArgument);
@@ -1466,9 +1442,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $urlParts[5];
   }
 
-  /**
-   * @param array $requiredPermissions
-   */
   protected function validateRequiredCloudPermissions(Client $acquiaCloudClient, ?string $cloudApplicationUuid, AccountResponse $account, array $requiredPermissions): void {
     $permissions = $acquiaCloudClient->request('get', "/applications/{$cloudApplicationUuid}/permissions");
     $keyedPermissions = [];

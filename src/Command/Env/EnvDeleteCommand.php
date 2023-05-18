@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -18,9 +19,6 @@ class EnvDeleteCommand extends CommandBase {
     $this->acceptEnvironmentId();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
     $cloudAppUuid = $this->determineCloudApplication(TRUE);
@@ -33,7 +31,7 @@ class EnvDeleteCommand extends CommandBase {
       "The {$environment->label} environment is being deleted",
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function determineEnvironment(Environments $environmentsResource, string $cloudAppUuid): EnvironmentResponse {

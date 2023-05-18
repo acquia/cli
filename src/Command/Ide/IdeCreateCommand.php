@@ -9,6 +9,7 @@ use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
 use GuzzleHttp\Client;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -30,9 +31,6 @@ class IdeCreateCommand extends IdeCommandBase {
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $cloudApplicationUuid = $this->determineCloudApplication();
     $checklist = new Checklist($output);
@@ -75,9 +73,6 @@ class IdeCreateCommand extends IdeCommandBase {
     return $label;
   }
 
-  /**
-   * @param $ideUrl
-   */
   private function waitForDnsPropagation($ideUrl): int {
     $ideCreated = FALSE;
     if (!$this->getClient()) {
@@ -100,7 +95,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
     LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $doneCallback);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**

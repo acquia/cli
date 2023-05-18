@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -18,9 +19,6 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $checklist = new Checklist($output);
 
@@ -96,12 +94,12 @@ class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
     if ($keyWasUploaded) {
       if ($this->input->isInteractive() && !$this->promptWaitForSsh($this->io)) {
         $this->io->success('Your SSH key has been successfully uploaded to the Cloud Platform.');
-        return 0;
+        return Command::SUCCESS;
       }
       $this->pollAcquiaCloudUntilSshSuccess($output);
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

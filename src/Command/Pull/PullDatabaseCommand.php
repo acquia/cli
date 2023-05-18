@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,9 +29,6 @@ class PullDatabaseCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
     $noScripts = $input->hasOption('no-scripts') && $input->getOption('no-scripts');
@@ -45,7 +43,7 @@ class PullDatabaseCommand extends PullCommandBase {
       $this->runDrushSqlSanitize($this->getOutputCallback($output, $this->checklist));
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

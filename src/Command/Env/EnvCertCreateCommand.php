@@ -14,9 +14,6 @@ class EnvCertCreateCommand extends CommandBase {
 
   protected static $defaultName = 'env:certificate-create';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Install an SSL certificate.')
       ->addArgument('certificate', InputArgument::REQUIRED, 'Filename of the SSL certificate being installed')

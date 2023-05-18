@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -18,9 +19,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   protected static $defaultName = 'codestudio:pipelines-migrate';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
@@ -72,7 +70,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
       "Check your pipeline is running in Code Studio for your project.",
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function commandRequiresAuthentication(): bool {
@@ -155,9 +153,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param array $acquiaPipelinesFileContents
-   */
   private function getPipelinesSection(array $acquiaPipelinesFileContents, string $eventName): mixed {
     if (!array_key_exists('events', $acquiaPipelinesFileContents)) {
       return NULL;
@@ -312,9 +307,6 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $this->localMachineHelper->getFilesystem()->remove($acquiaPipelinesFileName);
   }
 
-  /**
-   * @param array $keywords
-   */
   private function assignStageFromKeywords(array $keywords, string $haystack): ?string {
     foreach ($keywords as $needle => $stage) {
       if (str_contains($haystack, $needle)) {

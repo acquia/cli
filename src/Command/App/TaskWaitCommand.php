@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,7 +23,7 @@ class TaskWaitCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $notificationUuid = $this->getNotificationUuid($input);
     $this->waitForNotificationToComplete($this->cloudApiClientService->getClient(), $notificationUuid, "Waiting for task $notificationUuid to complete");
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function getNotificationUuid(InputInterface $input): string {

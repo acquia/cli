@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Endpoints\Account;
 use Gitlab\Exception\ValidationFailedException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -80,7 +81,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     ]);
     $answer = $this->io->confirm('Do you want to continue?');
     if (!$answer) {
-      return 0;
+      return Command::SUCCESS;
     }
 
     $projectAccessTokenName = 'acquia-codestudio';
@@ -101,7 +102,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     ]);
     $this->io->note(["If the {$account->mail} Cloud account is deleted in the future, this Code Studio project will need to be re-configured."]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function commandRequiresAuthentication(): bool {
@@ -136,9 +137,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return NULL;
   }
 
-  /**
-   * @param array $project
-   */
   private function createProjectAccessToken(array $project, string $projectAccessTokenName): string {
     $this->io->writeln("Creating project access token...");
 
@@ -158,9 +156,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     return $projectAccessToken['token'];
   }
 
-  /**
-   * @param array $project
-   */
   private function setGitLabCiCdVariables(array $project, string $cloudApplicationUuid, string $cloudKey, string $cloudSecret, string $projectAccessTokenName, string $projectAccessToken): void {
     $this->io->writeln("Setting GitLab CI/CD variables for {$project['path_with_namespace']}..");
     $gitlabCicdVariables = CodeStudioCiCdVariables::getDefaults($cloudApplicationUuid, $cloudKey, $cloudSecret, $projectAccessTokenName, $projectAccessToken);
@@ -186,9 +181,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     }
   }
 
-  /**
-   * @param array $project
-   */
   private function createScheduledPipeline(array $project): void {
     $this->io->writeln("Creating scheduled pipeline");
     $scheduledPipelineDescription = "Code Studio Automatic Updates";
@@ -216,9 +208,6 @@ class CodeStudioWizardCommand extends WizardCommandBase {
     $this->checklist->completePreviousItem();
   }
 
-  /**
-   * @param array $project
-   */
   private function updateGitLabProject(array $project): void {
     // Setting the description to match the known pattern will allow us to automatically find the project next time.
     if ($project['description'] !== $this->gitLabProjectDescription) {

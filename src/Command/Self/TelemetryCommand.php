@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\DataStoreContract;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,9 +21,6 @@ class TelemetryCommand extends CommandBase {
       ->setAliases(['telemetry']);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $datastore = $this->datastoreCloud;
     if ($datastore->get(DataStoreContract::SEND_TELEMETRY)) {
@@ -36,7 +34,7 @@ class TelemetryCommand extends CommandBase {
     $oppositeVerb = $datastore->get(DataStoreContract::SEND_TELEMETRY) ? 'disable' : 'enable';
     $this->io->writeln("Run this command again to $oppositeVerb telemetry");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

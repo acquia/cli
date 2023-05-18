@@ -85,9 +85,6 @@ class ApiBaseCommand extends CommandBase {
     parent::interact($input, $output);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // Build query from non-null options.
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -120,16 +117,10 @@ class ApiBaseCommand extends CommandBase {
     $this->method = $method;
   }
 
-  /**
-   * @param array $responses
-   */
   public function setResponses(array $responses): void {
     $this->responses = $responses;
   }
 
-  /**
-   * @param array $servers
-   */
   public function setServers(array $servers): void {
     $this->servers = $servers;
   }
@@ -178,9 +169,6 @@ class ApiBaseCommand extends CommandBase {
     return $this->path;
   }
 
-  /**
-   * @param $value
-   */
   public function addPathParameter(string $paramName, $value): void {
     $this->pathParams[$paramName] = $value;
   }
@@ -199,9 +187,6 @@ class ApiBaseCommand extends CommandBase {
     return NULL;
   }
 
-  /**
-   * @param array $paramSpec
-   */
   private function castParamType(array $paramSpec, array|string $value): array|bool|int|string {
     $oneOf = $this->getParamTypeOneOf($paramSpec);
     if (isset($oneOf)) {
@@ -243,16 +228,10 @@ class ApiBaseCommand extends CommandBase {
     };
   }
 
-  /**
-   * @param $val
-   */
   public function castBool($val): bool {
     return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
   }
 
-  /**
-   * @param array $paramSpec
-   */
   private function getParamType(array $paramSpec): ?string {
     // @todo File a CXAPI ticket regarding the inconsistent nesting of the 'type' property.
     if (array_key_exists('type', $paramSpec)) {
@@ -265,9 +244,6 @@ class ApiBaseCommand extends CommandBase {
     return NULL;
   }
 
-  /**
-   * @param array $params
-   */
   private function createCallableValidator(InputArgument $argument, array $params): ?callable {
     $validator = NULL;
     if (array_key_exists($argument->getName(), $params)) {
@@ -336,9 +312,6 @@ class ApiBaseCommand extends CommandBase {
     return $constraints;
   }
 
-  /**
-   * @param array $constraints
-   */
   private function createValidatorFromConstraints(array $constraints): Closure {
     return static function ($value) use ($constraints) {
       $violations = Validation::createValidator()

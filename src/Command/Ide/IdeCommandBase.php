@@ -14,9 +14,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   private string $xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
 
-  /**
-   * @param $cloudApplicationUuid
-   */
   protected function promptIdeChoice(
     string $questionText,
     Ides $idesResource,

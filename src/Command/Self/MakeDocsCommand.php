@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\DescriptorHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -23,7 +24,7 @@ class MakeDocsCommand extends CommandBase {
       'format' => 'rst',
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,9 +24,6 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $iniFile = $this->getXdebugIniFilePath();
@@ -43,7 +41,7 @@ class IdeXdebugToggleCommand extends IdeCommandBase {
     }
     $this->restartService('php-fpm');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**

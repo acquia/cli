@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -110,7 +111,7 @@ class DocsCommand extends CommandBase {
 
       if ($productUrl) {
         $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $productUrl . '/');
-        return 0;
+        return Command::SUCCESS;
       }
     }
 
@@ -119,7 +120,7 @@ class DocsCommand extends CommandBase {
     $choiceId = $this->io->askQuestion($question);
     $this->localMachineHelper->startBrowser('https://docs.acquia.com/' . $acquiaProducts[$choiceId]['url'] . '/');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

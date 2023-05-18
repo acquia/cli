@@ -34,9 +34,6 @@ class ApiCommandHelper {
     return !(getenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE') === '0');
   }
 
-  /**
-   * @param array $paramDefinition
-   */
   protected function addArgumentExampleToUsageForGetEndpoint(array $paramDefinition, string $usage): mixed {
     if (array_key_exists('example', $paramDefinition)) {
       if (is_array($paramDefinition['example'])) {
@@ -53,9 +50,6 @@ class ApiCommandHelper {
     return $usage;
   }
 
-  /**
-   * @param array $paramDefinition
-   */
   private function addOptionExampleToUsageForGetEndpoint(array $paramDefinition, string $usage): string {
     if (array_key_exists('example', $paramDefinition)) {
       $usage .= '--' . $paramDefinition['name'] . '="' . $paramDefinition['example'] . '" ';
@@ -285,16 +279,10 @@ class ApiCommandHelper {
     return NULL;
   }
 
-  /**
-   * @param array $acquiaCloudSpec
-   */
   private function getParameterSchemaFromSpec(string $paramKey, array $acquiaCloudSpec): mixed {
     return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
-  /**
-   * @param $cacheItem
-   */
   private function isApiSpecChecksumCacheValid($cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
     if ($cacheItem->isHit() && !$acquiaCloudSpecFileChecksum) {
@@ -409,9 +397,6 @@ class ApiCommandHelper {
     ];
   }
 
-  /**
-   * @param array $inputDefinition
-   */
   private function addAliasUsageExamples(ApiBaseCommand $command, array $inputDefinition, string $usage): void {
     foreach ($inputDefinition as $key => $parameter) {
       if ($parameter->getName() === 'applicationUuid') {
@@ -429,9 +414,6 @@ class ApiCommandHelper {
     }
   }
 
-  /**
-   * @param $paramDefinition
-   */
   private function addAliasParameterDescriptions(&$paramDefinition): void {
     if ($paramDefinition['name'] === 'applicationUuid') {
       $paramDefinition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
@@ -481,9 +463,6 @@ class ApiCommandHelper {
     ];
   }
 
-  /**
-   * @param $propKey
-   */
   public static function renameParameter($propKey): mixed {
     $parameterRenameMap = self::getParameterRenameMap();
     if (array_key_exists($propKey, $parameterRenameMap)) {

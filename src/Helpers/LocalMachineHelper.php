@@ -54,9 +54,6 @@ class LocalMachineHelper {
     return $exists;
   }
 
-  /**
-   * @param string[] $binaries
-   */
   public function checkRequiredBinariesExist(array $binaries = []): void {
     foreach ($binaries as $binary) {
       if (!$this->commandExists($binary)) {
@@ -122,9 +119,6 @@ class LocalMachineHelper {
     return $process;
   }
 
-  /**
-   * @param callable|null $callback
-   */
   private function executeProcess(Process $process, callable $callback = NULL, ?bool $printOutput = TRUE): Process {
     if ($callback === NULL && $printOutput !== FALSE) {
       $callback = function ($type, $buffer): void {
@@ -169,9 +163,6 @@ class LocalMachineHelper {
     return @file_get_contents($this->getLocalFilepath($filename));
   }
 
-  /**
-   * @param $filepath
-   */
   public function getLocalFilepath($filepath): string {
     return $this->fixFilename($filepath);
   }

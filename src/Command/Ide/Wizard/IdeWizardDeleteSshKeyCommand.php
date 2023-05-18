@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Ide\Wizard;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\SshCommandTrait;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,9 +20,6 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
       ->setHidden(!CommandBase::isAcquiaCloudIde());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
 
@@ -35,7 +33,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
     $this->output->writeln("<info>Deleted local files <options=bold>{$this->publicSshKeyFilepath}</> and <options=bold>{$this->privateSshKeyFilepath}</>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

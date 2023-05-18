@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,9 +28,6 @@ class IdeServiceStopCommand extends IdeCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $service = $input->getArgument('service');
@@ -48,7 +46,7 @@ class IdeServiceStopCommand extends IdeCommandBase {
     $this->stopService($serviceName);
     $output->writeln("<info>Stopped <options=bold>$service</></info>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function validateService(string $service): void {
