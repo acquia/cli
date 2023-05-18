@@ -241,23 +241,18 @@ abstract class CommandTestBase extends TestBase {
     return $environmentsResponse;
   }
 
-  /**
-   * @param $sshHelper
-   */
-  protected function mockGetAcsfSites($sshHelper): void {
+  protected function mockGetAcsfSites($sshHelper): array {
     $acsfMultisiteFetchProcess = $this->mockProcess();
-    $acsfMultisiteFetchProcess->getOutput()->willReturn(file_get_contents(Path::join($this->realFixtureDir,
-      '/multisite-config.json')))->shouldBeCalled();
+    $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+    $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
     $sshHelper->executeCommand(
       Argument::type('object'),
       ['cat', '/var/www/site-php/profserv2.dev/multisite-config.json'],
       FALSE
     )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
+    return json_decode($multisiteConfig, TRUE);
   }
 
-  /**
-   * @param $sshHelper
-   */
   protected function mockGetCloudSites($sshHelper, $environment): void {
     $cloudMultisiteFetchProcess = $this->mockProcess();
     $cloudMultisiteFetchProcess->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
