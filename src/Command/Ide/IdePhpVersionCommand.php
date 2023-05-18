@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,9 +30,6 @@ class IdePhpVersionCommand extends IdeCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $version = $input->getArgument('version');
@@ -39,7 +37,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
     $this->restartService('php-fpm');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function getIdePhpFilePathPrefix(): string {

@@ -7,6 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Closure;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -45,9 +46,6 @@ class ArchiveExportCommand extends CommandBase {
     $this->setDirAndRequireProjectCwd($input);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->determineDestinationDir($input);
     $outputCallback = $this->getOutputCallback($output, $this->checklist);
@@ -85,7 +83,7 @@ class ArchiveExportCommand extends CommandBase {
       $this->io->note('You can download the archive through the Cloud IDE user interface by right-clicking the file in your IDE workspace file browser and selecting "Download."');
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function determineDestinationDir(InputInterface $input): void {

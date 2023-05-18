@@ -12,6 +12,7 @@ use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use Closure;
 use LTDBeget\dns\configurator\Zone;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -89,7 +90,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
     $this->io->success("You're all set to start using Platform Email!");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**

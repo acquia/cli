@@ -6,6 +6,7 @@ use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use Closure;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -50,9 +51,6 @@ class PushArtifactCommand extends PullCommandBase {
       ->addUsage('--destination-git-urls=example@svn-1.prod.hosting.acquia.com:example.git --destination-git-branch=main-build');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->setDirAndRequireProjectCwd($input);
     $artifactDir = Path::join(sys_get_temp_dir(), 'acli-push-artifact');
@@ -120,7 +118,7 @@ class PushArtifactCommand extends PullCommandBase {
       $this->logger->warning("The <options=bold>--dry-run</> option prevented changes from being pushed to Acquia Cloud. The artifact has been built at <options=bold>$artifactDir</>");
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function determineDestinationGitUrls($applicationUuid): mixed {
@@ -418,9 +416,6 @@ class PushArtifactCommand extends PullCommandBase {
     return $this->destinationGitRef;
   }
 
-  /**
-   * @param $tagName
-   */
   private function createTag($tagName, Closure $outputCallback, string $artifactDir): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([

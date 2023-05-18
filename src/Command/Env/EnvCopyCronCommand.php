@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Env;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Crons;
 use Exception;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,9 +23,6 @@ class EnvCopyCronCommand extends CommandBase {
       ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     // If both source and destination env inputs are same.
     if ($input->getArgument('source_env') === $input->getArgument('dest_env')) {
@@ -47,7 +45,7 @@ class EnvCopyCronCommand extends CommandBase {
     // Ask for confirmation before starting the copy.
     $answer = $this->io->confirm('Are you sure you\'d like to copy the cron jobs from ' . $sourceEnvId . ' to ' . $destEnvId . '?');
     if (!$answer) {
-      return 0;
+      return Command::SUCCESS;
     }
 
     $onlySystemCrons = TRUE;
@@ -102,7 +100,7 @@ class EnvCopyCronCommand extends CommandBase {
     }
 
     $this->io->success('Cron task copy is completed.');
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

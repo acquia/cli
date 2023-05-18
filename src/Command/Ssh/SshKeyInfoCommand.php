@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use AcquiaCloudApi\Endpoints\SshKeys;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -17,9 +18,6 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $key = $this->determineSshKey($acquiaCloudClient);
@@ -43,7 +41,7 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     $this->io->writeln('----------');
     $this->io->writeln($key['public_key']);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function determineSshKey($acquiaCloudClient): array {

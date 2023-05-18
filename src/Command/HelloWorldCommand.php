@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,7 +18,7 @@ class HelloWorldCommand extends CommandBase {
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->io->success('Hello world!');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

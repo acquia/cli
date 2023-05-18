@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\App;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,9 +21,6 @@ class NewCommand extends CommandBase {
       ->setAliases(['new']);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
     $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
@@ -62,7 +60,7 @@ class NewCommand extends CommandBase {
     $output->writeln('');
     $output->writeln($successMessage);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function commandRequiresAuthentication(): bool {
@@ -82,9 +80,6 @@ class NewCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param $project
-   */
   private function createDrupalProject($project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',

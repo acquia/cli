@@ -769,9 +769,6 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param $outputCallback
-   */
   private function composerInstall($outputCallback): void {
     $process = $this->localMachineHelper->execute([
       'composer',

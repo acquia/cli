@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Logs;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -17,9 +18,6 @@ class LogTailCommand extends CommandBase {
       ->setAliases(['tail', 'log:tail']);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $environmentId = $this->determineCloudEnvironment();
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -34,7 +32,7 @@ class LogTailCommand extends CommandBase {
     $this->logstreamManager->setLogTypeFilter($logTypes);
     $output->writeln('<info>Streaming has started and new logs will appear below. Use Ctrl+C to exit.</info>');
     $this->logstreamManager->stream();
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

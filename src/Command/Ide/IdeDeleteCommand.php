@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Helpers\SshCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,9 +20,6 @@ class IdeDeleteCommand extends IdeCommandBase {
     // @todo Add option to accept an ide UUID.
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $idesResource = new Ides($acquiaCloudClient);
@@ -47,7 +45,7 @@ class IdeDeleteCommand extends IdeCommandBase {
       }
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

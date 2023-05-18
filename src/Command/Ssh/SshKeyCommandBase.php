@@ -329,9 +329,6 @@ EOT
     return [$chosenLocalKey, $publicKey];
   }
 
-  /**
-   * @param \Symfony\Component\Finder\SplFileInfo[] $localKeys
-   */
   private function promptChooseLocalSshKey(array $localKeys): string {
     $labels = [];
     foreach ($localKeys as $localKey) {
@@ -348,9 +345,6 @@ EOT
     return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
-  /**
-   * @param $label
-   */
   private function validateSshKeyLabel($label): mixed {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
@@ -359,9 +353,6 @@ EOT
     return $label;
   }
 
-  /**
-   * @param \Symfony\Component\Finder\SplFileInfo[] $localKeys
-   */
   private function getLocalSshKeyContents(array $localKeys, string $chosenLocalKey): string {
     $filepath = '';
     foreach ($localKeys as $localKey) {

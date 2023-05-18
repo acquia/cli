@@ -48,9 +48,6 @@ class Checklist {
     return end($this->items);
   }
 
-  /**
-   * @param $updateMessage
-   */
   public function updateProgressBar($updateMessage): void {
     $item = $this->getLastItem();
     if (!$item) {

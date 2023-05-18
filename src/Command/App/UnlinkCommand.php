@@ -4,6 +4,7 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -20,9 +21,6 @@ class UnlinkCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->validateCwdIsValidDrupalProject();
 
@@ -35,7 +33,7 @@ class UnlinkCommand extends CommandBase {
     $this->datastoreAcli->set('cloud_app_uuid', NULL);
     $output->writeln("<info>Unlinked <options=bold>$projectDir</> from Cloud application <options=bold>{$application->name}</></info>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

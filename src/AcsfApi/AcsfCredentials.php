@@ -25,9 +25,6 @@ class AcsfCredentials implements ApiCredentialsInterface {
     return NULL;
   }
 
-  /**
-   * @param array $factory
-   */
   public function getFactoryActiveUser(array $factory): mixed {
     if (array_key_exists('active_user', $factory)) {
       $activeUser = $factory['active_user'];

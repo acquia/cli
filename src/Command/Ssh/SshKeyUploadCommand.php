@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -17,16 +18,13 @@ class SshKeyUploadCommand extends SshKeyCommandBase {
       ->addOption('no-wait', NULL, InputOption::VALUE_NONE, "Don't wait for the SSH key to be uploaded to the Cloud Platform");
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     [$chosenLocalKey, $publicKey] = $this->determinePublicSshKey();
     $label = $this->determineSshKeyLabel();
     $this->uploadSshKey($label, $publicKey);
     $this->io->success("Uploaded $chosenLocalKey to the Cloud Platform with label $label");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

@@ -8,6 +8,7 @@ use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\Databases;
 use AcquiaCloudApi\Endpoints\Environments;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -25,9 +26,6 @@ class EnvCreateCommand extends CommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output = $output;
     $cloudAppUuid = $this->determineCloudApplication(TRUE);
@@ -61,7 +59,7 @@ class EnvCreateCommand extends CommandBase {
     };
     $this->waitForNotificationToComplete($acquiaCloudClient, $notificationUuid, "Waiting for the environment to be ready. This usually takes 2 - 15 minutes.", $success);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function validateLabel(Environments $environmentsResource, string $cloudAppUuid, string $title): void {

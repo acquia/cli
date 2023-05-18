@@ -6,6 +6,7 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,9 +30,6 @@ class IdeShareCommand extends CommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
 
@@ -47,12 +45,9 @@ class IdeShareCommand extends CommandBase {
     $this->output->writeln('');
     $this->output->writeln("<comment>Your IDE Share URL:</comment> <href={$ide->links->web->href}>{$ide->links->web->href}?share=$shareUuid</>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
-  /**
-   * @param array $filePath
-   */
   public function setShareCodeFilepaths(array $filePath): void {
     $this->shareCodeFilepaths = $filePath;
   }

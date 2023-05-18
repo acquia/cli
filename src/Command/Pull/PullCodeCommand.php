@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,9 +22,6 @@ class PullCodeCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->pullCode($input, $output);
     $this->checkEnvironmentPhpVersions($this->sourceEnvironment);
@@ -34,7 +32,7 @@ class PullCodeCommand extends PullCommandBase {
       $this->runDrushCacheClear($outputCallback);
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

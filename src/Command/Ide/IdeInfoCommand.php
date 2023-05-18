@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,9 +17,6 @@ class IdeInfoCommand extends IdeCommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $applicationUuid = $this->determineCloudApplication();
 
@@ -40,7 +38,7 @@ class IdeInfoCommand extends IdeCommandBase {
       ['Web URL' => $response->links->web->href]
     );
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

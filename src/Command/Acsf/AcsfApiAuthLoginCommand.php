@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Acsf;
 
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,9 +22,6 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     return FALSE;
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     if ($input->getOption('factory-url')) {
       $factoryUrl = $input->getOption('factory-url');
@@ -61,7 +59,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
         $output->writeln([
           "<info>Acquia CLI is now logged in to <options=bold>{$factory['url']}</> as <options=bold>{$selectedUser['username']}</></info>",
         ]);
-        return 0;
+        return Command::SUCCESS;
       }
     }
     else {
@@ -74,7 +72,7 @@ class AcsfApiAuthLoginCommand extends AcsfCommandBase {
     $this->writeAcsfCredentialsToDisk($factoryUrl, $username, $key);
     $output->writeln("<info>Saved credentials</info>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function writeAcsfCredentialsToDisk(?string $factoryUrl, string $username, string $key): void {

@@ -8,6 +8,7 @@ use AcquiaCloudApi\Endpoints\Account;
 use PharData;
 use Psr\Http\Message\StreamInterface;
 use RecursiveIteratorIterator;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -49,7 +50,7 @@ class AliasesDownloadCommand extends SshCommand {
     ));
     unlink($drushArchiveTempFilepath);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**

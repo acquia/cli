@@ -5,6 +5,7 @@ namespace Acquia\Cli\Command\Remote;
 use Acquia\Cli\Command\CommandBase;
 use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -40,7 +41,7 @@ class AliasListCommand extends CommandBase {
 
     $table->render();
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ssh;
 
 use AcquiaCloudApi\Endpoints\SshKeys;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -15,9 +16,6 @@ class SshKeyListCommand extends SshKeyCommandBase {
     $this->setDescription('List your local and remote SSH keys');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $sshKeys = new SshKeys($acquiaCloudClient);
@@ -65,7 +63,7 @@ class SshKeyListCommand extends SshKeyCommandBase {
     }
     $table->render();
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function createSshKeyTable(OutputInterface $output, string $title): Table {

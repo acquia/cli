@@ -8,6 +8,7 @@ use Acquia\Cli\Output\Checklist;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,9 +24,6 @@ class PushDatabaseCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $destinationEnvironment = $this->determineEnvironment($input, $output);
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
@@ -34,7 +32,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $database = $databases[0];
     $answer = $this->io->confirm("Overwrite the <bg=cyan;options=bold>{$database->name}</> database on <bg=cyan;options=bold>{$destinationEnvironment->name}</> with a copy of the database from the current machine?");
     if (!$answer) {
-      return 0;
+      return Command::SUCCESS;
     }
 
     $this->checklist = new Checklist($output);
@@ -52,7 +50,7 @@ class PushDatabaseCommand extends PullCommandBase {
     $this->importDatabaseDumpOnRemote($destinationEnvironment, $remoteDumpFilepath, $database);
     $this->checklist->completePreviousItem();
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function uploadDatabaseDump(

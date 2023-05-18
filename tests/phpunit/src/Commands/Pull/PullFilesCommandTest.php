@@ -5,6 +5,7 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -105,11 +106,8 @@ class PullFilesCommandTest extends PullCommandTestBase {
     IdeHelper::unsetCloudIdeEnvVars();
   }
 
-  /**
-   * @param $environment
-   */
   protected function mockExecuteRsync(
-    ObjectProphecy $localMachineHelper,
+    LocalMachineHelper|ObjectProphecy $localMachineHelper,
                    $environment,
     string $sourceDir,
     string $destinationDir

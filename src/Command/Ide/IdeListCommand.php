@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,9 +19,6 @@ class IdeListCommand extends IdeCommandBase {
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $applicationUuid = $this->determineCloudApplication();
 
@@ -46,7 +44,7 @@ class IdeListCommand extends IdeCommandBase {
       $output->writeln('No IDE exists for this application.');
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

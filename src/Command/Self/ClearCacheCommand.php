@@ -3,6 +3,7 @@
 namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -21,7 +22,7 @@ class ClearCacheCommand extends CommandBase {
     self::clearCaches();
     $output->writeln('Acquia CLI caches were cleared.');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**
