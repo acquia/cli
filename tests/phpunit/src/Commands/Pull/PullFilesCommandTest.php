@@ -5,14 +5,12 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Command\Pull\PullFilesCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
+use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\Commands\Ide\IdeHelper;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
-/**
- * @property \Acquia\Cli\Command\Pull\PullFilesCommand $command
- */
 class PullFilesCommandTest extends PullCommandTestBase {
 
   protected function createCommand(): Command {
@@ -28,7 +26,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
     $this->mockGetAcsfSites($sshHelper);
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockGetFilesystem($localMachineHelper);
-    $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files', $this->projectDir . '/docroot/sites/jxr5000596dev/');
+    $this->mockExecuteRsync($localMachineHelper, $selectedEnvironment, '/mnt/files/profserv2.dev/sites/g/files/jxr5000596dev/files/', $this->projectDir . '/docroot/sites/jxr5000596dev/files');
 
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->command->sshHelper = $sshHelper->reveal();
@@ -109,7 +107,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
    * @param $environment
    */
   protected function mockExecuteRsync(
-    ObjectProphecy $localMachineHelper,
+    LocalMachineHelper|ObjectProphecy $localMachineHelper,
                    $environment,
     string $sourceDir,
     string $destinationDir
@@ -123,7 +121,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
       $environment->ssh_url . ':' . $sourceDir,
       $destinationDir,
     ];
-    $localMachineHelper->execute($command, Argument::type('callable'), NULL, FALSE, 60 * 60)
+    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }

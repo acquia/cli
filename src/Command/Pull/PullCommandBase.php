@@ -22,6 +22,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\TransferStats;
 use Psr\Http\Message\UriInterface;
 use React\EventLoop\Loop;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
@@ -43,12 +44,20 @@ abstract class PullCommandBase extends CommandBase {
 
   private UriInterface $backupDownloadUrl;
 
-  /**
-   * @param $environment
-   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
-   * @param $backupResponse
-   * @return string
-   */
+  protected function getCloudFilesDir(EnvironmentResponse $chosenEnvironment, string $site): string {
+    $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
+    if ($this->isAcsfEnv($chosenEnvironment)) {
+      return '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
+    }
+    else {
+      return $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files";
+    }
+  }
+
+  protected function getLocalFilesDir(string $site): string {
+    return $this->dir . '/docroot/sites/' . $site . '/files';
+  }
+
   public static function getBackupPath($environment, DatabaseResponse $database, $backupResponse): string {
     // Databases have a machine name not exposed via the API; we can only
     // approximately reconstruct it and match the filename you'd get downloading
@@ -73,11 +82,8 @@ abstract class PullCommandBase extends CommandBase {
     $this->checklist = new Checklist($output);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function pullCode(InputInterface $input, OutputInterface $output): void {
@@ -121,15 +127,15 @@ abstract class PullCommandBase extends CommandBase {
         $this->printDatabaseBackupInfo($backupResponse, $sourceEnvironment);
       }
 
-      $this->checklist->addItem("Downloading {$database->name} database copy from the Cloud Platform");
+      $this->checklist->addItem("Downloading $database->name database copy from the Cloud Platform");
       $localFilepath = $this->downloadDatabaseBackup($sourceEnvironment, $database, $backupResponse, $this->getOutputCallback($output, $this->checklist));
       $this->checklist->completePreviousItem();
 
       if ($noImport) {
-        $this->io->success("{$database->name} database backup downloaded to $localFilepath");
+        $this->io->success("$database->name database backup downloaded to $localFilepath");
       }
       else {
-        $this->checklist->addItem("Importing {$database->name} database download");
+        $this->checklist->addItem("Importing $database->name database download");
         $this->importRemoteDatabase($database, $localFilepath, $this->getOutputCallback($output, $this->checklist));
         $this->checklist->completePreviousItem();
       }
@@ -260,11 +266,6 @@ abstract class PullCommandBase extends CommandBase {
     return $this->backupDownloadUrl ?? NULL;
   }
 
-  /**
-   * @param $totalBytes
-   * @param $downloadedBytes
-   * @param $progress
-   */
   public static function displayDownloadProgress($totalBytes, $downloadedBytes, &$progress, OutputInterface $output): void {
     if ($totalBytes > 0 && is_null($progress)) {
       $progress = new ProgressBar($output, $totalBytes);
@@ -337,9 +338,6 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param callable|null $outputCallback
-   */
   private function dropLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = NULL): void {
     if ($outputCallback) {
       $outputCallback('out', "Dropping database $dbName");
@@ -360,9 +358,6 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param callable|null $outputCallback
-   */
   private function createLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = NULL): void {
     if ($outputCallback) {
       $outputCallback('out', "Creating new empty database $dbName");
@@ -429,9 +424,6 @@ abstract class PullCommandBase extends CommandBase {
     return trim($process->getOutput());
   }
 
-  /**
-   * @param $acquiaCloudClient
-   */
   private function promptChooseEnvironment($acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
     $environmentResource = new Environments($acquiaCloudClient);
     $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
@@ -443,7 +435,7 @@ abstract class PullCommandBase extends CommandBase {
         $applicationEnvironments = array_values($applicationEnvironments);
         continue;
       }
-      $choices[] = "{$environment->label}, {$environment->name} (vcs: {$environment->vcs->path})";
+      $choices[] = "$environment->label, $environment->name (vcs: {$environment->vcs->path})";
     }
     $chosenEnvironmentLabel = $this->io->choice('Choose a Cloud Platform environment', $choices, $choices[0]);
     $chosenEnvironmentIndex = array_search($chosenEnvironmentLabel, $choices, TRUE);
@@ -451,12 +443,6 @@ abstract class PullCommandBase extends CommandBase {
     return $applicationEnvironments[$chosenEnvironmentIndex];
   }
 
-  /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloudEnvironment
-   * @param \AcquiaCloudApi\Response\DatabasesResponse $environmentDatabases
-   * @param bool $multipleDbs
-   * @return DatabaseResponse[]
-   */
   private function promptChooseDatabases(
     EnvironmentResponse $cloudEnvironment,
     DatabasesResponse $environmentDatabases,
@@ -514,9 +500,6 @@ abstract class PullCommandBase extends CommandBase {
     return [$environmentDatabases[$chosenDatabaseIndex]];
   }
 
-  /**
-   * @param callable|null $outputCallback
-   */
   protected function runComposerScripts(callable $outputCallback = NULL): void {
     if (file_exists($this->dir . '/composer.json') && $this->localMachineHelper->commandExists('composer')) {
       $this->checklist->addItem("Installing Composer dependencies");
@@ -528,9 +511,6 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param $environment
-   */
   private function determineSite($environment, InputInterface $input): mixed {
     if (isset($this->site)) {
       return $this->site;
@@ -551,22 +531,8 @@ abstract class PullCommandBase extends CommandBase {
     return $site;
   }
 
-  /**
-   * @param $chosenEnvironment
-   * @param \Closure|null $outputCallback
-   */
-  private function rsyncFilesFromCloud($chosenEnvironment, Closure $outputCallback = NULL, string $site): void {
-    $sitegroup = self::getSiteGroupFromSshUrl($chosenEnvironment->sshUrl);
-    if ($this->isAcsfEnv($chosenEnvironment)) {
-      $sourceDir = '/mnt/files/' . $sitegroup . '.' . $chosenEnvironment->name . '/sites/g/files/' . $site . '/files';
-      $destination = $this->dir . '/docroot/sites/' . $site . '/';
-    }
-    else {
-      $sourceDir = $this->getCloudSitesPath($chosenEnvironment, $sitegroup) . "/$site/files/";
-      $destination = $this->dir . '/docroot/sites/' . $site . '/files';
-    }
+  protected function rsyncFiles(string $sourceDir, string $destinationDir, ?callable $outputCallback): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['rsync']);
-    $this->localMachineHelper->getFilesystem()->mkdir($destination);
     $command = [
       'rsync',
       // -a archive mode; same as -rlptgoD.
@@ -577,13 +543,21 @@ abstract class PullCommandBase extends CommandBase {
       // -e specify the remote shell to use.
       '-avPhze',
       'ssh -o StrictHostKeyChecking=no',
-      $chosenEnvironment->sshUrl . ':' . $sourceDir,
-      $destination,
+      $sourceDir . '/',
+      $destinationDir,
     ];
-    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, FALSE, 60 * 60);
+    $process = $this->localMachineHelper->execute($command, $outputCallback, NULL, ($this->output->getVerbosity() > OutputInterface::VERBOSITY_NORMAL));
     if (!$process->isSuccessful()) {
-      throw new AcquiaCliException('Unable to sync files from Cloud. {message}', ['message' => $process->getErrorOutput()]);
+      throw new AcquiaCliException('Unable to sync files. {message}', ['message' => $process->getErrorOutput()]);
     }
+  }
+
+  private function rsyncFilesFromCloud(EnvironmentResponse $chosenEnvironment, Closure $outputCallback, string $site): void {
+    $sourceDir = $chosenEnvironment->sshUrl . ':' . $this->getCloudFilesDir($chosenEnvironment, $site);
+    $destinationDir = $this->getLocalFilesDir($site);
+    $this->localMachineHelper->getFilesystem()->mkdir($destinationDir);
+
+    $this->rsyncFiles($sourceDir, $destinationDir, $outputCallback);
   }
 
   /**
@@ -677,7 +651,7 @@ abstract class PullCommandBase extends CommandBase {
       $acquiaCloudClient = $this->cloudApiClientService->getClient();
       $chosenEnvironment = $this->promptChooseEnvironment($acquiaCloudClient, $cloudApplicationUuid, $allowProduction);
     }
-    $this->logger->debug("Using environment {$chosenEnvironment->label} {$chosenEnvironment->uuid}");
+    $this->logger->debug("Using environment $chosenEnvironment->label $chosenEnvironment->uuid");
 
     $this->sourceEnvironment = $chosenEnvironment;
 
@@ -699,7 +673,7 @@ abstract class PullCommandBase extends CommandBase {
     EnvironmentResponse $chosenEnvironment
   ): void {
     if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !$this->environmentPhpVersionMatches($chosenEnvironment)) {
-      $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>{$chosenEnvironment->label} ({$chosenEnvironment->configuration->php->version})</> environment?", FALSE);
+      $answer = $this->io->confirm("Would you like to change the PHP version on this IDE to match the PHP version on the <bg=cyan;options=bold>$chosenEnvironment->label ({$chosenEnvironment->configuration->php->version})</> environment?", FALSE);
       if ($answer) {
         $command = $this->getApplication()->find('ide:php-version');
         $command->run(new ArrayInput(['command' => 'ide:php-version', 'version' => $chosenEnvironment->configuration->php->version]),
@@ -708,17 +682,11 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param $environment
-   */
   private function environmentPhpVersionMatches($environment): bool {
     $currentPhpVersion = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $currentPhpVersion;
   }
 
-  /**
-   * @param $input
-   */
   protected function executeAllScripts($input, Closure $outputCallback): void {
     $this->setDirAndRequireProjectCwd($input);
     $this->runComposerScripts($outputCallback);
@@ -829,8 +797,8 @@ abstract class PullCommandBase extends CommandBase {
     $dateFormatted = date("D M j G:i:s T Y", strtotime($backupResponse->completedAt));
     $webLink = "https://cloud.acquia.com/a/environments/{$sourceEnvironment->uuid}/databases";
     $messages = [
-      "Using a database backup that is $hoursInterval hours old. Backup #{$backupResponse->id} was created at {$dateFormatted}.",
-      "You can view your backups here: {$webLink}",
+      "Using a database backup that is $hoursInterval hours old. Backup #$backupResponse->id was created at {$dateFormatted}.",
+      "You can view your backups here: $webLink",
       "To generate a new backup, re-run this command with the --on-demand option.",
     ];
     if ($hoursInterval > 24) {
@@ -841,9 +809,6 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  /**
-   * @param callable|null $outputCallback
-   */
   private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, Closure $outputCallback = NULL): void {
     if ($database->flags->default) {
       // Easy case, import the default db into the default db.
