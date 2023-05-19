@@ -32,7 +32,7 @@ class SshCommand extends SshBaseCommand {
     ];
     $arguments = $input->getArguments();
     if (empty($arguments['ssh_command'])) {
-      $sshCommand[] = 'exec $sHELL -l';
+      $sshCommand[] = 'exec $SHELL -l';
     }
     else {
       $sshCommand[] = implode(' ', $arguments['ssh_command']);
