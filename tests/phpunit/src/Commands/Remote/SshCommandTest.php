@@ -34,7 +34,7 @@ class SshCommandTest extends SshCommandTestBase {
       '-o StrictHostKeyChecking=no',
       '-o AddressFamily inet',
       '-o LogLevel=ERROR',
-      'cd /var/www/html/devcloud2.dev; exec $sHELL -l',
+      'cd /var/www/html/devcloud2.dev; exec $SHELL -l',
     ];
     $localMachineHelper
       ->execute($sshCommand, Argument::type('callable'), NULL, TRUE, NULL)
