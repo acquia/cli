@@ -1048,7 +1048,12 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param $userUuidArgument
+   * @param String $userAlias
+   *   User alias like uuid or email.
+   * @param String $orgUuidArgument
+   *   Organization uuid.
+   * @return string
+   *   User uuid from alias
    */
   protected function validateUserUuid($userUuidArgument, $orgUuidArgument): mixed {
     try {
