@@ -1,8 +1,11 @@
 {
     "$schema": "https://raw.githubusercontent.com/box-project/box/4.3.7/res/schema.json",
-    "directories":[
+    "directories": [
         "config",
         "var"
+    ],
+    "files": [
+        ".env"
     ],
     "compactors": [
         "KevinGH\\Box\\Compactor\\Php",

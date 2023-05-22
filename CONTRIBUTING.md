@@ -43,9 +43,10 @@ Pull requests must also adhere to the following guidelines:
 
 Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar as a build artifact to assist with reviews. To download acli.phar for any commit:
 
-1. Click the "build-release" workflow link.
-2. Expand the "Upload to transfer.sh" section.
-3. Copy the transfer.sh and use it to download acli.phar for that commit.
+1. Wait for the CI workflow to complete.
+2. On the workflow summary page, in the "Artifacts" section, click on `acli.phar`.
+3. Unzip the downloaded file.
+4. Make the file executable: `chmod +x acli.phar`
 
 ## Building and testing
 
