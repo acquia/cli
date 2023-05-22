@@ -41,7 +41,7 @@ Pull requests must also adhere to the following guidelines:
 
 ### Automatic dev builds
 
-Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar to transfer.sh in order to assist with reviews. To download acli.phar for any commit:
+Every commit on the Acquia CLI repository, including for pull requests, automatically builds and uploads acli.phar as a build artifact to assist with reviews. To download acli.phar for any commit:
 
 1. Click the "build-release" workflow link.
 2. Expand the "Upload to transfer.sh" section.
