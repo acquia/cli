@@ -94,8 +94,11 @@ jobs:
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
           composer box-compile
-      - name: Upload to transfer.sh
-        run: echo "$(curl -s --upload-file build/acli.phar https://transfer.sh/acli.phar)"
+      - name: Store artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: acli.phar
+          path: build/acli.phar
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
