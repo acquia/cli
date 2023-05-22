@@ -64,9 +64,10 @@ Be sure to validate and test your code locally using the provided Composer test 
 To test changes in production mode, build and run `acli.phar` using this process. The _build-release_ stage of [`.github/workflows/ci.yml`](.github/workflows/ci.yml) follows a similar process.
 
 1. Install Composer production dependencies: `composer install --no-dev --optimize-autoloader`
-1. Clear and rebuild your Symfony caches: `./bin/acli ckc && ./bin/acli cc`
-1. Install Box (only need to do this once): `composer box-install`
-1. Compile phar: `composer box-compile`
+2. Create a `.env` file with Bugsnag and Amplitude keys
+3. Clear and rebuild your Symfony caches: `./bin/acli ckc && ./bin/acli cc`
+4. Install Box (only need to do this once): `composer box-install`
+5. Compile phar: `composer box-compile`
 
 ### Testing the `update` command
 
@@ -86,11 +87,11 @@ composer update-cloud-api-spec
 
 ## Releasing
 
-0. The release drafter plugin should have already created a release for you, [visible in the GitHub UI](https://github.com/acquia/cli/releases), according to [Semantic Versioning](https://semver.org/). ![image](https://user-images.githubusercontent.com/539205/134036494-c7000fb0-94e6-4594-a09f-bb1601745d5a.png)
-3. Ensure that release notes are accurate and issues are correctly labeled.
-4. Ensure that release has been approved by maintainers and any other required stakeholders.
-5. Validate that testing has passed on the commit to be released.
-6. In the GitHub UI, publish the release. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
+1. The release drafter plugin should have already created a release for you, [visible in the GitHub UI](https://github.com/acquia/cli/releases), according to [Semantic Versioning](https://semver.org/). ![image](https://user-images.githubusercontent.com/539205/134036494-c7000fb0-94e6-4594-a09f-bb1601745d5a.png)
+2. Ensure that release notes are accurate and issues are correctly labeled.
+3. Ensure that release has been approved by maintainers and any other required stakeholders.
+4. Validate that testing has passed on the commit to be released.
+5. In the GitHub UI, publish the release. This will trigger a [GitHub actions build](https://github.com/acquia/cli/blob/731cb747060e06940b2b5e6994df1bcc86325a7a/.github/workflows/ci.yml#L47-L69) that generates a phar file and attaches it to the release. ![image](https://user-images.githubusercontent.com/539205/134036674-4dd6db98-5fe4-413c-abe3-3a6f35b0fc31.png)
 
 
 ### If the build fails...
@@ -102,7 +103,7 @@ If the build fails to generate a phar and attach it properly, follow these steps
 git remote update
 git checkout [the tag]
 ```
-2. Follow the steps above for [Building acli.phar](#building-acliphar)
+1. Follow the steps above for [Building acli.phar](#building-acliphar)
 2. Validate that the phar works and has the right version defined:
 ```
 ./build/acli.phar --version

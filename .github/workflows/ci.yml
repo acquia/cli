@@ -82,6 +82,11 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo BUGSNAG_KEY=${{ secrets.BUGSNAG_KEY }} >> .env
+          echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
