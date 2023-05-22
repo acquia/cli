@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\TableSeparator;
@@ -15,7 +16,8 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected function configure(): void {
     $this->setDescription('Print information about an SSH key')
-      ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
+      ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
+      ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
@@ -70,6 +72,9 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       ];
     }
     if ($fingerprint = $this->input->getOption('fingerprint')) {
+      if (!array_key_exists($fingerprint, $keys)) {
+        throw new AcquiaCliException('No key exists matching provided fingerprint');
+      }
       return $keys[$fingerprint];
     }
 
