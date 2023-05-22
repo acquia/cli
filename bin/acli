@@ -76,6 +76,7 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
 
 putenv('BUGSNAG_KEY=');
 putenv('AMPLITUDE_KEY=');
+putenv('ACLI_VERSION=UNKNOWN');
 $dotenv = Dotenv::createUnsafeMutable(__DIR__ . '/..');
 $dotenv->safeLoad();
 
@@ -90,9 +91,7 @@ $application = $container->get(Application::class);
 /** @var OutputInterface $output */
 $output = $container->get(OutputInterface::class);
 $application->setName('Acquia CLI');
-// Do not use the following version string anywhere else, as it will be replaced
-// in production builds.
-$application->setVersion('@package_version@');
+$application->setVersion(getenv('ACLI_VERSION'));
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api', $container->get(ApiCommandFactory::class)));

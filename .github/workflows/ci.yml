@@ -82,11 +82,20 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
+      - name: 'Get ACLI version'
+        id: acli-version
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == 'tag' ]]; then
+            echo "ACLI_VERSION=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "ACLI_VERSION=$GITHUB_SHA" >> $GITHUB_OUTPUT
+          fi
       - name: 'Create env file'
         run: |
           touch .env
           echo BUGSNAG_KEY=${{ secrets.BUGSNAG_KEY }} >> .env
           echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
+          echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
