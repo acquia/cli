@@ -40,8 +40,10 @@ abstract class CommandTestBase extends TestBase {
   /**
    * The command tester.
    */
-  private \Symfony\Component\Console\Tester\CommandTester $commandTester;
+  private CommandTester $commandTester;
 
+  // Select the application.
+  protected static int $INPUT_APP = 0;
   protected Command $command;
 
   protected string $apiCommandPrefix = 'api';

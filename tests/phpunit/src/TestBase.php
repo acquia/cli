@@ -416,6 +416,26 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
+  protected function mockRequest(string $path, ?array $parts = [], ?string $method = 'get', ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+    $code = $method === 'get' ? '200' : '202';
+    $response = $this->getMockResponseFromSpec($path, $method, $code);
+    // This is a set of example responses.
+    if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
+      $response = $response->$exampleResponse->value;
+    }
+    // This has multiple responses.
+    if (property_exists($response, '_embedded') && property_exists($response->_embedded, 'items')) {
+      $response = $response->_embedded->items;
+    }
+    if (isset($tamper)) {
+      $tamper($response);
+    }
+    $this->clientProphecy->request($method, strtr($path, $parts), $body)
+      ->willReturn($response)
+      ->shouldBeCalled();
+    return $response;
+  }
+
   /**
    * @param int $count
    *   The number of applications to return. Use this to simulate query filters.
@@ -522,19 +542,8 @@ abstract class TestBase extends TestCase {
       'get', 200);
   }
 
-  /**
-   * Request account information.
-   *
-   * @param bool $support
-   *   Whether the account should have the support flag.
-   */
-  protected function mockAccountRequest(bool $support = FALSE): void {
-    $account = $this->getMockResponseFromSpec('/account', 'get', 200);
-    if ($support) {
-      $account->flags->support = TRUE;
-      $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
-    }
-    $this->clientProphecy->request('get', '/account')->willReturn($account);
+  protected function mockAccountRequest(): void {
+    $this->mockRequest('/account');
   }
 
   protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object {
