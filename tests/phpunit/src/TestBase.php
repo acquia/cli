@@ -250,10 +250,6 @@ abstract class TestBase extends TestCase {
     $this->sshHelper = new SshHelper($this->output, $this->localMachineHelper, $this->logger);
   }
 
-  /**
-   * @param $path
-   * @param $method
-   */
   protected function getResourceFromSpec($path, $method): mixed {
     $acquiaCloudSpec = $this->getCloudApiSpec();
     return $acquiaCloudSpec['paths'][$path][$method];
@@ -320,9 +316,6 @@ abstract class TestBase extends TestCase {
     );
   }
 
-  /**
-   * @param $path
-   */
   public function getMockRequestBodyFromSpec($path, string $method = 'post'): mixed {
     $endpoint = $this->getResourceFromSpec($path, $method);
     return $endpoint['requestBody']['content']['application/json']['example'];
@@ -354,9 +347,6 @@ abstract class TestBase extends TestCase {
         && $apiSpecChecksumItem->get() !== $acquiaCloudSpecFileChecksum));
   }
 
-  /**
-   * @param $apiSpec
-   */
   private function saveApiSpecCacheItems(
     PhpArrayAdapter $cache,
     string $acquiaCloudSpecFileChecksum,
@@ -370,9 +360,6 @@ abstract class TestBase extends TestCase {
     $cache->save($apiSpecCacheItem);
   }
 
-  /**
-   * @param $contents
-   */
   protected function createLocalSshKey($contents): string {
     $privateKeyFilepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($privateKeyFilepath);
@@ -615,9 +602,6 @@ abstract class TestBase extends TestCase {
     $localMachineHelper->readFile(Argument::containingString('id_rsa'))->willReturn($keyContents);
   }
 
-  /**
-   * @param $localMachineHelper
-   */
   protected function mockAddSshKeyToAgent($localMachineHelper, $fileSystem): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
@@ -676,9 +660,6 @@ abstract class TestBase extends TestCase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param $mockRequestArgs
-   */
   protected function mockListSshKeyRequestWithUploadedKey(
     $mockRequestArgs
   ): void {
@@ -749,9 +730,6 @@ abstract class TestBase extends TestCase {
     $this->fs->remove($this->acliConfigFilepath);
   }
 
-  /**
-   * @param array $releases
-   */
   public function mockGuzzleClientForUpdate(array $releases): ObjectProphecy {
     $stream = $this->prophet->prophesize(StreamInterface::class);
     $stream->getContents()->willReturn(json_encode($releases));

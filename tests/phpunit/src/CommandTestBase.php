@@ -298,10 +298,6 @@ abstract class CommandTestBase extends TestBase {
     return $databasesResponse;
   }
 
-  /**
-   * @param $dbName
-   * @param $backupId
-   */
   protected function mockDatabaseBackupsResponse(
     object $environmentsResponse,
     $dbName,
@@ -322,11 +318,6 @@ abstract class CommandTestBase extends TestBase {
     return $databaseBackupsResponse;
   }
 
-  /**
-   * @param $environmentsResponse
-   * @param $dbName
-   * @param $backupId
-   */
   protected function mockDownloadBackupResponse(
     $environmentsResponse,
     $dbName,
@@ -445,10 +436,6 @@ abstract class CommandTestBase extends TestBase {
     return $sshHelper;
   }
 
-  /**
-   * @param $localMachineHelper
-   * @param $publicKey
-   */
   protected function mockGetLocalSshKey($localMachineHelper, $fileSystem, $publicKey): string {
     $fileSystem->exists(Argument::type('string'))->willReturn(TRUE);
     /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
@@ -508,10 +495,6 @@ abstract class CommandTestBase extends TestBase {
     return NULL;
   }
 
-  /**
-   * @param $projectId
-   * @return array
-   */
   protected function getMockedGitLabProject($projectId): array {
     return [
       'default_branch' => 'master',
@@ -540,9 +523,6 @@ abstract class CommandTestBase extends TestBase {
     return $gitlabClient;
   }
 
-  /**
-   * @param $localMachineHelper
-   */
   protected function mockGitlabGetToken($localMachineHelper, string $gitlabToken, string $gitlabHost, bool $success = TRUE): void {
     $process = $this->mockProcess($success);
     $process->getOutput()->willReturn($gitlabToken);
@@ -555,9 +535,6 @@ abstract class CommandTestBase extends TestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   * @param $localMachineHelper
-   */
   protected function mockGitlabGetHost($localMachineHelper, string $gitlabHost): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn($gitlabHost);
@@ -569,9 +546,6 @@ abstract class CommandTestBase extends TestBase {
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client $gitlabClient
-   */
   protected function mockGitLabUsersMe(ObjectProphecy|\Gitlab\Client $gitlabClient): void {
     $users = $this->prophet->prophesize(Users::class);
     $me = [
@@ -635,12 +609,6 @@ abstract class CommandTestBase extends TestBase {
     return $permissions;
   }
 
-  /**
-   * @param $applicationUuid
-   * @param $gitlabProjectId
-   * @param $mockedGitlabProjects
-   * @return \Gitlab\Api\Projects|\Prophecy\Prophecy\ObjectProphecy
-   */
   protected function mockGetGitLabProjects($applicationUuid, $gitlabProjectId, $mockedGitlabProjects): Projects|ObjectProphecy {
     $projects = $this->prophet->prophesize(Projects::class);
     $projects->all(['search' => $applicationUuid])

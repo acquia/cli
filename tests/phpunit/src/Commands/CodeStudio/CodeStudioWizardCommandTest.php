@@ -248,9 +248,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $projects->createProjectAccessToken($this->gitLabProjectId, Argument::type('array'))->willReturn($token);
   }
 
-  /**
-   * @param $localMachineHelper
-   */
   protected function mockGetCurrentBranchName($localMachineHelper): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('main');
@@ -344,9 +341,6 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlabClient->namespaces()->willReturn($namespaces->reveal());
   }
 
-  /**
-   * @param $gitlabProjectId
-   */
   protected function mockGitLabVariables($gitlabProjectId, ObjectProphecy $projects): void {
     $projects->variables($gitlabProjectId)->willReturn($this->getMockGitLabVariables());
     $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
