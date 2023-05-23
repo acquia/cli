@@ -17,23 +17,20 @@ class IdeCreateCommandTest extends CommandTestBase {
    * Tests the 'ide:create' command.
    */
   public function testCreate(): void {
-
-    $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockAccountRequest();
-
-    // Request to create IDE.
-    $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides', 'post', '202');
-    $this->clientProphecy->request(
-          'post',
-          // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
-          '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides',
-          ['json' => ['label' => 'Example IDE']]
-      )->willReturn($response->{'IDE created'}->value);
-
-    // Request for IDE data.
-    $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
+    $applicationsResponse = $this->mockRequest('getApplications');
+    $applicationUuid = $applicationsResponse[self::$INPUT_DEFAULT_CHOICE]->uuid;
+    $this->mockRequest('getApplicationByUuid', $applicationUuid);
+    $this->mockRequest('getAccount');
+    $ideResponse = $this->mockRequest(
+      'postApplicationsIde',
+      $applicationUuid,
+      ['json' => ['label' => 'Example IDE']],
+      'IDE created'
+    );
+    $cloudApiIdeUrl = $ideResponse->_links->self->href;
+    $urlParts = explode('/', $cloudApiIdeUrl);
+    $ideUuid = end($urlParts);
+    $this->mockRequest('getIde', $ideUuid);
 
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
     $guzzleResponse = $this->prophet->prophesize(Response::class);
@@ -47,8 +44,7 @@ class IdeCreateCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'n',
       0,
-      // Select the application for which you'd like to create a new IDE
-      0,
+      self::$INPUT_DEFAULT_CHOICE,
       // Enter a label for your Cloud IDE:
       'Example IDE',
     ];

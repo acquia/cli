@@ -28,7 +28,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
@@ -291,6 +290,18 @@ abstract class TestBase extends TestCase {
     return json_decode($responseBody, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
+  protected function getPathAndMethodFromSpec(string $operationId): array {
+    $acquiaCloudSpec = $this->getCloudApiSpec();
+    foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
+      foreach ($methodEndpoint as $method => $endpoint) {
+        if ($endpoint['operationId'] === $operationId) {
+          return [$path, $method];
+        }
+      }
+    }
+    throw new \Exception('operationId not found');
+  }
+
   /**
    * Build and return a command with common dependencies.
    *
@@ -403,6 +414,31 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
+  protected function mockRequest(string $operationId, ?string $param = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+    [$path, $method] = $this->getPathAndMethodFromSpec($operationId);
+    $code = $method === 'get' ? '200' : '202';
+    $response = $this->getMockResponseFromSpec($path, $method, $code);
+
+    // This is a set of example responses.
+    if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
+      $response = $response->$exampleResponse->value;
+    }
+    // This has multiple responses.
+    if (property_exists($response, '_embedded') && property_exists($response->_embedded, 'items')) {
+      $response = $response->_embedded->items;
+    }
+    if (isset($tamper)) {
+      $tamper($response);
+    }
+    if (isset($param)) {
+      $path = preg_replace('/\{.*}/', $param, $path);
+    }
+    $this->clientProphecy->request($method, $path, $body)
+      ->willReturn($response)
+      ->shouldBeCalled();
+    return $response;
+  }
+
   /**
    * @param int $count
    *   The number of applications to return. Use this to simulate query filters.
@@ -509,21 +545,6 @@ abstract class TestBase extends TestCase {
       'get', 200);
   }
 
-  /**
-   * Request account information.
-   *
-   * @param bool $support
-   *   Whether the account should have the support flag.
-   */
-  protected function mockAccountRequest(bool $support = FALSE): void {
-    $account = $this->getMockResponseFromSpec('/account', 'get', 200);
-    if ($support) {
-      $account->flags->support = TRUE;
-      $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
-    }
-    $this->clientProphecy->request('get', '/account')->willReturn($account);
-  }
-
   protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $httpCode);
@@ -570,13 +591,8 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  protected function mockListSshKeysRequest(): object {
-    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
-      '200');
-    $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
-    return $response;
+  protected function mockListSshKeysRequest(): array {
+    return $this->mockRequest('getAccountSshKeys');
   }
 
   protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
@@ -625,39 +641,8 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  protected function mockUploadSshKey(?string $label = NULL): void {
-    $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $label = $label ?: $request['label'];
-    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
-    $this->clientProphecy->request(
-      'post',
-      '/account/ssh-keys',
-      [
-        'json' => [
-          'label' => $label,
-          'public_key' => $request['public_key'],
-        ],
-      ]
-    )->willReturn($response)
-      ->shouldBecalled();
-  }
-
-  protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
-    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
-    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mockBody->{'_embedded'}->items[0]->uuid)
-      ->willReturn($mockBody->{'_embedded'}->items[0])
-      ->shouldBeCalled();
-  }
-
   protected function mockDeleteSshKeyRequest(string $keyUuid): void {
-    // Request ssh key deletion.
-    $sshKeyDeleteResponse = $this->prophet->prophesize(ResponseInterface::class);
-    $sshKeyDeleteResponse->getStatusCode()->willReturn(202);
-    $this->clientProphecy->makeRequest('delete',
-      '/account/ssh-keys/' . $keyUuid)
-      ->willReturn($sshKeyDeleteResponse->reveal())
-      ->shouldBeCalled();
+    $this->mockRequest('deleteAccountSshKey', $keyUuid, NULL, 'Removed key');
   }
 
   protected function mockListSshKeyRequestWithUploadedKey(

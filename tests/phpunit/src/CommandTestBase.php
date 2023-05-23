@@ -40,7 +40,10 @@ abstract class CommandTestBase extends TestBase {
   /**
    * The command tester.
    */
-  private \Symfony\Component\Console\Tester\CommandTester $commandTester;
+  private CommandTester $commandTester;
+
+  // Select the application / SSH key / etc.
+  protected static int $INPUT_DEFAULT_CHOICE = 0;
 
   protected Command $command;
 

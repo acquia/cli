@@ -52,8 +52,13 @@ abstract class WizardTestBase extends CommandTestBase {
     $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
     $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
-    // List uploaded keys.
-    $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
+    $body = [
+      'json' => [
+        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+        'public_key' => $request['public_key'],
+      ],
+    ];
+    $this->mockRequest('postAccountSshKeys', NULL, $body);
 
     $localMachineHelper = $this->mockLocalMachineHelper();
 
@@ -113,8 +118,13 @@ abstract class WizardTestBase extends CommandTestBase {
 
     $localMachineHelper = $this->mockLocalMachineHelper();
 
-    // List uploaded keys.
-    $this->mockUploadSshKey('IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9');
+    $body = [
+      'json' => [
+        'label' => 'IDE_ExampleIDE_215824ff272a4a8c9027df32ed1d68a9',
+        'public_key' => $mockRequestArgs['public_key'],
+      ],
+    ];
+    $this->mockRequest('postAccountSshKeys', NULL, $body);
 
     // Poll Cloud.
     $sshHelper = $this->mockPollCloudViaSsh($environmentsResponse);

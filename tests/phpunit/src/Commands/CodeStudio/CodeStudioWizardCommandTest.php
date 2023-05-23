@@ -150,7 +150,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $environmentsResponse = $this->getMockEnvironmentsResponse();
     $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
-    $this->mockAccountRequest();
+    $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
 
     $gitlabClient = $this->prophet->prophesize(Client::class);

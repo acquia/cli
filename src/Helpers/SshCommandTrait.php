@@ -2,8 +2,8 @@
 
 namespace Acquia\Cli\Helpers;
 
-use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
+use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Zumba\Amplitude\Amplitude;
 
@@ -15,29 +15,26 @@ trait SshCommandTrait {
       $cloudKey = $this->determineCloudKey($acquiaCloudClient);
     }
 
-    $response = $acquiaCloudClient->makeRequest('delete', '/account/ssh-keys/' . $cloudKey->uuid);
-    if ($response->getStatusCode() === 202) {
-      $output->writeln("<info>Successfully deleted SSH key <options=bold>$cloudKey->label</> from the Cloud Platform.</info>");
-      $localKeys = $this->findLocalSshKeys();
-      foreach ($localKeys as $localFile) {
-        if (trim($localFile->getContents()) === trim($cloudKey->public_key)) {
-          $privateKeyPath = str_replace('.pub', '', $localFile->getRealPath());
-          $publicKeyPath = $localFile->getRealPath();
-          $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$localFile->getRealPath()} and $privateKeyPath ?", FALSE);
-          if ($answer) {
-            $this->localMachineHelper->getFilesystem()->remove([
-              $localFile->getRealPath(),
-              $privateKeyPath,
-            ]);
-            $this->io->success("Deleted $publicKeyPath and $privateKeyPath");
-            return 0;
-          }
+    $sshKeys = new SshKeys($acquiaCloudClient);
+    $sshKeys->delete($cloudKey->uuid);
+    $output->writeln("<info>Successfully deleted SSH key <options=bold>$cloudKey->label</> from the Cloud Platform.</info>");
+    $localKeys = $this->findLocalSshKeys();
+    foreach ($localKeys as $localFile) {
+      if (trim($localFile->getContents()) === trim($cloudKey->public_key)) {
+        $privateKeyPath = str_replace('.pub', '', $localFile->getRealPath());
+        $publicKeyPath = $localFile->getRealPath();
+        $answer = $this->io->confirm("Do you also want to delete the corresponding local key files {$localFile->getRealPath()} and $privateKeyPath ?", FALSE);
+        if ($answer) {
+          $this->localMachineHelper->getFilesystem()->remove([
+            $localFile->getRealPath(),
+            $privateKeyPath,
+          ]);
+          $this->io->success("Deleted $publicKeyPath and $privateKeyPath");
+          return 0;
         }
       }
-      return 0;
     }
-
-    throw new AcquiaCliException($response->getBody()->getContents());
+    return 0;
   }
 
   private function determineCloudKey(Client $acquiaCloudClient): object|array|null {
