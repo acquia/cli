@@ -542,10 +542,6 @@ abstract class TestBase extends TestCase {
       'get', 200);
   }
 
-  protected function mockAccountRequest(): void {
-    $this->mockRequest('/account');
-  }
-
   protected function getMockEnvironmentResponse(string $method = 'get', string $httpCode = '200'): object {
     return $this->getMockResponseFromSpec('/environments/{environmentId}',
       $method, $httpCode);

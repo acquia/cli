@@ -19,7 +19,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
     parent::setUp($output);
     $applicationResponse = $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();
-    $this->mockAccountRequest();
+    $this->mockRequest('/account');
     $this->mockPermissionsRequest($applicationResponse);
     $this->ide = $this->mockIdeRequest();
     $this->sshKeyFileName = IdeWizardCreateSshKeyCommand::getSshKeyFilename(IdeHelper::$remoteIdeUuid);
