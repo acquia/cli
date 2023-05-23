@@ -28,7 +28,6 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Prophecy\Prophet;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Adapter\PhpArrayAdapter;
@@ -592,13 +591,8 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
-  protected function mockListSshKeysRequest(): object {
-    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
-      '200');
-    $this->clientProphecy->request('get', '/account/ssh-keys')
-      ->willReturn($response->{'_embedded'}->items)
-      ->shouldBeCalled();
-    return $response;
+  protected function mockListSshKeysRequest(): array {
+    return $this->mockRequest('getAccountSshKeys');
   }
 
   protected function mockListSshKeysRequestWithIdeKey(IdeResponse $ide): object {
@@ -647,22 +641,8 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
-    $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
-    $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);
-    $this->clientProphecy->request('get', '/account/ssh-keys/' . $mockBody->{'_embedded'}->items[0]->uuid)
-      ->willReturn($mockBody->{'_embedded'}->items[0])
-      ->shouldBeCalled();
-  }
-
   protected function mockDeleteSshKeyRequest(string $keyUuid): void {
-    // Request ssh key deletion.
-    $sshKeyDeleteResponse = $this->prophet->prophesize(ResponseInterface::class);
-    $sshKeyDeleteResponse->getStatusCode()->willReturn(202);
-    $this->clientProphecy->makeRequest('delete',
-      '/account/ssh-keys/' . $keyUuid)
-      ->willReturn($sshKeyDeleteResponse->reveal())
-      ->shouldBeCalled();
+    $this->mockRequest('deleteAccountSshKey', $keyUuid, NULL, 'Removed key');
   }
 
   protected function mockListSshKeyRequestWithUploadedKey(

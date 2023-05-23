@@ -1,8 +1,5 @@
 <?php
 
-/**
- * @file
- */
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyCreateCommand;
@@ -31,17 +28,12 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyCreateUploadCommand::class);
   }
 
-  /**
-   * Tests the 'ssh-key:create-upload' command.
-   */
   public function testCreateUpload(): void {
     $mockRequestArgs = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
 
-    // Create.
     $sshKeyFilename = 'id_rsa';
     $localMachineHelper = $this->mockLocalMachineHelper();
     $localMachineHelper->getLocalFilepath('~/.passphrase')->willReturn('~/.passphrase');
-    /** @var Filesystem|ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
     $this->mockAddSshKeyToAgent($localMachineHelper, $fileSystem);
     $this->mockSshAgentList($localMachineHelper);
@@ -53,22 +45,13 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
         'public_key' => $mockRequestArgs['public_key'],
       ],
     ];
-    // Upload.
     $this->mockRequest('postAccountSshKeys', NULL, $body);
-    //$this->mockListSshKeyRequestWithUploadedKey($mockRequestArgs);
-    //$applicationsResponse = $this->mockApplicationsRequest();
-    //$this->mockApplicationRequest();
     $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $mockRequestArgs['public_key']);
-    //$this->mockEnvironmentsRequest($applicationsResponse);
 
     $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->application->find(SshKeyCreateCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
     $this->application->find(SshKeyUploadCommand::getDefaultName())->localMachineHelper = $this->command->localMachineHelper;
-
-    //$environmentsResponse = $this->getMockEnvironmentsResponse();
-    //$sshHelper = $this->mockPollCloudViaSsh($environmentsResponse->_embedded->items[0]);
-    //$this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
       // Enter a filename for your new local SSH key:

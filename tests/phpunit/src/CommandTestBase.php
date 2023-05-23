@@ -42,8 +42,9 @@ abstract class CommandTestBase extends TestBase {
    */
   private CommandTester $commandTester;
 
-  // Select the application.
-  protected static int $INPUT_APP = 0;
+  // Select the application / SSH key / etc.
+  protected static int $INPUT_DEFAULT_CHOICE = 0;
+
   protected Command $command;
 
   protected string $apiCommandPrefix = 'api';

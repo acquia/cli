@@ -18,7 +18,7 @@ class IdeCreateCommandTest extends CommandTestBase {
    */
   public function testCreate(): void {
     $applicationsResponse = $this->mockRequest('getApplications');
-    $applicationUuid = $applicationsResponse[self::$INPUT_APP]->uuid;
+    $applicationUuid = $applicationsResponse[self::$INPUT_DEFAULT_CHOICE]->uuid;
     $this->mockRequest('getApplicationByUuid', $applicationUuid);
     $this->mockRequest('getAccount');
     $ideResponse = $this->mockRequest(
@@ -44,7 +44,7 @@ class IdeCreateCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'n',
       0,
-      self::$INPUT_APP,
+      self::$INPUT_DEFAULT_CHOICE,
       // Enter a label for your Cloud IDE:
       'Example IDE',
     ];
