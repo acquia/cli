@@ -18,9 +18,6 @@ class IdeServiceStopCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeServiceStopCommand::class);
   }
 
-  /**
-   * Tests the 'ide:service-stop' command.
-   */
   public function testIdeServiceStopCommand(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStopPhp($localMachineHelper);
@@ -33,9 +30,6 @@ class IdeServiceStopCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Stopping php', $output);
   }
 
-  /**
-   * Tests the 'ide:service-stop' command with invalid choice.
-   */
   public function testIdeServiceStopCommandInvalid(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStopPhp($localMachineHelper);

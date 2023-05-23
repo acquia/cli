@@ -16,7 +16,7 @@ class PushCodeCommandTest extends CommandTestBase {
   }
 
   public function testPushCode(): void {
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 

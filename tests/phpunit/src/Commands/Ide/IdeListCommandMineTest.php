@@ -15,9 +15,6 @@ class IdeListCommandMineTest extends CommandTestBase {
     return $this->injectCommand(IdeListMineCommand::class);
   }
 
-  /**
-   * Tests the 'ide:list-mine' commands.
-   */
   public function testIdeListMineCommand(): void {
     $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
     $idesResponse = $this->mockAccountIdeListRequest();

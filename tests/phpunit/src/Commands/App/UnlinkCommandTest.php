@@ -16,9 +16,6 @@ class UnlinkCommandTest extends CommandTestBase {
     return $this->injectCommand(UnlinkCommand::class);
   }
 
-  /**
-   * Tests the 'unlink' command.
-   */
   public function testUnlinkCommand(): void {
     $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
@@ -30,7 +27,7 @@ class UnlinkCommandTest extends CommandTestBase {
     // Assert we set it correctly.
     $this->assertEquals($applicationsResponse->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
 
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
 
     // Assert it's been unset.
@@ -41,7 +38,7 @@ class UnlinkCommandTest extends CommandTestBase {
   public function testUnlinkCommandInvalidDir(): void {
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There is no Cloud Platform application linked to ' . $this->projectDir);
-    $this->executeCommand([], []);
+    $this->executeCommand();
   }
 
 }

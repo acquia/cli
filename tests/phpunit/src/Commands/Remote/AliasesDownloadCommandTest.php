@@ -38,8 +38,6 @@ class AliasesDownloadCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'remote:aliases:download' command.
-   *
    * @param array $inputs
    * @param array $args
    * @param string|null $destinationDir

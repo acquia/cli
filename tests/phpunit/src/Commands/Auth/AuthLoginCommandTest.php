@@ -95,8 +95,6 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
-   *
    * @dataProvider providerTestAuthLoginCommand
    * @param $machineIsAuthenticated
    * @param $assertCloudPrompts
@@ -141,8 +139,6 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command with invalid input.
-   *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    * @param $inputs
    * @param $args

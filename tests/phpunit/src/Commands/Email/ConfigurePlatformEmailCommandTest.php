@@ -236,8 +236,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'email:configure' command.
-   *
    * @dataProvider providerTestConfigurePlatformEmail
    */
   public function testConfigurePlatformEmail($baseDomain, $fileDumpFormat, $fileDump, $inputs, $expectedExitCode, $expectedText, $responseCode): void {
@@ -577,8 +575,6 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'email:configure' command when enabling email on an environment throws an API error.
-   *
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
    */
   public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($baseDomain, $inputs, $expectedExitCode, $responseCode, $specKey, $expectedText): void {

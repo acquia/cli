@@ -25,12 +25,9 @@ class IdeOpenCommandTest extends CommandTestBase {
     putenv('DISPLAY');
   }
 
-  /**
-   * Tests the 'ide:open' command.
-   */
   public function testIdeOpenCommand(): void {
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 

@@ -18,9 +18,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeServiceRestartCommand::class);
   }
 
-  /**
-   * Tests the 'ide:service-restart' command.
-   */
   public function testIdeServiceRestartCommand(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($localMachineHelper);
@@ -33,9 +30,6 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Restarted php', $output);
   }
 
-  /**
-   * Tests the 'ide:service-restart' command with invalid choice.
-   */
   public function testIdeServiceRestartCommandInvalid(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockRestartPhp($localMachineHelper);

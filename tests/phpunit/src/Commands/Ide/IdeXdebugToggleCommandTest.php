@@ -52,13 +52,11 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ide:xdebug' command.
-   *
    * @dataProvider providerTestXdebugCommandEnable
    */
   public function testXdebugCommandEnable($phpVersion): void {
     $this->setUpXdebug($phpVersion);
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->prophet->checkPredictions();
     $this->assertFileExists($this->xdebugFilePath);
     $this->assertStringContainsString('zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
@@ -67,15 +65,13 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ide:xdebug' command.
-   *
    * @dataProvider providerTestXdebugCommandEnable
    */
   public function testXdebugCommandDisable($phpVersion): void {
     $this->setUpXdebug($phpVersion);
     // Modify fixture to disable xdebug.
     file_put_contents($this->xdebugFilePath, str_replace(';zend_extension=xdebug.so', 'zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath)));
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->assertFileExists($this->xdebugFilePath);
     $this->assertStringContainsString(';zend_extension=xdebug.so', file_get_contents($this->xdebugFilePath));
     $this->assertStringContainsString("Xdebug PHP extension disabled", $this->getDisplay());

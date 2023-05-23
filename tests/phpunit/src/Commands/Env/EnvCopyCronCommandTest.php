@@ -17,9 +17,6 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     return $this->injectCommand(EnvCopyCronCommand::class);
   }
 
-  /**
-   * Tests the 'app:cron-copy' command.
-   */
   public function testCopyCronTasksCommandTest(): void {
     $environmentsResponse = $this->getMockEnvironmentsResponse();
     $sourceCronsListResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/crons', 'get', '200');
@@ -54,9 +51,6 @@ class EnvCopyCronCommandTest extends CommandTestBase {
     $this->assertStringContainsString('[OK] Cron task copy is completed.', $output);
   }
 
-  /**
-   * Tests the 'app:cron-copy' command fail.
-   */
   public function testCopyCronTasksCommandTestFail(): void {
     $this->executeCommand([
         'dest_env' => 'app.test',

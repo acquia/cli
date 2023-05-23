@@ -17,9 +17,6 @@ class TelemetryEnableCommandTest extends CommandTestBase {
     return $this->injectCommand(TelemetryEnableCommand::class);
   }
 
-  /**
-   * Tests the 'telemetry:enable' command.
-   */
   public function testTelemetryEnableCommand(): void {
     $this->executeCommand();
     $output = $this->getDisplay();

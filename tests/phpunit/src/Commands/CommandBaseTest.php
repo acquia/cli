@@ -48,7 +48,7 @@ class CommandBaseTest extends CommandTestBase {
       'y',
     ];
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->prophet->checkPredictions();
   }
 

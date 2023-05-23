@@ -55,9 +55,6 @@ class ClearCacheCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  /**
-   * Tests the 'clear-caches' command.
-   */
   public function testClearCaches(): void {
     $this->executeCommand();
     $output = $this->getDisplay();

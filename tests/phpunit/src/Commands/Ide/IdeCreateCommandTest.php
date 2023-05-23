@@ -13,9 +13,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class IdeCreateCommandTest extends CommandTestBase {
 
-  /**
-   * Tests the 'ide:create' command.
-   */
   public function testCreate(): void {
     $applicationsResponse = $this->mockRequest('getApplications');
     $applicationUuid = $applicationsResponse[self::$INPUT_DEFAULT_CHOICE]->uuid;

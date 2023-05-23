@@ -16,9 +16,6 @@ class EnvMirrorCommandTest extends CommandTestBase {
     return $this->injectCommand(EnvMirrorCommand::class);
   }
 
-  /**
-   * Tests the 'app:environment-mirror' command.
-   */
   public function testEnvironmentMirror(): void {
     $environmentResponse = $this->mockGetEnvironments();
     $codeSwitchResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/code/actions/switch", 'post', '202');

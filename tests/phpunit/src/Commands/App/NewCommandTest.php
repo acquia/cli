@@ -40,8 +40,6 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'new' command for Drupal project.
-   *
    * @dataProvider provideTestNewDrupalCommand
    * @param array $package
    */
@@ -82,8 +80,6 @@ class NewCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'new' command for Next.js App.
-   *
    * @dataProvider provideTestNewNextJsAppCommand
    * @param array $package
    */

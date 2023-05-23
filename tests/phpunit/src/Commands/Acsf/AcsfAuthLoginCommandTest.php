@@ -82,8 +82,6 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
   }
 
   /**
-   * Tests the 'acsf:auth:login' command.
-   *
    * @dataProvider providerTestAuthLoginCommand
    * @param $machineIsAuthenticated
    * @param $inputs

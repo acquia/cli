@@ -7,7 +7,7 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * @property \Acquia\Cli\Command\App\AppOpenCommand $command
+ * @property AppOpenCommand $command
  */
 class AppOpenCommandTest extends CommandTestBase {
 
@@ -15,9 +15,6 @@ class AppOpenCommandTest extends CommandTestBase {
     return $this->injectCommand(AppOpenCommand::class);
   }
 
-  /**
-   * Tests the 'app:open' command.
-   */
   public function testAppOpenCommand(): void {
     $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
     $localMachineHelper = $this->mockLocalMachineHelper();
@@ -25,11 +22,11 @@ class AppOpenCommandTest extends CommandTestBase {
     $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->createMockAcliConfigFile($applicationUuid);
     $this->mockApplicationRequest();
-    $this->executeCommand([], []);
+    $this->executeCommand();
 
     // Assert.
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
   }
 
 }

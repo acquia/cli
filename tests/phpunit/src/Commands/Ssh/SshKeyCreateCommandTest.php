@@ -62,8 +62,6 @@ class SshKeyCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ssh-key:create' command.
-   *
    * @dataProvider providerTestCreate
    */
   public function testCreate($sshAddSuccess, $args, $inputs): void {

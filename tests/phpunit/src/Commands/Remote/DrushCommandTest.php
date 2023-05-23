@@ -37,8 +37,6 @@ class DrushCommandTest extends SshCommandTestBase {
   }
 
   /**
-   * Tests the 'remote:drush' commands.
-   *
    * @dataProvider providerTestRemoteDrushCommand
    * @param array $args
    * @group serial

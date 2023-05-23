@@ -44,9 +44,6 @@ abstract class WizardTestBase extends CommandTestBase {
     ];
   }
 
-  /**
-   * Tests the 'gitlab:wizard:ssh-key:create' command.
-   */
   protected function runTestCreate(): void {
     $environmentsResponse = $this->getMockEnvironmentsResponse();
     $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();

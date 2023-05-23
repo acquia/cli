@@ -15,9 +15,6 @@ class LogTailCommandTest extends CommandTestBase {
     return $this->injectCommand(LogTailCommand::class);
   }
 
-  /**
-   * Tests the 'log:tail' commands.
-   */
   public function testLogTailCommand(): void {
 
     $applicationsResponse = $this->mockApplicationsRequest();
@@ -47,9 +44,6 @@ class LogTailCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Drupal request', $output);
   }
 
-  /**
-   * Tests the 'log:tail' commands.
-   */
   public function testLogTailCommandWithEnvArg(): void {
     $this->mockLogStreamRequest();
     $this->executeCommand(

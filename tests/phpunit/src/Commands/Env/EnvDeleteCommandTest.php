@@ -29,8 +29,6 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'app:environment:delete' command.
-   *
    * @dataProvider providerTestDeleteCde
    */
   public function testDeleteCde($environmentId): void {

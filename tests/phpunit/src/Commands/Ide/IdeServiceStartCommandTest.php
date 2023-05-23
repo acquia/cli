@@ -18,9 +18,6 @@ class IdeServiceStartCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeServiceStartCommand::class);
   }
 
-  /**
-   * Tests the 'ide:service-start' command.
-   */
   public function testIdeServiceStartCommand(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStartPhp($localMachineHelper);
@@ -33,9 +30,6 @@ class IdeServiceStartCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Starting php', $output);
   }
 
-  /**
-   * Tests the 'ide:service-start' command with invalid choice.
-   */
   public function testIdeServiceStartCommandInvalid(): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $this->mockStartPhp($localMachineHelper);

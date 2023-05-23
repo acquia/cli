@@ -15,11 +15,8 @@ class MakeDocsCommandTest extends CommandTestBase {
     return $this->injectCommand(MakeDocsCommand::class);
   }
 
-  /**
-   * Tests the 'self:make-docs' command.
-   */
   public function testMakeDocsCommand(): void {
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Console Tool', $output);
     $this->assertStringContainsString('============', $output);

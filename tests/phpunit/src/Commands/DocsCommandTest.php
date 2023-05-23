@@ -17,8 +17,6 @@ class DocsCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'docs' command for Acquia Products.
-   *
    * @dataProvider providerTestDocsCommand
    */
   public function testDocsCommand($input, $expectedOutput): void {

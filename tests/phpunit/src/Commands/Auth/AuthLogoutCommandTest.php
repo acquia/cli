@@ -29,8 +29,6 @@ class AuthLogoutCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
-   *
    * @dataProvider providerTestAuthLogoutCommand
    * @param array $inputs
    */

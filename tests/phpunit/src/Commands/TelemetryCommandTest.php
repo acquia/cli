@@ -28,9 +28,6 @@ class TelemetryCommandTest extends CommandTestBase {
     return $this->injectCommand(TelemetryCommand::class);
   }
 
-  /**
-   * Tests the 'telemetry' command.
-   */
   public function testTelemetryCommand(): void {
     $this->mockRequest('getAccount');
     $this->executeCommand();

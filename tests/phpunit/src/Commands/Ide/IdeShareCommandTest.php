@@ -38,13 +38,10 @@ class IdeShareCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeShareCommand::class);
   }
 
-  /**
-   * Tests the 'ide:share' command.
-   */
   public function testIdeShareCommand(): void {
     $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
     $ide = new IdeResponse((object) $ideGetResponse);
-    $this->executeCommand([], []);
+    $this->executeCommand();
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -53,9 +50,6 @@ class IdeShareCommandTest extends CommandTestBase {
     $this->assertStringContainsString($this->shareCode, $output);
   }
 
-  /**
-   * Tests the 'ide:share' command.
-   */
   public function testIdeShareRegenerateCommand(): void {
     $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
     $ide = new IdeResponse((object) $ideGetResponse);

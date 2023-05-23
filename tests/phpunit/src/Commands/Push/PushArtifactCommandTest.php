@@ -23,7 +23,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   public function testPushArtifact(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);
@@ -86,7 +86,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   public function testPushArtifactWithAcquiaCliFile(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applicationsResponse);
@@ -109,7 +109,7 @@ class PushArtifactCommandTest extends PullCommandTestBase {
   public function testPushArtifactWithArgs(): void {
     touch(Path::join($this->projectDir, 'composer.json'));
     mkdir(Path::join($this->projectDir, 'docroot'));
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applicationsResponse);

@@ -18,8 +18,6 @@ class SshCommandTest extends SshCommandTestBase {
   }
 
   /**
-   * Tests the 'remote:ssh' commands.
-   *
    * @group serial
    */
   public function testRemoteAliasesDownloadCommand(): void {

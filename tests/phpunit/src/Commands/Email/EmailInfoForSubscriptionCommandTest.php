@@ -22,9 +22,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->command = $this->createCommand();
   }
 
-  /**
-   * Tests the 'email:info' command.
-   */
   public function testEmailInfoForSubscription(): void {
     $inputs = [
       // Select a Cloud Platform subscription
@@ -79,9 +76,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->assertEquals(1, substr_count($output, 'false'));
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has no applications.
-   */
   public function testEmailInfoForSubscriptionNoApps(): void {
     $inputs = [
       // Select a Cloud Platform subscription
@@ -102,9 +96,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has over 100 applications.
-   */
   public function testEmailInfoForSubscriptionWith101Apps(): void {
     $inputs = [
       // Select a Cloud Platform subscription
@@ -142,9 +133,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has no domains registred.
-   */
   public function testEmailInfoForSubscriptionNoDomains(): void {
     $inputs = [
       // Select a Cloud Platform subscription
@@ -162,9 +150,6 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->assertStringContainsString('No email domains', $output);
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription's applications have no domains eligible for association.
-   */
   public function testEmailInfoForSubscriptionNoAppDomains(): void {
     $inputs = [
       // Select a Cloud Platform subscription

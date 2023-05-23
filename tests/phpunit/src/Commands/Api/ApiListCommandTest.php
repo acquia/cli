@@ -19,18 +19,12 @@ class ApiListCommandTest extends CommandTestBase {
     return $this->injectCommand(ApiListCommand::class);
   }
 
-  /**
-   * Tests the 'api:list' command.
-   */
   public function testApiListCommand(): void {
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString(' api:accounts:ssh-keys-list', $output);
   }
 
-  /**
-   * Tests the 'api:*' list commands.
-   */
   public function testApiNamespaceListCommand(): void {
     $this->command = $this->injectCommand(ApiListCommandBase::class);
     $name = 'api:accounts';
@@ -43,9 +37,6 @@ class ApiListCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString('api:subscriptions', $output);
   }
 
-  /**
-   * Tests the 'list' command.
-   */
   public function testListCommand(): void {
     $this->command = new ListCommand();
     $this->executeCommand();

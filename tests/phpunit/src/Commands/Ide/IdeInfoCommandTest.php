@@ -15,12 +15,9 @@ class IdeInfoCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeInfoCommand::class);
   }
 
-  /**
-   * Tests the 'ide:info' commands.
-   */
   public function testIdeInfoCommand(): void {
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $response = $this->mockIdeListRequest();
     $this->mockGetIdeRequest($response->_embedded->items[0]->uuid);

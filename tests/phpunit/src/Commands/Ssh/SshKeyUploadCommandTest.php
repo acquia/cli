@@ -57,8 +57,6 @@ class SshKeyUploadCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestUpload
-   *
-   * Tests the 'ssh-key:upload' command.
    */
   public function testUpload($args, $inputs, $perms): void {
     $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');

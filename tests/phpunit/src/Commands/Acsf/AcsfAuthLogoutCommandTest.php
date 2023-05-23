@@ -46,8 +46,6 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
-   *
    * @dataProvider providerTestAuthLogoutCommand
    * @param array $inputs
    * @param array $config

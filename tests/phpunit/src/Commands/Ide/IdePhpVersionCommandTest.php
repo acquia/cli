@@ -35,8 +35,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ide:php-version' command.
-   *
    * @dataProvider providerTestIdePhpVersionCommand
    */
   public function testIdePhpVersionCommand(string $version): void {
@@ -71,8 +69,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'ide:php-version' command.
-   *
    * @dataProvider providerTestIdePhpVersionCommandFailure
    */
   public function testIdePhpVersionCommandFailure(string $version, string $exceptionClass): void {
@@ -82,9 +78,6 @@ class IdePhpVersionCommandTest extends CommandTestBase {
     ]);
   }
 
-  /**
-   * Tests the 'ide:php-version' command outside of IDE environment.
-   */
   public function testIdePhpVersionCommandOutsideIde(): void {
     IdeHelper::unsetCloudIdeEnvVars();
     $this->expectException(AcquiaCliException::class);

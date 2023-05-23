@@ -155,9 +155,12 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertApplicationAliasToUuidArgument(bool $support): void {
     ClearCacheCommand::clearCaches();
-    $this->mockApplicationsRequest(1);
+    $tamper = function (&$response) {
+      unset($response[1]);
+    };
+    $applications = $this->mockRequest('getApplications', NULL, NULL, NULL, $tamper);
+    $this->mockRequest('getApplicationByUuid', $applications[self::$INPUT_DEFAULT_CHOICE]->uuid);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
-    $this->mockApplicationRequest();
     $this->command = $this->getApiCommandByName('api:applications:find');
     $alias = 'devcloud2';
     $tamper = NULL;
@@ -173,7 +176,7 @@ class ApiCommandTest extends CommandTestBase {
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
       // Select a Cloud Platform application:
-      '0',
+      self::$INPUT_DEFAULT_CHOICE,
       // Would you like to link the Cloud application Sample application to this repository?
       'n',
     ]);

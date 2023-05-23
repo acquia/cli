@@ -16,9 +16,6 @@ class LinkCommandTest extends CommandTestBase {
     return $this->injectCommand(LinkCommand::class);
   }
 
-  /**
-   * Tests the 'link' command.
-   */
   public function testLinkCommand(): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -39,27 +36,21 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
-  /**
-   * Tests the 'link' command.
-   */
   public function testLinkCommandAlreadyLinked(): void {
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->mockApplicationRequest();
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('This repository is already linked to Cloud application', $output);
     $this->assertEquals(1, $this->getStatusCode());
   }
 
-  /**
-   * Tests the 'link' command.
-   */
   public function testLinkCommandInvalidDir(): void {
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->command->setProjectDir('');
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not find a local Drupal project.');
-    $this->executeCommand([], []);
+    $this->executeCommand();
   }
 
 }

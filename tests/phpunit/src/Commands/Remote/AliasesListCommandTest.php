@@ -15,9 +15,6 @@ class AliasesListCommandTest extends CommandTestBase {
     return $this->injectCommand(AliasListCommand::class);
   }
 
-  /**
-   * Tests the 'remote:aliases:list' commands.
-   */
   public function testRemoteAliasesListCommand(): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();

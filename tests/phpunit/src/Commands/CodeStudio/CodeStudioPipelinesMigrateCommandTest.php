@@ -95,7 +95,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $localMachineHelper->getFilesystem()->willReturn(new Filesystem())->shouldBeCalled();
     $this->command->setGitLabClient($gitlabClient->reveal());
     $this->command->localMachineHelper = $localMachineHelper->reveal();
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     // Set properties and execute.
     $this->executeCommand($args, $inputs);
 

@@ -21,9 +21,6 @@ class SshKeyListCommandTest extends CommandTestBase {
     $this->command = $this->createCommand();
   }
 
-  /**
-   * Tests the 'ssh-key:list' command.
-   */
   public function testList(): void {
 
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');

@@ -29,12 +29,9 @@ class IdeDeleteCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeDeleteCommand::class);
   }
 
-  /**
-   * Tests the 'ide:delete' command.
-   */
   public function testIdeDeleteCommand(): void {
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 

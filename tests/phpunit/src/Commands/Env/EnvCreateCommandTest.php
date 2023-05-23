@@ -84,8 +84,6 @@ class EnvCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'app:environment:create' command.
-   *
    * @dataProvider providerTestCreateCde
    */
   public function testCreateCde($args, $input): void {

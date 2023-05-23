@@ -12,9 +12,6 @@ use Symfony\Component\Console\Command\Command;
  */
 class IdeWizardDeleteSshKeyCommandTest extends IdeWizardTestBase {
 
-  /**
-   * Tests the 'ide:wizard:ssh-key:create' command.
-   */
   public function testDelete(): void {
     // Request for IDE data.
     $ideResponse = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
