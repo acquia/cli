@@ -17,21 +17,20 @@ class IdeCreateCommandTest extends CommandTestBase {
    * Tests the 'ide:create' command.
    */
   public function testCreate(): void {
-    $applicationsResponse = $this->mockRequest('/applications');
+    $applicationsResponse = $this->mockRequest('getApplications');
     $applicationUuid = $applicationsResponse[self::$INPUT_APP]->uuid;
-    $this->mockRequest('/applications/{applicationUuid}', ['{applicationUuid}' => $applicationUuid]);
-    $this->mockRequest('/account');
+    $this->mockRequest('getApplicationByUuid', $applicationUuid);
+    $this->mockRequest('getAccount');
     $ideResponse = $this->mockRequest(
-      '/applications/{applicationUuid}/ides',
-      ['{applicationUuid}' => $applicationUuid],
-      'post',
+      'postApplicationsIde',
+      $applicationUuid,
       ['json' => ['label' => 'Example IDE']],
       'IDE created'
     );
     $cloudApiIdeUrl = $ideResponse->_links->self->href;
     $urlParts = explode('/', $cloudApiIdeUrl);
     $ideUuid = end($urlParts);
-    $this->mockRequest('/ides/{ideUuid}', ['{ideUuid}' => $ideUuid]);
+    $this->mockRequest('getIde', $ideUuid);
 
     /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
     $guzzleResponse = $this->prophet->prophesize(Response::class);

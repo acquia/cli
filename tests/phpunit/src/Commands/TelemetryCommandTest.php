@@ -32,7 +32,7 @@ class TelemetryCommandTest extends CommandTestBase {
    * Tests the 'telemetry' command.
    */
   public function testTelemetryCommand(): void {
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('Telemetry has been enabled.', $output);

@@ -86,7 +86,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
     $this->mockGitlabGetToken($localMachineHelper, $this->gitLabToken, $this->gitLabHost);
     $gitlabClient = $this->prophet->prophesize(Client::class);
     $this->mockGitLabUsersMe($gitlabClient);
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->mockGitLabPermissionsRequest($this::$applicationUuid);
     $projects = $this->mockGetGitLabProjects($this::$applicationUuid, $this->gitLabProjectId, $mockedGitlabProjects);
     $projects->variables($this->gitLabProjectId)->willReturn(CodeStudioCiCdVariables::getDefaults());

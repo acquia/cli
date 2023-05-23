@@ -291,6 +291,18 @@ abstract class TestBase extends TestCase {
     return json_decode($responseBody, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
+  protected function getPathAndMethodFromSpec(string $operationId): array {
+    $acquiaCloudSpec = $this->getCloudApiSpec();
+    foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
+      foreach ($methodEndpoint as $method => $endpoint) {
+        if ($endpoint['operationId'] === $operationId) {
+          return [$path, $method];
+        }
+      }
+    }
+    throw new \Exception('operationId not found');
+  }
+
   /**
    * Build and return a command with common dependencies.
    *
@@ -403,9 +415,11 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
-  protected function mockRequest(string $path, ?array $parts = [], ?string $method = 'get', ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+  protected function mockRequest(string $operationId, ?string $param = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+    [$path, $method] = $this->getPathAndMethodFromSpec($operationId);
     $code = $method === 'get' ? '200' : '202';
     $response = $this->getMockResponseFromSpec($path, $method, $code);
+
     // This is a set of example responses.
     if (isset($exampleResponse) && property_exists($response, $exampleResponse)) {
       $response = $response->$exampleResponse->value;
@@ -417,7 +431,10 @@ abstract class TestBase extends TestCase {
     if (isset($tamper)) {
       $tamper($response);
     }
-    $this->clientProphecy->request($method, strtr($path, $parts), $body)
+    if (isset($param)) {
+      $path = preg_replace('/\{.*}/', $param, $path);
+    }
+    $this->clientProphecy->request($method, $path, $body)
       ->willReturn($response)
       ->shouldBeCalled();
     return $response;

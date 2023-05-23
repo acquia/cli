@@ -28,7 +28,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
       Path::join($this->projectDir, 'composer.json'),
       json_encode($json, JSON_THROW_ON_ERROR)
     );
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->setInput([
           'command' => 'hello-world',
       ]);
@@ -51,7 +51,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
       Path::join($this->projectDir, 'composer.json'),
       json_encode($json, JSON_THROW_ON_ERROR)
     );
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->setInput([
           'command' => 'hello-world',
       ]);
@@ -114,7 +114,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    * @group serial
    */
   public function testInvalidEnvironmentUuid(): void {
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->mockApplicationsRequest();
     $this->setInput([
       'command' => 'log:tail',
@@ -139,7 +139,7 @@ class ExceptionApplicationTest extends ApplicationTestBase {
    * @group serial
    */
   public function testInvalidApplicationUuid(): void {
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
     $this->mockApplicationsRequest();
     $this->setInput([
       'applicationUuid' => 'aoeuthao',

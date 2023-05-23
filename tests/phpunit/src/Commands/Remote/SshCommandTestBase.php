@@ -12,7 +12,7 @@ abstract class SshCommandTestBase extends CommandTestBase {
     $applicationsResponse = $this->mockApplicationsRequest(1);
     $this->mockEnvironmentsRequest($applicationsResponse);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
-    $this->mockRequest('/account');
+    $this->mockRequest('getAccount');
   }
 
   /**
