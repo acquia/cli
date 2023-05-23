@@ -47,8 +47,14 @@ class SshKeyCreateUploadCommandTest extends CommandTestBase {
     $this->mockSshAgentList($localMachineHelper);
     $this->mockGenerateSshKey($localMachineHelper, $mockRequestArgs['public_key']);
 
+    $body = [
+      'json' => [
+        'label' => $mockRequestArgs['label'],
+        'public_key' => $mockRequestArgs['public_key'],
+      ],
+    ];
     // Upload.
-    $this->mockUploadSshKey();
+    $this->mockRequest('postAccountSshKeys', NULL, $body);
     //$this->mockListSshKeyRequestWithUploadedKey($mockRequestArgs);
     //$applicationsResponse = $this->mockApplicationsRequest();
     //$this->mockApplicationRequest();

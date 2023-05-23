@@ -647,23 +647,6 @@ abstract class TestBase extends TestCase {
     ], NULL, NULL, FALSE)->shouldBeCalled()->willReturn($process->reveal());
   }
 
-  protected function mockUploadSshKey(?string $label = NULL): void {
-    $request = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $label = $label ?: $request['label'];
-    $response = $this->getMockResponseFromSpec('/account/ssh-keys', 'post', '202');
-    $this->clientProphecy->request(
-      'post',
-      '/account/ssh-keys',
-      [
-        'json' => [
-          'label' => $label,
-          'public_key' => $request['public_key'],
-        ],
-      ]
-    )->willReturn($response)
-      ->shouldBecalled();
-  }
-
   protected function mockGetIdeSshKeyRequest(IdeResponse $ide): void {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get', '200');
     $mockBody->{'_embedded'}->items[0]->label = SshKeyCommandBase::getIdeSshKeyLabel($ide);

@@ -12,14 +12,12 @@ use Symfony\Component\Filesystem\Path;
 
 class SshKeyUploadCommandTest extends CommandTestBase {
 
-  private array $sshKeysRequestBody;
-
   protected function createCommand(): Command {
     return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
   public function providerTestUpload(): array {
-    $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     return [
       [
         // Args.
@@ -29,7 +27,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
           // Choose key.
           '0',
           // Enter a Cloud Platform label for this SSH key:
-          $this->sshKeysRequestBody['label'],
+          $sshKeysRequestBody['label'],
           // Would you like to wait until Cloud Platform is ready? (yes/no)
           'y',
           // Would you like Acquia CLI to search for a Cloud application that matches your local git config? (yes/no)
@@ -42,7 +40,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
         // Args.
         [
           '--filepath' => 'id_rsa.pub',
-          '--label' => $this->sshKeysRequestBody['label'],
+          '--label' => $sshKeysRequestBody['label'],
         ],
         // Inputs.
         [
@@ -63,9 +61,15 @@ class SshKeyUploadCommandTest extends CommandTestBase {
    * Tests the 'ssh-key:upload' command.
    */
   public function testUpload($args, $inputs, $perms): void {
-    $this->sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
-    $this->mockUploadSshKey();
-    $this->mockListSshKeyRequestWithUploadedKey($this->sshKeysRequestBody);
+    $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
+    $body = [
+      'json' => [
+        'label' => $sshKeysRequestBody['label'],
+        'public_key' => $sshKeysRequestBody['public_key'],
+      ],
+    ];
+    $this->mockRequest('postAccountSshKeys', NULL, $body);
+    $this->mockListSshKeyRequestWithUploadedKey($sshKeysRequestBody);
     $applicationsResponse = $this->mockApplicationsRequest();
     $applicationResponse = $this->mockApplicationRequest();
     $this->mockPermissionsRequest($applicationResponse, $perms);
@@ -73,12 +77,12 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     $localMachineHelper = $this->mockLocalMachineHelper();
     /** @var Filesystem|\Prophecy\Prophecy\ObjectProphecy $fileSystem */
     $fileSystem = $this->prophet->prophesize(Filesystem::class);
-    $fileName = $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $this->sshKeysRequestBody['public_key']);
+    $fileName = $this->mockGetLocalSshKey($localMachineHelper, $fileSystem, $sshKeysRequestBody['public_key']);
 
     $localMachineHelper->getFilesystem()->willReturn($fileSystem);
     $fileSystem->exists(Argument::type('string'))->willReturn(TRUE);
     $localMachineHelper->getLocalFilepath(Argument::containingString('id_rsa'))->willReturn('id_rsa.pub');
-    $localMachineHelper->readFile(Argument::type('string'))->willReturn($this->sshKeysRequestBody['public_key']);
+    $localMachineHelper->readFile(Argument::type('string'))->willReturn($sshKeysRequestBody['public_key']);
 
     $this->command->localMachineHelper = $localMachineHelper->reveal();
 
@@ -94,7 +98,7 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     // Assert.
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
-    $this->assertStringContainsString("Uploaded $fileName to the Cloud Platform with label " . $this->sshKeysRequestBody['label'], $output);
+    $this->assertStringContainsString("Uploaded $fileName to the Cloud Platform with label " . $sshKeysRequestBody['label'], $output);
     $this->assertStringContainsString('Would you like to wait until your key is installed on all of your application\'s servers?', $output);
     $this->assertStringContainsString('Your SSH key is ready for use!', $output);
   }
