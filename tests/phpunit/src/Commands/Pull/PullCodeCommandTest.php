@@ -205,9 +205,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     }
   }
 
-  /**
-   * @param $dir
-   */
   protected function mockExecuteGitClone(
     ObjectProphecy $localMachineHelper,
     object $environmentsResponse,
@@ -225,10 +222,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param $cwd
-   * @param $vcsPath
-   */
   protected function mockExecuteGitFetchAndCheckout(
     ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
@@ -245,10 +238,6 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->mockExecuteGitCheckout($localMachineHelper, $vcsPath, $cwd, $process);
   }
 
-  /**
-   * @param $vcsPath
-   * @param $cwd
-   */
   protected function mockExecuteGitCheckout(ObjectProphecy $localMachineHelper, $vcsPath, $cwd, ObjectProphecy $process): void {
     $localMachineHelper->execute([
       'git',

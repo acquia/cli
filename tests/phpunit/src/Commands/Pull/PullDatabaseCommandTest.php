@@ -180,9 +180,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  /**
-   * @param $mysqlConnectSuccessful *
-   */
   protected function setupPullDatabase($mysqlConnectSuccessful, $mysqlDropSuccessful, $mysqlCreateSuccessful, $mysqlImportSuccessful, $mockIdeFs = FALSE, $onDemand = FALSE, $mockGetAcsfSites = TRUE, $multidb = FALSE, int $curlCode = 0): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
@@ -231,9 +228,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->command->sshHelper = $sshHelper->reveal();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
   protected function mockExecuteMySqlConnect(
     ObjectProphecy $localMachineHelper,
     bool $success
@@ -265,9 +259,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
   protected function mockExecuteMySqlCreateDb(
     ObjectProphecy $localMachineHelper,
     bool $success
@@ -289,9 +280,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
   protected function mockExecuteMySqlImport(
     ObjectProphecy $localMachineHelper,
     bool $success
@@ -307,9 +295,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $localMachineHelper
-   */
   protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, $success): void {
     $process = $this->mockProcess($success);
     $localMachineHelper->writeFile(

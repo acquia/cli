@@ -26,9 +26,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param $hasConnection
-   */
   protected function mockExecuteDrushStatus(
     ObjectProphecy $localMachineHelper,
     $hasConnection,
@@ -115,10 +112,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
       ]);
   }
 
-  /**
-   * @param $failed
-   * @param $cwd
-   */
   protected function mockExecuteGitStatus(
     $failed,
     ObjectProphecy $localMachineHelper,
@@ -129,10 +122,6 @@ abstract class PullCommandTestBase extends CommandTestBase {
     $localMachineHelper->executeFromCmd('git add . && git diff-index --cached --quiet HEAD', NULL, $cwd, FALSE)->willReturn($process->reveal())->shouldBeCalled();
   }
 
-  /**
-   * @param $cwd
-   * @param $commitHash
-   */
   protected function mockGetLocalCommitHash(
     ObjectProphecy $localMachineHelper,
     $cwd,

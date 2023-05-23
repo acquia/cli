@@ -86,11 +86,6 @@ class PushDatabaseCommandTest extends CommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $sshHelper
-   * @param object $environmentsResponse
-   * @param $process
-   */
   protected function mockImportDatabaseDumpOnRemote(
     ObjectProphecy $sshHelper,
     object $environmentsResponse,
