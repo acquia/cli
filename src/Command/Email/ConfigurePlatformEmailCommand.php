@@ -6,7 +6,6 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Exception\ApiErrorException;
 use AcquiaCloudApi\Response\SubscriptionResponse;
@@ -50,7 +49,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $baseDomain = $this->determineDomain();
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
-    $response = $client->request('post', "/subscriptions/{$subscription->uuid}/domains", [
+    $client->request('post', "/subscriptions/$subscription->uuid/domains", [
       'form_params' => [
         'domain' => $baseDomain,
       ],
@@ -59,7 +58,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $domainUuid = $this->fetchDomainUuid($client, $subscription, $baseDomain);
 
     $this->io->success([
-      "Great! You've registered the domain {$baseDomain} to subscription {$subscription->name}.",
+      "Great! You've registered the domain $baseDomain to subscription $subscription->name.",
       "We will create a file with the DNS records for your newly registered domain",
       "Provide these records to your DNS provider",
       "After you've done this, continue to domain verification.",
@@ -96,6 +95,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Generates Zone File for DNS records of the registered domain.
    *
+   * @param string $baseDomain
    * @param array $records
    */
   private function generateZoneFile(string $baseDomain, array $records): void {
@@ -129,20 +129,12 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
+   * @param \AcquiaCloudApi\Connector\Client $client
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @return array
    */
   private function determineApplications(Client $client, SubscriptionResponse $subscription): array {
-    $applicationsResource = new Applications($client);
-    $applications = $applicationsResource->getAll();
-    $subscriptionApplications = [];
-    foreach ($applications as $application) {
-      if ($application->subscription->uuid === $subscription->uuid) {
-        $subscriptionApplications[] = $application;
-      }
-    }
-    if (count($subscriptionApplications) === 0) {
-      throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
-    }
+    $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);
 
     if (count($subscriptionApplications) === 1) {
       $applications = $subscriptionApplications;
@@ -197,8 +189,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
     $environmentsResource = new Environments($client);
     foreach ($applications as $application) {
       try {
-        $response = $client->request('post', "/applications/{$application->uuid}/email/domains/{$domainUuid}/actions/associate");
-        $this->io->success("Domain $baseDomain has been associated with Application {$application->name}");
+        $client->request('post', "/applications/$application->uuid/email/domains/$domainUuid/actions/associate");
+        $this->io->success("Domain $baseDomain has been associated with Application $application->name");
       }
       catch (ApiErrorException $e) {
         if (!$this->domainAlreadyAssociated($application, $e)) {
@@ -211,13 +203,13 @@ class ConfigurePlatformEmailCommand extends CommandBase {
         $applicationEnvironments,
         'uuid',
         'label',
-        "What are the environments of {$application->name} that you'd like to enable email for? You may enter multiple separated by a comma.",
+        "What are the environments of $application->name that you'd like to enable email for? You may enter multiple separated by a comma.",
         TRUE
       );
       foreach ($envs as $env) {
         try {
-          $response = $client->request('post', "/environments/{$env->uuid}/email/actions/enable");
-          $this->io->success("Platform Email has been enabled for environment {$env->label} for application {$application->name}");
+          $client->request('post', "/environments/$env->uuid/email/actions/enable");
+          $this->io->success("Platform Email has been enabled for environment $env->label for application $application->name");
         }
         catch (ApiErrorException $e) {
           if (!$this->environmentAlreadyEnabled($env, $e)) {
@@ -252,7 +244,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Retrieves a domain registration UUID given the domain name.
    */
   private function fetchDomainUuid(Client $client, SubscriptionResponse $subscription, string $baseDomain): mixed {
-    $domainsResponse = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
+    $domainsResponse = $client->request('get', "/subscriptions/$subscription->uuid/domains");
     foreach ($domainsResponse as $domain) {
       if ($domain->domain_name === $baseDomain) {
         return $domain->uuid;
@@ -266,7 +258,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * of the DNS records needed to complete Platform Email setup.
    */
   private function createDnsText(Client $client, SubscriptionResponse $subscription, string $baseDomain, string $domainUuid, string $fileFormat): void {
-    $domainRegistrationResponse = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domainUuid}");
+    $domainRegistrationResponse = $client->request('get', "/subscriptions/$subscription->uuid/domains/$domainUuid");
     if (!isset($domainRegistrationResponse->dns_records)) {
       throw new AcquiaCliException('Could not retrieve DNS records for this domain. Try again by rerunning this script with the domain that you just registered.');
     }
@@ -307,7 +299,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   ): bool {
     $client = $this->cloudApiClientService->getClient();
     try {
-      $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains/{$domainUuid}");
+      $response = $client->request('get', "/subscriptions/$subscription->uuid/domains/$domainUuid");
       if (isset($response->health) && $response->health->code === "200") {
         $this->io->success("Your domain is ready for use!");
         return TRUE;
@@ -315,9 +307,8 @@ class ConfigurePlatformEmailCommand extends CommandBase {
 
       if (isset($response->health) && str_starts_with($response->health->code, "4")) {
         $this->io->error($response->health->details);
-        $reverify = $this->io->confirm('Would you like to refresh?');
-        if ($reverify) {
-          $refreshResponse = $client->request('post', "/subscriptions/{$subscription->uuid}/domains/{$domainUuid}/actions/verify");
+        if ($this->io->confirm('Would you like to refresh?')) {
+          $client->request('post', "/subscriptions/$subscription->uuid/domains/$domainUuid/actions/verify");
           $this->io->info('Refreshing...');
         }
       }

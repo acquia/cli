@@ -623,6 +623,27 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $environment->uuid;
   }
 
+  /**
+   * @param \AcquiaCloudApi\Connector\Client $client
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
+   * @return array
+   */
+  protected function getSubscriptionApplications(Client $client, SubscriptionResponse $subscription): array {
+    $applicationsResource = new Applications($client);
+    $applications = $applicationsResource->getAll();
+    $subscriptionApplications = [];
+
+    foreach ($applications as $application) {
+      if ($application->subscription->uuid === $subscription->uuid) {
+        $subscriptionApplications[] = $application;
+      }
+    }
+    if (count($subscriptionApplications) === 0) {
+      throw new AcquiaCliException("You do not have access to any applications on the $subscription->name subscription");
+    }
+    return $subscriptionApplications;
+  }
+
   protected function determineCloudSubscription(): ?SubscriptionResponse {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
 
