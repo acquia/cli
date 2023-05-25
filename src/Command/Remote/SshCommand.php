@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Command\Remote;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -27,6 +28,9 @@ class SshCommand extends SshBaseCommand {
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
+    if (!isset($environment->sshUrl)) {
+      throw new AcquiaCliException('Cannot determine environment SSH URL. Check that you have SSH permissions on this environment.');
+    }
     $sshCommand = [
       'cd /var/www/html/' . $alias,
     ];
