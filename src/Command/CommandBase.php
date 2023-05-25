@@ -644,7 +644,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $subscriptionApplications;
   }
 
-  protected function determineCloudSubscription(): ?SubscriptionResponse {
+  protected function determineCloudSubscription(): SubscriptionResponse {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
 
     if ($this->input->hasArgument('subscriptionUuid') && $this->input->getArgument('subscriptionUuid')) {
@@ -658,8 +658,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return $subscription;
     }
 
-    return NULL;
-
+    throw new AcquiaCliException("Could not determine Cloud subscription. Run this command interactively or use the `subscriptionUuid` argument.");
   }
 
   /**
