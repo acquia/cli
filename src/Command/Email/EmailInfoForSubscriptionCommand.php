@@ -3,9 +3,7 @@
 namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
-use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
-use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Response\SubscriptionResponse;
 use League\Csv\Writer;
 use Symfony\Component\Console\Command\Command;
@@ -32,12 +30,12 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
     $client = $this->cloudApiClientService->getClient();
     $subscription = $this->determineCloudSubscription();
 
-    $response = $client->request('get', "/subscriptions/{$subscription->uuid}/domains");
+    $response = $client->request('get', "/subscriptions/$subscription->uuid/domains");
 
     if (count($response)) {
 
-      $this->localMachineHelper->getFilesystem()->remove("./subscription-{$subscription->uuid}-domains");
-      $this->localMachineHelper->getFilesystem()->mkdir("./subscription-{$subscription->uuid}-domains");
+      $this->localMachineHelper->getFilesystem()->remove("./subscription-$subscription->uuid-domains");
+      $this->localMachineHelper->getFilesystem()->mkdir("./subscription-$subscription->uuid-domains");
 
       $this->writeDomainsToTables($output, $subscription, $response);
 
@@ -49,10 +47,10 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
 
       $this->renderApplicationAssociations($output, $client, $subscription, $subscriptionApplications);
 
-      $this->output->writeln("<info>CSV files with these tables have been exported to <options=bold>/subscription-{$subscription->uuid}-domains</>. A detailed breakdown of each domain's DNS records has been exported there as well.</info>");
+      $this->output->writeln("<info>CSV files with these tables have been exported to <options=bold>/subscription-$subscription->uuid-domains</>. A detailed breakdown of each domain's DNS records has been exported there as well.</info>");
     }
     else {
-      $this->io->info("No email domains registered in {$subscription->name}.");
+      $this->io->info("No email domains registered in $subscription->name.");
     }
 
     return Command::SUCCESS;
@@ -62,22 +60,24 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
    *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param array $domainList
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
 
     // initialize tables to be displayed in console
-    $allDomainsTable = $this->createTotalDomainTable($output, "Subscription {$subscription->name} - All Domains");
-    $verifiedDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Verified Domains");
-    $pendingDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Pending Domains");
-    $failedDomainsTable = $this->createDomainStatusTable($output, "Subscription {$subscription->name} - Failed Domains");
+    $allDomainsTable = $this->createTotalDomainTable($output, "Subscription $subscription->name - All Domains");
+    $verifiedDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Verified Domains");
+    $pendingDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Pending Domains");
+    $failedDomainsTable = $this->createDomainStatusTable($output, "Subscription $subscription->name - Failed Domains");
 
     // initialize csv writers for each file
-    $writerAllDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-summary.csv", 'w+');
-    $writerVerifiedDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/verified-domains-summary.csv", 'w+');
-    $writerPendingDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/pending-domains-summary.csv", 'w+');
-    $writerFailedDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/failed-domains-summary.csv", 'w+');
-    $writerAllDomainsDnsHealth = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/all-domains-dns-health.csv", 'w+');
+    $writerAllDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/all-domains-summary.csv", 'w+');
+    $writerVerifiedDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/verified-domains-summary.csv", 'w+');
+    $writerPendingDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/pending-domains-summary.csv", 'w+');
+    $writerFailedDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/failed-domains-summary.csv", 'w+');
+    $writerAllDomainsDnsHealth = Writer::createFromPath("./subscription-$subscription->uuid-domains/all-domains-dns-health.csv", 'w+');
 
     $allDomainsSummaryHeader = ['Domain Name', 'Domain UUID', 'Verification Status'];
     $writerAllDomains->insertOne($allDomainsSummaryHeader);
@@ -167,21 +167,12 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Verifies the number of applications present in a subscription.
    *
+   * @param \AcquiaCloudApi\Connector\Client $client
+   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @return array|null
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
-    $applicationsResource = new Applications($client);
-    $applications = $applicationsResource->getAll();
-    $subscriptionApplications = [];
-
-    foreach ($applications as $application) {
-      if ($application->subscription->uuid === $subscription->uuid) {
-        $subscriptionApplications[] = $application;
-      }
-    }
-    if (count($subscriptionApplications) === 0) {
-      throw new AcquiaCliException("You do not have access to any applications on the {$subscription->name} subscription");
-    }
+    $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);
     if (count($subscriptionApplications) > 100) {
       $this->io->warning('You have over 100 applications in this subscription. Retrieving the email domains for each could take a while!');
       $continue = $this->io->confirm('Do you wish to continue?');
@@ -197,23 +188,25 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders a table of applications in a subscription and the email domains
    * associated or dissociated with each application.
    *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \AcquiaCloudApi\Connector\Client $client
    * @param $subscription
    * @param $subscriptionApplications
    */
   private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscriptionApplications): void {
     $appsDomainsTable = $this->createApplicationDomainsTable($output);
-    $writerAppsDomains = Writer::createFromPath("./subscription-{$subscription->uuid}-domains/apps-domain-associations.csv", 'w+');
+    $writerAppsDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/apps-domain-associations.csv", 'w+');
 
     $appsDomainsHeader = ['Application', 'Domain Name', 'Associated?'];
     $writerAppsDomains->insertOne($appsDomainsHeader);
 
     foreach ($subscriptionApplications as $index => $app) {
-      $appDomains = $client->request('get', "/applications/{$app->uuid}/email/domains");
+      $appDomains = $client->request('get', "/applications/$app->uuid/email/domains");
 
       if ($index !== 0) {
         $appsDomainsTable->addRow([new TableSeparator(['colspan' => 2])]);
       }
-      $appsDomainsTable->addRow([new TableCell("Application: {$app->name}", ['colspan' => 2])]);
+      $appsDomainsTable->addRow([new TableCell("Application: $app->name", ['colspan' => 2])]);
       if (count($appDomains)) {
         foreach ($appDomains as $domain) {
           $appsDomainsTable->addRow([
