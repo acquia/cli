@@ -1030,11 +1030,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     }
   }
 
-  /**
-   * @param $userUuidArgument
-   * @param $orgUuidArgument
-   */
-  protected function convertUserAliasToUuid(InputInterface $input, $userUuidArgument, $orgUuidArgument): void {
+  private function convertUserAliasToUuid(InputInterface $input, string $userUuidArgument, string $orgUuidArgument): void {
     if ($input->hasArgument($userUuidArgument)
       && $input->getArgument($userUuidArgument)
       && $input->hasArgument($orgUuidArgument)
@@ -1055,7 +1051,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string
    *   User uuid from alias
    */
-  protected function validateUserUuid($userUuidArgument, $orgUuidArgument): mixed {
+  private function validateUserUuid(string $userUuidArgument, string $orgUuidArgument): string {
     try {
       self::validateUuid($userUuidArgument);
     }
@@ -1075,17 +1071,17 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * @return string
    *   User uuid from alias
    */
-  protected function getUserUuidFromUserAlias(String $userAlias, String $orgUuidArgument): string {
+  private function getUserUuidFromUserAlias(string $userAlias, string $orgUuidArgument): string {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
-    $organization_resource = new Organizations($acquiaCloudClient);
-    $org_members = $organization_resource->getMembers($orgUuidArgument);
+    $organizationResource = new Organizations($acquiaCloudClient);
+    $orgMembers = $organizationResource->getMembers($orgUuidArgument);
 
     // If there are no members.
-    if (count($org_members) === 0) {
+    if (count($orgMembers) === 0) {
       return $userAlias;
     }
 
-    foreach ($org_members as $member) {
+    foreach ($orgMembers as $member) {
       // If email matches with any member.
       if ($member->mail === $userAlias) {
         return $member->uuid;
