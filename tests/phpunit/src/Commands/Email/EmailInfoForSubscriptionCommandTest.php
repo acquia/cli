@@ -8,79 +8,64 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class ConfigurePlatformEmailCommandTest.
- *
  * @property \Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EmailInfoForSubscriptionCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
     $this->command = $this->createCommand();
   }
 
-  /**
-   * Tests the 'email:info' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testEmailInfoForSubscription(): void {
     $inputs = [
       // Select a Cloud Platform subscription
       0,
     ];
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->willReturn($subscriptionsResponse->{'_embedded'}->items)
       ->shouldBeCalledTimes(1);
 
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
     // duplicating the request to ensure there is at least one domain with a successful, pending, and failed health code
-    $get_domains_response_2 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $total_domains_list = array_merge($get_domains_response->_embedded->items, $get_domains_response_2->_embedded->items);
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($total_domains_list);
+    $getDomainsResponse2 = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $totalDomainsList = array_merge($getDomainsResponse->_embedded->items, $getDomainsResponse2->_embedded->items);
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($totalDomainsList);
 
-    $total_domains_list[2]->domain_name = 'example3.com';
-    $total_domains_list[2]->health->code = '200';
+    $totalDomainsList[2]->domain_name = 'example3.com';
+    $totalDomainsList[2]->health->code = '200';
 
-    $total_domains_list[3]->domain_name = 'example4.com';
-    $total_domains_list[3]->health->code = '202';
+    $totalDomainsList[3]->domain_name = 'example4.com';
+    $totalDomainsList[3]->health->code = '202';
 
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
 
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+    $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-    $get_app_domains_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+    $getAppDomainsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
     // duplicating the request to ensure added domains are included in association list
-    $get_app_domains_response_2 = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
-    $total_app_domains_list = array_merge($get_app_domains_response->_embedded->items, $get_app_domains_response_2->_embedded->items);
-    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn($total_app_domains_list);
+    $getAppDomainsResponse2 = $this->getMockResponseFromSpec('/applications/{applicationUuid}/email/domains', 'get', '200');
+    $totalAppDomainsList = array_merge($getAppDomainsResponse->_embedded->items, $getAppDomainsResponse2->_embedded->items);
+    $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")->willReturn($totalAppDomainsList);
 
-    $total_app_domains_list[2]->domain_name = 'example3.com';
-    $total_app_domains_list[2]->flags->associated = TRUE;
+    $totalAppDomainsList[2]->domain_name = 'example3.com';
+    $totalAppDomainsList[2]->flags->associated = TRUE;
 
-    $total_app_domains_list[3]->domain_name = 'example4.com';
-    $total_app_domains_list[3]->flags->associated = FALSE;
+    $totalAppDomainsList[3]->domain_name = 'example4.com';
+    $totalAppDomainsList[3]->flags->associated = FALSE;
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString('Application: ', $output);
-    foreach ($get_app_domains_response->_embedded->items as $app_domain) {
-      $this->assertEquals(3, substr_count($output, $app_domain->domain_name));
+    foreach ($getAppDomainsResponse->_embedded->items as $appDomain) {
+      $this->assertEquals(3, substr_count($output, $appDomain->domain_name));
     }
 
     $this->assertEquals(2, substr_count($output, 'Failed - 404'));
@@ -91,25 +76,18 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->assertEquals(1, substr_count($output, 'false'));
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has no applications.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function testEmailInfoForSubscriptionNoApps(): void {
     $inputs = [
       // Select a Cloud Platform subscription
       0,
     ];
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->willReturn($subscriptionsResponse->{'_embedded'}->items)
       ->shouldBeCalledTimes(1);
 
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+    $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
     $this->mockApplicationsRequest();
 
@@ -118,40 +96,34 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
     $this->executeCommand([], $inputs);
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has over 100 applications.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testEmailInfoForSubscriptionWith101Apps(): void {
     $inputs = [
       // Select a Cloud Platform subscription
       0,
       // Do you wish to continue?
-      'no'
+      'no',
     ];
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->willReturn($subscriptionsResponse->{'_embedded'}->items)
       ->shouldBeCalledTimes(1);
 
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+    $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
-    $applications_response->_embedded->items[1]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+    $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
+    $applicationsResponse->_embedded->items[1]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
     $app = $this->getMockResponseFromSpec('/applications/{applicationUuid}', 'get', '200');
     for ($i = 2; $i < 101; $i++) {
-      $applications_response->_embedded->items[$i] = $app;
-      $applications_response->_embedded->items[$i]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+      $applicationsResponse->_embedded->items[$i] = $app;
+      $applicationsResponse->_embedded->items[$i]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
     }
 
-    $this->clientProphecy->request('get', '/applications')->willReturn($applications_response->_embedded->items);
+    $this->clientProphecy->request('get', '/applications')->willReturn($applicationsResponse->_embedded->items);
 
-    foreach ($applications_response->_embedded->items as $app) {
+    foreach ($applicationsResponse->_embedded->items as $app) {
       $this->clientProphecy->request('get', "/applications/{$app->uuid}/email/domains")->willReturn([]);
     }
 
@@ -161,53 +133,41 @@ class EmailInfoForSubscriptionCommandTest extends CommandTestBase {
 
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription has no domains registred.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testEmailInfoForSubscriptionNoDomains(): void {
     $inputs = [
       // Select a Cloud Platform subscription
       0,
     ];
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->willReturn($subscriptionsResponse->{'_embedded'}->items)
       ->shouldBeCalledTimes(1);
 
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn([]);
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn([]);
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
     $this->assertStringContainsString('No email domains', $output);
   }
 
-  /**
-   * Tests the 'email:info' command when the subscription's applications have no domains eligible for association.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testEmailInfoForSubscriptionNoAppDomains(): void {
     $inputs = [
       // Select a Cloud Platform subscription
       0,
     ];
-    $subscriptions_response = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
+    $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
-      ->willReturn($subscriptions_response->{'_embedded'}->items)
+      ->willReturn($subscriptionsResponse->{'_embedded'}->items)
       ->shouldBeCalledTimes(1);
 
-    $get_domains_response = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
-    $this->clientProphecy->request('get', "/subscriptions/{$subscriptions_response->_embedded->items[0]->uuid}/domains")->willReturn($get_domains_response->_embedded->items);
+    $getDomainsResponse = $this->getMockResponseFromSpec('/subscriptions/{subscriptionUuid}/domains', 'get', '200');
+    $this->clientProphecy->request('get', "/subscriptions/{$subscriptionsResponse->_embedded->items[0]->uuid}/domains")->willReturn($getDomainsResponse->_embedded->items);
 
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
 
-    $applications_response->_embedded->items[0]->subscription->uuid = $subscriptions_response->_embedded->items[0]->uuid;
+    $applicationsResponse->_embedded->items[0]->subscription->uuid = $subscriptionsResponse->_embedded->items[0]->uuid;
 
-    $this->clientProphecy->request('get', "/applications/{$applications_response->_embedded->items[0]->uuid}/email/domains")->willReturn([]);
+    $this->clientProphecy->request('get', "/applications/{$applicationsResponse->_embedded->items[0]->uuid}/email/domains")->willReturn([]);
 
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();

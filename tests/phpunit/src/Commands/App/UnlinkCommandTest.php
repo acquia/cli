@@ -8,52 +8,37 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class UnlinkCommandTest.
- *
  * @property \Acquia\Cli\Command\App\UnlinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class UnlinkCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(UnlinkCommand::class);
   }
 
-  /**
-   * Tests the 'unlink' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testUnlinkCommand(): void {
-    $applications_response = $this->getMockResponseFromSpec('/applications',
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications',
       'get', '200');
-    $cloud_application = $applications_response->{'_embedded'}->items[0];
-    $cloud_application_uuid = $cloud_application->uuid;
-    $this->createMockAcliConfigFile($cloud_application_uuid);
+    $cloudApplication = $applicationsResponse->{'_embedded'}->items[0];
+    $cloudApplicationUuid = $cloudApplication->uuid;
+    $this->createMockAcliConfigFile($cloudApplicationUuid);
     $this->mockApplicationRequest();
 
     // Assert we set it correctly.
-    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
+    $this->assertEquals($applicationsResponse->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
 
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
 
     // Assert it's been unset.
     $this->assertNull($this->datastoreAcli->get('cloud_app_uuid'));
-    $this->assertStringContainsString("Unlinked $this->projectDir from Cloud application " . $cloud_application->name, $output);
+    $this->assertStringContainsString("Unlinked $this->projectDir from Cloud application " . $cloudApplication->name, $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   public function testUnlinkCommandInvalidDir(): void {
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There is no Cloud Platform application linked to ' . $this->projectDir);
-    $this->executeCommand([], []);
+    $this->executeCommand();
   }
 
 }

@@ -8,12 +8,9 @@ use Psr\Http\Message\ResponseInterface;
 
 class AcsfClient extends Client {
 
-  /**
-   * @inheritdoc
-   */
   public function processResponse(ResponseInterface $response): mixed {
-    $body_json = $response->getBody();
-    $body = json_decode($body_json, FALSE, 512, JSON_THROW_ON_ERROR);
+    $bodyJson = $response->getBody();
+    $body = json_decode($bodyJson, FALSE, 512, JSON_THROW_ON_ERROR);
 
     // ACSF sometimes returns an array rather than an object.
     if (is_array($body)) {

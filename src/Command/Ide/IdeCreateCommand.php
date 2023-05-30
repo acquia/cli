@@ -9,6 +9,7 @@ use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 use AcquiaCloudApi\Response\OperationResponse;
 use GuzzleHttp\Client;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -16,9 +17,6 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 
-/**
- * Class IdeCreateCommand.
- */
 class IdeCreateCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:create';
@@ -27,42 +25,35 @@ class IdeCreateCommand extends IdeCommandBase {
 
   private Client $client;
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a Cloud IDE');
     $this->acceptApplicationUuid();
     $this->addOption('label', NULL, InputOption::VALUE_REQUIRED, 'The label for the IDE');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $cloud_application_uuid = $this->determineCloudApplication();
+    $cloudApplicationUuid = $this->determineCloudApplication();
     $checklist = new Checklist($output);
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_resource = new Account($acquia_cloud_client);
-    $account = $account_resource->get();
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $accountResource = new Account($acquiaCloudClient);
+    $account = $accountResource->get();
     $default = "$account->first_name $account->last_name's IDE";
-    $ide_label = $this->determineOption('label', $input, FALSE, \Closure::fromCallable([$this, 'validateIdeLabel']), NULL, $default);
+    $ideLabel = $this->determineOption('label', FALSE, \Closure::fromCallable([$this, 'validateIdeLabel']), NULL, $default);
 
     // Create it.
     $checklist->addItem('Creating your Cloud IDE');
-    $ides_resource = new Ides($acquia_cloud_client);
-    $response = $ides_resource->create($cloud_application_uuid, $ide_label);
+    $idesResource = new Ides($acquiaCloudClient);
+    $response = $idesResource->create($cloudApplicationUuid, $ideLabel);
     $checklist->completePreviousItem();
 
     // Get IDE info.
     $checklist->addItem('Getting IDE information');
-    $this->ide = $this->getIdeFromResponse($response, $acquia_cloud_client);
-    $ide_url = $this->ide->links->ide->href;
+    $this->ide = $this->getIdeFromResponse($response, $acquiaCloudClient);
+    $ideUrl = $this->ide->links->ide->href;
     $checklist->completePreviousItem();
 
     // Wait!
-    return $this->waitForDnsPropagation($ide_url);
+    return $this->waitForDnsPropagation($ideUrl);
   }
 
   /**
@@ -82,13 +73,10 @@ class IdeCreateCommand extends IdeCommandBase {
     return $label;
   }
 
-  /**
-   * @param $ide_url
-   */
-  private function waitForDnsPropagation($ide_url): int {
+  private function waitForDnsPropagation($ideUrl): int {
     $ideCreated = FALSE;
     if (!$this->getClient()) {
-      $this->setClient(new Client(['base_uri' => $ide_url]));
+      $this->setClient(new Client(['base_uri' => $ideUrl]));
     }
     $checkIdeStatus = function () use (&$ideCreated) {
       $response = $this->client->request('GET', '/health');
@@ -107,7 +95,7 @@ class IdeCreateCommand extends IdeCommandBase {
     $spinnerMessage = 'Waiting for the IDE to be ready. This usually takes 2 - 15 minutes.';
     LoopHelper::getLoopy($this->output, $this->io, $this->logger, $spinnerMessage, $checkIdeStatus, $doneCallback);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**
@@ -130,12 +118,12 @@ class IdeCreateCommand extends IdeCommandBase {
 
   private function getIdeFromResponse(
     OperationResponse $response,
-    \AcquiaCloudApi\Connector\Client $acquia_cloud_client
+    \AcquiaCloudApi\Connector\Client $acquiaCloudClient
   ): IdeResponse {
-    $cloud_api_ide_url = $response->links->self->href;
-    $url_parts = explode('/', $cloud_api_ide_url);
-    $ide_uuid = end($url_parts);
-    return (new Ides($acquia_cloud_client))->get($ide_uuid);
+    $cloudApiIdeUrl = $response->links->self->href;
+    $urlParts = explode('/', $cloudApiIdeUrl);
+    $ideUuid = end($urlParts);
+    return (new Ides($acquiaCloudClient))->get($ideUuid);
   }
 
 }

@@ -3,21 +3,16 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class PullCodeCommand.
- */
 class PullCodeCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:code';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Copy code from a Cloud Platform environment')
       ->acceptEnvironmentId()
@@ -27,22 +22,17 @@ class PullCodeCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   * @throws \Symfony\Component\Console\Exception\ExceptionInterface
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->pullCode($input, $output);
     $this->checkEnvironmentPhpVersions($this->sourceEnvironment);
     $this->matchIdePhpVersion($output, $this->sourceEnvironment);
     if (!$input->getOption('no-scripts')) {
-      $output_callback = $this->getOutputCallback($output, $this->checklist);
-      $this->runComposerScripts($output_callback);
-      $this->runDrushCacheClear($output_callback);
+      $outputCallback = $this->getOutputCallback($output, $this->checklist);
+      $this->runComposerScripts($outputCallback);
+      $this->runDrushCacheClear($outputCallback);
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

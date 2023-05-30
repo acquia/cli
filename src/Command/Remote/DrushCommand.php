@@ -7,18 +7,12 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class DrushCommand
  * A command to proxy Drush commands on an environment using SSH.
- *
- * @package Acquia\Cli\Commands\Remote
  */
 class DrushCommand extends SshBaseCommand {
 
   protected static $defaultName = 'remote:drush';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setAliases(['drush', 'dr'])
       ->setDescription('Run a Drush command remotely on a application\'s environment')
@@ -30,26 +24,20 @@ class DrushCommand extends SshBaseCommand {
       ->addUsage('myapp.dev -- status --fields=db-status');
   }
 
-  /**
-   * {@inheritdoc}
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): ?int {
     $alias = $input->getArgument('alias');
     $alias = $this->normalizeAlias($alias);
     $alias = self::validateEnvironmentAlias($alias);
     $environment = $this->getEnvironmentFromAliasArg($alias);
 
-    $acli_arguments = $input->getArguments();
-    $drush_command_arguments = [
+    $acliArguments = $input->getArguments();
+    $drushCommandArguments = [
       "cd /var/www/html/{$alias}/docroot; ",
       'drush',
-      implode(' ', (array) $acli_arguments['drush_command']),
+      implode(' ', (array) $acliArguments['drush_command']),
     ];
 
-    return $this->sshHelper->executeCommand($environment, $drush_command_arguments)->getExitCode();
+    return $this->sshHelper->executeCommand($environment, $drushCommandArguments)->getExitCode();
   }
 
 }

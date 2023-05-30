@@ -84,11 +84,8 @@ class Spinner {
 
   private ConsoleSectionOutput $section;
 
-  private int $indentLength;
-
-  public function __construct(private OutputInterface $output, int $indent = 0) {
-    $this->indentLength = $indent;
-    $indentString = str_repeat(' ', $indent);
+  public function __construct(private OutputInterface $output, private int $indentLength = 0) {
+    $indentString = str_repeat(' ', $indentLength);
 
     if (!$this->spinnerIsSupported()) {
       return;
@@ -140,12 +137,12 @@ class Spinner {
       return;
     }
     if ($name === 'detail') {
-      $terminal_width = (new Terminal())->getWidth();
-      $message_length = Helper::length($message) + ($this->indentLength * 2);
-      if ($message_length > $terminal_width) {
+      $terminalWidth = (new Terminal())->getWidth();
+      $messageLength = Helper::length($message) + ($this->indentLength * 2);
+      if ($messageLength > $terminalWidth) {
         $suffix = '...';
-        $new_message_len = ($terminal_width - ($this->indentLength * 2) - strlen($suffix));
-        $message = Helper::substr($message, 0, $new_message_len);
+        $newMessageLen = ($terminalWidth - ($this->indentLength * 2) - strlen($suffix));
+        $message = Helper::substr($message, 0, $newMessageLen);
         $message .= $suffix;
       }
     }

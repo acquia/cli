@@ -18,10 +18,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Pull\PullDatabaseCommand $command
- * @package Acquia\Cli\Tests\Commands\Pull
  */
 class PullDatabaseCommandTest extends PullCommandTestBase {
 
@@ -34,17 +31,10 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     return [[51], [60]];
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PullDatabaseCommand::class);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -64,10 +54,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Downloading backup 1', $output);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabasesLocalConnectionFailure(): void {
     $this->setupPullDatabase(FALSE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -79,15 +65,12 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     ], $inputs);
   }
 
-  /**
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException|\GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabasesIntoLando(): void {
-    $lando_info = LandoInfoHelper::getLandoInfo();
-    LandoInfoHelper::setLandoInfo($lando_info);
+    $landoInfo = LandoInfoHelper::getLandoInfo();
+    LandoInfoHelper::setLandoInfo($landoInfo);
     $this->dbUser = 'root';
     $this->dbPassword = '';
-    $this->dbHost = $lando_info->database->hostnames[0];
+    $this->dbHost = $landoInfo->database->hostnames[0];
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
     $this->executeCommand([
@@ -98,10 +81,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     self::assertStringContainsString('Acquia CLI assumes that the local name', $output);
   }
 
-  /**
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPullMultipleDatabases(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, TRUE);
     $inputs = [
@@ -116,26 +95,22 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       //  Choose a site [jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)]:
       0,
       // Choose databases. You may choose multiple. Use commas to separate choices. [profserv2 (default)]:
-      '10,27'
+      '10,27',
     ];
     $this->executeCommand([
-      '--no-scripts' => TRUE,
       '--multiple-dbs' => TRUE,
+      '--no-scripts' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testPullDatabasesOnDemand(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
       '--no-scripts' => TRUE,
-      '--on-demand' => TRUE
+      '--on-demand' => TRUE,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -148,18 +123,13 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('jxr5000596dev (oracletest1.dev-profserv2.acsitefactory.com)', $output);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   public function testPullDatabasesSiteArgument(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, FALSE);
     $inputs = $this->getInputs();
 
     $this->executeCommand([
-      'site' => 'jxr5000596dev',
       '--no-scripts' => TRUE,
+      'site' => 'jxr5000596dev',
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -171,11 +141,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringNotContainsString('Choose a database', $output);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception|\GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlDropError(): void {
     $this->setupPullDatabase(TRUE, FALSE, TRUE, TRUE);
     $inputs = $this->getInputs();
@@ -184,12 +149,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlCreateError(): void {
     $this->setupPullDatabase(TRUE, TRUE, FALSE, TRUE);
     $inputs = $this->getInputs();
@@ -199,12 +158,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function testPullDatabaseWithMySqlImportError(): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, FALSE);
     $inputs = $this->getInputs();
@@ -216,10 +169,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
    */
   public function testPullDatabaseWithInvalidSslCertificate($errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
@@ -227,75 +176,65 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
 
     $this->executeCommand(['--no-scripts' => TRUE], $inputs);
     $output = $this->getDisplay();
-    $this->assertStringContainsString('The certificate for www.example.com is invalid, trying alternative host other.example.com', $output);
+    $this->assertStringContainsString('The certificate for www.example.com is invalid.', $output);
+    $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  /**
-   * @param $mysql_connect_successful *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \JsonException
-   */
-  protected function setupPullDatabase($mysql_connect_successful, $mysql_drop_successful, $mysql_create_successful, $mysql_import_successful, $mock_ide_fs = FALSE, $on_demand = FALSE, $mock_get_acsf_sites = TRUE, $multidb = FALSE, int $curl_code = 0): void {
-    $applications_response = $this->mockApplicationsRequest();
+  protected function setupPullDatabase($mysqlConnectSuccessful, $mysqlDropSuccessful, $mysqlCreateSuccessful, $mysqlImportSuccessful, $mockIdeFs = FALSE, $onDemand = FALSE, $mockGetAcsfSites = TRUE, $multidb = FALSE, int $curlCode = 0): void {
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->createMockGitConfigFile();
 
-    $databases_response = $this->mockAcsfDatabasesResponse($selected_environment);
-    $database_response = $databases_response[array_search('jxr5000596dev', array_column($databases_response, 'name'), TRUE)];
-    $selected_database = $this->mockDownloadBackup($database_response, $selected_environment, $curl_code);
+    $databasesResponse = $this->mockAcsfDatabasesResponse($selectedEnvironment);
+    $databaseResponse = $databasesResponse[array_search('jxr5000596dev', array_column($databasesResponse, 'name'), TRUE)];
+    $selectedDatabase = $this->mockDownloadBackup($databaseResponse, $selectedEnvironment, $curlCode);
 
     if ($multidb) {
-      $database_response_2 = $databases_response[array_search('profserv2', array_column($databases_response, 'name'), TRUE)];
-      $this->mockDownloadBackup($database_response_2, $selected_environment, $curl_code);
+      $databaseResponse2 = $databasesResponse[array_search('profserv2', array_column($databasesResponse, 'name'), TRUE)];
+      $this->mockDownloadBackup($databaseResponse2, $selectedEnvironment, $curlCode);
     }
 
-    $ssh_helper = $this->mockSshHelper();
-    if ($mock_get_acsf_sites) {
-      $this->mockGetAcsfSites($ssh_helper);
+    $sshHelper = $this->mockSshHelper();
+    if ($mockGetAcsfSites) {
+      $this->mockGetAcsfSites($sshHelper);
     }
 
-    if ($on_demand) {
-      $this->mockDatabaseBackupCreateResponse($selected_environment, $selected_database->name);
+    if ($onDemand) {
+      $backupResponse = $this->mockDatabaseBackupCreateResponse($selectedEnvironment, $selectedDatabase->name);
       // Cloud API does not provide the notification UUID as part of the backup response, so we must hardcode it.
-      $this->mockNotificationResponse('42b56cff-0b55-4bdf-a949-1fd0fca61c6c');
+      $this->mockNotificationResponseFromObject($backupResponse);
     }
 
     $fs = $this->prophet->prophesize(Filesystem::class);
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockExecuteMySqlConnect($local_machine_helper, $mysql_connect_successful);
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockExecuteMySqlConnect($localMachineHelper, $mysqlConnectSuccessful);
     // Set up file system.
-    $local_machine_helper->getFilesystem()->willReturn($fs)->shouldBeCalled();
+    $localMachineHelper->getFilesystem()->willReturn($fs)->shouldBeCalled();
 
     // Mock IDE filesystem.
-    if ($mock_ide_fs) {
-      $this->mockDrupalSettingsRefresh($local_machine_helper);
+    if ($mockIdeFs) {
+      $this->mockDrupalSettingsRefresh($localMachineHelper);
       $this->mockSettingsFiles($fs);
     }
 
     // Database.
-    $this->mockExecuteMySqlDropDb($local_machine_helper, $mysql_drop_successful);
-    $this->mockExecuteMySqlCreateDb($local_machine_helper, $mysql_create_successful);
-    $this->mockExecuteMySqlImport($local_machine_helper, $mysql_import_successful);
+    $this->mockExecuteMySqlDropDb($localMachineHelper, $mysqlDropSuccessful);
+    $this->mockExecuteMySqlCreateDb($localMachineHelper, $mysqlCreateSuccessful);
+    $this->mockExecuteMySqlImport($localMachineHelper, $mysqlImportSuccessful);
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->sshHelper = $ssh_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->command->sshHelper = $sshHelper->reveal();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockExecuteMySqlConnect(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     bool $success
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
+    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'mysql',
         '--host',
@@ -308,32 +247,25 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockExecuteMySqlDropDb(
-    \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $local_machine_helper,
+    \Acquia\Cli\Helpers\LocalMachineHelper|ObjectProphecy $localMachineHelper,
     bool $success
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
+    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
-    $local_machine_helper
+    $localMachineHelper
       ->execute(Argument::type('array'), Argument::type('callable'), NULL, FALSE, NULL, ['MYSQL_PWD' => $this->dbPassword])
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockExecuteMySqlCreateDb(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     bool $success
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
+    $localMachineHelper->checkRequiredBinariesExist(["mysql"])->shouldBeCalled();
     $process = $this->mockProcess($success);
-    $local_machine_helper
+    $localMachineHelper
       ->execute([
         'mysql',
         '--host',
@@ -348,30 +280,24 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   */
   protected function mockExecuteMySqlImport(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     bool $success
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
-    $this->mockExecutePvExists($local_machine_helper);
+    $localMachineHelper->checkRequiredBinariesExist(['gunzip', 'mysql'])->shouldBeCalled();
+    $this->mockExecutePvExists($localMachineHelper);
     $process = $this->mockProcess($success);
     // MySQL import command.
-    $local_machine_helper
+    $localMachineHelper
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
-  /**
-   * @param ObjectProphecy|\Acquia\Cli\Helpers\LocalMachineHelper $local_machine_helper
-   */
-  protected function mockDownloadMySqlDump(ObjectProphecy $local_machine_helper, $success): void {
+  protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, $success): void {
     $process = $this->mockProcess($success);
-    $local_machine_helper->writeFile(
+    $localMachineHelper->writeFile(
       Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),
       'backupfilecontents'
     )
@@ -415,40 +341,37 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('100/100 [============================] 100%', $output->fetch());
   }
 
-  /**
-   * @throws \GuzzleHttp\Exception\GuzzleException|\Psr\Cache\InvalidArgumentException|\JsonException
-   */
-  protected function mockDownloadBackup(DatabaseResponse $selected_database, object $selected_environment, int $curl_code = 0): DatabaseResponse {
-    $database_backups_response = $this->mockDatabaseBackupsResponse($selected_environment, $selected_database->name, 1);
-    $selected_backup = $database_backups_response->_embedded->items[0];
-    if ($curl_code) {
+  protected function mockDownloadBackup(DatabaseResponse $selectedDatabase, object $selectedEnvironment, int $curlCode = 0): DatabaseResponse {
+    $databaseBackupsResponse = $this->mockDatabaseBackupsResponse($selectedEnvironment, $selectedDatabase->name, 1);
+    $selectedBackup = $databaseBackupsResponse->_embedded->items[0];
+    if ($curlCode) {
       $this->prophet->prophesize(StreamInterface::class);
-      /** @var RequestException|ObjectProphecy $request_exception */
-      $request_exception = $this->prophet->prophesize(RequestException::class);
-      $request_exception->getHandlerContext()->willReturn(['errno' => $curl_code]);
-      $this->clientProphecy->stream('get', "/environments/{$selected_environment->id}/databases/{$selected_database->name}/backups/1/actions/download", [])
-        ->willThrow($request_exception->reveal())
+      /** @var RequestException|ObjectProphecy $requestException */
+      $requestException = $this->prophet->prophesize(RequestException::class);
+      $requestException->getHandlerContext()->willReturn(['errno' => $curlCode]);
+      $this->clientProphecy->stream('get', "/environments/{$selectedEnvironment->id}/databases/{$selectedDatabase->name}/backups/1/actions/download", [])
+        ->willThrow($requestException->reveal())
         ->shouldBeCalled();
       $response = $this->prophet->prophesize(ResponseInterface::class);
       $this->httpClientProphecy->request('GET', 'https://other.example.com/download-backup', Argument::type('array'))->willReturn($response->reveal())->shouldBeCalled();
-      $domains_response = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
-      $this->clientProphecy->request('get', "/environments/{$selected_environment->id}/domains")->willReturn($domains_response->_embedded->items);
+      $domainsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/domains', 'get', 200);
+      $this->clientProphecy->request('get', "/environments/{$selectedEnvironment->id}/domains")->willReturn($domainsResponse->_embedded->items);
       $this->command->setBackupDownloadUrl(new Uri( 'https://www.example.com/download-backup'));
     }
     else {
-      $this->mockDownloadBackupResponse($selected_environment, $selected_database->name, 1);
+      $this->mockDownloadBackupResponse($selectedEnvironment, $selectedDatabase->name, 1);
     }
-    $local_filepath = PullCommandBase::getBackupPath($selected_environment, $selected_database, $selected_backup);
-    $this->clientProphecy->addOption('sink', $local_filepath)->shouldBeCalled();
+    $localFilepath = PullCommandBase::getBackupPath($selectedEnvironment, $selectedDatabase, $selectedBackup);
+    $this->clientProphecy->addOption('sink', $localFilepath)->shouldBeCalled();
     $this->clientProphecy->addOption('curl.options', [
+      'CURLOPT_FILE' => $localFilepath,
       'CURLOPT_RETURNTRANSFER' => FALSE,
-      'CURLOPT_FILE' => $local_filepath
-    ])->shouldBeCalled();
+])->shouldBeCalled();
     $this->clientProphecy->addOption('progress', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->addOption('on_stats', Argument::type('Closure'))->shouldBeCalled();
     $this->clientProphecy->getOptions()->willReturn([]);
 
-    return $selected_database;
+    return $selectedDatabase;
   }
 
 }

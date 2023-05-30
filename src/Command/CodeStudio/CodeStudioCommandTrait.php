@@ -29,10 +29,8 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting the gitlab token from user.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
-  private function getGitLabToken(string $gitlab_host): string {
+  private function getGitLabToken(string $gitlabHost): string {
     if ($this->input->getOption('gitlab-token')) {
       return $this->input->getOption('gitlab-token');
     }
@@ -44,7 +42,7 @@ trait CodeStudioCommandTrait {
       'config',
       'get',
       'token',
-      '--host=' . $gitlab_host,
+      '--host=' . $gitlabHost,
     ], NULL, NULL, FALSE);
     if ($process->isSuccessful() && trim($process->getOutput())) {
       return trim($process->getOutput());
@@ -53,10 +51,10 @@ trait CodeStudioCommandTrait {
     $this->io->writeln([
       "",
       "You must first authenticate with Code Studio by creating a personal access token:",
-      "* Visit https://$gitlab_host/-/profile/personal_access_tokens",
+      "* Visit https://$gitlabHost/-/profile/personal_access_tokens",
       "* Create a token and grant it both <comment>api</comment> and <comment>write repository</comment> scopes",
       "* Copy the token to your clipboard",
-      "* Run <comment>glab auth login --hostname=$gitlab_host</comment> and paste the token when prompted",
+      "* Run <comment>glab auth login --hostname=$gitlabHost</comment> and paste the token when prompted",
       "* Try this command again.",
     ]);
 
@@ -65,8 +63,6 @@ trait CodeStudioCommandTrait {
 
   /**
    * Getting gitlab host from user.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getGitLabHost(): string {
     // If hostname is available as argument, use that.
@@ -87,21 +83,21 @@ trait CodeStudioCommandTrait {
       throw new AcquiaCliException("Could not determine GitLab host: {error_message}", ['error_message' => $process->getErrorOutput()]);
     }
     $output = trim($process->getOutput());
-    $url_parts = parse_url($output);
-    if (!array_key_exists('scheme', $url_parts) && !array_key_exists('host', $url_parts)) {
+    $urlParts = parse_url($output);
+    if (!array_key_exists('scheme', $urlParts) && !array_key_exists('host', $urlParts)) {
       // $output looks like code.cloudservices.acquia.io.
       return $output;
     }
     // $output looks like http://code.cloudservices.acquia.io/.
-    return $url_parts['host'];
+    return $urlParts['host'];
   }
 
   private function getGitLabClient(): Client {
     if (!isset($this->gitLabClient)) {
-      $gitlab_client = new Client(new Builder(new \GuzzleHttp\Client()));
-      $gitlab_client->setUrl('https://' . $this->gitLabHost);
-      $gitlab_client->authenticate($this->gitLabToken, Client::AUTH_OAUTH_TOKEN);
-      $this->setGitLabClient($gitlab_client);
+      $gitlabClient = new Client(new Builder(new \GuzzleHttp\Client()));
+      $gitlabClient->setUrl('https://' . $this->gitLabHost);
+      $gitlabClient->authenticate($this->gitLabToken, Client::AUTH_OAUTH_TOKEN);
+      $this->setGitLabClient($gitlabClient);
     }
     return $this->gitLabClient;
   }
@@ -113,7 +109,7 @@ trait CodeStudioCommandTrait {
   private function writeApiTokenMessage(InputInterface $input): void {
     // Get Cloud access tokens.
     if (!$input->getOption('key') || !$input->getOption('secret')) {
-      $token_url = 'https://cloud.acquia.com/a/profile/tokens';
+      $tokenUrl = 'https://cloud.acquia.com/a/profile/tokens';
       $this->io->writeln([
         "",
         "This will configure AutoDevOps for a Code Studio project using credentials",
@@ -125,23 +121,17 @@ trait CodeStudioCommandTrait {
         "need to be re-configured using a different user account.",
         "",
         "<options=bold>To begin, visit this URL and create a new API Token for Code Studio to use:</>",
-        "<href=$token_url>$token_url</>",
+        "<href=$tokenUrl>$tokenUrl</>",
       ]);
     }
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function validateEnvironment(): void {
     if (!empty(self::isAcquiaCloudIde()) && !getenv('GITLAB_HOST')) {
       throw new AcquiaCliException('The GITLAB_HOST environment variable must be set or the `--gitlab-host-name` option must be passed.');
     }
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function authenticateWithGitLab(): void {
     $this->validateEnvironment();
     $this->gitLabHost = $this->getGitLabHost();
@@ -165,14 +155,14 @@ trait CodeStudioCommandTrait {
   /**
    * @return array
    */
-  private function determineGitLabProject(ApplicationResponse $cloud_application): array {
+  private function determineGitLabProject(ApplicationResponse $cloudApplication): array {
     // Use command option.
     if ($this->input->getOption('gitlab-project-id')) {
       $id = $this->input->getOption('gitlab-project-id');
       return $this->gitLabClient->projects()->show($id);
     }
     // Search for existing project that matches expected description pattern.
-    $projects = $this->gitLabClient->projects()->all(['search' => $cloud_application->uuid]);
+    $projects = $this->gitLabClient->projects()->all(['search' => $cloudApplication->uuid]);
     if ($projects) {
       if (count($projects) == 1) {
         return reset($projects);
@@ -182,19 +172,19 @@ trait CodeStudioCommandTrait {
         $projects,
         'id',
         'path_with_namespace',
-        "Found multiple projects that could match the {$cloud_application->name} application. Choose which one to configure."
+        "Found multiple projects that could match the {$cloudApplication->name} application. Choose which one to configure."
       );
     }
     // Prompt to create project.
 
     $this->io->writeln([
       "",
-      "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloud_application->name}</comment>.",
-      "Searched for UUID <comment>{$cloud_application->uuid}</comment> in project descriptions.",
+      "Could not find any existing Code Studio project for Acquia Cloud Platform application <comment>{$cloudApplication->name}</comment>.",
+      "Searched for UUID <comment>{$cloudApplication->uuid}</comment> in project descriptions.",
     ]);
-    $create_project = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
-    if ($create_project) {
-      return $this->createGitLabProject($cloud_application);
+    $createProject = $this->io->confirm('Would you like to create a new Code Studio project? If you select "no" you may choose from a full list of existing projects.');
+    if ($createProject) {
+      return $this->createGitLabProject($cloudApplication);
     }
     // Prompt to choose from full list, regardless of description.
 
@@ -202,28 +192,28 @@ trait CodeStudioCommandTrait {
       $this->gitLabClient->projects()->all(),
       'id',
       'path_with_namespace',
-      "Choose a Code Studio project to configure for the {$cloud_application->name} application"
+      "Choose a Code Studio project to configure for the {$cloudApplication->name} application"
     );
   }
 
   /**
    * @return array
    */
-  private function createGitLabProject(ApplicationResponse $cloud_application): array {
-    $user_groups = $this->gitLabClient->groups()->all([
+  private function createGitLabProject(ApplicationResponse $cloudApplication): array {
+    $userGroups = $this->gitLabClient->groups()->all([
       'all_available' => TRUE,
       'min_access_level' => 40,
     ]);
     $parameters = $this->getGitLabProjectDefaults();
-    if ($user_groups) {
-      $user_groups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
-      $project_group = $this->promptChooseFromObjectsOrArrays($user_groups, 'id', 'path', 'Choose which group this new project should belong to:');
-      $parameters['namespace_id'] = $project_group['id'];
+    if ($userGroups) {
+      $userGroups[] = $this->gitLabClient->namespaces()->show($this->gitLabAccount['username']);
+      $projectGroup = $this->promptChooseFromObjectsOrArrays($userGroups, 'id', 'path', 'Choose which group this new project should belong to:');
+      $parameters['namespace_id'] = $projectGroup['id'];
     }
 
     $slugger = new AsciiSlugger();
-    $project_name = $slugger->slug($cloud_application->name);
-    $project = $this->gitLabClient->projects()->create($project_name, $parameters);
+    $projectName = $slugger->slug($cloudApplication->name);
+    $project = $this->gitLabClient->projects()->create($projectName, $parameters);
     try {
       $this->gitLabClient->projects()
         ->uploadAvatar($project['id'], __DIR__ . '/drupal_icon.png');
@@ -236,8 +226,8 @@ trait CodeStudioCommandTrait {
     return $project;
   }
 
-  private function setGitLabProjectDescription($cloud_application_uuid): void {
-    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloud_application_uuid</comment>";
+  private function setGitLabProjectDescription($cloudApplicationUuid): void {
+    $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloudApplicationUuid</comment>";
   }
 
   /**
@@ -245,9 +235,9 @@ trait CodeStudioCommandTrait {
    */
   private function getGitLabProjectDefaults(): array {
     return [
+      'container_registry_access_level' => 'disabled',
       'description' => $this->gitLabProjectDescription,
       'topics' => 'Acquia Cloud Application',
-      'container_registry_access_level' => 'disabled',
     ];
   }
 

@@ -13,25 +13,21 @@ class AcsfConnector extends Connector {
 
   /**
    * @param array $config
-   * @param string|null $base_uri
-   * @param string|null $url_access_token
+   * @param string|null $baseUri
+   * @param string|null $urlAccessToken
    */
-  public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
-    parent::__construct($config, $base_uri, $url_access_token);
+  public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL) {
+    parent::__construct($config, $baseUri, $urlAccessToken);
 
     $this->client = new GuzzleClient([
-      'base_uri' => $this->getBaseUri(),
       'auth' => [
         $config['key'],
         $config['secret'],
       ],
+      'base_uri' => $this->getBaseUri(),
     ]);
   }
 
-  /**
-   * @inheritdoc
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   public function sendRequest($verb, $path, $options): ResponseInterface {
     return $this->client->request($verb, $path, $options);
   }

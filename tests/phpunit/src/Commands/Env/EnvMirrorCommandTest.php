@@ -8,96 +8,84 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class EnvironmentMirrorCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvMirrorCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class EnvMirrorCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvMirrorCommand::class);
   }
 
-  /**
-   * Tests the 'app:environment-mirror' command.
-   *
-   * @throws \Exception
-   */
   public function testEnvironmentMirror(): void {
-    $environment_response = $this->mockGetEnvironments();
-    $code_switch_response = $this->getMockResponseFromSpec("/environments/{environmentId}/code/actions/switch", 'post', '202');
-    $response = $code_switch_response->{'Switching code'}->value;
+    $environmentResponse = $this->mockGetEnvironments();
+    $codeSwitchResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/code/actions/switch", 'post', '202');
+    $response = $codeSwitchResponse->{'Switching code'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
     $this->clientProphecy->request('post',
-      "/environments/{$environment_response->id}/code/actions/switch", [
+      "/environments/{$environmentResponse->id}/code/actions/switch", [
         'form_params' => [
-          'branch' => $environment_response->vcs->path,
+          'branch' => $environmentResponse->vcs->path,
         ],
       ])
       ->willReturn($response)
       ->shouldBeCalled();
 
-    $databases_response = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'get', '200');
+    $databasesResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'get', '200');
     $this->clientProphecy->request('get',
-      "/environments/{$environment_response->id}/databases")
-      ->willReturn($databases_response->_embedded->items)
+      "/environments/{$environmentResponse->id}/databases")
+      ->willReturn($databasesResponse->_embedded->items)
       ->shouldBeCalled();
 
-    $db_copy_response = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'post', '202');
-    $response = $db_copy_response->{'Database being copied'}->value;
+    $dbCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/databases", 'post', '202');
+    $response = $dbCopyResponse->{'Database being copied'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
-    $this->clientProphecy->request('post', "/environments/{$environment_response->id}/databases", [
+    $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/databases", [
       'json' => [
-        'name' => $databases_response->_embedded->items[0]->name,
-        'source' => $environment_response->id,
+        'name' => $databasesResponse->_embedded->items[0]->name,
+        'source' => $environmentResponse->id,
       ],
     ])
       ->willReturn($response)
       ->shouldBeCalled();
 
-    $files_copy_response = $this->getMockResponseFromSpec("/environments/{environmentId}/files", 'post', '202');
-    $response = $files_copy_response->{'Files queued for copying'}->value;
+    $filesCopyResponse = $this->getMockResponseFromSpec("/environments/{environmentId}/files", 'post', '202');
+    $response = $filesCopyResponse->{'Files queued for copying'}->value;
+    $this->mockNotificationResponseFromObject($response);
     $response->links = $response->{'_links'};
-    $this->clientProphecy->request('post', "/environments/{$environment_response->id}/files", [
+    $this->clientProphecy->request('post', "/environments/{$environmentResponse->id}/files", [
       'json' => [
-        'source' => $environment_response->id,
+        'source' => $environmentResponse->id,
       ],
     ])
       ->willReturn($response)
       ->shouldBeCalled();
 
-    $environment_update_response = $this->getMockResponseFromSpec("/environments/{environmentId}", 'put', '202');
-    $this->clientProphecy->request('put', "/environments/{$environment_response->id}", Argument::type('array'))
-      ->willReturn($environment_update_response)
+    $environmentUpdateResponse = $this->getMockResponseFromSpec("/environments/{environmentId}", 'put', '202');
+    $this->clientProphecy->request('put', "/environments/{$environmentResponse->id}", Argument::type('array'))
+      ->willReturn($environmentUpdateResponse)
       ->shouldBeCalled();
-
-    $notifications_response = $this->getMockResponseFromSpec( "/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
-      ->shouldBeCalled();
+    $this->mockNotificationResponseFromObject($environmentUpdateResponse);
 
     $this->executeCommand(
       [
-        'source-environment' => $environment_response->id,
-        'destination-environment' => $environment_response->id,
+        'destination-environment' => $environmentResponse->id,
+        'source-environment' => $environmentResponse->id,
       ],
       [
         // Are you sure that you want to overwrite everything ...
-        'y'
+        'y',
       ]
     );
 
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
     $this->assertStringContainsString('Are you sure that you want to overwrite everything on Dev (dev) and replace it with source data from Dev (dev)', $output);
-    $this->assertStringContainsString("Switching to {$environment_response->vcs->path}", $output);
-    $this->assertStringContainsString("Copying {$databases_response->_embedded->items[0]->name}", $output);
+    $this->assertStringContainsString("Switching to {$environmentResponse->vcs->path}", $output);
+    $this->assertStringContainsString("Copying {$databasesResponse->_embedded->items[0]->name}", $output);
     $this->assertStringContainsString("Copying PHP version, acpu memory limit, etc.", $output);
-    $this->assertStringContainsString("[OK] Done! {$environment_response->label} now matches {$environment_response->label}", $output);
+    $this->assertStringContainsString("[OK] Done! {$environmentResponse->label} now matches {$environmentResponse->label}", $output);
   }
 
 }

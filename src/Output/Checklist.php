@@ -48,10 +48,7 @@ class Checklist {
     return end($this->items);
   }
 
-  /**
-   * @param $update_message
-   */
-  public function updateProgressBar($update_message): void {
+  public function updateProgressBar($updateMessage): void {
     $item = $this->getLastItem();
     if (!$item) {
       return;
@@ -61,8 +58,8 @@ class Checklist {
       $spinner = $item['spinner'];
     }
 
-    $message_lines = explode(PHP_EOL, $update_message);
-    foreach ($message_lines as $line) {
+    $messageLines = explode(PHP_EOL, $updateMessage);
+    foreach ($messageLines as $line) {
       if (isset($spinner) && $item['spinner']) {
         if (trim($line)) {
           $spinner->setMessage(str_repeat(' ', $this->indentLength * 2) . $line, 'detail');

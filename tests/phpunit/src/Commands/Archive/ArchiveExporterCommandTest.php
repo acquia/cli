@@ -12,47 +12,38 @@ use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Finder\Finder;
 
 /**
- * Class ArchiveExporterCommandTest.
- *
  * @property \Acquia\Cli\Command\Archive\ArchiveExportCommand $command
  */
 class ArchiveExporterCommandTest extends PullCommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(ArchiveExportCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   public function testArchiveExport(): void {
     touch(Path::join($this->projectDir, '.gitignore'));
-    $destination_dir = 'foo';
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $file_system = $this->mockFileSystem($destination_dir);
-    $local_machine_helper->getFilesystem()->willReturn($file_system->reveal())->shouldBeCalled();
-    $this->mockExecutePvExists($local_machine_helper);
-    $this->mockExecuteDrushExists($local_machine_helper);
-    $this->mockExecuteDrushStatus($local_machine_helper, TRUE, $this->projectDir);
-    $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
-    $local_machine_helper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
-    $local_machine_helper->execute(Argument::type('array'), Argument::type('callable'), NULL, TRUE)->willReturn($this->mockProcess())->shouldBeCalled();
+    $destinationDir = 'foo';
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $fileSystem = $this->mockFileSystem($destinationDir);
+    $localMachineHelper->getFilesystem()->willReturn($fileSystem->reveal())->shouldBeCalled();
+    $this->mockExecutePvExists($localMachineHelper);
+    $this->mockExecuteDrushExists($localMachineHelper);
+    $this->mockExecuteDrushStatus($localMachineHelper, TRUE, $this->projectDir);
+    $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
+    $localMachineHelper->checkRequiredBinariesExist(["tar"])->shouldBeCalled();
+    $localMachineHelper->execute(Argument::type('array'), Argument::type('callable'), NULL, TRUE)->willReturn($this->mockProcess())->shouldBeCalled();
 
     $finder = $this->mockFinder();
-    $local_machine_helper->getFinder()->willReturn($finder->reveal());
+    $localMachineHelper->getFinder()->willReturn($finder->reveal());
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
 
     $inputs = [
       // ... Do you want to continue? (yes/no) [yes]
       'y',
     ];
     $this->executeCommand([
-      'destination-dir' => $destination_dir,
+      'destination-dir' => $destinationDir,
     ], $inputs);
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
@@ -61,17 +52,17 @@ class ArchiveExporterCommandTest extends PullCommandTestBase {
     self::assertStringContainsString('foo/acli-archive-project-', $output);
   }
 
-  protected function mockFileSystem(string $destination_dir): ObjectProphecy {
-    $file_system = $this->prophet->prophesize(Filesystem::class);
-    $file_system->mirror($this->projectDir, Argument::type('string'),
+  protected function mockFileSystem(string $destinationDir): ObjectProphecy {
+    $fileSystem = $this->prophet->prophesize(Filesystem::class);
+    $fileSystem->mirror($this->projectDir, Argument::type('string'),
       Argument::type(Finder::class), ['override' => TRUE, 'delete' => TRUE],
       Argument::type(Finder::class))->shouldBeCalled();
-    $file_system->exists($destination_dir)->willReturn(TRUE)->shouldBeCalled();
-    $file_system->rename(Argument::type('string'), Argument::type('string'))
+    $fileSystem->exists($destinationDir)->willReturn(TRUE)->shouldBeCalled();
+    $fileSystem->rename(Argument::type('string'), Argument::type('string'))
       ->shouldBeCalled();
-    $file_system->remove(Argument::type('string'))->shouldBeCalled();
-    $file_system->mkdir(Argument::type('array'))->shouldBeCalled();
-    return $file_system;
+    $fileSystem->remove(Argument::type('string'))->shouldBeCalled();
+    $fileSystem->mkdir(Argument::type('array'))->shouldBeCalled();
+    return $fileSystem;
   }
 
 }

@@ -9,54 +9,39 @@ use GuzzleHttp\Psr7\Response;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeCreateCommandTest.
- *
  * @property IdeCreateCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeCreateCommandTest extends CommandTestBase {
 
-  /**
-   * Tests the 'ide:create' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   * @throws \Exception
-   */
   public function testCreate(): void {
+    $applicationsResponse = $this->mockRequest('getApplications');
+    $applicationUuid = $applicationsResponse[self::$INPUT_DEFAULT_CHOICE]->uuid;
+    $this->mockRequest('getApplicationByUuid', $applicationUuid);
+    $this->mockRequest('getAccount');
+    $ideResponse = $this->mockRequest(
+      'postApplicationsIde',
+      $applicationUuid,
+      ['json' => ['label' => 'Example IDE']],
+      'IDE created'
+    );
+    $cloudApiIdeUrl = $ideResponse->_links->self->href;
+    $urlParts = explode('/', $cloudApiIdeUrl);
+    $ideUuid = end($urlParts);
+    $this->mockRequest('getIde', $ideUuid);
 
-    $this->mockApplicationsRequest();
-    $this->mockApplicationRequest();
-    $this->mockAccountRequest();
-
-    // Request to create IDE.
-    $response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/ides', 'post', '202');
-    $this->clientProphecy->request(
-          'post',
-          // @todo Consider replacing path parameter with Argument::containingString('/ides') or something.
-          '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides',
-          ['json' => ['label' => 'Example IDE']]
-      )->willReturn($response->{'IDE created'}->value);
-
-    // Request for IDE data.
-    $response = $this->getMockResponseFromSpec('/ides/{ideUuid}', 'get', '200');
-    $this->clientProphecy->request('get', '/ides/1792767d-1ee3-4b5f-83a8-334dfdc2b8a3')->willReturn($response)->shouldBeCalled();
-
-    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
-    $guzzle_response = $this->prophet->prophesize(Response::class);
-    $guzzle_response->getStatusCode()->willReturn(200);
-    $guzzle_client = $this->prophet->prophesize(Client::class);
-    $guzzle_client->request('GET', '/health')->willReturn($guzzle_response->reveal())->shouldBeCalled();
-    $this->command->setClient($guzzle_client->reveal());
+    /** @var \Prophecy\Prophecy\ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
+    $guzzleResponse = $this->prophet->prophesize(Response::class);
+    $guzzleResponse->getStatusCode()->willReturn(200);
+    $guzzleClient = $this->prophet->prophesize(Client::class);
+    $guzzleClient->request('GET', '/health')->willReturn($guzzleResponse->reveal())->shouldBeCalled();
+    $this->command->setClient($guzzleClient->reveal());
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       // Would you like to link the project at ... ?
       'n',
       0,
-      // Select the application for which you'd like to create a new IDE
-      0,
+      self::$INPUT_DEFAULT_CHOICE,
       // Enter a label for your Cloud IDE:
       'Example IDE',
     ];

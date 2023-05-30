@@ -33,8 +33,6 @@ use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Process;
 
 /**
- * Class CommandTestBase.
- *
  * @property \Acquia\Cli\Command\CommandBase $command
  */
 abstract class CommandTestBase extends TestBase {
@@ -42,7 +40,10 @@ abstract class CommandTestBase extends TestBase {
   /**
    * The command tester.
    */
-  private \Symfony\Component\Console\Tester\CommandTester $commandTester;
+  private CommandTester $commandTester;
+
+  // Select the application / SSH key / etc.
+  protected static int $INPUT_DEFAULT_CHOICE = 0;
 
   protected Command $command;
 
@@ -58,8 +59,6 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * This method is called before each test.
-   *
-   * @throws \Exception
    */
   protected function setUp(OutputInterface $output = NULL): void {
     parent::setUp();
@@ -81,14 +80,13 @@ abstract class CommandTestBase extends TestBase {
    * @param string[] $inputs
    *   An array of strings representing each input passed to the command input
    *   stream.
-   * @throws \Exception
    */
   protected function executeCommand(array $args = [], array $inputs = []): void {
     $cwd = $this->projectDir;
     $tester = $this->getCommandTester();
     $tester->setInputs($inputs);
-    $command_name = $this->command->getName();
-    $args = array_merge(['command' => $command_name], $args);
+    $commandName = $this->command->getName();
+    $args = array_merge(['command' => $commandName], $args);
 
     if (getenv('ACLI_PRINT_COMMAND_OUTPUT')) {
       $this->consoleOutput->writeln('');
@@ -125,9 +123,9 @@ abstract class CommandTestBase extends TestBase {
     }
 
     $this->application->add($this->command);
-    $found_command = $this->application->find($this->command->getName());
-    $this->assertInstanceOf(get_class($this->command), $found_command, 'Instantiated class.');
-    $this->commandTester = new CommandTester($found_command);
+    $foundCommand = $this->application->find($this->command->getName());
+    $this->assertInstanceOf(get_class($this->command), $foundCommand, 'Instantiated class.');
+    $this->commandTester = new CommandTester($foundCommand);
 
     return $this->commandTester;
   }
@@ -161,9 +159,9 @@ abstract class CommandTestBase extends TestBase {
    *   Output.
    */
   protected function writeFullWidthLine(string $message, OutputInterface $output): void {
-    $terminal_width = (new Terminal())->getWidth();
-    $padding_len = (int) (($terminal_width - strlen($message)) / 2);
-    $pad = $padding_len > 0 ? str_repeat('-', $padding_len) : '';
+    $terminalWidth = (new Terminal())->getWidth();
+    $paddingLen = (int) (($terminalWidth - strlen($message)) / 2);
+    $pad = $paddingLen > 0 ? str_repeat('-', $paddingLen) : '';
     $output->writeln("<comment>{$pad}{$message}{$pad}</comment>");
   }
 
@@ -200,16 +198,18 @@ abstract class CommandTestBase extends TestBase {
     $this->fs->remove([$this->getTargetGitConfigFixture(), dirname($this->getTargetGitConfigFixture())]);
   }
 
-  /**
-   * Create a mock LocalMachineHelper.
-   */
-  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE);
-    $local_machine_helper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
-    $local_machine_helper->readFile('/home/ide/configs/php/.version')->willReturn("7.1\n");
+  protected function mockReadIdePhpVersion(string $phpVersion = '7.1'): LocalMachineHelper|ObjectProphecy {
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $localMachineHelper->getLocalFilepath(Path::join($this->dataDir, 'acquia-cli.json'))->willReturn(Path::join($this->dataDir, 'acquia-cli.json'));
+    $localMachineHelper->readFile('/home/ide/configs/php/.version')->willReturn("$phpVersion\n")->shouldBeCalled();
 
-    return $local_machine_helper;
+    return $localMachineHelper;
+  }
+
+  protected function mockLocalMachineHelper(): LocalMachineHelper|ObjectProphecy {
+    $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $localMachineHelper->useTty()->willReturn(FALSE);
+    return $localMachineHelper;
   }
 
   /**
@@ -219,65 +219,52 @@ abstract class CommandTestBase extends TestBase {
     return $this->prophet->prophesize(SshHelper::class);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   protected function mockGetEnvironments(): object {
-    $environment_response = $this->getMockEnvironmentResponse();
+    $environmentResponse = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get',
-      "/environments/" . $environment_response->id)
-      ->willReturn($environment_response)
+      "/environments/" . $environmentResponse->id)
+      ->willReturn($environmentResponse)
       ->shouldBeCalled();
-    return $environment_response;
+    return $environmentResponse;
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \JsonException
-   */
   public function mockAcsfEnvironmentsRequest(
-    object $applications_response
+    object $applicationsResponse
   ): object {
-    $environments_response = $this->getMockEnvironmentsResponse();
-    foreach ($environments_response->_embedded->items as $environment) {
+    $environmentsResponse = $this->getMockEnvironmentsResponse();
+    foreach ($environmentsResponse->_embedded->items as $environment) {
       $environment->ssh_url = 'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com';
       $environment->domains = ["profserv201dev.enterprise-g1.acquia-sites.com"];
     }
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn($environments_response->_embedded->items)
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn($environmentsResponse->_embedded->items)
       ->shouldBeCalled();
 
-    return $environments_response;
+    return $environmentsResponse;
   }
 
-  /**
-   * @param $ssh_helper
-   */
-  protected function mockGetAcsfSites($ssh_helper): void {
-    $acsf_multisite_fetch_process = $this->mockProcess();
-    $acsf_multisite_fetch_process->getOutput()->willReturn(file_get_contents(Path::join($this->realFixtureDir,
-      '/multisite-config.json')))->shouldBeCalled();
-    $ssh_helper->executeCommand(
+  protected function mockGetAcsfSites($sshHelper): array {
+    $acsfMultisiteFetchProcess = $this->mockProcess();
+    $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
+    $acsfMultisiteFetchProcess->getOutput()->willReturn($multisiteConfig)->shouldBeCalled();
+    $sshHelper->executeCommand(
       Argument::type('object'),
       ['cat', '/var/www/site-php/profserv2.dev/multisite-config.json'],
       FALSE
-    )->willReturn($acsf_multisite_fetch_process->reveal())->shouldBeCalled();
+    )->willReturn($acsfMultisiteFetchProcess->reveal())->shouldBeCalled();
+    return json_decode($multisiteConfig, TRUE);
   }
 
-  /**
-   * @param $ssh_helper
-   */
-  protected function mockGetCloudSites($ssh_helper, $environment): void {
-    $cloud_multisite_fetch_process = $this->mockProcess();
-    $cloud_multisite_fetch_process->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
+  protected function mockGetCloudSites($sshHelper, $environment): void {
+    $cloudMultisiteFetchProcess = $this->mockProcess();
+    $cloudMultisiteFetchProcess->getOutput()->willReturn("\nbar\ndefault\nfoo\n")->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);
-    $ssh_helper->executeCommand(
+    $sshHelper->executeCommand(
       Argument::type('object'),
       ['ls', "/mnt/files/$sitegroup.{$environment->name}/sites"],
       FALSE
-    )->willReturn($cloud_multisite_fetch_process->reveal())->shouldBeCalled();
+    )->willReturn($cloudMultisiteFetchProcess->reveal())->shouldBeCalled();
   }
 
   protected function mockProcess(bool $success = TRUE): Process|ObjectProphecy {
@@ -295,175 +282,165 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @return \AcquiaCloudApi\Response\DatabaseResponse[]
-   * @throws \JsonException
    */
   protected function mockAcsfDatabasesResponse(
-    object $environments_response
+    object $environmentsResponse
   ): array {
-    $databases_response_json = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
-    $databases_response = array_map(
-      static function ($database_response) {
-        return new DatabaseResponse($database_response);
+    $databasesResponseJson = json_decode(file_get_contents(Path::join($this->realFixtureDir, '/acsf_db_response.json')), FALSE, 512, JSON_THROW_ON_ERROR);
+    $databasesResponse = array_map(
+      static function ($databaseResponse) {
+        return new DatabaseResponse($databaseResponse);
       },
-      $databases_response_json
+      $databasesResponseJson
     );
     $this->clientProphecy->request('get',
-      "/environments/{$environments_response->id}/databases")
-      ->willReturn($databases_response)
+      "/environments/{$environmentsResponse->id}/databases")
+      ->willReturn($databasesResponse)
       ->shouldBeCalled();
 
-    return $databases_response;
+    return $databasesResponse;
   }
 
-  /**
-   * @param $db_name
-   * @param $backup_id
-   */
   protected function mockDatabaseBackupsResponse(
-    object $environments_response,
-    $db_name,
-    $backup_id
+    object $environmentsResponse,
+    $dbName,
+    $backupId
   ): object {
-    $database_backups_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
-    foreach ($database_backups_response->_embedded->items as $backup) {
-      $backup->_links->download->href = "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download";
-      $backup->database->name = $db_name;
+    $databaseBackupsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'get', 200);
+    foreach ($databaseBackupsResponse->_embedded->items as $backup) {
+      $backup->_links->download->href = "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download";
+      $backup->database->name = $dbName;
       // Acquia PHP SDK mutates the property name. Gross workaround, is there a better way?
       $backup->completedAt = $backup->completed_at;
     }
     $this->clientProphecy->request('get',
-      "/environments/{$environments_response->id}/databases/{$db_name}/backups")
-      ->willReturn($database_backups_response->_embedded->items)
+      "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups")
+      ->willReturn($databaseBackupsResponse->_embedded->items)
       ->shouldBeCalled();
 
-    return $database_backups_response;
+    return $databaseBackupsResponse;
   }
 
-  /**
-   * @param $environments_response
-   * @param $db_name
-   * @param $backup_id
-   */
   protected function mockDownloadBackupResponse(
-    $environments_response,
-    $db_name,
-    $backup_id
+    $environmentsResponse,
+    $dbName,
+    $backupId
   ): void {
     $stream = $this->prophet->prophesize(StreamInterface::class);
-    $this->clientProphecy->stream('get', "/environments/{$environments_response->id}/databases/{$db_name}/backups/{$backup_id}/actions/download", [])
+    $this->clientProphecy->stream('get', "/environments/{$environmentsResponse->id}/databases/{$dbName}/backups/{$backupId}/actions/download", [])
       ->willReturn($stream->reveal())
       ->shouldBeCalled();
   }
 
   protected function mockDatabaseBackupCreateResponse(
-    $environments_response,
-    $db_name
+    $environmentsResponse,
+    $dbName
   ) {
-    $backup_create_response = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
-    $this->clientProphecy->request('post', "/environments/{$environments_response->id}/databases/{$db_name}/backups")
-      ->willReturn($backup_create_response)
+    $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
+    $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/{$dbName}/backups")
+      ->willReturn($backupCreateResponse)
       ->shouldBeCalled();
 
-    return $backup_create_response;
+    return $backupCreateResponse;
   }
 
-  protected function mockNotificationResponse($notification_uuid, $status = NULL) {
-    $notification_response = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink) {
+    return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
+  }
+
+  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL) {
+    $notificationResponse = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
     if ($status) {
-      $notification_response->status = $status;
+      $notificationResponse->status = $status;
     }
-    $this->clientProphecy->request('get', "/notifications/$notification_uuid")
-      ->willReturn($notification_response)
+    $this->clientProphecy->request('get', "/notifications/$notificationUuid")
+      ->willReturn($notificationResponse)
       ->shouldBeCalled();
 
-    return $notification_response;
+    return $notificationResponse;
   }
 
-  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $local_machine_helper): void {
-    $local_machine_helper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
+  protected function mockCreateMySqlDumpOnLocal(ObjectProphecy $localMachineHelper): void {
+    $localMachineHelper->checkRequiredBinariesExist(["mysqldump", "gzip"])->shouldBeCalled();
     $process = $this->mockProcess(TRUE);
     $process->getOutput()->willReturn('');
     $command = 'MYSQL_PWD=drupal mysqldump --host=localhost --user=drupal drupal | pv --rate --bytes | gzip -9 > ' . sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz';
-    $local_machine_helper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
+    $localMachineHelper->executeFromCmd($command, Argument::type('callable'), NULL, TRUE)->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
   protected function mockExecutePvExists(
-        ObjectProphecy $local_machine_helper
+        ObjectProphecy $localMachineHelper
     ): void {
-    $local_machine_helper
+    $localMachineHelper
             ->commandExists('pv')
             ->willReturn(TRUE)
             ->shouldBeCalled();
   }
 
   protected function mockExecuteGlabExists(
-    ObjectProphecy $local_machine_helper
+    ObjectProphecy $localMachineHelper
   ): void {
-    $local_machine_helper
+    $localMachineHelper
       ->commandExists('glab')
       ->willReturn(TRUE)
       ->shouldBeCalled();
   }
 
   /**
-   * Mock guzzle requests for update checks so we don't actually hit Github.
+   * Mock guzzle requests for update checks, so we don't actually hit GitHub.
    */
-  protected function setUpdateClient(int $status_code = 200): void {
-    /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzle_response */
-    $guzzle_response = $this->prophet->prophesize(Response::class);
+  protected function setUpdateClient(int $statusCode = 200): void {
+    /** @var ObjectProphecy|\GuzzleHttp\Psr7\Response $guzzleResponse */
+    $guzzleResponse = $this->prophet->prophesize(Response::class);
     $stream = $this->prophet->prophesize(StreamInterface::class);
     $stream->__toString()->willReturn(file_get_contents(Path::join(__DIR__, '..', '..', 'fixtures', 'github-releases.json')));
-    $guzzle_response->getBody()->willReturn($stream->reveal());
-    $guzzle_response->getReasonPhrase()->willReturn('');
-    $guzzle_response->getStatusCode()->willReturn($status_code);
-    $guzzle_client = $this->prophet->prophesize(Client::class);
-    $guzzle_client->get('https://api.github.com/repos/acquia/cli/releases')
-      ->willReturn($guzzle_response->reveal());
-    $this->command->setUpdateClient($guzzle_client->reveal());
+    $guzzleResponse->getBody()->willReturn($stream->reveal());
+    $guzzleResponse->getReasonPhrase()->willReturn('');
+    $guzzleResponse->getStatusCode()->willReturn($statusCode);
+    $guzzleClient = $this->prophet->prophesize(Client::class);
+    $guzzleClient->get('https://api.github.com/repos/acquia/cli/releases')
+      ->willReturn($guzzleResponse->reveal());
+    $this->command->setUpdateClient($guzzleClient->reveal());
   }
 
-  protected function mockPollCloudViaSsh(object $environments_response): ObjectProphecy {
+  protected function mockPollCloudViaSsh(object $environmentsResponse): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
     $gitProcess = $this->prophet->prophesize(Process::class);
     $gitProcess->isSuccessful()->willReturn(TRUE);
     $gitProcess->getExitCode()->willReturn(128);
-    $ssh_helper = $this->mockSshHelper();
+    $sshHelper = $this->mockSshHelper();
     // Mock Git.
-    $url_parts = explode(':', $environments_response->_embedded->items[0]->vcs->url);
-    $ssh_helper->executeCommand($url_parts[0], ['ls'], FALSE)
+    $urlParts = explode(':', $environmentsResponse->_embedded->items[0]->vcs->url);
+    $sshHelper->executeCommand($urlParts[0], ['ls'], FALSE)
       ->willReturn($gitProcess->reveal())
       ->shouldBeCalled();
     // Mock non-prod.
-    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response->_embedded->items[0]), ['ls'], FALSE)
+    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[0]), ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
     // Mock prod.
-    $ssh_helper->executeCommand(new EnvironmentResponse($environments_response->_embedded->items[1]), ['ls'], FALSE)
+    $sshHelper->executeCommand(new EnvironmentResponse($environmentsResponse->_embedded->items[1]), ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    return $ssh_helper;
+    return $sshHelper;
   }
 
-  protected function mockPollCloudGitViaSsh(object $environment_response): ObjectProphecy {
+  protected function mockPollCloudGitViaSsh(object $environmentResponse): ObjectProphecy {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(128);
-    $ssh_helper = $this->mockSshHelper();
-    $ssh_helper->executeCommand($environment_response->vcs->url, ['ls'], FALSE)
+    $sshHelper = $this->mockSshHelper();
+    $sshHelper->executeCommand($environmentResponse->vcs->url, ['ls'], FALSE)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
-    return $ssh_helper;
+    return $sshHelper;
   }
 
-  /**
-   * @param $local_machine_helper
-   * @param $public_key
-   */
-  protected function mockGetLocalSshKey($local_machine_helper, $file_system, $public_key): string {
-    $file_system->exists(Argument::type('string'))->willReturn(TRUE);
+  protected function mockGetLocalSshKey($localMachineHelper, $fileSystem, $publicKey): string {
+    $fileSystem->exists(Argument::type('string'))->willReturn(TRUE);
     /** @var \Symfony\Component\Finder\Finder|\Prophecy\Prophecy\ObjectProphecy $finder */
     $finder = $this->prophet->prophesize(Finder::class);
     $finder->files()->willReturn($finder);
@@ -471,14 +448,14 @@ abstract class CommandTestBase extends TestBase {
     $finder->name(Argument::type('string'))->willReturn($finder);
     $finder->ignoreUnreadableDirs()->willReturn($finder);
     $file = $this->prophet->prophesize(SplFileInfo::class);
-    $file_name = 'id_rsa.pub';
-    $file->getFileName()->willReturn($file_name);
+    $fileName = 'id_rsa.pub';
+    $file->getFileName()->willReturn($fileName);
     $file->getRealPath()->willReturn('somepath');
-    $local_machine_helper->readFile('somepath')->willReturn($public_key);
+    $localMachineHelper->readFile('somepath')->willReturn($publicKey);
     $finder->getIterator()->willReturn(new \ArrayIterator([$file->reveal()]));
-    $local_machine_helper->getFinder()->willReturn($finder);
+    $localMachineHelper->getFinder()->willReturn($finder);
 
-    return $file_name;
+    return $fileName;
   }
 
   /**
@@ -503,45 +480,37 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   protected function getApiCommands(): array {
-    $api_command_helper = new ApiCommandHelper($this->logger);
-    $command_factory = $this->getCommandFactory();
-    return $api_command_helper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $command_factory);
+    $apiCommandHelper = new ApiCommandHelper($this->logger);
+    $commandFactory = $this->getCommandFactory();
+    return $apiCommandHelper->getApiCommands($this->apiSpecFixtureFilePath, $this->apiCommandPrefix, $commandFactory);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function getApiCommandByName(string $name): ApiBaseCommand|AcsfCommandBase|null {
-    $api_commands = $this->getApiCommands();
-    foreach ($api_commands as $api_command) {
-      if ($api_command->getName() === $name) {
-        return $api_command;
+    $apiCommands = $this->getApiCommands();
+    foreach ($apiCommands as $apiCommand) {
+      if ($apiCommand->getName() === $name) {
+        return $apiCommand;
       }
     }
 
     return NULL;
   }
 
-  /**
-   * @param $project_id
-   * @return array
-   */
-  protected function getMockedGitLabProject($project_id): array {
+  protected function getMockedGitLabProject($projectId): array {
     return [
-      'id' => $project_id,
+      'default_branch' => 'master',
       'description' => '',
+      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
+      'id' => $projectId,
       'name' => 'codestudiodemo',
       'name_with_namespace' => 'Matthew Grasmick / codestudiodemo',
       'path' => 'codestudiodemo',
       'path_with_namespace' => 'matthew.grasmick/codestudiodemo',
-      'default_branch' => 'master',
       'topics' => [
           0 => 'Acquia Cloud Application',
         ],
-      'http_url_to_repo' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo.git',
       'web_url' => 'https://code.cloudservices.acquia.io/matthew.grasmick/codestudiodemo',
     ];
   }
@@ -549,123 +518,106 @@ abstract class CommandTestBase extends TestBase {
   /**
    * @return \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client
    */
-  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $local_machine_helper, $gitlab_host, $gitlab_token): ObjectProphecy|\Gitlab\Client {
-    $this->mockGitlabGetHost($local_machine_helper, $gitlab_host);
-    $this->mockGitlabGetToken($local_machine_helper, $gitlab_token, $gitlab_host);
-    $gitlab_client = $this->prophet->prophesize(\Gitlab\Client::class);
-    $gitlab_client->users()->willThrow(RuntimeException::class);
-    return $gitlab_client;
+  protected function mockGitLabAuthenticate(ObjectProphecy|LocalMachineHelper $localMachineHelper, $gitlabHost, $gitlabToken): ObjectProphecy|\Gitlab\Client {
+    $this->mockGitlabGetHost($localMachineHelper, $gitlabHost);
+    $this->mockGitlabGetToken($localMachineHelper, $gitlabToken, $gitlabHost);
+    $gitlabClient = $this->prophet->prophesize(\Gitlab\Client::class);
+    $gitlabClient->users()->willThrow(RuntimeException::class);
+    return $gitlabClient;
   }
 
-  /**
-   * @param $local_machine_helper
-   */
-  protected function mockGitlabGetToken($local_machine_helper, string $gitlab_token, string $gitlab_host, bool $success = TRUE): void {
+  protected function mockGitlabGetToken($localMachineHelper, string $gitlabToken, string $gitlabHost, bool $success = TRUE): void {
     $process = $this->mockProcess($success);
-    $process->getOutput()->willReturn($gitlab_token);
-    $local_machine_helper->execute([
+    $process->getOutput()->willReturn($gitlabToken);
+    $localMachineHelper->execute([
       'glab',
       'config',
       'get',
       'token',
-      '--host=' . $gitlab_host
+      '--host=' . $gitlabHost,
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   * @param $local_machine_helper
-   */
-  protected function mockGitlabGetHost($local_machine_helper, string $gitlab_host): void {
+  protected function mockGitlabGetHost($localMachineHelper, string $gitlabHost): void {
     $process = $this->mockProcess();
-    $process->getOutput()->willReturn($gitlab_host);
-    $local_machine_helper->execute([
+    $process->getOutput()->willReturn($gitlabHost);
+    $localMachineHelper->execute([
       'glab',
       'config',
       'get',
-      'host'
+      'host',
     ], NULL, NULL, FALSE)->willReturn($process->reveal());
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy|\Gitlab\Client $gitlab_client
-   */
-  protected function mockGitLabUsersMe(ObjectProphecy|\Gitlab\Client $gitlab_client): void {
+  protected function mockGitLabUsersMe(ObjectProphecy|\Gitlab\Client $gitlabClient): void {
     $users = $this->prophet->prophesize(Users::class);
     $me = [
-      'id' => 20,
-      'username' => 'matthew.grasmick',
-      'name' => 'Matthew Grasmick',
-      'state' => 'active',
       'avatar_url' => 'https://secure.gravatar.com/avatar/5ee7b8ad954bf7156e6eb57a45d60dec?s=80&d=identicon',
-      'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
-      'created_at' => '2021-12-21T02:26:52.240Z',
       'bio' => '',
-      'location' => NULL,
-      'public_email' => '',
-      'skype' => '',
-      'linkedin' => '',
-      'twitter' => '',
-      'website_url' => '',
-      'organization' => NULL,
-      'job_title' => '',
-      'pronouns' => NULL,
       'bot' => FALSE,
-      'work_information' => NULL,
-      'followers' => 0,
-      'following' => 0,
-      'local_time' => '2:00 AM',
-      'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
-      'confirmed_at' => '2021-12-21T02:26:51.898Z',
-      'last_activity_on' => '2022-01-22',
-      'email' => 'matthew.grasmick@acquia.com',
-      'theme_id' => 1,
-      'color_scheme_id' => 1,
-      'projects_limit' => 100000,
-      'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
-      'identities' => [],
       'can_create_group' => TRUE,
       'can_create_project' => TRUE,
-      'two_factor_enabled' => FALSE,
-      'external' => FALSE,
-      'private_profile' => FALSE,
+      'color_scheme_id' => 1,
       'commit_email' => 'matthew.grasmick@acquia.com',
+      'confirmed_at' => '2021-12-21T02:26:51.898Z',
+      'created_at' => '2021-12-21T02:26:52.240Z',
+      'current_sign_in_at' => '2022-01-22T01:40:55.418Z',
+      'email' => 'matthew.grasmick@acquia.com',
+      'external' => FALSE,
+      'followers' => 0,
+      'following' => 0,
+      'id' => 20,
+      'identities' => [],
       'is_admin' => TRUE,
+      'job_title' => '',
+      'last_activity_on' => '2022-01-22',
+      'last_sign_in_at' => '2022-01-21T23:00:49.035Z',
+      'linkedin' => '',
+      'local_time' => '2:00 AM',
+      'location' => NULL,
+      'name' => 'Matthew Grasmick',
       'note' => '',
+      'organization' => NULL,
+      'private_profile' => FALSE,
+      'projects_limit' => 100000,
+      'pronouns' => NULL,
+      'public_email' => '',
+      'skype' => '',
+      'state' => 'active',
+      'theme_id' => 1,
+      'twitter' => '',
+      'two_factor_enabled' => FALSE,
+      'username' => 'matthew.grasmick',
+      'website_url' => '',
+      'web_url' => 'https://code.dev.cloudservices.acquia.io/matthew.grasmick',
+      'work_information' => NULL,
     ];
     $users->me()->willReturn($me);
-    $gitlab_client->users()->willReturn($users->reveal());
+    $gitlabClient->users()->willReturn($users->reveal());
   }
 
   /**
-   * @param $application_uuid
+   * @param $applicationUuid
    * @return array
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
    */
-  protected function mockGitLabPermissionsRequest($application_uuid): array {
-    $permissions_response = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
-    $permissions = $permissions_response->_embedded->items;
+  protected function mockGitLabPermissionsRequest($applicationUuid): array {
+    $permissionsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
+    $permissions = $permissionsResponse->_embedded->items;
     $permission = clone reset($permissions);
     $permission->name = "administer environment variables on non-prod";
     $permissions[] = $permission;
-    $this->clientProphecy->request('get', "/applications/{$application_uuid}/permissions")
+    $this->clientProphecy->request('get', "/applications/{$applicationUuid}/permissions")
       ->willReturn($permissions)
       ->shouldBeCalled();
     return $permissions;
   }
 
-  /**
-   * @param $application_uuid
-   * @param $gitlab_project_id
-   * @param $mocked_gitlab_projects
-   * @return \Gitlab\Api\Projects|\Prophecy\Prophecy\ObjectProphecy
-   */
-  protected function mockGetGitLabProjects($application_uuid, $gitlab_project_id, $mocked_gitlab_projects): Projects|ObjectProphecy {
+  protected function mockGetGitLabProjects($applicationUuid, $gitlabProjectId, $mockedGitlabProjects): Projects|ObjectProphecy {
     $projects = $this->prophet->prophesize(Projects::class);
-    $projects->all(['search' => $application_uuid])
-      ->willReturn($mocked_gitlab_projects);
+    $projects->all(['search' => $applicationUuid])
+      ->willReturn($mockedGitlabProjects);
     $projects->all()
-      ->willReturn([$this->getMockedGitLabProject($gitlab_project_id)]);
+      ->willReturn([$this->getMockedGitLabProject($gitlabProjectId)]);
     return $projects;
   }
 
@@ -675,20 +627,20 @@ abstract class CommandTestBase extends TestBase {
   protected function getMockGitLabVariables(): array {
     return [
       0 => [
-          'variable_type' => 'env_var',
-          'key' => 'ACQUIA_APPLICATION_UUID',
-          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
-          'protected' => FALSE,
-          'masked' => FALSE,
           'environment_scope' => '*',
+          'key' => 'ACQUIA_APPLICATION_UUID',
+          'masked' => FALSE,
+          'protected' => FALSE,
+          'value' => '2b3f7cf0-6602-4590-948b-3b07b1b005ef',
+          'variable_type' => 'env_var',
         ],
       1 => [
-          'variable_type' => 'env_var',
-          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
-          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
-          'protected' => FALSE,
-          'masked' => FALSE,
           'environment_scope' => '*',
+          'key' => 'ACQUIA_CLOUD_API_TOKEN_KEY',
+          'masked' => FALSE,
+          'protected' => FALSE,
+          'value' => '111aae74-e81a-4052-b4b9-a27a62e6b6a6',
+          'variable_type' => 'env_var',
         ],
     ];
   }
@@ -702,8 +654,8 @@ abstract class CommandTestBase extends TestBase {
     $haystack = strtr(
       $haystack,
       [
-        "\r\n" => "\n",
         "\r"   => "\n",
+        "\r\n" => "\n",
       ]
     );
     static::assertThat($haystack, new StringContains($needle, FALSE), $message);

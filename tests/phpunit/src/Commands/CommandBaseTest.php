@@ -11,8 +11,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class CommandBaseTest.
- *
  * @property LinkCommand $command
  */
 class CommandBaseTest extends CommandTestBase {
@@ -50,7 +48,7 @@ class CommandBaseTest extends CommandTestBase {
       'y',
     ];
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->prophet->checkPredictions();
   }
 
@@ -63,7 +61,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestCloudAppUuidArg
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function testCloudAppUuidArg(string $uuid): void {
     $this->mockApplicationRequest();
@@ -79,7 +76,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudAppUuidArg
-   * @throws \Exception
    */
   public function testInvalidCloudAppUuidArg(string $uuid, string $message): void {
     $this->expectException(ValidatorException::class);
@@ -97,7 +93,6 @@ class CommandBaseTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestInvalidCloudEnvironmentAlias
-   * @throws \Exception
    */
   public function testInvalidCloudEnvironmentAlias(string $alias, string $message): void {
     $this->expectException(ValidatorException::class);

@@ -4,19 +4,14 @@ namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AppOpenCommand.
- */
 class AppOpenCommand extends CommandBase {
 
   protected static $defaultName = 'app:open';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Opens your browser to view a given Cloud application')
       ->acceptApplicationUuid()
@@ -24,16 +19,11 @@ class AppOpenCommand extends CommandBase {
       ->setAliases(['open', 'o']);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
-    $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $application_uuid);
+    $applicationUuid = $this->determineCloudApplication();
+    $this->localMachineHelper->startBrowser('https://cloud.acquia.com/a/applications/' . $applicationUuid);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

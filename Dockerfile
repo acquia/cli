@@ -8,5 +8,6 @@ RUN apk add \
   php-mbstring \
   php-phar \
   php-xml \
+  php-openssl \
   && curl https://github.com/acquia/cli/releases/latest/download/acli.phar -L -o /usr/local/bin/acli \
   && chmod +x /usr/local/bin/acli

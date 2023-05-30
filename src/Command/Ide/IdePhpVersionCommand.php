@@ -4,13 +4,11 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdePhpVersionCommand.
- */
 class IdePhpVersionCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:php-version';
@@ -26,19 +24,12 @@ class IdePhpVersionCommand extends IdeCommandBase {
     return FALSE;
   }
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Change the PHP version in the current IDE')
       ->addArgument('version', InputArgument::REQUIRED, 'The PHP version')
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->requireCloudIdeEnvironment();
     $version = $input->getArgument('version');
@@ -46,7 +37,7 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->localMachineHelper->getFilesystem()->dumpFile($this->getIdePhpVersionFilePath(), $version);
     $this->restartService('php-fpm');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   private function getIdePhpFilePathPrefix(): string {
@@ -60,15 +51,10 @@ class IdePhpVersionCommand extends IdeCommandBase {
     $this->idePhpFilePathPrefix = $path;
   }
 
-  /**
-   * {inheritdoc}.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function validatePhpVersion(string $version): string {
     parent::validatePhpVersion($version);
-    $php_filepath = $this->getIdePhpFilePathPrefix() . $version;
-    if (!$this->localMachineHelper->getFilesystem()->exists($php_filepath)) {
+    $phpFilepath = $this->getIdePhpFilePathPrefix() . $version;
+    if (!$this->localMachineHelper->getFilesystem()->exists($phpFilepath)) {
       throw new AcquiaCliException('The specified PHP version does not exist on this machine.');
     }
 

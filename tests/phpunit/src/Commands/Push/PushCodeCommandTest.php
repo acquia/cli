@@ -7,22 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PushCodeCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushCodeCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushCodeCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushCodeCommand::class);
   }
 
   public function testPushCode(): void {
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 

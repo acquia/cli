@@ -5,9 +5,6 @@ namespace Acquia\Cli\AcsfApi;
 use Acquia\Cli\ApiCredentialsInterface;
 use Acquia\Cli\DataStore\CloudDataStore;
 
-/**
- * @package Acquia\Cli\Helpers
- */
 class AcsfCredentials implements ApiCredentialsInterface {
 
   /**
@@ -21,21 +18,18 @@ class AcsfCredentials implements ApiCredentialsInterface {
       return getenv('ACSF_USERNAME');
     }
 
-    if (($current_factory = $this->getCurrentFactory()) && $active_user = $this->getFactoryActiveUser($current_factory)) {
-      return $active_user['username'];
+    if (($currentFactory = $this->getCurrentFactory()) && $activeUser = $this->getFactoryActiveUser($currentFactory)) {
+      return $activeUser['username'];
     }
 
     return NULL;
   }
 
-  /**
-   * @param array $factory
-   */
   public function getFactoryActiveUser(array $factory): mixed {
     if (array_key_exists('active_user', $factory)) {
-      $active_user = $factory['active_user'];
-      if (array_key_exists($active_user, $factory['users'])) {
-        return $factory['users'][$active_user];
+      $activeUser = $factory['active_user'];
+      if (array_key_exists($activeUser, $factory['users'])) {
+        return $factory['users'][$activeUser];
       }
     }
 
@@ -43,8 +37,8 @@ class AcsfCredentials implements ApiCredentialsInterface {
   }
 
   private function getCurrentFactory(): mixed {
-    if (($factory = $this->datastoreCloud->get('acsf_active_factory')) && ($acsf_factories = $this->datastoreCloud->get('acsf_factories')) && array_key_exists($factory, $acsf_factories)) {
-      return $acsf_factories[$factory];
+    if (($factory = $this->datastoreCloud->get('acsf_active_factory')) && ($acsfFactories = $this->datastoreCloud->get('acsf_factories')) && array_key_exists($factory, $acsfFactories)) {
+      return $acsfFactories[$factory];
     }
     return NULL;
   }
@@ -54,8 +48,8 @@ class AcsfCredentials implements ApiCredentialsInterface {
       return getenv('ACSF_KEY');
     }
 
-    if (($current_factory = $this->getCurrentFactory()) && $active_user = $this->getFactoryActiveUser($current_factory)) {
-      return $active_user['key'];
+    if (($currentFactory = $this->getCurrentFactory()) && $activeUser = $this->getFactoryActiveUser($currentFactory)) {
+      return $activeUser['key'];
     }
 
     return NULL;

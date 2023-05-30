@@ -3,37 +3,28 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeListCommand.
- */
 class IdeInfoCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information about a Cloud IDE');
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
+    $applicationUuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides_resource = new Ides($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $idesResource = new Ides($acquiaCloudClient);
 
-    $ide = $this->promptIdeChoice("Select an IDE to get more information:", $ides_resource, $application_uuid);
-    $response = $ides_resource->get($ide->uuid);
+    $ide = $this->promptIdeChoice("Select an IDE to get more information:", $idesResource, $applicationUuid);
+    $response = $idesResource->get($ide->uuid);
     $this->io->definitionList(
       ['IDE property' => 'IDE value'],
       new TableSeparator(),
@@ -47,7 +38,7 @@ class IdeInfoCommand extends IdeCommandBase {
       ['Web URL' => $response->links->web->href]
     );
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

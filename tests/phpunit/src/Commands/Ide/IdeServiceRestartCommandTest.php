@@ -8,31 +8,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeServiceRestartCommandTest.
- *
  * @property IdeServiceRestartCommandTest $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeServiceRestartCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeServiceRestartCommand::class);
   }
 
-  /**
-   * Tests the 'ide:service-restart' command.
-   *
-   * @throws \Exception
-   */
   public function testIdeServiceRestartCommand(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockRestartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockRestartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
@@ -41,15 +30,10 @@ class IdeServiceRestartCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Restarted php', $output);
   }
 
-  /**
-   * Tests the 'ide:service-restart' command with invalid choice.
-   *
-   * @throws \Exception
-   */
   public function testIdeServiceRestartCommandInvalid(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockRestartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockRestartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(ValidatorException::class);
     $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);

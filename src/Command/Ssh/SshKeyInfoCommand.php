@@ -2,32 +2,27 @@
 
 namespace Acquia\Cli\Command\Ssh;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Endpoints\SshKeys;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use violuke\RsaSshKeyFingerprint\FingerprintGenerator;
 
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
   protected static $defaultName = 'ssh-key:info';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Print information about an SSH key')
-      ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED);
+      ->addOption('fingerprint', NULL, InputOption::VALUE_REQUIRED, 'sha256 fingerprint')
+      ->addUsage('--fingerprint=pyarUa1mt2ln4fmrp7alWKpv1IPneqFwE+ErTC71IvY=');
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $key = $this->determineSshKey($acquia_cloud_client);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $key = $this->determineSshKey($acquiaCloudClient);
 
     $location = 'Local';
     if (array_key_exists('cloud', $key)) {
@@ -48,31 +43,28 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     $this->io->writeln('----------');
     $this->io->writeln($key['public_key']);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
-  /**
-   * @throws \violuke\RsaSshKeyFingerprint\InvalidInputException
-   * @throws \Exception
-   */
-  private function determineSshKey($acquia_cloud_client): array {
-    $cloudKeysResponse = new SshKeys($acquia_cloud_client);
-    $cloudKeys = (array) $cloudKeysResponse->getAll();
+  private function determineSshKey($acquiaCloudClient): array {
+    $cloudKeysResponse = new SshKeys($acquiaCloudClient);
+    $cloudKeys = $cloudKeysResponse->getAll();
     $localKeys = $this->findLocalSshKeys();
     $keys = [];
+    /** @var \AcquiaCloudApi\Response\SshKeyResponse $key */
     foreach ($cloudKeys as $key) {
-      $fingerprint = FingerprintGenerator::getFingerprint($key->public_key, 'sha256');
+      $fingerprint = self::getFingerprint($key->public_key);
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->public_key;
       $keys[$fingerprint]['cloud'] = [
-        'fingerprint' => $key->fingerprint,
-        'uuid' => $key->uuid,
         'created_at' => $key->created_at,
+        'fingerprint' => $key->fingerprint,
         'label' => $key->label,
+        'uuid' => $key->uuid,
       ];
     }
     foreach ($localKeys as $key) {
-      $fingerprint = FingerprintGenerator::getFingerprint($key->getContents(), 'sha256');
+      $fingerprint = self::getFingerprint($key->getContents());
       $keys[$fingerprint]['fingerprint'] = $fingerprint;
       $keys[$fingerprint]['public_key'] = $key->getContents();
       $keys[$fingerprint]['local'] = [
@@ -80,6 +72,9 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
       ];
     }
     if ($fingerprint = $this->input->getOption('fingerprint')) {
+      if (!array_key_exists($fingerprint, $keys)) {
+        throw new AcquiaCliException('No key exists matching provided fingerprint');
+      }
       return $keys[$fingerprint];
     }
 

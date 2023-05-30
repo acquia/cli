@@ -4,19 +4,14 @@ namespace Acquia\Cli\Command\Ide;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeOpenCommand.
- */
 class IdeOpenCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:open';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Open a Cloud IDE in your browser')
       ->setHidden(AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
@@ -24,16 +19,11 @@ class IdeOpenCommand extends IdeCommandBase {
     // @todo Add option to accept an ide UUID.
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $cloud_application_uuid = $this->determineCloudApplication();
-    $ides_resource = new Ides($acquia_cloud_client);
-    $ide = $this->promptIdeChoice("Select the IDE you'd like to open:", $ides_resource, $cloud_application_uuid);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $cloudApplicationUuid = $this->determineCloudApplication();
+    $idesResource = new Ides($acquiaCloudClient);
+    $ide = $this->promptIdeChoice("Select the IDE you'd like to open:", $idesResource, $cloudApplicationUuid);
 
     $this->output->writeln('');
     $this->output->writeln("<comment>Your IDE URL:</comment> <href={$ide->links->ide->href}>{$ide->links->ide->href}</>");
@@ -42,7 +32,7 @@ class IdeOpenCommand extends IdeCommandBase {
 
     $this->localMachineHelper->startBrowser($ide->links->ide->href);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

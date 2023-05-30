@@ -7,28 +7,17 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeListCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeInfoCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeInfoCommand::class);
   }
 
-  /**
-   * Tests the 'ide:info' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeInfoCommand(): void {
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $response = $this->mockIdeListRequest();
     $this->mockGetIdeRequest($response->_embedded->items[0]->uuid);
@@ -40,7 +29,7 @@ class IdeInfoCommandTest extends CommandTestBase {
       // Would you like to link the project at ... ?
       'y',
       // Select an IDE ...
-      0
+      0,
     ];
     $this->executeCommand([], $inputs);
 

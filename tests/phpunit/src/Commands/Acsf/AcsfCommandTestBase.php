@@ -6,10 +6,7 @@ use Acquia\Cli\Helpers\DataStoreContract;
 use Acquia\Cli\Tests\CommandTestBase;
 
 /**
- * Class ApiCommandTest.
- *
  * @property \Acquia\Cli\Command\Api\ApiBaseCommand $command
- * @package Acquia\Cli\Tests\Api
  */
 abstract class AcsfCommandTestBase extends CommandTestBase {
 
@@ -30,12 +27,12 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
       'acsf_active_factory' => $this->acsfCurrentFactoryUrl,
       'acsf_factories' => [
         $this->acsfCurrentFactoryUrl => [
-          'url' => $this->acsfCurrentFactoryUrl,
           'active_user' => $this->acsfActiveUser,
+          'url' => $this->acsfCurrentFactoryUrl,
           'users' => [
             $this->acsfUsername => [
-              'username' => $this->acsfUsername,
               'key' => $this->acsfKey,
+              'username' => $this->acsfUsername,
             ],
           ],
         ],

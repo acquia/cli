@@ -14,7 +14,6 @@ use Acquia\Cli\Tests\ApplicationTestBase;
 class HelpApplicationTest extends ApplicationTestBase {
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testApplicationAliasHelp(): void {
@@ -34,7 +33,6 @@ class HelpApplicationTest extends ApplicationTestBase {
   }
 
   /**
-   * @throws \Exception
    * @group serial
    */
   public function testEnvironmentAliasHelp(): void {

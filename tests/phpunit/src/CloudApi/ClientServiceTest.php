@@ -8,9 +8,6 @@ use Acquia\Cli\CloudApi\ConnectorFactory;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class ClientServiceTest.
- */
 class ClientServiceTest extends TestBase {
 
   /**
@@ -33,20 +30,20 @@ class ClientServiceTest extends TestBase {
       [
         ['ACLI_ACCESS_TOKEN' => NULL, 'ACLI_KEY' => 'key', 'ACLI_SECRET' => NULL],
         FALSE,
-      ]
+      ],
     ];
   }
 
   /**
    * @dataProvider providerTestIsMachineAuthenticated
-   * @param array $env_vars
+   * @param array $envVars
    */
-  public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated): void {
-    self::setEnvVars($env_vars);
-    $cloud_datastore = $this->prophet->prophesize(CloudDataStore::class);
-    $client_service = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->application, new CloudCredentials($cloud_datastore->reveal()));
-    $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated());
-    self::unsetEnvVars($env_vars);
+  public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void {
+    self::setEnvVars($envVars);
+    $cloudDatastore = $this->prophet->prophesize(CloudDataStore::class);
+    $clientService = new ClientService(new ConnectorFactory(['key' => NULL, 'secret' => NULL, 'accessToken' => NULL]), $this->application, new CloudCredentials($cloudDatastore->reveal()));
+    $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
+    self::unsetEnvVars($envVars);
   }
 
 }

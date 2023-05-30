@@ -6,24 +6,19 @@ use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Endpoints\Account;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Yaml;
 
-/**
- * Class CodeStudioPipelinesMigrateCommand.
- */
 class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
   protected static $defaultName = 'codestudio:pipelines-migrate';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Migrate .acquia-pipeline.yml file to .gitlab-ci.yml file for a given Acquia Cloud application')
       ->addOption('key', NULL, InputOption::VALUE_REQUIRED, 'The Cloud Platform API token that Code Studio will use')
@@ -35,50 +30,47 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     $this->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv());
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->authenticateWithGitLab();
     $this->writeApiTokenMessage($input);
-    $cloud_key = $this->determineApiKey($input);
-    $cloud_secret = $this->determineApiSecret($input);
+    $cloudKey = $this->determineApiKey();
+    $cloudSecret = $this->determineApiSecret();
     // We may already be authenticated with Acquia Cloud Platform via a refresh token.
     // But, we specifically need an API Token key-pair of Code Studio.
     // So we reauthenticate to be sure we're using the provided credentials.
-    $this->reAuthenticate($cloud_key, $cloud_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-    $cloud_application_uuid = $this->determineCloudApplication();
+    $this->reAuthenticate($cloudKey, $cloudSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+    $cloudApplicationUuid = $this->determineCloudApplication();
 
     // Get Cloud account.
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $account_adapter = new Account($acquia_cloud_client);
-    $account = $account_adapter->get();
-    $this->setGitLabProjectDescription($cloud_application_uuid);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $accountAdapter = new Account($acquiaCloudClient);
+    $account = $accountAdapter->get();
+    $this->setGitLabProjectDescription($cloudApplicationUuid);
 
     // Get Cloud application.
-    $cloud_application = $this->getCloudApplication($cloud_application_uuid);
-    $project = $this->determineGitLabProject($cloud_application);
+    $cloudApplication = $this->getCloudApplication($cloudApplicationUuid);
+    $project = $this->determineGitLabProject($cloudApplication);
 
     // Migrate acquia-pipeline file
     $this->checkGitLabCiCdVariables($project);
     $this->validateCwdIsValidDrupalProject();
-    $acquia_pipelines_file_details = $this->getAcquiaPipelinesFileContents($project);
-    $acquia_pipelines_file_contents = $acquia_pipelines_file_details['file_contents'];
-    $acquia_pipelines_file_name = $acquia_pipelines_file_details['filename'];
-    $gitlab_ci_file_contents = $this->getGitLabCiFileTemplate();
-    $this->migrateVariablesSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
-    $this->migrateEventsSection($acquia_pipelines_file_contents, $gitlab_ci_file_contents);
-    $this->removeEmptyScript($gitlab_ci_file_contents);
-    $this->createGitLabCiFile($gitlab_ci_file_contents, $acquia_pipelines_file_name);
+    $acquiaPipelinesFileDetails = $this->getAcquiaPipelinesFileContents($project);
+    $acquiaPipelinesFileContents = $acquiaPipelinesFileDetails['file_contents'];
+    $acquiaPipelinesFileName = $acquiaPipelinesFileDetails['filename'];
+    $gitlabCiFileContents = $this->getGitLabCiFileTemplate();
+    $this->migrateVariablesSection($acquiaPipelinesFileContents, $gitlabCiFileContents);
+    $this->migrateEventsSection($acquiaPipelinesFileContents, $gitlabCiFileContents);
+    $this->removeEmptyScript($gitlabCiFileContents);
+    $this->createGitLabCiFile($gitlabCiFileContents, $acquiaPipelinesFileName);
     $this->io->success([
       "",
       "Migration completed successfully.",
       "Created .gitlab-ci.yml and removed acquia-pipeline.yml file.",
       "In order to run Pipeline, push .gitlab-ci.yaml to Main branch of Code Studio project.",
-      "Check your pipeline is running in Code Studio for your project."
+      "Check your pipeline is running in Code Studio for your project.",
     ]);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function commandRequiresAuthentication(): bool {
@@ -89,15 +81,14 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check whether wizard command is executed by checking the env variable of codestudio project.
    *
    * @param array $project
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function checkGitLabCiCdVariables(array $project): void {
-    $gitlab_cicd_variables = CodeStudioCiCdVariables::getList();
-    $gitlab_cicd_existing_variables = $this->gitLabClient->projects()->variables($project['id']);
-    $existing_keys = array_column($gitlab_cicd_existing_variables, 'key');
-    foreach ($gitlab_cicd_variables as $gitlab_cicd_variable) {
-      if (!in_array($gitlab_cicd_variable, $existing_keys, TRUE)) {
-        throw new AcquiaCliException("Code Studio CI/CD variable {$gitlab_cicd_variable} is not configured properly");
+    $gitlabCicdVariables = CodeStudioCiCdVariables::getList();
+    $gitlabCicdExistingVariables = $this->gitLabClient->projects()->variables($project['id']);
+    $existingKeys = array_column($gitlabCicdExistingVariables, 'key');
+    foreach ($gitlabCicdVariables as $gitlabCicdVariable) {
+      if (!in_array($gitlabCicdVariable, $existingKeys, TRUE)) {
+        throw new AcquiaCliException("Code Studio CI/CD variable {$gitlabCicdVariable} is not configured properly");
       }
     }
   }
@@ -107,24 +98,23 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    *
    * @param array $project
    * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
-    $pipelines_filepath_yml = Path::join($this->projectDir, 'acquia-pipelines.yml');
-    $pipelines_filepath_yaml = Path::join($this->projectDir, 'acquia-pipelines.yaml');
-    if ($this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yml) ||
-      $this->localMachineHelper->getFilesystem()->exists($pipelines_filepath_yaml)
+    $pipelinesFilepathYml = Path::join($this->projectDir, 'acquia-pipelines.yml');
+    $pipelinesFilepathYaml = Path::join($this->projectDir, 'acquia-pipelines.yaml');
+    if ($this->localMachineHelper->getFilesystem()->exists($pipelinesFilepathYml) ||
+      $this->localMachineHelper->getFilesystem()->exists($pipelinesFilepathYaml)
     ) {
       $this->gitLabClient->projects()->update($project['id'], ['ci_config_path' => '']);
-      $pipelines_filenames = ['acquia-pipelines.yml', 'acquia-pipelines.yaml'];
-      foreach ($pipelines_filenames as $pipelines_filename) {
-        $pipelines_filepath = Path::join($this->projectDir, $pipelines_filename);
-        if (file_exists($pipelines_filepath)) {
-          $file_contents = file_get_contents($pipelines_filepath);
+      $pipelinesFilenames = ['acquia-pipelines.yml', 'acquia-pipelines.yaml'];
+      foreach ($pipelinesFilenames as $pipelinesFilename) {
+        $pipelinesFilepath = Path::join($this->projectDir, $pipelinesFilename);
+        if (file_exists($pipelinesFilepath)) {
+          $fileContents = file_get_contents($pipelinesFilepath);
           return [
-            'file_contents' => Yaml::parse($file_contents, Yaml::PARSE_OBJECT),
-            'filename' => $pipelines_filename
-          ];
+            'filename' => $pipelinesFilename,
+            'file_contents' => Yaml::parse($fileContents, Yaml::PARSE_OBJECT),
+];
         }
       }
     }
@@ -146,12 +136,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating `variables` section to .gitlab-ci.yml file.
    */
-  private function migrateVariablesSection($acquia_pipelines_file_contents, &$gitlab_ci_file_contents): void {
-    if (array_key_exists('variables', $acquia_pipelines_file_contents)) {
-      $variables_dump = Yaml::dump(['variables' => $acquia_pipelines_file_contents['variables']]);
-      $remove_global = preg_replace('/global:/', '', $variables_dump);
-      $variables_parse = Yaml::parse($remove_global);
-      $gitlab_ci_file_contents = array_merge($gitlab_ci_file_contents, $variables_parse);
+  private function migrateVariablesSection($acquiaPipelinesFileContents, &$gitlabCiFileContents): void {
+    if (array_key_exists('variables', $acquiaPipelinesFileContents)) {
+      $variablesDump = Yaml::dump(['variables' => $acquiaPipelinesFileContents['variables']]);
+      $removeGlobal = preg_replace('/global:/', '', $variablesDump);
+      $variablesParse = Yaml::parse($removeGlobal);
+      $gitlabCiFileContents = array_merge($gitlabCiFileContents, $variablesParse);
       $this->io->success([
         "Migrated `variables` section of acquia-pipelines.yml to .gitlab-ci.yml",
       ]);
@@ -163,28 +153,26 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param array $acquia_pipelines_file_contents
-   */
-  private function getPipelinesSection(array $acquia_pipelines_file_contents, string $event_name): mixed {
-    if (!array_key_exists('events', $acquia_pipelines_file_contents)) {
+  private function getPipelinesSection(array $acquiaPipelinesFileContents, string $eventName): mixed {
+    if (!array_key_exists('events', $acquiaPipelinesFileContents)) {
       return NULL;
     }
-    if (array_key_exists('build', $acquia_pipelines_file_contents['events']) && empty($acquia_pipelines_file_contents['events']['build'])) {
+    if (array_key_exists('build', $acquiaPipelinesFileContents['events']) && empty($acquiaPipelinesFileContents['events']['build'])) {
       return NULL;
     }
-    if (!array_key_exists($event_name, $acquia_pipelines_file_contents['events'])) {
+    if (!array_key_exists($eventName, $acquiaPipelinesFileContents['events'])) {
       return NULL;
     }
-    return $acquia_pipelines_file_contents['events'][$event_name]['steps'] ?? NULL;
+    return $acquiaPipelinesFileContents['events'][$eventName]['steps'] ?? NULL;
   }
 
   /**
-   * @param array $acquia_pipelines_file_contents
-   * @param array $gitlab_ci_file_contents
+   * @param array $acquiaPipelinesFileContents
+   * @param array $gitlabCiFileContents
    */
-  private function migrateEventsSection(array $acquia_pipelines_file_contents, array &$gitlab_ci_file_contents): void {
-    $events_map = [
+  private function migrateEventsSection(array $acquiaPipelinesFileContents, array &$gitlabCiFileContents): void {
+    // phpcs:disable SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys
+    $eventsMap = [
       'build' => [
         'skip' => [
           'composer install' => [
@@ -209,7 +197,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
         ],
         'needs' => [
           'Build Code',
-          'Manage Secrets'
+          'Manage Secrets',
         ],
       ],
       'post-deploy' => [
@@ -217,81 +205,82 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
           'launch_ode' => [
             'message' => 'Code Studio AutoDevOps will run Launch a new Continuous Delivery Environment (CDE) automatically for new merge requests. Skipping migration of this command in your acquia-pipelines.yml file:',
             'prompt' => FALSE,
-            ]
+            ],
         ],
         'default_stage' => 'Deploy Drupal',
         'stage' => [
           'launch_ode' => 'Deploy Drupal',
         ],
         'needs' => [
-          'Create artifact from branch'
-        ]
-      ]
+          'Create artifact from branch',
+        ],
+      ],
     ];
+    // phpcs:enable
 
-    $code_studio_jobs = [];
-    foreach ($events_map as $event_name => $event_map) {
-      $event_steps = $this->getPipelinesSection($acquia_pipelines_file_contents, $event_name);
-      if ($event_steps) {
-        foreach ($event_steps as $step) {
-          $script_name = array_keys($step)[0];
-          if (!array_key_exists('script', $step[$script_name]) || empty($step[$script_name]['script'])) {
+    $codeStudioJobs = [];
+    foreach ($eventsMap as $eventName => $eventMap) {
+      $eventSteps = $this->getPipelinesSection($acquiaPipelinesFileContents, $eventName);
+      if ($eventSteps) {
+        foreach ($eventSteps as $step) {
+          $scriptName = array_keys($step)[0];
+          if (!array_key_exists('script', $step[$scriptName]) || empty($step[$scriptName]['script'])) {
             continue;
           }
-          if ($stage = $this->assignStageFromKeywords($event_map['stage'], $script_name)) {
-            $code_studio_jobs[$script_name]['stage'] = $stage;
+          if ($stage = $this->assignStageFromKeywords($eventMap['stage'], $scriptName)) {
+            $codeStudioJobs[$scriptName]['stage'] = $stage;
           }
-          foreach ($step[$script_name]['script'] as $command) {
-            foreach ($event_map['skip'] as $needle => $message_config) {
+          foreach ($step[$scriptName]['script'] as $command) {
+            foreach ($eventMap['skip'] as $needle => $messageConfig) {
               if (str_contains($command, $needle)) {
-                if ($message_config['prompt']) {
-                  $answer = $this->io->confirm($message_config['message'] . PHP_EOL . $command, FALSE);
+                if ($messageConfig['prompt']) {
+                  $answer = $this->io->confirm($messageConfig['message'] . PHP_EOL . $command, FALSE);
                   if ($answer == 1) {
-                    $code_studio_jobs[$script_name]['script'][] = $command;
-                    $code_studio_jobs[$script_name]['script'] = array_values(array_unique($code_studio_jobs[$script_name]['script']));
+                    $codeStudioJobs[$scriptName]['script'][] = $command;
+                    $codeStudioJobs[$scriptName]['script'] = array_values(array_unique($codeStudioJobs[$scriptName]['script']));
                   }
-                  else if (($key = array_search($command, $code_studio_jobs[$script_name]['script'], TRUE)) !== FALSE) {
-                    unset($code_studio_jobs[$script_name]['script'][$key]);
+                  else if (($key = array_search($command, $codeStudioJobs[$scriptName]['script'], TRUE)) !== FALSE) {
+                    unset($codeStudioJobs[$scriptName]['script'][$key]);
                   }
                 }
                 else {
                   $this->io->note([
-                    $message_config['message'],
+                    $messageConfig['message'],
                     $command,
                   ]);
                 }
                 break;
               }
 
-              if (array_key_exists($script_name, $code_studio_jobs) && array_key_exists('script', $code_studio_jobs[$script_name]) && in_array($command, $code_studio_jobs[$script_name]['script'], TRUE)) {
+              if (array_key_exists($scriptName, $codeStudioJobs) && array_key_exists('script', $codeStudioJobs[$scriptName]) && in_array($command, $codeStudioJobs[$scriptName]['script'], TRUE)) {
                 break;
               }
-              if (!array_key_exists($script_name, $event_map['skip']) ) {
-                $code_studio_jobs[$script_name]['script'][] = $command;
-                $code_studio_jobs[$script_name]['script'] = array_values(array_unique($code_studio_jobs[$script_name]['script']));
+              if (!array_key_exists($scriptName, $eventMap['skip']) ) {
+                $codeStudioJobs[$scriptName]['script'][] = $command;
+                $codeStudioJobs[$scriptName]['script'] = array_values(array_unique($codeStudioJobs[$scriptName]['script']));
               }
-              else if ($script_name === 'launch_ode') {
-                $code_studio_jobs[$script_name]['script'][] = $command;
+              else if ($scriptName === 'launch_ode') {
+                $codeStudioJobs[$scriptName]['script'][] = $command;
               }
             }
-            if (array_key_exists($script_name, $code_studio_jobs) && !array_key_exists('stage', $code_studio_jobs[$script_name])
-              && $stage = $this->assignStageFromKeywords($event_map['stage'], $command)) {
-              $code_studio_jobs[$script_name]['stage'] = $stage;
+            if (array_key_exists($scriptName, $codeStudioJobs) && !array_key_exists('stage', $codeStudioJobs[$scriptName])
+              && $stage = $this->assignStageFromKeywords($eventMap['stage'], $command)) {
+              $codeStudioJobs[$scriptName]['stage'] = $stage;
             }
           }
-          if (!array_key_exists('stage', $code_studio_jobs[$script_name])) {
-            $code_studio_jobs[$script_name]['stage'] = $event_map['default_stage'];
+          if (!array_key_exists('stage', $codeStudioJobs[$scriptName])) {
+            $codeStudioJobs[$scriptName]['stage'] = $eventMap['default_stage'];
           }
-          $code_studio_jobs[$script_name]['needs'] = $event_map['needs'];
+          $codeStudioJobs[$scriptName]['needs'] = $eventMap['needs'];
         }
-        $gitlab_ci_file_contents = array_merge($gitlab_ci_file_contents, $code_studio_jobs);
+        $gitlabCiFileContents = array_merge($gitlabCiFileContents, $codeStudioJobs);
         $this->io->success([
-          "Completed migration of the $event_name step in your acquia-pipelines.yml file",
+          "Completed migration of the $eventName step in your acquia-pipelines.yml file",
         ]);
       }
       else {
         $this->io->writeln([
-          "acquia-pipeline.yml file does not contain $event_name step to migrate",
+          "acquia-pipeline.yml file does not contain $eventName step to migrate",
         ]);
       }
     }
@@ -301,10 +290,10 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Removing empty script.
    */
-  private function removeEmptyScript(array &$gitlab_ci_file_contents): void {
-    foreach ($gitlab_ci_file_contents as $key => $value) {
+  private function removeEmptyScript(array &$gitlabCiFileContents): void {
+    foreach ($gitlabCiFileContents as $key => $value) {
       if (array_key_exists('script', $value) && empty($value['script'])) {
-        unset($gitlab_ci_file_contents[$key]);
+        unset($gitlabCiFileContents[$key]);
       }
     }
   }
@@ -312,15 +301,12 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  private function createGitLabCiFile(array $contents,$acquia_pipelines_file_name): void {
-    $gitlab_ci_filepath = Path::join($this->projectDir, '.gitlab-ci.yml');
-    $this->localMachineHelper->getFilesystem()->dumpFile($gitlab_ci_filepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
-    $this->localMachineHelper->getFilesystem()->remove($acquia_pipelines_file_name);
+  private function createGitLabCiFile(array $contents,$acquiaPipelinesFileName): void {
+    $gitlabCiFilepath = Path::join($this->projectDir, '.gitlab-ci.yml');
+    $this->localMachineHelper->getFilesystem()->dumpFile($gitlabCiFilepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
+    $this->localMachineHelper->getFilesystem()->remove($acquiaPipelinesFileName);
   }
 
-  /**
-   * @param array $keywords
-   */
   private function assignStageFromKeywords(array $keywords, string $haystack): ?string {
     foreach ($keywords as $needle => $stage) {
       if (str_contains($haystack, $needle)) {

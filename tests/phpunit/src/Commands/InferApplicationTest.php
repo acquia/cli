@@ -7,8 +7,6 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class InferApplicationTest.
- *
  * @property LinkCommand $command
  */
 class InferApplicationTest extends CommandTestBase {
@@ -27,16 +25,16 @@ class InferApplicationTest extends CommandTestBase {
 
   public function testInfer(): void {
 
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environment_response = $this->getMockEnvironmentResponse();
+    $environmentResponse = $this->getMockEnvironmentResponse();
     // The searchApplicationEnvironmentsForGitUrl() method will only look
     // for a match of the vcs url on the prod env. So, we mock a prod env.
-    $environment_response2 = $environment_response;
-    $environment_response2->flags->production = TRUE;
+    $environmentResponse2 = $environmentResponse;
+    $environmentResponse2->flags->production = TRUE;
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$environment_response, $environment_response2])
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$environmentResponse, $environmentResponse2])
       ->shouldBeCalled();
 
     $this->executeCommand([], [
@@ -56,17 +54,17 @@ class InferApplicationTest extends CommandTestBase {
   }
 
   public function testInferFailure(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
-    $environment_response = $this->getMockEnvironmentResponse();
+    $environmentResponse = $this->getMockEnvironmentResponse();
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
-      ->willReturn([$environment_response, $environment_response])
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
+      ->willReturn([$environmentResponse, $environmentResponse])
       ->shouldBeCalled();
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[1]->uuid}/environments")
-      ->willReturn([$environment_response, $environment_response])
+      "/applications/{$applicationsResponse->{'_embedded'}->items[1]->uuid}/environments")
+      ->willReturn([$environmentResponse, $environmentResponse])
       ->shouldBeCalled();
 
     $this->executeCommand([], [

@@ -10,16 +10,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class AuthCommandTest.
- *
  * @property AuthLoginCommand $command
- * @package Acquia\Cli\Tests
  */
 class AuthLoginCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AuthLoginCommand::class);
   }
@@ -27,9 +21,9 @@ class AuthLoginCommandTest extends CommandTestBase {
   public function providerTestAuthLoginCommand(): array {
     return [
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         FALSE,
-        // $assert_cloud_prompts
+        // $assertCloudPrompts
         TRUE,
         [
           // Would you like to share anonymous performance usage and data? (yes/no) [yes]
@@ -47,9 +41,9 @@ class AuthLoginCommandTest extends CommandTestBase {
         'Saved credentials',
       ],
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         TRUE,
-        // $assert_cloud_prompts
+        // $assertCloudPrompts
         TRUE,
         [
           // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
@@ -69,9 +63,9 @@ class AuthLoginCommandTest extends CommandTestBase {
         'Saved credentials',
       ],
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         TRUE,
-        // $assert_cloud_prompts
+        // $assertCloudPrompts
         FALSE,
         [
           // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
@@ -86,9 +80,9 @@ class AuthLoginCommandTest extends CommandTestBase {
         'Acquia CLI will use the API Key',
       ],
       [
-        // $machine_is_authenticated
+        // $machineIsAuthenticated
         FALSE,
-        // $assert_cloud_prompts
+        // $assertCloudPrompts
         FALSE,
         // No interaction
         [],
@@ -101,19 +95,16 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'auth:login' command.
-   *
    * @dataProvider providerTestAuthLoginCommand
-   * @param $machine_is_authenticated
-   * @param $assert_cloud_prompts
+   * @param $machineIsAuthenticated
+   * @param $assertCloudPrompts
    * @param $inputs
    * @param $args
-   * @param $output_to_assert
-   * @throws \Psr\Cache\InvalidArgumentException*@throws \Exception
+   * @param $outputToAssert
    */
-  public function testAuthLoginCommand($machine_is_authenticated, $assert_cloud_prompts, $inputs, $args, $output_to_assert): void {
+  public function testAuthLoginCommand($machineIsAuthenticated, $assertCloudPrompts, $inputs, $args, $outputToAssert): void {
     $this->mockTokenRequest();
-    if (!$machine_is_authenticated) {
+    if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
       $this->createDataStores();
@@ -123,10 +114,10 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->executeCommand($args, $inputs);
     $output = $this->getDisplay();
 
-    if ($assert_cloud_prompts) {
+    if ($assertCloudPrompts) {
       $this->assertInteractivePrompts($output);
     }
-    $this->assertStringContainsString($output_to_assert, $output);
+    $this->assertStringContainsString($outputToAssert, $output);
     $this->assertKeySavedCorrectly();
   }
 
@@ -134,26 +125,23 @@ class AuthLoginCommandTest extends CommandTestBase {
     return [
       [
         [],
-        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret]
+        ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => 'shorty' , '--secret' => $this->secret]
+        ['--key' => 'shorty' , '--secret' => $this->secret],
       ],
       [
         [],
-        ['--key' => ' ', '--secret' => $this->secret]
+        ['--key' => ' ', '--secret' => $this->secret],
       ],
     ];
   }
 
   /**
-   * Tests the 'auth:login' command with invalid input.
-   *
    * @dataProvider providerTestAuthLoginInvalidInputCommand
    * @param $inputs
    * @param $args
-   * @throws \Exception
    */
   public function testAuthLoginInvalidInputCommand($inputs, $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
@@ -173,9 +161,9 @@ class AuthLoginCommandTest extends CommandTestBase {
   }
 
   protected function assertKeySavedCorrectly(): void {
-    $creds_file = $this->cloudConfigFilepath;
-    $this->assertFileExists($creds_file);
-    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $creds_file);
+    $credsFile = $this->cloudConfigFilepath;
+    $this->assertFileExists($credsFile);
+    $config = new CloudDataStore($this->localMachineHelper, new CloudDataConfig(), $credsFile);
     $this->assertTrue($config->exists('acli_key'));
     $this->assertEquals($this->key, $config->get('acli_key'));
     $this->assertTrue($config->exists('keys'));
@@ -186,15 +174,12 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertEquals($this->secret, $keys[$this->key]['secret']);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockTokenRequest(): object {
-    $mock_body = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
+    $mockBody = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
       'get', '200');
     $this->clientProphecy->request('get', "/account/tokens/{$this->key}")
-      ->willReturn($mock_body);
-    return $mock_body;
+      ->willReturn($mockBody);
+    return $mockBody;
   }
 
 }

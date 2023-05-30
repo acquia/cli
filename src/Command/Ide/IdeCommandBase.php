@@ -8,25 +8,18 @@ use Acquia\Cli\Helpers\IdeCommandTrait;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Response\IdeResponse;
 
-/**
- * Class IdeCommandBase.
- */
 abstract class IdeCommandBase extends CommandBase {
 
   use IdeCommandTrait;
 
   private string $xdebugIniFilepath = '/home/ide/configs/php/xdebug.ini';
 
-  /**
-   * @param $cloud_application_uuid
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function promptIdeChoice(
-    string $question_text,
-    Ides $ides_resource,
-    $cloud_application_uuid
+    string $questionText,
+    Ides $idesResource,
+    $cloudApplicationUuid
   ): ?IdeResponse {
-    $ides = iterator_to_array($ides_resource->getAll($cloud_application_uuid));
+    $ides = iterator_to_array($idesResource->getAll($cloudApplicationUuid));
     if (empty($ides)) {
       throw new AcquiaCliException('No IDEs exist for this application.');
     }
@@ -35,16 +28,14 @@ abstract class IdeCommandBase extends CommandBase {
     foreach ($ides as $ide) {
       $choices[] = "$ide->label ($ide->uuid)";
     }
-    $choice = $this->io->choice($question_text, $choices, $choices[0]);
-    $chosen_environment_index = array_search($choice, $choices, TRUE);
+    $choice = $this->io->choice($questionText, $choices, $choices[0]);
+    $chosenEnvironmentIndex = array_search($choice, $choices, TRUE);
 
-    return $ides[$chosen_environment_index];
+    return $ides[$chosenEnvironmentIndex];
   }
 
   /**
    * Start service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function startService(string $service): void {
     $process = $this->localMachineHelper->execute([
@@ -59,8 +50,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Stop service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function stopService(string $service): void {
     $process = $this->localMachineHelper->execute([
@@ -75,8 +64,6 @@ abstract class IdeCommandBase extends CommandBase {
 
   /**
    * Restart service inside IDE.
-   *
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function restartService(string $service): void {
     $process = $this->localMachineHelper->execute([
@@ -89,8 +76,8 @@ abstract class IdeCommandBase extends CommandBase {
     }
   }
 
-  public function setXdebugIniFilepath(string $file_path): void {
-    $this->xdebugIniFilepath = $file_path;
+  public function setXdebugIniFilepath(string $filePath): void {
+    $this->xdebugIniFilepath = $filePath;
   }
 
   protected function getXdebugIniFilePath(): string {

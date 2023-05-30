@@ -11,9 +11,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * @package Acquia\Cli\Tests\Application
- */
 class ApplicationTestBase extends TestBase {
 
   /**
@@ -31,9 +28,6 @@ class ApplicationTestBase extends TestBase {
     $this->kernel->getContainer()->set(OutputInterface::class, $output);
   }
 
-  /**
-   * @throws \Exception
-   */
   protected function runApp(): string {
     putenv("ACLI_REPO_ROOT=" . $this->projectDir);
     $input = $this->kernel->getContainer()->get(InputInterface::class);
@@ -46,6 +40,13 @@ class ApplicationTestBase extends TestBase {
   }
 
   protected function setInput(array $args): void {
+    // ArrayInput requires command to be the first parameter.
+    if (array_key_exists('command', $args)) {
+      $newArgs = [];
+      $newArgs['command'] = $args['command'];
+      unset($args['command']);
+      $args = array_merge($newArgs, $args);
+    }
     $input = new ArrayInput($args);
     $input->setInteractive(FALSE);
     $this->kernel->getContainer()->set(InputInterface::class, $input);

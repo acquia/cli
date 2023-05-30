@@ -9,9 +9,6 @@ use League\OAuth2\Client\Provider\GenericProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\RequestInterface;
 
-/**
- * Class AccessTokenConnector
- */
 class AccessTokenConnector extends Connector {
 
   /**
@@ -19,18 +16,11 @@ class AccessTokenConnector extends Connector {
    */
   protected AbstractProvider $provider;
 
-  /**
-   * @inheritdoc
-   */
-  public function __construct(array $config, string $base_uri = NULL, string $url_access_token = NULL) {
+  public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
-    parent::__construct($config, $base_uri, $url_access_token);
+    parent::__construct($config, $baseUri, $urlAccessToken);
   }
 
-  /**
-   * @inheritdoc
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   public function createRequest($verb, $path): RequestInterface {
     if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {
       if (!file_exists($file)) {

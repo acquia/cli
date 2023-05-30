@@ -10,46 +10,35 @@ use Prophecy\Prophecy\ObjectProphecy;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class PullDatabaseCommandTest.
- *
  * @property \Acquia\Cli\Command\Push\PushDatabaseCommand $command
- * @package Acquia\Cli\Tests\Commands\Push
  */
 class PushDatabaseCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(PushDatabaseCommand::class);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Psr\Cache\InvalidArgumentException|\JsonException
-   * @throws \Exception
-   */
   public function testPushDatabase(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $environments_response = $this->mockAcsfEnvironmentsRequest($applications_response);
-    $selected_environment = $environments_response->_embedded->items[0];
+    $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
+    $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->createMockGitConfigFile();
-    $this->mockAcsfDatabasesResponse($selected_environment);
-    $ssh_helper = $this->mockSshHelper();
-    $this->mockGetAcsfSites($ssh_helper);
+    $this->mockAcsfDatabasesResponse($selectedEnvironment);
+    $sshHelper = $this->mockSshHelper();
+    $this->mockGetAcsfSites($sshHelper);
     $process = $this->mockProcess();
 
-    $local_machine_helper = $this->mockLocalMachineHelper();
+    $localMachineHelper = $this->mockLocalMachineHelper();
 
     // Database.
-    $this->mockExecutePvExists($local_machine_helper);
-    $this->mockCreateMySqlDumpOnLocal($local_machine_helper);
-    $this->mockUploadDatabaseDump($local_machine_helper, $process);
-    $this->mockImportDatabaseDumpOnRemote($ssh_helper, $selected_environment, $process);
+    $this->mockExecutePvExists($localMachineHelper);
+    $this->mockCreateMySqlDumpOnLocal($localMachineHelper);
+    $this->mockUploadDatabaseDump($localMachineHelper, $process);
+    $this->mockImportDatabaseDumpOnRemote($sshHelper, $selectedEnvironment, $process);
 
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
-    $this->command->sshHelper = $ssh_helper->reveal();
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
+    $this->command->sshHelper = $sshHelper->reveal();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
@@ -81,10 +70,10 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   protected function mockUploadDatabaseDump(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process
   ): void {
-    $local_machine_helper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
+    $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $command = [
       'rsync',
       '-tDvPhe',
@@ -92,24 +81,18 @@ class PushDatabaseCommandTest extends CommandTestBase {
       sys_get_temp_dir() . '/acli-mysql-dump-drupal.sql.gz',
       'profserv2.01dev@profserv201dev.ssh.enterprise-g1.acquia-sites.com:/mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz',
     ];
-    $local_machine_helper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
+    $localMachineHelper->execute($command, Argument::type('callable'), NULL, TRUE, NULL)
       ->willReturn($process->reveal())
       ->shouldBeCalled();
   }
 
-  /**
-   * @param \Prophecy\Prophecy\ObjectProphecy $ssh_helper
-   * @param object $environments_response
-   * @param $process
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   protected function mockImportDatabaseDumpOnRemote(
-    ObjectProphecy $ssh_helper,
-    object $environments_response,
+    ObjectProphecy $sshHelper,
+    object $environmentsResponse,
     $process
   ): void {
-    $ssh_helper->executeCommand(
-      new EnvironmentResponse($environments_response),
+    $sshHelper->executeCommand(
+      new EnvironmentResponse($environmentsResponse),
       ['pv /mnt/tmp/profserv2.dev/acli-mysql-dump-drupal.sql.gz --bytes --rate | gunzip | MYSQL_PWD=password mysql --host=fsdb-74.enterprise-g1.hosting.acquia.com.enterprise-g1.hosting.acquia.com --user=s164 profserv2db14390'],
       TRUE,
       NULL
@@ -119,11 +102,11 @@ class PushDatabaseCommandTest extends CommandTestBase {
   }
 
   protected function mockExecuteMySqlImport(
-    ObjectProphecy $local_machine_helper,
+    ObjectProphecy $localMachineHelper,
     ObjectProphecy $process
   ): void {
     // MySQL import command.
-    $local_machine_helper
+    $localMachineHelper
       ->executeFromCmd(Argument::type('string'), Argument::type('callable'),
         NULL, TRUE, NULL)
       ->willReturn($process->reveal())

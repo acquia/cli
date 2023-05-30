@@ -9,9 +9,6 @@ use Acquia\Cli\Application;
 use Acquia\Cli\Tests\TestBase;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class ClientServiceTest.
- */
 class AcsfServiceTest extends TestBase {
 
   protected function setUp(OutputInterface $output = NULL): void {
@@ -46,13 +43,13 @@ class AcsfServiceTest extends TestBase {
 
   /**
    * @dataProvider providerTestIsMachineAuthenticated
-   * @param array $env_vars
+   * @param array $envVars
    */
-  public function testIsMachineAuthenticated(array $env_vars, bool $is_authenticated): void {
-    self::setEnvVars($env_vars);
-    $client_service = new AcsfClientService(new AcsfConnectorFactory(['key' => NULL, 'secret' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), $this->cloudCredentials);
-    $this->assertEquals($is_authenticated, $client_service->isMachineAuthenticated());
-    self::unsetEnvVars($env_vars);
+  public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void {
+    self::setEnvVars($envVars);
+    $clientService = new AcsfClientService(new AcsfConnectorFactory(['key' => NULL, 'secret' => NULL]), $this->prophet->prophesize(Application::class)->reveal(), $this->cloudCredentials);
+    $this->assertEquals($isAuthenticated, $clientService->isMachineAuthenticated());
+    self::unsetEnvVars($envVars);
   }
 
 }

@@ -3,21 +3,16 @@
 namespace Acquia\Cli\Command\Self;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class ClearCacheCommand.
- */
 class ClearCacheCommand extends CommandBase {
 
   protected static $defaultName = 'self:clear-caches';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Clears local Acquia CLI caches')
       ->setAliases(['cc', 'cr']);
@@ -27,7 +22,7 @@ class ClearCacheCommand extends CommandBase {
     self::clearCaches();
     $output->writeln('Acquia CLI caches were cleared.');
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   /**
@@ -36,9 +31,9 @@ class ClearCacheCommand extends CommandBase {
   public static function clearCaches(): void {
     $cache = self::getAliasCache();
     $cache->clear();
-    $system_cache_dir = Path::join(sys_get_temp_dir(), 'symphony-cache');
+    $systemCacheDir = Path::join(sys_get_temp_dir(), 'symphony-cache');
     $fs = new Filesystem();
-    $fs->remove([$system_cache_dir]);
+    $fs->remove([$systemCacheDir]);
   }
 
 }

@@ -15,6 +15,13 @@ defaults:
     # to install more dependencies. Ubuntu default shell is already Bash.
     # @see https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#using-a-specific-shell
     shell: bash
+
+env:
+  # Using upload token helps against rate limiting errors.
+  # Cannot define it as secret as we need it accessible from forks.
+  # See https://github.com/codecov/codecov-action/issues/837
+  CODECOV_TOKEN: 39b3f423-92e0-491b-aba0-f9b56c451c72
+
 jobs:
   test:
     runs-on: ${{ matrix.os }}
@@ -42,14 +49,14 @@ jobs:
           php-version: ${{ matrix.php }}
           # Only report coverage once
           coverage: ${{ matrix.coverage }}
-      - name: Check dependencies on Ubuntu
+      - name: Check for abandoned dependencies
         if: matrix.os == 'ubuntu-22.04'
-        # Tests for the SSH key commands rely on ssh-agent running.
-        run: |
-          eval "$(ssh-agent -s)"
-          cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
+        run: cat composer.lock | jq '.packages[] | select(.abandoned)' | grep -q ^ && echo 'Abandoned Composer packages found' && exit 1 || exit 0
       - name: Composer install
         run: composer install --prefer-dist --no-interaction --optimize-autoloader
+      - name: Check dependency licenses
+        if: matrix.os == 'ubuntu-22.04'
+        run: ./vendor/bin/composer-license-checker check --allowlist GPL-2.0-or-later --allowlist MIT --allowlist BSD-2-Clause --allowlist Apache-2.0 --allowlist LGPL-3.0-or-later --allowlist BSD-3-Clause --allowlist GPL-2.0-only --allow ltd-beget
       - name: Run tests
         if: matrix.coverage == 'none'
         run: |
@@ -61,11 +68,11 @@ jobs:
       - name: Run coverage
         if: matrix.coverage == 'pcov'
         run: composer coverage
-      - name: Upload coverage results to Coveralls
+      - name: Upload coverage results to Codecov
         if: matrix.coverage == 'pcov'
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: composer coveralls
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ env.CODECOV_TOKEN }}
   build-release:
     runs-on: ubuntu-22.04
     permissions:
@@ -75,6 +82,20 @@ jobs:
       - uses: shivammathur/setup-php@v2
         with:
           coverage: none
+      - name: 'Get ACLI version'
+        id: acli-version
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == 'tag' ]]; then
+            echo "ACLI_VERSION=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
+          else
+            echo "ACLI_VERSION=$GITHUB_SHA" >> $GITHUB_OUTPUT
+          fi
+      - name: 'Create env file'
+        run: |
+          touch .env
+          echo BUGSNAG_KEY=${{ secrets.BUGSNAG_KEY }} >> .env
+          echo AMPLITUDE_KEY=${{ secrets.AMPLITUDE_KEY }} >> .env
+          echo ACLI_VERSION=${{ steps.acli-version.outputs.ACLI_VERSION }} >> .env
       - name: Build
         run: |
           composer install --no-dev --optimize-autoloader
@@ -82,8 +103,11 @@ jobs:
           # Warm the symfony cache so it gets bundled with phar.
           ./bin/acli
           composer box-compile
-      - name: Upload to transfer.sh
-        run: echo "$(curl -s --upload-file build/acli.phar https://transfer.sh/acli.phar)"
+      - name: Store artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: acli.phar
+          path: build/acli.phar
       - name: Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')

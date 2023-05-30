@@ -12,7 +12,6 @@ use AcquiaCloudApi\Response\IdeResponse;
 use Closure;
 use React\EventLoop\Loop;
 use RuntimeException;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Validator\Constraints\Length;
@@ -22,9 +21,6 @@ use Symfony\Component\Validator\Exception\ValidatorException;
 use Symfony\Component\Validator\Validation;
 use Zumba\Amplitude\Amplitude;
 
-/**
- * Class SshKeyCommandBase.
- */
 abstract class SshKeyCommandBase extends CommandBase {
 
   use SshCommandTrait;
@@ -37,8 +33,8 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   protected string $publicSshKeyFilepath;
 
-  protected function setSshKeyFilepath(string $private_ssh_key_filename): void {
-    $this->privateSshKeyFilename = $private_ssh_key_filename;
+  protected function setSshKeyFilepath(string $privateSshKeyFilename): void {
+    $this->privateSshKeyFilename = $privateSshKeyFilename;
     $this->privateSshKeyFilepath = $this->sshDir . '/' . $this->privateSshKeyFilename;
     $this->publicSshKeyFilepath = $this->privateSshKeyFilepath . '.pub';
   }
@@ -63,8 +59,8 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * Normalizes public SSH key by trimming and removing user and machine suffix.
    */
-  protected function normalizePublicSshKey(string $public_key): string {
-    $parts = explode('== ', $public_key);
+  protected function normalizePublicSshKey(string $publicKey): string {
+    $parts = explode('== ', $publicKey);
     $key = $parts[0];
 
     return trim($key);
@@ -72,8 +68,6 @@ abstract class SshKeyCommandBase extends CommandBase {
 
   /**
    * Asserts whether ANY SSH key has been added to the local keychain.
-   *
-   * @throws \Exception
    */
   protected function sshKeyIsAddedToKeychain(): bool {
     $process = $this->localMachineHelper->execute([
@@ -82,8 +76,8 @@ abstract class SshKeyCommandBase extends CommandBase {
     ], NULL, NULL, FALSE);
 
     if ($process->isSuccessful()) {
-      $key_contents = $this->normalizePublicSshKey($this->localMachineHelper->readFile($this->publicSshKeyFilepath));
-      return str_contains($process->getOutput(), $key_contents);
+      $keyContents = $this->normalizePublicSshKey($this->localMachineHelper->readFile($this->publicSshKeyFilepath));
+      return str_contains($process->getOutput(), $keyContents);
     }
     return FALSE;
   }
@@ -93,21 +87,20 @@ abstract class SshKeyCommandBase extends CommandBase {
    *
    * @param string $filepath
    *   The filepath of the private SSH key.
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
    */
   protected function addSshKeyToAgent(string $filepath, string $password): void {
     // We must use a separate script to mimic user input due to the limitations of the `ssh-add` command.
     // @see https://www.linux.com/topic/networking/manage-ssh-key-file-passphrase/
-    $temp_filepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
-    $this->localMachineHelper->writeFile($temp_filepath, <<<'EOT'
+    $tempFilepath = $this->localMachineHelper->getFilesystem()->tempnam(sys_get_temp_dir(), 'acli');
+    $this->localMachineHelper->writeFile($tempFilepath, <<<'EOT'
 #!/usr/bin/env bash
 echo $SSH_PASS
 EOT
     );
-    $this->localMachineHelper->getFilesystem()->chmod($temp_filepath, 0755);
-    $private_key_filepath = str_replace('.pub', '', $filepath);
-    $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $temp_filepath . ' ssh-add ' . $private_key_filepath, NULL, NULL, FALSE);
-    $this->localMachineHelper->getFilesystem()->remove($temp_filepath);
+    $this->localMachineHelper->getFilesystem()->chmod($tempFilepath, 0755);
+    $privateKeyFilepath = str_replace('.pub', '', $filepath);
+    $process = $this->localMachineHelper->executeFromCmd('SSH_PASS=' . $password . ' DISPLAY=1 SSH_ASKPASS=' . $tempFilepath . ' ssh-add ' . $privateKeyFilepath, NULL, NULL, FALSE);
+    $this->localMachineHelper->getFilesystem()->remove($tempFilepath);
     if (!$process->isSuccessful()) {
       throw new AcquiaCliException('Unable to add the SSH key to local SSH agent:' . $process->getOutput() . $process->getErrorOutput());
     }
@@ -117,7 +110,6 @@ EOT
    * Polls the Cloud Platform until a successful SSH request is made to the dev
    * environment.
    *
-   * @throws \Exception
    * @infection-ignore-all
    */
   protected function pollAcquiaCloudUntilSshSuccess(
@@ -127,29 +119,29 @@ EOT
     $loop = Loop::get();
     $timers = [];
     $startTime = time();
-    $cloud_app_uuid = $this->determineCloudApplication(TRUE);
-    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/{$cloud_app_uuid}/permissions");
+    $cloudAppUuid = $this->determineCloudApplication(TRUE);
+    $permissions = $this->cloudApiClientService->getClient()->request('get', "/applications/$cloudAppUuid/permissions");
     $perms = array_column($permissions, 'name');
-    $mappings = $this->checkPermissions($perms, $cloud_app_uuid, $output);
-    foreach ($mappings as $env_name => $config) {
+    $mappings = $this->checkPermissions($perms, $cloudAppUuid, $output);
+    foreach ($mappings as $envName => $config) {
       $spinner = new Spinner($output, 4);
-      $spinner->setMessage("Waiting for the key to become available in Cloud Platform $env_name environments");
+      $spinner->setMessage("Waiting for the key to become available in Cloud Platform $envName environments");
       $spinner->start();
-      $mappings[$env_name]['timer'] = $loop->addPeriodicTimer($spinner->interval(),
+      $mappings[$envName]['timer'] = $loop->addPeriodicTimer($spinner->interval(),
         static function () use ($spinner): void {
           $spinner->advance();
         });
-      $mappings[$env_name]['spinner'] = $spinner;
+      $mappings[$envName]['spinner'] = $spinner;
     }
     $callback = function () use ($output, $loop, &$mappings, &$timers, $startTime): void {
-      foreach ($mappings as $env_name => $config) {
+      foreach ($mappings as $envName => $config) {
         try {
           $process = $this->sshHelper->executeCommand($config['ssh_target'], ['ls'], FALSE);
-          if (($process->getExitCode() === 128 && $env_name === 'git') || $process->isSuccessful()) {
+          if (($process->getExitCode() === 128 && $envName === 'git') || $process->isSuccessful()) {
             // SSH key is available on this host, but may be pending on others.
             $config['spinner']->finish();
             $loop->cancelTimer($config['timer']);
-            unset($mappings[$env_name]);
+            unset($mappings[$envName]);
           }
           else {
             // SSH key isn't available on this host... yet.
@@ -185,54 +177,48 @@ EOT
     $loop->run();
   }
 
-  /**
-   * @throws \Exception
-   */
-  private function checkPermissions(array $perms, string $cloud_app_uuid, OutputInterface $output): array {
+  private function checkPermissions(array $userPerms, string $cloudAppUuid, OutputInterface $output): array {
     $mappings = [];
-    $needed_perms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
-    foreach ($needed_perms as $index => $perm) {
-      if (in_array($perm, $perms, TRUE)) {
-        switch ($perm) {
+    $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
+    foreach ($requiredPerms as $index => $requiredPerm) {
+      if (in_array($requiredPerm, $userPerms, TRUE)) {
+        switch ($requiredPerm) {
           case 'add ssh key to git':
-            $full_url = $this->getAnyVcsUrl($cloud_app_uuid);
-            $url_parts = explode(':', $full_url);
-            $mappings['git']['ssh_target'] = $url_parts[0];
+            $fullUrl = $this->getAnyVcsUrl($cloudAppUuid);
+            $urlParts = explode(':', $fullUrl);
+            $mappings['git']['ssh_target'] = $urlParts[0];
             break;
           case 'add ssh key to non-prod':
-            $mappings['nonprod']['ssh_target'] = $this->getAnyNonProdAhEnvironment($cloud_app_uuid);
+            if ($nonProdEnv = $this->getAnyNonProdAhEnvironment($cloudAppUuid)) {
+              $mappings['nonprod']['ssh_target'] = $nonProdEnv;
+            }
             break;
           case 'add ssh key to prod':
-            $mappings['prod']['ssh_target'] = $this->getAnyProdAhEnvironment($cloud_app_uuid);
+            if ($prodEnv = $this->getAnyProdAhEnvironment($cloudAppUuid)) {
+              $mappings['prod']['ssh_target'] = $prodEnv;
+            }
             break;
         }
-        unset($needed_perms[$index]);
+        unset($requiredPerms[$index]);
       }
     }
-    if (!empty($needed_perms)) {
-      $perm_string = implode(", ", $needed_perms);
+    if (!empty($requiredPerms)) {
+      $permString = implode(", ", $requiredPerms);
       $output->writeln('<comment>You do not have access to some environments on this application.</comment>');
-      $output->writeln("<comment>Check that you have the following permissions: <options=bold>$perm_string</></comment>");
+      $output->writeln("<comment>Check that you have the following permissions: <options=bold>$permString</></comment>");
     }
     return $mappings;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function createSshKey(string $filename, string $password): string {
-    $key_file_path = $this->doCreateSshKey($filename, $password);
-    $this->setSshKeyFilepath(basename($key_file_path));
+    $keyFilePath = $this->doCreateSshKey($filename, $password);
+    $this->setSshKeyFilepath(basename($keyFilePath));
     if (!$this->sshKeyIsAddedToKeychain()) {
       $this->addSshKeyToAgent($this->publicSshKeyFilepath, $password);
     }
-    return $key_file_path;
+    return $keyFilePath;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function doCreateSshKey(string $filename, string $password): string {
     $filepath = $this->sshDir . '/' . $filename;
     if (file_exists($filepath)) {
@@ -258,13 +244,9 @@ EOT
     return $filepath;
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function determineFilename(InputInterface $input): string {
+  protected function determineFilename(): string {
     return $this->determineOption(
       'filename',
-      $input,
       FALSE,
       Closure::fromCallable([$this, 'validateFilename']),
       static function ($value) {
@@ -286,13 +268,9 @@ EOT
     return $filename;
   }
 
-  /**
-   * @throws \Exception
-   */
-  protected function determinePassword(InputInterface $input): string {
+  protected function determinePassword(): string {
     return $this->determineOption(
       'password',
-      $input,
       TRUE,
       Closure::fromCallable([$this, 'validatePassword']),
       static function ($value) {
@@ -313,21 +291,16 @@ EOT
     return $password;
   }
 
-  private function keyHasUploaded(Client $acquia_cloud_client, string $public_key): bool {
-    $cloud_keys = $acquia_cloud_client->request('get', '/account/ssh-keys');
-    foreach ($cloud_keys as $cloud_key) {
-      if (trim($cloud_key->public_key) === trim($public_key)) {
+  private function keyHasUploaded(Client $acquiaCloudClient, string $publicKey): bool {
+    $sshKeys = new SshKeys($acquiaCloudClient);
+    foreach ($sshKeys->getAll() as $cloudKey) {
+      if (trim($cloudKey->public_key) === trim($publicKey)) {
         return TRUE;
       }
     }
     return FALSE;
   }
 
-  /**
-   * @return array
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
   protected function determinePublicSshKey(string $filepath = NULL): array {
     if ($filepath) {
       $filepath = $this->localMachineHelper->getLocalFilepath($filepath);
@@ -343,26 +316,23 @@ EOT
       if (!str_contains($filepath, '.pub')) {
         throw new AcquiaCliException('The filepath {filepath} does not have the .pub extension', ['filepath' => $filepath]);
       }
-      $public_key = $this->localMachineHelper->readFile($filepath);
-      $chosen_local_key = basename($filepath);
+      $publicKey = $this->localMachineHelper->readFile($filepath);
+      $chosenLocalKey = basename($filepath);
     }
     else {
       // Get local key and contents.
-      $local_keys = $this->findLocalSshKeys();
-      $chosen_local_key = $this->promptChooseLocalSshKey($local_keys);
-      $public_key = $this->getLocalSshKeyContents($local_keys, $chosen_local_key);
+      $localKeys = $this->findLocalSshKeys();
+      $chosenLocalKey = $this->promptChooseLocalSshKey($localKeys);
+      $publicKey = $this->getLocalSshKeyContents($localKeys, $chosenLocalKey);
     }
 
-    return [$chosen_local_key, $public_key];
+    return [$chosenLocalKey, $publicKey];
   }
 
-  /**
-   * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   */
-  private function promptChooseLocalSshKey(array $local_keys): string {
+  private function promptChooseLocalSshKey(array $localKeys): string {
     $labels = [];
-    foreach ($local_keys as $local_key) {
-      $labels[] = $local_key->getFilename();
+    foreach ($localKeys as $localKey) {
+      $labels[] = $localKey->getFilename();
     }
     $question = new ChoiceQuestion(
       'Choose a local SSH key to upload to the Cloud Platform',
@@ -371,16 +341,10 @@ EOT
     return $this->io->askQuestion($question);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
-  protected function determineSshKeyLabel(InputInterface $input): string {
-    return $this->determineOption('label', $input, FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
+  protected function determineSshKeyLabel(): string {
+    return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
-  /**
-   * @param $label
-   */
   private function validateSshKeyLabel($label): mixed {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
@@ -389,29 +353,21 @@ EOT
     return $label;
   }
 
-  /**
-   * @param \Symfony\Component\Finder\SplFileInfo[] $local_keys
-   * @throws \Exception
-   */
-  private function getLocalSshKeyContents(array $local_keys, string $chosen_local_key): string {
+  private function getLocalSshKeyContents(array $localKeys, string $chosenLocalKey): string {
     $filepath = '';
-    foreach ($local_keys as $local_key) {
-      if ($local_key->getFilename() === $chosen_local_key) {
-        $filepath = $local_key->getRealPath();
+    foreach ($localKeys as $localKey) {
+      if ($localKey->getFilename() === $chosenLocalKey) {
+        $filepath = $localKey->getRealPath();
         break;
       }
     }
     return $this->localMachineHelper->readFile($filepath);
   }
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Exception
-   */
-  protected function uploadSshKey(string $label, string $public_key): void {
+  protected function uploadSshKey(string $label, string $publicKey): void {
     // @todo If a key with this label already exists, let the user try again.
     $sshKeys = new SshKeys($this->cloudApiClientService->getClient());
-    $sshKeys->create($label, $public_key);
+    $sshKeys->create($label, $publicKey);
 
     // Wait for the key to register on the Cloud Platform.
     if ($this->input->hasOption('no-wait') && $this->input->getOption('no-wait') === FALSE) {
@@ -420,10 +376,18 @@ EOT
         return;
       }
 
-      if ($this->keyHasUploaded($this->cloudApiClientService->getClient(), $public_key)) {
+      if ($this->keyHasUploaded($this->cloudApiClientService->getClient(), $publicKey)) {
         $this->pollAcquiaCloudUntilSshSuccess($this->output);
       }
     }
+  }
+
+  protected static function getFingerprint($sshPublicKey): string {
+    if (!str_starts_with($sshPublicKey, 'ssh-rsa ')) {
+      throw new AcquiaCliException('SSH keys must start with "ssh-rsa ".');
+    }
+    $content = explode(' ', $sshPublicKey, 3);
+    return base64_encode(hash('sha256', base64_decode($content[1]), TRUE));
   }
 
 }

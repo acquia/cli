@@ -21,15 +21,11 @@ use Acquia\Cli\Command\Api\ApiCommandFactory;
 use Acquia\Cli\Command\Api\ApiCommandHelper;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Helpers\LocalMachineHelper;
+use Dotenv\Dotenv;
 use SelfUpdate\SelfUpdateCommand;
 use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
-
-// These aren't particularly sensitive. Here they won't be used if someone loads
-// ACLI as a library.
-putenv('AMPLITUDE_KEY=0bdb9aae813d628e1388b22bc2cf79f2');
-putenv('BUGSNAG_KEY=42be215716bca4581d3e3dfb7fb05599');
 
 if (!in_array(PHP_SAPI, ['cli', 'phpdbg', 'embed'], true)) {
   echo 'Warning: The console should be invoked via the CLI version of PHP, not the '.PHP_SAPI.' SAPI'.PHP_EOL;
@@ -78,6 +74,12 @@ if (in_array($input->getFirstArgument(), ['clear-kernel-cache', 'ckc'])) {
   exit;
 }
 
+putenv('BUGSNAG_KEY=');
+putenv('AMPLITUDE_KEY=');
+putenv('ACLI_VERSION=UNKNOWN');
+$dotenv = Dotenv::createUnsafeMutable(__DIR__ . '/..');
+$dotenv->safeLoad();
+
 $kernel->boot();
 $container = $kernel->getContainer();
 
@@ -89,9 +91,7 @@ $application = $container->get(Application::class);
 /** @var OutputInterface $output */
 $output = $container->get(OutputInterface::class);
 $application->setName('Acquia CLI');
-// Do not use the following version string anywhere else, as it will be replaced
-// in production builds.
-$application->setVersion('@package_version@');
+$application->setVersion(getenv('ACLI_VERSION'));
 /** @var ApiCommandHelper $helper */
 $helper = $container->get(ApiCommandHelper::class);
 $application->addCommands($helper->getApiCommands( __DIR__ . '/../assets/acquia-spec.yaml', 'api', $container->get(ApiCommandFactory::class)));

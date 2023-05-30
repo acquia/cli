@@ -9,10 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class IdeShareCommandTest.
- *
  * @property IdeShareCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeShareCommandTest extends CommandTestBase {
 
@@ -37,23 +34,14 @@ class IdeShareCommandTest extends CommandTestBase {
     IdeHelper::setCloudIdeEnvVars();
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeShareCommand::class);
   }
 
-  /**
-   * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeShareCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
-    $ide = new IdeResponse((object) $ide_get_response);
-    $this->executeCommand([], []);
+    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ide = new IdeResponse((object) $ideGetResponse);
+    $this->executeCommand();
 
     // Assert.
     $this->prophet->checkPredictions();
@@ -62,15 +50,9 @@ class IdeShareCommandTest extends CommandTestBase {
     $this->assertStringContainsString($this->shareCode, $output);
   }
 
-  /**
-   * Tests the 'ide:share' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeShareRegenerateCommand(): void {
-    $ide_get_response = $this->mockGetIdeRequest(IdeHelper::$remote_ide_uuid);
-    $ide = new IdeResponse((object) $ide_get_response);
+    $ideGetResponse = $this->mockGetIdeRequest(IdeHelper::$remoteIdeUuid);
+    $ide = new IdeResponse((object) $ideGetResponse);
     $this->executeCommand(['--regenerate' => TRUE], []);
 
     // Assert.

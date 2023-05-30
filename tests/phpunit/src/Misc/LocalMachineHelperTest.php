@@ -4,15 +4,12 @@ namespace Acquia\Cli\Tests\Misc;
 
 use Acquia\Cli\Tests\TestBase;
 
-/**
- * Class LocalMachineHelperTest.
- */
 class LocalMachineHelperTest extends TestBase {
 
   public function testStartBrowser(): void {
     putenv('DISPLAY=1');
-    $local_machine_helper = $this->localMachineHelper;
-    $opened = $local_machine_helper->startBrowser('https://google.com', 'cat');
+    $localMachineHelper = $this->localMachineHelper;
+    $opened = $localMachineHelper->startBrowser('https://google.com', 'cat');
     $this->assertTrue($opened, 'Failed to open browser');
     putenv('DISPLAY');
   }
@@ -31,18 +28,17 @@ class LocalMachineHelperTest extends TestBase {
   /**
    * @dataProvider providerTestExecuteFromCmd()
    * @param $interactive
-   * @param $is_tty
-   * @param $print_output
-   * @throws \Exception
+   * @param $isTty
+   * @param $printOutput
    */
-  public function testExecuteFromCmd($interactive, $is_tty, $print_output): void {
-    $local_machine_helper = $this->localMachineHelper;
-    $local_machine_helper->setIsTty($is_tty);
+  public function testExecuteFromCmd($interactive, $isTty, $printOutput): void {
+    $localMachineHelper = $this->localMachineHelper;
+    $localMachineHelper->setIsTty($isTty);
     $this->input->setInteractive($interactive);
-    $process = $local_machine_helper->executeFromCmd('echo "hello world"', NULL, NULL, $print_output);
+    $process = $localMachineHelper->executeFromCmd('echo "hello world"', NULL, NULL, $printOutput);
     $this->assertTrue($process->isSuccessful());
     $buffer = $this->output->fetch();
-    if ($print_output === FALSE) {
+    if ($printOutput === FALSE) {
       $this->assertEmpty($buffer);
     }
     else {
@@ -50,20 +46,17 @@ class LocalMachineHelperTest extends TestBase {
     }
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function testExecuteWithCwd(): void {
     $this->setupFsFixture();
-    $local_machine_helper = $this->localMachineHelper;
-    $process = $local_machine_helper->execute(['ls', '-lash'], NULL, $this->fixtureDir, FALSE);
+    $localMachineHelper = $this->localMachineHelper;
+    $process = $localMachineHelper->execute(['ls', '-lash'], NULL, $this->fixtureDir, FALSE);
     $this->assertTrue($process->isSuccessful());
     $this->assertStringContainsString('xdebug.ini', $process->getOutput());
   }
 
   public function testCommandExists(): void {
-    $local_machine_helper = $this->localMachineHelper;
-    $exists = $local_machine_helper->commandExists('cat');
+    $localMachineHelper = $this->localMachineHelper;
+    $exists = $localMachineHelper->commandExists('cat');
     $this->assertIsBool($exists);
   }
 

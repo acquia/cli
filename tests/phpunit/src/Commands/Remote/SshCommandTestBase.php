@@ -6,21 +6,13 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Process\Process;
 
-/**
- * Class SshCommandTestBase.
- *
- * @package Acquia\Cli\Tests\Remote
- */
 abstract class SshCommandTestBase extends CommandTestBase {
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockForGetEnvironmentFromAliasArg(): void {
-    $applications_response = $this->mockApplicationsRequest(1);
-    $this->mockEnvironmentsRequest($applications_response);
+    $applicationsResponse = $this->mockApplicationsRequest(1);
+    $this->mockEnvironmentsRequest($applicationsResponse);
     $this->clientProphecy->addQuery('filter', 'hosting=@*:devcloud2')->shouldBeCalled();
-    $this->mockAccountRequest();
+    $this->mockRequest('getAccount');
   }
 
   /**
@@ -30,9 +22,9 @@ abstract class SshCommandTestBase extends CommandTestBase {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $process->getExitCode()->willReturn(0);
-    $local_machine_helper = $this->prophet->prophesize(LocalMachineHelper::class);
-    $local_machine_helper->useTty()->willReturn(FALSE)->shouldBeCalled();
-    return [$process, $local_machine_helper];
+    $localMachineHelper = $this->prophet->prophesize(LocalMachineHelper::class);
+    $localMachineHelper->useTty()->willReturn(FALSE)->shouldBeCalled();
+    return [$process, $localMachineHelper];
   }
 
 }

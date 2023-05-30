@@ -8,11 +8,6 @@ trait IdeCommandTrait {
 
   private string $phpVersionFilePath;
 
-  /**
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   * @throws \Acquia\Cli\Exception\AcquiaCliException
-   */
   private function getIdePhpVersion(): ?string {
     try {
       return trim($this->localMachineHelper->readFile($this->getIdePhpVersionFilePath()));

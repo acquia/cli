@@ -4,29 +4,22 @@ namespace Acquia\Cli\DataStore;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
-/**
- * Class YamlStore
- *
- * @package Acquia\Cli\DataStore
- */
 class JsonDataStore extends Datastore {
 
   /**
    * Creates a new store.
    *
-   * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $config_definition
-   * @throws \JsonException
-   * @throws \JsonException
+   * @param \Symfony\Component\Config\Definition\ConfigurationInterface|null $configDefinition
    */
-  public function __construct(string $path, ConfigurationInterface $config_definition = NULL) {
+  public function __construct(string $path, ConfigurationInterface $configDefinition = NULL) {
     parent::__construct($path);
     if ($this->fileSystem->exists($path)) {
       $array = json_decode(file_get_contents($path), TRUE, 512, JSON_THROW_ON_ERROR);
       $array = $this->expander->expandArrayProperties($array);
       $cleaned = $this->cleanLegacyConfig($array);
 
-      if ($config_definition) {
-        $array = $this->processConfig($array, $config_definition, $path);
+      if ($configDefinition) {
+        $array = $this->processConfig($array, $configDefinition, $path);
       }
       $this->data->import($array);
 
@@ -37,9 +30,6 @@ class JsonDataStore extends Datastore {
     }
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function dump(): void {
     $this->fileSystem->dumpFile($this->filepath, json_encode($this->data->export(), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT));
   }

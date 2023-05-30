@@ -7,27 +7,16 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeListCommandTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeListCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeListCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeListCommand::class);
   }
 
-  /**
-   * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeListCommand(): void {
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
     $inputs = [
@@ -54,13 +43,8 @@ class IdeListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('IDE URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.ides.acquia.com', $output);
   }
 
-  /**
-   * Tests the 'ide:list' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeListEmptyCommand(): void {
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $this->clientProphecy->request('get',
       '/applications/a47ac10b-58cc-4372-a567-0e02b2c3d470/ides')

@@ -5,31 +5,22 @@ namespace Acquia\Cli\Command\App;
 use Acquia\Cli\Command\CommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Path;
 
-/**
- * Class NewCommand.
- */
 class NewCommand extends CommandBase {
 
   protected static $defaultName = 'app:new:local';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Create a new Drupal or Next.js project')
       ->addArgument('directory', InputArgument::OPTIONAL, 'The destination directory')
       ->setAliases(['new']);
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     $this->output->writeln('Acquia recommends most customers use <options=bold>acquia/drupal-recommended-project</> to setup a Drupal project, which includes useful utilities such as Acquia Connector.');
     $this->output->writeln('<options=bold>acquia/next-acms</> is a starter template for building a headless site powered by Acquia CMS and Next.js.');
@@ -54,12 +45,12 @@ class NewCommand extends CommandBase {
     $output->writeln('<info>Creating project. This may take a few minutes.</info>');
 
     if ($project === 'acquia_next_acms') {
-      $success_message = "<info>New Next JS project created in $dir. 🎉</info>";
+      $successMessage = "<info>New Next JS project created in $dir. 🎉</info>";
       $this->localMachineHelper->checkRequiredBinariesExist(['node']);
       $this->createNextJsProject($dir);
     }
     else {
-      $success_message = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
+      $successMessage = "<info>New 💧 Drupal project created in $dir. 🎉</info>";
       $this->localMachineHelper->checkRequiredBinariesExist(['composer']);
       $this->createDrupalProject($distros[$project], $dir);
     }
@@ -67,18 +58,15 @@ class NewCommand extends CommandBase {
     $this->initializeGitRepository($dir);
 
     $output->writeln('');
-    $output->writeln($success_message);
+    $output->writeln($successMessage);
 
-    return 0;
+    return Command::SUCCESS;
   }
 
   protected function commandRequiresAuthentication(): bool {
     return FALSE;
   }
 
-  /**
-   * @throws \Exception
-   */
   private function createNextJsProject(string $dir): void {
     $process = $this->localMachineHelper->execute([
       'npx',
@@ -92,10 +80,6 @@ class NewCommand extends CommandBase {
     }
   }
 
-  /**
-   * @param $project
-   * @throws \Exception
-   */
   private function createDrupalProject($project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',
@@ -109,9 +93,6 @@ class NewCommand extends CommandBase {
     }
   }
 
-  /**
-   * @throws \Exception
-   */
   private function initializeGitRepository(string $dir): void {
     if ($this->localMachineHelper->getFilesystem()->exists(Path::join($dir, '.git'))) {
       $this->logger->debug('.git directory detected, skipping Git repo initialization');

@@ -15,8 +15,6 @@ use AcquiaCloudApi\Connector\ConnectorInterface;
  * This class is only necessary as a testing shim, so that we can prophesize
  * client queries. Consumers could otherwise just call
  * Client::factory($connector) directly.
- *
- * @package Acquia\Cli\Helpers
  */
 class ClientService implements ClientServiceInterface {
 
@@ -25,12 +23,9 @@ class ClientService implements ClientServiceInterface {
   protected Application $application;
   protected ?bool $machineIsAuthenticated = NULL;
 
-  /**
-   * @param \Acquia\Cli\CloudApi\ConnectorFactory $connector_factory
-   */
-  public function __construct(ConnectorFactoryInterface $connector_factory, Application $application, protected ApiCredentialsInterface $credentials) {
-    $this->connectorFactory = $connector_factory;
-    $this->setConnector($connector_factory->createConnector());
+  public function __construct(ConnectorFactoryInterface $connectorFactory, Application $application, protected ApiCredentialsInterface $credentials) {
+    $this->connectorFactory = $connectorFactory;
+    $this->setConnector($connectorFactory->createConnector());
     $this->setApplication($application);
   }
 
@@ -50,14 +45,14 @@ class ClientService implements ClientServiceInterface {
   }
 
   protected function configureClient(Client $client): void {
-    $user_agent = sprintf("acli/%s", $this->application->getVersion());
-    $custom_headers = [
-      'User-Agent' => [$user_agent],
+    $userAgent = sprintf("acli/%s", $this->application->getVersion());
+    $customHeaders = [
+      'User-Agent' => [$userAgent],
     ];
     if ($uuid = getenv("REMOTEIDE_UUID")) {
-      $custom_headers['X-Cloud-IDE-UUID'] = $uuid;
+      $customHeaders['X-Cloud-IDE-UUID'] = $uuid;
     }
-    $client->addOption('headers', $custom_headers);
+    $client->addOption('headers', $customHeaders);
   }
 
   public function isMachineAuthenticated(): bool {

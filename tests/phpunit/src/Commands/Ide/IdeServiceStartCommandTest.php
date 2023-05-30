@@ -8,31 +8,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
 /**
- * Class IdeServiceStartCommandTest.
- *
  * @property IdeServiceStartCommandTest $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeServiceStartCommandTest extends CommandTestBase {
 
   use IdeRequiredTestTrait;
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeServiceStartCommand::class);
   }
 
-  /**
-   * Tests the 'ide:service-start' command.
-   *
-   * @throws \Exception
-   */
   public function testIdeServiceStartCommand(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockStartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockStartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->executeCommand(['service' => 'php'], []);
 
     // Assert.
@@ -41,15 +30,10 @@ class IdeServiceStartCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Starting php', $output);
   }
 
-  /**
-   * Tests the 'ide:service-start' command with invalid choice.
-   *
-   * @throws \Exception
-   */
   public function testIdeServiceStartCommandInvalid(): void {
-    $local_machine_helper = $this->mockLocalMachineHelper();
-    $this->mockStartPhp($local_machine_helper);
-    $this->command->localMachineHelper = $local_machine_helper->reveal();
+    $localMachineHelper = $this->mockLocalMachineHelper();
+    $this->mockStartPhp($localMachineHelper);
+    $this->command->localMachineHelper = $localMachineHelper->reveal();
     $this->expectException(ValidatorException::class);
     $this->expectExceptionMessage('Specify a valid service name');
     $this->executeCommand(['service' => 'rambulator'], []);

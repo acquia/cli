@@ -3,21 +3,16 @@
 namespace Acquia\Cli\Command\Pull;
 
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class RefreshCommand.
- */
 class PullCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:all';
 
-  /**
-   * {inheritdoc}
-   */
   protected function configure(): void {
     $this->setAliases(['refresh', 'pull'])
       ->setDescription('Copy code, database, and files from a Cloud Platform environment')
@@ -36,11 +31,6 @@ class PullCommand extends PullCommandBase {
       ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   * @throws \GuzzleHttp\Exception\GuzzleException
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
     parent::execute($input, $output);
 
@@ -60,7 +50,7 @@ class PullCommand extends PullCommandBase {
       $this->executeAllScripts($input, $this->getOutputCallback($output, $this->checklist));
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

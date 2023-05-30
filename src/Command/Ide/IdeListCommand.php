@@ -3,43 +3,34 @@
 namespace Acquia\Cli\Command\Ide;
 
 use AcquiaCloudApi\Endpoints\Ides;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class IdeListCommand.
- */
 class IdeListCommand extends IdeCommandBase {
 
   protected static $defaultName = 'ide:list:app';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('List available Cloud IDEs belonging to a given application');
     $this->setAliases(['ide:list']);
     $this->acceptApplicationUuid();
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    $application_uuid = $this->determineCloudApplication();
+    $applicationUuid = $this->determineCloudApplication();
 
-    $acquia_cloud_client = $this->cloudApiClientService->getClient();
-    $ides_resource = new Ides($acquia_cloud_client);
-    $application_ides = $ides_resource->getAll($application_uuid);
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $idesResource = new Ides($acquiaCloudClient);
+    $applicationIdes = $idesResource->getAll($applicationUuid);
 
-    if ($application_ides->count()) {
+    if ($applicationIdes->count()) {
       $table = new Table($output);
       $table->setStyle('borderless');
       $table->setHeaders(['IDEs']);
-      foreach ($application_ides as $ide) {
+      foreach ($applicationIdes as $ide) {
         $table->addRows([
           ["<comment>{$ide->label} ({$ide->owner->mail})</comment>"],
           ["IDE URL: <href={$ide->links->ide->href}>{$ide->links->ide->href}</>"],
@@ -53,7 +44,7 @@ class IdeListCommand extends IdeCommandBase {
       $output->writeln('No IDE exists for this application.');
     }
 
-    return 0;
+    return Command::SUCCESS;
   }
 
 }

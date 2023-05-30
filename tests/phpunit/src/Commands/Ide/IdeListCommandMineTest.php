@@ -7,35 +7,24 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeListCommandMineTest.
- *
  * @property \Acquia\Cli\Command\Ide\IdeListMineCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeListCommandMineTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeListMineCommand::class);
   }
 
-  /**
-   * Tests the 'ide:list-mine' commands.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeListMineCommand(): void {
-    $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-    $ides_response = $this->mockAccountIdeListRequest();
-    foreach ($ides_response->{'_embedded'}->items as $key => $ide) {
-      $application_response = $applications_response->{'_embedded'}->items[$key];
-      $app_url_parts = explode('/', $ide->_links->application->href);
-      $app_uuid = end($app_url_parts);
-      $application_response->uuid = $app_uuid;
-      $this->clientProphecy->request('get', '/applications/' . $app_uuid)
-        ->willReturn($application_response)
+    $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+    $idesResponse = $this->mockAccountIdeListRequest();
+    foreach ($idesResponse->{'_embedded'}->items as $key => $ide) {
+      $applicationResponse = $applicationsResponse->{'_embedded'}->items[$key];
+      $appUrlParts = explode('/', $ide->_links->application->href);
+      $appUuid = end($appUrlParts);
+      $applicationResponse->uuid = $appUuid;
+      $this->clientProphecy->request('get', '/applications/' . $appUuid)
+        ->willReturn($applicationResponse)
         ->shouldBeCalled();
     }
 
@@ -67,9 +56,6 @@ class IdeListCommandMineTest extends CommandTestBase {
     $this->assertStringContainsString('Web URL: https://feea197a-9503-4441-9f49-b4d420b0ecf8.web.ahdev.cloud', $output);
   }
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   protected function mockAccountIdeListRequest(): object {
     $response = $this->getMockResponseFromSpec('/account/ides',
       'get', '200');

@@ -13,26 +13,15 @@ class AcsfListCommandTest extends CommandTestBase {
   protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
-  /**
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
   }
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AcsfListCommand::class);
   }
 
-  /**
-   * Tests the 'acsf:list' command.
-   *
-   * @throws \Exception
-   */
   public function testAcsfListCommand(): void {
     $this->executeCommand();
     $output = $this->getDisplay();
@@ -41,11 +30,6 @@ class AcsfListCommandTest extends CommandTestBase {
     $this->assertStringContainsString('acsf:info:audit-events-find', $output);
   }
 
-  /**
-   * Tests the 'acsf:*' list commands.
-   *
-   * @throws \Exception
-   */
   public function testApiNamespaceListCommand(): void {
     $this->command = $this->injectCommand(AcsfListCommandBase::class);
     $name = 'acsf:api';
@@ -57,11 +41,6 @@ class AcsfListCommandTest extends CommandTestBase {
     $this->assertStringNotContainsString('acsf:groups', $output);
   }
 
-  /**
-   * Tests the 'list' command.
-   *
-   * @throws \Exception
-   */
   public function testListCommand(): void {
     $this->command = new ListCommand('list');
     $this->executeCommand();

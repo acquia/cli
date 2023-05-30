@@ -8,39 +8,27 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class LinkCommandTest.
- *
  * @property \Acquia\Cli\Command\App\LinkCommand $command
- * @package Acquia\Cli\Tests\Commands
  */
 class LinkCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(LinkCommand::class);
   }
 
-  /**
-   * Tests the 'link' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
-   */
   public function testLinkCommand(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
 
     $inputs = [
       // Would you like Acquia CLI to search for a Cloud application that matches your local git config?
       'n',
       // Select a Cloud Platform application.
-      0
+      0,
     ];
     $this->executeCommand([], $inputs);
     $output = $this->getDisplay();
-    $this->assertEquals($applications_response->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
+    $this->assertEquals($applicationsResponse->{'_embedded'}->items[0]->uuid, $this->datastoreAcli->get('cloud_app_uuid'));
     $this->assertStringContainsString('There is no Cloud Platform application linked to', $output);
     $this->assertStringContainsString('Select a Cloud Platform application', $output);
     $this->assertStringContainsString('[0] Sample application 1', $output);
@@ -48,33 +36,21 @@ class LinkCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The Cloud application Sample application 1 has been linked', $output);
   }
 
-  /**
-   * Tests the 'link' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testLinkCommandAlreadyLinked(): void {
     $this->createMockAcliConfigFile('a47ac10b-58cc-4372-a567-0e02b2c3d470');
     $this->mockApplicationRequest();
-    $this->executeCommand([], []);
+    $this->executeCommand();
     $output = $this->getDisplay();
     $this->assertStringContainsString('This repository is already linked to Cloud application', $output);
     $this->assertEquals(1, $this->getStatusCode());
   }
 
-  /**
-   * Tests the 'link' command.
-   *
-   * @throws \Exception
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testLinkCommandInvalidDir(): void {
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->command->setProjectDir('');
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('Could not find a local Drupal project.');
-    $this->executeCommand([], []);
+    $this->executeCommand();
   }
 
 }

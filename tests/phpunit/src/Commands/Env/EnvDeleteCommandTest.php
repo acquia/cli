@@ -5,31 +5,23 @@ namespace Acquia\Cli\Tests\Commands\Env;
 use Acquia\Cli\Command\Env\EnvDeleteCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Tests\CommandTestBase;
-use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class DeleteCdeCommandTest.
- *
  * @property \Acquia\Cli\Command\Env\EnvDeleteCommand $command
- * @package Acquia\Cli\Tests\Commands\Env
  */
 class EnvDeleteCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(EnvDeleteCommand::class);
   }
 
   /**
    * @return array
-   * @throws \Psr\Cache\InvalidArgumentException
    */
   public function providerTestDeleteCde(): array {
-    $environment_response = $this->getMockEnvironmentsResponse();
-    $environment = $environment_response->_embedded->items[0];
+    $environmentResponse = $this->getMockEnvironmentsResponse();
+    $environment = $environmentResponse->_embedded->items[0];
     return [
       [$environment->id],
       [NULL],
@@ -37,17 +29,14 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'app:environment:delete' command.
-   *
    * @dataProvider providerTestDeleteCde
-   * @throws \Exception|\Psr\Cache\InvalidArgumentException
    */
-  public function testDeleteCde($environment_id): void {
-    $applications_response = $this->mockApplicationsRequest();
-    $application_response = $this->mockApplicationRequest();
-    $environments_response = $this->mockEnvironmentsRequest($applications_response);
+  public function testDeleteCde($environmentId): void {
+    $applicationsResponse = $this->mockApplicationsRequest();
+    $this->mockApplicationRequest();
+    $this->mockEnvironmentsRequest($applicationsResponse);
 
-    $response1 = $this->getMockEnvironmentsResponse();
+    $this->getMockEnvironmentsResponse();
     $response2 = $this->getMockEnvironmentsResponse();
     $cde = $response2->_embedded->items[0];
     $cde->flags->cde = TRUE;
@@ -55,30 +44,25 @@ class EnvDeleteCommandTest extends CommandTestBase {
     $cde->label = $label;
     $response2->_embedded->items[3] = $cde;
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response2->_embedded->items)
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $environmentsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'delete', 202);
     $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-      ->willReturn($environments_response)
+      ->willReturn($environmentsResponse)
       ->shouldBeCalled();
 
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $this->getMockResponseFromSpec('/environments/{environmentId}',
       'get', 200);
     $this->clientProphecy->request('get', "/environments/" . $cde->id)
       ->willReturn($cde)
       ->shouldBeCalled();
 
-    $notifications_response = $this->getMockResponseFromSpec( "/notifications/{notificationUuid}", 'get', '200');
-    $this->clientProphecy->request('get', Argument::containingString("/notifications/"))
-      ->willReturn($notifications_response)
-      ->shouldBeCalled();
-
     $this->executeCommand(
       [
-        'environmentId' => $environment_id,
+        'environmentId' => $environmentId,
       ],
       [
         // Would you like Acquia CLI to search for a Cloud application that matches your local git config?'
@@ -87,10 +71,9 @@ class EnvDeleteCommandTest extends CommandTestBase {
         0,
       ]
     );
-
     $output = $this->getDisplay();
     $this->assertEquals(0, $this->getStatusCode());
-    $this->assertStringContainsString("The {$cde->label} environment is being deleted", $output);
+    $this->assertStringContainsString("The $cde->label environment is being deleted", $output);
 
   }
 
@@ -98,9 +81,9 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the case when no CDE available for application.
    */
   public function testNoExistingCDEEnvironment(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
-    $this->mockEnvironmentsRequest($applications_response);
+    $this->mockEnvironmentsRequest($applicationsResponse);
 
     $this->expectException(AcquiaCliException::class);
     $this->expectExceptionMessage('There are no existing CDEs for Application');
@@ -119,7 +102,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
    * Tests the case when multiple CDE available for application.
    */
   public function testNoEnvironmentArgumentPassed(): void {
-    $applications_response = $this->mockApplicationsRequest();
+    $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $response = $this->getMockEnvironmentsResponse();
     foreach ($response->{'_embedded'}->items as $key => $env) {
@@ -127,15 +110,15 @@ class EnvDeleteCommandTest extends CommandTestBase {
       $response->{'_embedded'}->items[$key] = $env;
     }
     $this->clientProphecy->request('get',
-      "/applications/{$applications_response->{'_embedded'}->items[0]->uuid}/environments")
+      "/applications/{$applicationsResponse->{'_embedded'}->items[0]->uuid}/environments")
       ->willReturn($response->_embedded->items)
       ->shouldBeCalled();
 
     $cde = $response->_embedded->items[0];
-    $environments_response = $this->getMockResponseFromSpec('/environments/{environmentId}',
+    $environmentsResponse = $this->getMockResponseFromSpec('/environments/{environmentId}',
       'delete', 202);
     $this->clientProphecy->request('delete', "/environments/" . $cde->id)
-      ->willReturn($environments_response)
+      ->willReturn($environmentsResponse)
       ->shouldBeCalled();
 
     $this->executeCommand([],

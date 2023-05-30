@@ -11,23 +11,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Filesystem\Path;
 
 /**
- * Class AliasesDownloadCommandTest.
- *
  * @property AliasesDownloadCommand $command
- * @package Acquia\Cli\Tests\Remote
  */
 class AliasesDownloadCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(AliasesDownloadCommand::class);
   }
 
-  /**
-   * @throws \JsonException
-   */
   public function setUp($output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
@@ -47,43 +38,38 @@ class AliasesDownloadCommandTest extends CommandTestBase {
   }
 
   /**
-   * Tests the 'remote:aliases:download' command.
-   *
    * @param array $inputs
    * @param array $args
-   * @param string|null $destination_dir
+   * @param string|null $destinationDir
    * @param bool $all
    *   Download aliases for all applications.
-   * @throws \JsonException
-   * @throws \Psr\Cache\InvalidArgumentException
-   * @throws \Exception
    * @dataProvider providerTestRemoteAliasesDownloadCommand
    */
-  public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destination_dir = NULL, bool $all = FALSE): void {
-    $alias_version = $inputs[0];
+  public function testRemoteAliasesDownloadCommand(array $inputs, array $args, string $destinationDir = NULL, bool $all = FALSE): void {
+    $aliasVersion = $inputs[0];
 
-    $drush_aliases_fixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
-    $drush_aliases_tarball_fixture_filepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
-    $archive_fixture = new PharData($drush_aliases_tarball_fixture_filepath . '.tar');
-    $archive_fixture->buildFromDirectory($drush_aliases_fixture);
-    $archive_fixture->compress(Phar::GZ);
+    $drushAliasesFixture = Path::canonicalize(__DIR__ . '/../../../../fixtures/drush-aliases');
+    $drushAliasesTarballFixtureFilepath = tempnam(sys_get_temp_dir(), 'AcquiaDrushAliases');
+    $archiveFixture = new PharData($drushAliasesTarballFixtureFilepath . '.tar');
+    $archiveFixture->buildFromDirectory($drushAliasesFixture);
+    $archiveFixture->compress(Phar::GZ);
 
-    $stream = Utils::streamFor(file_get_contents($drush_aliases_tarball_fixture_filepath . '.tar.gz'));
-    $this->clientProphecy->addQuery('version', $alias_version);
+    $stream = Utils::streamFor(file_get_contents($drushAliasesTarballFixtureFilepath . '.tar.gz'));
+    $this->clientProphecy->addQuery('version', $aliasVersion);
     $this->clientProphecy->stream('get', '/account/drush-aliases/download')->willReturn($stream);
-    $drush_archive_filepath = $this->command->getDrushArchiveTempFilepath();
+    $drushArchiveFilepath = $this->command->getDrushArchiveTempFilepath();
 
-    $destination_dir = $destination_dir ?? Path::join($this->acliRepoRoot, 'drush');
-    if ($alias_version === '8') {
-      $home_dir = $this->getTempDir();
-      putenv('HOME=' . $home_dir);
-      $destination_dir = Path::join($home_dir, '.drush');
+    $destinationDir = $destinationDir ?? Path::join($this->acliRepoRoot, 'drush');
+    if ($aliasVersion === '8') {
+      $homeDir = $this->getTempDir();
+      putenv('HOME=' . $homeDir);
+      $destinationDir = Path::join($homeDir, '.drush');
     }
-    if ($alias_version === '9' && !$all) {
-      $applications_response = $this->getMockResponseFromSpec('/applications', 'get', '200');
-      $cloud_application = $applications_response->{'_embedded'}->items[0];
-      $cloud_application_uuid = $cloud_application->uuid;
-      $this->createMockAcliConfigFile($cloud_application_uuid);
+    if ($aliasVersion === '9' && !$all) {
+      $applicationsResponse = $this->getMockResponseFromSpec('/applications', 'get', '200');
+      $cloudApplication = $applicationsResponse->{'_embedded'}->items[0];
+      $cloudApplicationUuid = $cloudApplication->uuid;
+      $this->createMockAcliConfigFile($cloudApplicationUuid);
       $this->mockApplicationRequest();
     }
 
@@ -93,9 +79,9 @@ class AliasesDownloadCommandTest extends CommandTestBase {
     $this->prophet->checkPredictions();
     $output = $this->getDisplay();
 
-    $this->assertFileDoesNotExist($drush_archive_filepath);
-    $this->assertFileExists($destination_dir);
-    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destination_dir, $output);
+    $this->assertFileDoesNotExist($drushArchiveFilepath);
+    $this->assertFileExists($destinationDir);
+    $this->assertStringContainsString('Cloud Platform Drush aliases installed into ' . $destinationDir, $output);
 
   }
 

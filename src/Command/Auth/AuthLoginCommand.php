@@ -3,20 +3,15 @@
 namespace Acquia\Cli\Command\Auth;
 
 use Acquia\Cli\Command\CommandBase;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class AuthLoginCommand.
- */
 class AuthLoginCommand extends CommandBase {
 
   protected static $defaultName = 'auth:login';
 
-  /**
-   * {inheritdoc}.
-   */
   protected function configure(): void {
     $this->setDescription('Register your Cloud API key and secret to use API functionality')
       ->setAliases(['login'])
@@ -28,16 +23,11 @@ class AuthLoginCommand extends CommandBase {
     return FALSE;
   }
 
-  /**
-   * @return int 0 if everything went fine, or an exit code
-   * @throws \Exception
-   */
   protected function execute(InputInterface $input, OutputInterface $output): int {
-    /** @var \Acquia\Cli\DataStore\CloudDataStore $cloud_datastore */
     if ($this->cloudApiClientService->isMachineAuthenticated()) {
       $answer = $this->io->confirm('Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?');
       if (!$answer) {
-        return 0;
+        return Command::SUCCESS;
       }
     }
 
@@ -47,41 +37,38 @@ class AuthLoginCommand extends CommandBase {
         $keys[$uuid]['uuid'] = $uuid;
       }
       $keys['create_new'] = [
-        'uuid' => 'create_new',
         'label' => 'Enter a new API key',
+        'uuid' => 'create_new',
       ];
-      $selected_key = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
-      if ($selected_key['uuid'] !== 'create_new') {
-        $this->datastoreCloud->set('acli_key', $selected_key['uuid']);
-        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selected_key['label']}</></info>");
+      $selectedKey = $this->promptChooseFromObjectsOrArrays($keys, 'uuid', 'label', 'Choose which API key to use');
+      if ($selectedKey['uuid'] !== 'create_new') {
+        $this->datastoreCloud->set('acli_key', $selectedKey['uuid']);
+        $output->writeln("<info>Acquia CLI will use the API Key <options=bold>{$selectedKey['label']}</></info>");
         $this->reAuthenticate($this->cloudCredentials->getCloudKey(), $this->cloudCredentials->getCloudSecret(), $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-        return 0;
+        return Command::SUCCESS;
       }
     }
 
     $this->promptOpenBrowserToCreateToken($input);
-    $api_key = $this->determineApiKey($input);
-    $api_secret = $this->determineApiSecret($input);
-    $this->reAuthenticate($api_key, $api_secret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
-    $this->writeApiCredentialsToDisk($api_key, $api_secret);
+    $apiKey = $this->determineApiKey();
+    $apiSecret = $this->determineApiSecret();
+    $this->reAuthenticate($apiKey, $apiSecret, $this->cloudCredentials->getBaseUri(), $this->cloudCredentials->getAccountsUri());
+    $this->writeApiCredentialsToDisk($apiKey, $apiSecret);
     $output->writeln("<info>Saved credentials</info>");
 
-    return 0;
+    return Command::SUCCESS;
   }
 
-  /**
-   * @throws \Exception
-   */
-  private function writeApiCredentialsToDisk(string $api_key, string $api_secret): void {
-    $token_info = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$api_key}");
+  private function writeApiCredentialsToDisk(string $apiKey, string $apiSecret): void {
+    $tokenInfo = $this->cloudApiClientService->getClient()->request('get', "/account/tokens/{$apiKey}");
     $keys = $this->datastoreCloud->get('keys');
-    $keys[$api_key] = [
-      'label' => $token_info->label,
-      'uuid' => $api_key,
-      'secret' => $api_secret,
+    $keys[$apiKey] = [
+      'label' => $tokenInfo->label,
+      'secret' => $apiSecret,
+      'uuid' => $apiKey,
     ];
     $this->datastoreCloud->set('keys', $keys);
-    $this->datastoreCloud->set('acli_key', $api_key);
+    $this->datastoreCloud->set('acli_key', $apiKey);
   }
 
 }

@@ -7,16 +7,10 @@ use Acquia\Cli\Tests\CommandTestBase;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * Class IdeOpenCommandTest.
- *
  * @property IdeOpenCommand $command
- * @package Acquia\Cli\Tests\Ide
  */
 class IdeOpenCommandTest extends CommandTestBase {
 
-  /**
-   * {@inheritdoc}
-   */
   protected function createCommand(): Command {
     return $this->injectCommand(IdeOpenCommand::class);
   }
@@ -31,14 +25,9 @@ class IdeOpenCommandTest extends CommandTestBase {
     putenv('DISPLAY');
   }
 
-  /**
-   * Tests the 'ide:open' command.
-   *
-   * @throws \Psr\Cache\InvalidArgumentException
-   */
   public function testIdeOpenCommand(): void {
 
-    $this->mockApplicationsRequest();
+    $this->mockRequest('getApplications');
     $this->mockApplicationRequest();
     $this->mockIdeListRequest();
 
