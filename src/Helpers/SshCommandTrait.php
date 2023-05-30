@@ -2,6 +2,7 @@
 
 namespace Acquia\Cli\Helpers;
 
+use Acquia\Cli\Exception\AcquiaCliException;
 use AcquiaCloudApi\Connector\Client;
 use AcquiaCloudApi\Endpoints\SshKeys;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -38,7 +39,11 @@ trait SshCommandTrait {
   }
 
   private function determineCloudKey(Client $acquiaCloudClient): object|array|null {
-    $cloudKeys = $acquiaCloudClient->request('get', '/account/ssh-keys');
+    $sshKeys = new SshKeys($acquiaCloudClient);
+    $cloudKeys = $sshKeys->getAll();
+    if (!$cloudKeys->count()) {
+      throw new AcquiaCliException('There are no SSH keys associated with your account.');
+    }
     return $this->promptChooseFromObjectsOrArrays(
       $cloudKeys,
       'uuid',
