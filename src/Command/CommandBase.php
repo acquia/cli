@@ -347,7 +347,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   ): object|array|null {
     $environmentResource = new Environments($acquiaCloudClient);
     $environments = $environmentResource->getAll($applicationUuid);
-    // @todo Make sure there are actually environments here.
+    if (!$environments->count()) {
+      throw new AcquiaCliException('There are no environments associated with this application.');
+    }
     return $this->promptChooseFromObjectsOrArrays(
       $environments,
       'uuid',
