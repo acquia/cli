@@ -18,12 +18,12 @@ class EnvDbCredsTest extends CommandTestBase {
   private string $dbHost;
 
   public function setUp($output = NULL): void {
-    parent::setUp();
     $this->dbUser = 'myuserisgood';
     $this->dbPassword = 'mypasswordisgreat';
     $this->dbName = 'mynameisgrand';
     $this->dbHost = 'myhostismeh';
     TestBase::setEnvVars($this->getEnvVars());
+    parent::setUp();
   }
 
   public function tearDown(): void {
@@ -31,7 +31,7 @@ class EnvDbCredsTest extends CommandTestBase {
     TestBase::unsetEnvVars($this->getEnvVars());
   }
 
-  protected function getEnvVars() {
+  protected function getEnvVars(): array {
     return [
       'ACLI_DB_HOST' => $this->dbHost,
       'ACLI_DB_NAME' => $this->dbName,
@@ -45,10 +45,10 @@ class EnvDbCredsTest extends CommandTestBase {
   }
 
   public function testEnvDbCreds(): void {
-    $this->assertEquals($this->dbUser, $this->command->getDefaultLocalDbUser());
-    $this->assertEquals($this->dbPassword, $this->command->getDefaultLocalDbPassword());
-    $this->assertEquals($this->dbName, $this->command->getDefaultLocalDbName());
-    $this->assertEquals($this->dbHost, $this->command->getDefaultLocalDbHost());
+    $this->assertEquals($this->dbUser, $this->command->getLocalDbUser());
+    $this->assertEquals($this->dbPassword, $this->command->getLocalDbPassword());
+    $this->assertEquals($this->dbName, $this->command->getLocalDbName());
+    $this->assertEquals($this->dbHost, $this->command->getLocalDbHost());
   }
 
 }

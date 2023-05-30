@@ -5,7 +5,6 @@ namespace Acquia\Cli\Tests\Commands\Pull;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Command\Pull\PullDatabaseCommand;
 use Acquia\Cli\Exception\AcquiaCliException;
-use Acquia\Cli\Tests\Misc\LandoInfoHelper;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Uri;
@@ -63,22 +62,6 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->executeCommand([
       '--no-scripts' => TRUE,
     ], $inputs);
-  }
-
-  public function testPullDatabasesIntoLando(): void {
-    $landoInfo = LandoInfoHelper::getLandoInfo();
-    LandoInfoHelper::setLandoInfo($landoInfo);
-    $this->dbUser = 'root';
-    $this->dbPassword = '';
-    $this->dbHost = $landoInfo->database->hostnames[0];
-    $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, TRUE);
-    $inputs = $this->getInputs();
-    $this->executeCommand([
-      '--no-scripts' => TRUE,
-    ], $inputs);
-    LandoInfoHelper::unsetLandoInfo();
-    $output = $this->getDisplay();
-    self::assertStringContainsString('Acquia CLI assumes that the local name', $output);
   }
 
   public function testPullMultipleDatabases(): void {

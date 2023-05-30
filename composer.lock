@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "49936cde0111cb4a898a8780c642da58",
+    "content-hash": "d644b8a50858ca37172630c3c1a0255f",
     "packages": [
         {
             "name": "acquia/drupal-environment-detector",
@@ -1694,27 +1694,26 @@
         },
         {
             "name": "ltd-beget/dns-zone-configurator",
-            "version": "dev-php-update",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/grasmash/dns-zone-configurator.git",
-                "reference": "9df020c18eeec1b657e129c124d6d6332a03f778"
+                "url": "https://github.com/LTD-Beget/dns-zone-configurator.git",
+                "reference": "6fae81d140be8594b4752474d7ccf251bcd5e64f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/grasmash/dns-zone-configurator/zipball/9df020c18eeec1b657e129c124d6d6332a03f778",
-                "reference": "9df020c18eeec1b657e129c124d6d6332a03f778",
+                "url": "https://api.github.com/repos/LTD-Beget/dns-zone-configurator/zipball/6fae81d140be8594b4752474d7ccf251bcd5e64f",
+                "reference": "6fae81d140be8594b4752474d7ccf251bcd5e64f",
                 "shasum": ""
             },
             "require": {
-                "laminas/laminas-validator": "^2.14",
-                "ltd-beget/dns-zone-tokenizer": "~0.0.6",
-                "marc-mabe/php-enum": "^4.6.1",
-                "php": "^7.4 | ^8"
+                "laminas/laminas-validator": "^2.30.1",
+                "ltd-beget/dns-zone-tokenizer": "~0.0.10",
+                "marc-mabe/php-enum": ">=2.2",
+                "php": ">=8.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~7.3",
-                "theseer/phpdox": "~0.8",
+                "phpunit/phpunit": "~8.5.33",
                 "tideways/profiler": "~2.0"
             },
             "type": "library",
@@ -1723,11 +1722,7 @@
                     "LTDBeget\\dns": "src"
                 }
             },
-            "autoload-dev": {
-                "psr-0": {
-                    "LTDBeget\\dev": "src"
-                }
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1743,9 +1738,10 @@
                 "zone file"
             ],
             "support": {
-                "source": "https://github.com/grasmash/dns-zone-configurator/tree/php-update"
+                "issues": "https://github.com/LTD-Beget/dns-zone-configurator/issues",
+                "source": "https://github.com/LTD-Beget/dns-zone-configurator/tree/v1.3.0"
             },
-            "time": "2022-04-22T02:11:48+00:00"
+            "time": "2023-05-15T15:34:16+00:00"
         },
         {
             "name": "ltd-beget/dns-zone-tokenizer",
@@ -13079,7 +13075,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "ltd-beget/dns-zone-configurator": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": true,
