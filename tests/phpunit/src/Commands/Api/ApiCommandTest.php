@@ -406,8 +406,59 @@ class ApiCommandTest extends CommandTestBase {
     $this->fs->dumpFile($bltConfigFilePath, Yaml::dump(['cloud' => ['appId' => $mockBody->uuid]]));
     $this->executeCommand();
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->fs->remove($bltConfigFilePath);
+  }
+
+  /**
+   * Test of deletion of the user from organization by user uuid.
+   */
+  public function testOrganizationMemberDeleteByUserUuid(): void {
+    $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
+    $memberUuid = '26c4af83-545b-45cb-b165-d537adc9e0b4';
+
+    $this->mockRequest('postOrganizationMemberDelete', [$orgId, $memberUuid], NULL, 'Member removed');
+
+    $this->command = $this->getApiCommandByName('api:organizations:member-delete');
+    $this->executeCommand(
+      [
+        'organizationUuid' => $orgId,
+        'userUuid' => $memberUuid,
+      ],
+    );
+
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+    $this->assertStringContainsString("Organization member removed", $output);
+  }
+
+  /**
+   * Test of deletion of the user from organization by user email.
+   */
+  public function testOrganizationMemberDeleteByUserEmail(): void {
+    $membersResponse = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members', 'get', 200);
+    $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
+    $memberUuid = $membersResponse->_embedded->items[0]->mail;
+    $this->clientProphecy->request('get', '/organizations/' . $orgId . '/members')
+      ->willReturn($membersResponse->_embedded->items)->shouldBeCalled();
+
+    $response = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members/{userUuid}', 'delete', 200);
+    $this->clientProphecy->request('delete', '/organizations/' . $orgId . '/members/' . $membersResponse->_embedded->items[0]->uuid)
+      ->willReturn($response->{'Member removed'}->value)->shouldBeCalled();
+
+    $this->command = $this->getApiCommandByName('api:organizations:member-delete');
+    $this->executeCommand(
+      [
+        'organizationUuid' => $orgId,
+        'userUuid' => $memberUuid,
+      ],
+    );
+
+    $this->prophet->checkPredictions();
+    $output = $this->getDisplay();
+    $this->assertEquals(0, $this->getStatusCode());
+    $this->assertStringContainsString("Organization member removed", $output);
   }
 
 }

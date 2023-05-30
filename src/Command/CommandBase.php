@@ -23,6 +23,7 @@ use AcquiaCloudApi\Endpoints\Applications;
 use AcquiaCloudApi\Endpoints\Environments;
 use AcquiaCloudApi\Endpoints\Ides;
 use AcquiaCloudApi\Endpoints\Notifications;
+use AcquiaCloudApi\Endpoints\Organizations;
 use AcquiaCloudApi\Endpoints\Subscriptions;
 use AcquiaCloudApi\Response\AccountResponse;
 use AcquiaCloudApi\Response\ApplicationResponse;
@@ -191,6 +192,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
     $this->fillMissingRequiredApplicationUuid($input, $output);
     $this->convertApplicationAliasToUuid($input);
+    $this->convertUserAliasToUuid($input, 'userUuid', 'organizationUuid');
     $this->convertEnvironmentAliasToUuid($input, 'environmentId');
     $this->convertEnvironmentAliasToUuid($input, 'source-environment');
     $this->convertEnvironmentAliasToUuid($input, 'destination-environment');
@@ -994,6 +996,67 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
         $input->setArgument('applicationUuid', $applicationUuid);
       }
     }
+  }
+
+  private function convertUserAliasToUuid(InputInterface $input, string $userUuidArgument, string $orgUuidArgument): void {
+    if ($input->hasArgument($userUuidArgument)
+      && $input->getArgument($userUuidArgument)
+      && $input->hasArgument($orgUuidArgument)
+      && $input->getArgument($orgUuidArgument)
+    ) {
+      $userUuID = $input->getArgument($userUuidArgument);
+      $orgUuid = $input->getArgument($orgUuidArgument);
+      $userUuid = $this->validateUserUuid($userUuID, $orgUuid);
+      $input->setArgument($userUuidArgument, $userUuid);
+    }
+  }
+
+  /**
+   * @param String $userAlias
+   *   User alias like uuid or email.
+   * @param String $orgUuidArgument
+   *   Organization uuid.
+   * @return string
+   *   User uuid from alias
+   */
+  private function validateUserUuid(string $userUuidArgument, string $orgUuidArgument): string {
+    try {
+      self::validateUuid($userUuidArgument);
+    }
+    catch (ValidatorException) {
+      // Since this isn't a valid UUID, assuming this is email address.
+      return $this->getUserUuidFromUserAlias($userUuidArgument, $orgUuidArgument);
+    }
+
+    return $userUuidArgument;
+  }
+
+  /**
+   * @param String $userAlias
+   *   User alias like uuid or email.
+   * @param String $orgUuidArgument
+   *   Organization uuid.
+   * @return string
+   *   User uuid from alias
+   */
+  private function getUserUuidFromUserAlias(string $userAlias, string $orgUuidArgument): string {
+    $acquiaCloudClient = $this->cloudApiClientService->getClient();
+    $organizationResource = new Organizations($acquiaCloudClient);
+    $orgMembers = $organizationResource->getMembers($orgUuidArgument);
+
+    // If there are no members.
+    if (count($orgMembers) === 0) {
+      return $userAlias;
+    }
+
+    foreach ($orgMembers as $member) {
+      // If email matches with any member.
+      if ($member->mail === $userAlias) {
+        return $member->uuid;
+      }
+    }
+
+    return $userAlias;
   }
 
   protected function convertApplicationAliasToUuid(InputInterface $input): void {
