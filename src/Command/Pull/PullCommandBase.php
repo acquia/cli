@@ -109,7 +109,7 @@ abstract class PullCommandBase extends CommandBase {
   protected function pullDatabase(InputInterface $input, OutputInterface $output, bool $onDemand = FALSE, bool $noImport = FALSE, bool $multipleDbs = FALSE): void {
     if (!$noImport) {
       // Verify database connection.
-      $this->connectToLocalDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
+      $this->connectToLocalDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $this->getOutputCallback($output, $this->checklist));
     }
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $sourceEnvironment = $this->determineEnvironment($input, $output, TRUE);
@@ -809,23 +809,22 @@ abstract class PullCommandBase extends CommandBase {
   private function importRemoteDatabase(DatabaseResponse $database, string $localFilepath, Closure $outputCallback = NULL): void {
     if ($database->flags->default) {
       // Easy case, import the default db into the default db.
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $localFilepath, $outputCallback);
+      $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
     }
     else if (AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !getenv('IDE_ENABLE_MULTISITE')) {
       // Import non-default db into default db. Needed on legacy IDE without multiple dbs.
       // @todo remove this case once all IDEs support multiple dbs.
-      $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getDefaultLocalDbName()}");
-      $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $this->getDefaultLocalDbName(), $this->getDefaultLocalDbPassword(), $localFilepath, $outputCallback);
+      $this->io->note("Cloud IDE only supports importing into the default Drupal database. Acquia CLI will import the NON-DEFAULT database {$database->name} into the DEFAULT database {$this->getLocalDbName()}");
+      $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $this->getLocalDbName(), $this->getLocalDbPassword(), $localFilepath, $outputCallback);
     }
     else {
       // Import non-default db into non-default db.
       $this->io->note("Acquia CLI assumes that the local name for the {$database->name} database is also {$database->name}");
       if (AcquiaDrupalEnvironmentDetector::isLandoEnv() || AcquiaDrupalEnvironmentDetector::isAhIdeEnv()) {
-        $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), 'root', $database->name, '', $localFilepath, $outputCallback);
+        $this->doImportRemoteDatabase($this->getLocalDbHost(), 'root', $database->name, '', $localFilepath, $outputCallback);
       }
       else {
-        $this->doImportRemoteDatabase($this->getDefaultLocalDbHost(), $this->getDefaultLocalDbUser(), $database->name, $this->getDefaultLocalDbPassword(), $localFilepath, $outputCallback);
-
+        $this->doImportRemoteDatabase($this->getLocalDbHost(), $this->getLocalDbUser(), $database->name, $this->getLocalDbPassword(), $localFilepath, $outputCallback);
       }
     }
   }

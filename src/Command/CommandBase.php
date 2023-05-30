@@ -76,20 +76,16 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected OutputInterface $output;
 
   protected SymfonyStyle $io;
-
   protected FormatterHelper $formatter;
-
   private ApplicationResponse $cloudApplication;
 
-  protected $dir;
-
-  protected $localDbUser;
-  protected $localDbPassword;
-  protected $localDbName;
-  protected $localDbHost;
+  protected string $dir;
+  protected string $localDbUser = 'drupal';
+  protected string $localDbPassword = 'drupal';
+  protected string $localDbName = 'drupal';
+  protected string $localDbHost = 'localhost';
 
   protected bool $drushHasActiveDatabaseConnection;
-
   protected \GuzzleHttp\Client $updateClient;
 
   public function __construct(
@@ -107,6 +103,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     protected \GuzzleHttp\Client $httpClient
   ) {
     $this->logger = $logger;
+    $this->setLocalDbPassword();
+    $this->setLocalDbUser();
+    $this->setLocalDbName();
+    $this->setLocalDbHost();
     parent::__construct();
   }
 
@@ -126,74 +126,42 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   private function setLocalDbUser(): void {
-    $this->localDbUser = 'drupal';
-    if ($landoInfo = self::getLandoInfo()) {
-      $this->localDbUser = $landoInfo->database->creds->user;
-    }
     if (getenv('ACLI_DB_USER')) {
       $this->localDbUser = getenv('ACLI_DB_USER');
     }
   }
 
-  public function getDefaultLocalDbUser() {
-    if (!isset($this->localDbUser)) {
-      $this->setLocalDbUser();
-    }
-
+  public function getLocalDbUser(): string {
     return $this->localDbUser;
   }
 
   private function setLocalDbPassword(): void {
-    $this->localDbPassword = 'drupal';
-    if ($landoInfo = self::getLandoInfo()) {
-      $this->localDbPassword = $landoInfo->database->creds->password;
-    }
     if (getenv('ACLI_DB_PASSWORD')) {
       $this->localDbPassword = getenv('ACLI_DB_PASSWORD');
     }
   }
 
-  public function getDefaultLocalDbPassword(): mixed {
-    if (!isset($this->localDbPassword)) {
-      $this->setLocalDbPassword();
-    }
-
+  public function getLocalDbPassword(): string {
     return $this->localDbPassword;
   }
 
   private function setLocalDbName(): void {
-    $this->localDbName = 'drupal';
-    if ($landoInfo = self::getLandoInfo()) {
-      $this->localDbName = $landoInfo->database->creds->database;
-    }
     if (getenv('ACLI_DB_NAME')) {
       $this->localDbName = getenv('ACLI_DB_NAME');
     }
   }
 
-  public function getDefaultLocalDbName(): mixed {
-    if (!isset($this->localDbName)) {
-      $this->setLocalDbName();
-    }
-
+  public function getLocalDbName(): string {
     return $this->localDbName;
   }
 
   private function setLocalDbHost(): void {
-    $this->localDbHost = 'localhost';
-    if ($landoInfo = self::getLandoInfo()) {
-      $this->localDbHost = $landoInfo->database->hostnames[0];
-    }
     if (getenv('ACLI_DB_HOST')) {
       $this->localDbHost = getenv('ACLI_DB_HOST');
     }
   }
 
-  public function getDefaultLocalDbHost(): mixed {
-    if (!isset($this->localDbHost)) {
-      $this->setLocalDbHost();
-    }
-
+  public function getLocalDbHost(): string {
     return $this->localDbHost;
   }
 
@@ -1137,15 +1105,8 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
 
-  public static function getLandoInfo() {
-    if ($landoInfo = AcquiaDrupalEnvironmentDetector::getLandoInfo()) {
-      return json_decode($landoInfo, FALSE, 512, JSON_THROW_ON_ERROR);
-    }
-    return NULL;
-  }
-
-  public static function isLandoEnv(): bool {
-    return (bool) self::getLandoInfo();
+  protected static function isLandoEnv(): bool {
+    return AcquiaDrupalEnvironmentDetector::isLandoEnv();
   }
 
   protected function reAuthenticate(string $apiKey, string $apiSecret, ?string $baseUri, ?string $accountsUri): void {
