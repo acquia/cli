@@ -1105,7 +1105,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->io->choice('Choose a site', $sites, $sites[0]);
   }
 
-  public static function isLandoEnv(): bool {
+  protected static function isLandoEnv(): bool {
     return AcquiaDrupalEnvironmentDetector::isLandoEnv();
   }
 
