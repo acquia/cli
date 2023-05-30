@@ -290,12 +290,16 @@ abstract class TestBase extends TestCase {
     return json_decode($responseBody, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
-  protected function getPathAndMethodFromSpec(string $operationId): array {
+  protected function getPathMethodCodeFromSpec(string $operationId): array {
     $acquiaCloudSpec = $this->getCloudApiSpec();
     foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
       foreach ($methodEndpoint as $method => $endpoint) {
         if ($endpoint['operationId'] === $operationId) {
-          return [$path, $method];
+          foreach ($endpoint['responses'] as $code => $response) {
+            if ($code >= 200 && $code < 300) {
+              return [$path, $method, $code];
+            }
+          }
         }
       }
     }
@@ -414,9 +418,8 @@ abstract class TestBase extends TestCase {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
-  protected function mockRequest(string $operationId, ?string $param = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
-    [$path, $method] = $this->getPathAndMethodFromSpec($operationId);
-    $code = $method === 'get' ? '200' : '202';
+  protected function mockRequest(string $operationId, string|array|null $params = NULL, ?array $body = NULL, ?string $exampleResponse = NULL, \Closure $tamper = NULL): object|array {
+    [$path, $method, $code] = $this->getPathMethodCodeFromSpec($operationId);
     $response = $this->getMockResponseFromSpec($path, $method, $code);
 
     // This is a set of example responses.
@@ -430,8 +433,13 @@ abstract class TestBase extends TestCase {
     if (isset($tamper)) {
       $tamper($response);
     }
-    if (isset($param)) {
-      $path = preg_replace('/\{.*}/', $param, $path);
+    if (isset($params)) {
+      if (is_string($params)) {
+        $params = [$params];
+      }
+      foreach ($params as $param) {
+        $path = preg_replace('/\{\w*}/', $param, $path, 1);
+      }
     }
     $this->clientProphecy->request($method, $path, $body)
       ->willReturn($response)

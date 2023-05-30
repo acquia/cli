@@ -406,7 +406,7 @@ class ApiCommandTest extends CommandTestBase {
     $this->fs->dumpFile($bltConfigFilePath, Yaml::dump(['cloud' => ['appId' => $mockBody->uuid]]));
     $this->executeCommand();
     $this->prophet->checkPredictions();
-    $output = $this->getDisplay();
+    $this->getDisplay();
     $this->fs->remove($bltConfigFilePath);
   }
 
@@ -417,9 +417,7 @@ class ApiCommandTest extends CommandTestBase {
     $orgId = 'bfafd31a-83a6-4257-b0ec-afdeff83117a';
     $memberUuid = '26c4af83-545b-45cb-b165-d537adc9e0b4';
 
-    $response = $this->getMockResponseFromSpec('/organizations/{organizationUuid}/members/{userUuid}', 'delete', 200);
-    $this->clientProphecy->request('delete', '/organizations/' . $orgId . '/members/' . $memberUuid)
-      ->willReturn($response->{'Member removed'}->value)->shouldBeCalled();
+    $this->mockRequest('postOrganizationMemberDelete', [$orgId, $memberUuid], NULL, 'Member removed');
 
     $this->command = $this->getApiCommandByName('api:organizations:member-delete');
     $this->executeCommand(
