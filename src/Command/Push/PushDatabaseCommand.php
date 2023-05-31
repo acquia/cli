@@ -5,7 +5,6 @@ namespace Acquia\Cli\Command\Push;
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\Cli\Output\Checklist;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Response\DatabaseResponse;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Command\Command;
@@ -16,12 +15,15 @@ class PushDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'push:database';
 
+  protected function commandRequiresDatabase(): bool {
+    return TRUE;
+  }
+
   protected function configure(): void {
-    $this->setDescription('Push a database from your IDE to a Cloud Platform environment')
+    $this->setDescription('Push a database from your local environment to a Cloud Platform environment')
       ->setAliases(['push:db'])
       ->acceptEnvironmentId()
-      ->acceptSite()
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+      ->acceptSite();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

@@ -4,7 +4,6 @@ namespace Acquia\Cli\Command\Push;
 
 use Acquia\Cli\Command\Pull\PullCommandBase;
 use Acquia\Cli\Output\Checklist;
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use AcquiaCloudApi\Response\EnvironmentResponse;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +14,9 @@ class PushFilesCommand extends PullCommandBase {
   protected static $defaultName = 'push:files';
 
   protected function configure(): void {
-    $this->setDescription('Push Drupal files from your IDE to a Cloud Platform environment')
+    $this->setDescription('Push Drupal files from your local environment to a Cloud Platform environment')
       ->acceptEnvironmentId()
-      ->acceptSite()
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+      ->acceptSite();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {

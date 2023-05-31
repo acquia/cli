@@ -2,7 +2,6 @@
 
 namespace Acquia\Cli\Command\Pull;
 
-use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -11,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 class PullDatabaseCommand extends PullCommandBase {
 
   protected static $defaultName = 'pull:database';
+
+  protected function commandRequiresDatabase(): bool {
+    return TRUE;
+  }
 
   protected function configure(): void {
     $this->setDescription('Import database backup from a Cloud Platform environment')
@@ -25,8 +28,7 @@ class PullDatabaseCommand extends PullCommandBase {
       ->addOption('no-import', NULL, InputOption::VALUE_NONE,
       'Download the backup but do not import it (implies --no-scripts)')
       ->addOption('multiple-dbs', NULL, InputOption::VALUE_NONE,
-        'Download multiple dbs. Defaults to FALSE.')
-      ->setHidden(!AcquiaDrupalEnvironmentDetector::isAhIdeEnv() && !self::isLandoEnv());
+        'Download multiple dbs. Defaults to FALSE.');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
