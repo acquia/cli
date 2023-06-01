@@ -6,6 +6,9 @@ use Acquia\Cli\ConnectorFactoryInterface;
 
 class AcsfConnectorFactory implements ConnectorFactoryInterface {
 
+  /**
+   * @param array<string> $config
+   */
   public function __construct(protected array $config, protected ?string $baseUri = NULL) {
   }
 

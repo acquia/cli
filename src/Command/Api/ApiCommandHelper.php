@@ -171,7 +171,7 @@ class ApiCommandHelper {
    * @param $type
    * @param $usage
    */
-  private function addPostArgumentUsageToExample($requestBody, $propKey, $paramDefinition, $type, $usage): string {
+  private function addPostArgumentUsageToExample($requestBody, $propKey, $paramDefinition, string $type, string $usage): string {
     $requestBodyContent = $this->getRequestBodyContent($requestBody);
 
     if (array_key_exists('example', $requestBodyContent)) {
@@ -283,7 +283,7 @@ class ApiCommandHelper {
     return $acquiaCloudSpec['components']['schemas'][$paramKey];
   }
 
-  private function isApiSpecChecksumCacheValid($cacheItem, string $acquiaCloudSpecFileChecksum): bool {
+  private function isApiSpecChecksumCacheValid(\Symfony\Component\Cache\CacheItem $cacheItem, string $acquiaCloudSpecFileChecksum): bool {
     // If the spec file doesn't exist, assume cache is valid.
     if ($cacheItem->isHit() && !$acquiaCloudSpecFileChecksum) {
       return TRUE;
@@ -428,7 +428,7 @@ class ApiCommandHelper {
    * @param $acquiaCloudSpec
    * @return array
    */
-  private function getRequestBodyFromParameterSchema(array $schema, $acquiaCloudSpec): array {
+  private function getRequestBodyFromParameterSchema(array $schema, array $acquiaCloudSpec): array {
     $requestBodyContent = $this->getRequestBodyContent($schema['requestBody']);
     $requestBodySchema = $requestBodyContent['schema'];
 

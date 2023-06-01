@@ -187,7 +187,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * @param $subscription
    * @param $subscriptionApplications
    */
-  private function renderApplicationAssociations(OutputInterface $output, Client $client, $subscription, $subscriptionApplications): void {
+  private function renderApplicationAssociations(OutputInterface $output, Client $client, \AcquiaCloudApi\Response\SubscriptionResponse $subscription, array $subscriptionApplications): void {
     $appsDomainsTable = $this->createApplicationDomainsTable($output);
     $writerAppsDomains = Writer::createFromPath("./subscription-$subscription->uuid-domains/apps-domain-associations.csv", 'w+');
 
