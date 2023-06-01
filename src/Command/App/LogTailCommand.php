@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LogTailCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'app:log:tail';
 
   protected function configure(): void {

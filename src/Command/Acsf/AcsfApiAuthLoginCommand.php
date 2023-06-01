@@ -9,6 +9,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AcsfApiAuthLoginCommand extends AcsfCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'auth:acsf-login';
 
   protected function configure(): void {

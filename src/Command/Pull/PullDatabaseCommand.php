@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullDatabaseCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'pull:database';
 
   protected function configure(): void {

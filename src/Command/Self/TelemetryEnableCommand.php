@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TelemetryEnableCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'self:telemetry:enable';
 
   protected function commandRequiresAuthentication(): bool {

@@ -12,6 +12,9 @@ class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ide:delete';
 
   protected function configure(): void {

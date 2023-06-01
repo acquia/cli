@@ -13,6 +13,9 @@ use Symfony\Component\Validator\Validation;
 
 class IdeServiceRestartCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ide:service-restart';
 
   protected function commandRequiresAuthentication(): bool {

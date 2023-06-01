@@ -9,6 +9,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LinkCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'app:link';
 
   protected function configure(): void {

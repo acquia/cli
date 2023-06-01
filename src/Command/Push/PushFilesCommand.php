@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PushFilesCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'push:files';
 
   protected function configure(): void {

@@ -17,6 +17,9 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'codestudio:pipelines-migrate';
 
   protected function configure(): void {

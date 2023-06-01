@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SshCommand extends SshBaseCommand {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'remote:ssh';
 
   protected function configure(): void {

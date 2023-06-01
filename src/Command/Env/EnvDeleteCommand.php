@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvDeleteCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'env:delete';
 
   protected function configure(): void {

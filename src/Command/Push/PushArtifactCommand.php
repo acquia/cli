@@ -15,6 +15,9 @@ use Symfony\Component\Filesystem\Path;
 
 class PushArtifactCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'push:artifact';
 
   /**

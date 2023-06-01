@@ -10,6 +10,9 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class DocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'docs';
 
   protected function configure(): void {

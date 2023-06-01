@@ -11,6 +11,9 @@ class SshKeyDeleteCommand extends SshKeyCommandBase {
 
   use SshCommandTrait;
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ssh-key:delete';
 
   protected function configure(): void {

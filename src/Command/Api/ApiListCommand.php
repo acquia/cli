@@ -4,6 +4,9 @@ namespace Acquia\Cli\Command\Api;
 
 class ApiListCommand extends ApiListCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'api:list';
   protected string $namespace = 'api';
 

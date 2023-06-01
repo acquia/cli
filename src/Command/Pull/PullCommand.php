@@ -11,6 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'pull:all';
 
   protected function configure(): void {

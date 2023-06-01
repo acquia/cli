@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AliasListCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'remote:aliases:list';
 
   protected function configure(): void {

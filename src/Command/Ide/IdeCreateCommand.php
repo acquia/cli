@@ -19,6 +19,9 @@ use Symfony\Component\Validator\Validation;
 
 class IdeCreateCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ide:create';
 
   private IdeResponse $ide;

@@ -11,6 +11,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeListCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ide:list:app';
 
   protected function configure(): void {

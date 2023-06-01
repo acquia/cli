@@ -13,6 +13,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppVcsInfo extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'app:vcs:info';
 
   protected function configure(): void {

@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyListCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ssh-key:list';
 
   protected function configure(): void {

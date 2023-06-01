@@ -16,6 +16,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvMirrorCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'env:mirror';
 
   private Checklist $checklist;

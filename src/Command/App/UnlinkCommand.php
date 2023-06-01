@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UnlinkCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'app:unlink';
 
   protected function configure(): void {

@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeListMineCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'ide:list:mine';
 
   protected function configure(): void {

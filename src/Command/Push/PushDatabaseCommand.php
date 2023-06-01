@@ -14,6 +14,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PushDatabaseCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'push:database';
 
   protected function configure(): void {

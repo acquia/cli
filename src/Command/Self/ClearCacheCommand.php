@@ -11,6 +11,9 @@ use Symfony\Component\Filesystem\Path;
 
 class ClearCacheCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'self:clear-caches';
 
   protected function configure(): void {

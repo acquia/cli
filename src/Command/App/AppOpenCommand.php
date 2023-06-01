@@ -10,6 +10,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppOpenCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'app:open';
 
   protected function configure(): void {

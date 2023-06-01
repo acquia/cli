@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCopyCronCommand extends CommandBase {
 
+  /**
+   * @var string
+   */
   protected static $defaultName = 'env:cron-copy';
 
   protected function configure(): void {
