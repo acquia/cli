@@ -252,10 +252,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptApplicationUuid(): static {
     $this->addArgument('applicationUuid', InputArgument::OPTIONAL, 'The Cloud Platform application UUID or alias (i.e. an application name optionally prefixed with the realm)')
-      ->addUsage(self::getDefaultName() . ' [<applicationAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp')
-      ->addUsage(self::getDefaultName() . ' prod:myapp')
-      ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<applicationAlias>]')
+      ->addUsage('myapp')
+      ->addUsage('prod:myapp')
+      ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
   }
@@ -265,10 +265,10 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    */
   protected function acceptEnvironmentId(): static {
     $this->addArgument('environmentId', InputArgument::OPTIONAL, 'The Cloud Platform environment ID or alias (i.e. an application and environment name optionally prefixed with the realm)')
-      ->addUsage(self::getDefaultName() . ' [<environmentAlias>]')
-      ->addUsage(self::getDefaultName() . ' myapp.dev')
-      ->addUsage(self::getDefaultName() . ' prod:myapp.dev')
-      ->addUsage(self::getDefaultName() . ' 12345-abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('[<environmentAlias>]')
+      ->addUsage('myapp.dev')
+      ->addUsage('prod:myapp.dev')
+      ->addUsage('12345-abcd1234-1111-2222-3333-0e02b2c3d470');
 
     return $this;
   }
@@ -283,7 +283,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function acceptSite(): self {
     // Do not set a default site in order to force a user prompt.
     $this->addArgument('site', InputArgument::OPTIONAL, 'For a multisite application, the directory name of the site')
-      ->addUsage(self::getDefaultName() . ' myapp.dev default');
+      ->addUsage('myapp.dev default');
 
     return $this;
   }

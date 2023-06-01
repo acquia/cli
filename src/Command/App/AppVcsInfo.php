@@ -18,7 +18,7 @@ class AppVcsInfo extends CommandBase {
   protected function configure(): void {
     $this->setDescription('Get all branches and tags of the application with the deployment status')
       ->addOption('deployed', NULL, InputOption::VALUE_OPTIONAL, 'Show only deployed branches and tags')
-      ->addUsage(self::getDefaultName() . ' [<applicationAlias>] --deployed');
+      ->addUsage('[<applicationAlias>] --deployed');
     $this->acceptApplicationUuid();
   }
 

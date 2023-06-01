@@ -15,7 +15,7 @@ class DocsCommand extends CommandBase {
   protected function configure(): void {
     $this->setDescription('Open Acquia product documentation in a web browser')
       ->addArgument('product', InputArgument::OPTIONAL, 'Acquia Product Name')
-      ->addUsage(self::getDefaultName() . ' acli');
+      ->addUsage('acli');
   }
 
   protected function commandRequiresAuthentication(): bool {

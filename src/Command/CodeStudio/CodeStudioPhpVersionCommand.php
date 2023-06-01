@@ -17,8 +17,8 @@ class CodeStudioPhpVersionCommand extends CommandBase {
   protected function configure(): void {
     $this->setDescription('Change the PHP version in Code Studio')
       ->addArgument('php-version', InputArgument::REQUIRED, 'The PHP version that needs to configured or updated')
-      ->addUsage(self::getDefaultName() . ' 8.1 myapp')
-      ->addUsage(self::getDefaultName() . ' 8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('8.1 myapp')
+      ->addUsage('8.1 abcd1234-1111-2222-3333-0e02b2c3d470');
     $this->acceptApplicationUuid();
     $this->acceptGitlabOptions();
   }

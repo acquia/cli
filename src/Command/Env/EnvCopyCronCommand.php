@@ -18,9 +18,9 @@ class EnvCopyCronCommand extends CommandBase {
     $this->setDescription('Copy all cron tasks from one Acquia Cloud Platform environment to another')
       ->addArgument('source_env', InputArgument::REQUIRED, 'Alias of the source environment in the format `app-name.env` or the environment uuid')
       ->addArgument('dest_env', InputArgument::REQUIRED, 'Alias of the destination environment in the format `app-name.env` or the environment uuid')
-      ->addUsage(self::getDefaultName() . ' <srcEnvironmentAlias> <destEnvironmentAlias>')
-      ->addUsage(self::getDefaultName() . ' myapp.dev myapp.prod')
-      ->addUsage(self::getDefaultName() . ' abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
+      ->addUsage('<srcEnvironmentAlias> <destEnvironmentAlias>')
+      ->addUsage('myapp.dev myapp.prod')
+      ->addUsage('abcd1234-1111-2222-3333-0e02b2c3d470 efgh1234-1111-2222-3333-0e02b2c3d470');
   }
 
   protected function execute(InputInterface $input, OutputInterface $output): int {
