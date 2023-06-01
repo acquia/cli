@@ -383,7 +383,7 @@ class ApiBaseCommand extends CommandBase {
       case 'environmentId':
         // @todo Provide a list of environment IDs.
       case 'source':
-        $question->setValidator(function ($value) use ($argument) {
+        $question->setValidator(function ($value) use ($argument): string {
           return $this->validateEnvironmentUuid($value, $argument->getName());
         });
         break;

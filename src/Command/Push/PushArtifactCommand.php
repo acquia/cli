@@ -121,7 +121,7 @@ class PushArtifactCommand extends PullCommandBase {
     return Command::SUCCESS;
   }
 
-  private function determineDestinationGitUrls($applicationUuid): mixed {
+  private function determineDestinationGitUrls(?string $applicationUuid): mixed {
     if ($this->input->getOption('destination-git-urls')) {
       return $this->input->getOption('destination-git-urls');
     }

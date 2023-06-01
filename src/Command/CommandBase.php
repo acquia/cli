@@ -362,7 +362,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Prompts the user to choose from a list of logs for a given Cloud Platform environment.
    */
   protected function promptChooseLogs(): object|array|null {
-    $logs = array_map(static function ($logType, $logLabel) {
+    $logs = array_map(static function ($logType, $logLabel): array {
       return [
         'label' => $logLabel,
         'type' => $logType,
@@ -513,7 +513,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return NULL;
   }
 
-  protected function createTable(OutputInterface $output, string $title, $headers, $widths): Table {
+  protected function createTable(OutputInterface $output, string $title, array $headers, $widths): Table {
     $terminalWidth = (new Terminal())->getWidth();
     $terminalWidth *= .90;
     $table = new Table($output);
@@ -806,13 +806,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->getEnvFromAlias($alias);
   }
 
-  private function getEnvFromAlias($alias): EnvironmentResponse {
-    return self::getAliasCache()->get($alias, function () use ($alias) {
+  private function getEnvFromAlias(string $alias): EnvironmentResponse {
+    return self::getAliasCache()->get($alias, function () use ($alias): \AcquiaCloudApi\Response\EnvironmentResponse {
       return $this->doGetEnvFromAlias($alias);
     });
   }
 
-  private function doGetEnvFromAlias($alias): EnvironmentResponse {
+  private function doGetEnvFromAlias(string $alias): EnvironmentResponse {
     $siteEnvParts = explode('.', $alias);
     [$applicationAlias, $environmentAlias] = $siteEnvParts;
     $this->logger->debug("Searching for an environment matching alias $applicationAlias.$environmentAlias.");
@@ -845,7 +845,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return new AliasCache('acli_aliases');
   }
 
-  private function doGetApplicationFromAlias($applicationAlias): mixed {
+  private function doGetApplicationFromAlias(string $applicationAlias): mixed {
     if (!strpos($applicationAlias, ':')) {
       $applicationAlias = '*:' . $applicationAlias;
     }
@@ -1285,7 +1285,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
     return $this->determineOption('key', FALSE, Closure::fromCallable([$this, 'validateApiKey']));
   }
 
-  private function validateApiKey($key): string {
+  private function validateApiKey(mixed $key): string {
     $violations = Validation::createValidator()->validate($key, [
       new Length(['min' => 10]),
       new NotBlank(),
@@ -1382,13 +1382,13 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Get the first VCS URL for a given Cloud application.
    */
   protected function getAnyVcsUrl(string $cloudAppUuid): string {
-    $environment = $this->getAnyAhEnvironment($cloudAppUuid, function () {
+    $environment = $this->getAnyAhEnvironment($cloudAppUuid, function (): bool {
       return TRUE;
     });
     return $environment->vcs->url;
   }
 
-  protected function validateApplicationUuid($applicationUuidArgument): mixed {
+  protected function validateApplicationUuid(string $applicationUuidArgument): mixed {
     try {
       self::validateUuid($applicationUuidArgument);
     }
@@ -1435,7 +1435,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   protected function waitForNotificationToComplete(Client $acquiaCloudClient, string $uuid, string $message, callable $success = NULL): void {
     $notificationsResource = new Notifications($acquiaCloudClient);
     $notification = NULL;
-    $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid) {
+    $checkNotificationStatus = static function () use ($notificationsResource, &$notification, $uuid): bool {
       $notification = $notificationsResource->get($uuid);
       return $notification->status !== 'in-progress';
     };
