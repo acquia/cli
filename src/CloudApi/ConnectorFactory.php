@@ -8,6 +8,9 @@ use League\OAuth2\Client\Token\AccessToken;
 
 class ConnectorFactory implements ConnectorFactoryInterface {
 
+  /**
+   * @param array<string> $config
+   */
   public function __construct(protected array $config, protected ?string $baseUri = NULL, protected ?string $accountsUri = NULL) {
   }
 

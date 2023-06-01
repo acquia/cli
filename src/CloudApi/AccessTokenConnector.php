@@ -16,12 +16,15 @@ class AccessTokenConnector extends Connector {
    */
   protected AbstractProvider $provider;
 
+  /**
+   * @param array<string> $config
+   */
   public function __construct(array $config, string $baseUri = NULL, string $urlAccessToken = NULL) {
     $this->accessToken = new AccessToken(['access_token' => $config['access_token']]);
     parent::__construct($config, $baseUri, $urlAccessToken);
   }
 
-  public function createRequest($verb, $path): RequestInterface {
+  public function createRequest(string $verb, string $path): RequestInterface {
     if ($file = getenv('ACLI_ACCESS_TOKEN_FILE')) {
       if (!file_exists($file)) {
         throw new AcquiaCliException('Access token file not found at {file}', ['file' => $file]);

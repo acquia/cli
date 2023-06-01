@@ -55,7 +55,7 @@ class SshHelper implements LoggerAwareInterface {
     return $process;
   }
 
-  private function sendCommand($url, $command, $printOutput, $timeout = NULL): Process {
+  private function sendCommand(?string $url, array $command, bool $printOutput, ?int $timeout = NULL): Process {
     $command = array_values($this->getSshCommand($url, $command));
     $this->localMachineHelper->checkRequiredBinariesExist(['ssh']);
 
@@ -103,7 +103,7 @@ class SshHelper implements LoggerAwareInterface {
     return $this->firstArguments($commandArgs);
   }
 
-  private function getConnectionArgs($url): array {
+  private function getConnectionArgs(string $url): array {
     return [
       'ssh',
       $url,
@@ -114,7 +114,7 @@ class SshHelper implements LoggerAwareInterface {
     ];
   }
 
-  private function getSshCommand(string $url, $command): array {
+  private function getSshCommand(string $url, array $command): array {
     return array_merge($this->getConnectionArgs($url), $command);
   }
 

@@ -163,7 +163,7 @@ class LocalMachineHelper {
     return @file_get_contents($this->getLocalFilepath($filename));
   }
 
-  public function getLocalFilepath($filepath): string {
+  public function getLocalFilepath(string $filepath): string {
     return $this->fixFilename($filepath);
   }
 

@@ -302,7 +302,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Creating .gitlab-ci.yml file.
    */
-  private function createGitLabCiFile(array $contents,$acquiaPipelinesFileName): void {
+  private function createGitLabCiFile(array $contents, string|iterable $acquiaPipelinesFileName): void {
     $gitlabCiFilepath = Path::join($this->projectDir, '.gitlab-ci.yml');
     $this->localMachineHelper->getFilesystem()->dumpFile($gitlabCiFilepath, Yaml::dump($contents, Yaml::DUMP_MULTI_LINE_LITERAL_BLOCK));
     $this->localMachineHelper->getFilesystem()->remove($acquiaPipelinesFileName);

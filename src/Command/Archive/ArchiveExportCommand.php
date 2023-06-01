@@ -132,11 +132,7 @@ class ArchiveExportCommand extends CommandBase {
     $this->fs->rename($dumpTempFilepath, $dumpFilepath);
   }
 
-  /**
-   * @param $archiveDir
-   * @param $destinationDir
-   */
-  private function compressArchiveDirectory($archiveDir, $destinationDir, Closure $outputCallback = NULL): string {
+  private function compressArchiveDirectory(string $archiveDir, string|bool|array|null $destinationDir, Closure $outputCallback = NULL): string {
     $destinationFilename = basename($archiveDir) . '.tar.gz';
     $destinationFilepath = Path::join($destinationDir, $destinationFilename);
     $this->localMachineHelper->checkRequiredBinariesExist(['tar']);

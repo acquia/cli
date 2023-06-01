@@ -81,7 +81,7 @@ class NewCommand extends CommandBase {
     }
   }
 
-  private function createDrupalProject($project, string $dir): void {
+  private function createDrupalProject(string $project, string $dir): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'create-project',

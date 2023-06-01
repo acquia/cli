@@ -17,7 +17,7 @@ abstract class IdeCommandBase extends CommandBase {
   protected function promptIdeChoice(
     string $questionText,
     Ides $idesResource,
-    $cloudApplicationUuid
+    string $cloudApplicationUuid
   ): ?IdeResponse {
     $ides = iterator_to_array($idesResource->getAll($cloudApplicationUuid));
     if (empty($ides)) {

@@ -338,7 +338,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function dropLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = NULL): void {
+  private function dropLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?\Closure $outputCallback = NULL): void {
     if ($outputCallback) {
       $outputCallback('out', "Dropping database $dbName");
     }
@@ -358,7 +358,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function createLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, callable $outputCallback = NULL): void {
+  private function createLocalDatabase(string $dbHost, string $dbUser, string $dbName, string $dbPassword, ?\Closure $outputCallback = NULL): void {
     if ($outputCallback) {
       $outputCallback('out', "Creating new empty database $dbName");
     }
@@ -511,7 +511,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function determineSite($environment, InputInterface $input): mixed {
+  private function determineSite(string|\AcquiaCloudApi\Response\EnvironmentResponse|array $environment, InputInterface $input): mixed {
     if (isset($this->site)) {
       return $this->site;
     }
@@ -679,12 +679,12 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function environmentPhpVersionMatches($environment): bool {
+  private function environmentPhpVersionMatches(\AcquiaCloudApi\Response\EnvironmentResponse $environment): bool {
     $currentPhpVersion = $this->getIdePhpVersion();
     return $environment->configuration->php->version === $currentPhpVersion;
   }
 
-  protected function executeAllScripts($input, Closure $outputCallback): void {
+  protected function executeAllScripts(\Symfony\Component\Console\Input\InputInterface $input, Closure $outputCallback): void {
     $this->setDirAndRequireProjectCwd($input);
     $this->runComposerScripts($outputCallback);
     $this->runDrushCacheClear($outputCallback);
@@ -734,7 +734,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  private function composerInstall($outputCallback): void {
+  private function composerInstall(?callable $outputCallback): void {
     $process = $this->localMachineHelper->execute([
       'composer',
       'install',
@@ -754,12 +754,9 @@ abstract class PullCommandBase extends CommandBase {
     return $database->db_host;
   }
 
-  /**
-   * @param $environment
-   */
   private function getDatabaseBackup(
     Client $acquiaCloudClient,
-    $environment,
+    string|\AcquiaCloudApi\Response\EnvironmentResponse|array $environment,
     DatabaseResponse $database
   ): mixed {
     $databaseBackups = new DatabaseBackups($acquiaCloudClient);
