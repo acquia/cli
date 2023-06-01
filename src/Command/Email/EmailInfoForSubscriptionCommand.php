@@ -60,8 +60,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders tables showing email domain verification statuses,
    * as well as exports these statuses to respective CSV files.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @param array $domainList
    */
   private function writeDomainsToTables(OutputInterface $output, SubscriptionResponse $subscription, array $domainList): void {
@@ -167,8 +165,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Verifies the number of applications present in a subscription.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @return array|null
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
@@ -188,8 +184,6 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
    * Renders a table of applications in a subscription and the email domains
    * associated or dissociated with each application.
    *
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \AcquiaCloudApi\Connector\Client $client
    * @param $subscription
    * @param $subscriptionApplications
    */

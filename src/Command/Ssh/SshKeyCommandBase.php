@@ -46,7 +46,6 @@ abstract class SshKeyCommandBase extends CommandBase {
   /**
    * @param string|null $label
    *   The label to normalize.
-   * @return string|null
    */
   public static function normalizeSshKeyLabel(?string $label): string|null {
     if (is_null($label)) {

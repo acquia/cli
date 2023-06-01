@@ -28,11 +28,8 @@ class SshHelper implements LoggerAwareInterface {
   /**
    * Execute the command in a remote environment.
    *
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse|string $target
    * @param array $commandArgs
-   * @param bool $printOutput
    * @param int|null $timeout
-   * @return \Symfony\Component\Process\Process
    */
   public function executeCommand(EnvironmentResponse|string $target, array $commandArgs, bool $printOutput = TRUE, int $timeout = NULL): Process {
     $commandSummary = $this->getCommandSummary($commandArgs);
@@ -69,7 +66,6 @@ class SshHelper implements LoggerAwareInterface {
    * Return the first item of the $commandArgs that is not an option.
    *
    * @param array $commandArgs
-   * @return string
    */
   private function firstArguments(array $commandArgs): string {
     $result = '';
@@ -102,7 +98,6 @@ class SshHelper implements LoggerAwareInterface {
    * CI scripts.
    *
    * @param array $commandArgs
-   * @return string
    */
   private function getCommandSummary(array $commandArgs): string {
     return $this->firstArguments($commandArgs);

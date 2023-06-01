@@ -155,7 +155,7 @@ class ApiCommandTest extends CommandTestBase {
    */
   public function testConvertApplicationAliasToUuidArgument(bool $support): void {
     ClearCacheCommand::clearCaches();
-    $tamper = function (&$response) {
+    $tamper = function (&$response): void {
       unset($response[1]);
     };
     $applications = $this->mockRequest('getApplications', NULL, NULL, NULL, $tamper);
@@ -166,7 +166,7 @@ class ApiCommandTest extends CommandTestBase {
     $tamper = NULL;
     if ($support) {
       $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
-      $tamper = function ($response) {
+      $tamper = function ($response): void {
         $response->flags->support = TRUE;
       };
     }

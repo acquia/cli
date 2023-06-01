@@ -71,7 +71,7 @@ class Kernel extends BaseKernel {
   private function createCollectingCompilerPass(): CompilerPassInterface {
     return new class implements CompilerPassInterface {
 
-      public function process(ContainerBuilder $containerBuilder) {
+      public function process(ContainerBuilder $containerBuilder): void {
         $appDefinition = $containerBuilder->findDefinition(Application::class);
         $dispatcherDefinition = $containerBuilder->findDefinition(EventDispatcher::class);
 

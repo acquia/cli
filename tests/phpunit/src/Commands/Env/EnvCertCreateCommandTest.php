@@ -12,7 +12,7 @@ class EnvCertCreateCommandTest extends CommandTestBase {
     return $this->injectCommand(EnvCertCreateCommand::class);
   }
 
-  public function testCreateCert() {
+  public function testCreateCert(): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockEnvironmentsRequest($applicationsResponse);

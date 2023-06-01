@@ -43,7 +43,7 @@ class TelemetryHelper {
     $bugsnag = Client::make($this->bugSnagKey);
     $bugsnag->setAppVersion($this->application->getVersion());
     $bugsnag->setProjectRoot(Path::join(__DIR__, '..'));
-    $bugsnag->registerCallback(function ($report) {
+    $bugsnag->registerCallback(function ($report): void {
       $userId = $this->getUserId();
       if (isset($userId)) {
         $report->setUser([
@@ -51,7 +51,7 @@ class TelemetryHelper {
         ]);
       }
     });
-    $bugsnag->registerCallback(function ($report) {
+    $bugsnag->registerCallback(function ($report): void {
       $context = $report->getContext();
       // Strip working directory and binary from context.
       if (str_contains($context, 'acli ')) {

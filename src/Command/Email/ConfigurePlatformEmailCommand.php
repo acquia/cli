@@ -95,7 +95,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
   /**
    * Generates Zone File for DNS records of the registered domain.
    *
-   * @param string $baseDomain
    * @param array $records
    */
   private function generateZoneFile(string $baseDomain, array $records): void {
@@ -129,8 +128,6 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @return array
    */
   private function determineApplications(Client $client, SubscriptionResponse $subscription): array {

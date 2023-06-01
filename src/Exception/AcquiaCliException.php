@@ -10,7 +10,6 @@ class AcquiaCliException extends Exception {
   /**
    * Object constructor. Sets context array as replacements property.
    *
-   * @param string|null $rawMessage
    * @param array $replacements
    *   Context array to interpolate into message.
    * @param int $code

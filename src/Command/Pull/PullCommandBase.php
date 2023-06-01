@@ -561,10 +561,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquiaCloudClient
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $chosenEnvironment
    * @param string|null $site
-   * @param bool $multipleDbs
    * @return DatabaseResponse[]
    */
   protected function determineCloudDatabases(Client $acquiaCloudClient, EnvironmentResponse $chosenEnvironment, string $site = NULL, bool $multipleDbs = FALSE): array {
@@ -758,10 +755,7 @@ abstract class PullCommandBase extends CommandBase {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $acquiaCloudClient
    * @param $environment
-   * @param \AcquiaCloudApi\Response\DatabaseResponse $database
-   * @return mixed
    */
   private function getDatabaseBackup(
     Client $acquiaCloudClient,

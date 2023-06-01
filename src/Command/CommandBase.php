@@ -596,8 +596,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Connector\Client $client
-   * @param \AcquiaCloudApi\Response\SubscriptionResponse $subscription
    * @return array
    */
   protected function getSubscriptionApplications(Client $client, SubscriptionResponse $subscription): array {
@@ -1090,7 +1088,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
 
   /**
    * @param $cloudEnvironment
-   * @return bool
    */
   protected function isAcsfEnv($cloudEnvironment): bool {
     if (str_contains($cloudEnvironment->sshUrl, 'enterprise-g1')) {
@@ -1106,7 +1103,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @param \AcquiaCloudApi\Response\EnvironmentResponse $cloudEnvironment
    * @return array
    */
   protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
@@ -1312,13 +1308,6 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * because Symfony does not make a distinction between an option value set
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
-   *
-   * @param string $optionName
-   * @param bool $hidden
-   * @param \Closure|null $validator
-   * @param \Closure|null $normalizer
-   * @param string|null $default
-   * @return string|null
    */
   protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): ?string {
     if ($optionValue = $this->input->getOption($optionName)) {
