@@ -12,9 +12,7 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'codestudio:php-version';
 
   protected function configure(): void {

@@ -9,9 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyUploadCommand extends SshKeyCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ssh-key:upload';
 
   protected function configure(): void {

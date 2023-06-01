@@ -13,9 +13,7 @@ class IdeWizardDeleteSshKeyCommand extends IdeWizardCommandBase {
 
   use SshCommandTrait;
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:wizard:ssh-key:delete';
 
   protected function configure(): void {

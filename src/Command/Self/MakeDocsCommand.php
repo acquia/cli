@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeDocsCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'self:make-docs';
 
   protected function configure(): void {

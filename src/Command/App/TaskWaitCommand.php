@@ -11,9 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TaskWaitCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'app:task-wait';
 
   protected function configure(): void {

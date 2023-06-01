@@ -19,9 +19,7 @@ use Symfony\Component\Validator\Validation;
 
 class IdeCreateCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:create';
 
   private IdeResponse $ide;

@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullScriptsCommand extends PullCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'pull:run-scripts';
 
   protected function configure(): void {

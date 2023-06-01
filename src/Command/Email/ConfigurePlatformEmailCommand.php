@@ -24,9 +24,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigurePlatformEmailCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'email:configure';
 
   protected function configure(): void {

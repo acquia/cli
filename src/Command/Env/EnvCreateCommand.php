@@ -15,9 +15,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCreateCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'env:create';
 
   private Checklist $checklist;

@@ -8,9 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AcsfApiAuthLogoutCommand extends AcsfCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'auth:acsf-logout';
 
   protected function configure(): void {

@@ -13,9 +13,7 @@ use Symfony\Component\Validator\Validation;
 
 class IdeServiceStartCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:service-start';
 
   protected function commandRequiresAuthentication(): bool {

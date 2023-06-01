@@ -7,9 +7,7 @@ use Acquia\Cli\Exception\AcquiaCliException;
 use Symfony\Component\Console\Input\InputInterface;
 
 class AcsfApiBaseCommand extends ApiBaseCommand {
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'acsf:base';
 
   protected function checkAuthentication(): void {

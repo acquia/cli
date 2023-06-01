@@ -21,9 +21,7 @@ class AliasesDownloadCommand extends SshCommand {
 
   private string $drushArchiveFilepath;
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'remote:aliases:download';
 
   protected function configure(): void {

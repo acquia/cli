@@ -17,9 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'email:info';
 
   protected function configure(): void {

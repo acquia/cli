@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AuthLoginCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'auth:login';
 
   protected function configure(): void {

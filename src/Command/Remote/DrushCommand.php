@@ -11,9 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DrushCommand extends SshBaseCommand {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'remote:drush';
 
   protected function configure(): void {

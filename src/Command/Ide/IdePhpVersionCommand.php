@@ -11,9 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdePhpVersionCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:php-version';
 
   private string $idePhpFilePathPrefix;

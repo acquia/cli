@@ -20,9 +20,7 @@ use Symfony\Component\Validator\Validation;
 
 class ApiBaseCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'api:base';
 
   protected string $method;

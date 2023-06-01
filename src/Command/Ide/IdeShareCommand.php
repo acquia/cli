@@ -13,9 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeShareCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:share';
 
   /**

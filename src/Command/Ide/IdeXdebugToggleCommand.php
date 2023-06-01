@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeXdebugToggleCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:xdebug-toggle';
 
   private ?bool $xDebugEnabled;

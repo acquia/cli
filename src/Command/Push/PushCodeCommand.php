@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PushCodeCommand extends PullCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'push:code';
 
   protected function configure(): void {

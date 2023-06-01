@@ -16,9 +16,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'codestudio:wizard';
 
   private Checklist $checklist;

@@ -12,9 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyInfoCommand extends SshKeyCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ssh-key:info';
 
   protected function configure(): void {

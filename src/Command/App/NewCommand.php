@@ -13,9 +13,7 @@ use Symfony\Component\Filesystem\Path;
 
 class NewCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'app:new:local';
 
   protected function configure(): void {

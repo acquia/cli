@@ -8,9 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class HelloWorldCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'hello-world';
 
   protected function configure(): void {

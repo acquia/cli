@@ -9,9 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullFilesCommand extends PullCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'pull:files';
 
   protected function configure(): void {

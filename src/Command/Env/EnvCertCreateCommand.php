@@ -12,9 +12,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCertCreateCommand extends CommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'env:certificate-create';
 
   protected function configure(): void {

@@ -10,9 +10,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeOpenCommand extends IdeCommandBase {
 
-  /**
-   * @var string
-   */
+  // phpcs:ignore
   protected static $defaultName = 'ide:open';
 
   protected function configure(): void {
