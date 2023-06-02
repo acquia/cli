@@ -22,7 +22,11 @@ use function safe\file_get_contents;
 class LocalMachineHelper {
   use LoggerAwareTrait;
 
-  private $isTty;
+  private ?bool $isTty;
+
+  /**
+   * @var array<bool>
+   */
   private array $installedBinaries = [];
 
   private SymfonyStyle $io;

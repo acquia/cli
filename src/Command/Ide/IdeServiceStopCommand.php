@@ -13,6 +13,10 @@ use Symfony\Component\Validator\Validation;
 
 class IdeServiceStopCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:service-stop';
 
   protected function commandRequiresAuthentication(): bool {

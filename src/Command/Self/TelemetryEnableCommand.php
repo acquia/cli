@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TelemetryEnableCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'self:telemetry:enable';
 
   protected function commandRequiresAuthentication(): bool {

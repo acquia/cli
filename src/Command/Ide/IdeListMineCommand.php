@@ -12,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeListMineCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:list:mine';
 
   protected function configure(): void {

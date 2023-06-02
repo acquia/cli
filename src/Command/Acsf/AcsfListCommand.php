@@ -4,6 +4,10 @@ namespace Acquia\Cli\Command\Acsf;
 
 class AcsfListCommand extends AcsfListCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'acsf:list';
   protected string $namespace = 'acsf';
 

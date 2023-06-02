@@ -19,6 +19,10 @@ use Symfony\Component\Validator\Validation;
 
 class IdeCreateCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:create';
 
   private IdeResponse $ide;

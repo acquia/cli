@@ -12,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCertCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:certificate-create';
 
   protected function configure(): void {

@@ -24,6 +24,10 @@ use Symfony\Component\Yaml\Yaml;
 
 class ConfigurePlatformEmailCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'email:configure';
 
   protected function configure(): void {

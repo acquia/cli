@@ -13,10 +13,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeShareCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:share';
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $shareCodeFilepaths;
 

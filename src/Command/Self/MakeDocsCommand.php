@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class MakeDocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'self:make-docs';
 
   protected function configure(): void {

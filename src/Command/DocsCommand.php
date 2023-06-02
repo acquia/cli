@@ -10,6 +10,10 @@ use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class DocsCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'docs';
 
   protected function configure(): void {

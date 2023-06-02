@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UnlinkCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:unlink';
 
   protected function configure(): void {

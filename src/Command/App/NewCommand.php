@@ -13,6 +13,10 @@ use Symfony\Component\Filesystem\Path;
 
 class NewCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:new:local';
 
   protected function configure(): void {

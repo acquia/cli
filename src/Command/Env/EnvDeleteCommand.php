@@ -12,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvDeleteCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:delete';
 
   protected function configure(): void {

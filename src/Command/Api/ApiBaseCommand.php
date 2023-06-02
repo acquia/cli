@@ -20,33 +20,39 @@ use Symfony\Component\Validator\Validation;
 
 class ApiBaseCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'api:base';
 
   protected string $method;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $responses;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $servers;
 
   protected string $path;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $queryParams = [];
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $postParams = [];
 
-  /** @var array  */
+  /**
+   * @var array<mixed>
+   */
   private array $pathParams = [];
 
   protected function configure(): void {

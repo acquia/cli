@@ -13,6 +13,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AppVcsInfo extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:vcs:info';
 
   protected function configure(): void {

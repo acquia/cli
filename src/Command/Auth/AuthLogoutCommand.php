@@ -9,6 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AuthLogoutCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'auth:logout';
 
   protected function configure(): void {

@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DrushCommand extends SshBaseCommand {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'remote:drush';
 
   protected function configure(): void {

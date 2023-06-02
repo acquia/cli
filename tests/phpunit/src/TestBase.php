@@ -70,8 +70,14 @@ abstract class TestBase extends TestCase {
 
   protected LogstreamManager|ObjectProphecy $logStreamManagerProphecy;
 
+  /**
+   * @var array<mixed>
+   */
   protected array $acliConfig = [];
 
+  /**
+   * @var array<mixed>
+   */
   protected array $cloudConfig = [];
 
   protected string $key = '17feaf34-5d04-402b-9a67-15d5161d24e1';

@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeWizardCreateSshKeyCommand extends IdeWizardCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:wizard:ssh-key:create-upload';
 
   protected function configure(): void {

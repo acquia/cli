@@ -12,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AliasListCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'remote:aliases:list';
 
   protected function configure(): void {

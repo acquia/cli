@@ -15,6 +15,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCreateCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:create';
 
   private Checklist $checklist;

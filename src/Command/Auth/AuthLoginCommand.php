@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class AuthLoginCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'auth:login';
 
   protected function configure(): void {

@@ -16,7 +16,7 @@ class IdeShareCommandTest extends CommandTestBase {
   use IdeRequiredTestTrait;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   private array $shareCodeFilepaths;
 

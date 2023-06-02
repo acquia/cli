@@ -16,6 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvMirrorCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:mirror';
 
   private Checklist $checklist;

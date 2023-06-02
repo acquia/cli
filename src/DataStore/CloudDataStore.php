@@ -7,6 +7,9 @@ use Acquia\Cli\Helpers\LocalMachineHelper;
 
 class CloudDataStore extends JsonDataStore {
 
+  /**
+   * @var array<mixed>
+   */
   protected array $config;
 
   public function __construct(

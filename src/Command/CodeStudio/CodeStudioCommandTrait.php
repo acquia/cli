@@ -21,7 +21,7 @@ trait CodeStudioCommandTrait {
   protected Client $gitLabClient;
 
   /**
-   * @var array
+   * @var array<mixed>
    */
   protected array $gitLabAccount;
 

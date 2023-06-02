@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyListCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:list';
 
   protected function configure(): void {

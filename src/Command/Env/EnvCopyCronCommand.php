@@ -12,6 +12,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EnvCopyCronCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'env:cron-copy';
 
   protected function configure(): void {

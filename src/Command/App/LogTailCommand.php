@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LogTailCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:log:tail';
 
   protected function configure(): void {

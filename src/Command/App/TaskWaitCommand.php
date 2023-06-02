@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TaskWaitCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'app:task-wait';
 
   protected function configure(): void {

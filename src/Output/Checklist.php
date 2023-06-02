@@ -7,8 +7,10 @@ use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Checklist {
+
   /**
-   * @var array*/
+   * @var array<mixed>
+   */
   private array $items = [];
 
   private int $indentLength = 4;

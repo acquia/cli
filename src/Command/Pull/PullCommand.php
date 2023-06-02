@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'pull:all';
 
   protected function configure(): void {

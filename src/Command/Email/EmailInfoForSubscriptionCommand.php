@@ -17,6 +17,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EmailInfoForSubscriptionCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'email:info';
 
   protected function configure(): void {

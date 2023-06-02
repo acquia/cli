@@ -9,6 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SshKeyCreateCommand extends SshKeyCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ssh-key:create';
 
   protected function configure(): void {

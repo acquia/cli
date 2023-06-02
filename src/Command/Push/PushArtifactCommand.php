@@ -15,15 +15,23 @@ use Symfony\Component\Filesystem\Path;
 
 class PushArtifactCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'push:artifact';
 
   /**
    * Composer vendor directories.
+   *
+   * @var array<mixed>
    */
   protected array $vendorDirs;
 
   /**
    * Composer scaffold files.
+   *
+   * @var array<mixed>
    */
   protected array $scaffoldFiles;
 

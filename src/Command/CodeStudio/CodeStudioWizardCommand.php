@@ -16,6 +16,10 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'codestudio:wizard';
 
   private Checklist $checklist;

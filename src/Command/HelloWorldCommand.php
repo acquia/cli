@@ -8,6 +8,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class HelloWorldCommand extends CommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'hello-world';
 
   protected function configure(): void {

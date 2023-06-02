@@ -10,6 +10,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class IdeInfoCommand extends IdeCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:info';
 
   protected function configure(): void {

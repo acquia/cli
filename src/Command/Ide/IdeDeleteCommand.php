@@ -12,6 +12,10 @@ class IdeDeleteCommand extends IdeCommandBase {
 
   use SshCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'ide:delete';
 
   protected function configure(): void {

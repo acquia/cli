@@ -12,6 +12,10 @@ class CodeStudioPhpVersionCommand extends CommandBase {
 
   use CodeStudioCommandTrait;
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'codestudio:php-version';
 
   protected function configure(): void {

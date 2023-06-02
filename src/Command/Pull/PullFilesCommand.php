@@ -9,6 +9,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class PullFilesCommand extends PullCommandBase {
 
+  /**
+   * @var string
+   * @phpcsSuppress SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
+   */
   protected static $defaultName = 'pull:files';
 
   protected function configure(): void {
