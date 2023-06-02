@@ -8,7 +8,7 @@ class EnvVarAuthenticationTest extends TestBase {
 
   protected string $cloudApiBaseUri = 'https://www.acquia.com';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
     putenv('ACLI_KEY=' . $this->key);
     putenv('ACLI_SECRET=' . $this->secret);

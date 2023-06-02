@@ -17,7 +17,7 @@ class EnvDbCredsTest extends CommandTestBase {
 
   private string $dbHost;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     $this->dbUser = 'myuserisgood';
     $this->dbPassword = 'mypasswordisgreat';
     $this->dbName = 'mynameisgrand';

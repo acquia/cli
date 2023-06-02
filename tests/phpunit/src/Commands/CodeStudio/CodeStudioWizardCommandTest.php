@@ -30,7 +30,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   private int $gitLabProjectId = 33;
   private int $gitLabTokenId = 118;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
     TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
@@ -146,7 +146,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
    * @param $args
    * @param $inputs
    */
-  public function testCommand($mockedGitlabProjects, $inputs, $args): void {
+  public function testCommand(mixed $mockedGitlabProjects, mixed $inputs, mixed $args): void {
     $environmentsResponse = $this->getMockEnvironmentsResponse();
     $selectedEnvironment = $environmentsResponse->_embedded->items[0];
     $this->clientProphecy->request('get', "/applications/{$this::$applicationUuid}/environments")->willReturn($environmentsResponse->_embedded->items)->shouldBeCalled();
@@ -248,7 +248,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $projects->createProjectAccessToken($this->gitLabProjectId, Argument::type('array'))->willReturn($token);
   }
 
-  protected function mockGetCurrentBranchName($localMachineHelper): void {
+  protected function mockGetCurrentBranchName(mixed $localMachineHelper): void {
     $process = $this->mockProcess();
     $process->getOutput()->willReturn('main');
     $localMachineHelper->execute([
@@ -341,7 +341,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
     $gitlabClient->namespaces()->willReturn($namespaces->reveal());
   }
 
-  protected function mockGitLabVariables($gitlabProjectId, ObjectProphecy $projects): void {
+  protected function mockGitLabVariables(mixed $gitlabProjectId, ObjectProphecy $projects): void {
     $projects->variables($gitlabProjectId)->willReturn($this->getMockGitLabVariables());
     $projects->addVariable($gitlabProjectId, Argument::type('string'), Argument::type('string'), Argument::type('bool'), NULL, Argument::type('array'));
   }

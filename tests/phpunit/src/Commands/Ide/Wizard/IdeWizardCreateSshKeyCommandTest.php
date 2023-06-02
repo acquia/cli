@@ -15,7 +15,7 @@ class IdeWizardCreateSshKeyCommandTest extends IdeWizardTestBase {
 
   protected IdeResponse $ide;
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $applicationResponse = $this->mockApplicationRequest();
     $this->mockListSshKeysRequest();

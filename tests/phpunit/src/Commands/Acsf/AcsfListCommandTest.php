@@ -13,7 +13,7 @@ class AcsfListCommandTest extends CommandTestBase {
   protected string $apiSpecFixtureFilePath = __DIR__ . '/../../../../../assets/acsf-spec.yaml';
   protected string $apiCommandPrefix = 'acsf';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
   }

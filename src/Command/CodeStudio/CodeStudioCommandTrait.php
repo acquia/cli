@@ -226,7 +226,7 @@ trait CodeStudioCommandTrait {
     return $project;
   }
 
-  private function setGitLabProjectDescription($cloudApplicationUuid): void {
+  private function setGitLabProjectDescription(mixed $cloudApplicationUuid): void {
     $this->gitLabProjectDescription = "Source repository for Acquia Cloud Platform application <comment>$cloudApplicationUuid</comment>";
   }
 

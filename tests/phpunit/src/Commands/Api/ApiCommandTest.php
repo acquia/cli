@@ -17,7 +17,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ApiCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->clientProphecy->addOption('headers', ['Accept' => 'application/json']);
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=1');
@@ -169,7 +169,7 @@ class ApiCommandTest extends CommandTestBase {
     $tamper = NULL;
     if ($support) {
       $this->clientProphecy->addQuery('all', 'true')->shouldBeCalled();
-      $tamper = function ($response): void {
+      $tamper = function (mixed $response): void {
         $response->flags->support = TRUE;
       };
     }
@@ -348,7 +348,7 @@ class ApiCommandTest extends CommandTestBase {
    * @param $method
    * @param $usage
    */
-  public function testApiCommandDefinitionParameters($useSpecCache, $commandName, $method, $usage): void {
+  public function testApiCommandDefinitionParameters(mixed $useSpecCache, mixed $commandName, mixed $method, mixed $usage): void {
     putenv('ACQUIA_CLI_USE_CLOUD_API_SPEC_CACHE=' . $useSpecCache);
 
     $this->command = $this->getApiCommandByName($commandName);
@@ -396,7 +396,7 @@ class ApiCommandTest extends CommandTestBase {
    * @param $method
    * @param $usage
    */
-  public function testApiCommandDefinitionRequestBody($commandName, $method, $usage): void {
+  public function testApiCommandDefinitionRequestBody(mixed $commandName, mixed $method, mixed $usage): void {
     $this->command = $this->getApiCommandByName($commandName);
     $resource = $this->getResourceFromSpec($this->command->getPath(), $method);
     foreach ($resource['requestBody']['content']['application/json']['example'] as $propKey => $value) {

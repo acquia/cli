@@ -86,7 +86,7 @@ class EnvCreateCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestCreateCde
    */
-  public function testCreateCde($args, $input): void {
+  public function testCreateCde(mixed $args, mixed $input): void {
     $domain = $this->setupCdeTest(self::$validLabel);
 
     $this->executeCommand(

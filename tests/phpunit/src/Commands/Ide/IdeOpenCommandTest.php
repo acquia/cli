@@ -15,7 +15,7 @@ class IdeOpenCommandTest extends CommandTestBase {
     return $this->injectCommand(IdeOpenCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
     putenv('DISPLAY=1');
   }

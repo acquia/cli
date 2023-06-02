@@ -14,7 +14,7 @@ use Symfony\Component\Filesystem\Filesystem;
  */
 class SshKeyCreateUploadCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp();
 
     $this->getCommandTester();

@@ -35,7 +35,7 @@ class Kernel extends BaseKernel {
     $this->registerExtensionConfiguration($loader);
   }
 
-  protected function registerExtensionConfiguration($loader): void {
+  protected function registerExtensionConfiguration(mixed $loader): void {
     // Search for plugins.
     $finder = new Finder();
     $extensions = $finder->files()

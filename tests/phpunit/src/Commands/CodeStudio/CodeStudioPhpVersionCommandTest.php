@@ -41,7 +41,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
    *
    * @dataProvider providerTestPhpVersionFailure
    */
-  public function testPhpVersionFailure($phpVersion): void {
+  public function testPhpVersionFailure(mixed $phpVersion): void {
     $this->expectException(ValidatorException::class);
     $this->executeCommand([
       'applicationUuid' => self::$applicationUuid,

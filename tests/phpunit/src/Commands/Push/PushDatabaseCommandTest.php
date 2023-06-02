@@ -89,7 +89,7 @@ class PushDatabaseCommandTest extends CommandTestBase {
   protected function mockImportDatabaseDumpOnRemote(
     ObjectProphecy $sshHelper,
     object $environmentsResponse,
-    $process
+    mixed $process
   ): void {
     $sshHelper->executeCommand(
       new EnvironmentResponse($environmentsResponse),

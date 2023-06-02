@@ -95,7 +95,7 @@ class PushFilesCommandTest extends CommandTestBase {
   protected function mockExecuteCloudRsync(
     ObjectProphecy $localMachineHelper,
     ObjectProphecy $process,
-    $environment
+    mixed $environment
   ): void {
     $localMachineHelper->checkRequiredBinariesExist(['rsync'])->shouldBeCalled();
     $sitegroup = CommandBase::getSiteGroupFromSshUrl($environment->ssh_url);

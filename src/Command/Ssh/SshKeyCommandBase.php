@@ -251,7 +251,7 @@ EOT
       'filename',
       FALSE,
       Closure::fromCallable([$this, 'validateFilename']),
-      static function ($value) {
+      static function (mixed $value) {
         return $value ? trim($value) : '';},
       'id_rsa_acquia'
     );
@@ -275,7 +275,7 @@ EOT
       'password',
       TRUE,
       Closure::fromCallable([$this, 'validatePassword']),
-      static function ($value) {
+      static function (mixed $value) {
         return $value ? trim($value) : '';
       }
     );
@@ -350,7 +350,7 @@ EOT
     return $this->determineOption('label', FALSE, Closure::fromCallable([$this, 'validateSshKeyLabel']), Closure::fromCallable([$this, 'normalizeSshKeyLabel']));
   }
 
-  private function validateSshKeyLabel($label): mixed {
+  private function validateSshKeyLabel(mixed $label): mixed {
     if (trim($label) === '') {
       throw new RuntimeException('The label cannot be empty');
     }
@@ -387,7 +387,7 @@ EOT
     }
   }
 
-  protected static function getFingerprint($sshPublicKey): string {
+  protected static function getFingerprint(mixed $sshPublicKey): string {
     if (!str_starts_with($sshPublicKey, 'ssh-rsa ')) {
       throw new AcquiaCliException('SSH keys must start with "ssh-rsa ".');
     }

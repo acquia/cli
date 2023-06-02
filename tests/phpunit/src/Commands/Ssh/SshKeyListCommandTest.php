@@ -15,7 +15,7 @@ class SshKeyListCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyListCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
     $this->command = $this->createCommand();

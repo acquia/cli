@@ -28,7 +28,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
   private int $gitLabTokenId = 118;
   public static string $applicationUuid = 'a47ac10b-58cc-4372-a567-0e02b2c3d470';
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->mockApplicationRequest();
     TestBase::setEnvVars(['GITLAB_HOST' => 'code.cloudservices.acquia.io']);
@@ -75,7 +75,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
    * @param $args
    * @param $inputs
    */
-  public function testCommand($mockedGitlabProjects, $inputs, $args): void {
+  public function testCommand(mixed $mockedGitlabProjects, mixed $inputs, mixed $args): void {
     copy(
       Path::join($this->realFixtureDir, 'acquia-pipelines.yml'),
       Path::join($this->projectDir, 'acquia-pipelines.yml')

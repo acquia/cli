@@ -241,7 +241,7 @@ abstract class TestBase extends TestCase {
     }
   }
 
-  public static function unsetEnvVars($envVars): void {
+  public static function unsetEnvVars(mixed $envVars): void {
     foreach ($envVars as $key => $value) {
       putenv($key);
     }
@@ -255,7 +255,7 @@ abstract class TestBase extends TestCase {
     $this->sshHelper = new SshHelper($this->output, $this->localMachineHelper, $this->logger);
   }
 
-  protected function getResourceFromSpec($path, $method): mixed {
+  protected function getResourceFromSpec(mixed $path, mixed $method): mixed {
     $acquiaCloudSpec = $this->getCloudApiSpec();
     return $acquiaCloudSpec['paths'][$path][$method];
   }
@@ -271,7 +271,7 @@ abstract class TestBase extends TestCase {
    * @param $httpCode
    * @see CXAPI-7208
    */
-  public function getMockResponseFromSpec($path, $method, $httpCode): object {
+  public function getMockResponseFromSpec(mixed $path, mixed $method, mixed $httpCode): object {
     $endpoint = $this->getResourceFromSpec($path, $method);
     $response = $endpoint['responses'][$httpCode];
     $content = $response['content']['application/json'];
@@ -297,7 +297,6 @@ abstract class TestBase extends TestCase {
   }
 
   /**
-   * @param string $operationId
    * @return array<mixed>
    */
   protected function getPathMethodCodeFromSpec(string $operationId): array {
@@ -341,7 +340,7 @@ abstract class TestBase extends TestCase {
     );
   }
 
-  public function getMockRequestBodyFromSpec($path, string $method = 'post'): mixed {
+  public function getMockRequestBodyFromSpec(mixed $path, string $method = 'post'): mixed {
     $endpoint = $this->getResourceFromSpec($path, $method);
     return $endpoint['requestBody']['content']['application/json']['example'];
   }
@@ -365,7 +364,7 @@ abstract class TestBase extends TestCase {
     return $apiSpec;
   }
 
-  private function isApiSpecCacheValid(PhpArrayAdapter $cache, $cacheKey, string $acquiaCloudSpecFileChecksum): bool {
+  private function isApiSpecCacheValid(PhpArrayAdapter $cache, mixed $cacheKey, string $acquiaCloudSpecFileChecksum): bool {
     $apiSpecChecksumItem = $cache->getItem($cacheKey . '.checksum');
     // If there's an invalid entry OR there's no entry, return false.
     return !(!$apiSpecChecksumItem->isHit() || ($apiSpecChecksumItem->isHit()
@@ -376,7 +375,7 @@ abstract class TestBase extends TestCase {
     PhpArrayAdapter $cache,
     string $acquiaCloudSpecFileChecksum,
     CacheItem $apiSpecCacheItem,
-    $apiSpec
+    mixed $apiSpec
   ): void {
     $apiSpecChecksumItem = $cache->getItem('api_spec.checksum');
     $apiSpecChecksumItem->set($acquiaCloudSpecFileChecksum);
@@ -385,7 +384,7 @@ abstract class TestBase extends TestCase {
     $cache->save($apiSpecCacheItem);
   }
 
-  protected function createLocalSshKey($contents): string {
+  protected function createLocalSshKey(mixed $contents): string {
     $privateKeyFilepath = $this->fs->tempnam($this->sshDir, 'acli');
     $this->fs->touch($privateKeyFilepath);
     $publicKeyFilepath = $privateKeyFilepath . '.pub';
@@ -404,7 +403,7 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockCloudConfigFile($defaultValues = []): void {
+  protected function createMockCloudConfigFile(mixed $defaultValues = []): void {
     if (!$defaultValues) {
       $defaultValues = [
         'acli_key' => $this->key,
@@ -424,7 +423,7 @@ abstract class TestBase extends TestCase {
     $this->fs->dumpFile($filepath, $contents);
   }
 
-  protected function createMockAcliConfigFile($cloudAppUuid): void {
+  protected function createMockAcliConfigFile(mixed $cloudAppUuid): void {
     $this->datastoreAcli->set('cloud_app_uuid', $cloudAppUuid);
   }
 
@@ -511,7 +510,7 @@ abstract class TestBase extends TestCase {
     return $applicationResponse;
   }
 
-  protected function mockPermissionsRequest($applicationResponse, $perms = TRUE): object {
+  protected function mockPermissionsRequest(mixed $applicationResponse, mixed $perms = TRUE): object {
     $permissionsResponse = $this->getMockResponseFromSpec("/applications/{applicationUuid}/permissions",
       'get', '200');
     if (!$perms) {
@@ -639,7 +638,7 @@ abstract class TestBase extends TestCase {
     $localMachineHelper->readFile(Argument::containingString('id_rsa'))->willReturn($keyContents);
   }
 
-  protected function mockAddSshKeyToAgent($localMachineHelper, $fileSystem): void {
+  protected function mockAddSshKeyToAgent(mixed $localMachineHelper, mixed $fileSystem): void {
     $process = $this->prophet->prophesize(Process::class);
     $process->isSuccessful()->willReturn(TRUE);
     $localMachineHelper->executeFromCmd(Argument::containingString('SSH_PASS'), NULL, NULL, FALSE)->willReturn($process->reveal());
@@ -667,7 +666,7 @@ abstract class TestBase extends TestCase {
   }
 
   protected function mockListSshKeyRequestWithUploadedKey(
-    $mockRequestArgs
+    mixed $mockRequestArgs
   ): void {
     $mockBody = $this->getMockResponseFromSpec('/account/ssh-keys', 'get',
       '200');
@@ -756,7 +755,7 @@ abstract class TestBase extends TestCase {
     return $guzzleClient;
   }
 
-  protected function setClientProphecies($clientServiceClass = ClientService::class): void {
+  protected function setClientProphecies(mixed $clientServiceClass = ClientService::class): void {
     $this->clientProphecy = $this->prophet->prophesize(Client::class);
     $this->clientProphecy->addOption('headers', ['User-Agent' => 'acli/UNKNOWN']);
     $this->clientProphecy->addOption('debug', Argument::type(OutputInterface::class));

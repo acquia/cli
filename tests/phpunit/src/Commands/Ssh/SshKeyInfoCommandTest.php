@@ -13,7 +13,7 @@ class SshKeyInfoCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyInfoCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
     $this->command = $this->createCommand();

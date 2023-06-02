@@ -155,19 +155,11 @@ class ApiBaseCommand extends CommandBase {
     return $this->method;
   }
 
-  /**
-   * @param $paramName
-   * @param $value
-   */
-  public function addPostParameter($paramName, $value): void {
+  public function addPostParameter(mixed $paramName, mixed $value): void {
     $this->postParams[$paramName] = $value;
   }
 
-  /**
-   * @param $paramName
-   * @param $value
-   */
-  public function addQueryParameter($paramName, $value): void {
+  public function addQueryParameter(mixed $paramName, mixed $value): void {
     $this->queryParams[$paramName] = $value;
   }
 
@@ -175,7 +167,7 @@ class ApiBaseCommand extends CommandBase {
     return $this->path;
   }
 
-  public function addPathParameter(string $paramName, $value): void {
+  public function addPathParameter(string $paramName, mixed $value): void {
     $this->pathParams[$paramName] = $value;
   }
 
@@ -234,7 +226,7 @@ class ApiBaseCommand extends CommandBase {
     };
   }
 
-  public function castBool($val): bool {
+  public function castBool(mixed $val): bool {
     return (bool) (is_string($val) ? filter_var($val, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) : $val);
   }
 
@@ -319,7 +311,7 @@ class ApiBaseCommand extends CommandBase {
   }
 
   private function createValidatorFromConstraints(array $constraints): Closure {
-    return static function ($value) use ($constraints) {
+    return static function (mixed $value) use ($constraints) {
       $violations = Validation::createValidator()
         ->validate($value, $constraints);
       if (count($violations)) {
@@ -382,14 +374,14 @@ class ApiBaseCommand extends CommandBase {
     switch ($argument->getName()) {
       case 'applicationUuid':
         // @todo Provide a list of application UUIDs.
-        $question->setValidator(function ($value) {
+        $question->setValidator(function (mixed $value) {
           return $this->validateApplicationUuid($value);
         });
         break;
       case 'environmentId':
         // @todo Provide a list of environment IDs.
       case 'source':
-        $question->setValidator(function ($value) use ($argument): string {
+        $question->setValidator(function (mixed $value) use ($argument): string {
           return $this->validateEnvironmentUuid($value, $argument->getName());
         });
         break;

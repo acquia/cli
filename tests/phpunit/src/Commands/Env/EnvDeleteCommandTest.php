@@ -31,7 +31,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestDeleteCde
    */
-  public function testDeleteCde($environmentId): void {
+  public function testDeleteCde(mixed $environmentId): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $this->mockEnvironmentsRequest($applicationsResponse);

@@ -105,7 +105,7 @@ class PullFilesCommandTest extends PullCommandTestBase {
 
   protected function mockExecuteRsync(
     LocalMachineHelper|ObjectProphecy $localMachineHelper,
-                   $environment,
+                   mixed $environment,
     string $sourceDir,
     string $destinationDir
   ): void {

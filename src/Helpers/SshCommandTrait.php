@@ -10,7 +10,7 @@ use Zumba\Amplitude\Amplitude;
 
 trait SshCommandTrait {
 
-  private function deleteSshKeyFromCloud($output, $cloudKey = NULL): int {
+  private function deleteSshKeyFromCloud(mixed $output, mixed $cloudKey = NULL): int {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     if (!$cloudKey) {
       $cloudKey = $this->determineCloudKey($acquiaCloudClient);

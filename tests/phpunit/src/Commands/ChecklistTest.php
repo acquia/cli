@@ -26,7 +26,7 @@ class ChecklistTest extends TestBase {
     $checklist->addItem('Testing!');
 
     // Make the spinner spin with some output.
-    $outputCallback = static function ($type, $buffer) use ($checklist): void {
+    $outputCallback = static function (mixed $type, mixed $buffer) use ($checklist): void {
       $checklist->updateProgressBar($buffer);
     };
     $this->localMachineHelper->execute(['echo', 'hello world'], $outputCallback, NULL, FALSE);

@@ -11,7 +11,7 @@ use Symfony\Component\Console\Command\Command;
  */
 class PullCommandTest extends PullCommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
   }

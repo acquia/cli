@@ -424,7 +424,7 @@ class PushArtifactCommand extends PullCommandBase {
     return $this->destinationGitRef;
   }
 
-  private function createTag($tagName, Closure $outputCallback, string $artifactDir): void {
+  private function createTag(mixed $tagName, Closure $outputCallback, string $artifactDir): void {
     $this->localMachineHelper->checkRequiredBinariesExist(['git']);
     $process = $this->localMachineHelper->execute([
       'git',

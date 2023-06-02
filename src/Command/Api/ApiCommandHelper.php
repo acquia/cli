@@ -164,14 +164,7 @@ class ApiCommandHelper {
     return [$inputDefinition, $usage];
   }
 
-  /**
-   * @param $requestBody
-   * @param $propKey
-   * @param $paramDefinition
-   * @param $type
-   * @param $usage
-   */
-  private function addPostArgumentUsageToExample($requestBody, $propKey, $paramDefinition, string $type, string $usage): string {
+  private function addPostArgumentUsageToExample(mixed $requestBody, mixed $propKey, mixed $paramDefinition, string $type, string $usage): string {
     $requestBodyContent = $this->getRequestBodyContent($requestBody);
 
     if (array_key_exists('example', $requestBodyContent)) {
@@ -265,7 +258,7 @@ class ApiCommandHelper {
    * @param array $acquiaCloudSpec
    * @param $schema
    */
-  private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, $schema): mixed {
+  private function getParameterDefinitionFromSpec(string $paramKey, array $acquiaCloudSpec, mixed $schema): mixed {
     $uppercaseKey = ucfirst($paramKey);
     if (array_key_exists('parameters', $acquiaCloudSpec['components'])
       && array_key_exists($uppercaseKey, $acquiaCloudSpec['components']['parameters'])) {
@@ -414,7 +407,7 @@ class ApiCommandHelper {
     }
   }
 
-  private function addAliasParameterDescriptions(&$paramDefinition): void {
+  private function addAliasParameterDescriptions(mixed &$paramDefinition): void {
     if ($paramDefinition['name'] === 'applicationUuid') {
       $paramDefinition['description'] .= ' You may also use an application alias or omit the argument if you run the command in a linked directory.';
     }
@@ -446,7 +439,7 @@ class ApiCommandHelper {
    * @param array $requestBodySchema
    * @param $parameterDefinition
    */
-  private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, $parameterDefinition): mixed {
+  private function getPropertySpecFromRequestBodyParam(array $requestBodySchema, mixed $parameterDefinition): mixed {
     return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? NULL;
   }
 
@@ -463,7 +456,7 @@ class ApiCommandHelper {
     ];
   }
 
-  public static function renameParameter($propKey): mixed {
+  public static function renameParameter(mixed $propKey): mixed {
     $parameterRenameMap = self::getParameterRenameMap();
     if (array_key_exists($propKey, $parameterRenameMap)) {
       $propKey = $parameterRenameMap[$propKey];
@@ -509,7 +502,7 @@ class ApiCommandHelper {
    * @param $requestBody
    * @return array<mixed>
    */
-  private function getRequestBodyContent($requestBody): array {
+  private function getRequestBodyContent(mixed $requestBody): array {
     $content = $requestBody['content'];
     $knownContentTypes = [
       'application/json',

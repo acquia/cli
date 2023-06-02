@@ -53,7 +53,7 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
   /**
    * @return array<mixed>
    */
-  private function determineSshKey($acquiaCloudClient): array {
+  private function determineSshKey(mixed $acquiaCloudClient): array {
     $cloudKeysResponse = new SshKeys($acquiaCloudClient);
     $cloudKeys = $cloudKeysResponse->getAll();
     $localKeys = $this->findLocalSshKeys();

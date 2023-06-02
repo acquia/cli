@@ -58,7 +58,7 @@ abstract class PullCommandBase extends CommandBase {
     return $this->dir . '/docroot/sites/' . $site . '/files';
   }
 
-  public static function getBackupPath($environment, DatabaseResponse $database, $backupResponse): string {
+  public static function getBackupPath(mixed $environment, DatabaseResponse $database, mixed $backupResponse): string {
     // Databases have a machine name not exposed via the API; we can only
     // approximately reconstruct it and match the filename you'd get downloading
     // a backup from Cloud UI.
@@ -215,7 +215,7 @@ abstract class PullCommandBase extends CommandBase {
       'CURLOPT_FILE' => $localFilepath,
       'CURLOPT_RETURNTRANSFER' => FALSE,
 ]);
-    $acquiaCloudClient->addOption('progress', static function ($totalBytes, $downloadedBytes) use (&$progress, $output): void {
+    $acquiaCloudClient->addOption('progress', static function (mixed $totalBytes, mixed $downloadedBytes) use (&$progress, $output): void {
       self::displayDownloadProgress($totalBytes, $downloadedBytes, $progress, $output);
     });
     // This is really just used to allow us to inject values for $url during testing.
@@ -266,7 +266,7 @@ abstract class PullCommandBase extends CommandBase {
     return $this->backupDownloadUrl ?? NULL;
   }
 
-  public static function displayDownloadProgress($totalBytes, $downloadedBytes, &$progress, OutputInterface $output): void {
+  public static function displayDownloadProgress(mixed $totalBytes, mixed $downloadedBytes, mixed &$progress, OutputInterface $output): void {
     if ($totalBytes > 0 && is_null($progress)) {
       $progress = new ProgressBar($output, $totalBytes);
       $progress->setFormat('        %current%/%max% [%bar%] %percent:3s%%');
@@ -424,7 +424,7 @@ abstract class PullCommandBase extends CommandBase {
     return trim($process->getOutput());
   }
 
-  private function promptChooseEnvironment($acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
+  private function promptChooseEnvironment(mixed $acquiaCloudClient, string $applicationUuid, bool $allowProduction = FALSE): EnvironmentResponse {
     $environmentResource = new Environments($acquiaCloudClient);
     $applicationEnvironments = iterator_to_array($environmentResource->getAll($applicationUuid));
     $choices = [];
@@ -749,7 +749,7 @@ abstract class PullCommandBase extends CommandBase {
     }
   }
 
-  protected function getHostFromDatabaseResponse($environment, DatabaseResponse $database): string {
+  protected function getHostFromDatabaseResponse(mixed $environment, DatabaseResponse $database): string {
     if ($this->isAcsfEnv($environment)) {
       return $database->db_host . '.enterprise-g1.hosting.acquia.com';
     }

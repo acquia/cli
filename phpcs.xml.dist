@@ -49,6 +49,6 @@
   <rule ref="SlevomatCodingStandard.Commenting.UselessFunctionDocComment" />
   <rule ref="SlevomatCodingStandard.Commenting.UselessInheritDocComment" />
   <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
-    <severity>0</severity>
+    <exclude name="SlevomatCodingStandard.TypeHints.ParameterTypeHint.MissingTraversableTypeHintSpecification"/>
   </rule>
 </ruleset>

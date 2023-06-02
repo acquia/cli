@@ -93,7 +93,7 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
    * @param array $config
    * @requires OS linux|darwin
    */
-  public function testAcsfAuthLoginCommand($machineIsAuthenticated, $inputs, $args, $outputToAssert, array $config = []): void {
+  public function testAcsfAuthLoginCommand(mixed $machineIsAuthenticated, mixed $inputs, mixed $args, mixed $outputToAssert, array $config = []): void {
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();

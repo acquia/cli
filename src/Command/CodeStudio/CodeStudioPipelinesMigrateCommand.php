@@ -140,7 +140,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating `variables` section to .gitlab-ci.yml file.
    */
-  private function migrateVariablesSection($acquiaPipelinesFileContents, &$gitlabCiFileContents): void {
+  private function migrateVariablesSection(mixed $acquiaPipelinesFileContents, mixed &$gitlabCiFileContents): void {
     if (array_key_exists('variables', $acquiaPipelinesFileContents)) {
       $variablesDump = Yaml::dump(['variables' => $acquiaPipelinesFileContents['variables']]);
       $removeGlobal = preg_replace('/global:/', '', $variablesDump);

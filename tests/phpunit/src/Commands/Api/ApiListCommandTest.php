@@ -10,7 +10,7 @@ use Symfony\Component\Console\Command\Command;
 
 class ApiListCommandTest extends CommandTestBase {
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->application->addCommands($this->getApiCommands());
   }

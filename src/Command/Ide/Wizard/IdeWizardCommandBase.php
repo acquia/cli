@@ -36,7 +36,7 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     $this->ide = $idesResource->get($this->ideUuid);
   }
 
-  public static function getSshKeyFilename($ideUuid): string {
+  public static function getSshKeyFilename(mixed $ideUuid): string {
     return 'id_rsa_acquia_ide_' . $ideUuid;
   }
 
@@ -48,7 +48,7 @@ abstract class IdeWizardCommandBase extends WizardCommandBase {
     return $this::getIdeSshKeyLabel($this->ide);
   }
 
-  protected function deleteThisSshKeyFromCloud($output): void {
+  protected function deleteThisSshKeyFromCloud(mixed $output): void {
     if ($cloudKey = $this->findIdeSshKeyOnCloud($this::getThisCloudIdeUuid())) {
       $this->deleteSshKeyFromCloud($output, $cloudKey);
     }

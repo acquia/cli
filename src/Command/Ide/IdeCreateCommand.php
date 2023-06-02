@@ -77,7 +77,7 @@ class IdeCreateCommand extends IdeCommandBase {
     return $label;
   }
 
-  private function waitForDnsPropagation($ideUrl): int {
+  private function waitForDnsPropagation(mixed $ideUrl): int {
     $ideCreated = FALSE;
     if (!$this->getClient()) {
       $this->setClient(new Client(['base_uri' => $ideUrl]));

@@ -84,12 +84,12 @@ class SshHelper implements LoggerAwareInterface {
     if ($this->localMachineHelper->useTty() === FALSE) {
       $output = $this->output;
 
-      return static function ($type, $buffer) use ($output): void {
+      return static function (mixed $type, mixed $buffer) use ($output): void {
         $output->write($buffer);
       };
     }
 
-    return static function ($type, $buffer): void {};
+    return static function (mixed $type, mixed $buffer): void {};
   }
 
   /**

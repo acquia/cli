@@ -48,7 +48,7 @@ class LocalMachineHelper {
    *
    * @param $command
    */
-  public function commandExists($command): bool {
+  public function commandExists(mixed $command): bool {
     if (array_key_exists($command, $this->installedBinaries)) {
       return (bool) $this->installedBinaries[$command];
     }
@@ -125,7 +125,7 @@ class LocalMachineHelper {
 
   private function executeProcess(Process $process, callable $callback = NULL, ?bool $printOutput = TRUE): Process {
     if ($callback === NULL && $printOutput !== FALSE) {
-      $callback = function ($type, $buffer): void {
+      $callback = function (mixed $type, mixed $buffer): void {
         $this->output->write($buffer);
       };
     }
@@ -357,7 +357,7 @@ class LocalMachineHelper {
    *   TRUE if browser was opened. FALSE if browser was disabled by the user or a
    *   default browser could not be found.
    */
-  public function startBrowser($uri = NULL, string $browser = NULL): bool {
+  public function startBrowser(mixed $uri = NULL, string $browser = NULL): bool {
     // We can only open a browser if we have a DISPLAY environment variable on
     // POSIX or are running Windows or OS X.
     if (!self::isBrowserAvailable()) {

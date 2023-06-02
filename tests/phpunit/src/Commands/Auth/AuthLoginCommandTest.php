@@ -105,7 +105,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param $args
    * @param $outputToAssert
    */
-  public function testAuthLoginCommand($machineIsAuthenticated, $assertCloudPrompts, $inputs, $args, $outputToAssert): void {
+  public function testAuthLoginCommand(mixed $machineIsAuthenticated, mixed $assertCloudPrompts, mixed $inputs, mixed $args, mixed $outputToAssert): void {
     $this->mockTokenRequest();
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
@@ -149,7 +149,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @param $inputs
    * @param $args
    */
-  public function testAuthLoginInvalidInputCommand($inputs, $args): void {
+  public function testAuthLoginInvalidInputCommand(mixed $inputs, mixed $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
     $this->createDataStores();

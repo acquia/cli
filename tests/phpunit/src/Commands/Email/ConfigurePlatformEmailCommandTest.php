@@ -74,7 +74,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
     return $this->injectCommand(ConfigurePlatformEmailCommand::class);
   }
 
-  public function setUp($output = NULL): void {
+  public function setUp(mixed $output = NULL): void {
     parent::setUp($output);
     $this->setupFsFixture();
     $this->command = $this->createCommand();
@@ -238,7 +238,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestConfigurePlatformEmail
    */
-  public function testConfigurePlatformEmail($baseDomain, $fileDumpFormat, $fileDump, $inputs, $expectedExitCode, $expectedText, $responseCode): void {
+  public function testConfigurePlatformEmail(mixed $baseDomain, mixed $fileDumpFormat, mixed $fileDump, mixed $inputs, mixed $expectedExitCode, mixed $expectedText, mixed $responseCode): void {
     $localMachineHelper = $this->mockLocalMachineHelper();
     $mockFileSystem = $this->mockGetFilesystem($localMachineHelper);
 
@@ -577,7 +577,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   /**
    * @dataProvider providerTestConfigurePlatformEmailEnableEnv
    */
-  public function testConfigurePlatformEmailWithAlreadyEnabledEnvs($baseDomain, $inputs, $expectedExitCode, $responseCode, $specKey, $expectedText): void {
+  public function testConfigurePlatformEmailWithAlreadyEnabledEnvs(mixed $baseDomain, mixed $inputs, mixed $expectedExitCode, mixed $responseCode, mixed $specKey, mixed $expectedText): void {
     $subscriptionsResponse = $this->getMockResponseFromSpec('/subscriptions', 'get', '200');
     $this->clientProphecy->request('get', '/subscriptions')
       ->willReturn($subscriptionsResponse->{'_embedded'}->items)

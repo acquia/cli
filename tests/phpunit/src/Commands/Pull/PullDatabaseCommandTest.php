@@ -156,7 +156,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   /**
    * @dataProvider providerTestPullDatabaseWithInvalidSslCertificate
    */
-  public function testPullDatabaseWithInvalidSslCertificate($errorCode): void {
+  public function testPullDatabaseWithInvalidSslCertificate(mixed $errorCode): void {
     $this->setupPullDatabase(TRUE, TRUE, TRUE, TRUE, FALSE, FALSE, TRUE, FALSE, $errorCode);
     $inputs = $this->getInputs();
 
@@ -166,7 +166,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('Trying alternative host other.example.com', $output);
   }
 
-  protected function setupPullDatabase($mysqlConnectSuccessful, $mysqlDropSuccessful, $mysqlCreateSuccessful, $mysqlImportSuccessful, $mockIdeFs = FALSE, $onDemand = FALSE, $mockGetAcsfSites = TRUE, $multidb = FALSE, int $curlCode = 0): void {
+  protected function setupPullDatabase(mixed $mysqlConnectSuccessful, mixed $mysqlDropSuccessful, mixed $mysqlCreateSuccessful, mixed $mysqlImportSuccessful, mixed $mockIdeFs = FALSE, mixed $onDemand = FALSE, mixed $mockGetAcsfSites = TRUE, mixed $multidb = FALSE, int $curlCode = 0): void {
     $applicationsResponse = $this->mockApplicationsRequest();
     $this->mockApplicationRequest();
     $environmentsResponse = $this->mockAcsfEnvironmentsRequest($applicationsResponse);
@@ -281,7 +281,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
       ->shouldBeCalled();
   }
 
-  protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, $success): void {
+  protected function mockDownloadMySqlDump(ObjectProphecy $localMachineHelper, mixed $success): void {
     $process = $this->mockProcess($success);
     $localMachineHelper->writeFile(
       Argument::containingString("dev-profserv2-profserv201dev-something.sql.gz"),

@@ -26,7 +26,7 @@ class LogTailCommand extends CommandBase {
     $environmentId = $this->determineCloudEnvironment();
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $logs = $this->promptChooseLogs();
-    $logTypes = array_map(static function ($log) {
+    $logTypes = array_map(static function (mixed $log) {
       return $log['type'];
     }, $logs);
     $logsResource = new Logs($acquiaCloudClient);

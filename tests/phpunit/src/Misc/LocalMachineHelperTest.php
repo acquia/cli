@@ -31,7 +31,7 @@ class LocalMachineHelperTest extends TestBase {
    * @param $isTty
    * @param $printOutput
    */
-  public function testExecuteFromCmd($interactive, $isTty, $printOutput): void {
+  public function testExecuteFromCmd(mixed $interactive, mixed $isTty, mixed $printOutput): void {
     $localMachineHelper = $this->localMachineHelper;
     $localMachineHelper->setIsTty($isTty);
     $this->input->setInteractive($interactive);
