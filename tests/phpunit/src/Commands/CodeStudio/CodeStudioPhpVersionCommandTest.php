@@ -25,7 +25,7 @@ class CodeStudioPhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestPhpVersionFailure(): array {
     return [

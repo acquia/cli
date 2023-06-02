@@ -20,7 +20,7 @@ class SshKeyCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestCreate(): array {
     return [

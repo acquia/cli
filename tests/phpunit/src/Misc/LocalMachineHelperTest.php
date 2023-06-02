@@ -15,7 +15,7 @@ class LocalMachineHelperTest extends TestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestExecuteFromCmd(): array {
     return [

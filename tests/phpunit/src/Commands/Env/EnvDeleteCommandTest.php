@@ -17,7 +17,7 @@ class EnvDeleteCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestDeleteCde(): array {
     $environmentResponse = $this->getMockEnvironmentsResponse();

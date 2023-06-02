@@ -128,7 +128,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * Determines the applications for domain association and environment
    * enablement of Platform Email.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function determineApplications(Client $client, SubscriptionResponse $subscription): array {
     $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);

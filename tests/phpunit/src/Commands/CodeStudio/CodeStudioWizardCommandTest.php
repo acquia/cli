@@ -46,7 +46,7 @@ class CodeStudioWizardCommandTest extends WizardTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestCommand(): array {
     return [

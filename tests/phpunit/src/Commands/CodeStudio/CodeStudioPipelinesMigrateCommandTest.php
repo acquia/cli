@@ -44,7 +44,7 @@ class CodeStudioPipelinesMigrateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestCommand(): array {
     return [

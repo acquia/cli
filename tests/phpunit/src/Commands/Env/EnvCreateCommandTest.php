@@ -68,7 +68,7 @@ class EnvCreateCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestCreateCde(): array {
     $application = $this->getApplication();

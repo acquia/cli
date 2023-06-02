@@ -81,7 +81,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestConfigurePlatformEmail(): array {
 
@@ -182,7 +182,7 @@ class ConfigurePlatformEmailCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestConfigurePlatformEmailEnableEnv(): array {
     return [

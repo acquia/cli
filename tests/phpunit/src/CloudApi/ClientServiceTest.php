@@ -11,7 +11,7 @@ use Acquia\Cli\Tests\TestBase;
 class ClientServiceTest extends TestBase {
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestIsMachineAuthenticated(): array {
     return [
@@ -37,6 +37,7 @@ class ClientServiceTest extends TestBase {
   /**
    * @dataProvider providerTestIsMachineAuthenticated
    * @param array $envVars
+   * @param bool $isAuthenticated
    */
   public function testIsMachineAuthenticated(array $envVars, bool $isAuthenticated): void {
     self::setEnvVars($envVars);

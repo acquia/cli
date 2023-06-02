@@ -24,7 +24,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestIdePhpVersionCommand(): array {
     return [
@@ -57,7 +57,7 @@ class IdePhpVersionCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestIdePhpVersionCommandFailure(): array {
     return [

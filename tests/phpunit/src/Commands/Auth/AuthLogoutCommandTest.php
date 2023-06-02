@@ -17,6 +17,9 @@ class AuthLogoutCommandTest extends CommandTestBase {
     return $this->injectCommand(AuthLogoutCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLogoutCommand(): array {
     return [
       [FALSE, []],

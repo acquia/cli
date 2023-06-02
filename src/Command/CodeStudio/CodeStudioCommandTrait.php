@@ -153,7 +153,7 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function determineGitLabProject(ApplicationResponse $cloudApplication): array {
     // Use command option.
@@ -197,7 +197,7 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function createGitLabProject(ApplicationResponse $cloudApplication): array {
     $userGroups = $this->gitLabClient->groups()->all([
@@ -231,7 +231,7 @@ trait CodeStudioCommandTrait {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getGitLabProjectDefaults(): array {
     return [

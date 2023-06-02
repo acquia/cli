@@ -83,7 +83,10 @@ class AcsfApiCommandTest extends AcsfCommandTestBase {
     $this->assertArrayHasKey('count', $contents);
   }
 
-  public function providerTestAcsfCommandExecutionForHttpGetMultiple() {
+  /**
+   * @return array<mixed>
+   */
+  public function providerTestAcsfCommandExecutionForHttpGetMultiple(): array {
     return [
       ['get', '/api/v1/audit', '/api/v1/audit', 'acsf:info:audit-events-find', [], []],
       ['post', '/api/v1/sites', '/api/v1/sites', 'acsf:sites:create', ['site_name' => 'foobar', '--stack_id' => '1', '--group_ids' => ['91,81']], ['site_name' => 'foobar', 'stack_id' => '1', 'group_ids' => [91, 81]]],

@@ -8,7 +8,7 @@ use Prophecy\Argument;
 use Symfony\Component\Console\Command\Command;
 
 /**
- * @property \Acquia\Cli\Command\DocsCommandTest $command
+ * @property \Acquia\Cli\Command\DocsCommand $command
  */
 class DocsCommandTest extends CommandTestBase {
 
@@ -29,6 +29,9 @@ class DocsCommandTest extends CommandTestBase {
     $this->assertStringContainsString($expectedOutput, $output);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestDocsCommand(): array {
     return [
       [

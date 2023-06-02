@@ -18,7 +18,7 @@ class AcsfServiceTest extends TestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestIsMachineAuthenticated(): array {
     return [

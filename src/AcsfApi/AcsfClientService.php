@@ -5,9 +5,6 @@ namespace Acquia\Cli\AcsfApi;
 use Acquia\Cli\Application;
 use Acquia\Cli\CloudApi\ClientService;
 
-/**
- * AcsfClientService class.
- */
 class AcsfClientService extends ClientService {
 
   public function __construct(AcsfConnectorFactory $connectorFactory, Application $application, AcsfCredentials $cloudCredentials) {

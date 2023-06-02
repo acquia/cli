@@ -38,6 +38,9 @@ class TelemetryCommandTest extends CommandTestBase {
     $this->assertStringContainsString('Telemetry has been disabled.', $output);
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestTelemetryPrompt(): array {
     return [
       [

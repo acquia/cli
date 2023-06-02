@@ -54,7 +54,4 @@
   <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
     <severity>0</severity>
   </rule>
-  <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
-    <severity>0</severity>
-  </rule>
 </ruleset>

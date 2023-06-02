@@ -165,7 +165,7 @@ class EmailInfoForSubscriptionCommand extends CommandBase {
   /**
    * Verifies the number of applications present in a subscription.
    *
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function validateSubscriptionApplicationCount(Client $client, SubscriptionResponse $subscription): ?array {
     $subscriptionApplications = $this->getSubscriptionApplications($client, $subscription);

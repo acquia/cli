@@ -97,7 +97,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
    * Check acquia-pipeline.yml file exists in the root repo and remove ci_config_path from codestudio project.
    *
    * @param array $project
-   * @return array
+   * @return array<mixed>
    */
   private function getAcquiaPipelinesFileContents(array $project): array {
     $pipelinesFilepathYml = Path::join($this->projectDir, 'acquia-pipelines.yml');
@@ -125,7 +125,7 @@ class CodeStudioPipelinesMigrateCommand extends CommandBase {
   /**
    * Migrating standard template to .gitlab-ci.yml file.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function getGitLabCiFileTemplate(): array {
     return [

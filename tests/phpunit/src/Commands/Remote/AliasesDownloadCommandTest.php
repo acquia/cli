@@ -27,6 +27,8 @@ class AliasesDownloadCommandTest extends CommandTestBase {
 
   /**
    * Test all Drush alias versions.
+   *
+   * @return array<array<mixed>>
    */
   public function providerTestRemoteAliasesDownloadCommand(): array {
     return [

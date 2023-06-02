@@ -142,7 +142,10 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertEquals(0, $this->getStatusCode());
   }
 
-  public function providerTestConvertApplicationAliasToUuidArgument() {
+  /**
+   * @return bool[][]
+   */
+  public function providerTestConvertApplicationAliasToUuidArgument(): array {
     return [
       [FALSE],
       [TRUE],
@@ -323,6 +326,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('The environment configuration is being updated.', $output);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestApiCommandDefinitionParameters(): array {
     $apiAccountsSshKeysListUsage = '--from="-7d" --to="-1d" --sort="field1,-field2" --limit="10" --offset="10"';
     return [
@@ -374,6 +380,9 @@ class ApiCommandTest extends CommandTestBase {
     $this->assertStringContainsString('You may also use an application alias or omit the argument', $this->command->getDefinition()->getArgument('applicationUuid')->getDescription());
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestApiCommandDefinitionRequestBody(): array {
     return [
       ['api:accounts:ssh-key-create', 'post', 'api:accounts:ssh-key-create "mykey" "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQChwPHzTTDKDpSbpa2+d22LcbQmsw92eLsUK3Fmei1fiGDkd34NsYCN8m7lsi3NbvdMS83CtPQPWiCveYPzFs1/hHc4PYj8opD2CNnr5iWVVbyaulCYHCgVv4aB/ojcexg8q483A4xJeF15TiCr/gu34rK6ucTvC/tn/rCwJBudczvEwt0klqYwv8Cl/ytaQboSuem5KgSjO3lMrb6CWtfSNhE43ZOw+UBFBqxIninN868vGMkIv9VY34Pwj54rPn/ItQd6Ef4B0KHHaGmzK0vfP+AK7FxNMoHnj3iYT33KZNqtDozdn5tYyH/bThPebEtgqUn+/w5l6wZIC/8zzvls/127ngHk+jNa0PlNyS2TxhPUK4NaPHIEnnrlp07JEYC4ImcBjaYCWAdcTcUkcJjwZQkN4bGmyO9cjICH98SdLD/HxqzTHeaYDbAX/Hu9HfaBb5dXLWsjw3Xc6hoVnUUZbMQyfgb0KgxDLh92eNGxJkpZiL0VDNOWCxDWsNpzwhLNkLqCvI6lyxiLaUzvJAk6dPaRhExmCbU1lDO2eR0FdSwC1TEhJOT9eDIK1r2hztZKs2oa5FNFfB/IFHVWasVFC9N2h/r/egB5zsRxC9MqBLRBq95NBxaRSFng6ML5WZSw41Qi4C/JWVm89rdj2WqScDHYyAdwyyppWU4T5c9Fmw== example@example.com"'],

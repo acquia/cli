@@ -25,6 +25,9 @@ class NewCommandTest extends CommandTestBase {
     return $this->injectCommand(NewCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function provideTestNewDrupalCommand(): array {
     return [
       [['acquia_drupal_recommended' => 'acquia/drupal-recommended-project']],
@@ -32,6 +35,9 @@ class NewCommandTest extends CommandTestBase {
     ];
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function provideTestNewNextJsAppCommand(): array {
     return [
       [['acquia_next_acms' => 'acquia/next-acms']],

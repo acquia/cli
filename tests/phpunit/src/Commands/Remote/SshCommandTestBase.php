@@ -16,7 +16,7 @@ abstract class SshCommandTestBase extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function mockForExecuteCommand(): array {
     $process = $this->prophet->prophesize(Process::class);

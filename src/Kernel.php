@@ -23,6 +23,9 @@ use Symfony\Component\HttpKernel\Kernel as BaseKernel;
  */
 class Kernel extends BaseKernel {
 
+  /**
+   * @return array<mixed>
+   */
   public function registerBundles(): iterable {
     return [];
   }

@@ -26,6 +26,9 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   protected string $dbHost = 'localhost';
   protected string $dbName = 'drupal';
 
+  /**
+   * @return \int[][]
+   */
   public function providerTestPullDatabaseWithInvalidSslCertificate(): array {
     return [[51], [60]];
   }
@@ -288,7 +291,7 @@ class PullDatabaseCommandTest extends PullCommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getInputs(): array {
     return [

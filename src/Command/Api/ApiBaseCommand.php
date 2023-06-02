@@ -276,7 +276,7 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   * @return array
+   * @return array<mixed>
    */
   private function createLengthConstraint(array $schema, array $constraints): array {
     if (array_key_exists('minLength', $schema) || array_key_exists('maxLength', $schema)) {
@@ -295,7 +295,7 @@ class ApiBaseCommand extends CommandBase {
   /**
    * @param array $schema
    * @param array $constraints
-   * @return array
+   * @return array<mixed>
    */
   protected function createRegexConstraint(array $schema, array $constraints): array {
     if (array_key_exists('format', $schema)) {
@@ -401,7 +401,7 @@ class ApiBaseCommand extends CommandBase {
 
   /**
    * @param array $paramSpec
-   * @return null|array
+   * @return null|array<mixed>
    */
   private function getParamTypeOneOf(array $paramSpec): ?array {
     $oneOf = $paramSpec['oneOf'] ?? NULL;

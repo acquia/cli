@@ -19,7 +19,7 @@ class AcsfAuthLogoutCommandTest extends AcsfCommandTestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestAuthLogoutCommand(): array {
     return [

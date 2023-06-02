@@ -290,6 +290,10 @@ abstract class TestBase extends TestCase {
     return json_decode($responseBody, FALSE, 512, JSON_THROW_ON_ERROR);
   }
 
+  /**
+   * @param string $operationId
+   * @return array<mixed>
+   */
   protected function getPathMethodCodeFromSpec(string $operationId): array {
     $acquiaCloudSpec = $this->getCloudApiSpec();
     foreach ($acquiaCloudSpec['paths'] as $path => $methodEndpoint) {
@@ -599,6 +603,9 @@ abstract class TestBase extends TestCase {
     return $response;
   }
 
+  /**
+   * @return array<mixed>
+   */
   protected function mockListSshKeysRequest(): array {
     return $this->mockRequest('getAccountSshKeys');
   }

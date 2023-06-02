@@ -20,7 +20,7 @@ abstract class AcsfCommandTestBase extends CommandTestBase {
   protected string $acsfKey = 'h@x0r';
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getAcsfCredentialsFileContents(): array {
     return [

@@ -111,7 +111,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function getGitLabScheduleByDescription(array $project, string $scheduledPipelineDescription): ?array {
     $existingSchedules = $this->gitLabClient->schedules()->showAll($project['id']);
@@ -125,7 +125,7 @@ class CodeStudioWizardCommand extends WizardCommandBase {
 
   /**
    * @param array $project
-   * @return array|null ?
+   * @return array<mixed>|null ?
    */
   private function getGitLabProjectAccessTokenByName(array $project, string $name): ?array {
     $existingProjectAccessTokens = $this->gitLabClient->projects()->projectAccessTokens($project['id']);

@@ -41,7 +41,7 @@ class IdeXdebugToggleCommandTest extends CommandTestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function providerTestXdebugCommandEnable(): array {
     return [

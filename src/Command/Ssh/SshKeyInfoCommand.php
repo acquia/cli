@@ -46,6 +46,9 @@ class SshKeyInfoCommand extends SshKeyCommandBase {
     return Command::SUCCESS;
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function determineSshKey($acquiaCloudClient): array {
     $cloudKeysResponse = new SshKeys($acquiaCloudClient);
     $cloudKeys = $cloudKeysResponse->getAll();

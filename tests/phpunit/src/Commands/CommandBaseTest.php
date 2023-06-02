@@ -52,6 +52,9 @@ class CommandBaseTest extends CommandTestBase {
     $this->prophet->checkPredictions();
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestCloudAppUuidArg(): array {
     return [
       ['a47ac10b-58cc-4372-a567-0e02b2c3d470'],
@@ -67,6 +70,9 @@ class CommandBaseTest extends CommandTestBase {
     $this->assertEquals($uuid, CommandBase::validateUuid($uuid));
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestInvalidCloudAppUuidArg(): array {
     return [
       ['a47ac10b-58cc-4372-a567-0e02b2c3d4', 'This value should have exactly 36 characters.'],
@@ -83,6 +89,9 @@ class CommandBaseTest extends CommandTestBase {
     CommandBase::validateUuid($uuid);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestInvalidCloudEnvironmentAlias(): array {
     return [
       ['bl.a', 'This value is too short. It should have 5 characters or more.'],

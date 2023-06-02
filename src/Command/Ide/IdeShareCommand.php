@@ -53,7 +53,7 @@ class IdeShareCommand extends CommandBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getShareCodeFilepaths(): array {
     if (!isset($this->shareCodeFilepaths)) {

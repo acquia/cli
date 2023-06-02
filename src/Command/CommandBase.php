@@ -438,7 +438,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Load configuration from .git/config.
    *
-   * @return array|null
+   * @return array<mixed>|null
    */
   private function getGitConfig(): ?array {
     $filePath = $this->projectDir . '/.git/config';
@@ -453,7 +453,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * Gets an array of git remotes from a .git/config array.
    *
    * @param array $gitConfig
-   * @return array
+   * @return array<mixed>
    *   A flat array of git remote urls.
    */
   private function getGitRemotes(array $gitConfig): array {
@@ -596,7 +596,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getSubscriptionApplications(Client $client, SubscriptionResponse $subscription): array {
     $applicationsResource = new Applications($client);
@@ -757,9 +757,9 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   /**
    * Get the Cloud Application UUID from a Cloud IDE's environmental variable.
    *
-   * This command assumes it is being run inside of a Cloud IDE.
+   * This command assumes it is being run inside a Cloud IDE.
    *
-   * @return array|false|string
+   * @return array<string>|false|string
    */
   protected static function getThisCloudIdeCloudAppUuid(): bool|array|string {
     return getenv('ACQUIA_APPLICATION_UUID');
@@ -1103,7 +1103,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getAcsfSites(EnvironmentResponse $cloudEnvironment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);
@@ -1116,7 +1116,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getCloudSites(EnvironmentResponse $cloudEnvironment): array {
     $sitegroup = self::getSiteGroupFromSshUrl($cloudEnvironment->sshUrl);

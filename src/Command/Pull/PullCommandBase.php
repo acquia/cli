@@ -443,6 +443,9 @@ abstract class PullCommandBase extends CommandBase {
     return $applicationEnvironments[$chosenEnvironmentIndex];
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function promptChooseDatabases(
     EnvironmentResponse $cloudEnvironment,
     DatabasesResponse $environmentDatabases,

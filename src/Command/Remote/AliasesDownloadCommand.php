@@ -140,7 +140,7 @@ class AliasesDownloadCommand extends SshCommand {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getSingleAliasForSite(PharData $archive, string $sitePrefix, string $baseDir): array {
     $drushFiles = [];

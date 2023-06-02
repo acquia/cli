@@ -16,6 +16,9 @@ class SshKeyUploadCommandTest extends CommandTestBase {
     return $this->injectCommand(SshKeyUploadCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestUpload(): array {
     $sshKeysRequestBody = $this->getMockRequestBodyFromSpec('/account/ssh-keys');
     return [

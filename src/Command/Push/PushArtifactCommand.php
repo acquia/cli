@@ -342,7 +342,7 @@ class PushArtifactCommand extends PullCommandBase {
   /**
    * Get a list of scaffold files from Drupal core's composer.json.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function scaffoldFiles(string $artifactDir): array {
     if (!empty($this->scaffoldFiles)) {

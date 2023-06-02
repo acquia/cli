@@ -244,6 +244,9 @@ abstract class CommandTestBase extends TestBase {
     return $environmentsResponse;
   }
 
+  /**
+   * @return array<mixed>
+   */
   protected function mockGetAcsfSites($sshHelper): array {
     $acsfMultisiteFetchProcess = $this->mockProcess();
     $multisiteConfig = file_get_contents(Path::join($this->realFixtureDir, '/multisite-config.json'));
@@ -335,7 +338,7 @@ abstract class CommandTestBase extends TestBase {
   protected function mockDatabaseBackupCreateResponse(
     $environmentsResponse,
     $dbName
-  ) {
+  ): mixed {
     $backupCreateResponse = $this->getMockResponseFromSpec('/environments/{environmentId}/databases/{databaseName}/backups', 'post', 202)->{'Creating backup'}->value;
     $this->clientProphecy->request('post', "/environments/$environmentsResponse->id/databases/{$dbName}/backups")
       ->willReturn($backupCreateResponse)
@@ -344,11 +347,11 @@ abstract class CommandTestBase extends TestBase {
     return $backupCreateResponse;
   }
 
-  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink) {
+  protected function mockNotificationResponseFromObject(object $responseWithNotificationLink): mixed {
     return $this->mockNotificationResponse(substr($responseWithNotificationLink->_links->notification->href, -36));
   }
 
-  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL) {
+  protected function mockNotificationResponse(string $notificationUuid, string $status = NULL): mixed {
     $notificationResponse = $this->getMockResponseFromSpec('/notifications/{notificationUuid}', 'get', 200);
     if ($status) {
       $notificationResponse->status = $status;
@@ -479,7 +482,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getApiCommands(): array {
     $apiCommandHelper = new ApiCommandHelper($this->logger);
@@ -498,6 +501,9 @@ abstract class CommandTestBase extends TestBase {
     return NULL;
   }
 
+  /**
+   * @return array<mixed>
+   */
   protected function getMockedGitLabProject($projectId): array {
     return [
       'default_branch' => 'master',
@@ -598,7 +604,7 @@ abstract class CommandTestBase extends TestBase {
 
   /**
    * @param $applicationUuid
-   * @return array
+   * @return array<mixed>
    */
   protected function mockGitLabPermissionsRequest($applicationUuid): array {
     $permissionsResponse = $this->getMockResponseFromSpec('/applications/{applicationUuid}/permissions', 'get', 200);
@@ -622,7 +628,7 @@ abstract class CommandTestBase extends TestBase {
   }
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   protected function getMockGitLabVariables(): array {
     return [

@@ -97,7 +97,7 @@ class TelemetryHelper {
   /**
    * Get telemetry user data.
    *
-   * @return array
+   * @return array<mixed>
    *   Telemetry user data.
    */
   private function getTelemetryUserData(): array {
@@ -140,7 +140,7 @@ class TelemetryHelper {
   /**
    * Get user data.
    *
-   * @return array|null
+   * @return array<mixed>|null
    *   User account data from Cloud.
    */
   private function getUserData(): ?array {
@@ -164,7 +164,7 @@ class TelemetryHelper {
   /**
    * This requires the machine to be authenticated.
    *
-   * @return array
+   * @return array<mixed>
    */
   private function getDefaultUserData(): array {
     // @todo Cache this!

@@ -18,6 +18,9 @@ class AuthLoginCommandTest extends CommandTestBase {
     return $this->injectCommand(AuthLoginCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLoginCommand(): array {
     return [
       [
@@ -121,6 +124,9 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertKeySavedCorrectly();
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLoginInvalidInputCommand(): array {
     return [
       [

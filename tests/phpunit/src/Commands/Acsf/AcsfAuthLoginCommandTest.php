@@ -18,6 +18,9 @@ class AcsfAuthLoginCommandTest extends AcsfCommandTestBase {
     return $this->injectCommand(AcsfApiAuthLoginCommand::class);
   }
 
+  /**
+   * @return array<mixed>
+   */
   public function providerTestAuthLoginCommand(): array {
     return [
       // Data set 0.

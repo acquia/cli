@@ -38,6 +38,9 @@ abstract class WizardTestBase extends CommandTestBase {
     TestBase::unsetEnvVars(self::getEnvVars());
   }
 
+  /**
+   * @return array<string>
+   */
   public static function getEnvVars(): array {
     return [
       'ACQUIA_APPLICATION_UUID' => self::$applicationUuid,

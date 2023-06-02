@@ -17,6 +17,9 @@ class DrushCommandTest extends SshCommandTestBase {
     return $this->injectCommand(DrushCommand::class);
   }
 
+  /**
+   * @return array<array<array<string>>>
+   */
   public function providerTestRemoteDrushCommand(): array {
     return [
       [

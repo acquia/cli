@@ -87,7 +87,7 @@ class EnvCreateCommand extends CommandBase {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getDatabaseNames(Client $acquiaCloudClient, ?string $cloudAppUuid): array {
     $this->checklist->addItem("Determining default database");

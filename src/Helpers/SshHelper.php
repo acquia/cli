@@ -103,6 +103,9 @@ class SshHelper implements LoggerAwareInterface {
     return $this->firstArguments($commandArgs);
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function getConnectionArgs(string $url): array {
     return [
       'ssh',
@@ -114,6 +117,9 @@ class SshHelper implements LoggerAwareInterface {
     ];
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function getSshCommand(string $url, array $command): array {
     return array_merge($this->getConnectionArgs($url), $command);
   }

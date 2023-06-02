@@ -6,9 +6,6 @@ use AcquiaCloudApi\Connector\Connector;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Message\ResponseInterface;
 
-/**
- * AcsfConnector class.
- */
 class AcsfConnector extends Connector {
 
   /**

@@ -176,6 +176,9 @@ EOT
     $loop->run();
   }
 
+  /**
+   * @return array<mixed>
+   */
   private function checkPermissions(array $userPerms, string $cloudAppUuid, OutputInterface $output): array {
     $mappings = [];
     $requiredPerms = ['add ssh key to git', 'add ssh key to non-prod', 'add ssh key to prod'];
@@ -300,6 +303,9 @@ EOT
     return FALSE;
   }
 
+  /**
+   * @return array<mixed>
+   */
   protected function determinePublicSshKey(string $filepath = NULL): array {
     if ($filepath) {
       $filepath = $this->localMachineHelper->getLocalFilepath($filepath);

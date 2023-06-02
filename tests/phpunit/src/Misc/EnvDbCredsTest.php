@@ -31,6 +31,9 @@ class EnvDbCredsTest extends CommandTestBase {
     TestBase::unsetEnvVars($this->getEnvVars());
   }
 
+  /**
+   * @return array<string>
+   */
   protected function getEnvVars(): array {
     return [
       'ACLI_DB_HOST' => $this->dbHost,

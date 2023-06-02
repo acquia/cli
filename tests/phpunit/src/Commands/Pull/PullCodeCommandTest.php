@@ -143,6 +143,9 @@ class PullCodeCommandTest extends PullCommandTestBase {
     $this->assertStringContainsString('[0] Dev, dev (vcs: master)', $output);
   }
 
+  /**
+   * @return string[][]
+   */
   public function providerTestMatchPhpVersion(): array {
     return [
       ['7.1'],

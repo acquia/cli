@@ -44,7 +44,7 @@ class Checklist {
     }
   }
 
-  private function getLastItem() {
+  private function getLastItem(): mixed {
     return end($this->items);
   }
 
@@ -80,7 +80,7 @@ class Checklist {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function getItems(): array {
     return $this->items;

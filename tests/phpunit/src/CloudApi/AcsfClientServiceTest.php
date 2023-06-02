@@ -11,7 +11,7 @@ use Acquia\Cli\Tests\TestBase;
 class AcsfClientServiceTest extends TestBase {
 
   /**
-   * @return array[]
+   * @return array<mixed>
    */
   public function providerTestIsMachineAuthenticated(): array {
     return [

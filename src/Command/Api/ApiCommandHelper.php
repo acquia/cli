@@ -21,7 +21,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   public function getApiCommands(string $acquiaCloudSpecFilePath, string $commandPrefix, CommandFactoryInterface $commandFactory): array {
     $acquiaCloudSpec = $this->getCloudApiSpec($acquiaCloudSpecFilePath);
@@ -113,7 +113,7 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquiaCloudSpec
-   * @return array
+   * @return array<mixed>
    */
   private function addApiCommandParametersForRequestBody(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
@@ -219,7 +219,7 @@ class ApiCommandHelper {
   /**
    * @param array $schema
    * @param array $acquiaCloudSpec
-   * @return array
+   * @return array<mixed>
    */
   private function addApiCommandParametersForPathAndQuery(array $schema, array $acquiaCloudSpec): array {
     $usage = '';
@@ -297,7 +297,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   private function getCloudApiSpec(string $specFilePath): array {
     $cacheKey = basename($specFilePath);
@@ -377,7 +377,7 @@ class ApiCommandHelper {
   }
 
   /**
-   * @return array
+   * @return array<mixed>
    */
   protected function getSkippedApiCommands(): array {
     return [
@@ -425,8 +425,8 @@ class ApiCommandHelper {
 
   /**
    * @param array $schema
-   * @param $acquiaCloudSpec
-   * @return array
+   * @param array $acquiaCloudSpec
+   * @return array<mixed>
    */
   private function getRequestBodyFromParameterSchema(array $schema, array $acquiaCloudSpec): array {
     $requestBodyContent = $this->getRequestBodyContent($schema['requestBody']);
@@ -450,8 +450,8 @@ class ApiCommandHelper {
     return $requestBodySchema['properties'][$parameterDefinition->getName()] ?? NULL;
   }
 
-  /*
-   * @return array
+  /**
+   * @return array<mixed>
    */
   protected static function getParameterRenameMap(): array {
     // Format should be ['original => new'].
@@ -507,7 +507,7 @@ class ApiCommandHelper {
 
   /**
    * @param $requestBody
-   * @return array
+   * @return array<mixed>
    */
   private function getRequestBodyContent($requestBody): array {
     $content = $requestBody['content'];
