@@ -43,18 +43,15 @@ class AcquiaCliException extends Exception {
   /**
    * Replace the variables into the message string.
    *
-   * @param array|string $message
+   * @param string $message
    *   The raw, uninterpolated message string.
    * @param array $replacements
    *   The values to replace into the message.
    */
-  protected function interpolateString(array|string $message, array $replacements): string {
+  protected function interpolateString(string $message, array $replacements): string {
     $tr = [];
     foreach ($replacements as $key => $val) {
       $tr['{' . $key . '}'] = $val;
-    }
-    if (is_array($message)) {
-      $message = implode(PHP_EOL, $message);
     }
 
     return strtr($message, $tr);

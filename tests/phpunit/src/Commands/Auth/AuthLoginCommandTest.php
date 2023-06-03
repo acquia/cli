@@ -86,6 +86,20 @@ class AuthLoginCommandTest extends CommandTestBase {
       ],
       [
         // $machineIsAuthenticated
+        TRUE,
+        // $assertCloudPrompts
+        FALSE,
+        [
+          // Your machine has already been authenticated with the Cloud Platform API, would you like to re-authenticate?
+          'no',
+        ],
+        // No arguments, all interactive.
+        [],
+        // Output to assert.
+        'Your machine has already been authenticated',
+      ],
+      [
+        // $machineIsAuthenticated
         FALSE,
         // $assertCloudPrompts
         FALSE,
@@ -101,13 +115,8 @@ class AuthLoginCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestAuthLoginCommand
-   * @param $machineIsAuthenticated
-   * @param $assertCloudPrompts
-   * @param $inputs
-   * @param $args
-   * @param $outputToAssert
    */
-  public function testAuthLoginCommand(mixed $machineIsAuthenticated, mixed $assertCloudPrompts, mixed $inputs, mixed $args, mixed $outputToAssert): void {
+  public function testAuthLoginCommand(bool $machineIsAuthenticated, bool $assertCloudPrompts, array $inputs, array $args, string $outputToAssert): void {
     $this->mockTokenRequest();
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
@@ -148,10 +157,8 @@ class AuthLoginCommandTest extends CommandTestBase {
 
   /**
    * @dataProvider providerTestAuthLoginInvalidInputCommand
-   * @param $inputs
-   * @param $args
    */
-  public function testAuthLoginInvalidInputCommand(mixed $inputs, mixed $args): void {
+  public function testAuthLoginInvalidInputCommand(array $inputs, array $args): void {
     $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
     $this->removeMockCloudConfigFile();
     $this->createDataStores();
