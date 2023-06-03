@@ -8,6 +8,7 @@ use Acquia\Cli\Command\Auth\AuthLoginCommand;
 use Acquia\Cli\Config\CloudDataConfig;
 use Acquia\Cli\DataStore\CloudDataStore;
 use Acquia\Cli\Tests\CommandTestBase;
+use Generator;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Validator\Exception\ValidatorException;
 
@@ -20,12 +21,8 @@ class AuthLoginCommandTest extends CommandTestBase {
     return $this->injectCommand(AuthLoginCommand::class);
   }
 
-  /**
-   * @return array<mixed>
-   */
-  public function providerTestAuthLoginCommand(): array {
-    return [
-      [
+  public function providerTestAuthLoginCommand(): Generator {
+    yield 'Interactive keys' => [
         // $machineIsAuthenticated
         FALSE,
         // $assertCloudPrompts
@@ -44,8 +41,8 @@ class AuthLoginCommandTest extends CommandTestBase {
         [],
         // Output to assert.
         'Saved credentials',
-      ],
-      [
+      ];
+    yield 'Already authenticated, enter new key' => [
         // $machineIsAuthenticated
         TRUE,
         // $assertCloudPrompts
@@ -66,8 +63,8 @@ class AuthLoginCommandTest extends CommandTestBase {
         [],
         // Output to assert.
         'Saved credentials',
-      ],
-      [
+      ];
+    yield 'Already authenticated, use existing key' => [
         // $machineIsAuthenticated
         TRUE,
         // $assertCloudPrompts
@@ -83,8 +80,8 @@ class AuthLoginCommandTest extends CommandTestBase {
         [],
         // Output to assert.
         'Acquia CLI will use the API Key',
-      ],
-      [
+      ];
+    yield 'Already authenticated, abort' => [
         // $machineIsAuthenticated
         TRUE,
         // $assertCloudPrompts
@@ -97,8 +94,8 @@ class AuthLoginCommandTest extends CommandTestBase {
         [],
         // Output to assert.
         'Your machine has already been authenticated',
-      ],
-      [
+      ];
+    yield 'Keys as args' => [
         // $machineIsAuthenticated
         FALSE,
         // $assertCloudPrompts
@@ -109,7 +106,6 @@ class AuthLoginCommandTest extends CommandTestBase {
         ['--key' => $this->key, '--secret' => $this->secret],
         // Output to assert.
         'Saved credentials',
-      ],
     ];
   }
 
@@ -117,7 +113,7 @@ class AuthLoginCommandTest extends CommandTestBase {
    * @dataProvider providerTestAuthLoginCommand
    */
   public function testAuthLoginCommand(bool $machineIsAuthenticated, bool $assertCloudPrompts, array $inputs, array $args, string $outputToAssert): void {
-    $this->mockTokenRequest();
+    $this->mockRequest('getAccountToken', $this->key);
     if (!$machineIsAuthenticated) {
       $this->clientServiceProphecy->isMachineAuthenticated()->willReturn(FALSE);
       $this->removeMockCloudConfigFile();
@@ -135,24 +131,22 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertKeySavedCorrectly();
   }
 
-  /**
-   * @return array<mixed>
-   */
-  public function providerTestAuthLoginInvalidInputCommand(): array {
-    return [
+  public function providerTestAuthLoginInvalidInputCommand(): Generator {
+    yield
       [
         [],
         ['--key' => 'no spaces are allowed' , '--secret' => $this->secret],
-      ],
+      ];
+    yield
       [
         [],
         ['--key' => 'shorty' , '--secret' => $this->secret],
-      ],
+      ];
+    yield
       [
         [],
         ['--key' => ' ', '--secret' => $this->secret],
-      ],
-    ];
+      ];
   }
 
   /**
@@ -187,14 +181,6 @@ class AuthLoginCommandTest extends CommandTestBase {
     $this->assertArrayHasKey('label', $keys[$this->key]);
     $this->assertArrayHasKey('secret', $keys[$this->key]);
     $this->assertEquals($this->secret, $keys[$this->key]['secret']);
-  }
-
-  protected function mockTokenRequest(): object {
-    $mockBody = $this->getMockResponseFromSpec('/account/tokens/{tokenUuid}',
-      'get', '200');
-    $this->clientProphecy->request('get', "/account/tokens/{$this->key}")
-      ->willReturn($mockBody);
-    return $mockBody;
   }
 
 }
