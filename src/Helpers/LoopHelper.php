@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Output\Spinner\Spinner;

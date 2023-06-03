@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Helpers;
 
 use Acquia\Cli\Exception\AcquiaCliException;
 use Acquia\DrupalEnvironmentDetector\AcquiaDrupalEnvironmentDetector;
 use loophp\phposinfo\OsInfo;
+use Psr\Http\Message\StreamInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Input\InputInterface;
@@ -207,7 +210,7 @@ class LocalMachineHelper {
    * @param string $content
    *   Content to write to the file.
    */
-  public function writeFile(string $filename, string $content): void {
+  public function writeFile(string $filename, string|StreamInterface $content): void {
     $this->getFilesystem()->dumpFile($this->getLocalFilepath($filename), $content);
   }
 

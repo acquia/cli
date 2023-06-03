@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Email;
 
 use Acquia\Cli\Command\CommandBase;
@@ -112,7 +114,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
       switch ($record->type) {
         case 'MX':
           $mxPriorityValueArr = explode(' ', $record->value);
-          $recordToAdd->getRecordAppender()->appendMxRecord($mxPriorityValueArr[0], $mxPriorityValueArr[1] . '.', 3600);
+          $recordToAdd->getRecordAppender()->appendMxRecord((int) $mxPriorityValueArr[0], $mxPriorityValueArr[1] . '.', 3600);
           break;
         case 'TXT':
           $recordToAdd->getRecordAppender()->appendTxtRecord($record->value, 3600);
@@ -154,7 +156,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * exit.
    */
   private function domainAlreadyAssociated(object $application, ApiErrorException $exception): ?bool {
-    if (!str_contains($exception, 'is already associated with this application')) {
+    if (!str_contains($exception->getMessage(), 'is already associated with this application')) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }
@@ -170,7 +172,7 @@ class ConfigurePlatformEmailCommand extends CommandBase {
    * API, the setup will exit.
    */
   private function environmentAlreadyEnabled(object $environment, ApiErrorException $exception): ?bool {
-    if (!str_contains($exception, 'is already enabled on this environment')) {
+    if (!str_contains($exception->getMessage(), 'is already enabled on this environment')) {
       $this->io->error($exception->getMessage());
       return FALSE;
     }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\EventListener;
 
 use Acquia\Cli\Exception\AcquiaCliException;

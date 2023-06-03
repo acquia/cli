@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command;
 
 use Acquia\Cli\ApiCredentialsInterface;
@@ -944,7 +946,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
       return FALSE;
     }
 
-    $releases = json_decode($response->getBody(), FALSE, 512, JSON_THROW_ON_ERROR);
+    $releases = json_decode((string) $response->getBody(), FALSE, 512, JSON_THROW_ON_ERROR);
     if (!isset($releases[0])) {
       $this->logger->debug('No releases found at GitHub repository acquia/cli');
       return FALSE;
@@ -1306,7 +1308,7 @@ abstract class CommandBase extends Command implements LoggerAwareInterface {
    * explicitly or by default. In other words, we can't prompt for the value of
    * an option that already has a default value.
    */
-  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): ?string {
+  protected function determineOption(string $optionName, bool $hidden = FALSE, ?Closure $validator = NULL, ?Closure $normalizer = NULL, ?string $default = NULL): string|int|null {
     if ($optionValue = $this->input->getOption($optionName)) {
       if (isset($normalizer)) {
         $optionValue = $normalizer($optionValue);

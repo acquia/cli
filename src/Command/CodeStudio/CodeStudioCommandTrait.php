@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\CodeStudio;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -212,7 +214,7 @@ trait CodeStudioCommandTrait {
     }
 
     $slugger = new AsciiSlugger();
-    $projectName = $slugger->slug($cloudApplication->name);
+    $projectName = (string) $slugger->slug($cloudApplication->name);
     $project = $this->gitLabClient->projects()->create($projectName, $parameters);
     try {
       $this->gitLabClient->projects()

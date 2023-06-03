@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Output\Spinner;
 
 use Symfony\Component\Console\Helper\Helper;

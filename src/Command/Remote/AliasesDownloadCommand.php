@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Remote;
 
 use Acquia\Cli\Exception\AcquiaCliException;
@@ -67,7 +69,7 @@ class AliasesDownloadCommand extends SshCommand {
       '8' => 'Drush 8 / Drupal 7 (PHP)',
       '9' => 'Drush 9+ / Drupal 8+ (YAML)',
     ];
-    return array_search($this->io->choice($question, $choices, '9'), $choices, TRUE);
+    return (string) array_search($this->io->choice($question, $choices, '9'), $choices, TRUE);
   }
 
   public function getDrushArchiveTempFilepath(): string {
@@ -90,7 +92,7 @@ class AliasesDownloadCommand extends SshCommand {
     };
   }
 
-  protected function getAliasesFromCloud(Client $acquiaCloudClient, int $aliasVersion): StreamInterface {
+  protected function getAliasesFromCloud(Client $acquiaCloudClient, string $aliasVersion): StreamInterface {
     $acquiaCloudClient->addQuery('version', $aliasVersion);
     return (new Account($acquiaCloudClient))->getDrushAliases();
   }
@@ -106,14 +108,14 @@ class AliasesDownloadCommand extends SshCommand {
     return $sitePrefix;
   }
 
-  protected function downloadArchive(int $aliasVersion, string $drushArchiveTempFilepath, string $baseDir): PharData {
+  protected function downloadArchive(string $aliasVersion, string $drushArchiveTempFilepath, string $baseDir): PharData {
     $acquiaCloudClient = $this->cloudApiClientService->getClient();
     $aliases = $this->getAliasesFromCloud($acquiaCloudClient, $aliasVersion);
     $this->localMachineHelper->writeFile($drushArchiveTempFilepath, $aliases);
     return new PharData($drushArchiveTempFilepath . '/' . $baseDir);
   }
 
-  protected function downloadDrush9Aliases(InputInterface $input, int $aliasVersion, string $drushArchiveTempFilepath, string $drushAliasesDir): void {
+  protected function downloadDrush9Aliases(InputInterface $input, string $aliasVersion, string $drushArchiveTempFilepath, string $drushAliasesDir): void {
     $this->setDirAndRequireProjectCwd($input);
     $all = $input->getOption('all');
     $applicationUuidArgument = $input->getArgument('applicationUuid');
@@ -133,7 +135,7 @@ class AliasesDownloadCommand extends SshCommand {
     $archive->extractTo($drushAliasesDir, $drushFiles, TRUE);
   }
 
-  protected function downloadDrush8Aliases(int $aliasVersion, string $drushArchiveTempFilepath, string $drushAliasesDir): void {
+  protected function downloadDrush8Aliases(string $aliasVersion, string $drushArchiveTempFilepath, string $drushAliasesDir): void {
     $baseDir = '.drush';
     $archive = $this->downloadArchive($aliasVersion, $drushArchiveTempFilepath, $baseDir);
     $drushFiles = [];

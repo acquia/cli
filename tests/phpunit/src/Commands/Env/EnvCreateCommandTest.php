@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Env;
 
 use Acquia\Cli\Command\Env\EnvCreateCommand;

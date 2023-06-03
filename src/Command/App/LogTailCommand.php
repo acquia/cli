@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\App;
 
 use Acquia\Cli\Command\CommandBase;

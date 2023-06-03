@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\DataStore;
 
 use Symfony\Component\Config\Definition\ConfigurationInterface;

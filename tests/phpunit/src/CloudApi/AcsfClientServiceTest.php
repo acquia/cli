@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\CloudApi;
 
 use Acquia\Cli\AcsfApi\AcsfClientService;

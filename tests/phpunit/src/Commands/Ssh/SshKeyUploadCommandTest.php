@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Ssh;
 
 use Acquia\Cli\Command\Ssh\SshKeyUploadCommand;

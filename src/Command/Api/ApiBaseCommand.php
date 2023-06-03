@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
@@ -171,10 +173,7 @@ class ApiBaseCommand extends CommandBase {
     $this->pathParams[$paramName] = $value;
   }
 
-  /**
-   * @return bool|string|string[]|null
-   */
-  private function getParamFromInput(InputInterface $input, string $paramName): array|bool|string|null {
+  private function getParamFromInput(InputInterface $input, string $paramName): array|bool|string|int|null {
     if ($input->hasArgument($paramName)) {
       return $input->getArgument($paramName);
     }
@@ -185,7 +184,7 @@ class ApiBaseCommand extends CommandBase {
     return NULL;
   }
 
-  private function castParamType(array $paramSpec, array|string $value): array|bool|int|string {
+  private function castParamType(array $paramSpec, array|string|bool|int $value): array|bool|int|string {
     $oneOf = $this->getParamTypeOneOf($paramSpec);
     if (isset($oneOf)) {
       $types = [];

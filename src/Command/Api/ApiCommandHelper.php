@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Api;
 
 use Acquia\Cli\Command\CommandBase;
@@ -39,7 +41,7 @@ class ApiCommandHelper {
       if (is_array($paramDefinition['example'])) {
         $usage = reset($paramDefinition['example']);
       }
-      elseif (str_contains($paramDefinition['example'], ' ')) {
+      elseif (is_string($paramDefinition['example']) && str_contains($paramDefinition['example'], ' ')) {
         $usage .= '"' . $paramDefinition['example'] . '" ';
       }
       else {

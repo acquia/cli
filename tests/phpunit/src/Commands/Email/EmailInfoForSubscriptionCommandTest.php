@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Tests\Commands\Email;
 
 use Acquia\Cli\Command\Email\EmailInfoForSubscriptionCommand;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide;
 
 use Acquia\Cli\Command\CommandBase;
@@ -70,7 +72,7 @@ class IdeShareCommand extends CommandBase {
   }
 
   private function regenerateShareCode(): void {
-    $newShareCode = Uuid::uuid4();
+    $newShareCode = (string) Uuid::uuid4();
     foreach ($this->getShareCodeFilepaths() as $path) {
       $this->localMachineHelper->writeFile($path, $newShareCode);
     }

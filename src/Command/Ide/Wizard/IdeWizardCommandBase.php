@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Acquia\Cli\Command\Ide\Wizard;
 
 use Acquia\Cli\Command\WizardCommandBase;
